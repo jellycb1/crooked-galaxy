@@ -50,6 +50,8 @@ func _init() -> void:
 	state.player.captures_by_planet = {ContentDB.PLANET.id: 2}
 	RewardScript.build(host, content, state)
 	check(host.find_child("RewardWarrantUnlock", true, false) != null, "isolated reward previews a threshold unlock")
+	var warrant_odds := host.find_child("RewardWarrantOdds", true, false) as Label
+	check(warrant_odds != null and warrant_odds.text.contains("BARÃO BOOM") == false and warrant_odds.text.contains("%"), "threshold reward previews the best post-loot route and its odds")
 	check(host.find_child("ClaimAndRepeat", true, false) == null and host.find_child("ClaimAndUnlock", true, false) != null, "threshold unlock prioritizes the expanded board")
 
 	clear_content(content)

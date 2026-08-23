@@ -4,6 +4,7 @@ extends RefCounted
 const EquipmentPresentation = preload("res://scripts/equipment_presentation.gd")
 const Rules = preload("res://scripts/core_rules.gd")
 const Content = preload("res://scripts/content_db.gd")
+const ContractRules = preload("res://scripts/contract_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 
 
@@ -84,6 +85,20 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		var unlock_label := host.center_label("NOVO MANDADO AO RECEBER · %s" % str(next_target.name).to_upper(), 14, host.LIME)
 		unlock_label.name = "RewardWarrantUnlock"
 		box.add_child(unlock_label)
+		var projected_player: Dictionary = state.player.duplicate(true)
+		if effective_upgrade:
+			projected_player[str(item.slot)] = item.duplicate(true)
+		var evaluations := ContractRules.evaluate_approaches(projected_player, next_target, Content.contract_approaches())
+		var recommended_id := ContractRules.recommended_approach_id(evaluations)
+		for evaluation in evaluations:
+			if str(evaluation.id) != recommended_id:
+				continue
+			var route_name := str(evaluation.preview.get("approach", {}).get("name", "ROTA SEGURA"))
+			var projection_prefix := "APÓS EQUIPAR" if effective_upgrade else "COM BUILD ATUAL"
+			var projection := host.center_label("MELHOR ROTA %s · %s · %d%%" % [projection_prefix, route_name.to_upper(), roundi(float(evaluation.odds) * 100.0)], 12, host.GOLD)
+			projection.name = "RewardWarrantOdds"
+			box.add_child(projection)
+			break
 	elif not next_target.is_empty():
 		var progress_label := host.center_label("RUMO A %s · %d/%d CAPTURAS DE %s" % [str(next_target.name).to_upper(), int(progress_after.progress), int(progress_after.requirement), str(progress_after.prerequisite.name).to_upper()], 13, host.CYAN)
 		progress_label.name = "RewardWarrantProgress"
