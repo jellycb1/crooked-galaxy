@@ -42,11 +42,12 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	set_label.name = "PlanetaryKitStatus"
 	content.add_child(set_label)
 	content.add_child(field_readiness_card(host, state))
+	var workshop_recommendation := recommended_workshop_action(state)
 	var equipped_row := HBoxContainer.new()
 	equipped_row.add_theme_constant_override("separation", 10)
 	content.add_child(equipped_row)
-	equipped_row.add_child(workshop_upgrade_card(host, state, "weapon"))
-	equipped_row.add_child(workshop_upgrade_card(host, state, "armor"))
+	equipped_row.add_child(workshop_upgrade_card(host, state, "weapon", workshop_recommendation))
+	equipped_row.add_child(workshop_upgrade_card(host, state, "armor", workshop_recommendation))
 	content.add_child(loadout_toolbar(host, state))
 
 	var visible_items := filtered_inventory(host, state)
@@ -153,6 +154,42 @@ static func field_readiness_card(host: CrookedUIFactory, state: StateScript) -> 
 
 static func readiness_color(host: CrookedUIFactory, odds: float) -> Color:
 	return host.LIME if odds >= 0.72 else (host.GOLD if odds >= 0.42 else host.CORAL)
+
+
+static func recommended_workshop_action(state: StateScript) -> Dictionary:
+	var readiness := field_readiness(state)
+	if readiness.is_empty():
+		return {}
+	var target: Dictionary = readiness.target
+	var current_odds := float(readiness.current_odds)
+	var current_score := Rules.player_build_score(state.player)
+	var scrap := int(state.player.get("scrap", 0))
+	var best: Dictionary = {}
+	var best_value := -1.0
+	for slot in ["weapon", "armor"]:
+		var item: Dictionary = state.player[slot]
+		var actions := [{"kind": "power", "cost": Rules.equipment_upgrade_cost(item)}]
+		if Rules.can_upgrade_integrity(item):
+			actions.append({"kind": "integrity", "cost": Rules.equipment_integrity_upgrade_cost(item)})
+		for action in actions:
+			var cost := int(action.cost)
+			if cost > scrap:
+				continue
+			var simulated := state.player.duplicate(true)
+			var simulated_item: Dictionary = simulated[slot].duplicate(true)
+			if str(action.kind) == "power":
+				simulated_item.power = int(simulated_item.get("power", 0)) + 1
+			else:
+				simulated_item.integrity_upgrades = int(simulated_item.get("integrity_upgrades", 0)) + 1
+			simulated[slot] = simulated_item
+			var projected_odds := Rules.bounty_odds(simulated, target)
+			var odds_gain := maxf(0.0, projected_odds - current_odds)
+			var score_gain := maxf(0.0, Rules.player_build_score(simulated) - current_score)
+			var value := odds_gain / float(cost) + score_gain / float(cost) * 0.00001
+			if value > best_value:
+				best_value = value
+				best = {"slot": slot, "kind": action.kind, "cost": cost, "odds": projected_odds, "odds_gain": odds_gain}
+	return best
 
 
 static func inventory_toolbar(host: CrookedUIFactory, state: StateScript) -> VBoxContainer:
@@ -311,7 +348,7 @@ static func inventory_item_card(host: CrookedUIFactory, state: StateScript, item
 	return card
 
 
-static func workshop_upgrade_card(host: CrookedUIFactory, state: StateScript, slot: String) -> PanelContainer:
+static func workshop_upgrade_card(host: CrookedUIFactory, state: StateScript, slot: String, recommendation: Dictionary = {}) -> PanelContainer:
 	var item: Dictionary = state.player[slot]
 	var power_cost := Rules.equipment_upgrade_cost(item)
 	var integrity_cost := Rules.equipment_integrity_upgrade_cost(item)
@@ -339,6 +376,9 @@ static func workshop_upgrade_card(host: CrookedUIFactory, state: StateScript, sl
 		trait_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		box.add_child(trait_label)
 	var improve := host.action_button("+1 PODER · %d SUCATA" % power_cost, host.LIME if power_affordable else host.MUTED, true)
+	if str(recommendation.get("slot", "")) == slot and str(recommendation.get("kind", "")) == "power":
+		improve.text = "★ " + improve.text
+		improve.tooltip_text = "Melhor ganho projetado por sucata contra o alvo do teste de campo."
 	improve.name = "Upgrade_%s" % slot
 	improve.disabled = not power_affordable
 	improve.custom_minimum_size = Vector2(0, 44)
@@ -347,6 +387,9 @@ static func workshop_upgrade_card(host: CrookedUIFactory, state: StateScript, sl
 	box.add_child(improve)
 	var reinforce_text := "+%d VIDA · %d SUCATA" % [Rules.INTEGRITY_HEALTH_PER_LEVEL, integrity_cost] if integrity_available else "INTEGRIDADE MÁXIMA"
 	var reinforce := host.action_button(reinforce_text, host.CYAN if integrity_affordable and integrity_available else host.MUTED, true)
+	if str(recommendation.get("slot", "")) == slot and str(recommendation.get("kind", "")) == "integrity":
+		reinforce.text = "★ " + reinforce.text
+		reinforce.tooltip_text = "Melhor ganho projetado por sucata contra o alvo do teste de campo."
 	reinforce.name = "Reinforce_%s" % slot
 	reinforce.disabled = not integrity_affordable or not integrity_available
 	reinforce.custom_minimum_size = Vector2(0, 44)

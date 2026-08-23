@@ -31,6 +31,8 @@ func _init() -> void:
 	var workshop_notice := host.find_child("WorkshopNotice", true, false) as Label
 	check(workshop_notice != null and workshop_notice.text.contains("+6 sucata"), "isolated arsenal preserves the transaction that funded the workshop")
 	check(host.find_child("Upgrade_weapon", true, false) != null and host.find_child("Reinforce_armor", true, false) != null, "isolated arsenal builds both workshop paths")
+	var recommended_buttons := host.find_children("*", "Button", true, false).filter(func(button): return str(button.text).begins_with("★"))
+	check(recommended_buttons.size() == 1, "workshop marks exactly one affordable best-value action")
 	check(host.find_child("LoadoutToolbar", true, false) != null, "isolated arsenal builds persistent loadouts")
 	check(host.find_child("FieldReadiness", true, false) != null, "isolated arsenal translates upgrades into next-warrant odds")
 	var readiness := ArsenalScript.field_readiness(state)
