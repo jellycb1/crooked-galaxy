@@ -1,6 +1,7 @@
 extends Control
 
 var events: Array[Dictionary] = []
+var planet_id := "dustball_prime"
 
 
 func _ready() -> void:
@@ -10,25 +11,42 @@ func _ready() -> void:
 
 
 func _draw() -> void:
+	var frozen := planet_id == "congelaria_sa"
+	var fungal := planet_id == "micelia_404"
+	var scrapyard := planet_id == "ferro_velho_omega"
+	var sky_top := Color("#4a3028") if scrapyard else (Color("#244537") if fungal else (Color("#123f59") if frozen else Color("#1b3156")))
+	var sky_bottom := Color("#35202d") if scrapyard else (Color("#38244b") if fungal else (Color("#1c3150") if frozen else Color("#341d50")))
+	var ridge_color := Color("#211819") if scrapyard else (Color("#152b25") if fungal else (Color("#10283b") if frozen else Color("#131a31")))
+	var ground_color := Color("#100a0c") if scrapyard else (Color("#08150f") if fungal else (Color("#06131d") if frozen else Color("#0a1025")))
+	var primary_glow := Color(1.0, 0.62, 0.26, 0.18) if scrapyard else (Color(0.78, 0.96, 0.39, 0.16) if fungal else (Color(0.45, 0.95, 0.88, 0.16) if frozen else Color(0.96, 0.71, 0.31, 0.16)))
 	var horizon := size.y * 0.64
 	draw_rect(Rect2(Vector2.ZERO, size), Color("#101a3a"))
 	for band in 10:
 		var band_height := horizon / 10.0
-		var shade := Color("#1b3156").lerp(Color("#341d50"), float(band) / 9.0)
+		var shade := sky_top.lerp(sky_bottom, float(band) / 9.0)
 		draw_rect(Rect2(0, band * band_height, size.x, band_height + 1.0), shade)
 
-	# Dustball Prime's crooked skyline and twin moons.
-	draw_circle(Vector2(size.x * 0.78, size.y * 0.20), 42.0, Color(0.96, 0.71, 0.31, 0.16))
+	# A shared crooked skyline takes on the materials and atmosphere of each chapter.
+	draw_circle(Vector2(size.x * 0.78, size.y * 0.20), 42.0, primary_glow)
 	draw_circle(Vector2(size.x * 0.18, size.y * 0.27), 19.0, Color(0.35, 0.90, 1.0, 0.18))
 	var ridge := PackedVector2Array([
 		Vector2(0, horizon), Vector2(size.x * 0.12, horizon - 38), Vector2(size.x * 0.26, horizon - 15),
 		Vector2(size.x * 0.42, horizon - 62), Vector2(size.x * 0.58, horizon - 20),
 		Vector2(size.x * 0.76, horizon - 48), Vector2(size.x, horizon - 8), Vector2(size.x, horizon),
 	])
-	draw_colored_polygon(ridge, Color("#131a31"))
-	draw_rect(Rect2(0, horizon, size.x, size.y - horizon), Color("#0a1025"))
+	draw_colored_polygon(ridge, ridge_color)
+	draw_rect(Rect2(0, horizon, size.x, size.y - horizon), ground_color)
 	draw_arc(Vector2(size.x * 0.24, horizon + 76), 94.0, PI, TAU, 32, Color(0.24, 0.75, 0.83, 0.13), 3.0, true)
 	draw_arc(Vector2(size.x * 0.76, horizon + 76), 94.0, PI, TAU, 32, Color(0.93, 0.33, 0.47, 0.13), 3.0, true)
+	if scrapyard:
+		for x in [0.14, 0.36, 0.62, 0.84]:
+			draw_line(Vector2(size.x * x, horizon), Vector2(size.x * (x + 0.07), horizon - 42), Color(1.0, 0.62, 0.26, 0.13), 7.0, true)
+	elif fungal:
+		for x in [0.16, 0.42, 0.72]:
+			draw_circle(Vector2(size.x * x, horizon - 13), 13.0, Color(1.0, 0.46, 0.78, 0.13))
+	elif frozen:
+		for x in [0.20, 0.50, 0.78]:
+			draw_line(Vector2(size.x * x, horizon), Vector2(size.x * (x + 0.05), horizon - 48), Color(0.45, 0.95, 0.88, 0.14), 8.0, true)
 
 	for event in events:
 		var from_left := str(event.get("actor", "")) == "player"

@@ -87,6 +87,8 @@ func render() -> void:
 	if sound_fx:
 		sound_fx.enabled = bool(GameState.player.get("sound_enabled", true))
 	var phase_changed := previous_phase >= 0 and previous_phase != GameState.phase
+	if phase_changed and GameState.phase == GameState.Phase.COMBAT:
+		last_combat_message = ""
 	if phase_changed and sound_fx:
 		match GameState.phase:
 			GameState.Phase.HUNT:
@@ -959,6 +961,7 @@ func build_combat() -> void:
 	content.add_child(stage)
 	var backdrop: Control = CombatBackdropScript.new()
 	backdrop.events = GameState.combat_events
+	backdrop.planet_id = str(GameState.current_bounty.get("planet_id", ContentDB.PLANET.id))
 	stage.add_child(backdrop)
 	var stage_margin := MarginContainer.new()
 	stage_margin.add_theme_constant_override("margin_left", 18)

@@ -276,7 +276,17 @@ func capture() -> void:
 	if save_frame("ui_omega_event.png") != OK:
 		quit(1)
 		return
-	state.abandon_bounty()
+	state.resolve_hunt_event("follow_debris")
+	state.begin_combat()
+	scene.render()
+	scene.on_combat_timer()
+	await process_frame
+	await process_frame
+	await create_timer(0.12).timeout
+	if save_frame("ui_omega_combat.png") != OK:
+		quit(1)
+		return
+	state.finish_combat(false)
 	state.player.wins = 39
 	state.player.captures_by_planet.ferro_velho_omega = 9
 	state.phase = state.Phase.REWARD
