@@ -105,3 +105,15 @@ static func offline_patrol_rewards(elapsed_seconds: float, completed_planets: in
 		"scrap": floori(float(minutes) / 30.0) * scrap_rate,
 		"capped": elapsed_seconds > capped_seconds,
 	}
+
+
+static func safe_content_margins(viewport_size: Vector2, screen_size: Vector2, safe_rect: Rect2, base := Vector4(30.0, 28.0, 30.0, 24.0)) -> Vector4:
+	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0 or screen_size.x <= 0.0 or screen_size.y <= 0.0:
+		return base
+	var scale_x := viewport_size.x / screen_size.x
+	var scale_y := viewport_size.y / screen_size.y
+	var left_inset := maxf(0.0, safe_rect.position.x) * scale_x
+	var top_inset := maxf(0.0, safe_rect.position.y) * scale_y
+	var right_inset := maxf(0.0, screen_size.x - safe_rect.end.x) * scale_x
+	var bottom_inset := maxf(0.0, screen_size.y - safe_rect.end.y) * scale_y
+	return Vector4(maxf(base.x, left_inset), maxf(base.y, top_inset), maxf(base.z, right_inset), maxf(base.w, bottom_inset))

@@ -28,6 +28,7 @@ godot --headless --path . --script res://tests/test_ui.gd
 godot --headless --path . --script res://tests/test_persistence.gd
 godot --headless --path . --script res://tests/test_audio.gd
 godot --headless --path . --script res://tests/test_content.gd
+godot --headless --path . --script res://tests/test_mobile.gd
 ```
 
 Capture the bounty boards, AFK return, career, galaxy map, unlocked boss, contract briefing, hunt incident, combat, victory, reward, arsenal filters, and chapter-completion states for visual review:

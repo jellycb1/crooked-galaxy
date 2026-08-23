@@ -23,6 +23,7 @@ var combat_fast := false
 var sound_fx: Node
 var previous_phase := -1
 var space_backdrop: Control
+var safe_container: MarginContainer
 var inventory_filter := "all"
 var inventory_sort := "power"
 
@@ -38,6 +39,8 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		GameState.save_game()
 		get_tree().quit()
+	elif what == NOTIFICATION_RESIZED and is_node_ready():
+		call_deferred("apply_safe_area")
 
 
 func build_shell() -> void:
@@ -47,17 +50,14 @@ func build_shell() -> void:
 	sound_fx = SoundFXScript.new()
 	add_child(sound_fx)
 
-	var safe := MarginContainer.new()
-	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	safe.add_theme_constant_override("margin_left", 30)
-	safe.add_theme_constant_override("margin_right", 30)
-	safe.add_theme_constant_override("margin_top", 28)
-	safe.add_theme_constant_override("margin_bottom", 24)
-	add_child(safe)
+	safe_container = MarginContainer.new()
+	safe_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(safe_container)
+	apply_safe_area()
 
 	body = VBoxContainer.new()
 	body.add_theme_constant_override("separation", 18)
-	safe.add_child(body)
+	safe_container.add_child(body)
 
 	content = VBoxContainer.new()
 	content.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -79,6 +79,19 @@ func build_shell() -> void:
 	hunt_timer.timeout.connect(on_hunt_timer)
 	hunt_timer.autostart = true
 	add_child(hunt_timer)
+
+
+func apply_safe_area() -> void:
+	if not safe_container:
+		return
+	var viewport_size := get_viewport_rect().size
+	var screen_size := Vector2(DisplayServer.screen_get_size())
+	var safe_rect := Rect2(DisplayServer.get_display_safe_area())
+	var margins := CoreRules.safe_content_margins(viewport_size, screen_size, safe_rect)
+	safe_container.add_theme_constant_override("margin_left", roundi(margins.x))
+	safe_container.add_theme_constant_override("margin_top", roundi(margins.y))
+	safe_container.add_theme_constant_override("margin_right", roundi(margins.z))
+	safe_container.add_theme_constant_override("margin_bottom", roundi(margins.w))
 
 
 func render() -> void:
@@ -191,7 +204,7 @@ func build_board() -> void:
 	var xp_text := "XP %d/%d" % [int(GameState.player.xp), xp_needed]
 	actions.add_child(label(xp_text, 14, MUTED, HORIZONTAL_ALIGNMENT_RIGHT))
 	var arsenal := action_button("ARSENAL · %d" % GameState.player.inventory.size(), GOLD, true)
-	arsenal.custom_minimum_size = Vector2(160, 42)
+	arsenal.custom_minimum_size = Vector2(160, 48)
 	arsenal.add_theme_font_size_override("font_size", 13)
 	arsenal.pressed.connect(func():
 		view_mode = "arsenal"
@@ -199,7 +212,7 @@ func build_board() -> void:
 	)
 	actions.add_child(arsenal)
 	var galaxy := action_button("MAPA GALÁCTICO", CYAN, true)
-	galaxy.custom_minimum_size = Vector2(160, 42)
+	galaxy.custom_minimum_size = Vector2(160, 48)
 	galaxy.add_theme_font_size_override("font_size", 12)
 	galaxy.pressed.connect(func():
 		view_mode = "galaxy"
@@ -209,7 +222,7 @@ func build_board() -> void:
 	var ready_rewards := GameState.career_rewards_ready()
 	var career_text := "CARREIRA · %d" % ready_rewards if ready_rewards > 0 else "CARREIRA"
 	var career := action_button(career_text, LIME, true)
-	career.custom_minimum_size = Vector2(160, 42)
+	career.custom_minimum_size = Vector2(160, 48)
 	career.add_theme_font_size_override("font_size", 12)
 	career.pressed.connect(func():
 		view_mode = "career"
@@ -515,6 +528,7 @@ func build_arsenal() -> void:
 	var scroller := ScrollContainer.new()
 	scroller.name = "InventoryScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	content.add_child(scroller)
 	var list := VBoxContainer.new()
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -590,7 +604,7 @@ func inventory_toolbar() -> VBoxContainer:
 		var filter_button := action_button(str(definition.text), CYAN if selected else MUTED, not selected)
 		filter_button.name = "InventoryFilter_%s" % mode
 		filter_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		filter_button.custom_minimum_size = Vector2(0, 39)
+		filter_button.custom_minimum_size = Vector2(0, 44)
 		filter_button.add_theme_font_size_override("font_size", 10)
 		filter_button.pressed.connect(func():
 			inventory_filter = mode
@@ -600,7 +614,7 @@ func inventory_toolbar() -> VBoxContainer:
 	var sort := action_button("ORDEM · %s" % ("RARIDADE" if inventory_sort == "rarity" else "PODER"), GOLD, true)
 	sort.name = "InventorySort"
 	sort.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	sort.custom_minimum_size = Vector2(0, 39)
+	sort.custom_minimum_size = Vector2(0, 44)
 	sort.add_theme_font_size_override("font_size", 10)
 	sort.pressed.connect(func():
 		inventory_sort = "rarity" if inventory_sort == "power" else "power"
@@ -611,7 +625,7 @@ func inventory_toolbar() -> VBoxContainer:
 	var recycle := action_button("RECICLAR INFERIORES · %d PEÇAS · +%d SUCATA" % [int(preview.count), int(preview.scrap)], CORAL if int(preview.count) > 0 else MUTED, true)
 	recycle.name = "RecycleInferior"
 	recycle.disabled = int(preview.count) <= 0
-	recycle.custom_minimum_size = Vector2(0, 42)
+	recycle.custom_minimum_size = Vector2(0, 46)
 	recycle.add_theme_font_size_override("font_size", 11)
 	recycle.tooltip_text = "Recicla apenas peças comuns não equipadas que não superam o efeito atual. Itens modificados são preservados."
 	recycle.pressed.connect(GameState.recycle_inferior_inventory)
@@ -644,7 +658,7 @@ func loadout_toolbar() -> HBoxContainer:
 		var save := action_button("SALVAR", CYAN, true)
 		save.name = "SaveLoadout_%d" % index
 		save.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		save.custom_minimum_size = Vector2(0, 34)
+		save.custom_minimum_size = Vector2(0, 44)
 		save.add_theme_font_size_override("font_size", 9)
 		save.pressed.connect(func(): GameState.save_equipment_loadout(index))
 		actions.add_child(save)
@@ -652,7 +666,7 @@ func loadout_toolbar() -> HBoxContainer:
 		apply.name = "ApplyLoadout_%d" % index
 		apply.disabled = not ready
 		apply.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		apply.custom_minimum_size = Vector2(0, 34)
+		apply.custom_minimum_size = Vector2(0, 44)
 		apply.add_theme_font_size_override("font_size", 9)
 		apply.pressed.connect(func(): GameState.apply_equipment_loadout(index))
 		actions.add_child(apply)
@@ -670,10 +684,14 @@ func inventory_item_card(item: Dictionary) -> PanelContainer:
 	var details := VBoxContainer.new()
 	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(details)
-	details.add_child(label(str(item.name), 16, INK))
+	var item_name := label(str(item.name), 16, INK)
+	item_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	details.add_child(item_name)
 	details.add_child(label("%s · %s · +%d poder" % [str(item.rarity), slot_name(str(item.slot)), int(item.power)], 13, Color(str(item.color))))
 	if item.has("trait"):
-		details.add_child(label("◆ %s · %s" % [str(item.trait.name), str(item.trait.description)], 11, GOLD))
+		var trait_line := label("◆ %s · %s" % [str(item.trait.name), str(item.trait.description)], 11, GOLD)
+		trait_line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		details.add_child(trait_line)
 	var current: Dictionary = GameState.player[str(item.slot)]
 	var equipped := str(current.get("id", "")) == str(item.get("id", ""))
 	var score_difference := CoreRules.equipment_score(item) - CoreRules.equipment_score(current)
@@ -693,14 +711,14 @@ func inventory_item_card(item: Dictionary) -> PanelContainer:
 		var manually_locked: bool = GameState.player.get("locked_item_ids", []).has(item_id)
 		var lock_button := action_button("LIBERAR" if manually_locked else "PROTEGER", GOLD, true)
 		lock_button.name = "Lock_%s" % item_id
-		lock_button.custom_minimum_size = Vector2(110, 34)
+		lock_button.custom_minimum_size = Vector2(110, 40)
 		lock_button.add_theme_font_size_override("font_size", 10)
 		lock_button.pressed.connect(func(): GameState.toggle_item_lock(item_id))
 		buttons.add_child(lock_button)
 		var salvage := CoreRules.salvage_value(item)
 		var scrap_button := action_button("RECICLAR +%d" % salvage, CORAL, true)
 		scrap_button.name = "Scrap_%s" % item_id
-		scrap_button.custom_minimum_size = Vector2(110, 40)
+		scrap_button.custom_minimum_size = Vector2(110, 44)
 		scrap_button.add_theme_font_size_override("font_size", 11)
 		scrap_button.disabled = GameState.is_item_protected(item_id)
 		scrap_button.pressed.connect(func(): GameState.scrap_item(item_id))
@@ -739,7 +757,7 @@ func workshop_upgrade_card(slot: String) -> PanelContainer:
 	var improve := action_button("+1 PODER · %d SUCATA" % cost, LIME if affordable else MUTED, true)
 	improve.name = "Upgrade_%s" % slot
 	improve.disabled = not affordable
-	improve.custom_minimum_size = Vector2(0, 40)
+	improve.custom_minimum_size = Vector2(0, 44)
 	improve.add_theme_font_size_override("font_size", 11)
 	improve.pressed.connect(func(): GameState.upgrade_equipped(slot))
 	box.add_child(improve)
