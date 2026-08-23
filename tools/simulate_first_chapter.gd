@@ -12,28 +12,46 @@ func _init() -> void:
 	var odds_by_tier := [[], [], [], []]
 	var power_by_tier := [[], [], [], []]
 	var health_by_tier := [[], [], [], []]
+	var attempts_by_tier := [[], [], [], []]
+	var careers_with_defeat := [0, 0, 0, 0]
 	for career_seed in CAREERS:
 		var state = StateScript.new()
 		state.persistence_enabled = false
 		state.player = state.default_player()
 		state.rng.seed = 41000 + career_seed * 97
+		var fight_rng := RandomNumberGenerator.new()
+		fight_rng.seed = 73000 + career_seed * 131
 		for tier in 4:
 			var target := Content.target_for_planet_tier(Content.PLANET.id, tier)
 			var contract := recommended_contract(state.player, target)
-			odds_by_tier[tier].append(Rules.bounty_odds(state.player, contract))
+			var arrival_odds := Rules.bounty_odds(state.player, contract)
+			odds_by_tier[tier].append(arrival_odds)
 			power_by_tier[tier].append(Rules.player_power(state.player))
 			health_by_tier[tier].append(Rules.max_health(state.player))
 			var captures_this_tier := 1 if tier == 3 else 3
+			var attempts := 0
+			var defeated := false
 			for _capture in captures_this_tier:
+				while true:
+					attempts += 1
+					if fight_rng.randf() <= arrival_odds:
+						break
+					defeated = true
+					state.player.capture_streak = 0
 				claim_simulated_win(state, contract)
+			attempts_by_tier[tier].append(attempts)
+			if defeated:
+				careers_with_defeat[tier] += 1
 		state.free()
-	print("Crooked Galaxy first-chapter repeat path (%d deterministic loot-only careers; wins assumed)" % CAREERS)
+	print("Crooked Galaxy first-chapter repeat path (%d deterministic loot-only, failure-aware careers)" % CAREERS)
 	for tier in 4:
 		var target := Content.target_for_planet_tier(Content.PLANET.id, tier)
-		print("  %s: median odds=%d%% · below 55%%=%d%% · median power=%d · median health=%d" % [
+		print("  %s: median odds=%d%% · below 55%%=%d%% · median attempts=%d · careers with defeat=%d%% · power=%d · health=%d" % [
 			str(target.name),
 			roundi(median(odds_by_tier[tier]) * 100.0),
 			roundi(fraction_below(odds_by_tier[tier], ContractRulesScript.MIN_RECOMMENDED_ODDS) * 100.0),
+			roundi(median(attempts_by_tier[tier])),
+			roundi(float(careers_with_defeat[tier]) / float(CAREERS) * 100.0),
 			roundi(median(power_by_tier[tier])),
 			roundi(median(health_by_tier[tier])),
 		])
