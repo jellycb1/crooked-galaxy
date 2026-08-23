@@ -650,16 +650,41 @@ func upgrade_equipped(slot: String) -> bool:
 	item = item.duplicate(true)
 	item.power = int(item.power) + 1
 	player[slot] = item
-	var item_id := str(item.get("id", ""))
-	if not item_id.is_empty():
-		for inventory_item in player.inventory:
-			if str(inventory_item.get("id", "")) == item_id:
-				inventory_item.power = int(item.power)
-				break
+	sync_item_to_inventory(item)
 	last_notice = "%s calibrado para +%d poder." % [str(item.name), int(item.power)]
 	save_game()
 	changed.emit()
 	return true
+
+
+func reinforce_equipped(slot: String) -> bool:
+	if phase != Phase.BOARD or (slot != "weapon" and slot != "armor"):
+		return false
+	var item: Dictionary = player[slot]
+	if not CoreRules.can_upgrade_integrity(item):
+		return false
+	var cost := CoreRules.equipment_integrity_upgrade_cost(item)
+	if int(player.get("scrap", 0)) < cost:
+		return false
+	player.scrap = int(player.scrap) - cost
+	item = item.duplicate(true)
+	item.integrity_upgrades = int(item.get("integrity_upgrades", 0)) + 1
+	player[slot] = item
+	sync_item_to_inventory(item)
+	last_notice = "%s reforçado: +%d vida total." % [str(item.name), int(item.integrity_upgrades) * CoreRules.INTEGRITY_HEALTH_PER_LEVEL]
+	save_game()
+	changed.emit()
+	return true
+
+
+func sync_item_to_inventory(item: Dictionary) -> void:
+	var item_id := str(item.get("id", ""))
+	if item_id.is_empty():
+		return
+	for item_index in player.inventory.size():
+		if str(player.inventory[item_index].get("id", "")) == item_id:
+			player.inventory[item_index] = item.duplicate(true)
+			return
 
 
 func toggle_sound() -> void:

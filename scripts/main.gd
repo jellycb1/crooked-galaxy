@@ -674,6 +674,8 @@ func inventory_item_card(item: Dictionary) -> PanelContainer:
 	item_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	details.add_child(item_name)
 	details.add_child(label("%s · %s · +%d poder" % [str(item.rarity), slot_name(str(item.slot)), int(item.power)], 13, Color(str(item.color))))
+	if int(item.get("integrity_upgrades", 0)) > 0:
+		details.add_child(label("◇ REFORÇO · +%d vida" % (int(item.integrity_upgrades) * CoreRules.INTEGRITY_HEALTH_PER_LEVEL), 11, CYAN))
 	if item.has("trait"):
 		var trait_line := label("◆ %s · %s" % [str(item.trait.name), str(item.trait.description)], 11, GOLD)
 		trait_line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -718,22 +720,35 @@ func equipment_delta_text(item: Dictionary) -> String:
 
 func workshop_upgrade_card(slot: String) -> PanelContainer:
 	var item: Dictionary = GameState.player[slot]
-	var cost := CoreRules.equipment_upgrade_cost(item)
-	var affordable := int(GameState.player.get("scrap", 0)) >= cost
+	var power_cost := CoreRules.equipment_upgrade_cost(item)
+	var integrity_cost := CoreRules.equipment_integrity_upgrade_cost(item)
+	var power_affordable := int(GameState.player.get("scrap", 0)) >= power_cost
+	var integrity_affordable := int(GameState.player.get("scrap", 0)) >= integrity_cost
+	var integrity_level := int(item.get("integrity_upgrades", 0))
+	var integrity_available := CoreRules.can_upgrade_integrity(item)
 	var card := panel(VBoxContainer.new(), Color("#0d1530"), 12, 10)
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var box := card.get_child(0) as VBoxContainer
 	box.add_child(label(slot_name(slot).to_upper(), 11, MUTED))
 	box.add_child(label("%s · +%d" % [str(item.name), int(item.power)], 13, INK))
+	box.add_child(label("REFORÇO %d/%d · +%d VIDA" % [integrity_level, CoreRules.MAX_INTEGRITY_UPGRADES, integrity_level * CoreRules.INTEGRITY_HEALTH_PER_LEVEL], 10, CYAN if integrity_level > 0 else MUTED))
 	if item.has("trait"):
 		box.add_child(label("◆ %s" % str(item.trait.name), 10, GOLD))
-	var improve := action_button("+1 PODER · %d SUCATA" % cost, LIME if affordable else MUTED, true)
+	var improve := action_button("+1 PODER · %d SUCATA" % power_cost, LIME if power_affordable else MUTED, true)
 	improve.name = "Upgrade_%s" % slot
-	improve.disabled = not affordable
+	improve.disabled = not power_affordable
 	improve.custom_minimum_size = Vector2(0, 44)
 	improve.add_theme_font_size_override("font_size", 11)
 	improve.pressed.connect(func(): GameState.upgrade_equipped(slot))
 	box.add_child(improve)
+	var reinforce_text := "+%d VIDA · %d SUCATA" % [CoreRules.INTEGRITY_HEALTH_PER_LEVEL, integrity_cost] if integrity_available else "INTEGRIDADE MÁXIMA"
+	var reinforce := action_button(reinforce_text, CYAN if integrity_affordable and integrity_available else MUTED, true)
+	reinforce.name = "Reinforce_%s" % slot
+	reinforce.disabled = not integrity_affordable or not integrity_available
+	reinforce.custom_minimum_size = Vector2(0, 44)
+	reinforce.add_theme_font_size_override("font_size", 11)
+	reinforce.pressed.connect(func(): GameState.reinforce_equipped(slot))
+	box.add_child(reinforce)
 	return card
 
 
@@ -1233,6 +1248,8 @@ func equipment_chip(item: Dictionary) -> PanelContainer:
 	var box := chip.get_child(0) as VBoxContainer
 	box.add_child(label(slot_name(str(item.slot)).to_upper(), 11, MUTED))
 	box.add_child(label("%s  ·  +%d" % [str(item.name), int(item.power)], 13, INK))
+	if int(item.get("integrity_upgrades", 0)) > 0:
+		box.add_child(label("REFORÇO +%d VIDA" % (int(item.integrity_upgrades) * CoreRules.INTEGRITY_HEALTH_PER_LEVEL), 10, CYAN))
 	return chip
 
 

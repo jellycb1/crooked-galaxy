@@ -96,6 +96,22 @@ func _init() -> void:
 	check(state.upgrade_equipped(str(claimed_item.slot)), "scrap upgrades equipped gear")
 	check(int(state.player.scrap) == 16 - upgrade_cost, "workshop charges the visible upgrade cost")
 	check(int(state.player[str(claimed_item.slot)].power) == equipped_power + 1, "workshop adds one equipment power")
+	state.player.scrap = 100
+	var health_before_reinforcement := CoreRules.max_health(state.player)
+	var reinforce_cost := CoreRules.equipment_integrity_upgrade_cost(state.player[str(claimed_item.slot)])
+	check(state.reinforce_equipped(str(claimed_item.slot)), "workshop can reinforce equipped integrity")
+	check(int(state.player.scrap) == 100 - reinforce_cost, "integrity reinforcement charges its visible cost")
+	check(CoreRules.max_health(state.player) == health_before_reinforcement + CoreRules.INTEGRITY_HEALTH_PER_LEVEL, "integrity reinforcement raises maximum health")
+	check(int(state.player[str(claimed_item.slot)].integrity_upgrades) == 1, "reinforcement level stays on equipped gear")
+	var reinforced_inventory_item := state.inventory_item_by_id(str(claimed_item.id))
+	check(int(reinforced_inventory_item.get("integrity_upgrades", 0)) == 1, "reinforcement is synchronized to the inventory copy")
+	var reinforcement_cap_state = StateScript.new()
+	reinforcement_cap_state.persistence_enabled = false
+	reinforcement_cap_state.player = reinforcement_cap_state.default_player()
+	reinforcement_cap_state.player.scrap = 100
+	reinforcement_cap_state.player.weapon.integrity_upgrades = CoreRules.MAX_INTEGRITY_UPGRADES
+	check(not reinforcement_cap_state.reinforce_equipped("weapon") and int(reinforcement_cap_state.player.scrap) == 100, "workshop rejects reinforcement beyond the cap without charging scrap")
+	reinforcement_cap_state.free()
 	var milestones := state.career_milestones()
 	check(milestones.size() == 7, "career exposes seven derived milestones")
 	check(bool(milestones[0].complete), "first capture completes its career milestone")

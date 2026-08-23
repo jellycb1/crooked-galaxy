@@ -1,6 +1,9 @@
 class_name CoreRules
 extends RefCounted
 
+const INTEGRITY_HEALTH_PER_LEVEL := 8
+const MAX_INTEGRITY_UPGRADES := 5
+
 
 static func player_power(player: Dictionary) -> int:
 	var weapon_power := item_combat_power(player.get("weapon", {}))
@@ -19,7 +22,7 @@ static func item_combat_power(item: Dictionary) -> int:
 
 
 static func item_health_bonus(item: Dictionary) -> int:
-	return int(item.get("trait", {}).get("health_bonus", 0))
+	return int(item.get("trait", {}).get("health_bonus", 0)) + int(item.get("integrity_upgrades", 0)) * INTEGRITY_HEALTH_PER_LEVEL
 
 
 static func equipment_score(item: Dictionary) -> int:
@@ -90,6 +93,15 @@ static func salvage_value(item: Dictionary) -> int:
 
 static func equipment_upgrade_cost(item: Dictionary) -> int:
 	return maxi(4, 3 + ceili(float(int(item.get("power", 1))) * 0.8))
+
+
+static func equipment_integrity_upgrade_cost(item: Dictionary) -> int:
+	var level := int(item.get("integrity_upgrades", 0))
+	return maxi(6, 5 + level * 4 + ceili(float(int(item.get("power", 1))) * 0.45))
+
+
+static func can_upgrade_integrity(item: Dictionary) -> bool:
+	return int(item.get("integrity_upgrades", 0)) < MAX_INTEGRITY_UPGRADES
 
 
 static func bounty_streak_reward(base_credits: int, streak: int) -> Dictionary:

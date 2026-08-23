@@ -35,6 +35,11 @@ func test_power_and_health() -> void:
 	check(Rules.player_power(player) == 21, "equipment traits contribute combat power")
 	check(Rules.max_health(player) == 111, "equipment traits contribute maximum health")
 	check(Rules.is_upgrade({"power": 4, "trait": {"power_bonus": 2}}, {"power": 5}), "effective equipment score can outweigh lower base power")
+	player.weapon.integrity_upgrades = 2
+	check(Rules.max_health(player) == 127, "equipment reinforcement contributes persistent maximum health")
+	check(Rules.equipment_integrity_upgrade_cost({"power": 10, "integrity_upgrades": 0}) == 10, "integrity cost scales from item power")
+	check(Rules.equipment_integrity_upgrade_cost({"power": 10, "integrity_upgrades": 2}) == 18, "integrity cost rises with reinforcement level")
+	check(Rules.can_upgrade_integrity({"integrity_upgrades": 4}) and not Rules.can_upgrade_integrity({"integrity_upgrades": 5}), "integrity reinforcement has an explicit cap")
 
 
 func test_damage_boundaries() -> void:
