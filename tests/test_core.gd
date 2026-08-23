@@ -110,10 +110,15 @@ func test_loot_generation() -> void:
 	check(Content.is_planet_unlocked("congelaria_sa", [Content.PLANET.id]), "first chapter completion unlocks the next planet")
 	check(not Content.is_planet_unlocked("micelia_404", [Content.PLANET.id]), "third planet remains locked after only one chapter")
 	check(Content.is_planet_unlocked("micelia_404", [Content.PLANET.id, "congelaria_sa"]), "Congelaria completion unlocks Micelia")
+	check(not Content.is_planet_unlocked("ferro_velho_omega", [Content.PLANET.id, "congelaria_sa"]), "fourth planet remains locked before Micelia completion")
+	check(Content.is_planet_unlocked("ferro_velho_omega", [Content.PLANET.id, "congelaria_sa", "micelia_404"]), "Micelia completion unlocks Ferro-Velho Omega")
 	check(Content.available_bounties(3, "micelia_404", 0).size() == 1, "third chapter starts with one local target")
 	check(Content.available_bounties(3, "micelia_404", 1).size() == 2, "fungal captures unlock the second target")
 	check(Content.available_bounties(3, "micelia_404", 3).size() == 4, "maximum fungal tier unlocks its boss")
 	check(bool(Content.TARGETS[11].boss), "Micelia ends with an explicit chapter boss")
+	check(Content.available_bounties(3, "ferro_velho_omega", 0).size() == 1, "fourth chapter starts with one local target")
+	check(Content.available_bounties(3, "ferro_velho_omega", 3).size() == 4, "maximum scrapyard tier unlocks its boss")
+	check(bool(Content.TARGETS[15].boss), "Ferro-Velho Omega ends with an explicit chapter boss")
 	var fungal_rng := RandomNumberGenerator.new()
 	fungal_rng.seed = 9921
 	var fungal_event := Content.random_hunt_event(fungal_rng, "micelia_404")
@@ -121,6 +126,13 @@ func test_loot_generation() -> void:
 	var fungal_loot := Content.generate_loot(Content.TARGETS[8], fungal_rng)
 	var fungal_names := Content.PLANET_ITEM_CATALOGS.micelia_404.weapon + Content.PLANET_ITEM_CATALOGS.micelia_404.armor
 	check(fungal_names.any(func(definition): return str(definition.name) == str(fungal_loot.name)), "fungal target generates its own item family")
+	var scrapyard_rng := RandomNumberGenerator.new()
+	scrapyard_rng.seed = 44009
+	var scrapyard_event := Content.random_hunt_event(scrapyard_rng, "ferro_velho_omega")
+	check(str(scrapyard_event.planet_id) == "ferro_velho_omega", "scrapyard planet selects its own incidents")
+	var scrapyard_loot := Content.generate_loot(Content.TARGETS[12], scrapyard_rng)
+	var scrapyard_names := Content.PLANET_ITEM_CATALOGS.ferro_velho_omega.weapon + Content.PLANET_ITEM_CATALOGS.ferro_velho_omega.armor
+	check(scrapyard_names.any(func(definition): return str(definition.name) == str(scrapyard_loot.name)), "scrapyard target generates its own item family")
 	var trait_rng := RandomNumberGenerator.new()
 	trait_rng.seed = 77221
 	var found_trait := false

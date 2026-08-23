@@ -15,18 +15,18 @@ func capture() -> void:
 	root.add_child(background)
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 54)
-	margin.add_theme_constant_override("margin_right", 54)
-	margin.add_theme_constant_override("margin_top", 50)
-	margin.add_theme_constant_override("margin_bottom", 50)
+	margin.add_theme_constant_override("margin_left", 20)
+	margin.add_theme_constant_override("margin_right", 20)
+	margin.add_theme_constant_override("margin_top", 18)
+	margin.add_theme_constant_override("margin_bottom", 18)
 	root.add_child(margin)
 	var layout := VBoxContainer.new()
-	layout.add_theme_constant_override("separation", 20)
+	layout.add_theme_constant_override("separation", 6)
 	margin.add_child(layout)
 	var title := Label.new()
 	title.text = "CROOKED GALAXY · PROCEDURAL CAST"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 24)
+	title.add_theme_font_size_override("font_size", 18)
 	title.add_theme_color_override("font_color", Color("#55e5ff"))
 	layout.add_child(title)
 	var characters := [
@@ -43,11 +43,15 @@ func capture() -> void:
 		{"id": "countess_truffle", "name": "CONDESSA TRUFA"},
 		{"id": "captain_chlorophyll", "name": "CAPITÃO CLOROFILA"},
 		{"id": "mother_mycelia", "name": "MÃE MICÉLIA"},
+		{"id": "bolt_collector", "name": "COBRADOR REBITE"},
+		{"id": "doctor_patchwork", "name": "DRA. GAMBIARRA"},
+		{"id": "crane_king", "name": "REI GUINDASTE"},
+		{"id": "omega_junkyard", "name": "FERRO-VELHO ÔMEGA"},
 	]
-	for row_index in 5:
+	for row_index in 6:
 		var row := HBoxContainer.new()
 		row.alignment = BoxContainer.ALIGNMENT_CENTER
-		row.add_theme_constant_override("separation", 20)
+		row.add_theme_constant_override("separation", 8)
 		layout.add_child(row)
 		for column_index in 3:
 			var character_index := row_index * 3 + column_index
@@ -55,18 +59,18 @@ func capture() -> void:
 				break
 			var definition: Dictionary = characters[character_index]
 			var cell := VBoxContainer.new()
-			cell.custom_minimum_size = Vector2(180, 175)
+			cell.custom_minimum_size = Vector2(105, 102)
 			cell.alignment = BoxContainer.ALIGNMENT_CENTER
 			row.add_child(cell)
 			var portrait: Control = PortraitScript.new()
 			portrait.character_id = str(definition.id)
-			portrait.custom_minimum_size = Vector2(125, 125)
+			portrait.custom_minimum_size = Vector2(76, 76)
 			portrait.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 			cell.add_child(portrait)
 			var caption := Label.new()
 			caption.text = str(definition.name)
 			caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			caption.add_theme_font_size_override("font_size", 14)
+			caption.add_theme_font_size_override("font_size", 9)
 			caption.add_theme_color_override("font_color", Color("#f4f2ff"))
 			cell.add_child(caption)
 	await process_frame

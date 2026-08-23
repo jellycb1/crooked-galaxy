@@ -27,8 +27,9 @@ func _ready() -> void:
 func _draw() -> void:
 	var frozen := planet_id == "congelaria_sa"
 	var fungal := planet_id == "micelia_404"
-	var top := Color("#2d4b32") if fungal else (Color("#0e4359") if frozen else Color("#12264c"))
-	var bottom := Color("#07150d") if fungal else (Color("#04121d") if frozen else Color("#050817"))
+	var scrapyard := planet_id == "ferro_velho_omega"
+	var top := Color("#51352b") if scrapyard else (Color("#2d4b32") if fungal else (Color("#0e4359") if frozen else Color("#12264c")))
+	var bottom := Color("#160b09") if scrapyard else (Color("#07150d") if fungal else (Color("#04121d") if frozen else Color("#050817")))
 	var bands := 28
 	for band in bands:
 		var from_y := size.y * float(band) / float(bands)
@@ -37,7 +38,7 @@ func _draw() -> void:
 		draw_rect(Rect2(0, from_y, size.x, to_y - from_y + 1.0), color)
 
 	# Soft, deliberately off-center nebula shapes.
-	draw_circle(Vector2(size.x * 0.06, size.y * 0.32), size.x * 0.33, Color(0.75, 0.96, 0.39, 0.045) if fungal else (Color(0.25, 0.92, 0.82, 0.045) if frozen else Color(0.14, 0.56, 0.72, 0.035)))
+	draw_circle(Vector2(size.x * 0.06, size.y * 0.32), size.x * 0.33, Color(1.0, 0.52, 0.22, 0.055) if scrapyard else (Color(0.75, 0.96, 0.39, 0.045) if fungal else (Color(0.25, 0.92, 0.82, 0.045) if frozen else Color(0.14, 0.56, 0.72, 0.035))))
 	draw_circle(Vector2(size.x * 0.92, size.y * 0.48), size.x * 0.42, Color(0.52, 0.20, 0.68, 0.028))
 
 	for star in stars:
@@ -59,3 +60,10 @@ func _draw() -> void:
 			var spore_x := size.x * (0.08 + float((spore_index * 37) % 89) / 100.0)
 			var spore_y := size.y * (0.18 + float((spore_index * 53) % 71) / 100.0)
 			draw_circle(Vector2(spore_x, spore_y), 3.0 + float(spore_index % 3), Color(1.0, 0.46, 0.78, 0.10))
+	elif scrapyard:
+		for debris_index in 14:
+			var debris_x := size.x * (0.04 + float((debris_index * 41) % 91) / 100.0)
+			var debris_y := size.y * (0.16 + float((debris_index * 29) % 69) / 100.0)
+			var debris_size := 3.0 + float(debris_index % 4)
+			draw_rect(Rect2(Vector2(debris_x, debris_y), Vector2(debris_size * 2.2, debris_size)), Color(1.0, 0.62, 0.26, 0.11), true)
+			draw_line(Vector2(debris_x, debris_y), Vector2(debris_x + debris_size * 3.0, debris_y - debris_size), Color(0.75, 0.80, 0.84, 0.08), 1.5, true)

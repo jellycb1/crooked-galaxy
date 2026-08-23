@@ -298,11 +298,15 @@ func build_galaxy_map() -> void:
 		render()
 	)
 	title_row.add_child(back)
+	var route_scroll := ScrollContainer.new()
+	route_scroll.name = "GalaxyScroll"
+	route_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	content.add_child(route_scroll)
 	var route := VBoxContainer.new()
 	route.name = "GalaxyRoutes"
-	route.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	route.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	route.add_theme_constant_override("separation", 14)
-	content.add_child(route)
+	route_scroll.add_child(route)
 	for planet in ContentDB.PLANETS:
 		route.add_child(planet_card(planet))
 
@@ -373,7 +377,8 @@ func build_career() -> void:
 	for milestone in GameState.career_milestones():
 		if bool(milestone.complete):
 			milestone_count += 1
-	var badge_text := "MARCOS\n%d / 5" % milestone_count
+	var milestone_total := GameState.career_milestones().size()
+	var badge_text := "MARCOS\n%d / %d" % [milestone_count, milestone_total]
 	if ready_count > 0:
 		badge_text += "\n%d A RESGATAR" % ready_count
 	var badge := center_label(badge_text, 13, LIME)
@@ -605,7 +610,7 @@ func inventory_toolbar() -> VBoxContainer:
 	recycle.disabled = int(preview.count) <= 0
 	recycle.custom_minimum_size = Vector2(0, 42)
 	recycle.add_theme_font_size_override("font_size", 11)
-	recycle.tooltip_text = "Recicla apenas peças não equipadas que não superam o poder atual do mesmo slot."
+	recycle.tooltip_text = "Recicla apenas peças comuns não equipadas que não superam o efeito atual. Itens modificados são preservados."
 	recycle.pressed.connect(GameState.recycle_inferior_inventory)
 	toolbar.add_child(recycle)
 	return toolbar

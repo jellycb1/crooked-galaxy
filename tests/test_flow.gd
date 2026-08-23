@@ -58,7 +58,7 @@ func _init() -> void:
 	check(int(state.player.scrap) == 16 - upgrade_cost, "workshop charges the visible upgrade cost")
 	check(int(state.player[str(claimed_item.slot)].power) == equipped_power + 1, "workshop adds one equipment power")
 	var milestones := state.career_milestones()
-	check(milestones.size() == 5, "career exposes five derived milestones")
+	check(milestones.size() == 6, "career exposes six derived milestones")
 	check(bool(milestones[0].complete), "first capture completes its career milestone")
 	var credits_before_milestone := int(state.player.credits)
 	check(state.career_rewards_ready() == 1, "completed career milestone advertises a pending reward")
@@ -80,6 +80,10 @@ func _init() -> void:
 	check(int(state.player.scrap_recycled_total) == recycled_before + int(bulk_result.scrap), "bulk recycling contributes to lifetime progress")
 	check(state.player.inventory.any(func(item): return str(item.get("id", "")) == "bulk_upgrade"), "bulk recycling preserves upgrades")
 	check(state.player.inventory.any(func(item): return str(item.get("id", "")) == "bulk_trait_upgrade"), "bulk recycling preserves lower-base items with superior modifications")
+	state.player.inventory.append({"id": "bulk_trait_keepsake", "name": "Parafuso Sentimental", "slot": "armor", "power": 1, "rarity": "Raro", "color": "#58d9ff", "trait": {"id": "keepsake", "name": "VALOR SENTIMENTAL", "description": "Mecanicamente questionável.", "power_bonus": 0, "health_bonus": 0}})
+	check(int(state.inferior_recycle_preview().count) == 0, "bulk recycling excludes modified gear regardless of current score")
+	check(state.recycle_inferior_inventory().count == 0, "bulk recycling leaves a modified keepsake untouched")
+	check(state.player.inventory.any(func(item): return str(item.get("id", "")) == "bulk_trait_keepsake"), "modified keepsake remains in inventory")
 	check(state.player.inventory.any(func(item): return str(item.get("id", "")) == str(claimed_item.id)), "bulk recycling preserves equipped items")
 
 	state.start_bounty(Content.TARGETS[0].duplicate(true))
@@ -182,6 +186,22 @@ func _init() -> void:
 	check(bool(fungal_summary.chapter_complete), "third planet reports chapter completion")
 	check(frozen_state.player.completed_planets.has("micelia_404"), "third completed planet persists in progression")
 	check(frozen_state.planet_capture_count("micelia_404") == 10, "fungal capture counter completes its chapter")
+	frozen_state.continue_after_chapter()
+	check(frozen_state.travel_to_planet("ferro_velho_omega"), "third chapter opens travel to Ferro-Velho Omega")
+	frozen_state.player.wins = 39
+	frozen_state.player.captures_by_planet.ferro_velho_omega = 9
+	frozen_state.phase = frozen_state.Phase.REWARD
+	frozen_state.current_bounty = Content.TARGETS[15].duplicate(true)
+	frozen_state.pending_loot = {
+		"id": "omega_test_loot", "name": "Coroa de Compactador", "description": "Ainda mastiga.",
+		"slot": "armor", "power": 48, "rarity": "Épico", "color": "#d789ff",
+	}
+	var scrapyard_summary := frozen_state.claim_reward(true)
+	check(frozen_state.phase == frozen_state.Phase.CHAPTER_COMPLETE, "Ferro-Velho boss opens the chapter finale")
+	check(bool(scrapyard_summary.chapter_complete), "fourth planet reports chapter completion")
+	check(frozen_state.player.completed_planets.has("ferro_velho_omega"), "fourth completed planet persists in progression")
+	check(frozen_state.planet_capture_count("ferro_velho_omega") == 10, "scrapyard capture counter completes its chapter")
+	check(bool(frozen_state.career_milestones()[4].complete), "fourth planet completes the apocalypse mechanic milestone")
 	frozen_state.free()
 
 	state.free()

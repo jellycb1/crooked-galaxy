@@ -248,6 +248,47 @@ func capture() -> void:
 	if save_frame("ui_micelia_complete.png") != OK:
 		quit(1)
 		return
+	state.continue_after_chapter()
+	await process_frame
+	await process_frame
+	state.player.level = 14
+	state.player.base_power = 36
+	state.player.weapon = {"name": "Carabina de Rebite Quântico", "slot": "weapon", "power": 45, "rarity": "Épico", "color": "#d789ff", "trait": {"id": "crooked_coil", "name": "BOBINA TORTA", "description": "+2 poder de combate.", "power_bonus": 2, "health_bonus": 0}}
+	state.player.armor = {"name": "Armadura de Para-Choques", "slot": "armor", "power": 38, "rarity": "Raro", "color": "#58d9ff", "trait": {"id": "reactive_lining", "name": "FORRO REATIVO", "description": "+14 de integridade máxima.", "power_bonus": 0, "health_bonus": 14}}
+	state.travel_to_planet("ferro_velho_omega")
+	await process_frame
+	await process_frame
+	await create_timer(0.15).timeout
+	if save_frame("ui_omega_board.png") != OK:
+		quit(1)
+		return
+	state.select_bounty(ContentDB.TARGETS[12])
+	state.choose_approach("quiet_net")
+	state.hunt_event = ContentDB.HUNT_EVENTS[6].duplicate(true)
+	state.hunt_event_triggered = true
+	state.hunt_elapsed_before_event = 4.0
+	state.hunt_remaining_after_event = 4.0
+	state.phase = state.Phase.HUNT_EVENT
+	scene.render()
+	await process_frame
+	await process_frame
+	await create_timer(0.12).timeout
+	if save_frame("ui_omega_event.png") != OK:
+		quit(1)
+		return
+	state.abandon_bounty()
+	state.player.wins = 39
+	state.player.captures_by_planet.ferro_velho_omega = 9
+	state.phase = state.Phase.REWARD
+	state.current_bounty = ContentDB.TARGETS[15].duplicate(true)
+	state.pending_loot = {"id": "omega_capture", "name": "Núcleo do Compactador", "description": "Ainda classifica continentes como peças pequenas.", "slot": "armor", "power": 49, "rarity": "Épico", "color": "#d789ff", "trait": {"id": "illegal_servos", "name": "SERVOS NÃO DECLARADOS", "description": "+1 poder e +8 integridade.", "power_bonus": 1, "health_bonus": 8}}
+	state.claim_reward(true)
+	await process_frame
+	await process_frame
+	await create_timer(0.15).timeout
+	if save_frame("ui_omega_complete.png") != OK:
+		quit(1)
+		return
 	state.player.afk_credits_earned = 1460
 	state.player.afk_scrap_earned = 28
 	state.player.scrap_recycled_total = 42
@@ -276,7 +317,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, three finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, four finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

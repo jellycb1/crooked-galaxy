@@ -38,6 +38,14 @@ func _draw() -> void:
 			draw_captain_chlorophyll()
 		"mother_mycelia":
 			draw_mother_mycelia()
+		"bolt_collector":
+			draw_bolt_collector()
+		"doctor_patchwork":
+			draw_doctor_patchwork()
+		"crane_king":
+			draw_crane_king()
+		"omega_junkyard":
+			draw_omega_junkyard()
 		_:
 			draw_hunter()
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -310,6 +318,85 @@ func draw_mother_mycelia() -> void:
 	for node in [Vector2(0.30, 0.76), Vector2(0.50, 0.84), Vector2(0.70, 0.76)]:
 		draw_circle(node, 0.045, pink)
 		draw_circle(node, 0.018, ink)
+
+
+func draw_bolt_collector() -> void:
+	var ink := Color("#170f16")
+	var rust := Color("#ff9f43")
+	var steel := Color("#7593a6")
+	draw_frame(Color("#3d302d"), rust)
+	filled_polygon([Vector2(0.12, 0.95), Vector2(0.20, 0.67), Vector2(0.80, 0.67), Vector2(0.88, 0.95)], steel, ink)
+	# Horseshoe magnet head and receipt tongue make the collector readable at a glance.
+	draw_arc(Vector2(0.50, 0.47), 0.28, PI, TAU, 36, ink, 0.18, true)
+	draw_arc(Vector2(0.50, 0.47), 0.28, PI, TAU, 36, rust, 0.11, true)
+	draw_line(Vector2(0.22, 0.46), Vector2(0.22, 0.69), rust, 0.11, true)
+	draw_line(Vector2(0.78, 0.46), Vector2(0.78, 0.69), rust, 0.11, true)
+	for eye in [Vector2(0.39, 0.47), Vector2(0.61, 0.47)]:
+		outlined_circle(eye, 0.055, Color("#fff0c2"), ink, 0.02)
+		draw_circle(eye, 0.020, ink)
+	filled_polygon([Vector2(0.40, 0.61), Vector2(0.62, 0.61), Vector2(0.58, 0.87), Vector2(0.44, 0.82)], Color("#f3e5c0"), ink)
+	for y in [0.67, 0.73, 0.79]:
+		draw_line(Vector2(0.46, y), Vector2(0.57, y), ink, 0.012, true)
+
+
+func draw_doctor_patchwork() -> void:
+	var ink := Color("#111020")
+	var rust := Color("#ff9f43")
+	var mint := Color("#72f1dd")
+	draw_frame(Color("#343747"), mint)
+	filled_polygon([Vector2(0.10, 0.96), Vector2(0.20, 0.66), Vector2(0.80, 0.66), Vector2(0.90, 0.96)], Color("#e2ddd0"), ink)
+	outlined_circle(Vector2(0.50, 0.48), 0.29, Color("#a88f77"), ink, 0.034)
+	# Welding goggles, antenna scalpel and mismatched surgical arms.
+	for eye in [Vector2(0.39, 0.47), Vector2(0.61, 0.47)]:
+		outlined_circle(eye, 0.083, Color("#263d50"), rust, 0.025)
+		draw_circle(eye, 0.025, mint)
+	draw_line(Vector2(0.47, 0.47), Vector2(0.53, 0.47), rust, 0.025, true)
+	draw_line(Vector2(0.67, 0.25), Vector2(0.80, 0.08), ink, 0.028, true)
+	filled_polygon([Vector2(0.78, 0.10), Vector2(0.85, 0.03), Vector2(0.84, 0.14)], Color("#d8e8e5"), ink)
+	draw_line(Vector2(0.20, 0.72), Vector2(0.08, 0.84), rust, 0.055, true)
+	draw_line(Vector2(0.80, 0.72), Vector2(0.92, 0.88), mint, 0.055, true)
+	draw_line(Vector2(0.42, 0.62), Vector2(0.59, 0.61), ink, 0.026, true)
+	draw_circle(Vector2(0.50, 0.79), 0.055, rust)
+	draw_line(Vector2(0.50, 0.74), Vector2(0.50, 0.84), Color.WHITE, 0.018, true)
+	draw_line(Vector2(0.45, 0.79), Vector2(0.55, 0.79), Color.WHITE, 0.018, true)
+
+
+func draw_crane_king() -> void:
+	var ink := Color("#160e16")
+	var rust := Color("#ff9f43")
+	var gold := Color("#ffd166")
+	draw_frame(Color("#493328"), gold)
+	filled_polygon([Vector2(0.08, 0.96), Vector2(0.18, 0.65), Vector2(0.82, 0.65), Vector2(0.92, 0.96)], Color("#8b5535"), ink)
+	filled_polygon([Vector2(0.25, 0.29), Vector2(0.75, 0.29), Vector2(0.70, 0.70), Vector2(0.30, 0.70)], Color("#b66a3c"), ink)
+	# Crane boom doubles as a wildly impractical crown.
+	filled_polygon([Vector2(0.18, 0.28), Vector2(0.31, 0.10), Vector2(0.43, 0.22), Vector2(0.55, 0.06), Vector2(0.68, 0.22), Vector2(0.82, 0.10), Vector2(0.80, 0.31)], gold, ink)
+	draw_line(Vector2(0.69, 0.14), Vector2(0.91, 0.25), rust, 0.045, true)
+	draw_line(Vector2(0.90, 0.25), Vector2(0.90, 0.48), ink, 0.022, true)
+	draw_arc(Vector2(0.86, 0.52), 0.06, -1.3, 1.5, 18, ink, 0.025, true)
+	for eye in [Vector2(0.40, 0.46), Vector2(0.60, 0.46)]:
+		filled_polygon([eye - Vector2(0.07, 0.03), eye + Vector2(0.07, -0.03), eye + Vector2(0.05, 0.04), eye + Vector2(-0.05, 0.04)], Color("#9ff7ed"), ink)
+	draw_line(Vector2(0.40, 0.61), Vector2(0.61, 0.59), ink, 0.034, true)
+
+
+func draw_omega_junkyard() -> void:
+	var ink := Color("#0d1019")
+	var rust := Color("#ff9f43")
+	var cyan := Color("#55e5ff")
+	draw_frame(Color("#302f35"), rust)
+	# Concentric compactor rings and one inventory eye form a planet-scale machine face.
+	for radius in [0.40, 0.33, 0.25]:
+		outlined_circle(Vector2(0.50, 0.51), radius, Color("#4c5158") if radius > 0.3 else Color("#252b36"), ink, 0.030)
+	for tooth in 10:
+		var angle := TAU * float(tooth) / 10.0
+		var from := Vector2(0.50, 0.51) + Vector2(cos(angle), sin(angle)) * 0.38
+		var to := Vector2(0.50, 0.51) + Vector2(cos(angle), sin(angle)) * 0.47
+		draw_line(from, to, rust, 0.055, true)
+	outlined_circle(Vector2(0.50, 0.48), 0.13, cyan, ink, 0.028)
+	draw_circle(Vector2(0.50, 0.48), 0.055, ink)
+	draw_circle(Vector2(0.47, 0.45), 0.018, Color.WHITE)
+	draw_line(Vector2(0.36, 0.70), Vector2(0.64, 0.70), rust, 0.035, true)
+	for x in [0.39, 0.50, 0.61]:
+		draw_line(Vector2(x, 0.70), Vector2(x - 0.03, 0.78), ink, 0.022, true)
 
 
 func outlined_circle(center: Vector2, radius: float, fill: Color, outline: Color, width: float) -> void:

@@ -134,6 +134,7 @@ func career_milestones() -> Array[Dictionary]:
 		{"id": "repeat_customer", "name": "CLIENTE FREQUENTE", "description": "Capture o mesmo alvo três vezes.", "complete": has_repeat_target, "claimed": claimed.has("repeat_customer"), "credits": 70, "scrap": 2},
 		{"id": "sector_owner", "name": "DONO DO SETOR", "description": "Conclua seu primeiro planeta.", "complete": completed_count >= 1, "claimed": claimed.has("sector_owner"), "credits": 120, "scrap": 4},
 		{"id": "triple_frontier", "name": "TRÍPLICE FRONTEIRA", "description": "Conclua três planetas.", "complete": completed_count >= 3, "claimed": claimed.has("triple_frontier"), "credits": 300, "scrap": 10},
+		{"id": "omega_mechanic", "name": "MECÂNICO DO APOCALIPSE", "description": "Conclua quatro planetas.", "complete": completed_count >= 4, "claimed": claimed.has("omega_mechanic"), "credits": 450, "scrap": 14},
 		{"id": "nothing_wasted", "name": "NADA SE PERDE", "description": "Recicle pelo menos 25 pontos de sucata.", "complete": int(player.get("scrap_recycled_total", 0)) >= 25, "claimed": claimed.has("nothing_wasted"), "credits": 90, "scrap": 5},
 	]
 
@@ -468,6 +469,8 @@ func inferior_recycle_preview() -> Dictionary:
 			continue
 		if equipped_ids.has(str(item.get("id", ""))):
 			continue
+		if item.has("trait"):
+			continue
 		if not CoreRules.is_upgrade(item, player.get(slot, {})):
 			count += 1
 			scrap += CoreRules.salvage_value(item)
@@ -484,8 +487,8 @@ func recycle_inferior_inventory() -> Dictionary:
 	var retained: Array = []
 	for item in player.get("inventory", []):
 		var slot := str(item.get("slot", ""))
-		var is_equipped := equipped_ids.has(str(item.get("id", "")))
-		var is_inferior := (slot == "weapon" or slot == "armor") and not CoreRules.is_upgrade(item, player.get(slot, {}))
+		var is_equipped: bool = equipped_ids.has(str(item.get("id", "")))
+		var is_inferior: bool = (slot == "weapon" or slot == "armor") and not item.has("trait") and not CoreRules.is_upgrade(item, player.get(slot, {}))
 		if is_equipped or not is_inferior:
 			retained.append(item)
 	player.inventory = retained
