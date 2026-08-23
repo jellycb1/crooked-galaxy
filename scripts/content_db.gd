@@ -105,6 +105,73 @@ const CONTRACT_APPROACHES := [
 	},
 ]
 
+const HUNT_EVENTS := [
+	{
+		"id": "toll_drone",
+		"title": "Pedágio de Drone D-7",
+		"description": "Um drone municipal bloqueia a rota. O adesivo diz: “totalmente oficial”.",
+		"color": "#55e5ff",
+		"choices": [
+			{
+				"id": "bribe",
+				"name": "PAGAR 8 CRÉDITOS",
+				"effect_text": "O drone entrega os pontos fracos: -18% defesa do alvo.",
+				"credit_cost": 8,
+				"defense_mult": 0.82,
+				"result": "D-7 aceitou a taxa administrativa e marcou a armadura defeituosa.",
+			},
+			{
+				"id": "detour",
+				"name": "PEGAR O DESVIO",
+				"effect_text": "+2s de caça, mas o alvo perde 12% de vida.",
+				"duration_add": 2.0,
+				"health_mult": 0.88,
+				"result": "O desvio terminou atrás do alvo. Pela primeira vez, uma placa ajudou.",
+			},
+			{
+				"id": "ram",
+				"name": "FURAR O BLOQUEIO",
+				"effect_text": "+12% poder inimigo, mas +18% créditos.",
+				"power_mult": 1.12,
+				"credits_mult": 1.18,
+				"result": "O drone enviou a placa da nave ao alvo e uma multa ao contratante.",
+			},
+		],
+	},
+	{
+		"id": "bounty_streamer",
+		"title": "Influencer de Caçada",
+		"description": "Uma repórter transmite sua perseguição ao vivo para onze espectadores e um bot.",
+		"color": "#d789ff",
+		"choices": [
+			{
+				"id": "interview",
+				"name": "DAR ENTREVISTA",
+				"effect_text": "+22% XP, mas o alvo ganha 8% de poder.",
+				"xp_mult": 1.22,
+				"power_mult": 1.08,
+				"result": "A entrevista viralizou entre os onze espectadores. O alvo também assistiu.",
+			},
+			{
+				"id": "jam_signal",
+				"name": "CORTAR O SINAL · 6 CR",
+				"effect_text": "Emboscada preservada: -8% poder do alvo.",
+				"credit_cost": 6,
+				"power_mult": 0.92,
+				"result": "A transmissão caiu no melhor momento. Sua emboscada não.",
+			},
+			{
+				"id": "wave",
+				"name": "MANDAR UM JOINHA",
+				"effect_text": "+1s de caça e +8% créditos pela publicidade.",
+				"duration_add": 1.0,
+				"credits_mult": 1.08,
+				"result": "O joinha virou patrocínio. Ninguém sabe por quê.",
+			},
+		],
+	},
+]
+
 const ITEM_CATALOG := {
 	"weapon": [
 		{"name": "Desatomizador de Bolso", "description": "Desmonta átomos, garantias e conversas constrangedoras."},
@@ -145,6 +212,20 @@ static func apply_approach(bounty: Dictionary, approach: Dictionary) -> Dictiona
 	result["health"] = maxi(1, roundi(float(bounty.health) * float(approach.health_mult)))
 	result["credits"] = maxi(1, roundi(float(bounty.credits) * float(approach.credits_mult)))
 	result["xp"] = maxi(1, roundi(float(bounty.xp) * float(approach.xp_mult)))
+	return result
+
+
+static func random_hunt_event(rng: RandomNumberGenerator) -> Dictionary:
+	return HUNT_EVENTS[rng.randi_range(0, HUNT_EVENTS.size() - 1)].duplicate(true)
+
+
+static func apply_hunt_choice(bounty: Dictionary, choice: Dictionary) -> Dictionary:
+	var result := bounty.duplicate(true)
+	for stat in ["power", "defense", "health", "credits", "xp"]:
+		var multiplier_key := "%s_mult" % stat
+		if choice.has(multiplier_key):
+			result[stat] = maxi(1 if stat != "defense" else 0, roundi(float(result[stat]) * float(choice[multiplier_key])))
+	result["hunt_event_result"] = str(choice.get("result", "A perseguição ficou ligeiramente mais estranha."))
 	return result
 
 

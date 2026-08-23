@@ -3,7 +3,7 @@ extends Node
 signal changed
 signal combat_event(message: String)
 
-enum Phase { BOARD, HUNT, COMBAT, REWARD, VICTORY, BRIEFING }
+enum Phase { BOARD, HUNT, COMBAT, REWARD, VICTORY, BRIEFING, HUNT_EVENT }
 
 const SAVE_PATH := "user://crooked_galaxy_save.json"
 
@@ -14,6 +14,10 @@ var offered_approaches: Array[Dictionary] = []
 var pending_loot: Dictionary = {}
 var hunt_started_at := 0.0
 var hunt_ends_at := 0.0
+var hunt_event: Dictionary = {}
+var hunt_event_triggered := false
+var hunt_elapsed_before_event := 0.0
+var hunt_remaining_after_event := 0.0
 var player_hp := 0
 var enemy_hp := 0
 var combat_round := 0
@@ -80,6 +84,10 @@ func start_hunt() -> void:
 	phase = Phase.HUNT
 	hunt_started_at = Time.get_unix_time_from_system()
 	hunt_ends_at = hunt_started_at + float(current_bounty.duration)
+	hunt_event = ContentDB.random_hunt_event(rng)
+	hunt_event_triggered = false
+	hunt_elapsed_before_event = 0.0
+	hunt_remaining_after_event = 0.0
 	save_game()
 	changed.emit()
 
@@ -102,8 +110,45 @@ func hunt_progress() -> float:
 
 
 func update_hunt() -> bool:
-	if phase == Phase.HUNT and Time.get_unix_time_from_system() >= hunt_ends_at:
+	if phase != Phase.HUNT:
+		return false
+	var now := Time.get_unix_time_from_system()
+	if now >= hunt_ends_at:
 		begin_combat()
+		return true
+	if not hunt_event_triggered and hunt_progress() >= 0.45:
+		hunt_event_triggered = true
+		hunt_elapsed_before_event = maxf(0.0, now - hunt_started_at)
+		hunt_remaining_after_event = maxf(0.1, hunt_ends_at - now)
+		phase = Phase.HUNT_EVENT
+		save_game()
+		changed.emit()
+		return true
+	return false
+
+
+func can_afford_hunt_choice(choice: Dictionary) -> bool:
+	return int(player.credits) >= int(choice.get("credit_cost", 0))
+
+
+func resolve_hunt_event(choice_id: String) -> bool:
+	if phase != Phase.HUNT_EVENT:
+		return false
+	var choices: Array = hunt_event.get("choices", [])
+	for choice in choices:
+		if str(choice.get("id", "")) != choice_id:
+			continue
+		if not can_afford_hunt_choice(choice):
+			return false
+		player.credits = int(player.credits) - int(choice.get("credit_cost", 0))
+		current_bounty = ContentDB.apply_hunt_choice(current_bounty, choice)
+		var duration_add := float(choice.get("duration_add", 0.0))
+		var now := Time.get_unix_time_from_system()
+		hunt_started_at = now - hunt_elapsed_before_event
+		hunt_ends_at = now + hunt_remaining_after_event + duration_add
+		phase = Phase.HUNT
+		save_game()
+		changed.emit()
 		return true
 	return false
 
@@ -170,6 +215,7 @@ func finish_combat(won: bool) -> void:
 		current_bounty = {}
 		pending_loot = {}
 		offered_approaches = []
+		hunt_event = {}
 	save_game()
 	changed.emit()
 
@@ -218,6 +264,7 @@ func claim_reward(equip_item: bool) -> Dictionary:
 	current_bounty = {}
 	pending_loot = {}
 	offered_approaches = []
+	hunt_event = {}
 	save_game()
 	changed.emit()
 	return summary
@@ -248,10 +295,11 @@ func toggle_sound() -> void:
 
 
 func abandon_bounty() -> void:
-	if phase == Phase.HUNT:
+	if phase == Phase.HUNT or phase == Phase.HUNT_EVENT:
 		phase = Phase.BOARD
 		current_bounty = {}
 		offered_approaches = []
+		hunt_event = {}
 		save_game()
 		changed.emit()
 
@@ -262,6 +310,7 @@ func reset_progress() -> void:
 	current_bounty = {}
 	pending_loot = {}
 	offered_approaches = []
+	hunt_event = {}
 	last_notice = "Progresso reiniciado. Hora de construir uma nova reputação."
 	save_game()
 	changed.emit()
@@ -279,6 +328,10 @@ func save_game() -> void:
 		"pending_loot": pending_loot,
 		"hunt_started_at": hunt_started_at,
 		"hunt_ends_at": hunt_ends_at,
+		"hunt_event": hunt_event,
+		"hunt_event_triggered": hunt_event_triggered,
+		"hunt_elapsed_before_event": hunt_elapsed_before_event,
+		"hunt_remaining_after_event": hunt_remaining_after_event,
 		"player_hp": player_hp,
 		"enemy_hp": enemy_hp,
 		"combat_round": combat_round,
@@ -311,6 +364,10 @@ func load_game() -> void:
 	pending_loot = parsed.get("pending_loot", {})
 	hunt_started_at = float(parsed.get("hunt_started_at", 0.0))
 	hunt_ends_at = float(parsed.get("hunt_ends_at", 0.0))
+	hunt_event = parsed.get("hunt_event", {})
+	hunt_event_triggered = bool(parsed.get("hunt_event_triggered", false))
+	hunt_elapsed_before_event = float(parsed.get("hunt_elapsed_before_event", 0.0))
+	hunt_remaining_after_event = float(parsed.get("hunt_remaining_after_event", 0.0))
 	player_hp = int(parsed.get("player_hp", 0))
 	enemy_hp = int(parsed.get("enemy_hp", 0))
 	combat_round = int(parsed.get("combat_round", 0))

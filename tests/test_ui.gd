@@ -32,6 +32,16 @@ func run_smoke_test() -> void:
 	state.choose_approach("quiet_net")
 	await process_frame
 	check(scene.find_child("HuntProgress", true, false) != null, "hunt screen renders")
+	state.hunt_event = ContentDB.HUNT_EVENTS[0].duplicate(true)
+	state.hunt_event_triggered = true
+	state.hunt_elapsed_before_event = 3.0
+	state.hunt_remaining_after_event = 3.0
+	state.phase = state.Phase.HUNT_EVENT
+	scene.render()
+	await process_frame
+	check(scene.find_child("HuntEventChoices", true, false) != null, "mid-hunt incident renders")
+	state.resolve_hunt_event("detour")
+	await process_frame
 
 	state.begin_combat()
 	await process_frame

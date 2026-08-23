@@ -48,6 +48,21 @@ func _init() -> void:
 	check(int(state.player.reputation) == 0, "rank requires three captures")
 
 	state.start_bounty(Content.TARGETS[0].duplicate(true))
+	state.hunt_event = Content.HUNT_EVENTS[0].duplicate(true)
+	var event_time := Time.get_unix_time_from_system()
+	state.hunt_started_at = event_time - 3.0
+	state.hunt_ends_at = event_time + 3.0
+	check(state.update_hunt(), "mid-hunt threshold opens an incident")
+	check(state.phase == state.Phase.HUNT_EVENT, "hunt pauses for the incident")
+	var credits_for_event := int(state.player.credits)
+	state.player.credits = 0
+	check(not state.resolve_hunt_event("bribe"), "unaffordable event choice is rejected")
+	state.player.credits = credits_for_event
+	check(state.resolve_hunt_event("bribe"), "affordable event choice resolves")
+	check(state.phase == state.Phase.HUNT, "hunt resumes after the incident")
+	check(int(state.player.credits) == credits_for_event - 8, "event cost is charged")
+	check(state.current_bounty.defense == 3, "event consequence modifies the target")
+	check(state.current_bounty.has("hunt_event_result"), "event result is retained for feedback")
 	state.begin_combat()
 	state.enemy_hp = 9999
 	state.player_hp = 1

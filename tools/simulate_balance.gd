@@ -36,6 +36,22 @@ func _init() -> void:
 			int(adjusted.credits),
 			int(adjusted.xp),
 		])
+
+	var event_profile: Dictionary = profiles[0]
+	var safe_contract := ContentDB.apply_approach(ContentDB.TARGETS[0], ContentDB.CONTRACT_APPROACHES[0])
+	var event: Dictionary = ContentDB.HUNT_EVENTS[0]
+	print("\nHunt incident: %s during %s" % [event.title, safe_contract.name])
+	for choice in event.choices:
+		var adjusted := ContentDB.apply_hunt_choice(safe_contract, choice)
+		var result := simulate_target(event_profile, adjusted, FIGHTS_PER_CASE)
+		print("  %-24s win=%5.1f%% estimate=%3d%% cost=%d time=%ds credits=%d" % [
+			choice.name,
+			float(result.wins) / FIGHTS_PER_CASE * 100.0,
+			roundi(CoreRules.bounty_odds(event_profile, adjusted) * 100.0),
+			int(choice.get("credit_cost", 0)),
+			int(adjusted.duration) + int(choice.get("duration_add", 0)),
+			int(adjusted.credits),
+		])
 	quit(0)
 
 

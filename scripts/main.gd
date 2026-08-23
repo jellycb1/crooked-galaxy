@@ -90,6 +90,8 @@ func render() -> void:
 				sound_fx.play_victory()
 			GameState.Phase.REWARD:
 				sound_fx.play_reward(str(GameState.pending_loot.get("rarity", "Comum")))
+			GameState.Phase.HUNT_EVENT:
+				sound_fx.play("accept", 0.72)
 	previous_phase = GameState.phase
 	for child in content.get_children():
 		child.queue_free()
@@ -110,6 +112,8 @@ func render() -> void:
 			build_victory()
 		GameState.Phase.BRIEFING:
 			build_briefing()
+		GameState.Phase.HUNT_EVENT:
+			build_hunt_event()
 	if GameState.phase == GameState.Phase.COMBAT:
 		if combat_timer.is_stopped():
 			combat_timer.start()
@@ -467,6 +471,8 @@ func build_hunt() -> void:
 	if not approach.is_empty():
 		content.add_child(center_label(str(approach.name).to_upper(), 16, Color(str(approach.color))))
 	content.add_child(center_label("Seguindo sinais, subornando robôs e fingindo ter um plano.", 16, MUTED))
+	if bounty.has("hunt_event_result"):
+		content.add_child(notice_banner(str(bounty.hunt_event_result), GOLD))
 
 	var progress := ProgressBar.new()
 	progress.name = "HuntProgress"
@@ -485,6 +491,58 @@ func build_hunt() -> void:
 	var abandon := action_button("ABANDONAR CONTRATO", CORAL, true)
 	abandon.pressed.connect(GameState.abandon_bounty)
 	content.add_child(abandon)
+
+
+func build_hunt_event() -> void:
+	var event := GameState.hunt_event
+	var accent := Color(str(event.get("color", "#ffc857")))
+	content.add_spacer(false)
+	content.add_child(center_label("IMPREVISTO NA CAÇADA", 17, CORAL))
+	var incident := panel(VBoxContainer.new(), Color("#18264b"), 20, 22)
+	content.add_child(incident)
+	var incident_box := incident.get_child(0) as VBoxContainer
+	incident_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	incident_box.add_theme_constant_override("separation", 8)
+	var symbol := "D-7" if str(event.get("id", "")) == "toll_drone" else "LIVE"
+	incident_box.add_child(center_label(symbol, 42, accent))
+	incident_box.add_child(center_label(str(event.get("title", "Algo Estranho")), 26, INK))
+	var description := center_label(str(event.get("description", "A perseguição ficou mais complicada.")), 15, MUTED)
+	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	incident_box.add_child(description)
+	incident_box.add_child(center_label("A CAÇA ESTÁ PAUSADA", 12, GOLD))
+
+	var choices := VBoxContainer.new()
+	choices.name = "HuntEventChoices"
+	choices.add_theme_constant_override("separation", 10)
+	content.add_child(choices)
+	for choice in event.get("choices", []):
+		choices.add_child(hunt_choice_card(choice, accent))
+	content.add_spacer(false)
+	var abandon := action_button("ABANDONAR CONTRATO", CORAL, true)
+	abandon.custom_minimum_size = Vector2(0, 46)
+	abandon.pressed.connect(GameState.abandon_bounty)
+	content.add_child(abandon)
+
+
+func hunt_choice_card(choice: Dictionary, accent: Color) -> PanelContainer:
+	var card := panel(HBoxContainer.new(), PANEL, 13, 12)
+	var row := card.get_child(0) as HBoxContainer
+	row.add_theme_constant_override("separation", 12)
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(copy)
+	copy.add_child(label(str(choice.name), 15, accent))
+	var effect := label(str(choice.effect_text), 13, MUTED)
+	effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	copy.add_child(effect)
+	var affordable := GameState.can_afford_hunt_choice(choice)
+	var choose := action_button("ESCOLHER" if affordable else "SEM CRÉDITOS", accent, true)
+	choose.custom_minimum_size = Vector2(142, 48)
+	choose.disabled = not affordable
+	var choice_id := str(choice.id)
+	choose.pressed.connect(func(): GameState.resolve_hunt_event(choice_id))
+	row.add_child(choose)
+	return card
 
 
 func build_combat() -> void:

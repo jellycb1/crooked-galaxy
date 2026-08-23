@@ -46,9 +46,24 @@ func _init() -> void:
 	check(restored_briefing.phase == restored_briefing.Phase.BRIEFING, "briefing phase survives save and load")
 	check(restored_briefing.offered_approaches.size() == 3, "approach choices survive save and load")
 
+	source.choose_approach("quiet_net")
+	source.hunt_event = ContentDB.HUNT_EVENTS[1].duplicate(true)
+	source.hunt_event_triggered = true
+	source.hunt_elapsed_before_event = 4.0
+	source.hunt_remaining_after_event = 5.0
+	source.phase = source.Phase.HUNT_EVENT
+	source.save_game()
+	var restored_event = StateScript.new()
+	restored_event.save_path = TEST_SAVE
+	restored_event.load_game()
+	check(restored_event.phase == restored_event.Phase.HUNT_EVENT, "mid-hunt incident survives save and load")
+	check(str(restored_event.hunt_event.id) == "bounty_streamer", "incident content is restored")
+	check(is_equal_approx(restored_event.hunt_remaining_after_event, 5.0), "paused hunt time is restored")
+
 	source.free()
 	restored.free()
 	restored_briefing.free()
+	restored_event.free()
 	if FileAccess.file_exists(TEST_SAVE):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SAVE))
 	if failures == 0:

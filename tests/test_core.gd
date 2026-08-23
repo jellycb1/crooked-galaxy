@@ -73,6 +73,11 @@ func test_loot_generation() -> void:
 	check(adjusted.power == 10, "safe approach lowers target power")
 	check(adjusted.credits == 34 and adjusted.xp == 53, "approach modifies visible rewards")
 	check(str(adjusted.approach.id) == "quiet_net", "chosen approach is retained")
+	var drone_event: Dictionary = Content.HUNT_EVENTS[0]
+	var bribed := Content.apply_hunt_choice(Content.TARGETS[0], drone_event.choices[0])
+	check(bribed.defense == 3, "hunt choice can weaken target defense")
+	var rammed := Content.apply_hunt_choice(Content.TARGETS[0], drone_event.choices[2])
+	check(rammed.power == 12 and rammed.credits == 45, "risky hunt choice raises danger and reward")
 
 
 func check(condition: bool, description: String) -> void:
