@@ -62,6 +62,14 @@ func run_smoke_test() -> void:
 	check(scene.find_child("ClaimAndRepeat", true, false) != null, "reward screen offers another contract immediately")
 	check(scene.find_child("ClaimAndBoard", true, false) != null, "reward screen preserves the board return path")
 	state.claim_reward(true)
+	state.phase = state.Phase.REWARD
+	state.current_bounty = bounty.duplicate(true)
+	state.pending_loot = {"id": "ui_instant_scrap", "name": "Zapper Cansado", "slot": "weapon", "power": 0, "rarity": "Comum", "color": "#b9c2d9"}
+	scene.render()
+	await process_frame
+	check(scene.find_child("RecycleAndRepeat", true, false) != null, "inferior common rewards offer immediate recycling")
+	state.claim_reward(false, true, true)
+	state.phase = state.Phase.BOARD
 	state.player.scrap = 18
 	state.player.inventory.append({"id": "ui_spare", "name": "Peça Obsoleta", "description": "Serve melhor desmontada.", "slot": "armor", "power": 6, "rarity": "Comum", "color": "#b9c2d9"})
 	state.player.inventory.append({"id": "ui_inferior", "name": "Peça Arquivada", "description": "Já perdeu a discussão.", "slot": "weapon", "power": 1, "rarity": "Comum", "color": "#b9c2d9"})

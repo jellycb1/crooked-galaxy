@@ -355,8 +355,17 @@ func combat_quality(roll: float) -> String:
 	return "ACERTO"
 
 
-func claim_reward(equip_item: bool, repeat_contract := false) -> Dictionary:
+func can_recycle_reward(item: Dictionary) -> bool:
+	var slot := str(item.get("slot", ""))
+	if slot != "weapon" and slot != "armor":
+		return false
+	return not item.has("trait") and not CoreRules.is_upgrade(item, player.get(slot, {}))
+
+
+func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := false) -> Dictionary:
 	if phase != Phase.REWARD or pending_loot.is_empty():
+		return {}
+	if recycle_item and not can_recycle_reward(pending_loot):
 		return {}
 	var new_streak := int(player.get("capture_streak", 0)) + 1
 	var reward := CoreRules.bounty_streak_reward(int(current_bounty.credits), new_streak)
@@ -366,6 +375,8 @@ func claim_reward(equip_item: bool, repeat_contract := false) -> Dictionary:
 		"streak_bonus": int(reward.bonus_credits),
 		"streak_bonus_percent": int(reward.bonus_percent),
 		"streak": new_streak,
+		"scrap": 0,
+		"recycled": false,
 		"xp": int(current_bounty.xp),
 		"levels": 0,
 		"rank_up": false,
@@ -394,10 +405,18 @@ func claim_reward(equip_item: bool, repeat_contract := false) -> Dictionary:
 		highest_rank = maxi(highest_rank, int(target.rank))
 	player.reputation = mini(floori(float(player.wins) / 3.0), highest_rank)
 	summary.rank_up = int(player.reputation) > old_reputation
-	player.inventory.append(pending_loot.duplicate(true))
-	if equip_item:
-		equip(pending_loot)
+	if recycle_item:
+		summary.scrap = CoreRules.salvage_value(pending_loot)
+		summary.recycled = true
+		player.scrap = int(player.get("scrap", 0)) + int(summary.scrap)
+		player.scrap_recycled_total = int(player.get("scrap_recycled_total", 0)) + int(summary.scrap)
+	else:
+		player.inventory.append(pending_loot.duplicate(true))
+		if equip_item:
+			equip(pending_loot)
 	var notice_parts := ["+%d créditos" % int(summary.credits), "+%d XP" % int(summary.xp)]
+	if int(summary.scrap) > 0:
+		notice_parts.append("Loot reciclado: +%d sucata" % int(summary.scrap))
 	if int(summary.streak_bonus) > 0:
 		notice_parts.append("Embalo ×%d: +%d" % [new_streak, int(summary.streak_bonus)])
 	if int(summary.levels) > 0:

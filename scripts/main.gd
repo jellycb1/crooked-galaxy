@@ -1132,11 +1132,24 @@ func build_reward() -> void:
 	var equip_now := effective_upgrade
 	var planet_id := str(GameState.current_bounty.get("planet_id", ContentDB.PLANET.id))
 	var completes_chapter: bool = bool(GameState.current_bounty.get("boss", false)) and not bool(GameState.player.get("completed_planets", []).has(planet_id))
+	var safe_to_recycle := GameState.can_recycle_reward(item)
 	if not completes_chapter:
 		var repeat := action_button("EQUIPAR E REPETIR" if equip_now else "GUARDAR E REPETIR", LIME)
 		repeat.name = "ClaimAndRepeat"
 		repeat.pressed.connect(func(): GameState.claim_reward(equip_now, true))
 		content.add_child(repeat)
+		if safe_to_recycle:
+			var recycle_repeat := action_button("RECICLAR +%d SUCATA E REPETIR" % CoreRules.salvage_value(item), CORAL, true)
+			recycle_repeat.name = "RecycleAndRepeat"
+			recycle_repeat.custom_minimum_size = Vector2(0, 48)
+			recycle_repeat.pressed.connect(func(): GameState.claim_reward(false, true, true))
+			content.add_child(recycle_repeat)
+	elif safe_to_recycle:
+		var recycle_complete := action_button("RECICLAR +%d SUCATA E CONCLUIR" % CoreRules.salvage_value(item), CORAL, true)
+		recycle_complete.name = "RecycleAndComplete"
+		recycle_complete.custom_minimum_size = Vector2(0, 48)
+		recycle_complete.pressed.connect(func(): GameState.claim_reward(false, false, true))
+		content.add_child(recycle_complete)
 	var claim_text := "RECEBER E CONCLUIR CAPÍTULO" if completes_chapter else ("EQUIPAR E VOLTAR AO QUADRO" if equip_now else "GUARDAR E VOLTAR AO QUADRO")
 	var claim := action_button(claim_text, GOLD if not completes_chapter else LIME, true)
 	claim.name = "ClaimAndBoard"

@@ -111,6 +111,16 @@ func capture() -> void:
 	if save_frame("ui_reward.png") != OK:
 		quit(1)
 		return
+	var featured_loot: Dictionary = state.pending_loot.duplicate(true)
+	state.pending_loot = {"id": "capture_instant_scrap", "name": "Zapper de Garantia Vencida", "description": "Já veio tecnicamente reciclado.", "slot": "weapon", "power": 0, "rarity": "Comum", "color": "#b9c2d9"}
+	scene.render()
+	await process_frame
+	await process_frame
+	await create_timer(0.42).timeout
+	if save_frame("ui_reward_recycle.png") != OK:
+		quit(1)
+		return
+	state.pending_loot = featured_loot
 	state.claim_reward(true)
 	state.player.scrap = 18
 	state.player.inventory.append({"id": "capture_spare", "name": "Colete Fiscal Vencido", "description": "A proteção expirou no trimestre passado.", "slot": "armor", "power": 5, "rarity": "Comum", "color": "#b9c2d9"})
@@ -335,7 +345,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, four finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, reward decisions, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, four finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

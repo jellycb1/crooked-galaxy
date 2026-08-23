@@ -67,6 +67,24 @@ func _init() -> void:
 	streak_state.abandon_bounty()
 	check(int(streak_state.player.capture_streak) == 0, "abandoning a hunt breaks the capture streak")
 	streak_state.free()
+	var recycle_reward_state = StateScript.new()
+	recycle_reward_state.persistence_enabled = false
+	recycle_reward_state.player = recycle_reward_state.default_player()
+	recycle_reward_state.phase = recycle_reward_state.Phase.REWARD
+	recycle_reward_state.current_bounty = Content.TARGETS[0].duplicate(true)
+	recycle_reward_state.pending_loot = {"id": "instant_scrap", "name": "Zapper Pior", "slot": "weapon", "power": 0, "rarity": "Comum", "color": "#b9c2d9"}
+	var instant_scrap_value := CoreRules.salvage_value(recycle_reward_state.pending_loot)
+	var instant_result := recycle_reward_state.claim_reward(false, true, true)
+	check(bool(instant_result.recycled) and int(instant_result.scrap) == instant_scrap_value, "reward can report immediate recycling")
+	check(recycle_reward_state.phase == recycle_reward_state.Phase.BRIEFING, "recycled reward can continue directly to the next briefing")
+	check(not recycle_reward_state.player.inventory.any(func(item): return str(item.get("id", "")) == "instant_scrap"), "immediately recycled loot never enters inventory")
+	check(int(recycle_reward_state.player.scrap) == instant_scrap_value and int(recycle_reward_state.player.scrap_recycled_total) == instant_scrap_value, "immediate recycling funds the workshop and career total")
+	recycle_reward_state.phase = recycle_reward_state.Phase.REWARD
+	recycle_reward_state.current_bounty = Content.TARGETS[0].duplicate(true)
+	recycle_reward_state.pending_loot = {"id": "protected_trait", "name": "Achado Modificado", "slot": "weapon", "power": 0, "rarity": "Raro", "color": "#58d9ff", "trait": {"power_bonus": 0, "health_bonus": 0}}
+	check(recycle_reward_state.claim_reward(false, false, true).is_empty(), "immediate recycling rejects modified rewards at the state boundary")
+	check(recycle_reward_state.phase == recycle_reward_state.Phase.REWARD and str(recycle_reward_state.pending_loot.id) == "protected_trait", "rejected recycling leaves the special reward untouched")
+	recycle_reward_state.free()
 	check(not state.scrap_item(str(claimed_item.id)), "equipped item cannot be recycled")
 	var spare := {"id": "spare_epic", "name": "Sucata de Teste", "description": "Feita para sumir.", "slot": "armor", "power": 12, "rarity": "Épico", "color": "#d789ff"}
 	state.player.inventory.append(spare)

@@ -41,7 +41,7 @@ godot --headless --path . --script res://tests/test_content.gd
 godot --headless --path . --script res://tests/test_mobile.gd
 ```
 
-Capture the bounty boards, AFK return, career, galaxy map, unlocked boss, contract briefing, hunt incident, combat, victory, reward, arsenal filters, and chapter-completion states for visual review:
+Capture the bounty boards, AFK return, career, galaxy map, unlocked boss, contract briefing, hunt incident, combat, victory, reward decisions, arsenal filters, and chapter-completion states for visual review:
 
 ```powershell
 godot --path . --script res://tools/capture_ui.gd
