@@ -97,14 +97,16 @@ static func mastery_directive_card(host: CrookedUIFactory, state: StateScript, o
 	copy.add_child(host.label("PRÓXIMA PERÍCIA · %s" % str(target.name).to_upper(), 13, host.GOLD))
 	copy.add_child(host.label("Faltam %d captura%s para perícia %d/3" % [int(objective.remaining), "s" if int(objective.remaining) != 1 else "", int(objective.next_level)], 12, host.INK))
 	copy.add_child(host.label("Próximo bônus: +%d%% raro · +%d%% épico" % [int(objective.rare_bonus), int(objective.epic_bonus)], 11, host.LIME))
-	var action := host.action_button("ABRIR\nMANDADO", Color(str(planet.accent)), true)
+	var action := host.action_button("CAÇAR\nAGORA", Color(str(planet.accent)), true)
 	action.name = "MasteryDirectiveAction"
 	action.custom_minimum_size = Vector2(105, 52)
 	action.add_theme_font_size_override("font_size", 10)
 	var planet_id := str(target.planet_id)
+	var target_id := str(target.id)
 	action.pressed.connect(func():
 		host.view_mode = "board"
-		state.travel_to_planet(planet_id)
+		if state.travel_to_planet(planet_id):
+			state.select_bounty(Content.get_target(target_id))
 	)
 	row.add_child(action)
 	return card

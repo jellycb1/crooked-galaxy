@@ -21,9 +21,16 @@ func _init() -> void:
 
 	RewardScript.build(host, content, state)
 	check(host.find_child("RewardWarrantProgress", true, false) != null, "isolated reward renders next-warrant progress")
+	check(host.find_child("RewardMasteryProgress", true, false) != null, "isolated reward previews progress from the pending capture")
 	check(host.find_child("ClaimAndRepeat", true, false) != null and host.find_child("ClaimAndBoard", true, false) != null, "isolated reward preserves repeat and board decisions")
 
 	clear_content(content)
+	state.player.captures_by_target = {"gloop": 2}
+	RewardScript.build(host, content, state)
+	check(host.find_child("RewardMasteryUnlock", true, false) != null, "isolated reward previews a mastery threshold before claiming")
+
+	clear_content(content)
+	state.player.captures_by_target = {}
 	state.player.captures_by_planet = {ContentDB.PLANET.id: 2}
 	RewardScript.build(host, content, state)
 	check(host.find_child("RewardWarrantUnlock", true, false) != null, "isolated reward previews a threshold unlock")

@@ -25,6 +25,9 @@ func _init() -> void:
 	check(host.find_child("MasteryDirective", true, false) != null, "isolated career turns archive data into a repeat objective")
 	check(host.find_child("MasteryDirectiveAction", true, false) != null, "mastery objective links back to its warrant board")
 	check(host.find_child("CareerTarget_gloop", true, false) != null, "isolated career preserves wanted records")
+	var action := host.find_child("MasteryDirectiveAction", true, false) as Button
+	action.pressed.emit()
+	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "gloop", "mastery directive opens the recommended target briefing directly")
 
 	host.free()
 	state.free()

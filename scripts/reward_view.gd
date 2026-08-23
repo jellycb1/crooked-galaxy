@@ -47,6 +47,18 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		var mastery_label := host.center_label("PERÍCIA COM ALVO %d/3 · QUALIDADE DE LOOT AMPLIADA" % reward_mastery, 13, host.LIME)
 		mastery_label.name = "RewardMastery"
 		box.add_child(mastery_label)
+	var captures_after_reward := previous_captures + 1
+	var mastery_after_reward := Rules.target_mastery_level(captures_after_reward)
+	if mastery_after_reward > reward_mastery:
+		var mastery_unlock := host.center_label("NOVA PERÍCIA AO RECEBER · NÍVEL %d/3 · +%d%% RARO · +%d%% ÉPICO" % [mastery_after_reward, mastery_after_reward * 5, mastery_after_reward * 2], 13, host.GOLD)
+		mastery_unlock.name = "RewardMasteryUnlock"
+		box.add_child(mastery_unlock)
+	else:
+		var next_mastery_requirement := Rules.target_mastery_next_requirement(reward_mastery)
+		if next_mastery_requirement > 0:
+			var mastery_progress := host.center_label("PRÓXIMA PERÍCIA · %d/%d CAPTURAS" % [captures_after_reward, next_mastery_requirement], 12, host.CYAN)
+			mastery_progress.name = "RewardMasteryProgress"
+			box.add_child(mastery_progress)
 	if int(reward_preview.bonus_credits) > 0:
 		box.add_child(host.center_label("EMBALO ×%d · +%d créditos (+%d%%)" % [int(reward_preview.streak), int(reward_preview.bonus_credits), int(reward_preview.bonus_percent)], 14, host.LIME))
 	var planet_id := str(state.current_bounty.get("planet_id", Content.PLANET.id))
