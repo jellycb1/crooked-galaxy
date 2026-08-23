@@ -103,7 +103,7 @@ func planet_capture_count(planet_id: String) -> int:
 
 
 func planet_tier(planet_id: String) -> int:
-	return mini(3, floori(float(planet_capture_count(planet_id)) / 3.0))
+	return CoreRules.planet_tier_from_captures(planet_capture_count(planet_id))
 
 
 func apply_offline_progress(now_unix: float) -> Dictionary:

@@ -231,6 +231,7 @@ func build_board() -> void:
 	if streak > 0:
 		var next_reward := CoreRules.bounty_streak_reward(100, streak + 1)
 		content.add_child(notice_banner("EMBALO ×%d · próximo contrato recebe +%d%% de créditos · derrota ou abandono encerra a sequência" % [streak, int(next_reward.bonus_percent)], GOLD))
+	content.add_child(rank_progress_panel())
 
 	var scroller := ScrollContainer.new()
 	scroller.name = "BountyScroll"
@@ -243,7 +244,6 @@ func build_board() -> void:
 	for bounty in ContentDB.available_bounties(int(GameState.player.reputation), str(planet.id), GameState.planet_tier(str(planet.id))):
 		list.add_child(bounty_card(bounty))
 
-	content.add_child(rank_progress_panel())
 	var equipment := HBoxContainer.new()
 	equipment.add_theme_constant_override("separation", 10)
 	content.add_child(equipment)
@@ -254,12 +254,9 @@ func build_board() -> void:
 func rank_progress_panel() -> PanelContainer:
 	var planet := active_planet()
 	var tier := GameState.planet_tier(str(planet.id))
-	var next_target: Dictionary = {}
-	for target in ContentDB.TARGETS:
-		if str(target.get("planet_id", ContentDB.PLANET.id)) == str(planet.id) and int(target.get("chapter_tier", target.rank)) == tier + 1:
-			next_target = target
-			break
+	var next_target := ContentDB.target_for_planet_tier(str(planet.id), tier + 1)
 	var card := panel(VBoxContainer.new(), Color("#0d1530"), 12, 11)
+	card.name = "NextWarrantProgress"
 	var box := card.get_child(0) as VBoxContainer
 	box.add_theme_constant_override("separation", 6)
 	var row := HBoxContainer.new()
@@ -918,12 +915,27 @@ func build_reward() -> void:
 		box.add_child(mastery_label)
 	if int(reward_preview.bonus_credits) > 0:
 		box.add_child(center_label("EMBALO ×%d · +%d créditos (+%d%%)" % [int(reward_preview.streak), int(reward_preview.bonus_credits), int(reward_preview.bonus_percent)], 14, LIME))
+	var planet_id := str(GameState.current_bounty.get("planet_id", ContentDB.PLANET.id))
+	var captures_before := GameState.planet_capture_count(planet_id)
+	var captures_after := captures_before + 1
+	var tier_before := CoreRules.planet_tier_from_captures(captures_before)
+	var tier_after := CoreRules.planet_tier_from_captures(captures_after)
+	var next_target := ContentDB.target_for_planet_tier(planet_id, tier_after if tier_after > tier_before else tier_before + 1)
+	var unlocks_new_warrant := tier_after > tier_before and not next_target.is_empty()
+	if unlocks_new_warrant:
+		var unlock_label := center_label("NOVO MANDADO AO RECEBER · %s" % str(next_target.name).to_upper(), 14, LIME)
+		unlock_label.name = "RewardWarrantUnlock"
+		box.add_child(unlock_label)
+	elif not next_target.is_empty():
+		var requirement := CoreRules.planet_next_tier_requirement(captures_after)
+		var progress_label := center_label("RUMO A %s · %d/%d CAPTURAS" % [str(next_target.name).to_upper(), captures_after, requirement], 13, CYAN)
+		progress_label.name = "RewardWarrantProgress"
+		box.add_child(progress_label)
 	content.add_spacer(false)
 	var equip_now := effective_upgrade
-	var planet_id := str(GameState.current_bounty.get("planet_id", ContentDB.PLANET.id))
 	var completes_chapter: bool = bool(GameState.current_bounty.get("boss", false)) and not bool(GameState.player.get("completed_planets", []).has(planet_id))
 	var safe_to_recycle := GameState.can_recycle_reward(item)
-	if not completes_chapter:
+	if not completes_chapter and not unlocks_new_warrant:
 		var repeat := action_button("EQUIPAR E REPETIR" if equip_now else "GUARDAR E REPETIR", LIME)
 		repeat.name = "ClaimAndRepeat"
 		repeat.pressed.connect(func(): GameState.claim_reward(equip_now, true))
@@ -935,14 +947,21 @@ func build_reward() -> void:
 			recycle_repeat.pressed.connect(func(): GameState.claim_reward(false, true, true))
 			content.add_child(recycle_repeat)
 	elif safe_to_recycle:
-		var recycle_complete := action_button("RECICLAR +%d SUCATA E CONCLUIR" % CoreRules.salvage_value(item), CORAL, true)
+		var recycle_destination := "VER NOVO MANDADO" if unlocks_new_warrant else "CONCLUIR"
+		var recycle_complete := action_button("RECICLAR +%d SUCATA E %s" % [CoreRules.salvage_value(item), recycle_destination], CORAL, true)
 		recycle_complete.name = "RecycleAndComplete"
 		recycle_complete.custom_minimum_size = Vector2(0, 48)
 		recycle_complete.pressed.connect(func(): GameState.claim_reward(false, false, true))
 		content.add_child(recycle_complete)
-	var claim_text := "RECEBER E CONCLUIR CAPÍTULO" if completes_chapter else ("EQUIPAR E VOLTAR AO QUADRO" if equip_now else "GUARDAR E VOLTAR AO QUADRO")
-	var claim := action_button(claim_text, GOLD if not completes_chapter else LIME, true)
-	claim.name = "ClaimAndBoard"
+	var claim_text := ""
+	if completes_chapter:
+		claim_text = "RECEBER E CONCLUIR CAPÍTULO"
+	elif unlocks_new_warrant:
+		claim_text = "EQUIPAR E VER NOVO MANDADO" if equip_now else "GUARDAR E VER NOVO MANDADO"
+	else:
+		claim_text = "EQUIPAR E VOLTAR AO QUADRO" if equip_now else "GUARDAR E VOLTAR AO QUADRO"
+	var claim := action_button(claim_text, LIME if completes_chapter or unlocks_new_warrant else GOLD, true)
+	claim.name = "ClaimAndUnlock" if unlocks_new_warrant else "ClaimAndBoard"
 	claim.custom_minimum_size = Vector2(0, 48)
 	claim.pressed.connect(func(): GameState.claim_reward(equip_now))
 	content.add_child(claim)

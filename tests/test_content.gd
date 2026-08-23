@@ -68,6 +68,8 @@ func _init() -> void:
 			check(int(modification.get("power_bonus", 0)) > 0 or int(modification.get("health_bonus", 0)) > 0 or int(modification.get("opening_damage_bonus", 0)) > 0 or int(modification.get("damage_reduction", 0)) > 0, "equipment modification has a mechanical effect: %s" % trait_id)
 
 	check(ContentDB.CONTRACT_APPROACHES.size() == 3, "every contract keeps three strategic approaches")
+	check(str(ContentDB.target_for_planet_tier("dustball_prime", 1).id) == "baron_boom", "planet tier resolves the next warrant deterministically")
+	check(ContentDB.target_for_planet_tier("missing_planet", 1).is_empty(), "unknown planet tiers fail safely")
 	var promoted_loot := 0
 	for seed in 240:
 		var base_rng := RandomNumberGenerator.new()

@@ -114,6 +114,15 @@ func capture() -> void:
 	if save_frame("ui_reward.png") != OK:
 		quit(1)
 		return
+	state.player.captures_by_planet = {ContentDB.PLANET.id: 2}
+	scene.render()
+	await process_frame
+	await process_frame
+	await create_timer(0.12).timeout
+	if save_frame("ui_reward_unlock.png") != OK:
+		quit(1)
+		return
+	state.player.captures_by_planet = {}
 	var featured_loot: Dictionary = state.pending_loot.duplicate(true)
 	state.pending_loot = {"id": "capture_instant_scrap", "name": "Zapper de Garantia Vencida", "description": "Já veio tecnicamente reciclado.", "slot": "weapon", "power": 0, "rarity": "Comum", "color": "#b9c2d9"}
 	scene.render()
@@ -354,7 +363,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, reward decisions, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, four finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, reward and warrant-unlock decisions, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, four finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

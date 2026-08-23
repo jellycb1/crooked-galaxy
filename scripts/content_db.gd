@@ -721,6 +721,13 @@ static func get_target(target_id: String) -> Dictionary:
 	return {}
 
 
+static func target_for_planet_tier(planet_id: String, tier: int) -> Dictionary:
+	for target in TARGETS:
+		if str(target.get("planet_id", "")) == planet_id and int(target.get("chapter_tier", -1)) == tier:
+			return target.duplicate(true)
+	return {}
+
+
 static func apply_approach(bounty: Dictionary, approach: Dictionary) -> Dictionary:
 	var result := bounty.duplicate(true)
 	result["approach"] = approach.duplicate(true)

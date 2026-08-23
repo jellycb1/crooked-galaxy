@@ -180,6 +180,20 @@ static func target_mastery_level(captures: int) -> int:
 	return 0
 
 
+static func planet_tier_from_captures(captures: int) -> int:
+	return mini(3, floori(float(maxi(0, captures)) / 3.0))
+
+
+static func planet_next_tier_requirement(captures: int) -> int:
+	var tier := planet_tier_from_captures(captures)
+	return (tier + 1) * 3 if tier < 3 else -1
+
+
+static func planet_captures_until_next_tier(captures: int) -> int:
+	var requirement := planet_next_tier_requirement(captures)
+	return maxi(0, requirement - maxi(0, captures)) if requirement >= 0 else 0
+
+
 static func target_mastery_next_requirement(level: int) -> int:
 	match level:
 		0:

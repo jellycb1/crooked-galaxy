@@ -24,6 +24,7 @@ func run_smoke_test() -> void:
 	root.add_child(scene)
 	await process_frame
 	check(scene.content.get_child_count() >= 4, "bounty board renders")
+	check(scene.find_child("NextWarrantProgress", true, false) != null, "board keeps the next-warrant objective above the contract list")
 
 	var bounty: Dictionary = ContentDB.TARGETS[0].duplicate(true)
 	state.player.captures_by_target = {"gloop": 3}
@@ -65,8 +66,19 @@ func run_smoke_test() -> void:
 	state.open_reward()
 	await process_frame
 	check(scene.find_child("RewardMastery", true, false) != null, "reward screen confirms applied target mastery")
+	check(scene.find_child("RewardWarrantProgress", true, false) != null, "reward screen previews progress toward the next warrant")
 	check(scene.find_child("ClaimAndRepeat", true, false) != null, "reward screen offers another contract immediately")
 	check(scene.find_child("ClaimAndBoard", true, false) != null, "reward screen preserves the board return path")
+	state.player.captures_by_planet = {ContentDB.PLANET.id: 2}
+	scene.render()
+	await process_frame
+	check(scene.find_child("RewardWarrantUnlock", true, false) != null, "third capture previews the newly unlocked warrant")
+	check(scene.find_child("ClaimAndRepeat", true, false) == null, "unlock reward directs the first visit back to the expanded board")
+	var unlock_claim := scene.find_child("ClaimAndUnlock", true, false) as Button
+	check(unlock_claim != null and unlock_claim.text.contains("NOVO MANDADO"), "unlock reward CTA names its destination")
+	state.player.captures_by_planet = {}
+	scene.render()
+	await process_frame
 	state.claim_reward(true)
 	state.phase = state.Phase.REWARD
 	state.current_bounty = bounty.duplicate(true)
