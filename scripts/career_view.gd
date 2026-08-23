@@ -35,6 +35,19 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	if not objective.is_empty():
 		content.add_child(mastery_directive_card(host, state, objective))
 
+	var section_nav := HBoxContainer.new()
+	section_nav.name = "CareerSectionNav"
+	section_nav.add_theme_constant_override("separation", 8)
+	content.add_child(section_nav)
+	var progress_jump := host.action_button("PROGRESSO", host.CYAN, true)
+	progress_jump.name = "CareerProgressJump"
+	progress_jump.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	section_nav.add_child(progress_jump)
+	var archive_jump := host.action_button("PROCURADOS · %d" % Content.TARGETS.size(), host.GOLD, true)
+	archive_jump.name = "CareerArchiveJump"
+	archive_jump.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	section_nav.add_child(archive_jump)
+
 	var scroller := ScrollContainer.new()
 	scroller.name = "CareerScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -44,15 +57,24 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", 10)
 	scroller.add_child(list)
-	list.add_child(host.label("PROGRESSO PLANETÁRIO", 13, host.MUTED))
+	var progress_heading := host.label("PROGRESSO PLANETÁRIO", 13, host.MUTED)
+	list.add_child(progress_heading)
 	for planet in Content.PLANETS:
 		list.add_child(planet_card(host, state, planet))
 	list.add_child(host.label("MARCOS DA CARREIRA", 13, host.MUTED))
 	for milestone in state.career_milestones():
 		list.add_child(milestone_card(host, state, milestone))
-	list.add_child(host.label("ARQUIVO DE PROCURADOS", 13, host.MUTED))
+	var archive_heading := host.label("ARQUIVO DE PROCURADOS", 13, host.MUTED)
+	archive_heading.name = "WantedArchiveHeading"
+	list.add_child(archive_heading)
 	for target in Content.TARGETS:
 		list.add_child(target_card(host, state, target))
+	progress_jump.pressed.connect(func(): scroll_to_section(scroller, progress_heading))
+	archive_jump.pressed.connect(func(): scroll_to_section(scroller, archive_heading))
+
+
+static func scroll_to_section(scroller: ScrollContainer, heading: Control) -> void:
+	scroller.scroll_vertical = maxi(0, roundi(heading.position.y))
 
 
 static func summary_card(host: CrookedUIFactory, state: StateScript) -> PanelContainer:

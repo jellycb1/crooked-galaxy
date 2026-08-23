@@ -22,9 +22,13 @@ func _init() -> void:
 
 	check(host.find_child("CareerSummary", true, false) != null, "isolated career builds its summary")
 	check(host.find_child("CareerScroll", true, false) != null, "isolated career builds its archive scroller")
+	check(host.find_child("CareerProgressJump", true, false) != null, "career provides a direct route back to progression")
+	check(host.find_child("CareerArchiveJump", true, false) != null, "career provides a direct route to the wanted archive")
 	check(host.find_child("MasteryDirective", true, false) != null, "isolated career turns archive data into a repeat objective")
 	check(host.find_child("MasteryDirectiveAction", true, false) != null, "mastery objective links back to its warrant board")
 	check(host.find_child("CareerTarget_gloop", true, false) != null, "isolated career preserves wanted records")
+	var archive_jump := host.find_child("CareerArchiveJump", true, false) as Button
+	check(not archive_jump.pressed.get_connections().is_empty(), "wanted archive shortcut is wired to skip the long career ledger")
 	var action := host.find_child("MasteryDirectiveAction", true, false) as Button
 	action.pressed.emit()
 	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "gloop", "mastery directive opens the recommended target briefing directly")

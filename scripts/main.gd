@@ -328,6 +328,7 @@ func planet_card(planet: Dictionary) -> PanelContainer:
 	var planet_id := str(planet.id)
 	var current := planet_id == str(GameState.player.get("current_planet_id", ContentDB.PLANET.id))
 	var unlocked := ContentDB.is_planet_unlocked(planet_id, GameState.player.get("completed_planets", []))
+	var completed: bool = GameState.player.get("completed_planets", []).has(planet_id)
 	var accent := Color(str(planet.accent))
 	var card := panel(VBoxContainer.new(), PANEL_LIGHT if unlocked else Color("#0b1228"), 18, 18)
 	var box := card.get_child(0) as VBoxContainer
@@ -339,10 +340,22 @@ func planet_card(planet: Dictionary) -> PanelContainer:
 	heading.add_child(names)
 	names.add_child(label(str(planet.name).to_upper(), 22, accent if unlocked else MUTED))
 	names.add_child(label(str(planet.subtitle), 14, MUTED))
-	heading.add_child(label("EM ÓRBITA" if current else ("ROTA ABERTA" if unlocked else "BLOQUEADO"), 12, LIME if current else (accent if unlocked else CORAL), HORIZONTAL_ALIGNMENT_RIGHT))
+	var route_status := "EM ÓRBITA" if current else ("CONCLUÍDO" if completed else ("ROTA ABERTA" if unlocked else "BLOQUEADO"))
+	heading.add_child(label(route_status, 12, LIME if current or completed else (accent if unlocked else CORAL), HORIZONTAL_ALIGNMENT_RIGHT))
 	var description := label(str(planet.get("description", "Fronteira empoeirada, contratos duvidosos e estacionamento abundante.")), 14, INK if unlocked else MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(description)
+	if unlocked:
+		var progress_text := "CAPÍTULO CONCLUÍDO · %d CAPTURAS" % GameState.planet_capture_count(planet_id)
+		if not completed:
+			var tier := GameState.planet_tier(planet_id)
+			var target := ContentDB.target_for_planet_tier(planet_id, tier)
+			var required := 1 if tier == 3 else 3
+			var target_captures := int(GameState.player.get("captures_by_target", {}).get(str(target.id), 0))
+			progress_text = "MANDADO ATUAL: %s · %d/%d" % [str(target.name).to_upper(), target_captures, required]
+		var progress := label(progress_text, 12, LIME if completed else GOLD)
+		progress.name = "GalaxyPlanetProgress_%s" % planet_id
+		box.add_child(progress)
 	if unlocked and not current:
 		var travel := action_button("VIAJAR PARA %s" % str(planet.name).to_upper(), accent)
 		travel.pressed.connect(func():

@@ -220,6 +220,7 @@ func capture() -> void:
 	state.player.base_power = 16
 	state.player.weapon = {"name": "Canhão de Recibos", "slot": "weapon", "power": 15, "rarity": "Raro", "color": "#58d9ff"}
 	state.player.armor = {"name": "Poncho de Titânio", "slot": "armor", "power": 11, "rarity": "Raro", "color": "#58d9ff"}
+	state.player.current_planet_id = ContentDB.PLANET.id
 	state.player.completed_planets = [ContentDB.PLANET.id]
 	state.player.captures_by_target = {"gloop": 4, "baron_boom": 3, "madame_vacuum": 3, "mayor_gold_dust": 1}
 	state.player.captures_by_planet = {ContentDB.PLANET.id: 10}
@@ -444,16 +445,21 @@ func capture() -> void:
 	scene.render()
 	await process_frame
 	await process_frame
-	await create_timer(0.12).timeout
+	await create_timer(0.3).timeout
+	await process_frame
 	if save_frame("ui_career.png") != OK:
 		quit(1)
 		return
-	var career_scroll := scene.find_child("CareerScroll", true, false) as ScrollContainer
-	if career_scroll:
-		career_scroll.scroll_vertical = 100000
+	var archive_jump := scene.find_child("CareerArchiveJump", true, false) as Button
+	if archive_jump:
+		archive_jump.pressed.emit()
 		await process_frame
 		await process_frame
 		await create_timer(0.12).timeout
+	else:
+		printerr("Failed to locate wanted archive jump for capture")
+		quit(1)
+		return
 	if save_frame("ui_wanted_archive.png") != OK:
 		quit(1)
 		return

@@ -35,6 +35,11 @@ func run_mobile_audit() -> void:
 	check(inventory_scroll != null and inventory_scroll.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "arsenal disables horizontal scrolling")
 	check(inventory_scroll != null and inventory_scroll.size.y >= 120.0, "arsenal reserves useful vertical space for the inventory on mobile")
 
+	scene.view_mode = "career"
+	scene.render()
+	await process_frame
+	check_touch_targets(scene, "career navigation")
+
 	state.select_bounty(ContentDB.TARGETS[0])
 	await process_frame
 	check_touch_targets(scene, "contract briefing")

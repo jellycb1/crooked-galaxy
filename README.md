@@ -16,6 +16,8 @@ Reward screens also count the pending capture toward target mastery and preview 
 
 Post-combat reports summarize turns, damage and the contribution of tactical traits or planetary kits; defeats retain a compact diagnosis on the board before the next attempt.
 
+Long-career navigation keeps progress legible: galaxy cards distinguish completed chapters and name each open planet's current warrant, while career shortcuts jump directly between planetary progress and the twenty-target archive.
+
 ## Run
 
 Open `project.godot` in Godot 4, or run from a console where Godot is available:

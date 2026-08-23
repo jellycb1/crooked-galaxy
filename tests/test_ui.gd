@@ -157,6 +157,10 @@ func run_smoke_test() -> void:
 	check(state.travel_to_planet("cassino_quasar"), "UI state can enter the fifth unlocked planet")
 	await process_frame
 	check(scene.find_child("BountyCard_dealer_comet", true, false) != null, "fifth planet bounty board renders")
+	scene.view_mode = "galaxy"
+	scene.render()
+	await process_frame
+	check(scene.find_child("GalaxyPlanetProgress_cassino_quasar", true, false) != null, "galaxy map names the active fifth-chapter objective")
 	state.afk_report = {"minutes": 95, "credits": 380, "scrap": 6, "capped": false}
 	scene.view_mode = "board"
 	scene.render()
@@ -170,6 +174,7 @@ func run_smoke_test() -> void:
 	await process_frame
 	check(scene.find_child("CareerSummary", true, false) != null, "career summary renders")
 	check(scene.find_child("CareerScroll", true, false) != null, "career planet and milestone list renders")
+	check(scene.find_child("CareerProgressJump", true, false) != null and scene.find_child("CareerArchiveJump", true, false) != null, "career exposes progress and archive shortcuts")
 	check(scene.find_child("ClaimAllMilestones", true, false) != null, "career renders a bulk claim action")
 	check(scene.find_child("ClaimMilestone_first_warrant", true, false) != null, "career renders a claim action for completed milestones")
 	check(scene.find_child("CareerTarget_gloop", true, false) != null, "career renders the wanted archive")
