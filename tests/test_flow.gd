@@ -60,6 +60,12 @@ func _init() -> void:
 	var milestones := state.career_milestones()
 	check(milestones.size() == 5, "career exposes five derived milestones")
 	check(bool(milestones[0].complete), "first capture completes its career milestone")
+	var credits_before_milestone := int(state.player.credits)
+	check(state.career_rewards_ready() == 1, "completed career milestone advertises a pending reward")
+	check(state.claim_career_milestone("first_warrant"), "completed career reward can be claimed")
+	check(int(state.player.credits) == credits_before_milestone + 40, "career reward grants its listed credits")
+	check(state.player.claimed_milestones.has("first_warrant"), "claimed milestone is retained by stable id")
+	check(not state.claim_career_milestone("first_warrant"), "career reward cannot be claimed twice")
 
 	state.start_bounty(Content.TARGETS[0].duplicate(true))
 	state.hunt_event = Content.HUNT_EVENTS[0].duplicate(true)

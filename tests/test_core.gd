@@ -62,6 +62,10 @@ func test_bounty_odds() -> void:
 	var brutal := {"power": 99, "defense": 30, "health": 999}
 	check(Rules.bounty_odds(player, easy) > 0.9, "easy fights show strong odds")
 	check(Rules.bounty_odds(player, brutal) < 0.1, "brutal fights show low odds")
+	var upgraded := {"level": 1, "base_power": 10, "weapon": {"power": 6}, "armor": {"power": 1}}
+	var safe_baron := Content.apply_approach(Content.TARGETS[1], Content.CONTRACT_APPROACHES[0])
+	var calibrated := Rules.bounty_odds(upgraded, safe_baron)
+	check(calibrated > 0.70 and calibrated < 0.84, "displayed odds stay calibrated to the actual combat rules")
 
 
 func test_loot_generation() -> void:

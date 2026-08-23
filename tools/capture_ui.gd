@@ -233,6 +233,8 @@ func capture() -> void:
 	state.player.afk_credits_earned = 1460
 	state.player.afk_scrap_earned = 28
 	state.player.scrap_recycled_total = 42
+	state.player.claimed_milestones = ["first_warrant"]
+	state.player.career_credits_claimed = 40
 	state.continue_after_chapter()
 	await process_frame
 	await process_frame
@@ -244,10 +246,19 @@ func capture() -> void:
 	if save_frame("ui_career.png") != OK:
 		quit(1)
 		return
+	var career_scroll := scene.find_child("CareerScroll", true, false) as ScrollContainer
+	if career_scroll:
+		career_scroll.scroll_vertical = 100000
+		await process_frame
+		await process_frame
+		await create_timer(0.12).timeout
+	if save_frame("ui_wanted_archive.png") != OK:
+		quit(1)
+		return
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, AFK return, career, galaxy, incidents, three finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, AFK return, career, wanted archive, galaxy, incidents, three finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

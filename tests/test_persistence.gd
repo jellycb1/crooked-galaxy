@@ -15,6 +15,8 @@ func _init() -> void:
 	source.player.scrap_recycled_total = 31
 	source.player.afk_credits_earned = 220
 	source.player.afk_scrap_earned = 8
+	source.player.claimed_milestones = ["first_warrant"]
+	source.player.career_credits_claimed = 40
 	source.phase = source.Phase.VICTORY
 	source.current_bounty = ContentDB.TARGETS[0].duplicate(true)
 	source.pending_loot = {
@@ -38,6 +40,8 @@ func _init() -> void:
 	check(int(restored.player.scrap) == 27, "workshop currency survives save and load")
 	check(int(restored.player.scrap_recycled_total) == 31, "lifetime recycling survives save and load")
 	check(int(restored.player.afk_credits_earned) == 220 and int(restored.player.afk_scrap_earned) == 8, "AFK career totals survive save and load")
+	check(restored.player.claimed_milestones.has("first_warrant"), "claimed career rewards survive save and load")
+	check(int(restored.player.career_credits_claimed) == 40, "career reward totals survive save and load")
 	check(restored.phase == restored.Phase.VICTORY, "capture phase survives save and load")
 	check(str(restored.pending_loot.id) == "test_loot", "pending reward survives save and load")
 	check(restored.combat_events.size() == 1, "finishing action survives save and load")

@@ -33,15 +33,30 @@ static func apply_xp(player: Dictionary, amount: int) -> int:
 
 
 static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
-	var player_damage := maxf(1.0, float(player_power(player)) - float(target.get("defense", 0)) * 0.45)
-	var enemy_defense := int(player.get("armor", {}).get("power", 0)) + 3
-	var enemy_damage := maxf(1.0, float(target.get("power", 1)) - float(enemy_defense) * 0.45)
-	var turns_to_win := ceilf(float(target.get("health", 1)) / player_damage)
-	var turns_to_lose := ceilf(float(max_health(player)) / enemy_damage)
-	# The player attacks first, so an even race slightly favors the hunter.
-	var race_advantage := (turns_to_lose - turns_to_win) * 1.35 + 0.35
-	var estimate := 1.0 / (1.0 + exp(-race_advantage))
-	return clampf(estimate, 0.01, 0.99)
+	# A short seeded simulation follows the actual alternating combat rules. It is
+	# deterministic for identical stats, so UI percentages never flicker.
+	const TRIALS := 1024
+	var hunter_power := player_power(player)
+	var hunter_health := max_health(player)
+	var hunter_defense := int(player.get("armor", {}).get("power", 0)) + 3
+	var target_power := int(target.get("power", 1))
+	var target_defense := int(target.get("defense", 0))
+	var target_health := int(target.get("health", 1))
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hunter_power * 92821 + hunter_health * 68917 + hunter_defense * 31337 + target_power * 7919 + target_defense * 1543 + target_health * 421
+	var wins := 0
+	for _trial in TRIALS:
+		var player_hp := hunter_health
+		var enemy_hp := target_health
+		var rounds := 0
+		while player_hp > 0 and enemy_hp > 0 and rounds < 100:
+			rounds += 1
+			enemy_hp -= damage_roll(hunter_power, target_defense, rng.randf())
+			if enemy_hp <= 0:
+				wins += 1
+				break
+			player_hp -= damage_roll(target_power, hunter_defense, rng.randf())
+	return clampf(float(wins) / float(TRIALS), 0.01, 0.99)
 
 
 static func is_upgrade(item: Dictionary, equipped: Dictionary) -> bool:

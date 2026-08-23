@@ -45,6 +45,9 @@ func default_player() -> Dictionary:
 		"scrap_recycled_total": 0,
 		"afk_credits_earned": 0,
 		"afk_scrap_earned": 0,
+		"claimed_milestones": [],
+		"career_credits_claimed": 0,
+		"career_scrap_claimed": 0,
 		"last_seen_unix": Time.get_unix_time_from_system(),
 		"reputation": 0,
 		"wins": 0,
@@ -124,13 +127,42 @@ func career_milestones() -> Array[Dictionary]:
 		if int(count) >= 3:
 			has_repeat_target = true
 	var completed_count: int = player.get("completed_planets", []).size()
+	var claimed: Array = player.get("claimed_milestones", [])
 	return [
-		{"name": "PRIMEIRO MANDADO", "description": "Execute sua primeira captura.", "complete": int(player.wins) >= 1},
-		{"name": "CLIENTE FREQUENTE", "description": "Capture o mesmo alvo três vezes.", "complete": has_repeat_target},
-		{"name": "DONO DO SETOR", "description": "Conclua seu primeiro planeta.", "complete": completed_count >= 1},
-		{"name": "TRÍPLICE FRONTEIRA", "description": "Conclua três planetas.", "complete": completed_count >= 3},
-		{"name": "NADA SE PERDE", "description": "Recicle pelo menos 25 pontos de sucata.", "complete": int(player.get("scrap_recycled_total", 0)) >= 25},
+		{"id": "first_warrant", "name": "PRIMEIRO MANDADO", "description": "Execute sua primeira captura.", "complete": int(player.wins) >= 1, "claimed": claimed.has("first_warrant"), "credits": 40, "scrap": 0},
+		{"id": "repeat_customer", "name": "CLIENTE FREQUENTE", "description": "Capture o mesmo alvo três vezes.", "complete": has_repeat_target, "claimed": claimed.has("repeat_customer"), "credits": 70, "scrap": 2},
+		{"id": "sector_owner", "name": "DONO DO SETOR", "description": "Conclua seu primeiro planeta.", "complete": completed_count >= 1, "claimed": claimed.has("sector_owner"), "credits": 120, "scrap": 4},
+		{"id": "triple_frontier", "name": "TRÍPLICE FRONTEIRA", "description": "Conclua três planetas.", "complete": completed_count >= 3, "claimed": claimed.has("triple_frontier"), "credits": 300, "scrap": 10},
+		{"id": "nothing_wasted", "name": "NADA SE PERDE", "description": "Recicle pelo menos 25 pontos de sucata.", "complete": int(player.get("scrap_recycled_total", 0)) >= 25, "claimed": claimed.has("nothing_wasted"), "credits": 90, "scrap": 5},
 	]
+
+
+func career_rewards_ready() -> int:
+	var ready := 0
+	for milestone in career_milestones():
+		if bool(milestone.complete) and not bool(milestone.claimed):
+			ready += 1
+	return ready
+
+
+func claim_career_milestone(milestone_id: String) -> bool:
+	for milestone in career_milestones():
+		if str(milestone.id) != milestone_id or not bool(milestone.complete) or bool(milestone.claimed):
+			continue
+		var credits := int(milestone.credits)
+		var scrap := int(milestone.scrap)
+		var claimed: Array = player.get("claimed_milestones", [])
+		claimed.append(milestone_id)
+		player.claimed_milestones = claimed
+		player.credits = int(player.credits) + credits
+		player.scrap = int(player.get("scrap", 0)) + scrap
+		player.career_credits_claimed = int(player.get("career_credits_claimed", 0)) + credits
+		player.career_scrap_claimed = int(player.get("career_scrap_claimed", 0)) + scrap
+		last_notice = "Marco resgatado: %s. +%d créditos%s" % [str(milestone.name), credits, " · +%d sucata" % scrap if scrap > 0 else ""]
+		save_game()
+		changed.emit()
+		return true
+	return false
 
 
 func choose_approach(approach_id: String) -> void:

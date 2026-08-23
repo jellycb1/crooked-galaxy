@@ -102,11 +102,15 @@ func run_smoke_test() -> void:
 	await process_frame
 	check(scene.find_child("AfkReturnBanner", true, false) != null, "AFK return report renders on the bounty board")
 	state.afk_report = {}
+	state.player.wins = 1
+	state.player.captures_by_target = {"gloop": 1}
 	scene.view_mode = "career"
 	scene.render()
 	await process_frame
 	check(scene.find_child("CareerSummary", true, false) != null, "career summary renders")
 	check(scene.find_child("CareerScroll", true, false) != null, "career planet and milestone list renders")
+	check(scene.find_child("ClaimMilestone_first_warrant", true, false) != null, "career renders a claim action for completed milestones")
+	check(scene.find_child("CareerTarget_gloop", true, false) != null, "career renders the wanted archive")
 
 	scene.free()
 	await process_frame
