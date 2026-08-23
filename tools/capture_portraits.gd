@@ -36,30 +36,33 @@ func capture() -> void:
 		{"id": "madame_vacuum", "name": "MADAME VÁCUO"},
 		{"id": "mayor_gold_dust", "name": "PREFEITO PÓ-DE-OURO"},
 		{"id": "auditor_frost", "name": "AUDITOR GEADA"},
+		{"id": "chef_coldflame", "name": "CHEF BRASA FRIA"},
+		{"id": "executive_penguin", "name": "PINGUIM EXECUTIVO"},
+		{"id": "director_kelvin", "name": "DIRETORA KELVIN"},
 	]
 	for row_index in 3:
 		var row := HBoxContainer.new()
 		row.alignment = BoxContainer.ALIGNMENT_CENTER
 		row.add_theme_constant_override("separation", 34)
 		layout.add_child(row)
-		for column_index in 2:
-			var character_index := row_index * 2 + column_index
+		for column_index in 3:
+			var character_index := row_index * 3 + column_index
 			if character_index >= characters.size():
 				break
 			var definition: Dictionary = characters[character_index]
 			var cell := VBoxContainer.new()
-			cell.custom_minimum_size = Vector2(260, 280)
+			cell.custom_minimum_size = Vector2(180, 280)
 			cell.alignment = BoxContainer.ALIGNMENT_CENTER
 			row.add_child(cell)
 			var portrait: Control = PortraitScript.new()
 			portrait.character_id = str(definition.id)
-			portrait.custom_minimum_size = Vector2(220, 220)
+			portrait.custom_minimum_size = Vector2(170, 170)
 			portrait.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 			cell.add_child(portrait)
 			var caption := Label.new()
 			caption.text = str(definition.name)
 			caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			caption.add_theme_font_size_override("font_size", 18)
+			caption.add_theme_font_size_override("font_size", 14)
 			caption.add_theme_color_override("font_color", Color("#f4f2ff"))
 			cell.add_child(caption)
 	await process_frame

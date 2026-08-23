@@ -7,6 +7,7 @@ const PLANET := {
 	"name": "Dustball Prime",
 	"subtitle": "A poeira entra em tudo. Inclusive nos contratos.",
 	"accent": "#ffc857",
+	"completion_text": "O prefeito foi afastado do cargo, da delegacia e do próprio cartório. A papelada continua foragida.",
 }
 
 const PLANETS := [
@@ -18,6 +19,7 @@ const PLANETS := [
 		"description": "Um frigorífico planetário privatizado, com geleiras, cubículos e multas por aquecimento.",
 		"accent": "#72f1dd",
 		"unlock_after": "dustball_prime",
+		"completion_text": "A diretoria foi descongelada de suas funções. O termostato agora aceita votos e moedas.",
 	},
 ]
 
@@ -36,6 +38,7 @@ const TARGETS := [
 		"credits": 38,
 		"xp": 42,
 		"rank": 0,
+		"chapter_tier": 0,
 		"attacks": ["Tapa Tentacular", "Cuspe de Formulário", "Raio Mal Estacionado"],
 	},
 	{
@@ -52,6 +55,7 @@ const TARGETS := [
 		"credits": 58,
 		"xp": 62,
 		"rank": 1,
+		"chapter_tier": 1,
 		"attacks": ["Decreto Explosivo", "Imposto de Impacto", "Brasão-Bomba"],
 	},
 	{
@@ -68,6 +72,7 @@ const TARGETS := [
 		"credits": 88,
 		"xp": 90,
 		"rank": 2,
+		"chapter_tier": 2,
 		"attacks": ["Vácuo Executivo", "Taxa de Respiração", "Sucção Premium"],
 	},
 	{
@@ -84,6 +89,7 @@ const TARGETS := [
 		"credits": 138,
 		"xp": 132,
 		"rank": 3,
+		"chapter_tier": 3,
 		"boss": true,
 		"attacks": ["Veto de Plasma", "Carimbo de Emergência", "Imposto sobre Esquiva"],
 	},
@@ -101,7 +107,60 @@ const TARGETS := [
 		"credits": 146,
 		"xp": 140,
 		"rank": 3,
+		"chapter_tier": 0,
 		"attacks": ["Auto de Infração Glacial", "Caneta Criogênica", "Juros Congelantes"],
+	},
+	{
+		"id": "chef_coldflame",
+		"planet_id": "congelaria_sa",
+		"name": "Chef Brasa Fria",
+		"title": "Contrabandista de sopa acima de zero",
+		"description": "Serviu caldo morno sem licença térmica. Três executivos descongelaram sentimentos.",
+		"emoji": "♨",
+		"power": 32,
+		"defense": 13,
+		"health": 190,
+		"duration": 15,
+		"credits": 174,
+		"xp": 166,
+		"rank": 3,
+		"chapter_tier": 1,
+		"attacks": ["Concha de Lava", "Caldo Clandestino", "Pimenta de Reentrada"],
+	},
+	{
+		"id": "executive_penguin",
+		"planet_id": "congelaria_sa",
+		"name": "Pinguim Executivo",
+		"title": "Diretor de demissões em massa polar",
+		"description": "Terceirizou o próprio bando e vendeu os peixes da confraternização.",
+		"emoji": "▰",
+		"power": 37,
+		"defense": 15,
+		"health": 220,
+		"duration": 17,
+		"credits": 208,
+		"xp": 196,
+		"rank": 3,
+		"chapter_tier": 2,
+		"attacks": ["Gravata Torpedo", "Reunião Sem Pauta", "Bicada de Desligamento"],
+	},
+	{
+		"id": "director_kelvin",
+		"planet_id": "congelaria_sa",
+		"name": "Diretora Kelvin",
+		"title": "CEO vitalícia do frio corporativo",
+		"description": "Patenteou o zero absoluto e agora cobra royalties de todo termômetro.",
+		"emoji": "◆",
+		"power": 43,
+		"defense": 18,
+		"health": 260,
+		"duration": 20,
+		"credits": 268,
+		"xp": 248,
+		"rank": 3,
+		"chapter_tier": 3,
+		"boss": true,
+		"attacks": ["Fusão Hostil", "Zero Absoluto Fiscal", "Sinergia Criogênica"],
 	},
 ]
 
@@ -250,10 +309,11 @@ static func is_planet_unlocked(planet_id: String, completed_planets: Array) -> b
 	return requirement.is_empty() or completed_planets.has(requirement)
 
 
-static func available_bounties(reputation: int, planet_id := "dustball_prime") -> Array[Dictionary]:
+static func available_bounties(reputation: int, planet_id := "dustball_prime", chapter_tier := -1) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
+	var unlocked_tier: int = reputation if chapter_tier < 0 else chapter_tier
 	for target in TARGETS:
-		if str(target.get("planet_id", "dustball_prime")) == planet_id and int(target.rank) <= reputation:
+		if str(target.get("planet_id", "dustball_prime")) == planet_id and int(target.rank) <= reputation and int(target.get("chapter_tier", target.rank)) <= unlocked_tier:
 			result.append(target.duplicate(true))
 	return result
 

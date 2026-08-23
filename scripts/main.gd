@@ -213,7 +213,7 @@ func build_board() -> void:
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", 14)
 	scroller.add_child(list)
-	for bounty in ContentDB.available_bounties(int(GameState.player.reputation), str(planet.id)):
+	for bounty in ContentDB.available_bounties(int(GameState.player.reputation), str(planet.id), GameState.planet_tier(str(planet.id))):
 		list.add_child(bounty_card(bounty))
 
 	content.add_child(rank_progress_panel())
@@ -225,11 +225,11 @@ func build_board() -> void:
 
 
 func rank_progress_panel() -> PanelContainer:
-	var rank := int(GameState.player.reputation)
 	var planet := active_planet()
+	var tier := GameState.planet_tier(str(planet.id))
 	var next_target: Dictionary = {}
 	for target in ContentDB.TARGETS:
-		if str(target.get("planet_id", ContentDB.PLANET.id)) == str(planet.id) and int(target.rank) == rank + 1:
+		if str(target.get("planet_id", ContentDB.PLANET.id)) == str(planet.id) and int(target.get("chapter_tier", target.rank)) == tier + 1:
 			next_target = target
 			break
 	var card := panel(VBoxContainer.new(), Color("#0d1530"), 12, 11)
@@ -250,7 +250,7 @@ func rank_progress_panel() -> PanelContainer:
 		complete.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(complete)
 		return card
-	var progress_value := int(GameState.player.wins) % 3
+	var progress_value := GameState.planet_capture_count(str(planet.id)) % 3
 	row.add_child(label("PRÓXIMO ALVO: %s" % str(next_target.name).to_upper(), 12, MUTED))
 	var count := label("%d / 3 CAPTURAS" % progress_value, 12, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
 	count.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -774,7 +774,7 @@ func build_chapter_complete() -> void:
 	box.add_child(character_portrait(str(target.get("id", "mayor_gold_dust")), 174))
 	box.add_child(center_label("MANDADO FINAL EXECUTADO", 18, LIME))
 	box.add_child(center_label(str(target.get("name", "Prefeito Pó-de-Ouro")), 25, GOLD))
-	var verdict := center_label("O prefeito foi afastado do cargo, da delegacia e do próprio cartório. A papelada continua foragida.", 15, MUTED)
+	var verdict := center_label(str(planet.get("completion_text", "A autoridade local foi retirada do organograma à força.")), 15, MUTED)
 	verdict.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(verdict)
 	var stats := HBoxContainer.new()

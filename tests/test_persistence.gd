@@ -63,6 +63,7 @@ func _init() -> void:
 	source.player.completed_planets = [ContentDB.PLANET.id]
 	source.player.current_planet_id = "congelaria_sa"
 	source.player.captures_by_target = {"mayor_gold_dust": 1}
+	source.player.captures_by_planet = {ContentDB.PLANET.id: 10, "congelaria_sa": 4}
 	source.chapter_completion = {"planet": ContentDB.PLANET.duplicate(true), "target": ContentDB.TARGETS[3].duplicate(true)}
 	source.phase = source.Phase.CHAPTER_COMPLETE
 	source.save_game()
@@ -73,6 +74,7 @@ func _init() -> void:
 	check(restored_chapter.player.completed_planets.has(ContentDB.PLANET.id), "planet completion survives save and load")
 	check(str(restored_chapter.player.current_planet_id) == "congelaria_sa", "active travel destination survives save and load")
 	check(int(restored_chapter.player.captures_by_target.mayor_gold_dust) == 1, "per-target captures survive save and load")
+	check(int(restored_chapter.player.captures_by_planet.congelaria_sa) == 4, "per-planet chapter progress survives save and load")
 	check(str(restored_chapter.chapter_completion.target.id) == "mayor_gold_dust", "chapter summary survives save and load")
 
 	source.free()

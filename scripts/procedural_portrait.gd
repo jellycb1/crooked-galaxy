@@ -24,6 +24,12 @@ func _draw() -> void:
 			draw_mayor()
 		"auditor_frost":
 			draw_auditor()
+		"chef_coldflame":
+			draw_chef()
+		"executive_penguin":
+			draw_penguin()
+		"director_kelvin":
+			draw_director()
 		_:
 			draw_hunter()
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -161,6 +167,58 @@ func draw_auditor() -> void:
 	filled_polygon([Vector2(0.46, 0.70), Vector2(0.54, 0.70), Vector2(0.58, 0.88), Vector2(0.50, 0.94), Vector2(0.42, 0.88)], ice, ink)
 	for x in [0.25, 0.75]:
 		filled_polygon([Vector2(x - 0.05, 0.71), Vector2(x + 0.05, 0.71), Vector2(x, 0.86)], ice, ink)
+
+
+func draw_chef() -> void:
+	var ink := Color("#160d19")
+	var ice := Color("#72f1dd")
+	var flame := Color("#ff7657")
+	draw_frame(Color("#24445d"), flame)
+	filled_polygon([Vector2(0.12, 0.95), Vector2(0.22, 0.67), Vector2(0.78, 0.67), Vector2(0.88, 0.95)], Color("#e8f3ee"), ink)
+	outlined_circle(Vector2(0.50, 0.50), 0.29, Color("#79b8c2"), ink, 0.034)
+	# Tall thermal toque with a contraband heating coil.
+	filled_polygon([Vector2(0.27, 0.31), Vector2(0.30, 0.11), Vector2(0.42, 0.15), Vector2(0.50, 0.07), Vector2(0.59, 0.15), Vector2(0.72, 0.11), Vector2(0.73, 0.33)], Color("#f3f1df"), ink)
+	draw_line(Vector2(0.34, 0.29), Vector2(0.67, 0.27), flame, 0.035, true)
+	for eye in [Vector2(0.40, 0.48), Vector2(0.60, 0.48)]:
+		outlined_circle(eye, 0.058, Color("#f5ead8"), ink, 0.02)
+		draw_circle(eye, 0.022, flame)
+	draw_arc(Vector2(0.50, 0.60), 0.15, 0.12, PI - 0.12, 20, ink, 0.03, true)
+	filled_polygon([Vector2(0.45, 0.72), Vector2(0.55, 0.72), Vector2(0.61, 0.92), Vector2(0.50, 0.86), Vector2(0.39, 0.92)], flame, ink)
+
+
+func draw_penguin() -> void:
+	var ink := Color("#050c1c")
+	var ice := Color("#72f1dd")
+	var gold := Color("#ffc857")
+	draw_frame(Color("#162c4a"), ice)
+	outlined_ellipse(Vector2(0.50, 0.55), Vector2(0.31, 0.39), Color("#172033"), ink, 0.032)
+	outlined_ellipse(Vector2(0.50, 0.57), Vector2(0.20, 0.28), Color("#e9f0e8"), ink, 0.025)
+	for eye in [Vector2(0.40, 0.43), Vector2(0.60, 0.43)]:
+		draw_circle(eye, 0.035, Color("#f5f4df"))
+		draw_circle(eye + Vector2(0.008, 0.0), 0.016, ink)
+	filled_polygon([Vector2(0.42, 0.52), Vector2(0.58, 0.52), Vector2(0.50, 0.61)], gold, ink)
+	# Boardroom bow tie and tiny briefcase corners.
+	filled_polygon([Vector2(0.50, 0.69), Vector2(0.35, 0.63), Vector2(0.31, 0.75), Vector2(0.48, 0.77)], Color("#d85b75"), ink)
+	filled_polygon([Vector2(0.50, 0.69), Vector2(0.65, 0.63), Vector2(0.69, 0.75), Vector2(0.52, 0.77)], Color("#d85b75"), ink)
+	draw_line(Vector2(0.23, 0.72), Vector2(0.13, 0.91), ink, 0.07, true)
+	draw_line(Vector2(0.77, 0.72), Vector2(0.87, 0.91), ink, 0.07, true)
+
+
+func draw_director() -> void:
+	var ink := Color("#071022")
+	var ice := Color("#72f1dd")
+	var violet := Color("#a97cff")
+	draw_frame(Color("#17355b"), ice)
+	filled_polygon([Vector2(0.10, 0.96), Vector2(0.18, 0.66), Vector2(0.82, 0.66), Vector2(0.90, 0.96)], Color("#283c72"), ink)
+	# Faceted cryo-mask and crown-like radiator establish the chapter boss silhouette.
+	filled_polygon([Vector2(0.50, 0.16), Vector2(0.76, 0.35), Vector2(0.69, 0.68), Vector2(0.50, 0.79), Vector2(0.31, 0.68), Vector2(0.24, 0.35)], Color("#b9ece7"), ink)
+	for x in [0.28, 0.40, 0.52, 0.64]:
+		filled_polygon([Vector2(x, 0.24), Vector2(x + 0.06, 0.05), Vector2(x + 0.12, 0.25)], ice, ink)
+	for eye in [Vector2(0.39, 0.46), Vector2(0.61, 0.46)]:
+		filled_polygon([eye - Vector2(0.075, 0.025), eye + Vector2(0.075, -0.025), eye + Vector2(0.055, 0.045), eye + Vector2(-0.055, 0.045)], violet, ink)
+	draw_line(Vector2(0.40, 0.64), Vector2(0.60, 0.62), ink, 0.035, true)
+	draw_circle(Vector2(0.50, 0.84), 0.075, violet)
+	draw_circle(Vector2(0.50, 0.84), 0.032, ink)
 
 
 func outlined_circle(center: Vector2, radius: float, fill: Color, outline: Color, width: float) -> void:

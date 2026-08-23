@@ -98,6 +98,7 @@ func capture() -> void:
 	state.player.armor = {"name": "Poncho de Titânio", "slot": "armor", "power": 11, "rarity": "Raro", "color": "#58d9ff"}
 	state.player.completed_planets = [ContentDB.PLANET.id]
 	state.player.captures_by_target = {"gloop": 4, "baron_boom": 3, "madame_vacuum": 2, "mayor_gold_dust": 1}
+	state.player.captures_by_planet = {ContentDB.PLANET.id: 10}
 	state.chapter_completion = {
 		"planet": ContentDB.PLANET.duplicate(true),
 		"target": ContentDB.TARGETS[3].duplicate(true),
@@ -146,10 +147,22 @@ func capture() -> void:
 	if save_frame("ui_congelaria_board.png") != OK:
 		quit(1)
 		return
+	state.player.wins = 19
+	state.player.captures_by_planet.congelaria_sa = 9
+	state.phase = state.Phase.REWARD
+	state.current_bounty = ContentDB.TARGETS[7].duplicate(true)
+	state.pending_loot = {"id": "kelvin_capture", "name": "Termostato Executivo", "description": "A temperatura ideal exige senha de diretoria.", "slot": "armor", "power": 18, "rarity": "Épico", "color": "#d789ff"}
+	state.claim_reward(true)
+	await process_frame
+	await process_frame
+	await create_timer(0.15).timeout
+	if save_frame("ui_congelaria_complete.png") != OK:
+		quit(1)
+		return
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, galaxy map, boss board, chapter completion, and Congelária board to %s" % OUTPUT_DIR)
+	print("Captured primary UI, galaxy map, both chapter finales, boss board, and Congelária board to %s" % OUTPUT_DIR)
 	quit(0)
 
 

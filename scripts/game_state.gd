@@ -45,6 +45,7 @@ func default_player() -> Dictionary:
 		"base_power": 10,
 		"sound_enabled": true,
 		"captures_by_target": {},
+		"captures_by_planet": {},
 		"completed_planets": [],
 		"current_planet_id": "dustball_prime",
 		"weapon": {"name": "Zapper de Treino", "slot": "weapon", "power": 1, "rarity": "Comum", "color": "#b9c2d9"},
@@ -76,6 +77,15 @@ func travel_to_planet(planet_id: String) -> bool:
 	save_game()
 	changed.emit()
 	return true
+
+
+func planet_capture_count(planet_id: String) -> int:
+	var captures: Dictionary = player.get("captures_by_planet", {})
+	return int(captures.get(planet_id, 0))
+
+
+func planet_tier(planet_id: String) -> int:
+	return mini(3, floori(float(planet_capture_count(planet_id)) / 3.0))
 
 
 func choose_approach(approach_id: String) -> void:
@@ -262,9 +272,12 @@ func claim_reward(equip_item: bool) -> Dictionary:
 		"xp": int(current_bounty.xp),
 		"levels": 0,
 		"rank_up": false,
+		"chapter_tier_up": false,
 		"chapter_complete": false,
 	}
 	var completed_bounty := current_bounty.duplicate(true)
+	var completed_planet_id := str(completed_bounty.get("planet_id", ContentDB.PLANET.id))
+	var old_chapter_tier := planet_tier(completed_planet_id)
 	player.credits = int(player.credits) + summary.credits
 	summary.levels = CoreRules.apply_xp(player, summary.xp)
 	player.wins = int(player.wins) + 1
@@ -272,6 +285,10 @@ func claim_reward(equip_item: bool) -> Dictionary:
 	var target_id := str(completed_bounty.get("id", "unknown"))
 	captures[target_id] = int(captures.get(target_id, 0)) + 1
 	player.captures_by_target = captures
+	var planet_captures: Dictionary = player.get("captures_by_planet", {})
+	planet_captures[completed_planet_id] = int(planet_captures.get(completed_planet_id, 0)) + 1
+	player.captures_by_planet = planet_captures
+	summary.chapter_tier_up = planet_tier(completed_planet_id) > old_chapter_tier
 	var old_reputation := int(player.reputation)
 	var highest_rank := 0
 	for target in ContentDB.TARGETS:
@@ -286,8 +303,9 @@ func claim_reward(equip_item: bool) -> Dictionary:
 		notice_parts.append("Nível +%d" % int(summary.levels))
 	if bool(summary.rank_up):
 		notice_parts.append("Novo contrato liberado")
+	elif bool(summary.chapter_tier_up):
+		notice_parts.append("Novo mandado planetário")
 	var completed_planets: Array = player.get("completed_planets", [])
-	var completed_planet_id := str(completed_bounty.get("planet_id", ContentDB.PLANET.id))
 	var completed_planet := ContentDB.get_planet(completed_planet_id)
 	var first_boss_capture := bool(completed_bounty.get("boss", false)) and not completed_planets.has(completed_planet_id)
 	if first_boss_capture:
@@ -297,7 +315,7 @@ func claim_reward(equip_item: bool) -> Dictionary:
 		chapter_completion = {
 			"planet": completed_planet,
 			"target": completed_bounty,
-			"total_captures": int(player.wins),
+			"total_captures": planet_capture_count(completed_planet_id),
 			"credits": int(summary.credits),
 			"xp": int(summary.xp),
 		}
@@ -412,6 +430,9 @@ func load_game() -> void:
 		for key in player:
 			if loaded_player.has(key):
 				player[key] = loaded_player[key]
+		# Saves created before per-planet progression inherit their existing Dustball victories.
+		if not loaded_player.has("captures_by_planet") and int(player.wins) > 0:
+			player.captures_by_planet = {ContentDB.PLANET.id: int(player.wins)}
 	phase = int(parsed.get("phase", Phase.BOARD))
 	current_bounty = parsed.get("current_bounty", {})
 	var loaded_approaches = parsed.get("offered_approaches", [])

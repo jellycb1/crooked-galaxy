@@ -111,6 +111,28 @@ func _init() -> void:
 	check(int(chapter_state.player.reputation) == 3, "reputation stays capped at the highest available rank")
 	chapter_state.free()
 
+	var frozen_state = StateScript.new()
+	frozen_state.persistence_enabled = false
+	frozen_state.player = frozen_state.default_player()
+	frozen_state.player.reputation = 3
+	frozen_state.player.wins = 19
+	frozen_state.player.completed_planets = [Content.PLANET.id]
+	frozen_state.player.current_planet_id = "congelaria_sa"
+	frozen_state.player.captures_by_planet = {Content.PLANET.id: 10, "congelaria_sa": 9}
+	frozen_state.phase = frozen_state.Phase.REWARD
+	frozen_state.current_bounty = Content.TARGETS[7].duplicate(true)
+	frozen_state.pending_loot = {
+		"id": "kelvin_test_loot", "name": "Termostato Executivo", "description": "Ainda bloqueado.",
+		"slot": "armor", "power": 18, "rarity": "Épico", "color": "#d789ff",
+	}
+	var frozen_summary := frozen_state.claim_reward(true)
+	check(frozen_state.phase == frozen_state.Phase.CHAPTER_COMPLETE, "Congelaria boss opens the reusable chapter finale")
+	check(bool(frozen_summary.chapter_complete), "second planet reports chapter completion")
+	check(frozen_state.player.completed_planets.has("congelaria_sa"), "second completed planet persists in progression")
+	check(frozen_state.planet_capture_count("congelaria_sa") == 10, "planet capture counter advances independently")
+	check(str(frozen_state.chapter_completion.planet.id) == "congelaria_sa", "finale resolves the correct planet metadata")
+	frozen_state.free()
+
 	state.free()
 	if failures == 0:
 		print("PASS: complete bounty flow")
