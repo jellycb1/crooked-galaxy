@@ -31,6 +31,7 @@ func run_smoke_test() -> void:
 	scene.render()
 	await process_frame
 	check(scene.find_child("BountyMastery_gloop", true, false) != null, "bounty cards expose target mastery progress")
+	check(scene.find_child("MasteryRoute_gloop", true, false) != null, "bounty board preserves the career mastery recommendation")
 	state.select_bounty(bounty)
 	await process_frame
 	check(scene.find_child("BriefingScroll", true, false) != null, "contract briefing renders")
