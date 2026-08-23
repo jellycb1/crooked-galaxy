@@ -52,8 +52,10 @@ func run_smoke_test() -> void:
 	check(scene.find_child("InventoryScroll", true, false) != null, "arsenal screen renders")
 	check(state.player.inventory.size() == 1, "arsenal receives claimed loot")
 
-	scene.queue_free()
+	scene.free()
 	await process_frame
+	# Let the dummy audio driver release active playback handles before shutdown.
+	await create_timer(0.5).timeout
 	finish()
 
 

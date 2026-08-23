@@ -50,6 +50,8 @@ func _init() -> void:
 	check(bool(defeat.get("finished", false)) and not bool(defeat.get("won", true)), "defeat is detected")
 	check(state.phase == state.Phase.BOARD, "defeat returns to the bounty board")
 	check(not state.last_notice.is_empty(), "defeat explains what happened")
+	state.toggle_sound()
+	check(not bool(state.player.sound_enabled), "audio preference can be disabled")
 
 	state.free()
 	if failures == 0:

@@ -60,7 +60,15 @@ func capture() -> void:
 	if save_frame("ui_reward.png") != OK:
 		quit(1)
 		return
-	print("Captured board, combat, victory, and reward UI to %s" % OUTPUT_DIR)
+	state.claim_reward(true)
+	scene.view_mode = "arsenal"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_arsenal.png") != OK:
+		quit(1)
+		return
+	print("Captured board, combat, victory, reward, and arsenal UI to %s" % OUTPUT_DIR)
 	quit(0)
 
 

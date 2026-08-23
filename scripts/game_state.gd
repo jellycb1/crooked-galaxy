@@ -37,6 +37,7 @@ func default_player() -> Dictionary:
 		"reputation": 0,
 		"wins": 0,
 		"base_power": 10,
+		"sound_enabled": true,
 		"weapon": {"name": "Zapper de Treino", "slot": "weapon", "power": 1, "rarity": "Comum", "color": "#b9c2d9"},
 		"armor": {"name": "Jaqueta Espacial Duvidosa", "slot": "armor", "power": 1, "rarity": "Comum", "color": "#b9c2d9"},
 		"inventory": [],
@@ -198,6 +199,12 @@ func equip_from_inventory(item_id: String) -> void:
 			save_game()
 			changed.emit()
 			return
+
+
+func toggle_sound() -> void:
+	player.sound_enabled = not bool(player.get("sound_enabled", true))
+	save_game()
+	changed.emit()
 
 
 func abandon_bounty() -> void:

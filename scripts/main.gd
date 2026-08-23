@@ -2,6 +2,8 @@ extends Control
 
 const SpaceBackdropScript = preload("res://scripts/space_backdrop.gd")
 const CombatBackdropScript = preload("res://scripts/combat_backdrop.gd")
+const PortraitScript = preload("res://scripts/procedural_portrait.gd")
+const SoundFXScript = preload("res://scripts/sound_fx.gd")
 const INK := Color("#f4f2ff")
 const MUTED := Color("#9da8c8")
 const CYAN := Color("#55e5ff")
@@ -18,6 +20,8 @@ var victory_timer: Timer
 var last_combat_message := ""
 var view_mode := "board"
 var combat_fast := false
+var sound_fx: Node
+var previous_phase := -1
 
 
 func _ready() -> void:
@@ -37,6 +41,8 @@ func build_shell() -> void:
 	var background: Control = SpaceBackdropScript.new()
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
+	sound_fx = SoundFXScript.new()
+	add_child(sound_fx)
 
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -73,6 +79,18 @@ func build_shell() -> void:
 
 
 func render() -> void:
+	if sound_fx:
+		sound_fx.enabled = bool(GameState.player.get("sound_enabled", true))
+	var phase_changed := previous_phase >= 0 and previous_phase != GameState.phase
+	if phase_changed and sound_fx:
+		match GameState.phase:
+			GameState.Phase.HUNT:
+				sound_fx.play_accept()
+			GameState.Phase.VICTORY:
+				sound_fx.play_victory()
+			GameState.Phase.REWARD:
+				sound_fx.play_reward(str(GameState.pending_loot.get("rarity", "Comum")))
+	previous_phase = GameState.phase
 	for child in content.get_children():
 		child.queue_free()
 	build_header()
@@ -258,6 +276,10 @@ func build_arsenal() -> void:
 		for item in items:
 			list.add_child(inventory_item_card(item))
 
+	var audio := action_button("SOM · %s" % ("LIGADO" if bool(GameState.player.get("sound_enabled", true)) else "DESLIGADO"), CYAN, true)
+	audio.custom_minimum_size = Vector2(0, 48)
+	audio.pressed.connect(GameState.toggle_sound)
+	content.add_child(audio)
 	if OS.is_debug_build():
 		var reset := action_button("DEV · REINICIAR PROGRESSO", CORAL, true)
 		reset.custom_minimum_size = Vector2(0, 48)
@@ -329,13 +351,7 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 	row.add_theme_constant_override("separation", 16)
 	box.add_child(row)
 
-	var portrait := Label.new()
-	portrait.text = str(bounty.emoji)
-	portrait.add_theme_font_size_override("font_size", 54)
-	portrait.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	portrait.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	portrait.custom_minimum_size = Vector2(88, 88)
-	row.add_child(portrait)
+	row.add_child(character_portrait(str(bounty.id), 88))
 
 	var details := VBoxContainer.new()
 	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -366,7 +382,7 @@ func build_hunt() -> void:
 	var bounty := GameState.current_bounty
 	content.add_spacer(false)
 	content.add_child(center_label("CAÇADA EM ANDAMENTO", 19, CYAN))
-	content.add_child(center_label(str(bounty.emoji), 112, INK))
+	content.add_child(character_portrait(str(bounty.id), 150))
 	content.add_child(center_label(str(bounty.name), 30, INK))
 	content.add_child(center_label("Seguindo sinais, subornando robôs e fingindo ter um plano.", 16, MUTED))
 
@@ -422,9 +438,9 @@ func build_combat() -> void:
 	arena.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	arena.add_theme_constant_override("separation", 20)
 	stage_box.add_child(arena)
-	arena.add_child(fighter("VOCÊ", "🤠", GameState.player_hp, CoreRules.max_health(GameState.player), CYAN))
+	arena.add_child(fighter("VOCÊ", "hunter", GameState.player_hp, CoreRules.max_health(GameState.player), CYAN))
 	arena.add_child(center_label("VS", 28, GOLD))
-	arena.add_child(fighter(str(GameState.current_bounty.name), str(GameState.current_bounty.emoji), GameState.enemy_hp, int(GameState.current_bounty.health), CORAL))
+	arena.add_child(fighter(str(GameState.current_bounty.name), str(GameState.current_bounty.id), GameState.enemy_hp, int(GameState.current_bounty.health), CORAL))
 
 	var log_panel := panel(VBoxContainer.new(), PANEL, 18, 18)
 	log_panel.custom_minimum_size = Vector2(0, 105)
@@ -461,7 +477,7 @@ func combat_event_chip(event: Dictionary) -> PanelContainer:
 func build_victory() -> void:
 	content.add_spacer(false)
 	content.add_child(center_label("MANDADO EXECUTADO", 16, MUTED))
-	content.add_child(center_label(str(GameState.current_bounty.emoji), 104, INK))
+	content.add_child(character_portrait(str(GameState.current_bounty.id), 132))
 	var stamp := panel(VBoxContainer.new(), Color("#173f3c"), 18, 22)
 	content.add_child(stamp)
 	var stamp_box := stamp.get_child(0) as VBoxContainer
@@ -508,11 +524,11 @@ func build_reward() -> void:
 	content.add_child(claim)
 
 
-func fighter(title: String, icon: String, hp: int, maximum: int, color: Color) -> VBoxContainer:
+func fighter(title: String, character_id: String, hp: int, maximum: int, color: Color) -> VBoxContainer:
 	var fighter_box := VBoxContainer.new()
 	fighter_box.custom_minimum_size = Vector2(242, 245)
 	fighter_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	fighter_box.add_child(center_label(icon, 78, INK))
+	fighter_box.add_child(character_portrait(character_id, 118))
 	var name_label := center_label(title.to_upper(), 16, color)
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	fighter_box.add_child(name_label)
@@ -526,6 +542,15 @@ func fighter(title: String, icon: String, hp: int, maximum: int, color: Color) -
 	fighter_box.add_child(health)
 	fighter_box.add_child(center_label("%d / %d HP" % [hp, maximum], 14, MUTED))
 	return fighter_box
+
+
+func character_portrait(character_id: String, dimension: float) -> Control:
+	var result: Control = PortraitScript.new()
+	result.character_id = character_id
+	result.custom_minimum_size = Vector2(dimension, dimension)
+	result.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	result.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return result
 
 
 func stat_chip(title: String, value: String, color: Color) -> PanelContainer:
@@ -628,6 +653,8 @@ func on_combat_timer() -> void:
 		return
 	var result := GameState.combat_step()
 	last_combat_message = str(result.get("message", ""))
+	if sound_fx:
+		sound_fx.play_combat(GameState.combat_events)
 	if not bool(result.get("finished", false)):
 		render()
 	if bool(result.get("finished", false)) and not bool(result.get("won", false)):
