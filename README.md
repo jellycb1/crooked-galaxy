@@ -22,6 +22,12 @@ godot --path .
 Run deterministic core tests:
 
 ```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\check_project.ps1
+```
+
+Or run an individual suite:
+
+```powershell
 godot --headless --path . --script res://tests/test_core.gd
 godot --headless --path . --script res://tests/test_flow.gd
 godot --headless --path . --script res://tests/test_ui.gd
