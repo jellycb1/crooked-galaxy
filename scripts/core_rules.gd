@@ -46,3 +46,17 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 
 static func is_upgrade(item: Dictionary, equipped: Dictionary) -> bool:
 	return int(item.get("power", 0)) > int(equipped.get("power", 0))
+
+
+static func salvage_value(item: Dictionary) -> int:
+	var multiplier := 1
+	match str(item.get("rarity", "Comum")):
+		"Raro":
+			multiplier = 2
+		"Épico":
+			multiplier = 4
+	return maxi(1, ceili(float(int(item.get("power", 1)) * multiplier) / 3.0))
+
+
+static func equipment_upgrade_cost(item: Dictionary) -> int:
+	return maxi(4, 3 + ceili(float(int(item.get("power", 1))) * 0.8))

@@ -46,6 +46,16 @@ func _init() -> void:
 	check(str(state.player[str(claimed_item.slot)].id) == str(claimed_item.id), "claimed upgrade is equipped")
 	check(not state.last_notice.is_empty(), "reward feedback survives the screen transition")
 	check(int(state.player.reputation) == 0, "rank requires three captures")
+	check(not state.scrap_item(str(claimed_item.id)), "equipped item cannot be recycled")
+	var spare := {"id": "spare_epic", "name": "Sucata de Teste", "description": "Feita para sumir.", "slot": "armor", "power": 12, "rarity": "Épico", "color": "#d789ff"}
+	state.player.inventory.append(spare)
+	check(state.scrap_item("spare_epic"), "unequipped loot can be recycled")
+	check(int(state.player.scrap) == 16, "recycling grants deterministic scrap")
+	var equipped_power := int(state.player[str(claimed_item.slot)].power)
+	var upgrade_cost := CoreRules.equipment_upgrade_cost(state.player[str(claimed_item.slot)])
+	check(state.upgrade_equipped(str(claimed_item.slot)), "scrap upgrades equipped gear")
+	check(int(state.player.scrap) == 16 - upgrade_cost, "workshop charges the visible upgrade cost")
+	check(int(state.player[str(claimed_item.slot)].power) == equipped_power + 1, "workshop adds one equipment power")
 
 	state.start_bounty(Content.TARGETS[0].duplicate(true))
 	state.hunt_event = Content.HUNT_EVENTS[0].duplicate(true)

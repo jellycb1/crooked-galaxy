@@ -59,11 +59,15 @@ func run_smoke_test() -> void:
 	state.open_reward()
 	await process_frame
 	state.claim_reward(true)
+	state.player.scrap = 18
+	state.player.inventory.append({"id": "ui_spare", "name": "Peça Obsoleta", "description": "Serve melhor desmontada.", "slot": "armor", "power": 6, "rarity": "Comum", "color": "#b9c2d9"})
 	scene.view_mode = "arsenal"
 	scene.render()
 	await process_frame
 	check(scene.find_child("InventoryScroll", true, false) != null, "arsenal screen renders")
-	check(state.player.inventory.size() == 1, "arsenal receives claimed loot")
+	check(state.player.inventory.size() == 2, "arsenal receives claimed and spare loot")
+	check(scene.find_child("Upgrade_weapon", true, false) != null, "workshop renders equipment upgrades")
+	check(scene.find_child("Scrap_ui_spare", true, false) != null, "workshop renders recycling for spare loot")
 
 	state.phase = state.Phase.CHAPTER_COMPLETE
 	state.chapter_completion = {

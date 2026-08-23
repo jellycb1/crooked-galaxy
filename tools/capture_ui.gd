@@ -83,6 +83,8 @@ func capture() -> void:
 		quit(1)
 		return
 	state.claim_reward(true)
+	state.player.scrap = 18
+	state.player.inventory.append({"id": "capture_spare", "name": "Colete Fiscal Vencido", "description": "A proteção expirou no trimestre passado.", "slot": "armor", "power": 5, "rarity": "Comum", "color": "#b9c2d9"})
 	scene.view_mode = "arsenal"
 	scene.render()
 	await process_frame

@@ -11,6 +11,7 @@ func _init() -> void:
 	source.save_path = TEST_SAVE
 	source.player = source.default_player()
 	source.player.credits = 123
+	source.player.scrap = 27
 	source.phase = source.Phase.VICTORY
 	source.current_bounty = ContentDB.TARGETS[0].duplicate(true)
 	source.pending_loot = {
@@ -31,6 +32,7 @@ func _init() -> void:
 	restored.save_path = TEST_SAVE
 	restored.load_game()
 	check(int(restored.player.credits) == 123, "player data survives save and load")
+	check(int(restored.player.scrap) == 27, "workshop currency survives save and load")
 	check(restored.phase == restored.Phase.VICTORY, "capture phase survives save and load")
 	check(str(restored.pending_loot.id) == "test_loot", "pending reward survives save and load")
 	check(restored.combat_events.size() == 1, "finishing action survives save and load")

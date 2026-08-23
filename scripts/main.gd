@@ -159,6 +159,7 @@ func build_header() -> void:
 	stats.add_theme_constant_override("separation", 10)
 	content.add_child(stats)
 	stats.add_child(stat_chip("CRÉDITOS", str(GameState.player.credits), GOLD))
+	stats.add_child(stat_chip("SUCATA", str(GameState.player.get("scrap", 0)), CORAL))
 	stats.add_child(stat_chip("REPUTAÇÃO", "RANK %d" % (int(GameState.player.reputation) + 1), LIME))
 	stats.add_child(stat_chip("VITÓRIAS", str(GameState.player.wins), CYAN))
 
@@ -338,13 +339,13 @@ func build_arsenal() -> void:
 	)
 	title_row.add_child(back)
 
-	var equipped_title := label("EQUIPADO · PODER TOTAL %d" % CoreRules.player_power(GameState.player), 14, GOLD)
+	var equipped_title := label("OFICINA · %d SUCATA · PODER TOTAL %d" % [int(GameState.player.get("scrap", 0)), CoreRules.player_power(GameState.player)], 14, GOLD)
 	content.add_child(equipped_title)
 	var equipped_row := HBoxContainer.new()
 	equipped_row.add_theme_constant_override("separation", 10)
 	content.add_child(equipped_row)
-	equipped_row.add_child(equipment_chip(GameState.player.weapon))
-	equipped_row.add_child(equipment_chip(GameState.player.armor))
+	equipped_row.add_child(workshop_upgrade_card("weapon"))
+	equipped_row.add_child(workshop_upgrade_card("armor"))
 
 	var inventory_title := label("ITENS ENCONTRADOS", 14, MUTED)
 	content.add_child(inventory_title)
@@ -402,11 +403,40 @@ func inventory_item_card(item: Dictionary) -> PanelContainer:
 	status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(status)
 	if not equipped:
+		var buttons := VBoxContainer.new()
+		buttons.add_theme_constant_override("separation", 6)
+		row.add_child(buttons)
 		var equip_button := action_button("EQUIPAR", CYAN, true)
 		equip_button.custom_minimum_size = Vector2(110, 46)
 		var item_id := str(item.id)
 		equip_button.pressed.connect(func(): GameState.equip_from_inventory(item_id))
-		row.add_child(equip_button)
+		buttons.add_child(equip_button)
+		var salvage := CoreRules.salvage_value(item)
+		var scrap_button := action_button("RECICLAR +%d" % salvage, CORAL, true)
+		scrap_button.name = "Scrap_%s" % item_id
+		scrap_button.custom_minimum_size = Vector2(110, 40)
+		scrap_button.add_theme_font_size_override("font_size", 11)
+		scrap_button.pressed.connect(func(): GameState.scrap_item(item_id))
+		buttons.add_child(scrap_button)
+	return card
+
+
+func workshop_upgrade_card(slot: String) -> PanelContainer:
+	var item: Dictionary = GameState.player[slot]
+	var cost := CoreRules.equipment_upgrade_cost(item)
+	var affordable := int(GameState.player.get("scrap", 0)) >= cost
+	var card := panel(VBoxContainer.new(), Color("#0d1530"), 12, 10)
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var box := card.get_child(0) as VBoxContainer
+	box.add_child(label(slot_name(slot).to_upper(), 11, MUTED))
+	box.add_child(label("%s · +%d" % [str(item.name), int(item.power)], 13, INK))
+	var improve := action_button("+1 PODER · %d SUCATA" % cost, LIME if affordable else MUTED, true)
+	improve.name = "Upgrade_%s" % slot
+	improve.disabled = not affordable
+	improve.custom_minimum_size = Vector2(0, 40)
+	improve.add_theme_font_size_override("font_size", 11)
+	improve.pressed.connect(func(): GameState.upgrade_equipped(slot))
+	box.add_child(improve)
 	return card
 
 

@@ -40,6 +40,7 @@ func default_player() -> Dictionary:
 		"level": 1,
 		"xp": 0,
 		"credits": 25,
+		"scrap": 0,
 		"reputation": 0,
 		"wins": 0,
 		"base_power": 10,
@@ -357,6 +358,49 @@ func equip_from_inventory(item_id: String) -> void:
 			save_game()
 			changed.emit()
 			return
+
+
+func scrap_item(item_id: String) -> bool:
+	if phase != Phase.BOARD:
+		return false
+	for slot in ["weapon", "armor"]:
+		if str(player.get(slot, {}).get("id", "")) == item_id:
+			return false
+	for item_index in player.inventory.size():
+		var item: Dictionary = player.inventory[item_index]
+		if str(item.get("id", "")) != item_id:
+			continue
+		var value := CoreRules.salvage_value(item)
+		player.inventory.remove_at(item_index)
+		player.scrap = int(player.get("scrap", 0)) + value
+		last_notice = "%s reciclado: +%d sucata." % [str(item.name), value]
+		save_game()
+		changed.emit()
+		return true
+	return false
+
+
+func upgrade_equipped(slot: String) -> bool:
+	if phase != Phase.BOARD or (slot != "weapon" and slot != "armor"):
+		return false
+	var item: Dictionary = player[slot]
+	var cost := CoreRules.equipment_upgrade_cost(item)
+	if int(player.get("scrap", 0)) < cost:
+		return false
+	player.scrap = int(player.scrap) - cost
+	item = item.duplicate(true)
+	item.power = int(item.power) + 1
+	player[slot] = item
+	var item_id := str(item.get("id", ""))
+	if not item_id.is_empty():
+		for inventory_item in player.inventory:
+			if str(inventory_item.get("id", "")) == item_id:
+				inventory_item.power = int(item.power)
+				break
+	last_notice = "%s calibrado para +%d poder." % [str(item.name), int(item.power)]
+	save_game()
+	changed.emit()
+	return true
 
 
 func toggle_sound() -> void:
