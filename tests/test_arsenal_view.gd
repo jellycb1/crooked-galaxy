@@ -11,6 +11,8 @@ func _init() -> void:
 	var state = StateScript.new()
 	state.persistence_enabled = false
 	state.player = state.default_player()
+	state.player.captures_by_target = {"gloop": 1}
+	state.player.captures_by_planet = {"dustball_prime": 1}
 	state.player.scrap = 20
 	state.player.weapon.origin_planet_id = "dustball_prime"
 	state.player.armor.origin_planet_id = "dustball_prime"
@@ -31,6 +33,17 @@ func _init() -> void:
 	var readiness := ArsenalScript.field_readiness(state)
 	check(str(readiness.target.id) == "baron_boom", "field test selects the next planet-tier target")
 	check(float(readiness.power_odds) >= float(readiness.current_odds) and float(readiness.health_odds) >= float(readiness.current_odds), "field test projections are monotonic for real upgrades")
+	state.player.captures_by_target = {"gloop": 3}
+	state.player.captures_by_planet = {"dustball_prime": 3}
+	var unlocked_readiness := ArsenalScript.field_readiness(state)
+	check(str(unlocked_readiness.target.id) == "baron_boom" and bool(unlocked_readiness.target_available), "field test keeps a newly unlocked uncaptured warrant in focus")
+	clear_children(content)
+	ArsenalScript.build(host, content, state)
+	var unlocked_target_label := host.find_child("FieldReadinessTarget", true, false) as Label
+	check(unlocked_target_label != null and unlocked_target_label.text.contains("MANDADO ATUAL: BARÃO BOOM"), "field test explains that the newly unlocked warrant is currently actionable")
+	state.player.captures_by_target.baron_boom = 1
+	state.player.captures_by_planet.dustball_prime = 4
+	check(str(ArsenalScript.field_readiness(state).target.id) == "madame_vacuum", "field test advances after the new warrant's first capture")
 	var kit_status := host.find_child("PlanetaryKitStatus", true, false) as Label
 	check(kit_status != null and kit_status.text.contains("DUSTBALL PRIME") and kit_status.text.contains("+1 PODER") and kit_status.text.contains("+6 VIDA"), "arsenal exposes the active planetary kit")
 	check(ArsenalScript.filtered_inventory(host, state).size() == 2, "renderer receives inventory through explicit state")
@@ -51,3 +64,8 @@ func check(condition: bool, description: String) -> void:
 	if not condition:
 		failures += 1
 		printerr("  FAIL: %s" % description)
+
+
+func clear_children(node: Node) -> void:
+	for child in node.get_children():
+		child.free()

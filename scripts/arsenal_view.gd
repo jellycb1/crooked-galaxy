@@ -87,7 +87,10 @@ static func filtered_inventory(host: CrookedUIFactory, state: StateScript) -> Ar
 static func field_readiness(state: StateScript) -> Dictionary:
 	var planet_id := str(state.player.get("current_planet_id", Content.PLANET.id))
 	var tier := state.planet_tier(planet_id)
-	var target := Content.target_for_planet_tier(planet_id, mini(3, tier + 1))
+	var current_target := Content.target_for_planet_tier(planet_id, tier)
+	var current_captures := int(state.player.get("captures_by_target", {}).get(str(current_target.get("id", "")), 0))
+	var target_is_available := not current_target.is_empty() and current_captures == 0
+	var target := current_target if target_is_available else Content.target_for_planet_tier(planet_id, mini(3, tier + 1))
 	if target.is_empty():
 		target = Content.target_for_planet_tier(planet_id, tier)
 	if target.is_empty():
@@ -111,6 +114,8 @@ static func field_readiness(state: StateScript) -> Dictionary:
 		"power_odds": Rules.bounty_odds(power_player, target),
 		"health_odds": Rules.bounty_odds(health_player, target) if reinforced else Rules.bounty_odds(state.player, target),
 		"can_reinforce": reinforced,
+		"target_available": target_is_available,
+		"planet_tier": tier,
 	}
 
 
@@ -124,7 +129,12 @@ static func field_readiness_card(host: CrookedUIFactory, state: StateScript) -> 
 		box.add_child(host.label("TESTE DE CAMPO INDISPONÍVEL", 11, host.MUTED))
 		return card
 	var target: Dictionary = readiness.target
-	box.add_child(host.label("TESTE DE CAMPO · PRÓXIMO MANDADO: %s" % str(target.name).to_upper(), 11, host.GOLD))
+	var target_context := "MANDADO ATUAL" if bool(readiness.target_available) else "PRÓXIMO MANDADO"
+	if int(readiness.planet_tier) >= 3:
+		target_context = "CHEFE DO CAPÍTULO"
+	var target_label := host.label("TESTE DE CAMPO · %s: %s" % [target_context, str(target.name).to_upper()], 11, host.GOLD)
+	target_label.name = "FieldReadinessTarget"
+	box.add_child(target_label)
 	var metrics := HBoxContainer.new()
 	metrics.add_theme_constant_override("separation", 7)
 	box.add_child(metrics)
