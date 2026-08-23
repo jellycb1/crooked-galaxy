@@ -46,6 +46,14 @@ func test_level_progression() -> void:
 	check(player.level == 3, "level is incremented")
 	check(player.xp == 5, "overflow XP is retained")
 	check(player.base_power == 14, "level raises base power")
+	var no_patrol := Rules.offline_patrol_rewards(299.0, 3, 10)
+	check(int(no_patrol.credits) == 0, "AFK patrol ignores returns shorter than five minutes")
+	var patrol := Rules.offline_patrol_rewards(3600.0, 2, 10)
+	check(int(patrol.minutes) == 60 and int(patrol.credits) == 180, "AFK credits scale with completed planets")
+	check(int(patrol.scrap) == 4, "AFK scrap is awarded in thirty-minute cycles")
+	var capped_patrol := Rules.offline_patrol_rewards(12.0 * 3600.0, 3, 10)
+	check(int(capped_patrol.minutes) == 480 and bool(capped_patrol.capped), "AFK rewards cap at eight hours")
+	check(int(Rules.offline_patrol_rewards(3600.0, 3, 0).credits) == 0, "AFK patrol requires a completed first bounty")
 
 
 func test_bounty_odds() -> void:

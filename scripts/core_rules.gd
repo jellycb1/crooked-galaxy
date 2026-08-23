@@ -60,3 +60,18 @@ static func salvage_value(item: Dictionary) -> int:
 
 static func equipment_upgrade_cost(item: Dictionary) -> int:
 	return maxi(4, 3 + ceili(float(int(item.get("power", 1))) * 0.8))
+
+
+static func offline_patrol_rewards(elapsed_seconds: float, completed_planets: int, wins: int) -> Dictionary:
+	if wins <= 0 or elapsed_seconds < 300.0:
+		return {"minutes": 0, "credits": 0, "scrap": 0, "capped": false}
+	var capped_seconds := minf(elapsed_seconds, 8.0 * 60.0 * 60.0)
+	var minutes := floori(capped_seconds / 60.0)
+	var credit_rate := 1 + maxi(0, completed_planets)
+	var scrap_rate := 1 + floori(float(maxi(0, completed_planets)) / 2.0)
+	return {
+		"minutes": minutes,
+		"credits": minutes * credit_rate,
+		"scrap": floori(float(minutes) / 30.0) * scrap_rate,
+		"capped": elapsed_seconds > capped_seconds,
+	}

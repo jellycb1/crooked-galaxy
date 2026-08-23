@@ -96,6 +96,17 @@ func run_smoke_test() -> void:
 	check(state.travel_to_planet("micelia_404"), "UI state can enter the third unlocked planet")
 	await process_frame
 	check(scene.find_child("BountyCard_landlord_spore", true, false) != null, "third planet bounty board renders")
+	state.afk_report = {"minutes": 95, "credits": 380, "scrap": 6, "capped": false}
+	scene.view_mode = "board"
+	scene.render()
+	await process_frame
+	check(scene.find_child("AfkReturnBanner", true, false) != null, "AFK return report renders on the bounty board")
+	state.afk_report = {}
+	scene.view_mode = "career"
+	scene.render()
+	await process_frame
+	check(scene.find_child("CareerSummary", true, false) != null, "career summary renders")
+	check(scene.find_child("CareerScroll", true, false) != null, "career planet and milestone list renders")
 
 	scene.free()
 	await process_frame

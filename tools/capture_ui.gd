@@ -25,6 +25,29 @@ func capture() -> void:
 	if save_frame("ui_board.png") != OK:
 		quit(1)
 		return
+	var board_credits := int(state.player.credits)
+	var board_scrap := int(state.player.scrap)
+	state.player.wins = 1
+	state.player.captures_by_target = {"gloop": 1}
+	state.player.captures_by_planet = {ContentDB.PLANET.id: 1}
+	state.player.credits = board_credits + 380
+	state.player.scrap = board_scrap + 6
+	state.afk_report = {"minutes": 95, "credits": 380, "scrap": 6, "capped": false}
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_afk_return.png") != OK:
+		quit(1)
+		return
+	state.afk_report = {}
+	state.player.wins = 0
+	state.player.captures_by_target = {}
+	state.player.captures_by_planet = {}
+	state.player.credits = board_credits
+	state.player.scrap = board_scrap
+	scene.render()
+	await process_frame
+	await process_frame
 
 	var bounty: Dictionary = ContentDB.TARGETS[0].duplicate(true)
 	state.select_bounty(bounty)
@@ -207,10 +230,24 @@ func capture() -> void:
 	if save_frame("ui_micelia_complete.png") != OK:
 		quit(1)
 		return
+	state.player.afk_credits_earned = 1460
+	state.player.afk_scrap_earned = 28
+	state.player.scrap_recycled_total = 42
+	state.continue_after_chapter()
+	await process_frame
+	await process_frame
+	scene.view_mode = "career"
+	scene.render()
+	await process_frame
+	await process_frame
+	await create_timer(0.12).timeout
+	if save_frame("ui_career.png") != OK:
+		quit(1)
+		return
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, galaxy map, planet incidents, three finales, boss board, and three planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, AFK return, career, galaxy, incidents, three finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

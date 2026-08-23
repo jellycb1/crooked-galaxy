@@ -28,6 +28,7 @@ var persistence_enabled := true
 var save_path := SAVE_PATH
 var last_notice := ""
 var chapter_completion: Dictionary = {}
+var afk_report: Dictionary = {}
 
 
 func _ready() -> void:
@@ -41,6 +42,10 @@ func default_player() -> Dictionary:
 		"xp": 0,
 		"credits": 25,
 		"scrap": 0,
+		"scrap_recycled_total": 0,
+		"afk_credits_earned": 0,
+		"afk_scrap_earned": 0,
+		"last_seen_unix": Time.get_unix_time_from_system(),
 		"reputation": 0,
 		"wins": 0,
 		"base_power": 10,
@@ -87,6 +92,45 @@ func planet_capture_count(planet_id: String) -> int:
 
 func planet_tier(planet_id: String) -> int:
 	return mini(3, floori(float(planet_capture_count(planet_id)) / 3.0))
+
+
+func apply_offline_progress(now_unix: float) -> Dictionary:
+	var last_seen := float(player.get("last_seen_unix", now_unix))
+	var elapsed := maxf(0.0, now_unix - last_seen)
+	var rewards := CoreRules.offline_patrol_rewards(elapsed, player.get("completed_planets", []).size(), int(player.get("wins", 0)))
+	player.last_seen_unix = now_unix
+	if int(rewards.credits) <= 0 and int(rewards.scrap) <= 0:
+		afk_report = {}
+		return rewards
+	player.credits = int(player.credits) + int(rewards.credits)
+	player.scrap = int(player.get("scrap", 0)) + int(rewards.scrap)
+	player.afk_credits_earned = int(player.get("afk_credits_earned", 0)) + int(rewards.credits)
+	player.afk_scrap_earned = int(player.get("afk_scrap_earned", 0)) + int(rewards.scrap)
+	afk_report = rewards.duplicate(true)
+	return rewards
+
+
+func dismiss_afk_report() -> void:
+	if afk_report.is_empty():
+		return
+	afk_report = {}
+	changed.emit()
+
+
+func career_milestones() -> Array[Dictionary]:
+	var captures: Dictionary = player.get("captures_by_target", {})
+	var has_repeat_target := false
+	for count in captures.values():
+		if int(count) >= 3:
+			has_repeat_target = true
+	var completed_count: int = player.get("completed_planets", []).size()
+	return [
+		{"name": "PRIMEIRO MANDADO", "description": "Execute sua primeira captura.", "complete": int(player.wins) >= 1},
+		{"name": "CLIENTE FREQUENTE", "description": "Capture o mesmo alvo três vezes.", "complete": has_repeat_target},
+		{"name": "DONO DO SETOR", "description": "Conclua seu primeiro planeta.", "complete": completed_count >= 1},
+		{"name": "TRÍPLICE FRONTEIRA", "description": "Conclua três planetas.", "complete": completed_count >= 3},
+		{"name": "NADA SE PERDE", "description": "Recicle pelo menos 25 pontos de sucata.", "complete": int(player.get("scrap_recycled_total", 0)) >= 25},
+	]
 
 
 func choose_approach(approach_id: String) -> void:
@@ -373,6 +417,7 @@ func scrap_item(item_id: String) -> bool:
 		var value := CoreRules.salvage_value(item)
 		player.inventory.remove_at(item_index)
 		player.scrap = int(player.get("scrap", 0)) + value
+		player.scrap_recycled_total = int(player.get("scrap_recycled_total", 0)) + value
 		last_notice = "%s reciclado: +%d sucata." % [str(item.name), value]
 		save_game()
 		changed.emit()
@@ -427,6 +472,7 @@ func reset_progress() -> void:
 	offered_approaches = []
 	hunt_event = {}
 	chapter_completion = {}
+	afk_report = {}
 	last_notice = "Progresso reiniciado. Hora de construir uma nova reputação."
 	save_game()
 	changed.emit()
@@ -435,6 +481,7 @@ func reset_progress() -> void:
 func save_game() -> void:
 	if not persistence_enabled:
 		return
+	player.last_seen_unix = Time.get_unix_time_from_system()
 	var payload := {
 		"version": 1,
 		"player": player,
@@ -494,6 +541,10 @@ func load_game() -> void:
 	var loaded_events = parsed.get("combat_events", [])
 	combat_events.assign(loaded_events if loaded_events is Array else [])
 	chapter_completion = parsed.get("chapter_completion", {})
+	var offline_rewards := apply_offline_progress(Time.get_unix_time_from_system())
+	if int(offline_rewards.credits) > 0 or int(offline_rewards.scrap) > 0:
+		# Persist immediately so an abrupt close cannot claim the same patrol twice.
+		save_game()
 	if phase == Phase.HUNT and Time.get_unix_time_from_system() >= hunt_ends_at:
 		begin_combat()
 	elif phase == Phase.COMBAT:

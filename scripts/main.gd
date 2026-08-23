@@ -107,6 +107,8 @@ func render() -> void:
 				build_arsenal()
 			elif view_mode == "galaxy":
 				build_galaxy_map()
+			elif view_mode == "career":
+				build_career()
 			else:
 				build_board()
 		GameState.Phase.HUNT:
@@ -200,7 +202,17 @@ func build_board() -> void:
 		render()
 	)
 	actions.add_child(galaxy)
+	var career := action_button("CARREIRA", LIME, true)
+	career.custom_minimum_size = Vector2(160, 42)
+	career.add_theme_font_size_override("font_size", 12)
+	career.pressed.connect(func():
+		view_mode = "career"
+		render()
+	)
+	actions.add_child(career)
 
+	if not GameState.afk_report.is_empty():
+		content.add_child(afk_return_banner())
 	if not GameState.last_notice.is_empty():
 		content.add_child(notice_banner(GameState.last_notice, LIME))
 	elif int(GameState.player.wins) == 0:
@@ -320,6 +332,90 @@ func planet_card(planet: Dictionary) -> PanelContainer:
 	elif not unlocked:
 		var requirement := ContentDB.get_planet(str(planet.get("unlock_after", ContentDB.PLANET.id)))
 		box.add_child(center_label("CONCLUA %s PARA TRAÇAR ESTA ROTA" % str(requirement.name).to_upper(), 12, MUTED))
+	return card
+
+
+func build_career() -> void:
+	var title_row := HBoxContainer.new()
+	content.add_child(title_row)
+	var titles := VBoxContainer.new()
+	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_row.add_child(titles)
+	titles.add_child(label("CARREIRA DE CAÇADOR", 25, INK))
+	titles.add_child(label("A galáxia esquece crimes. Seu currículo não.", 14, MUTED))
+	var back := action_button("VOLTAR", CYAN, true)
+	back.custom_minimum_size = Vector2(120, 48)
+	back.pressed.connect(func():
+		view_mode = "board"
+		render()
+	)
+	title_row.add_child(back)
+
+	var summary := panel(HBoxContainer.new(), PANEL_LIGHT, 16, 15)
+	summary.name = "CareerSummary"
+	content.add_child(summary)
+	var summary_row := summary.get_child(0) as HBoxContainer
+	summary_row.add_theme_constant_override("separation", 14)
+	summary_row.add_child(character_portrait("hunter", 76))
+	var summary_copy := VBoxContainer.new()
+	summary_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	summary_row.add_child(summary_copy)
+	summary_copy.add_child(label("CAÇADOR NÍVEL %d" % int(GameState.player.level), 18, GOLD))
+	summary_copy.add_child(label("%d capturas · %d planetas concluídos" % [int(GameState.player.wins), GameState.player.get("completed_planets", []).size()], 14, INK))
+	summary_copy.add_child(label("Patrulhas AFK: ◈ %d · %d sucata" % [int(GameState.player.get("afk_credits_earned", 0)), int(GameState.player.get("afk_scrap_earned", 0))], 12, MUTED))
+	var milestone_count := 0
+	for milestone in GameState.career_milestones():
+		if bool(milestone.complete):
+			milestone_count += 1
+	var badge := center_label("MARCOS\n%d / 5" % milestone_count, 14, LIME)
+	badge.custom_minimum_size = Vector2(75, 70)
+	summary_row.add_child(badge)
+
+	var scroller := ScrollContainer.new()
+	scroller.name = "CareerScroll"
+	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	content.add_child(scroller)
+	var list := VBoxContainer.new()
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.add_theme_constant_override("separation", 10)
+	scroller.add_child(list)
+	list.add_child(label("PROGRESSO PLANETÁRIO", 13, MUTED))
+	for planet in ContentDB.PLANETS:
+		list.add_child(career_planet_card(planet))
+	list.add_child(label("MARCOS DA CARREIRA", 13, MUTED))
+	for milestone in GameState.career_milestones():
+		list.add_child(career_milestone_card(milestone))
+
+
+func career_planet_card(planet: Dictionary) -> PanelContainer:
+	var planet_id: String = str(planet.id)
+	var completed: bool = GameState.player.get("completed_planets", []).has(planet_id)
+	var unlocked: bool = ContentDB.is_planet_unlocked(planet_id, GameState.player.get("completed_planets", []))
+	var captures: int = GameState.planet_capture_count(planet_id)
+	var accent: Color = Color(str(planet.accent))
+	var card := panel(HBoxContainer.new(), Color("#0d1530"), 12, 11)
+	var row := card.get_child(0) as HBoxContainer
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(copy)
+	copy.add_child(label(str(planet.name).to_upper(), 15, accent if unlocked else MUTED))
+	copy.add_child(label("%d capturas · Tier %d/3" % [captures, GameState.planet_tier(planet_id)], 12, MUTED))
+	var status: String = "CONCLUÍDO" if completed else ("EM ANDAMENTO" if unlocked else "BLOQUEADO")
+	row.add_child(label(status, 12, LIME if completed else (GOLD if unlocked else MUTED), HORIZONTAL_ALIGNMENT_RIGHT))
+	return card
+
+
+func career_milestone_card(milestone: Dictionary) -> PanelContainer:
+	var complete: bool = bool(milestone.complete)
+	var card := panel(HBoxContainer.new(), Color("#11213a") if complete else Color("#0a1025"), 11, 10)
+	var row := card.get_child(0) as HBoxContainer
+	row.add_theme_constant_override("separation", 10)
+	row.add_child(center_label("✓" if complete else "·", 22, LIME if complete else MUTED))
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(copy)
+	copy.add_child(label(str(milestone.name), 13, LIME if complete else INK))
+	copy.add_child(label(str(milestone.description), 12, MUTED))
 	return card
 
 
@@ -464,6 +560,31 @@ func notice_banner(message: String, color: Color) -> PanelContainer:
 	message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	row.add_child(message_label)
 	return banner
+
+
+func afk_return_banner() -> PanelContainer:
+	var report := GameState.afk_report
+	var banner := panel(HBoxContainer.new(), Color("#263653"), 15, 14)
+	banner.name = "AfkReturnBanner"
+	var row := banner.get_child(0) as HBoxContainer
+	row.add_theme_constant_override("separation", 12)
+	row.add_child(center_label("AFK", 24, CYAN))
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(copy)
+	copy.add_child(label("PATRULHA CONCLUÍDA · %s" % format_duration(int(report.minutes)), 13, CYAN))
+	copy.add_child(label("+%d créditos · +%d sucata%s" % [int(report.credits), int(report.scrap), " · LIMITE 8H" if bool(report.capped) else ""], 14, INK))
+	var dismiss := action_button("OK", CYAN, true)
+	dismiss.custom_minimum_size = Vector2(62, 44)
+	dismiss.pressed.connect(GameState.dismiss_afk_report)
+	row.add_child(dismiss)
+	return banner
+
+
+func format_duration(minutes: int) -> String:
+	if minutes >= 60:
+		return "%dh %02dmin" % [floori(float(minutes) / 60.0), minutes % 60]
+	return "%dmin" % minutes
 
 
 func bounty_card(bounty: Dictionary) -> PanelContainer:

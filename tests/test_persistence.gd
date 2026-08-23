@@ -12,6 +12,9 @@ func _init() -> void:
 	source.player = source.default_player()
 	source.player.credits = 123
 	source.player.scrap = 27
+	source.player.scrap_recycled_total = 31
+	source.player.afk_credits_earned = 220
+	source.player.afk_scrap_earned = 8
 	source.phase = source.Phase.VICTORY
 	source.current_bounty = ContentDB.TARGETS[0].duplicate(true)
 	source.pending_loot = {
@@ -33,6 +36,8 @@ func _init() -> void:
 	restored.load_game()
 	check(int(restored.player.credits) == 123, "player data survives save and load")
 	check(int(restored.player.scrap) == 27, "workshop currency survives save and load")
+	check(int(restored.player.scrap_recycled_total) == 31, "lifetime recycling survives save and load")
+	check(int(restored.player.afk_credits_earned) == 220 and int(restored.player.afk_scrap_earned) == 8, "AFK career totals survive save and load")
 	check(restored.phase == restored.Phase.VICTORY, "capture phase survives save and load")
 	check(str(restored.pending_loot.id) == "test_loot", "pending reward survives save and load")
 	check(restored.combat_events.size() == 1, "finishing action survives save and load")
@@ -79,11 +84,27 @@ func _init() -> void:
 	check(int(restored_chapter.player.captures_by_planet.congelaria_sa) == 4, "per-planet chapter progress survives save and load")
 	check(str(restored_chapter.chapter_completion.target.id) == "mayor_gold_dust", "chapter summary survives save and load")
 
+	var offline = StateScript.new()
+	offline.persistence_enabled = false
+	offline.player = offline.default_player()
+	offline.player.wins = 5
+	offline.player.completed_planets = [ContentDB.PLANET.id, "congelaria_sa"]
+	offline.player.credits = 0
+	offline.player.scrap = 0
+	offline.player.last_seen_unix = 100.0
+	var patrol := offline.apply_offline_progress(3700.0)
+	check(int(patrol.credits) == 180 and int(offline.player.credits) == 180, "one-hour patrol credits are applied")
+	check(int(patrol.scrap) == 4 and int(offline.player.scrap) == 4, "one-hour patrol scrap is applied")
+	check(not offline.afk_report.is_empty(), "offline return creates a visible report")
+	offline.dismiss_afk_report()
+	check(offline.afk_report.is_empty(), "AFK report can be dismissed")
+
 	source.free()
 	restored.free()
 	restored_briefing.free()
 	restored_event.free()
 	restored_chapter.free()
+	offline.free()
 	if FileAccess.file_exists(TEST_SAVE):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SAVE))
 	if failures == 0:
