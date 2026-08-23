@@ -101,8 +101,11 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		recycle_complete.custom_minimum_size = Vector2(0, 48)
 		recycle_complete.pressed.connect(func(): state.claim_reward(false, false, true))
 		content.add_child(recycle_complete)
-	if mastery_after_reward > reward_mastery and not completes_chapter and not unlocks_new_warrant:
-		var workshop := host.action_button("EQUIPAR E IR À OFICINA" if effective_upgrade else "GUARDAR E IR À OFICINA", host.CYAN, true)
+	if mastery_after_reward > reward_mastery and not completes_chapter:
+		var workshop_text := "EQUIPAR E IR À OFICINA" if effective_upgrade else "GUARDAR E IR À OFICINA"
+		if unlocks_new_warrant:
+			workshop_text = "EQUIPAR E PREPARAR NOVO MANDADO" if effective_upgrade else "GUARDAR E PREPARAR NOVO MANDADO"
+		var workshop := host.action_button(workshop_text, host.CYAN, true)
 		workshop.name = "ClaimAndWorkshop"
 		workshop.custom_minimum_size = Vector2(0, 48)
 		workshop.pressed.connect(func():

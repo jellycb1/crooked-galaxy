@@ -46,6 +46,12 @@ func _init() -> void:
 	check(host.find_child("ClaimAndRepeat", true, false) == null and host.find_child("ClaimAndUnlock", true, false) != null, "threshold unlock prioritizes the expanded board")
 
 	clear_content(content)
+	state.player.captures_by_target = {"gloop": 2}
+	RewardScript.build(host, content, state)
+	var combined_workshop := host.find_child("ClaimAndWorkshop", true, false) as Button
+	check(combined_workshop != null and combined_workshop.text.contains("PREPARAR NOVO MANDADO"), "combined mastery and warrant threshold can spend its funding before the new contract")
+
+	clear_content(content)
 	state.player.captures_by_planet = {}
 	state.pending_loot = reward_item(0)
 	RewardScript.build(host, content, state)
