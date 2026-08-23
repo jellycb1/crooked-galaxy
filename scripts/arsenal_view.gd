@@ -8,6 +8,7 @@ const StateScript = preload("res://scripts/game_state.gd")
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
+	var readiness := field_readiness(state)
 	var title_row := HBoxContainer.new()
 	title_row.add_theme_constant_override("separation", 12)
 	content.add_child(title_row)
@@ -18,6 +19,18 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var subtitle := host.label("Troque peças para ajustar seu poder de caça.", 14, host.MUTED)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	titles.add_child(subtitle)
+	if not readiness.is_empty() and bool(readiness.target_available):
+		var focused_target: Dictionary = readiness.target
+		var analyze := host.action_button("CAÇAR AGORA", host.LIME, true)
+		analyze.name = "FieldReadinessAction"
+		analyze.custom_minimum_size = Vector2(112, 48)
+		analyze.add_theme_font_size_override("font_size", 11)
+		var target_id := str(focused_target.id)
+		analyze.pressed.connect(func():
+			host.view_mode = "board"
+			state.select_bounty(Content.get_target(target_id))
+		)
+		title_row.add_child(analyze)
 	var back := host.action_button("VOLTAR", host.CYAN, true)
 	back.custom_minimum_size = Vector2(96, 48)
 	back.pressed.connect(func():
@@ -41,7 +54,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var set_label := host.label(set_text, 12, set_color)
 	set_label.name = "PlanetaryKitStatus"
 	content.add_child(set_label)
-	content.add_child(field_readiness_card(host, state))
+	content.add_child(field_readiness_card(host, state, readiness))
 	var workshop_recommendation := recommended_workshop_action(state)
 	var equipped_row := HBoxContainer.new()
 	equipped_row.add_theme_constant_override("separation", 10)
@@ -125,8 +138,9 @@ static func field_readiness(state: StateScript) -> Dictionary:
 	}
 
 
-static func field_readiness_card(host: CrookedUIFactory, state: StateScript) -> PanelContainer:
-	var readiness := field_readiness(state)
+static func field_readiness_card(host: CrookedUIFactory, state: StateScript, readiness: Dictionary = {}) -> PanelContainer:
+	if readiness.is_empty():
+		readiness = field_readiness(state)
 	var card := host.panel(VBoxContainer.new(), Color("#13233e"), 12, 10)
 	card.name = "FieldReadiness"
 	var box := card.get_child(0) as VBoxContainer

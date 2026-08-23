@@ -166,6 +166,8 @@ func capture() -> void:
 	state.sync_item_to_inventory(state.player.armor)
 	state.save_equipment_loadout(1)
 	state.apply_equipment_loadout(0)
+	state.player.captures_by_target = {"gloop": 3}
+	state.player.captures_by_planet = {ContentDB.PLANET.id: 3}
 	scene.view_mode = "arsenal"
 	scene.render()
 	await process_frame

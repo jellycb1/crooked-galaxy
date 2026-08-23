@@ -46,9 +46,15 @@ func _init() -> void:
 	ArsenalScript.build(host, content, state)
 	var unlocked_target_label := host.find_child("FieldReadinessTarget", true, false) as Label
 	check(unlocked_target_label != null and unlocked_target_label.text.contains("MANDADO ATUAL: BARÃO BOOM"), "field test explains that the newly unlocked warrant is currently actionable")
+	var field_action := host.find_child("FieldReadinessAction", true, false) as Button
+	check(field_action != null and field_action.text == "CAÇAR AGORA", "field test links an available uncaptured warrant directly")
 	state.player.captures_by_target.baron_boom = 1
 	state.player.captures_by_planet.dustball_prime = 4
 	check(str(ArsenalScript.field_readiness(state).target.id) == "madame_vacuum", "field test advances after the new warrant's first capture")
+	state.player.captures_by_target.erase("baron_boom")
+	state.player.captures_by_planet.dustball_prime = 3
+	field_action.pressed.emit()
+	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "baron_boom", "field-test action opens the focused warrant briefing")
 	var kit_status := host.find_child("PlanetaryKitStatus", true, false) as Label
 	check(kit_status != null and kit_status.text.contains("DUSTBALL PRIME") and kit_status.text.contains("+1 PODER") and kit_status.text.contains("+6 VIDA"), "arsenal exposes the active planetary kit")
 	check(ArsenalScript.filtered_inventory(host, state).size() == 2, "renderer receives inventory through explicit state")
