@@ -27,7 +27,8 @@ func _init() -> void:
 	clear_content(content)
 	state.player.captures_by_target = {"gloop": 2}
 	RewardScript.build(host, content, state)
-	check(host.find_child("RewardMasteryUnlock", true, false) != null, "isolated reward previews a mastery threshold before claiming")
+	var mastery_unlock := host.find_child("RewardMasteryUnlock", true, false) as Label
+	check(mastery_unlock != null and mastery_unlock.text.contains("+6 SUCATA"), "isolated reward previews the mastery threshold and its workshop funding before claiming")
 
 	clear_content(content)
 	state.player.captures_by_target = {}

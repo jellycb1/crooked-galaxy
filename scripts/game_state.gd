@@ -410,6 +410,8 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		"streak_bonus_percent": int(reward.bonus_percent),
 		"streak": new_streak,
 		"scrap": 0,
+		"recycled_scrap": 0,
+		"mastery_scrap": 0,
 		"recycled": false,
 		"xp": int(current_bounty.xp),
 		"levels": 0,
@@ -434,6 +436,10 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	player.captures_by_target = captures
 	summary.target_mastery = CoreRules.target_mastery_level(int(captures[target_id]))
 	summary.target_mastery_up = int(summary.target_mastery) > old_target_mastery
+	if bool(summary.target_mastery_up):
+		summary.mastery_scrap = CoreRules.target_mastery_scrap_reward(int(summary.target_mastery))
+		summary.scrap = int(summary.scrap) + int(summary.mastery_scrap)
+		player.scrap = int(player.get("scrap", 0)) + int(summary.mastery_scrap)
 	var planet_captures: Dictionary = player.get("captures_by_planet", {})
 	planet_captures[completed_planet_id] = int(planet_captures.get(completed_planet_id, 0)) + 1
 	player.captures_by_planet = planet_captures
@@ -445,17 +451,18 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	player.reputation = mini(floori(float(player.wins) / 3.0), highest_rank)
 	summary.rank_up = int(player.reputation) > old_reputation
 	if recycle_item:
-		summary.scrap = CoreRules.salvage_value(pending_loot)
+		summary.recycled_scrap = CoreRules.salvage_value(pending_loot)
+		summary.scrap = int(summary.scrap) + int(summary.recycled_scrap)
 		summary.recycled = true
-		player.scrap = int(player.get("scrap", 0)) + int(summary.scrap)
-		player.scrap_recycled_total = int(player.get("scrap_recycled_total", 0)) + int(summary.scrap)
+		player.scrap = int(player.get("scrap", 0)) + int(summary.recycled_scrap)
+		player.scrap_recycled_total = int(player.get("scrap_recycled_total", 0)) + int(summary.recycled_scrap)
 	else:
 		player.inventory.append(pending_loot.duplicate(true))
 		if equip_item:
 			equip(pending_loot)
 	var notice_parts := ["+%d créditos" % int(summary.credits), "+%d XP" % int(summary.xp)]
-	if int(summary.scrap) > 0:
-		notice_parts.append("Loot reciclado: +%d sucata" % int(summary.scrap))
+	if int(summary.recycled_scrap) > 0:
+		notice_parts.append("Loot reciclado: +%d sucata" % int(summary.recycled_scrap))
 	if int(summary.streak_bonus) > 0:
 		notice_parts.append("Embalo ×%d: +%d" % [new_streak, int(summary.streak_bonus)])
 	if int(summary.levels) > 0:
@@ -465,7 +472,7 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	elif bool(summary.chapter_tier_up):
 		notice_parts.append("Novo mandado planetário")
 	if bool(summary.target_mastery_up):
-		notice_parts.append("Perícia com alvo %d" % int(summary.target_mastery))
+		notice_parts.append("Perícia com alvo %d: +%d sucata" % [int(summary.target_mastery), int(summary.mastery_scrap)])
 	var completed_planets: Array = player.get("completed_planets", [])
 	var completed_planet := ContentDB.get_planet(completed_planet_id)
 	var first_boss_capture := bool(completed_bounty.get("boss", false)) and not completed_planets.has(completed_planet_id)

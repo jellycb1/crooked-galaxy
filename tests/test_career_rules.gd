@@ -29,7 +29,7 @@ func _init() -> void:
 	player.captures_by_target = {"far": 3, "near": 5, "mastered": 10}
 	var objective := CareerRules.next_mastery_objective(player, targets)
 	check(str(objective.target.id) == "near" and int(objective.remaining) == 1, "career recommends the closest unfinished mastery tier")
-	check(int(objective.next_level) == 2 and int(objective.rare_bonus) == 10 and int(objective.epic_bonus) == 4, "mastery objective explains the next loot bonus")
+	check(int(objective.next_level) == 2 and int(objective.rare_bonus) == 10 and int(objective.epic_bonus) == 4 and int(objective.scrap_bonus) == 10, "mastery objective explains the next loot and workshop bonus")
 	player.captures_by_target = {"mastered": 10}
 	check(CareerRules.next_mastery_objective(player, targets).is_empty(), "fully mastered archives need no repeat directive")
 

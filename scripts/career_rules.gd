@@ -51,6 +51,7 @@ static func next_mastery_objective(player: Dictionary, targets: Array) -> Dictio
 			"remaining": requirement - captures,
 			"rare_bonus": (level + 1) * 5,
 			"epic_bonus": (level + 1) * 2,
+			"scrap_bonus": CoreRules.target_mastery_scrap_reward(level + 1),
 		}
 		if best.is_empty() or int(candidate.remaining) < int(best.remaining):
 			best = candidate

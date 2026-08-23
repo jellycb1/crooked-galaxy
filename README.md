@@ -12,7 +12,7 @@ It currently includes four complete four-target chapters: Dustball Prime, the fr
 
 Threshold captures explicitly preview and reveal the next warrant, keeping early progression visible without a modal tutorial.
 
-Reward screens also count the pending capture toward target mastery and preview its rare/epic loot bonus before the player commits the loot decision.
+Reward screens also count the pending capture toward target mastery and preview its rare/epic loot bonus plus one-time workshop scrap funding before the player commits the loot decision.
 
 Post-combat reports summarize turns, damage and the contribution of tactical traits or planetary kits; defeats retain a compact diagnosis on the board before the next attempt.
 

@@ -214,6 +214,10 @@ static func target_mastery_next_requirement(level: int) -> int:
 			return -1
 
 
+static func target_mastery_scrap_reward(level: int) -> int:
+	return 0 if level <= 0 else level * 4 + 2
+
+
 static func loot_rarity_thresholds(mastery_level: int) -> Dictionary:
 	var level := clampi(mastery_level, 0, 3)
 	return {

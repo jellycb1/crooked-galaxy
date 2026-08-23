@@ -101,7 +101,8 @@ func _init() -> void:
 	mastery_state.pending_loot = {"id": "mastery_loot", "name": "Prova de Perícia", "slot": "armor", "power": 2, "rarity": "Comum", "color": "#b9c2d9"}
 	var mastery_summary := mastery_state.claim_reward(false)
 	check(bool(mastery_summary.target_mastery_up) and int(mastery_summary.target_mastery) == 1, "third target capture reports a mastery increase")
-	check(str(mastery_state.last_notice).contains("Perícia com alvo 1"), "mastery increase survives as board feedback")
+	check(int(mastery_summary.mastery_scrap) == 6 and int(mastery_state.player.scrap) == 6, "mastery increase funds an immediate workshop decision")
+	check(str(mastery_state.last_notice).contains("Perícia com alvo 1: +6 sucata"), "mastery increase survives as exact board feedback")
 	mastery_state.free()
 	var tactical_state = StateScript.new()
 	tactical_state.persistence_enabled = false

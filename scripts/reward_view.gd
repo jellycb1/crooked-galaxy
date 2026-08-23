@@ -50,7 +50,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var captures_after_reward := previous_captures + 1
 	var mastery_after_reward := Rules.target_mastery_level(captures_after_reward)
 	if mastery_after_reward > reward_mastery:
-		var mastery_unlock := host.center_label("NOVA PERÍCIA AO RECEBER · NÍVEL %d/3 · +%d%% RARO · +%d%% ÉPICO" % [mastery_after_reward, mastery_after_reward * 5, mastery_after_reward * 2], 13, host.GOLD)
+		var mastery_unlock := host.center_label("NOVA PERÍCIA AO RECEBER · NÍVEL %d/3 · +%d%% RARO · +%d%% ÉPICO · +%d SUCATA" % [mastery_after_reward, mastery_after_reward * 5, mastery_after_reward * 2, Rules.target_mastery_scrap_reward(mastery_after_reward)], 13, host.GOLD)
 		mastery_unlock.name = "RewardMasteryUnlock"
 		box.add_child(mastery_unlock)
 	else:

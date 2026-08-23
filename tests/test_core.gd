@@ -128,6 +128,7 @@ func test_bounty_odds() -> void:
 	health_projection.weapon.integrity_upgrades = 1
 	check(Rules.bounty_odds(power_projection, safe_baron) >= calibrated, "same-target power upgrades never display worse simulated odds")
 	check(Rules.bounty_odds(health_projection, safe_baron) >= calibrated, "same-target health upgrades never display worse simulated odds")
+	check(Rules.target_mastery_scrap_reward(0) == 0 and Rules.target_mastery_scrap_reward(1) == 6 and Rules.target_mastery_scrap_reward(3) == 14, "mastery scrap rewards scale once per earned tier")
 
 
 func test_loot_generation() -> void:

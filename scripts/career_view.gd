@@ -96,7 +96,7 @@ static func mastery_directive_card(host: CrookedUIFactory, state: StateScript, o
 	row.add_child(copy)
 	copy.add_child(host.label("PRÓXIMA PERÍCIA · %s" % str(target.name).to_upper(), 13, host.GOLD))
 	copy.add_child(host.label("Faltam %d captura%s para perícia %d/3" % [int(objective.remaining), "s" if int(objective.remaining) != 1 else "", int(objective.next_level)], 12, host.INK))
-	copy.add_child(host.label("Próximo bônus: +%d%% raro · +%d%% épico" % [int(objective.rare_bonus), int(objective.epic_bonus)], 11, host.LIME))
+	copy.add_child(host.label("Próximo bônus: +%d%% raro · +%d%% épico · +%d sucata" % [int(objective.rare_bonus), int(objective.epic_bonus), int(objective.scrap_bonus)], 11, host.LIME))
 	var action := host.action_button("CAÇAR\nAGORA", Color(str(planet.accent)), true)
 	action.name = "MasteryDirectiveAction"
 	action.custom_minimum_size = Vector2(105, 52)
