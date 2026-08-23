@@ -11,13 +11,16 @@ const MAX_ATTEMPTS_PER_CAPTURE := 25
 
 
 func _init() -> void:
-	print("Crooked Galaxy sequential campaign (%d deterministic careers per strategy)" % CAREERS)
-	for strategy in STRATEGIES:
+	var career_count := int(OS.get_environment("CG_CAMPAIGN_CAREERS")) if not OS.get_environment("CG_CAMPAIGN_CAREERS").is_empty() else CAREERS
+	career_count = maxi(1, career_count)
+	var strategies: Array = [OS.get_environment("CG_CAMPAIGN_STRATEGY")] if not OS.get_environment("CG_CAMPAIGN_STRATEGY").is_empty() else STRATEGIES
+	print("Crooked Galaxy sequential campaign (%d deterministic careers per strategy)" % career_count)
+	for strategy in strategies:
 		var results := empty_results()
 		var corporate_scrap_totals: Array = []
 		var workshop_action_totals: Array = []
 		var stalled_careers := 0
-		for career_seed in CAREERS:
+		for career_seed in career_count:
 			var state = StateScript.new()
 			state.persistence_enabled = false
 			state.player = state.default_player()
@@ -74,7 +77,7 @@ func _init() -> void:
 			if career_stalled:
 				stalled_careers += 1
 			state.free()
-		print("\n=== %s · stalled=%d%% · corporate scrap=%d · workshop actions=%d ===" % [strategy, roundi(float(stalled_careers) / float(CAREERS) * 100.0), roundi(median(corporate_scrap_totals)), roundi(median(workshop_action_totals))])
+		print("\n=== %s · stalled=%d%% · corporate scrap=%d · workshop actions=%d ===" % [strategy, roundi(float(stalled_careers) / float(career_count) * 100.0), roundi(median(corporate_scrap_totals)), roundi(median(workshop_action_totals))])
 		print_results(results)
 	quit(0)
 

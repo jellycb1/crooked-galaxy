@@ -47,8 +47,12 @@ func capture() -> void:
 		{"id": "doctor_patchwork", "name": "DRA. GAMBIARRA"},
 		{"id": "crane_king", "name": "REI GUINDASTE"},
 		{"id": "omega_junkyard", "name": "FERRO-VELHO ÔMEGA"},
+		{"id": "dealer_comet", "name": "CRUPIÊ COMETA"},
+		{"id": "duchess_jackpot", "name": "DUQUESA JACKPOT"},
+		{"id": "misfortune_auditor", "name": "AUDITOR DO AZAR"},
+		{"id": "house_eternal", "name": "A CASA ETERNA"},
 	]
-	for row_index in 6:
+	for row_index in 7:
 		var row := HBoxContainer.new()
 		row.alignment = BoxContainer.ALIGNMENT_CENTER
 		row.add_theme_constant_override("separation", 8)

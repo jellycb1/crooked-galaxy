@@ -9,16 +9,16 @@ func _init() -> void:
 	var player := {
 		"wins": 12,
 		"captures_by_target": {"repeat": 3},
-		"completed_planets": ["a", "b", "c", "d"],
+		"completed_planets": ["a", "b", "c", "d", "e"],
 		"scrap_recycled_total": 25,
 		"best_capture_streak": 5,
 		"claimed_milestones": ["first_warrant"],
 	}
 	var milestones := CareerRules.milestones(player)
-	check(milestones.size() == 7, "career rules expose every milestone")
+	check(milestones.size() == 8, "career rules expose every milestone")
 	check(milestones.all(func(milestone): return bool(milestone.complete)), "advanced progress completes every milestone")
 	var ready := CareerRules.rewards_ready(player)
-	check(ready.size() == 6, "ready rewards exclude claimed milestones")
+	check(ready.size() == 7, "ready rewards exclude claimed milestones")
 	check(not ready.any(func(milestone): return str(milestone.id) == "first_warrant"), "claimed stable ids cannot become ready again")
 	check(player.claimed_milestones.size() == 1, "derived career rules do not mutate player progress")
 	var targets := [

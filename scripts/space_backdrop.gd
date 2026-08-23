@@ -28,8 +28,9 @@ func _draw() -> void:
 	var frozen := planet_id == "congelaria_sa"
 	var fungal := planet_id == "micelia_404"
 	var scrapyard := planet_id == "ferro_velho_omega"
-	var top := Color("#51352b") if scrapyard else (Color("#2d4b32") if fungal else (Color("#0e4359") if frozen else Color("#12264c")))
-	var bottom := Color("#160b09") if scrapyard else (Color("#07150d") if fungal else (Color("#04121d") if frozen else Color("#050817")))
+	var casino := planet_id == "cassino_quasar"
+	var top := Color("#4b174f") if casino else (Color("#51352b") if scrapyard else (Color("#2d4b32") if fungal else (Color("#0e4359") if frozen else Color("#12264c"))))
+	var bottom := Color("#13051f") if casino else (Color("#160b09") if scrapyard else (Color("#07150d") if fungal else (Color("#04121d") if frozen else Color("#050817"))))
 	var bands := 28
 	for band in bands:
 		var from_y := size.y * float(band) / float(bands)
@@ -38,7 +39,7 @@ func _draw() -> void:
 		draw_rect(Rect2(0, from_y, size.x, to_y - from_y + 1.0), color)
 
 	# Soft, deliberately off-center nebula shapes.
-	draw_circle(Vector2(size.x * 0.06, size.y * 0.32), size.x * 0.33, Color(1.0, 0.52, 0.22, 0.055) if scrapyard else (Color(0.75, 0.96, 0.39, 0.045) if fungal else (Color(0.25, 0.92, 0.82, 0.045) if frozen else Color(0.14, 0.56, 0.72, 0.035))))
+	draw_circle(Vector2(size.x * 0.06, size.y * 0.32), size.x * 0.33, Color(1.0, 0.35, 0.82, 0.065) if casino else (Color(1.0, 0.52, 0.22, 0.055) if scrapyard else (Color(0.75, 0.96, 0.39, 0.045) if fungal else (Color(0.25, 0.92, 0.82, 0.045) if frozen else Color(0.14, 0.56, 0.72, 0.035)))))
 	draw_circle(Vector2(size.x * 0.92, size.y * 0.48), size.x * 0.42, Color(0.52, 0.20, 0.68, 0.028))
 
 	for star in stars:
@@ -52,7 +53,16 @@ func _draw() -> void:
 	draw_arc(planet_center, planet_radius * 1.48, -2.8, 0.2, 80, Color(0.33, 0.65, 0.85, 0.10), 5.0, true)
 	draw_circle(planet_center, planet_radius, Color(0.18, 0.22, 0.47, 0.13))
 	draw_arc(planet_center, planet_radius, 0.0, TAU, 80, Color(0.40, 0.72, 0.90, 0.10), 2.0, true)
-	if frozen:
+	if casino:
+		for ray_index in 10:
+			var angle := TAU * float(ray_index) / 10.0
+			var center := Vector2(size.x * 0.12, size.y * 0.72)
+			draw_line(center, center + Vector2.from_angle(angle) * size.x * 0.24, Color(1.0, 0.46, 0.85, 0.075), 3.0, true)
+		for chip_index in 8:
+			var chip_x := size.x * (0.12 + float((chip_index * 43) % 79) / 100.0)
+			var chip_y := size.y * (0.13 + float((chip_index * 31) % 73) / 100.0)
+			draw_arc(Vector2(chip_x, chip_y), 5.0 + float(chip_index % 3), 0.0, TAU, 16, Color(0.98, 0.80, 0.30, 0.13), 2.0, true)
+	elif frozen:
 		for offset in [-0.55, -0.15, 0.3]:
 			draw_line(Vector2(size.x * (0.15 + offset * 0.08), size.y), Vector2(size.x * (0.42 + offset * 0.08), size.y * 0.78), Color(0.45, 0.95, 0.88, 0.055), 12.0, true)
 	elif fungal:

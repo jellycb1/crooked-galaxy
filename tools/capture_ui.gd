@@ -394,6 +394,44 @@ func capture() -> void:
 	if save_frame("ui_omega_complete.png") != OK:
 		quit(1)
 		return
+	state.continue_after_chapter()
+	state.player.level = 18
+	state.player.base_power = 44
+	state.player.weapon = {"name": "Revólver de Roleta Orbital", "slot": "weapon", "power": 62, "rarity": "Épico", "color": "#d789ff", "origin_planet_id": "cassino_quasar", "trait": {"id": "crooked_coil", "name": "BOBINA TORTA", "description": "+2 poder de combate.", "power_bonus": 2}}
+	state.player.armor = {"name": "Smoking Antiazar", "slot": "armor", "power": 54, "rarity": "Épico", "color": "#d789ff", "origin_planet_id": "cassino_quasar", "trait": {"id": "reactive_lining", "name": "FORRO REATIVO", "description": "+14 de integridade máxima.", "health_bonus": 14}}
+	state.travel_to_planet("cassino_quasar")
+	await process_frame
+	await process_frame
+	await create_timer(0.15).timeout
+	if save_frame("ui_quasar_board.png") != OK:
+		quit(1)
+		return
+	state.select_bounty(ContentDB.TARGETS[16])
+	state.choose_approach("quiet_net")
+	state.hunt_event = ContentDB.HUNT_EVENTS[8].duplicate(true)
+	state.hunt_event_triggered = true
+	state.hunt_elapsed_before_event = 5.0
+	state.hunt_remaining_after_event = 5.0
+	state.phase = state.Phase.HUNT_EVENT
+	scene.render()
+	await process_frame
+	await process_frame
+	await create_timer(0.12).timeout
+	if save_frame("ui_quasar_event.png") != OK:
+		quit(1)
+		return
+	state.player.wins = 49
+	state.player.captures_by_planet.cassino_quasar = 9
+	state.phase = state.Phase.REWARD
+	state.current_bounty = ContentDB.TARGETS[19].duplicate(true)
+	state.pending_loot = {"id": "quasar_capture", "name": "Chave do Cofre Improvável", "description": "Abre todas as portas, desde que nenhuma seja a certa.", "slot": "weapon", "origin_planet_id": "cassino_quasar", "power": 64, "rarity": "Épico", "color": "#d789ff", "trait": {"id": "ambush_capacitor", "name": "CAPACITOR DE EMBOSCADA", "description": "+5 dano no primeiro disparo.", "opening_damage_bonus": 5}}
+	state.claim_reward(true)
+	await process_frame
+	await process_frame
+	await create_timer(0.15).timeout
+	if save_frame("ui_quasar_complete.png") != OK:
+		quit(1)
+		return
 	state.player.afk_credits_earned = 1460
 	state.player.afk_scrap_earned = 28
 	state.player.scrap_recycled_total = 42
@@ -422,7 +460,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, reward/mastery/warrant-unlock decisions, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, four finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, reward/mastery/warrant-unlock decisions, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

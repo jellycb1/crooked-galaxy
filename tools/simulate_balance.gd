@@ -17,6 +17,8 @@ func _init() -> void:
 		{"name": "chapter 3 boss ready", "level": 12, "xp": 90, "base_power": 32, "weapon": {"power": 41}, "armor": {"power": 34}},
 		{"name": "scrapyard tier 2", "level": 14, "xp": 110, "base_power": 36, "weapon": {"power": 48, "trait": {"power_bonus": 2}}, "armor": {"power": 40, "trait": {"health_bonus": 14}}},
 		{"name": "chapter 4 boss ready", "level": 16, "xp": 130, "base_power": 40, "weapon": {"power": 56, "trait": {"power_bonus": 2}}, "armor": {"power": 49, "trait": {"power_bonus": 1, "health_bonus": 8}}},
+		{"name": "casino tier 2", "level": 18, "xp": 150, "base_power": 44, "weapon": {"power": 79, "integrity_upgrades": 5, "origin_planet_id": "cassino_quasar"}, "armor": {"power": 61, "integrity_upgrades": 5, "origin_planet_id": "cassino_quasar", "trait": {"health_bonus": 6}}},
+		{"name": "chapter 5 boss ready", "level": 19, "xp": 170, "base_power": 48, "weapon": {"power": 86, "integrity_upgrades": 5, "origin_planet_id": "cassino_quasar"}, "armor": {"power": 69, "integrity_upgrades": 5, "origin_planet_id": "cassino_quasar"}},
 	]
 	for profile in profiles:
 		print("\n%s (power %d, hp %d)" % [profile.name, CoreRules.player_power(profile), CoreRules.max_health(profile)])

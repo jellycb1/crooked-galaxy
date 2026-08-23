@@ -181,6 +181,10 @@ func test_loot_generation() -> void:
 	check(Content.available_bounties(3, "ferro_velho_omega", 0).size() == 1, "fourth chapter starts with one local target")
 	check(Content.available_bounties(3, "ferro_velho_omega", 3).size() == 4, "maximum scrapyard tier unlocks its boss")
 	check(bool(Content.TARGETS[15].boss), "Ferro-Velho Omega ends with an explicit chapter boss")
+	check(not Content.is_planet_unlocked("cassino_quasar", [Content.PLANET.id, "congelaria_sa", "micelia_404"]), "fifth planet remains locked before Ferro-Velho Omega completion")
+	check(Content.is_planet_unlocked("cassino_quasar", [Content.PLANET.id, "congelaria_sa", "micelia_404", "ferro_velho_omega"]), "Ferro-Velho Omega completion unlocks Cassino Quasar")
+	check(Content.available_bounties(3, "cassino_quasar", 0).size() == 1 and Content.available_bounties(3, "cassino_quasar", 3).size() == 4, "fifth chapter follows the sequential four-warrant structure")
+	check(bool(Content.TARGETS[19].boss), "Cassino Quasar ends with an explicit chapter boss")
 	var fungal_rng := RandomNumberGenerator.new()
 	fungal_rng.seed = 9921
 	var fungal_event := Content.random_hunt_event(fungal_rng, "micelia_404")
@@ -195,6 +199,13 @@ func test_loot_generation() -> void:
 	var scrapyard_loot := Content.generate_loot(Content.TARGETS[12], scrapyard_rng)
 	var scrapyard_names := Content.PLANET_ITEM_CATALOGS.ferro_velho_omega.weapon + Content.PLANET_ITEM_CATALOGS.ferro_velho_omega.armor
 	check(scrapyard_names.any(func(definition): return str(definition.name) == str(scrapyard_loot.name)), "scrapyard target generates its own item family")
+	var casino_rng := RandomNumberGenerator.new()
+	casino_rng.seed = 55109
+	var casino_event := Content.random_hunt_event(casino_rng, "cassino_quasar")
+	check(str(casino_event.planet_id) == "cassino_quasar", "casino planet selects its own incidents")
+	var casino_loot := Content.generate_loot(Content.TARGETS[16], casino_rng)
+	var casino_names := Content.PLANET_ITEM_CATALOGS.cassino_quasar.weapon + Content.PLANET_ITEM_CATALOGS.cassino_quasar.armor
+	check(casino_names.any(func(definition): return str(definition.name) == str(casino_loot.name)), "casino target generates its own item family")
 	var trait_rng := RandomNumberGenerator.new()
 	trait_rng.seed = 77221
 	var found_trait := false

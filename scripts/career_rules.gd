@@ -18,6 +18,7 @@ static func milestones(player: Dictionary) -> Array[Dictionary]:
 		{"id": "sector_owner", "name": "DONO DO SETOR", "description": "Conclua seu primeiro planeta.", "complete": completed_count >= 1, "claimed": claimed.has("sector_owner"), "credits": 120, "scrap": 4},
 		{"id": "triple_frontier", "name": "TRÍPLICE FRONTEIRA", "description": "Conclua três planetas.", "complete": completed_count >= 3, "claimed": claimed.has("triple_frontier"), "credits": 300, "scrap": 10},
 		{"id": "omega_mechanic", "name": "MECÂNICO DO APOCALIPSE", "description": "Conclua quatro planetas.", "complete": completed_count >= 4, "claimed": claimed.has("omega_mechanic"), "credits": 450, "scrap": 14},
+		{"id": "house_breaker", "name": "A CASA PERDEU", "description": "Conclua cinco planetas.", "complete": completed_count >= 5, "claimed": claimed.has("house_breaker"), "credits": 650, "scrap": 18},
 		{"id": "nothing_wasted", "name": "NADA SE PERDE", "description": "Recicle pelo menos 25 pontos de sucata.", "complete": int(player.get("scrap_recycled_total", 0)) >= 25, "claimed": claimed.has("nothing_wasted"), "credits": 90, "scrap": 5},
 		{"id": "hot_pursuit", "name": "PERSEGUIÇÃO AQUECIDA", "description": "Mantenha um embalo de cinco capturas.", "complete": int(player.get("best_capture_streak", 0)) >= 5, "claimed": claimed.has("hot_pursuit"), "credits": 110, "scrap": 4},
 	]

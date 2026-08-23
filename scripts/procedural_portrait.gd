@@ -46,9 +46,53 @@ func _draw() -> void:
 			draw_crane_king()
 		"omega_junkyard":
 			draw_omega_junkyard()
+		"dealer_comet":
+			draw_casino_target(0)
+		"duchess_jackpot":
+			draw_casino_target(1)
+		"misfortune_auditor":
+			draw_casino_target(2)
+		"house_eternal":
+			draw_casino_target(3)
 		_:
 			draw_hunter()
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+func draw_casino_target(variant: int) -> void:
+	var ink := Color("#160920")
+	var neon := Color("#ff75d8")
+	var violet := Color("#8f6cff")
+	var gold := Color("#ffd166")
+	draw_frame(Color("#321847"), neon if variant != 3 else gold)
+	filled_polygon([Vector2(0.10, 0.95), Vector2(0.20, 0.68), Vector2(0.80, 0.68), Vector2(0.90, 0.95)], violet if variant % 2 == 0 else Color("#7a275d"), ink)
+	if variant == 2:
+		filled_polygon([Vector2(0.24, 0.25), Vector2(0.73, 0.20), Vector2(0.78, 0.68), Vector2(0.28, 0.72)], Color("#eadcf1"), ink)
+		for point in [Vector2(0.38, 0.37), Vector2(0.62, 0.34), Vector2(0.40, 0.57), Vector2(0.64, 0.54)]:
+			draw_circle(point, 0.045, ink)
+	elif variant == 3:
+		filled_polygon([Vector2(0.20, 0.24), Vector2(0.80, 0.24), Vector2(0.76, 0.72), Vector2(0.24, 0.72)], Color("#5b285f"), gold)
+		for x in [0.34, 0.50, 0.66]:
+			outlined_circle(Vector2(x, 0.48), 0.095, Color("#f8e8f5"), ink, 0.022)
+			draw_circle(Vector2(x, 0.48), 0.035, neon)
+		filled_polygon([Vector2(0.25, 0.27), Vector2(0.30, 0.10), Vector2(0.43, 0.22), Vector2(0.51, 0.07), Vector2(0.61, 0.22), Vector2(0.74, 0.10), Vector2(0.78, 0.27)], gold, ink)
+	else:
+		outlined_ellipse(Vector2(0.50, 0.50), Vector2(0.29, 0.31), Color("#d89acb") if variant == 1 else Color("#a777c6"), ink, 0.034)
+		for eye in [Vector2(0.39, 0.47), Vector2(0.61, 0.47)]:
+			outlined_circle(eye, 0.06, Color("#f8edf4"), ink, 0.02)
+			draw_circle(eye, 0.023, violet)
+		if variant == 0:
+			filled_polygon([Vector2(0.23, 0.31), Vector2(0.77, 0.28), Vector2(0.70, 0.37), Vector2(0.27, 0.38)], ink, neon)
+			filled_polygon([Vector2(0.35, 0.30), Vector2(0.38, 0.10), Vector2(0.65, 0.09), Vector2(0.70, 0.30)], Color("#241030"), ink)
+			draw_line(Vector2(0.39, 0.26), Vector2(0.67, 0.25), gold, 0.03, true)
+		else:
+			filled_polygon([Vector2(0.28, 0.30), Vector2(0.32, 0.12), Vector2(0.45, 0.23), Vector2(0.51, 0.08), Vector2(0.58, 0.23), Vector2(0.72, 0.12), Vector2(0.74, 0.31)], gold, ink)
+			filled_polygon([Vector2(0.50, 0.57), Vector2(0.60, 0.66), Vector2(0.50, 0.76), Vector2(0.40, 0.66)], neon, ink)
+		draw_arc(Vector2(0.50, 0.59), 0.14, 0.12, PI - 0.12, 20, ink, 0.027, true)
+	# Casino-chip shoulders keep the family readable as a set at archive size.
+	for x in [0.20, 0.80]:
+		outlined_circle(Vector2(x, 0.79), 0.085, neon, ink, 0.02)
+		draw_circle(Vector2(x, 0.79), 0.027, gold)
 
 
 func draw_frame(background: Color, rim: Color) -> void:

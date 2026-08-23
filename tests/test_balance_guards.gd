@@ -2,6 +2,7 @@ extends SceneTree
 
 const Rules = preload("res://scripts/core_rules.gd")
 const Content = preload("res://scripts/content_db.gd")
+const Contracts = preload("res://scripts/contract_rules.gd")
 
 var failures := 0
 
@@ -32,8 +33,21 @@ func _init() -> void:
 	var matched_odds := Rules.bounty_odds(matched_kit, baron)
 	check(matched_odds >= 0.70 and matched_odds - mixed_odds >= 0.40, "the first planetary kit creates a visible strategic payoff")
 
+	var casino_boss_ready := {
+		"level": 19,
+		"base_power": 48,
+		"weapon": {"power": 86, "integrity_upgrades": 5, "origin_planet_id": "cassino_quasar"},
+		"armor": {"power": 69, "integrity_upgrades": 5, "origin_planet_id": "cassino_quasar"},
+	}
+	var casino_boss: Dictionary = Content.TARGETS[19]
+	var casino_options := Contracts.evaluate_approaches(casino_boss_ready, casino_boss, Content.contract_approaches())
+	check(float(casino_options[0].odds) >= 0.95, "the fifth boss retains a dependable recovery route")
+	check(float(casino_options[1].odds) >= 0.25 and float(casino_options[1].odds) <= 0.60, "the fifth boss fast route remains a meaningful gamble")
+	check(float(casino_options[2].odds) <= 0.20, "the fifth boss corporate route remains explicitly dangerous")
+	check(Contracts.recommended_approach_id(casino_options) == "quiet_net", "the fifth boss endpoint recommends recovery over a weak premium payout")
+
 	if failures == 0:
-		print("PASS: early progression balance guard rails are intact")
+		print("PASS: early and fifth-chapter balance guard rails are intact")
 		quit(0)
 	else:
 		printerr("FAIL: %d balance guard(s) failed" % failures)

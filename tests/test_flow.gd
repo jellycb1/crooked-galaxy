@@ -158,7 +158,7 @@ func _init() -> void:
 	check(not reinforcement_cap_state.reinforce_equipped("weapon") and int(reinforcement_cap_state.player.scrap) == 100, "workshop rejects reinforcement beyond the cap without charging scrap")
 	reinforcement_cap_state.free()
 	var milestones := state.career_milestones()
-	check(milestones.size() == 7, "career exposes seven derived milestones")
+	check(milestones.size() == 8, "career exposes eight derived milestones")
 	check(bool(milestones[0].complete), "first capture completes its career milestone")
 	var credits_before_milestone := int(state.player.credits)
 	check(state.career_rewards_ready() == 1, "completed career milestone advertises a pending reward")
@@ -171,13 +171,13 @@ func _init() -> void:
 	career_state.player = career_state.default_player()
 	career_state.player.wins = 12
 	career_state.player.captures_by_target = {"gloop": 3}
-	career_state.player.completed_planets = ["dustball_prime", "congelaria_sa", "micelia_404", "ferro_velho_omega"]
+	career_state.player.completed_planets = ["dustball_prime", "congelaria_sa", "micelia_404", "ferro_velho_omega", "cassino_quasar"]
 	career_state.player.scrap_recycled_total = 25
 	career_state.player.best_capture_streak = 5
 	var all_credits_before := int(career_state.player.credits)
 	var all_scrap_before := int(career_state.player.scrap)
 	var all_rewards := career_state.claim_all_career_milestones()
-	check(int(all_rewards.count) == 7 and career_state.player.claimed_milestones.size() == 7, "claim all collects every ready career milestone")
+	check(int(all_rewards.count) == 8 and career_state.player.claimed_milestones.size() == 8, "claim all collects every ready career milestone")
 	check(int(career_state.player.credits) == all_credits_before + int(all_rewards.credits) and int(career_state.player.scrap) == all_scrap_before + int(all_rewards.scrap), "claim all applies aggregate currencies once")
 	check(int(career_state.claim_all_career_milestones().count) == 0, "claim all is idempotent after collection")
 	career_state.free()
@@ -342,6 +342,20 @@ func _init() -> void:
 	check(frozen_state.player.completed_planets.has("ferro_velho_omega"), "fourth completed planet persists in progression")
 	check(frozen_state.planet_capture_count("ferro_velho_omega") == 10, "scrapyard capture counter completes its chapter")
 	check(bool(frozen_state.career_milestones()[4].complete), "fourth planet completes the apocalypse mechanic milestone")
+	frozen_state.continue_after_chapter()
+	check(frozen_state.travel_to_planet("cassino_quasar"), "fourth chapter opens travel to Cassino Quasar")
+	frozen_state.player.wins = 49
+	frozen_state.player.captures_by_planet.cassino_quasar = 9
+	frozen_state.phase = frozen_state.Phase.REWARD
+	frozen_state.current_bounty = Content.TARGETS[19].duplicate(true)
+	frozen_state.pending_loot = {
+		"id": "quasar_test_loot", "name": "Ficha da Casa", "description": "Recusa troco.",
+		"slot": "weapon", "power": 62, "rarity": "Épico", "color": "#d789ff",
+	}
+	var casino_summary := frozen_state.claim_reward(true)
+	check(frozen_state.phase == frozen_state.Phase.CHAPTER_COMPLETE and bool(casino_summary.chapter_complete), "Cassino Quasar boss completes the fifth chapter")
+	check(frozen_state.player.completed_planets.has("cassino_quasar") and frozen_state.planet_capture_count("cassino_quasar") == 10, "fifth planet completion persists with its own capture counter")
+	check(bool(frozen_state.career_milestones()[5].complete), "fifth planet completes the house-breaker milestone")
 	frozen_state.free()
 
 	state.free()
