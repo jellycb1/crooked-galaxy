@@ -30,6 +30,8 @@ func _draw() -> void:
 			draw_penguin()
 		"director_kelvin":
 			draw_director()
+		"landlord_spore":
+			draw_landlord_spore()
 		_:
 			draw_hunter()
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -219,6 +221,27 @@ func draw_director() -> void:
 	draw_line(Vector2(0.40, 0.64), Vector2(0.60, 0.62), ink, 0.035, true)
 	draw_circle(Vector2(0.50, 0.84), 0.075, violet)
 	draw_circle(Vector2(0.50, 0.84), 0.032, ink)
+
+
+func draw_landlord_spore() -> void:
+	var ink := Color("#0d1520")
+	var lime := Color("#c7f464")
+	var pink := Color("#ff75c8")
+	draw_frame(Color("#263f35"), lime)
+	# Root-like suit and a broad mushroom cap establish the fungal landlord silhouette.
+	filled_polygon([Vector2(0.12, 0.96), Vector2(0.23, 0.66), Vector2(0.77, 0.66), Vector2(0.88, 0.96)], Color("#655238"), ink)
+	outlined_ellipse(Vector2(0.50, 0.52), Vector2(0.24, 0.31), Color("#d8d29a"), ink, 0.032)
+	filled_polygon([Vector2(0.10, 0.37), Vector2(0.18, 0.19), Vector2(0.34, 0.09), Vector2(0.61, 0.08), Vector2(0.82, 0.18), Vector2(0.91, 0.37)], pink, ink)
+	for spot in [Vector2(0.28, 0.22), Vector2(0.50, 0.16), Vector2(0.72, 0.25)]:
+		draw_circle(spot, 0.048, lime)
+	for eye in [Vector2(0.40, 0.48), Vector2(0.60, 0.48)]:
+		outlined_circle(eye, 0.057, Color("#f4f0d4"), ink, 0.020)
+		draw_circle(eye + Vector2(0.01, 0.0), 0.021, ink)
+	draw_line(Vector2(0.42, 0.63), Vector2(0.59, 0.61), ink, 0.03, true)
+	# Tiny key ring and tie signal authority more than competence.
+	filled_polygon([Vector2(0.46, 0.70), Vector2(0.54, 0.70), Vector2(0.58, 0.88), Vector2(0.50, 0.93), Vector2(0.42, 0.88)], lime, ink)
+	draw_arc(Vector2(0.75, 0.78), 0.065, 0.0, TAU, 20, Color("#ffc857"), 0.025, true)
+	draw_line(Vector2(0.80, 0.82), Vector2(0.87, 0.91), Color("#ffc857"), 0.025, true)
 
 
 func outlined_circle(center: Vector2, radius: float, fill: Color, outline: Color, width: float) -> void:

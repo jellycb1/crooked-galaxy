@@ -39,8 +39,9 @@ func capture() -> void:
 		{"id": "chef_coldflame", "name": "CHEF BRASA FRIA"},
 		{"id": "executive_penguin", "name": "PINGUIM EXECUTIVO"},
 		{"id": "director_kelvin", "name": "DIRETORA KELVIN"},
+		{"id": "landlord_spore", "name": "SÍNDICO ESPORÃO"},
 	]
-	for row_index in 3:
+	for row_index in 4:
 		var row := HBoxContainer.new()
 		row.alignment = BoxContainer.ALIGNMENT_CENTER
 		row.add_theme_constant_override("separation", 34)
@@ -51,12 +52,12 @@ func capture() -> void:
 				break
 			var definition: Dictionary = characters[character_index]
 			var cell := VBoxContainer.new()
-			cell.custom_minimum_size = Vector2(180, 280)
+			cell.custom_minimum_size = Vector2(180, 225)
 			cell.alignment = BoxContainer.ALIGNMENT_CENTER
 			row.add_child(cell)
 			var portrait: Control = PortraitScript.new()
 			portrait.character_id = str(definition.id)
-			portrait.custom_minimum_size = Vector2(170, 170)
+			portrait.custom_minimum_size = Vector2(150, 150)
 			portrait.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 			cell.add_child(portrait)
 			var caption := Label.new()

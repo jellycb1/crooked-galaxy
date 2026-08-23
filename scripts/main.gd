@@ -318,7 +318,8 @@ func planet_card(planet: Dictionary) -> PanelContainer:
 		)
 		box.add_child(travel)
 	elif not unlocked:
-		box.add_child(center_label("CONCLUA DUSTBALL PRIME PARA TRAÇAR ESTA ROTA", 12, MUTED))
+		var requirement := ContentDB.get_planet(str(planet.get("unlock_after", ContentDB.PLANET.id)))
+		box.add_child(center_label("CONCLUA %s PARA TRAÇAR ESTA ROTA" % str(requirement.name).to_upper(), 12, MUTED))
 	return card
 
 

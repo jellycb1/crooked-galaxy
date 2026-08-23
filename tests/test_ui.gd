@@ -92,6 +92,10 @@ func run_smoke_test() -> void:
 	check(state.travel_to_planet("congelaria_sa"), "UI state can travel to an unlocked planet")
 	await process_frame
 	check(scene.find_child("BountyCard_auditor_frost", true, false) != null, "second planet bounty board renders")
+	state.player.completed_planets.append("congelaria_sa")
+	check(state.travel_to_planet("micelia_404"), "UI state can enter the third unlocked planet")
+	await process_frame
+	check(scene.find_child("BountyCard_landlord_spore", true, false) != null, "third planet bounty board renders")
 
 	scene.free()
 	await process_frame

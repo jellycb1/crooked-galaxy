@@ -177,10 +177,24 @@ func capture() -> void:
 	if save_frame("ui_congelaria_complete.png") != OK:
 		quit(1)
 		return
+	state.continue_after_chapter()
+	await process_frame
+	await process_frame
+	state.player.level = 6
+	state.player.base_power = 20
+	state.player.weapon = {"name": "Carabina Criogênica Reversa", "slot": "weapon", "power": 21, "rarity": "Raro", "color": "#58d9ff"}
+	state.player.armor = {"name": "Terno de Fibra Glacial", "slot": "armor", "power": 17, "rarity": "Raro", "color": "#58d9ff"}
+	state.travel_to_planet("micelia_404")
+	await process_frame
+	await process_frame
+	await create_timer(0.15).timeout
+	if save_frame("ui_micelia_board.png") != OK:
+		quit(1)
+		return
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, galaxy map, planet incidents, both finales, boss board, and Congelária board to %s" % OUTPUT_DIR)
+	print("Captured primary UI, galaxy map, planet incidents, both finales, boss board, and three planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

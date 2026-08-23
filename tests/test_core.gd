@@ -90,6 +90,16 @@ func test_loot_generation() -> void:
 	check(str(Content.get_planet("congelaria_sa").name) == "Congelária S.A.", "planets resolve from stable ids")
 	check(not Content.is_planet_unlocked("congelaria_sa", []), "second planet starts locked")
 	check(Content.is_planet_unlocked("congelaria_sa", [Content.PLANET.id]), "first chapter completion unlocks the next planet")
+	check(not Content.is_planet_unlocked("micelia_404", [Content.PLANET.id]), "third planet remains locked after only one chapter")
+	check(Content.is_planet_unlocked("micelia_404", [Content.PLANET.id, "congelaria_sa"]), "Congelaria completion unlocks Micelia")
+	check(Content.available_bounties(3, "micelia_404", 0).size() == 1, "third chapter starts with one local target")
+	var fungal_rng := RandomNumberGenerator.new()
+	fungal_rng.seed = 9921
+	var fungal_event := Content.random_hunt_event(fungal_rng, "micelia_404")
+	check(str(fungal_event.planet_id) == "micelia_404", "fungal planet selects its own incidents")
+	var fungal_loot := Content.generate_loot(Content.TARGETS[8], fungal_rng)
+	var fungal_names := Content.PLANET_ITEM_CATALOGS.micelia_404.weapon + Content.PLANET_ITEM_CATALOGS.micelia_404.armor
+	check(fungal_names.any(func(definition): return str(definition.name) == str(fungal_loot.name)), "fungal target generates its own item family")
 	var safe_approach: Dictionary = Content.contract_approaches()[0]
 	var adjusted := Content.apply_approach(Content.TARGETS[0], safe_approach)
 	check(adjusted.duration == 7, "safe approach lengthens tracking")

@@ -26,8 +26,9 @@ func _ready() -> void:
 
 func _draw() -> void:
 	var frozen := planet_id == "congelaria_sa"
-	var top := Color("#0e4359") if frozen else Color("#12264c")
-	var bottom := Color("#04121d") if frozen else Color("#050817")
+	var fungal := planet_id == "micelia_404"
+	var top := Color("#2d4b32") if fungal else (Color("#0e4359") if frozen else Color("#12264c"))
+	var bottom := Color("#07150d") if fungal else (Color("#04121d") if frozen else Color("#050817"))
 	var bands := 28
 	for band in bands:
 		var from_y := size.y * float(band) / float(bands)
@@ -36,7 +37,7 @@ func _draw() -> void:
 		draw_rect(Rect2(0, from_y, size.x, to_y - from_y + 1.0), color)
 
 	# Soft, deliberately off-center nebula shapes.
-	draw_circle(Vector2(size.x * 0.06, size.y * 0.32), size.x * 0.33, Color(0.25, 0.92, 0.82, 0.045) if frozen else Color(0.14, 0.56, 0.72, 0.035))
+	draw_circle(Vector2(size.x * 0.06, size.y * 0.32), size.x * 0.33, Color(0.75, 0.96, 0.39, 0.045) if fungal else (Color(0.25, 0.92, 0.82, 0.045) if frozen else Color(0.14, 0.56, 0.72, 0.035)))
 	draw_circle(Vector2(size.x * 0.92, size.y * 0.48), size.x * 0.42, Color(0.52, 0.20, 0.68, 0.028))
 
 	for star in stars:
@@ -53,3 +54,8 @@ func _draw() -> void:
 	if frozen:
 		for offset in [-0.55, -0.15, 0.3]:
 			draw_line(Vector2(size.x * (0.15 + offset * 0.08), size.y), Vector2(size.x * (0.42 + offset * 0.08), size.y * 0.78), Color(0.45, 0.95, 0.88, 0.055), 12.0, true)
+	elif fungal:
+		for spore_index in 12:
+			var spore_x := size.x * (0.08 + float((spore_index * 37) % 89) / 100.0)
+			var spore_y := size.y * (0.18 + float((spore_index * 53) % 71) / 100.0)
+			draw_circle(Vector2(spore_x, spore_y), 3.0 + float(spore_index % 3), Color(1.0, 0.46, 0.78, 0.10))

@@ -21,6 +21,15 @@ const PLANETS := [
 		"unlock_after": "dustball_prime",
 		"completion_text": "A diretoria foi descongelada de suas funções. O termostato agora aceita votos e moedas.",
 	},
+	{
+		"id": "micelia_404",
+		"name": "Micélia 404",
+		"subtitle": "Tudo cresce. Principalmente as taxas.",
+		"description": "Uma rede fúngica planetária onde prédios brotam, calçadas respiram e todo esporo tem cadastro.",
+		"accent": "#c7f464",
+		"unlock_after": "congelaria_sa",
+		"completion_text": "A rede micelial trocou de administração. Os cogumelos exigem eleições úmidas.",
+	},
 ]
 
 const TARGETS := [
@@ -161,6 +170,23 @@ const TARGETS := [
 		"chapter_tier": 3,
 		"boss": true,
 		"attacks": ["Fusão Hostil", "Zero Absoluto Fiscal", "Sinergia Criogênica"],
+	},
+	{
+		"id": "landlord_spore",
+		"planet_id": "micelia_404",
+		"name": "Síndico Esporão",
+		"title": "Administrador do condomínio micelial",
+		"description": "Cobrou aluguel de cada raiz e instalou catracas nas trilhas de formigas.",
+		"emoji": "♣",
+		"power": 44,
+		"defense": 19,
+		"health": 275,
+		"duration": 22,
+		"credits": 304,
+		"xp": 282,
+		"rank": 3,
+		"chapter_tier": 0,
+		"attacks": ["Boleto de Esporos", "Assembleia Venenosa", "Taxa de Umidade"],
 	},
 ]
 
@@ -338,6 +364,62 @@ const HUNT_EVENTS := [
 			},
 		],
 	},
+	{
+		"id": "spore_customs",
+		"planet_id": "micelia_404",
+		"symbol": "ACHOO",
+		"title": "Alfândega de Esporos",
+		"description": "Uma nuvem carimba cada molécula que entra. Seu pulmão está com documentação vencida.",
+		"color": "#c7f464",
+		"choices": [
+			{
+				"id": "buy_mask", "name": "COMPRAR MÁSCARA · 14 CR",
+				"effect_text": "Filtros revelam o alvo entre a névoa: -20% defesa.",
+				"credit_cost": 14, "defense_mult": 0.80,
+				"result": "A máscara filtra esporos, desculpas e noventa por cento dos anúncios.",
+			},
+			{
+				"id": "declare_lungs", "name": "DECLARAR OS PULMÕES",
+				"effect_text": "+3s de caça e +20% XP por preencher anatomia em triplicado.",
+				"duration_add": 3.0, "xp_mult": 1.20,
+				"result": "Seus pulmões agora constam como bagagem de mão regulamentar.",
+			},
+			{
+				"id": "sneeze_through", "name": "ESPIRRAR E ACELERAR",
+				"effect_text": "+12% poder inimigo, mas +22% créditos por contaminação.",
+				"power_mult": 1.12, "credits_mult": 1.22,
+				"result": "O espirro abriu um túnel e fechou três restaurantes orgânicos.",
+			},
+		],
+	},
+	{
+		"id": "sentient_shortcut",
+		"planet_id": "micelia_404",
+		"symbol": "OI?",
+		"title": "Atalho Senciente",
+		"description": "A trilha acordou, pediu seu nome e quer comissão sobre a recompensa.",
+		"color": "#ff75c8",
+		"choices": [
+			{
+				"id": "pay_path", "name": "PAGAR 16 CRÉDITOS",
+				"effect_text": "A trilha entrega o alvo: -16% vida inimiga.",
+				"credit_cost": 16, "health_mult": 0.84,
+				"result": "O atalho aceitou pagamento, gorjeta e uma avaliação de cinco estrelas.",
+			},
+			{
+				"id": "tell_story", "name": "CONTAR UMA HISTÓRIA",
+				"effect_text": "+2s de caça e +18% XP pela terapia vegetal.",
+				"duration_add": 2.0, "xp_mult": 1.18,
+				"result": "A trilha chorou seiva e indicou uma rota emocionalmente mais curta.",
+			},
+			{
+				"id": "step_on_it", "name": "PISAR FUNDO",
+				"effect_text": "+10% poder inimigo, mas +20% créditos por danos botânicos.",
+				"power_mult": 1.10, "credits_mult": 1.20,
+				"result": "A trilha abriu um processo. O contratante cobriu os honorários.",
+			},
+		],
+	},
 ]
 
 const ITEM_CATALOG := {
@@ -368,6 +450,20 @@ const PLANET_ITEM_CATALOGS := {
 			{"name": "Colete Antitermostato", "description": "Certificado para sobreviver a três auditorias e meia."},
 			{"name": "Terno de Fibra Glacial", "description": "Elegante, blindado e impossível de passar a ferro."},
 			{"name": "Manta Executiva de Emergência", "description": "Dourada por fora, formulário de despesas por dentro."},
+		],
+	},
+	"micelia_404": {
+		"weapon": [
+			{"name": "Escopeta de Pólen Comprimido", "description": "Dispersa alergias, suspeitos e evidências."},
+			{"name": "Lâmina de Micélio Nervoso", "description": "Treme perto do perigo e de saladas."},
+			{"name": "Pistola Fotossintética", "description": "Recarrega ao sol e reclama em ambientes fechados."},
+			{"name": "Canhão de Compostagem Rápida", "description": "Transforma cobertura em adubo antes do impacto."},
+		],
+		"armor": [
+			{"name": "Casaco Antimofo Ofensivo", "description": "O mofo não entra. Ele manda representantes."},
+			{"name": "Colete de Casca Reforçada", "description": "Orgânico, balístico e ligeiramente crocante."},
+			{"name": "Poncho de Folha Carnívora", "description": "Protege o dono e belisca estranhos sem autorização."},
+			{"name": "Armadura de Cortiça Orbital", "description": "Leve, renovável e péssima perto de saca-rolhas."},
 		],
 	},
 }

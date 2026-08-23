@@ -141,6 +141,9 @@ func _init() -> void:
 	check(frozen_state.player.completed_planets.has("congelaria_sa"), "second completed planet persists in progression")
 	check(frozen_state.planet_capture_count("congelaria_sa") == 10, "planet capture counter advances independently")
 	check(str(frozen_state.chapter_completion.planet.id) == "congelaria_sa", "finale resolves the correct planet metadata")
+	frozen_state.continue_after_chapter()
+	check(frozen_state.travel_to_planet("micelia_404"), "second chapter opens travel to Micelia")
+	check(str(frozen_state.player.current_planet_id) == "micelia_404", "third planet becomes the active destination")
 	frozen_state.free()
 
 	state.free()
