@@ -46,6 +46,27 @@ func _init() -> void:
 	check(str(state.player[str(claimed_item.slot)].id) == str(claimed_item.id), "claimed upgrade is equipped")
 	check(not state.last_notice.is_empty(), "reward feedback survives the screen transition")
 	check(int(state.player.reputation) == 0, "rank requires three captures")
+	var streak_state = StateScript.new()
+	streak_state.persistence_enabled = false
+	streak_state.player = streak_state.default_player()
+	streak_state.player.capture_streak = 1
+	streak_state.phase = streak_state.Phase.REWARD
+	streak_state.current_bounty = Content.TARGETS[0].duplicate(true)
+	streak_state.pending_loot = {"id": "streak_loot", "name": "Troféu de Embalo", "slot": "weapon", "power": 2, "rarity": "Comum", "color": "#b9c2d9"}
+	var streak_credits_before := int(streak_state.player.credits)
+	var streak_summary := streak_state.claim_reward(false)
+	check(int(streak_summary.streak) == 2 and int(streak_state.player.capture_streak) == 2, "consecutive reward advances the capture streak")
+	check(int(streak_summary.streak_bonus) > 0 and int(streak_state.player.credits) == streak_credits_before + int(streak_summary.credits), "consecutive reward pays the visible streak bonus")
+	streak_state.phase = streak_state.Phase.REWARD
+	streak_state.current_bounty = Content.apply_approach(Content.TARGETS[0], Content.contract_approaches()[2])
+	streak_state.pending_loot = {"id": "repeat_loot", "name": "Recibo Repetido", "slot": "armor", "power": 2, "rarity": "Comum", "color": "#b9c2d9"}
+	streak_state.claim_reward(false, true)
+	check(streak_state.phase == streak_state.Phase.BRIEFING and streak_state.offered_approaches.size() == 3, "repeat reward returns directly to approach selection")
+	check(not streak_state.current_bounty.has("approach") and int(streak_state.current_bounty.credits) == int(Content.TARGETS[0].credits), "repeat reward restores the unmodified contract")
+	streak_state.choose_approach("quiet_net")
+	streak_state.abandon_bounty()
+	check(int(streak_state.player.capture_streak) == 0, "abandoning a hunt breaks the capture streak")
+	streak_state.free()
 	check(not state.scrap_item(str(claimed_item.id)), "equipped item cannot be recycled")
 	var spare := {"id": "spare_epic", "name": "Sucata de Teste", "description": "Feita para sumir.", "slot": "armor", "power": 12, "rarity": "Épico", "color": "#d789ff"}
 	state.player.inventory.append(spare)
@@ -58,7 +79,7 @@ func _init() -> void:
 	check(int(state.player.scrap) == 16 - upgrade_cost, "workshop charges the visible upgrade cost")
 	check(int(state.player[str(claimed_item.slot)].power) == equipped_power + 1, "workshop adds one equipment power")
 	var milestones := state.career_milestones()
-	check(milestones.size() == 6, "career exposes six derived milestones")
+	check(milestones.size() == 7, "career exposes seven derived milestones")
 	check(bool(milestones[0].complete), "first capture completes its career milestone")
 	var credits_before_milestone := int(state.player.credits)
 	check(state.career_rewards_ready() == 1, "completed career milestone advertises a pending reward")
@@ -130,6 +151,7 @@ func _init() -> void:
 	check(bool(defeat.get("finished", false)) and not bool(defeat.get("won", true)), "defeat is detected")
 	check(state.phase == state.Phase.BOARD, "defeat returns to the bounty board")
 	check(not state.last_notice.is_empty(), "defeat explains what happened")
+	check(int(state.player.capture_streak) == 0, "defeat resets the capture streak")
 	state.select_bounty(Content.TARGETS[0])
 	state.cancel_briefing()
 	check(state.phase == state.Phase.BOARD and state.current_bounty.is_empty(), "briefing can be cancelled safely")

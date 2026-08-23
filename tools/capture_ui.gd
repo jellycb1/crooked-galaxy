@@ -99,6 +99,8 @@ func capture() -> void:
 		return
 
 	state.open_reward()
+	state.player.capture_streak = 3
+	state.player.best_capture_streak = 3
 	state.pending_loot.rarity = "Raro"
 	state.pending_loot.color = "#58d9ff"
 	state.pending_loot.trait = {"id": "crooked_coil", "name": "BOBINA TORTA", "description": "+2 poder de combate.", "power_bonus": 2, "health_bonus": 0}

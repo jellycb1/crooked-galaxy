@@ -58,6 +58,8 @@ func run_smoke_test() -> void:
 
 	state.open_reward()
 	await process_frame
+	check(scene.find_child("ClaimAndRepeat", true, false) != null, "reward screen offers another contract immediately")
+	check(scene.find_child("ClaimAndBoard", true, false) != null, "reward screen preserves the board return path")
 	state.claim_reward(true)
 	state.player.scrap = 18
 	state.player.inventory.append({"id": "ui_spare", "name": "Peça Obsoleta", "description": "Serve melhor desmontada.", "slot": "armor", "power": 6, "rarity": "Comum", "color": "#b9c2d9"})

@@ -237,6 +237,10 @@ func build_board() -> void:
 		content.add_child(notice_banner(GameState.last_notice, LIME))
 	elif int(GameState.player.wins) == 0:
 		content.add_child(onboarding_banner())
+	var streak := int(GameState.player.get("capture_streak", 0))
+	if streak > 0:
+		var next_reward := CoreRules.bounty_streak_reward(100, streak + 1)
+		content.add_child(notice_banner("EMBALO ×%d · próximo contrato recebe +%d%% de créditos · derrota ou abandono encerra a sequência" % [streak, int(next_reward.bonus_percent)], GOLD))
 
 	var scroller := ScrollContainer.new()
 	scroller.name = "BountyScroll"
@@ -803,10 +807,11 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 	details.add_child(description)
 
 	var odds := CoreRules.bounty_odds(GameState.player, bounty)
+	var payout := CoreRules.bounty_streak_reward(int(bounty.credits), int(GameState.player.get("capture_streak", 0)) + 1)
 	var footer := HBoxContainer.new()
 	footer.add_theme_constant_override("separation", 10)
 	box.add_child(footer)
-	footer.add_child(label("◈ %d   ✦ %d XP   %ds" % [int(bounty.credits), int(bounty.xp), int(bounty.duration)], 15, GOLD))
+	footer.add_child(label("◈ %d%s   ✦ %d XP   %ds" % [int(payout.credits), " +EMBALO" if int(payout.bonus_credits) > 0 else "", int(bounty.xp), int(bounty.duration)], 15, GOLD))
 	var risk_text := "SEGURO" if odds >= 0.72 else ("ARRISCADO" if odds >= 0.42 else "BRUTAL")
 	var risk_color := LIME if odds >= 0.72 else (GOLD if odds >= 0.42 else CORAL)
 	var risk := label("%s · %d%%" % [risk_text, roundi(odds * 100.0)], 14, risk_color, HORIZONTAL_ALIGNMENT_RIGHT)
@@ -853,6 +858,7 @@ func build_briefing() -> void:
 
 func approach_card(bounty: Dictionary, approach: Dictionary) -> PanelContainer:
 	var preview := ContentDB.apply_approach(bounty, approach)
+	var payout := CoreRules.bounty_streak_reward(int(preview.credits), int(GameState.player.get("capture_streak", 0)) + 1)
 	var color := Color(str(approach.color))
 	var card := panel(VBoxContainer.new(), PANEL, 16, 16)
 	var box := card.get_child(0) as VBoxContainer
@@ -877,7 +883,7 @@ func approach_card(bounty: Dictionary, approach: Dictionary) -> PanelContainer:
 	box.add_child(metrics)
 	metrics.add_child(metric_chip("TEMPO", "%ds" % int(preview.duration), MUTED))
 	metrics.add_child(metric_chip("CHANCE", "%d%%" % roundi(odds * 100.0), risk_color))
-	metrics.add_child(metric_chip("PAGAMENTO", "◈ %d" % int(preview.credits), GOLD))
+	metrics.add_child(metric_chip("PAGAMENTO", "◈ %d" % int(payout.credits), GOLD))
 	metrics.add_child(metric_chip("EXPERIÊNCIA", "%d XP" % int(preview.xp), CYAN))
 	var choose := action_button("ESCOLHER · %s" % risk_text, color)
 	var approach_id := str(approach.id)
@@ -1069,6 +1075,7 @@ func build_victory() -> void:
 
 func build_reward() -> void:
 	var item := GameState.pending_loot
+	var reward_preview := CoreRules.bounty_streak_reward(int(GameState.current_bounty.credits), int(GameState.player.get("capture_streak", 0)) + 1)
 	content.add_child(center_label("CONTRATO CONCLUÍDO · %s" % str(GameState.current_bounty.name).to_upper(), 16, LIME))
 	content.add_child(center_label("RECOMPENSA CAPTURADA", 32, INK))
 	var reward_panel := panel(VBoxContainer.new(), PANEL_LIGHT, 26, 26)
@@ -1097,13 +1104,23 @@ func build_reward() -> void:
 		box.add_child(center_label("◆ %s · %s" % [str(item.trait.name), str(item.trait.description)], 13, GOLD))
 	box.add_child(center_label(equipment_delta_text(item), 15, LIME if effective_upgrade else MUTED))
 	box.add_child(center_label("EQUIPADO: %s +%d · RECICLAGEM: %d SUCATA" % [str(equipped.name), int(equipped.power), CoreRules.salvage_value(item)], 12, MUTED))
-	box.add_child(center_label("◈ %d créditos   ✦ %d XP" % [int(GameState.current_bounty.credits), int(GameState.current_bounty.xp)], 17, GOLD))
+	box.add_child(center_label("◈ %d créditos   ✦ %d XP" % [int(reward_preview.credits), int(GameState.current_bounty.xp)], 17, GOLD))
+	if int(reward_preview.bonus_credits) > 0:
+		box.add_child(center_label("EMBALO ×%d · +%d créditos (+%d%%)" % [int(reward_preview.streak), int(reward_preview.bonus_credits), int(reward_preview.bonus_percent)], 14, LIME))
 	content.add_spacer(false)
 	var equip_now := effective_upgrade
-	var claim := action_button("EQUIPAR E CONTINUAR" if equip_now else "GUARDAR E CONTINUAR", LIME)
-	claim.pressed.connect(func():
-		GameState.claim_reward(equip_now)
-	)
+	var planet_id := str(GameState.current_bounty.get("planet_id", ContentDB.PLANET.id))
+	var completes_chapter: bool = bool(GameState.current_bounty.get("boss", false)) and not bool(GameState.player.get("completed_planets", []).has(planet_id))
+	if not completes_chapter:
+		var repeat := action_button("EQUIPAR E REPETIR" if equip_now else "GUARDAR E REPETIR", LIME)
+		repeat.name = "ClaimAndRepeat"
+		repeat.pressed.connect(func(): GameState.claim_reward(equip_now, true))
+		content.add_child(repeat)
+	var claim_text := "RECEBER E CONCLUIR CAPÍTULO" if completes_chapter else ("EQUIPAR E VOLTAR AO QUADRO" if equip_now else "GUARDAR E VOLTAR AO QUADRO")
+	var claim := action_button(claim_text, GOLD if not completes_chapter else LIME, true)
+	claim.name = "ClaimAndBoard"
+	claim.custom_minimum_size = Vector2(0, 48)
+	claim.pressed.connect(func(): GameState.claim_reward(equip_now))
 	content.add_child(claim)
 
 

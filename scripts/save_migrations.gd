@@ -1,7 +1,7 @@
 class_name SaveMigrations
 extends RefCounted
 
-const CURRENT_VERSION := 3
+const CURRENT_VERSION := 4
 
 
 static func migrate(payload: Dictionary) -> Dictionary:
@@ -17,6 +17,9 @@ static func migrate(payload: Dictionary) -> Dictionary:
 			2:
 				migrated = migrate_v2_to_v3(migrated)
 				version = 3
+			3:
+				migrated = migrate_v3_to_v4(migrated)
+				version = 4
 			_:
 				return {}
 		migrated.version = version
@@ -48,5 +51,16 @@ static func migrate_v2_to_v3(payload: Dictionary) -> Dictionary:
 		if not item.has("id"):
 			item.id = "migrated_%s" % slot
 		player[slot] = item
+	migrated.player = player
+	return migrated
+
+
+static func migrate_v3_to_v4(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	var player: Dictionary = migrated.get("player", {})
+	if not player.has("capture_streak"):
+		player.capture_streak = 0
+	if not player.has("best_capture_streak"):
+		player.best_capture_streak = int(player.capture_streak)
 	migrated.player = player
 	return migrated

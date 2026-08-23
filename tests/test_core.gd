@@ -10,6 +10,7 @@ func _init() -> void:
 	test_power_and_health()
 	test_damage_boundaries()
 	test_level_progression()
+	test_bounty_streak_rewards()
 	test_bounty_odds()
 	test_loot_generation()
 	if failures == 0:
@@ -53,6 +54,12 @@ func test_level_progression() -> void:
 	check(player.base_power == 14, "level raises base power")
 	var no_patrol := Rules.offline_patrol_rewards(299.0, 3, 10)
 	check(int(no_patrol.credits) == 0, "AFK patrol ignores returns shorter than five minutes")
+
+
+func test_bounty_streak_rewards() -> void:
+	check(int(Rules.bounty_streak_reward(100, 1).credits) == 100, "first capture has no streak bonus")
+	check(int(Rules.bounty_streak_reward(100, 3).credits) == 110, "third consecutive capture grants ten percent")
+	check(int(Rules.bounty_streak_reward(100, 20).credits) == 125, "streak reward is capped at twenty-five percent")
 	var patrol := Rules.offline_patrol_rewards(3600.0, 2, 10)
 	check(int(patrol.minutes) == 60 and int(patrol.credits) == 180, "AFK credits scale with completed planets")
 	check(int(patrol.scrap) == 4, "AFK scrap is awarded in thirty-minute cycles")
@@ -111,6 +118,8 @@ func test_loot_generation() -> void:
 	check(str(Content.get_planet("congelaria_sa").name) == "Congelária S.A.", "planets resolve from stable ids")
 	check(not Content.is_planet_unlocked("congelaria_sa", []), "second planet starts locked")
 	check(Content.is_planet_unlocked("congelaria_sa", [Content.PLANET.id]), "first chapter completion unlocks the next planet")
+	check(str(Content.get_target("gloop").name) == "Gloop, o Inconveniente", "targets can be restored from stable ids")
+	check(Content.get_target("missing_target").is_empty(), "unknown target ids fail safely")
 	check(not Content.is_planet_unlocked("micelia_404", [Content.PLANET.id]), "third planet remains locked after only one chapter")
 	check(Content.is_planet_unlocked("micelia_404", [Content.PLANET.id, "congelaria_sa"]), "Congelaria completion unlocks Micelia")
 	check(not Content.is_planet_unlocked("ferro_velho_omega", [Content.PLANET.id, "congelaria_sa"]), "fourth planet remains locked before Micelia completion")

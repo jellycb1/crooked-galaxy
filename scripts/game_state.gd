@@ -51,6 +51,8 @@ func default_player() -> Dictionary:
 		"claimed_milestones": [],
 		"career_credits_claimed": 0,
 		"career_scrap_claimed": 0,
+		"capture_streak": 0,
+		"best_capture_streak": 0,
 		"locked_item_ids": [],
 		"equipment_loadouts": [{"weapon_id": "", "armor_id": ""}, {"weapon_id": "", "armor_id": ""}],
 		"last_seen_unix": Time.get_unix_time_from_system(),
@@ -140,6 +142,7 @@ func career_milestones() -> Array[Dictionary]:
 		{"id": "triple_frontier", "name": "TRÍPLICE FRONTEIRA", "description": "Conclua três planetas.", "complete": completed_count >= 3, "claimed": claimed.has("triple_frontier"), "credits": 300, "scrap": 10},
 		{"id": "omega_mechanic", "name": "MECÂNICO DO APOCALIPSE", "description": "Conclua quatro planetas.", "complete": completed_count >= 4, "claimed": claimed.has("omega_mechanic"), "credits": 450, "scrap": 14},
 		{"id": "nothing_wasted", "name": "NADA SE PERDE", "description": "Recicle pelo menos 25 pontos de sucata.", "complete": int(player.get("scrap_recycled_total", 0)) >= 25, "claimed": claimed.has("nothing_wasted"), "credits": 90, "scrap": 5},
+		{"id": "hot_pursuit", "name": "PERSEGUIÇÃO AQUECIDA", "description": "Mantenha um embalo de cinco capturas.", "complete": int(player.get("best_capture_streak", 0)) >= 5, "claimed": claimed.has("hot_pursuit"), "credits": 110, "scrap": 4},
 	]
 
 
@@ -321,6 +324,7 @@ func finish_combat(won: bool) -> void:
 		pending_loot = ContentDB.generate_loot(current_bounty, rng)
 		phase = Phase.VICTORY
 	else:
+		player.capture_streak = 0
 		phase = Phase.BOARD
 		last_notice = "%s escapou. Seu equipamento precisa de argumentos melhores." % str(current_bounty.name)
 		current_bounty = {}
@@ -347,11 +351,17 @@ func combat_quality(roll: float) -> String:
 	return "ACERTO"
 
 
-func claim_reward(equip_item: bool) -> Dictionary:
+func claim_reward(equip_item: bool, repeat_contract := false) -> Dictionary:
 	if phase != Phase.REWARD or pending_loot.is_empty():
 		return {}
+	var new_streak := int(player.get("capture_streak", 0)) + 1
+	var reward := CoreRules.bounty_streak_reward(int(current_bounty.credits), new_streak)
 	var summary := {
-		"credits": int(current_bounty.credits),
+		"credits": int(reward.credits),
+		"base_credits": int(reward.base_credits),
+		"streak_bonus": int(reward.bonus_credits),
+		"streak_bonus_percent": int(reward.bonus_percent),
+		"streak": new_streak,
 		"xp": int(current_bounty.xp),
 		"levels": 0,
 		"rank_up": false,
@@ -362,6 +372,8 @@ func claim_reward(equip_item: bool) -> Dictionary:
 	var completed_planet_id := str(completed_bounty.get("planet_id", ContentDB.PLANET.id))
 	var old_chapter_tier := planet_tier(completed_planet_id)
 	player.credits = int(player.credits) + summary.credits
+	player.capture_streak = new_streak
+	player.best_capture_streak = maxi(int(player.get("best_capture_streak", 0)), new_streak)
 	summary.levels = CoreRules.apply_xp(player, summary.xp)
 	player.wins = int(player.wins) + 1
 	var captures: Dictionary = player.get("captures_by_target", {})
@@ -382,6 +394,8 @@ func claim_reward(equip_item: bool) -> Dictionary:
 	if equip_item:
 		equip(pending_loot)
 	var notice_parts := ["+%d créditos" % int(summary.credits), "+%d XP" % int(summary.xp)]
+	if int(summary.streak_bonus) > 0:
+		notice_parts.append("Embalo ×%d: +%d" % [new_streak, int(summary.streak_bonus)])
 	if int(summary.levels) > 0:
 		notice_parts.append("Nível +%d" % int(summary.levels))
 	if bool(summary.rank_up):
@@ -403,10 +417,12 @@ func claim_reward(equip_item: bool) -> Dictionary:
 			"xp": int(summary.xp),
 		}
 	last_notice = "Contrato pago: " + " · ".join(notice_parts)
-	phase = Phase.CHAPTER_COMPLETE if first_boss_capture else Phase.BOARD
-	current_bounty = {}
+	phase = Phase.CHAPTER_COMPLETE if first_boss_capture else (Phase.BRIEFING if repeat_contract else Phase.BOARD)
+	current_bounty = ContentDB.get_target(target_id) if repeat_contract and not first_boss_capture else {}
 	pending_loot = {}
-	offered_approaches = []
+	offered_approaches.clear()
+	if repeat_contract and not first_boss_capture:
+		offered_approaches.assign(ContentDB.contract_approaches())
 	hunt_event = {}
 	save_game()
 	changed.emit()
@@ -631,10 +647,13 @@ func toggle_sound() -> void:
 
 func abandon_bounty() -> void:
 	if phase == Phase.HUNT or phase == Phase.HUNT_EVENT:
+		var lost_streak := int(player.get("capture_streak", 0))
+		player.capture_streak = 0
 		phase = Phase.BOARD
 		current_bounty = {}
 		offered_approaches = []
 		hunt_event = {}
+		last_notice = "Contrato abandonado%s. O embalo foi perdido." % (" após %d capturas" % lost_streak if lost_streak > 0 else "")
 		save_game()
 		changed.emit()
 

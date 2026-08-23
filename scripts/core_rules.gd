@@ -92,6 +92,18 @@ static func equipment_upgrade_cost(item: Dictionary) -> int:
 	return maxi(4, 3 + ceili(float(int(item.get("power", 1))) * 0.8))
 
 
+static func bounty_streak_reward(base_credits: int, streak: int) -> Dictionary:
+	var bonus_percent := mini(25, maxi(0, streak - 1) * 5)
+	var bonus := roundi(float(maxi(0, base_credits)) * float(bonus_percent) / 100.0)
+	return {
+		"base_credits": maxi(0, base_credits),
+		"bonus_credits": bonus,
+		"credits": maxi(0, base_credits) + bonus,
+		"bonus_percent": bonus_percent,
+		"streak": maxi(0, streak),
+	}
+
+
 static func offline_patrol_rewards(elapsed_seconds: float, completed_planets: int, wins: int) -> Dictionary:
 	if wins <= 0 or elapsed_seconds < 300.0:
 		return {"minutes": 0, "credits": 0, "scrap": 0, "capped": false}

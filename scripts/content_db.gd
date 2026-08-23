@@ -710,6 +710,13 @@ static func contract_approaches() -> Array[Dictionary]:
 	return result
 
 
+static func get_target(target_id: String) -> Dictionary:
+	for target in TARGETS:
+		if str(target.get("id", "")) == target_id:
+			return target.duplicate(true)
+	return {}
+
+
 static func apply_approach(bounty: Dictionary, approach: Dictionary) -> Dictionary:
 	var result := bounty.duplicate(true)
 	result["approach"] = approach.duplicate(true)
