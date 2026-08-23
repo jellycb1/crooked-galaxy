@@ -24,8 +24,11 @@ func _init() -> void:
 
 	var result: Dictionary = state.combat_step()
 	check(bool(result.get("won", false)), "winning combat is detected")
-	check(state.phase == state.Phase.REWARD, "victory opens the reward phase")
+	check(state.phase == state.Phase.VICTORY, "victory opens the capture beat")
+	check(state.combat_events.size() == 1, "combat records the finishing action")
 	check(not state.pending_loot.is_empty(), "victory generates loot")
+	state.open_reward()
+	check(state.phase == state.Phase.REWARD, "capture beat opens the reward phase")
 
 	var credits_before := int(state.player.credits)
 	var claimed_item: Dictionary = state.pending_loot.duplicate(true)
@@ -38,6 +41,15 @@ func _init() -> void:
 	check(str(state.player[str(claimed_item.slot)].id) == str(claimed_item.id), "claimed upgrade is equipped")
 	check(not state.last_notice.is_empty(), "reward feedback survives the screen transition")
 	check(int(state.player.reputation) == 0, "rank requires three captures")
+
+	state.start_bounty(Content.TARGETS[0].duplicate(true))
+	state.begin_combat()
+	state.enemy_hp = 9999
+	state.player_hp = 1
+	var defeat := state.combat_step()
+	check(bool(defeat.get("finished", false)) and not bool(defeat.get("won", true)), "defeat is detected")
+	check(state.phase == state.Phase.BOARD, "defeat returns to the bounty board")
+	check(not state.last_notice.is_empty(), "defeat explains what happened")
 
 	state.free()
 	if failures == 0:

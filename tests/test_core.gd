@@ -64,6 +64,7 @@ func test_loot_generation() -> void:
 	check(item.has("id") and not str(item.id).is_empty(), "loot has a stable runtime id")
 	check(item.slot == "weapon" or item.slot == "armor", "loot has a valid slot")
 	check(int(item.power) >= 1, "loot has positive power")
+	check(not str(item.description).is_empty(), "loot carries original flavor text")
 	check(Content.available_bounties(0).size() == 1, "rank gates advanced bounties")
 	check(Content.available_bounties(1).size() == 2, "new reputation unlocks a bounty")
 

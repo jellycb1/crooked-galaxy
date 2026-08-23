@@ -33,11 +33,18 @@ func run_smoke_test() -> void:
 	state.begin_combat()
 	await process_frame
 	check(state.player_hp > 0 and state.enemy_hp > 0, "combat screen initializes")
+	state.combat_step()
+	scene.render()
+	await process_frame
+	check(state.combat_events.size() == 2, "combat action cards render")
 
 	state.finish_combat(true)
 	await process_frame
+	check(state.phase == state.Phase.VICTORY, "victory screen renders before loot")
 	check(not state.pending_loot.is_empty(), "reward screen receives an item")
 
+	state.open_reward()
+	await process_frame
 	state.claim_reward(true)
 	scene.view_mode = "arsenal"
 	scene.render()

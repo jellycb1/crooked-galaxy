@@ -1,6 +1,7 @@
 extends Control
 
 const SpaceBackdropScript = preload("res://scripts/space_backdrop.gd")
+const CombatBackdropScript = preload("res://scripts/combat_backdrop.gd")
 const INK := Color("#f4f2ff")
 const MUTED := Color("#9da8c8")
 const CYAN := Color("#55e5ff")
@@ -13,8 +14,10 @@ const PANEL_LIGHT := Color("#18264b")
 var body: VBoxContainer
 var content: VBoxContainer
 var combat_timer: Timer
+var victory_timer: Timer
 var last_combat_message := ""
 var view_mode := "board"
+var combat_fast := false
 
 
 func _ready() -> void:
@@ -56,6 +59,11 @@ func build_shell() -> void:
 	combat_timer.wait_time = 0.72
 	combat_timer.timeout.connect(on_combat_timer)
 	add_child(combat_timer)
+	victory_timer = Timer.new()
+	victory_timer.one_shot = true
+	victory_timer.wait_time = 1.35
+	victory_timer.timeout.connect(GameState.open_reward)
+	add_child(victory_timer)
 
 	var hunt_timer := Timer.new()
 	hunt_timer.wait_time = 0.1
@@ -80,11 +88,18 @@ func render() -> void:
 			build_combat()
 		GameState.Phase.REWARD:
 			build_reward()
+		GameState.Phase.VICTORY:
+			build_victory()
 	if GameState.phase == GameState.Phase.COMBAT:
 		if combat_timer.is_stopped():
 			combat_timer.start()
 	else:
 		combat_timer.stop()
+	if GameState.phase == GameState.Phase.VICTORY:
+		if victory_timer.is_stopped():
+			victory_timer.start()
+	else:
+		victory_timer.stop()
 
 
 func build_header() -> void:
@@ -376,16 +391,43 @@ func build_hunt() -> void:
 
 func build_combat() -> void:
 	content.add_child(center_label("ENCONTRO AUTOMÁTICO · TURNO %d" % GameState.combat_round, 17, CORAL))
+	var stage := PanelContainer.new()
+	stage.clip_contents = true
+	stage.custom_minimum_size = Vector2(0, 390)
+	stage.add_theme_stylebox_override("panel", box_style(PANEL, 18))
+	content.add_child(stage)
+	var backdrop: Control = CombatBackdropScript.new()
+	backdrop.events = GameState.combat_events
+	stage.add_child(backdrop)
+	var stage_margin := MarginContainer.new()
+	stage_margin.add_theme_constant_override("margin_left", 18)
+	stage_margin.add_theme_constant_override("margin_right", 18)
+	stage_margin.add_theme_constant_override("margin_top", 18)
+	stage_margin.add_theme_constant_override("margin_bottom", 14)
+	stage.add_child(stage_margin)
+	var stage_box := VBoxContainer.new()
+	stage_box.add_theme_constant_override("separation", 8)
+	stage_margin.add_child(stage_box)
+	var event_row := HBoxContainer.new()
+	event_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	event_row.add_theme_constant_override("separation", 8)
+	stage_box.add_child(event_row)
+	if GameState.combat_events.is_empty():
+		event_row.add_child(center_label("SENSORES TRAVADOS · ARMAS CARREGADAS", 14, GOLD))
+	else:
+		for event in GameState.combat_events:
+			event_row.add_child(combat_event_chip(event))
 	var arena := HBoxContainer.new()
 	arena.alignment = BoxContainer.ALIGNMENT_CENTER
-	arena.add_theme_constant_override("separation", 26)
-	content.add_child(arena)
+	arena.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	arena.add_theme_constant_override("separation", 20)
+	stage_box.add_child(arena)
 	arena.add_child(fighter("VOCÊ", "🤠", GameState.player_hp, CoreRules.max_health(GameState.player), CYAN))
 	arena.add_child(center_label("VS", 28, GOLD))
 	arena.add_child(fighter(str(GameState.current_bounty.name), str(GameState.current_bounty.emoji), GameState.enemy_hp, int(GameState.current_bounty.health), CORAL))
 
 	var log_panel := panel(VBoxContainer.new(), PANEL, 18, 18)
-	log_panel.custom_minimum_size = Vector2(0, 130)
+	log_panel.custom_minimum_size = Vector2(0, 105)
 	content.add_child(log_panel)
 	var log_box := log_panel.get_child(0) as VBoxContainer
 	log_box.add_child(label("RELATÓRIO DE CAMPO", 14, MUTED))
@@ -393,26 +435,68 @@ func build_combat() -> void:
 	var log_label := label(message, 17, INK)
 	log_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	log_box.add_child(log_label)
-	content.add_child(center_label("O combate prossegue automaticamente", 14, MUTED))
+	var speed := action_button("VELOCIDADE · %s" % ("2×" if combat_fast else "1×"), CYAN, true)
+	speed.custom_minimum_size = Vector2(0, 46)
+	speed.pressed.connect(func():
+		combat_fast = not combat_fast
+		combat_timer.wait_time = 0.34 if combat_fast else 0.72
+		render()
+	)
+	content.add_child(speed)
+
+
+func combat_event_chip(event: Dictionary) -> PanelContainer:
+	var player_action := str(event.get("actor", "")) == "player"
+	var color := CYAN if player_action else CORAL
+	var chip := panel(VBoxContainer.new(), Color("#0a1025cc"), 10, 8)
+	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var box := chip.get_child(0) as VBoxContainer
+	box.add_child(label(str(event.get("action", "GOLPE")).to_upper(), 11, color, HORIZONTAL_ALIGNMENT_CENTER))
+	var quality := str(event.get("quality", "ACERTO"))
+	var quality_color := GOLD if quality == "CRÍTICO" else (MUTED if quality == "DE RASPÃO" else INK)
+	box.add_child(label("%d DANO · %s" % [int(event.get("damage", 0)), quality], 12, quality_color, HORIZONTAL_ALIGNMENT_CENTER))
+	return chip
+
+
+func build_victory() -> void:
+	content.add_spacer(false)
+	content.add_child(center_label("MANDADO EXECUTADO", 16, MUTED))
+	content.add_child(center_label(str(GameState.current_bounty.emoji), 104, INK))
+	var stamp := panel(VBoxContainer.new(), Color("#173f3c"), 18, 22)
+	content.add_child(stamp)
+	var stamp_box := stamp.get_child(0) as VBoxContainer
+	stamp_box.add_child(center_label("ALVO CAPTURADO", 34, LIME))
+	stamp_box.add_child(center_label(str(GameState.current_bounty.name), 21, INK))
+	if not GameState.combat_events.is_empty():
+		var final_event: Dictionary = GameState.combat_events[0]
+		stamp_box.add_child(center_label("Finalizado com %s · %d de dano" % [str(final_event.action), int(final_event.damage)], 14, GOLD))
+	content.add_child(center_label("Autenticando pagamento e sacudindo os bolsos do alvo...", 15, MUTED))
+	content.add_spacer(false)
 
 
 func build_reward() -> void:
 	var item := GameState.pending_loot
-	content.add_spacer(false)
-	content.add_child(center_label("CONTRATO CONCLUÍDO", 22, LIME))
+	content.add_child(center_label("CONTRATO CONCLUÍDO · %s" % str(GameState.current_bounty.name).to_upper(), 16, LIME))
 	content.add_child(center_label("RECOMPENSA CAPTURADA", 32, INK))
 	var reward_panel := panel(VBoxContainer.new(), PANEL_LIGHT, 26, 26)
+	reward_panel.modulate = Color(1, 1, 1, 0)
 	content.add_child(reward_panel)
+	reward_panel.create_tween().tween_property(reward_panel, "modulate", Color.WHITE, 0.32)
 	var box := reward_panel.get_child(0) as VBoxContainer
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation", 10)
 	box.add_child(center_label("⚙", 76, Color(str(item.color))))
 	box.add_child(center_label(str(item.rarity).to_upper(), 15, Color(str(item.color))))
 	box.add_child(center_label(str(item.name), 25, INK))
+	var description := center_label(str(item.get("description", "Procedência criativamente desconhecida.")), 15, MUTED)
+	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(description)
 	box.add_child(center_label("+%d PODER · %s" % [int(item.power), slot_name(str(item.slot))], 18, GOLD))
 	var equipped: Dictionary = GameState.player[str(item.slot)]
 	var comparison := int(item.power) - int(equipped.power)
 	var comparison_text := "+%d vs. equipado" % comparison if comparison > 0 else "%d vs. equipado" % comparison
+	if comparison > 0:
+		box.add_child(center_label("▲ UPGRADE ENCONTRADO", 15, LIME))
 	box.add_child(center_label(comparison_text, 15, LIME if comparison > 0 else MUTED))
 	box.add_child(center_label("◈ %d créditos   ✦ %d XP" % [int(GameState.current_bounty.credits), int(GameState.current_bounty.xp)], 17, GOLD))
 	content.add_spacer(false)
@@ -426,9 +510,9 @@ func build_reward() -> void:
 
 func fighter(title: String, icon: String, hp: int, maximum: int, color: Color) -> VBoxContainer:
 	var fighter_box := VBoxContainer.new()
-	fighter_box.custom_minimum_size = Vector2(250, 260)
+	fighter_box.custom_minimum_size = Vector2(242, 245)
 	fighter_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	fighter_box.add_child(center_label(icon, 88, INK))
+	fighter_box.add_child(center_label(icon, 78, INK))
 	var name_label := center_label(title.to_upper(), 16, color)
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	fighter_box.add_child(name_label)

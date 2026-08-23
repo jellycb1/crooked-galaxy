@@ -8,7 +8,7 @@ The prototype implements the product's central test:
 
 `BOUNTY → HUNT → AUTOMATIC COMBAT → REWARD → LOOT → EQUIP → STRONGER BOUNTY`
 
-It currently includes three original bounties on Dustball Prime, a guided first contract, procedural equipment, an arsenal screen, XP and level progression, reputation-gated targets, simulation-backed risk estimates, post-reward feedback, and local persistence.
+It currently includes three original bounties on Dustball Prime, a guided first contract, layered automatic combat with named actions and speed control, a capture beat, procedural equipment with original flavor text, an arsenal screen, XP and level progression, reputation-gated targets, simulation-backed risk estimates, post-reward feedback, and local persistence.
 
 ## Run
 
@@ -25,9 +25,10 @@ Run deterministic core tests:
 godot --headless --path . --script res://tests/test_core.gd
 godot --headless --path . --script res://tests/test_flow.gd
 godot --headless --path . --script res://tests/test_ui.gd
+godot --headless --path . --script res://tests/test_persistence.gd
 ```
 
-Capture the current bounty board for visual review:
+Capture the bounty board, combat, victory, and reward states for visual review:
 
 ```powershell
 godot --headless --path . --script res://tools/capture_ui.gd

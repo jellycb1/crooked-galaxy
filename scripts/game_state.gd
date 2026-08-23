@@ -3,7 +3,7 @@ extends Node
 signal changed
 signal combat_event(message: String)
 
-enum Phase { BOARD, HUNT, COMBAT, REWARD }
+enum Phase { BOARD, HUNT, COMBAT, REWARD, VICTORY }
 
 const SAVE_PATH := "user://crooked_galaxy_save.json"
 
@@ -16,9 +16,11 @@ var hunt_ends_at := 0.0
 var player_hp := 0
 var enemy_hp := 0
 var combat_round := 0
+var combat_events: Array[Dictionary] = []
 var last_combat_won := false
 var rng := RandomNumberGenerator.new()
 var persistence_enabled := true
+var save_path := SAVE_PATH
 var last_notice := ""
 
 
@@ -72,6 +74,7 @@ func begin_combat() -> void:
 	player_hp = CoreRules.max_health(player)
 	enemy_hp = int(current_bounty.health)
 	combat_round = 0
+	combat_events = []
 	last_combat_won = false
 	save_game()
 	changed.emit()
@@ -81,20 +84,35 @@ func combat_step() -> Dictionary:
 	if phase != Phase.COMBAT:
 		return {}
 	combat_round += 1
-	var player_damage := CoreRules.damage_roll(
-		CoreRules.player_power(player), int(current_bounty.defense), rng.randf()
-	)
+	var round_events: Array[Dictionary] = []
+	var player_roll := rng.randf()
+	var player_damage := CoreRules.damage_roll(CoreRules.player_power(player), int(current_bounty.defense), player_roll)
+	var player_event := {
+		"actor": "player",
+		"action": ContentDB.player_attack(rng),
+		"damage": player_damage,
+		"quality": combat_quality(player_roll),
+	}
+	round_events.append(player_event)
 	enemy_hp = maxi(0, enemy_hp - player_damage)
-	var message := "Você causa %d de dano." % player_damage
+	var message := "%s causa %d de dano." % [player_event.action, player_damage]
 	if enemy_hp <= 0:
+		combat_events = round_events
 		finish_combat(true)
 		return {"message": message, "finished": true, "won": true}
 
-	var enemy_damage := CoreRules.damage_roll(
-		int(current_bounty.power), int(player.get("armor", {}).get("power", 0)) + 3, rng.randf()
-	)
+	var enemy_roll := rng.randf()
+	var enemy_damage := CoreRules.damage_roll(int(current_bounty.power), int(player.get("armor", {}).get("power", 0)) + 3, enemy_roll)
+	var enemy_event := {
+		"actor": "enemy",
+		"action": ContentDB.target_attack(current_bounty, rng),
+		"damage": enemy_damage,
+		"quality": combat_quality(enemy_roll),
+	}
+	round_events.append(enemy_event)
 	player_hp = maxi(0, player_hp - enemy_damage)
-	message += "  %s revida com %d." % [current_bounty.name, enemy_damage]
+	message += "  %s responde com %d." % [enemy_event.action, enemy_damage]
+	combat_events = round_events
 	if player_hp <= 0:
 		finish_combat(false)
 		return {"message": message, "finished": true, "won": false}
@@ -106,13 +124,30 @@ func finish_combat(won: bool) -> void:
 	last_combat_won = won
 	if won:
 		pending_loot = ContentDB.generate_loot(current_bounty, rng)
-		phase = Phase.REWARD
+		phase = Phase.VICTORY
 	else:
 		phase = Phase.BOARD
+		last_notice = "%s escapou. Seu equipamento precisa de argumentos melhores." % str(current_bounty.name)
 		current_bounty = {}
 		pending_loot = {}
 	save_game()
 	changed.emit()
+
+
+func open_reward() -> void:
+	if phase != Phase.VICTORY:
+		return
+	phase = Phase.REWARD
+	save_game()
+	changed.emit()
+
+
+func combat_quality(roll: float) -> String:
+	if roll >= 0.9:
+		return "CRÍTICO"
+	if roll <= 0.12:
+		return "DE RASPÃO"
+	return "ACERTO"
 
 
 func claim_reward(equip_item: bool) -> Dictionary:
@@ -197,17 +232,18 @@ func save_game() -> void:
 		"player_hp": player_hp,
 		"enemy_hp": enemy_hp,
 		"combat_round": combat_round,
+		"combat_events": combat_events,
 	}
-	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	var file := FileAccess.open(save_path, FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify(payload))
 
 
 func load_game() -> void:
 	player = default_player()
-	if not FileAccess.file_exists(SAVE_PATH):
+	if not FileAccess.file_exists(save_path):
 		return
-	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
+	var file := FileAccess.open(save_path, FileAccess.READ)
 	if not file:
 		return
 	var parsed = JSON.parse_string(file.get_as_text())
@@ -226,6 +262,8 @@ func load_game() -> void:
 	player_hp = int(parsed.get("player_hp", 0))
 	enemy_hp = int(parsed.get("enemy_hp", 0))
 	combat_round = int(parsed.get("combat_round", 0))
+	var loaded_events = parsed.get("combat_events", [])
+	combat_events.assign(loaded_events if loaded_events is Array else [])
 	if phase == Phase.HUNT and Time.get_unix_time_from_system() >= hunt_ends_at:
 		begin_combat()
 	elif phase == Phase.COMBAT:

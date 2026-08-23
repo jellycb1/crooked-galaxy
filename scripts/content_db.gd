@@ -22,6 +22,7 @@ const TARGETS := [
 		"credits": 38,
 		"xp": 42,
 		"rank": 0,
+		"attacks": ["Tapa Tentacular", "Cuspe de Formulário", "Raio Mal Estacionado"],
 	},
 	{
 		"id": "baron_boom",
@@ -36,6 +37,7 @@ const TARGETS := [
 		"credits": 58,
 		"xp": 62,
 		"rank": 1,
+		"attacks": ["Decreto Explosivo", "Imposto de Impacto", "Brasão-Bomba"],
 	},
 	{
 		"id": "madame_vacuum",
@@ -50,12 +52,30 @@ const TARGETS := [
 		"credits": 88,
 		"xp": 90,
 		"rank": 2,
+		"attacks": ["Vácuo Executivo", "Taxa de Respiração", "Sucção Premium"],
 	},
 ]
 
-const ITEM_NAMES := {
-	"weapon": ["Desatomizador de Bolso", "Canhão de Recibos", "Pistola Quase Legal", "Zapper de Plasma Torto"],
-	"armor": ["Casaco Antilaser Usado", "Colete de Espuma Cósmica", "Armadura Fiscal", "Poncho de Titânio"],
+const PLAYER_ATTACKS := [
+	"Ricochete de Plasma",
+	"Cobrança à Queima-Roupa",
+	"Disparo Quase Calculado",
+	"Cláusula de Perfuração",
+]
+
+const ITEM_CATALOG := {
+	"weapon": [
+		{"name": "Desatomizador de Bolso", "description": "Desmonta átomos, garantias e conversas constrangedoras."},
+		{"name": "Canhão de Recibos", "description": "A prova de compra chega antes do projétil."},
+		{"name": "Pistola Quase Legal", "description": "Legal em pelo menos duas luas e meia."},
+		{"name": "Zapper de Plasma Torto", "description": "O tiro faz curva. Às vezes até na direção certa."},
+	],
+	"armor": [
+		{"name": "Casaco Antilaser Usado", "description": "As marcas de queimadura comprovam que já funcionou."},
+		{"name": "Colete de Espuma Cósmica", "description": "Confortável, protetor e estranhamente efervescente."},
+		{"name": "Armadura Fiscal", "description": "Deduz parte do dano no próximo ano galáctico."},
+		{"name": "Poncho de Titânio", "description": "Elegância de fronteira com nove quilos por ombro."},
+	],
 }
 
 
@@ -69,7 +89,8 @@ static func available_bounties(reputation: int) -> Array[Dictionary]:
 
 static func generate_loot(target: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
 	var slot := "weapon" if rng.randf() < 0.58 else "armor"
-	var names: Array = ITEM_NAMES[slot]
+	var catalog: Array = ITEM_CATALOG[slot]
+	var definition: Dictionary = catalog[rng.randi_range(0, catalog.size() - 1)]
 	var base_power := int(target.power * rng.randf_range(0.36, 0.68))
 	var rarity_roll := rng.randf()
 	var rarity := "Comum"
@@ -85,9 +106,19 @@ static func generate_loot(target: Dictionary, rng: RandomNumberGenerator) -> Dic
 		bonus = 2
 	return {
 		"id": "%s_%s_%d" % [target.id, slot, rng.randi()],
-		"name": names[rng.randi_range(0, names.size() - 1)],
+		"name": definition.name,
+		"description": definition.description,
 		"slot": slot,
 		"power": maxi(1, base_power + bonus),
 		"rarity": rarity,
 		"color": rarity_color,
 	}
+
+
+static func player_attack(rng: RandomNumberGenerator) -> String:
+	return PLAYER_ATTACKS[rng.randi_range(0, PLAYER_ATTACKS.size() - 1)]
+
+
+static func target_attack(target: Dictionary, rng: RandomNumberGenerator) -> String:
+	var attacks: Array = target.get("attacks", ["Golpe Suspeito"])
+	return attacks[rng.randi_range(0, attacks.size() - 1)]
