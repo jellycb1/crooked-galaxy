@@ -258,8 +258,8 @@ func build_board() -> void:
 
 func rank_progress_panel() -> PanelContainer:
 	var planet := active_planet()
-	var tier := GameState.planet_tier(str(planet.id))
-	var next_target := ContentDB.target_for_planet_tier(str(planet.id), tier + 1)
+	var warrant_progress := ContentDB.warrant_progress(str(planet.id), GameState.player.get("captures_by_target", {}))
+	var next_target: Dictionary = warrant_progress.next_target
 	var card := panel(VBoxContainer.new(), Color("#0d1530"), 12, 11)
 	card.name = "NextWarrantProgress"
 	var box := card.get_child(0) as VBoxContainer
@@ -279,9 +279,10 @@ func rank_progress_panel() -> PanelContainer:
 		complete.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(complete)
 		return card
-	var progress_value := GameState.planet_capture_count(str(planet.id)) % 3
+	var progress_value := int(warrant_progress.progress)
 	row.add_child(label("PRÓXIMO ALVO: %s" % str(next_target.name).to_upper(), 12, MUTED))
-	var count := label("%d / 3 CAPTURAS" % progress_value, 12, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
+	var prerequisite: Dictionary = warrant_progress.prerequisite
+	var count := label("%d / 3 · %s" % [progress_value, str(prerequisite.name).to_upper()], 12, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
 	count.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(count)
 	var progress := ProgressBar.new()

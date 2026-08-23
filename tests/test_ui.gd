@@ -73,6 +73,7 @@ func run_smoke_test() -> void:
 	check(scene.find_child("ClaimAndRepeat", true, false) != null, "reward screen offers another contract immediately")
 	check(scene.find_child("ClaimAndBoard", true, false) != null, "reward screen preserves the board return path")
 	state.player.captures_by_planet = {ContentDB.PLANET.id: 2}
+	state.player.captures_by_target = {"gloop": 2}
 	scene.render()
 	await process_frame
 	check(scene.find_child("RewardWarrantUnlock", true, false) != null, "third capture previews the newly unlocked warrant")

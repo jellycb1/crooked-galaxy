@@ -6,6 +6,7 @@ const Content = preload("res://scripts/content_db.gd")
 const ContractRulesScript = preload("res://scripts/contract_rules.gd")
 
 const CAREERS := 100
+const ALTERNATE_CAREERS := 30
 
 
 func _init() -> void:
@@ -66,6 +67,10 @@ func _init() -> void:
 			roundi(median(workshop_actions_by_tier[tier])),
 			roundi(median(workshop_spent_by_tier[tier])),
 		])
+	print("\nAlternate target choices (%d careers each; boss arrival after nine captures)" % ALTERNATE_CAREERS)
+	print_strategy("mastery route", [0, 0, 0, 1, 1, 1, 2, 2, 2])
+	print_strategy("sample then farm Gloop", [0, 0, 0, 1, 0, 0, 2, 0, 0])
+	print_strategy("farm Gloop only", [0, 0, 0, 0, 0, 0, 0, 0, 0])
 	quit(0)
 
 
@@ -122,6 +127,43 @@ func spend_workshop_scrap(state: StateScript) -> Dictionary:
 			break
 		actions += 1
 	return {"actions": actions, "spent": scrap_before - int(state.player.get("scrap", 0))}
+
+
+func print_strategy(strategy_name: String, target_tiers: Array) -> void:
+	var boss_odds: Array = []
+	var powers: Array = []
+	var health_values: Array = []
+	var workshop_actions: Array = []
+	var boss_unlocked := 0
+	for career_seed in ALTERNATE_CAREERS:
+		var state = StateScript.new()
+		state.persistence_enabled = false
+		state.player = state.default_player()
+		state.rng.seed = 91000 + career_seed * 173
+		var actions := 0
+		for target_tier in target_tiers:
+			var target := Content.target_for_planet_tier(Content.PLANET.id, int(target_tier))
+			var contract := recommended_contract(state.player, target)
+			claim_simulated_win(state, contract)
+			actions += int(spend_workshop_scrap(state).actions)
+		if state.planet_tier(Content.PLANET.id) >= 3:
+			boss_unlocked += 1
+		var boss := Content.target_for_planet_tier(Content.PLANET.id, 3)
+		var boss_contract := recommended_contract(state.player, boss)
+		boss_odds.append(Rules.bounty_odds(state.player, boss_contract))
+		powers.append(Rules.player_power(state.player))
+		health_values.append(Rules.max_health(state.player))
+		workshop_actions.append(actions)
+		state.free()
+	print("  %s: boss unlocked=%d%% · theoretical odds=%d%% · below 55%%=%d%% · power=%d · health=%d · workshop=%d" % [
+		strategy_name,
+		roundi(float(boss_unlocked) / float(ALTERNATE_CAREERS) * 100.0),
+		roundi(median(boss_odds) * 100.0),
+		roundi(fraction_below(boss_odds, ContractRulesScript.MIN_RECOMMENDED_ODDS) * 100.0),
+		roundi(median(powers)),
+		roundi(median(health_values)),
+		roundi(median(workshop_actions)),
+	])
 
 
 func median(values: Array) -> float:

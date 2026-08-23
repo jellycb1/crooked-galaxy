@@ -65,19 +65,21 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	if int(reward_preview.bonus_credits) > 0:
 		box.add_child(host.center_label("EMBALO ×%d · +%d créditos (+%d%%)" % [int(reward_preview.streak), int(reward_preview.bonus_credits), int(reward_preview.bonus_percent)], 14, host.LIME))
 	var planet_id := str(state.current_bounty.get("planet_id", Content.PLANET.id))
-	var captures_before := state.planet_capture_count(planet_id)
-	var captures_after := captures_before + 1
-	var tier_before := Rules.planet_tier_from_captures(captures_before)
-	var tier_after := Rules.planet_tier_from_captures(captures_after)
-	var next_target := Content.target_for_planet_tier(planet_id, tier_after if tier_after > tier_before else tier_before + 1)
+	var captures_before: Dictionary = state.player.get("captures_by_target", {})
+	var captures_after := captures_before.duplicate(true)
+	var bounty_id := str(state.current_bounty.id)
+	captures_after[bounty_id] = int(captures_after.get(bounty_id, 0)) + 1
+	var tier_before := Content.planet_tier_from_target_captures(planet_id, captures_before)
+	var tier_after := Content.planet_tier_from_target_captures(planet_id, captures_after)
+	var progress_after := Content.warrant_progress(planet_id, captures_after)
+	var next_target: Dictionary = Content.target_for_planet_tier(planet_id, tier_after) if tier_after > tier_before else progress_after.next_target
 	var unlocks_new_warrant := tier_after > tier_before and not next_target.is_empty()
 	if unlocks_new_warrant:
 		var unlock_label := host.center_label("NOVO MANDADO AO RECEBER · %s" % str(next_target.name).to_upper(), 14, host.LIME)
 		unlock_label.name = "RewardWarrantUnlock"
 		box.add_child(unlock_label)
 	elif not next_target.is_empty():
-		var requirement := Rules.planet_next_tier_requirement(captures_after)
-		var progress_label := host.center_label("RUMO A %s · %d/%d CAPTURAS" % [str(next_target.name).to_upper(), captures_after, requirement], 13, host.CYAN)
+		var progress_label := host.center_label("RUMO A %s · %d/%d CAPTURAS DE %s" % [str(next_target.name).to_upper(), int(progress_after.progress), int(progress_after.requirement), str(progress_after.prerequisite.name).to_upper()], 13, host.CYAN)
 		progress_label.name = "RewardWarrantProgress"
 		box.add_child(progress_label)
 	content.add_spacer(false)

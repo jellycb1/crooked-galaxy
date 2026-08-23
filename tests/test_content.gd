@@ -69,6 +69,10 @@ func _init() -> void:
 
 	check(ContentDB.CONTRACT_APPROACHES.size() == 3, "every contract keeps three strategic approaches")
 	check(str(ContentDB.target_for_planet_tier("dustball_prime", 1).id) == "baron_boom", "planet tier resolves the next warrant deterministically")
+	check(ContentDB.planet_tier_from_target_captures("dustball_prime", {"gloop": 9}) == 1, "farming the first warrant cannot skip sequential tiers")
+	check(ContentDB.planet_tier_from_target_captures("dustball_prime", {"gloop": 3, "baron_boom": 3, "madame_vacuum": 3}) == 3, "three captures of each prerequisite unlock the boss")
+	var warrant_progress := ContentDB.warrant_progress("dustball_prime", {"gloop": 3, "baron_boom": 2})
+	check(str(warrant_progress.next_target.id) == "madame_vacuum" and int(warrant_progress.progress) == 2, "warrant progress names the exact prerequisite target")
 	check(ContentDB.target_for_planet_tier("missing_planet", 1).is_empty(), "unknown planet tiers fail safely")
 	var promoted_loot := 0
 	for seed in 240:

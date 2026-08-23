@@ -261,6 +261,7 @@ func _init() -> void:
 	check(bool(chapter_summary.chapter_complete), "boss reward reports chapter completion")
 	check(int(chapter_state.player.captures_by_target.mayor_gold_dust) == 1, "captures are tracked per target")
 	check(chapter_state.player.completed_planets.has(Content.PLANET.id), "completed planet is retained in progression")
+	check(chapter_state.planet_tier(Content.PLANET.id) == 3, "completed planets remain at maximum tier for legacy-compatible careers")
 	check(str(chapter_state.chapter_completion.target.id) == "mayor_gold_dust", "chapter finale retains the defeated boss")
 	chapter_state.continue_after_chapter()
 	check(chapter_state.phase == chapter_state.Phase.BOARD, "chapter finale returns to repeatable bounties")

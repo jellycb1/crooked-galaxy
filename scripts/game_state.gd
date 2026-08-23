@@ -105,7 +105,9 @@ func planet_capture_count(planet_id: String) -> int:
 
 
 func planet_tier(planet_id: String) -> int:
-	return CoreRules.planet_tier_from_captures(planet_capture_count(planet_id))
+	if player.get("completed_planets", []).has(planet_id):
+		return 3
+	return ContentDB.planet_tier_from_target_captures(planet_id, player.get("captures_by_target", {}))
 
 
 func apply_offline_progress(now_unix: float) -> Dictionary:

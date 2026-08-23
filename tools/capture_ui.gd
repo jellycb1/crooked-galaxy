@@ -193,7 +193,7 @@ func capture() -> void:
 	state.player.weapon = {"name": "Canhão de Recibos", "slot": "weapon", "power": 15, "rarity": "Raro", "color": "#58d9ff"}
 	state.player.armor = {"name": "Poncho de Titânio", "slot": "armor", "power": 11, "rarity": "Raro", "color": "#58d9ff"}
 	state.player.completed_planets = [ContentDB.PLANET.id]
-	state.player.captures_by_target = {"gloop": 4, "baron_boom": 3, "madame_vacuum": 2, "mayor_gold_dust": 1}
+	state.player.captures_by_target = {"gloop": 4, "baron_boom": 3, "madame_vacuum": 3, "mayor_gold_dust": 1}
 	state.player.captures_by_planet = {ContentDB.PLANET.id: 10}
 	state.chapter_completion = {
 		"planet": ContentDB.PLANET.duplicate(true),

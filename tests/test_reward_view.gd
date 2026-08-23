@@ -39,7 +39,7 @@ func _init() -> void:
 	state.phase = state.Phase.REWARD
 	state.current_bounty = ContentDB.TARGETS[0].duplicate(true)
 	state.pending_loot = reward_item(6)
-	state.player.captures_by_target = {}
+	state.player.captures_by_target = {"gloop": 2}
 	state.player.captures_by_planet = {ContentDB.PLANET.id: 2}
 	RewardScript.build(host, content, state)
 	check(host.find_child("RewardWarrantUnlock", true, false) != null, "isolated reward previews a threshold unlock")
@@ -53,6 +53,7 @@ func _init() -> void:
 
 	clear_content(content)
 	state.player.captures_by_planet = {}
+	state.player.captures_by_target = {}
 	state.pending_loot = reward_item(0)
 	RewardScript.build(host, content, state)
 	check(host.find_child("RecycleAndRepeat", true, false) != null, "isolated reward exposes safe instant recycling")

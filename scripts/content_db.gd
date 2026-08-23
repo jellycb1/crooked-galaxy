@@ -728,6 +728,31 @@ static func target_for_planet_tier(planet_id: String, tier: int) -> Dictionary:
 	return {}
 
 
+static func planet_tier_from_target_captures(planet_id: String, captures_by_target: Dictionary) -> int:
+	var tier := 0
+	for prerequisite_tier in 3:
+		var prerequisite := target_for_planet_tier(planet_id, prerequisite_tier)
+		if prerequisite.is_empty() or int(captures_by_target.get(str(prerequisite.id), 0)) < 3:
+			break
+		tier = prerequisite_tier + 1
+	return tier
+
+
+static func warrant_progress(planet_id: String, captures_by_target: Dictionary) -> Dictionary:
+	var tier := planet_tier_from_target_captures(planet_id, captures_by_target)
+	var next_target := target_for_planet_tier(planet_id, tier + 1)
+	if next_target.is_empty():
+		return {"tier": tier, "next_target": {}, "progress": 0, "requirement": 0}
+	var prerequisite := target_for_planet_tier(planet_id, tier)
+	return {
+		"tier": tier,
+		"next_target": next_target,
+		"progress": mini(3, int(captures_by_target.get(str(prerequisite.id), 0))),
+		"requirement": 3,
+		"prerequisite": prerequisite,
+	}
+
+
 static func apply_approach(bounty: Dictionary, approach: Dictionary) -> Dictionary:
 	var result := bounty.duplicate(true)
 	result["approach"] = approach.duplicate(true)
