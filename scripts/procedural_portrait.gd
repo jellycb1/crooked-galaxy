@@ -32,6 +32,12 @@ func _draw() -> void:
 			draw_director()
 		"landlord_spore":
 			draw_landlord_spore()
+		"countess_truffle":
+			draw_countess_truffle()
+		"captain_chlorophyll":
+			draw_captain_chlorophyll()
+		"mother_mycelia":
+			draw_mother_mycelia()
 		_:
 			draw_hunter()
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -242,6 +248,68 @@ func draw_landlord_spore() -> void:
 	filled_polygon([Vector2(0.46, 0.70), Vector2(0.54, 0.70), Vector2(0.58, 0.88), Vector2(0.50, 0.93), Vector2(0.42, 0.88)], lime, ink)
 	draw_arc(Vector2(0.75, 0.78), 0.065, 0.0, TAU, 20, Color("#ffc857"), 0.025, true)
 	draw_line(Vector2(0.80, 0.82), Vector2(0.87, 0.91), Color("#ffc857"), 0.025, true)
+
+
+func draw_countess_truffle() -> void:
+	var ink := Color("#160d20")
+	var plum := Color("#8f4fa8")
+	var gold := Color("#ffc857")
+	draw_frame(Color("#3c2949"), plum)
+	filled_polygon([Vector2(0.10, 0.96), Vector2(0.21, 0.66), Vector2(0.79, 0.66), Vector2(0.90, 0.96)], Color("#512f62"), ink)
+	outlined_ellipse(Vector2(0.50, 0.51), Vector2(0.25, 0.31), Color("#b98a76"), ink, 0.032)
+	# Layered truffle cap, pearls and monocle make the financial aristocrat readable.
+	filled_polygon([Vector2(0.15, 0.34), Vector2(0.23, 0.16), Vector2(0.42, 0.08), Vector2(0.68, 0.12), Vector2(0.84, 0.34)], Color("#6b3e53"), ink)
+	for spot in [Vector2(0.31, 0.21), Vector2(0.51, 0.16), Vector2(0.69, 0.25)]:
+		draw_circle(spot, 0.035, gold)
+	for eye in [Vector2(0.40, 0.48), Vector2(0.60, 0.48)]:
+		outlined_circle(eye, 0.055, Color("#f5ead8"), ink, 0.019)
+		draw_circle(eye, 0.020, ink)
+	draw_arc(Vector2(0.60, 0.48), 0.09, 0.0, TAU, 24, gold, 0.021, true)
+	draw_line(Vector2(0.67, 0.54), Vector2(0.73, 0.70), gold, 0.018, true)
+	draw_line(Vector2(0.42, 0.63), Vector2(0.59, 0.61), ink, 0.028, true)
+	for pearl_x in [0.38, 0.45, 0.52, 0.59, 0.66]:
+		draw_circle(Vector2(pearl_x, 0.76), 0.025, Color("#f2e8cc"))
+
+
+func draw_captain_chlorophyll() -> void:
+	var ink := Color("#071424")
+	var green := Color("#75df63")
+	var gold := Color("#ffc857")
+	draw_frame(Color("#1d4b42"), green)
+	filled_polygon([Vector2(0.09, 0.96), Vector2(0.20, 0.67), Vector2(0.80, 0.67), Vector2(0.91, 0.96)], Color("#315d45"), ink)
+	outlined_circle(Vector2(0.50, 0.50), 0.29, Color("#83c85f"), ink, 0.034)
+	# Leaf tricorn, eyepatch and solar badge communicate pirate captain instantly.
+	filled_polygon([Vector2(0.14, 0.33), Vector2(0.34, 0.12), Vector2(0.49, 0.27), Vector2(0.67, 0.09), Vector2(0.86, 0.34)], Color("#356f48"), ink)
+	draw_line(Vector2(0.25, 0.31), Vector2(0.76, 0.30), gold, 0.032, true)
+	outlined_circle(Vector2(0.39, 0.48), 0.058, Color("#f4efd5"), ink, 0.020)
+	draw_circle(Vector2(0.39, 0.48), 0.021, ink)
+	filled_polygon([Vector2(0.52, 0.41), Vector2(0.70, 0.43), Vector2(0.67, 0.56), Vector2(0.51, 0.54)], Color("#182136"), ink)
+	draw_line(Vector2(0.51, 0.43), Vector2(0.72, 0.34), ink, 0.023, true)
+	draw_arc(Vector2(0.50, 0.61), 0.14, 0.2, PI - 0.2, 20, ink, 0.03, true)
+	draw_circle(Vector2(0.72, 0.80), 0.065, gold)
+	for ray in 6:
+		var angle := TAU * float(ray) / 6.0
+		draw_line(Vector2(0.72, 0.80) + Vector2(cos(angle), sin(angle)) * 0.075, Vector2(0.72, 0.80) + Vector2(cos(angle), sin(angle)) * 0.105, gold, 0.015, true)
+
+
+func draw_mother_mycelia() -> void:
+	var ink := Color("#08151a")
+	var lime := Color("#c7f464")
+	var pink := Color("#ff75c8")
+	draw_frame(Color("#263e39"), pink)
+	# Root mantle and crown-cap form an imposing networked boss silhouette.
+	for root_x in [0.18, 0.30, 0.70, 0.82]:
+		draw_line(Vector2(0.50, 0.68), Vector2(root_x, 0.96), ink, 0.10, true)
+		draw_line(Vector2(0.50, 0.68), Vector2(root_x, 0.96), lime, 0.055, true)
+	outlined_ellipse(Vector2(0.50, 0.50), Vector2(0.29, 0.33), Color("#b9d88a"), ink, 0.035)
+	filled_polygon([Vector2(0.10, 0.33), Vector2(0.21, 0.13), Vector2(0.38, 0.20), Vector2(0.50, 0.05), Vector2(0.62, 0.20), Vector2(0.79, 0.13), Vector2(0.90, 0.33)], pink, ink)
+	for eye in [Vector2(0.34, 0.45), Vector2(0.50, 0.39), Vector2(0.66, 0.45)]:
+		outlined_circle(eye, 0.064, Color("#f3f0d7"), ink, 0.020)
+		draw_circle(eye, 0.023, Color("#7a3fa0"))
+	draw_line(Vector2(0.39, 0.62), Vector2(0.61, 0.62), ink, 0.034, true)
+	for node in [Vector2(0.30, 0.76), Vector2(0.50, 0.84), Vector2(0.70, 0.76)]:
+		draw_circle(node, 0.045, pink)
+		draw_circle(node, 0.018, ink)
 
 
 func outlined_circle(center: Vector2, radius: float, fill: Color, outline: Color, width: float) -> void:

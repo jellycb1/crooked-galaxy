@@ -13,6 +13,8 @@ func _init() -> void:
 		{"name": "boss ready", "level": 4, "xp": 35, "base_power": 16, "weapon": {"power": 15}, "armor": {"power": 11}},
 		{"name": "frozen tier 2", "level": 6, "xp": 40, "base_power": 20, "weapon": {"power": 21}, "armor": {"power": 17}},
 		{"name": "chapter 2 boss ready", "level": 8, "xp": 55, "base_power": 24, "weapon": {"power": 27}, "armor": {"power": 23}},
+		{"name": "fungal tier 2", "level": 10, "xp": 70, "base_power": 28, "weapon": {"power": 33}, "armor": {"power": 27}},
+		{"name": "chapter 3 boss ready", "level": 12, "xp": 90, "base_power": 32, "weapon": {"power": 41}, "armor": {"power": 34}},
 	]
 	for profile in profiles:
 		print("\n%s (power %d, hp %d)" % [profile.name, CoreRules.player_power(profile), CoreRules.max_health(profile)])

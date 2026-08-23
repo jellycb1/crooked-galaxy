@@ -93,6 +93,9 @@ func test_loot_generation() -> void:
 	check(not Content.is_planet_unlocked("micelia_404", [Content.PLANET.id]), "third planet remains locked after only one chapter")
 	check(Content.is_planet_unlocked("micelia_404", [Content.PLANET.id, "congelaria_sa"]), "Congelaria completion unlocks Micelia")
 	check(Content.available_bounties(3, "micelia_404", 0).size() == 1, "third chapter starts with one local target")
+	check(Content.available_bounties(3, "micelia_404", 1).size() == 2, "fungal captures unlock the second target")
+	check(Content.available_bounties(3, "micelia_404", 3).size() == 4, "maximum fungal tier unlocks its boss")
+	check(bool(Content.TARGETS[11].boss), "Micelia ends with an explicit chapter boss")
 	var fungal_rng := RandomNumberGenerator.new()
 	fungal_rng.seed = 9921
 	var fungal_event := Content.random_hunt_event(fungal_rng, "micelia_404")

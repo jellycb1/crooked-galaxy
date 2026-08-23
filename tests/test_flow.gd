@@ -144,6 +144,19 @@ func _init() -> void:
 	frozen_state.continue_after_chapter()
 	check(frozen_state.travel_to_planet("micelia_404"), "second chapter opens travel to Micelia")
 	check(str(frozen_state.player.current_planet_id) == "micelia_404", "third planet becomes the active destination")
+	frozen_state.player.wins = 29
+	frozen_state.player.captures_by_planet.micelia_404 = 9
+	frozen_state.phase = frozen_state.Phase.REWARD
+	frozen_state.current_bounty = Content.TARGETS[11].duplicate(true)
+	frozen_state.pending_loot = {
+		"id": "mycelia_test_loot", "name": "Nó da Rede", "description": "Pensa em parcelas.",
+		"slot": "weapon", "power": 31, "rarity": "Épico", "color": "#d789ff",
+	}
+	var fungal_summary := frozen_state.claim_reward(true)
+	check(frozen_state.phase == frozen_state.Phase.CHAPTER_COMPLETE, "Micelia boss opens the reusable chapter finale")
+	check(bool(fungal_summary.chapter_complete), "third planet reports chapter completion")
+	check(frozen_state.player.completed_planets.has("micelia_404"), "third completed planet persists in progression")
+	check(frozen_state.planet_capture_count("micelia_404") == 10, "fungal capture counter completes its chapter")
 	frozen_state.free()
 
 	state.free()

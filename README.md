@@ -8,7 +8,7 @@ The prototype implements the product's central test:
 
 `BOUNTY → APPROACH → HUNT / INCIDENT → AUTOMATIC COMBAT → REWARD → LOOT → EQUIP → STRONGER BOUNTY`
 
-It currently includes two complete four-target chapters—Dustball Prime and the frozen corporate world Congelária S.A.—plus the opening frontier of the fungal network planet Micélia 404. Each destination has an original visual theme, targets, hunt incidents, and equipment family. Finishing chapters unlocks persistent galaxy-map travel, while local captures reveal harder warrants independently. A workshop turns unused loot into scrap and spends it on deterministic equipment upgrades. The slice also includes three risk/reward approaches per contract, AFK-safe hunt resolution, scalable procedural portraits, runtime-synthesized sound effects, layered automatic combat, XP and level progression, simulation-backed risk estimates, and local persistence.
+It currently includes three complete four-target chapters: Dustball Prime, the frozen corporate world Congelária S.A., and the fungal network planet Micélia 404. Each destination has an original visual theme, escalating targets, boss, hunt incidents, and equipment family. Finishing chapters unlocks persistent galaxy-map travel, while local captures reveal harder warrants independently. A workshop turns unused loot into scrap and spends it on deterministic equipment upgrades. The slice also includes three risk/reward approaches per contract, AFK-safe hunt resolution, scalable procedural portraits, runtime-synthesized sound effects, layered automatic combat, XP and level progression, simulation-backed risk estimates, and local persistence.
 
 ## Run
 

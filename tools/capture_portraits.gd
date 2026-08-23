@@ -17,11 +17,11 @@ func capture() -> void:
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	margin.add_theme_constant_override("margin_left", 54)
 	margin.add_theme_constant_override("margin_right", 54)
-	margin.add_theme_constant_override("margin_top", 80)
-	margin.add_theme_constant_override("margin_bottom", 80)
+	margin.add_theme_constant_override("margin_top", 50)
+	margin.add_theme_constant_override("margin_bottom", 50)
 	root.add_child(margin)
 	var layout := VBoxContainer.new()
-	layout.add_theme_constant_override("separation", 34)
+	layout.add_theme_constant_override("separation", 20)
 	margin.add_child(layout)
 	var title := Label.new()
 	title.text = "CROOKED GALAXY · PROCEDURAL CAST"
@@ -40,11 +40,14 @@ func capture() -> void:
 		{"id": "executive_penguin", "name": "PINGUIM EXECUTIVO"},
 		{"id": "director_kelvin", "name": "DIRETORA KELVIN"},
 		{"id": "landlord_spore", "name": "SÍNDICO ESPORÃO"},
+		{"id": "countess_truffle", "name": "CONDESSA TRUFA"},
+		{"id": "captain_chlorophyll", "name": "CAPITÃO CLOROFILA"},
+		{"id": "mother_mycelia", "name": "MÃE MICÉLIA"},
 	]
-	for row_index in 4:
+	for row_index in 5:
 		var row := HBoxContainer.new()
 		row.alignment = BoxContainer.ALIGNMENT_CENTER
-		row.add_theme_constant_override("separation", 34)
+		row.add_theme_constant_override("separation", 20)
 		layout.add_child(row)
 		for column_index in 3:
 			var character_index := row_index * 3 + column_index
@@ -52,12 +55,12 @@ func capture() -> void:
 				break
 			var definition: Dictionary = characters[character_index]
 			var cell := VBoxContainer.new()
-			cell.custom_minimum_size = Vector2(180, 225)
+			cell.custom_minimum_size = Vector2(180, 175)
 			cell.alignment = BoxContainer.ALIGNMENT_CENTER
 			row.add_child(cell)
 			var portrait: Control = PortraitScript.new()
 			portrait.character_id = str(definition.id)
-			portrait.custom_minimum_size = Vector2(150, 150)
+			portrait.custom_minimum_size = Vector2(125, 125)
 			portrait.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 			cell.add_child(portrait)
 			var caption := Label.new()

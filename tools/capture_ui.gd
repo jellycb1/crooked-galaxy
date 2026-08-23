@@ -191,10 +191,26 @@ func capture() -> void:
 	if save_frame("ui_micelia_board.png") != OK:
 		quit(1)
 		return
+	state.player.wins = 29
+	state.player.captures_by_planet.micelia_404 = 9
+	state.player.level = 11
+	state.player.base_power = 30
+	state.player.weapon = {"name": "Canhão de Compostagem Rápida", "slot": "weapon", "power": 36, "rarity": "Épico", "color": "#d789ff"}
+	state.player.armor = {"name": "Poncho de Folha Carnívora", "slot": "armor", "power": 30, "rarity": "Épico", "color": "#d789ff"}
+	state.phase = state.Phase.REWARD
+	state.current_bounty = ContentDB.TARGETS[11].duplicate(true)
+	state.pending_loot = {"id": "mycelia_capture", "name": "Nó da Rede Planetária", "description": "Processa pensamentos, boletos e fotossíntese simultaneamente.", "slot": "weapon", "power": 42, "rarity": "Épico", "color": "#d789ff"}
+	state.claim_reward(true)
+	await process_frame
+	await process_frame
+	await create_timer(0.15).timeout
+	if save_frame("ui_micelia_complete.png") != OK:
+		quit(1)
+		return
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, galaxy map, planet incidents, both finales, boss board, and three planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, galaxy map, planet incidents, three finales, boss board, and three planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 
