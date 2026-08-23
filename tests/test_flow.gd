@@ -84,6 +84,8 @@ func _init() -> void:
 	recycle_reward_state.pending_loot = {"id": "protected_trait", "name": "Achado Modificado", "slot": "weapon", "power": 0, "rarity": "Raro", "color": "#58d9ff", "trait": {"power_bonus": 0, "health_bonus": 0}}
 	check(recycle_reward_state.claim_reward(false, false, true).is_empty(), "immediate recycling rejects modified rewards at the state boundary")
 	check(recycle_reward_state.phase == recycle_reward_state.Phase.REWARD and str(recycle_reward_state.pending_loot.id) == "protected_trait", "rejected recycling leaves the special reward untouched")
+	recycle_reward_state.pending_loot = {"id": "protected_investment", "name": "Peça Trabalhada", "slot": "weapon", "power": 0, "rarity": "Comum", "color": "#b9c2d9", "power_upgrades": 1}
+	check(recycle_reward_state.claim_reward(false, false, true).is_empty(), "immediate recycling rejects workshop-invested rewards")
 	recycle_reward_state.free()
 	check(not state.scrap_item(str(claimed_item.id)), "equipped item cannot be recycled")
 	var spare := {"id": "spare_epic", "name": "Sucata de Teste", "description": "Feita para sumir.", "slot": "armor", "power": 12, "rarity": "Épico", "color": "#d789ff"}
@@ -96,6 +98,8 @@ func _init() -> void:
 	check(state.upgrade_equipped(str(claimed_item.slot)), "scrap upgrades equipped gear")
 	check(int(state.player.scrap) == 16 - upgrade_cost, "workshop charges the visible upgrade cost")
 	check(int(state.player[str(claimed_item.slot)].power) == equipped_power + 1, "workshop adds one equipment power")
+	check(int(state.player[str(claimed_item.slot)].power_upgrades) == 1, "power calibration count stays on equipped gear")
+	check(int(state.inventory_item_by_id(str(claimed_item.id)).get("power_upgrades", 0)) == 1, "power calibration is synchronized to the inventory copy")
 	state.player.scrap = 100
 	var health_before_reinforcement := CoreRules.max_health(state.player)
 	var reinforce_cost := CoreRules.equipment_integrity_upgrade_cost(state.player[str(claimed_item.slot)])
@@ -151,9 +155,11 @@ func _init() -> void:
 	check(state.player.inventory.any(func(item): return str(item.get("id", "")) == "bulk_upgrade"), "bulk recycling preserves upgrades")
 	check(state.player.inventory.any(func(item): return str(item.get("id", "")) == "bulk_trait_upgrade"), "bulk recycling preserves lower-base items with superior modifications")
 	state.player.inventory.append({"id": "bulk_trait_keepsake", "name": "Parafuso Sentimental", "slot": "armor", "power": 1, "rarity": "Raro", "color": "#58d9ff", "trait": {"id": "keepsake", "name": "VALOR SENTIMENTAL", "description": "Mecanicamente questionável.", "power_bonus": 0, "health_bonus": 0}})
+	state.player.inventory.append({"id": "bulk_invested_keepsake", "name": "Zapper Calibrado Antigo", "slot": "weapon", "power": 1, "rarity": "Comum", "color": "#b9c2d9", "power_upgrades": 1, "integrity_upgrades": 1})
 	check(int(state.inferior_recycle_preview().count) == 0, "bulk recycling excludes modified gear regardless of current score")
 	check(state.recycle_inferior_inventory().count == 0, "bulk recycling leaves a modified keepsake untouched")
 	check(state.player.inventory.any(func(item): return str(item.get("id", "")) == "bulk_trait_keepsake"), "modified keepsake remains in inventory")
+	check(state.player.inventory.any(func(item): return str(item.get("id", "")) == "bulk_invested_keepsake"), "bulk recycling preserves workshop-invested gear")
 	var loadout_items := [
 		{"id": "loadout_a_weapon", "name": "Arma A", "slot": "weapon", "power": 8, "rarity": "Comum", "color": "#b9c2d9"},
 		{"id": "loadout_a_armor", "name": "Armadura A", "slot": "armor", "power": 7, "rarity": "Comum", "color": "#b9c2d9"},

@@ -132,7 +132,9 @@ func capture() -> void:
 	state.equip_from_inventory("capture_upgrade_weapon")
 	state.equip_from_inventory("capture_alt_armor")
 	state.player.weapon.integrity_upgrades = 2
+	state.player.weapon.power_upgrades = 2
 	state.player.armor.integrity_upgrades = 1
+	state.player.armor.power_upgrades = 1
 	state.sync_item_to_inventory(state.player.weapon)
 	state.sync_item_to_inventory(state.player.armor)
 	state.save_equipment_loadout(1)

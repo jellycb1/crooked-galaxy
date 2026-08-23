@@ -674,8 +674,13 @@ func inventory_item_card(item: Dictionary) -> PanelContainer:
 	item_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	details.add_child(item_name)
 	details.add_child(label("%s · %s · +%d poder" % [str(item.rarity), slot_name(str(item.slot)), int(item.power)], 13, Color(str(item.color))))
-	if int(item.get("integrity_upgrades", 0)) > 0:
-		details.add_child(label("◇ REFORÇO · +%d vida" % (int(item.integrity_upgrades) * CoreRules.INTEGRITY_HEALTH_PER_LEVEL), 11, CYAN))
+	if CoreRules.has_workshop_investment(item):
+		var workshop_parts: Array[String] = []
+		if int(item.get("power_upgrades", 0)) > 0:
+			workshop_parts.append("%d calib." % int(item.power_upgrades))
+		if int(item.get("integrity_upgrades", 0)) > 0:
+			workshop_parts.append("%d reforços · +%d vida" % [int(item.integrity_upgrades), int(item.integrity_upgrades) * CoreRules.INTEGRITY_HEALTH_PER_LEVEL])
+		details.add_child(label("◇ OFICINA · %s" % " · ".join(workshop_parts), 11, CYAN))
 	if item.has("trait"):
 		var trait_line := label("◆ %s · %s" % [str(item.trait.name), str(item.trait.description)], 11, GOLD)
 		trait_line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -725,13 +730,14 @@ func workshop_upgrade_card(slot: String) -> PanelContainer:
 	var power_affordable := int(GameState.player.get("scrap", 0)) >= power_cost
 	var integrity_affordable := int(GameState.player.get("scrap", 0)) >= integrity_cost
 	var integrity_level := int(item.get("integrity_upgrades", 0))
+	var calibration_level := int(item.get("power_upgrades", 0))
 	var integrity_available := CoreRules.can_upgrade_integrity(item)
 	var card := panel(VBoxContainer.new(), Color("#0d1530"), 12, 10)
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var box := card.get_child(0) as VBoxContainer
 	box.add_child(label(slot_name(slot).to_upper(), 11, MUTED))
 	box.add_child(label("%s · +%d" % [str(item.name), int(item.power)], 13, INK))
-	box.add_child(label("REFORÇO %d/%d · +%d VIDA" % [integrity_level, CoreRules.MAX_INTEGRITY_UPGRADES, integrity_level * CoreRules.INTEGRITY_HEALTH_PER_LEVEL], 10, CYAN if integrity_level > 0 else MUTED))
+	box.add_child(label("CALIBRAÇÃO %d · REFORÇO %d/%d · +%d VIDA" % [calibration_level, integrity_level, CoreRules.MAX_INTEGRITY_UPGRADES, integrity_level * CoreRules.INTEGRITY_HEALTH_PER_LEVEL], 10, CYAN if calibration_level > 0 or integrity_level > 0 else MUTED))
 	if item.has("trait"):
 		box.add_child(label("◆ %s" % str(item.trait.name), 10, GOLD))
 	var improve := action_button("+1 PODER · %d SUCATA" % power_cost, LIME if power_affordable else MUTED, true)

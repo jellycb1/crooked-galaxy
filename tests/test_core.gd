@@ -101,6 +101,9 @@ func test_loot_generation() -> void:
 	check(Rules.salvage_value({"power": 9, "rarity": "Épico"}) == 12, "rarity increases salvage yield")
 	check(Rules.salvage_value({"power": 9, "rarity": "Comum", "trait": {"power_bonus": 1}}) == 5, "modified gear grants extra salvage")
 	check(Rules.equipment_upgrade_cost({"power": 10}) == 11, "workshop upgrade cost rises with power")
+	check(Rules.salvage_value({"power": 6, "rarity": "Comum", "power_upgrades": 2, "integrity_upgrades": 2}) == 14, "manual salvage partially recovers workshop investment")
+	check(Rules.has_workshop_investment({"power_upgrades": 1}) and Rules.has_workshop_investment({"integrity_upgrades": 1}), "either workshop path marks an invested item")
+	check(not Rules.has_workshop_investment({"power": 99}), "raw item power is not mistaken for workshop investment")
 	var frozen_rng := RandomNumberGenerator.new()
 	frozen_rng.seed = 8811
 	var frozen_loot := Content.generate_loot(Content.TARGETS[4], frozen_rng)

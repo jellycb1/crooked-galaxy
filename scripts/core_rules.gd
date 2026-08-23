@@ -88,7 +88,14 @@ static func salvage_value(item: Dictionary) -> int:
 		"Épico":
 			multiplier = 4
 	var trait_bonus := 2 if item.has("trait") else 0
-	return maxi(1, ceili(float(int(item.get("power", 1)) * multiplier) / 3.0) + trait_bonus)
+	var calibration_recovery := int(item.get("power_upgrades", 0)) * 2
+	var integrity_level := int(item.get("integrity_upgrades", 0))
+	var integrity_recovery := integrity_level * (integrity_level + 2)
+	return maxi(1, ceili(float(int(item.get("power", 1)) * multiplier) / 3.0) + trait_bonus + calibration_recovery + integrity_recovery)
+
+
+static func has_workshop_investment(item: Dictionary) -> bool:
+	return int(item.get("power_upgrades", 0)) > 0 or int(item.get("integrity_upgrades", 0)) > 0
 
 
 static func equipment_upgrade_cost(item: Dictionary) -> int:
