@@ -35,6 +35,7 @@ Or run an individual suite:
 
 ```powershell
 godot --headless --path . --script res://tests/test_core.gd
+godot --headless --path . --script res://tests/test_balance_guards.gd
 godot --headless --path . --script res://tests/test_flow.gd
 godot --headless --path . --script res://tests/test_ui.gd
 godot --headless --path . --script res://tests/test_ui_factory.gd
