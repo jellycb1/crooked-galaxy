@@ -67,6 +67,12 @@ func test_loot_generation() -> void:
 	check(not str(item.description).is_empty(), "loot carries original flavor text")
 	check(Content.available_bounties(0).size() == 1, "rank gates advanced bounties")
 	check(Content.available_bounties(1).size() == 2, "new reputation unlocks a bounty")
+	var safe_approach: Dictionary = Content.contract_approaches()[0]
+	var adjusted := Content.apply_approach(Content.TARGETS[0], safe_approach)
+	check(adjusted.duration == 7, "safe approach lengthens tracking")
+	check(adjusted.power == 10, "safe approach lowers target power")
+	check(adjusted.credits == 34 and adjusted.xp == 53, "approach modifies visible rewards")
+	check(str(adjusted.approach.id) == "quiet_net", "chosen approach is retained")
 
 
 func check(condition: bool, description: String) -> void:

@@ -21,6 +21,21 @@ func _init() -> void:
 				float(result.rounds) / FIGHTS_PER_CASE,
 				roundi(CoreRules.bounty_odds(profile, target) * 100.0),
 			])
+
+	var approach_profile: Dictionary = profiles[1]
+	var approach_target: Dictionary = ContentDB.TARGETS[1]
+	print("\nContract approaches: %s vs. %s" % [approach_profile.name, approach_target.name])
+	for approach in ContentDB.contract_approaches():
+		var adjusted := ContentDB.apply_approach(approach_target, approach)
+		var result := simulate_target(approach_profile, adjusted, FIGHTS_PER_CASE)
+		print("  %-26s win=%5.1f%% estimate=%3d%% time=%ds credits=%d xp=%d" % [
+			approach.name,
+			float(result.wins) / FIGHTS_PER_CASE * 100.0,
+			roundi(CoreRules.bounty_odds(approach_profile, adjusted) * 100.0),
+			int(adjusted.duration),
+			int(adjusted.credits),
+			int(adjusted.xp),
+		])
 	quit(0)
 
 

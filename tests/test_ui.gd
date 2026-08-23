@@ -26,7 +26,10 @@ func run_smoke_test() -> void:
 	check(scene.content.get_child_count() >= 4, "bounty board renders")
 
 	var bounty: Dictionary = ContentDB.TARGETS[0].duplicate(true)
-	state.start_bounty(bounty)
+	state.select_bounty(bounty)
+	await process_frame
+	check(scene.find_child("BriefingScroll", true, false) != null, "contract briefing renders")
+	state.choose_approach("quiet_net")
 	await process_frame
 	check(scene.find_child("HuntProgress", true, false) != null, "hunt screen renders")
 

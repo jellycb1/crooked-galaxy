@@ -36,8 +36,19 @@ func _init() -> void:
 	check(restored.combat_events.size() == 1, "finishing action survives save and load")
 	check(str(restored.combat_events[0].action) == "Teste de Impacto", "action data is restored")
 
+	source.phase = source.Phase.BOARD
+	source.current_bounty = {}
+	source.pending_loot = {}
+	source.select_bounty(ContentDB.TARGETS[0])
+	var restored_briefing = StateScript.new()
+	restored_briefing.save_path = TEST_SAVE
+	restored_briefing.load_game()
+	check(restored_briefing.phase == restored_briefing.Phase.BRIEFING, "briefing phase survives save and load")
+	check(restored_briefing.offered_approaches.size() == 3, "approach choices survive save and load")
+
 	source.free()
 	restored.free()
+	restored_briefing.free()
 	if FileAccess.file_exists(TEST_SAVE):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SAVE))
 	if failures == 0:
@@ -52,4 +63,3 @@ func check(condition: bool, description: String) -> void:
 	if not condition:
 		failures += 1
 		printerr("  FAIL: %s" % description)
-

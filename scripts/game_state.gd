@@ -3,13 +3,14 @@ extends Node
 signal changed
 signal combat_event(message: String)
 
-enum Phase { BOARD, HUNT, COMBAT, REWARD, VICTORY }
+enum Phase { BOARD, HUNT, COMBAT, REWARD, VICTORY, BRIEFING }
 
 const SAVE_PATH := "user://crooked_galaxy_save.json"
 
 var player: Dictionary
 var phase: int = Phase.BOARD
 var current_bounty: Dictionary = {}
+var offered_approaches: Array[Dictionary] = []
 var pending_loot: Dictionary = {}
 var hunt_started_at := 0.0
 var hunt_ends_at := 0.0
@@ -44,14 +45,51 @@ func default_player() -> Dictionary:
 	}
 
 
+func select_bounty(bounty: Dictionary) -> void:
+	if phase != Phase.BOARD:
+		return
+	last_notice = ""
+	current_bounty = bounty.duplicate(true)
+	offered_approaches = ContentDB.contract_approaches()
+	phase = Phase.BRIEFING
+	save_game()
+	changed.emit()
+
+
+func choose_approach(approach_id: String) -> void:
+	if phase != Phase.BRIEFING:
+		return
+	for approach in offered_approaches:
+		if str(approach.id) == approach_id:
+			current_bounty = ContentDB.apply_approach(current_bounty, approach)
+			offered_approaches = []
+			start_hunt()
+			return
+
+
 func start_bounty(bounty: Dictionary) -> void:
 	if phase != Phase.BOARD:
 		return
 	last_notice = ""
 	current_bounty = bounty.duplicate(true)
+	offered_approaches = []
+	start_hunt()
+
+
+func start_hunt() -> void:
 	phase = Phase.HUNT
 	hunt_started_at = Time.get_unix_time_from_system()
 	hunt_ends_at = hunt_started_at + float(current_bounty.duration)
+	save_game()
+	changed.emit()
+
+
+func cancel_briefing() -> void:
+	if phase != Phase.BRIEFING:
+		return
+	phase = Phase.BOARD
+	current_bounty = {}
+	offered_approaches = []
 	save_game()
 	changed.emit()
 
@@ -131,6 +169,7 @@ func finish_combat(won: bool) -> void:
 		last_notice = "%s escapou. Seu equipamento precisa de argumentos melhores." % str(current_bounty.name)
 		current_bounty = {}
 		pending_loot = {}
+		offered_approaches = []
 	save_game()
 	changed.emit()
 
@@ -178,6 +217,7 @@ func claim_reward(equip_item: bool) -> Dictionary:
 	phase = Phase.BOARD
 	current_bounty = {}
 	pending_loot = {}
+	offered_approaches = []
 	save_game()
 	changed.emit()
 	return summary
@@ -211,6 +251,7 @@ func abandon_bounty() -> void:
 	if phase == Phase.HUNT:
 		phase = Phase.BOARD
 		current_bounty = {}
+		offered_approaches = []
 		save_game()
 		changed.emit()
 
@@ -220,6 +261,7 @@ func reset_progress() -> void:
 	phase = Phase.BOARD
 	current_bounty = {}
 	pending_loot = {}
+	offered_approaches = []
 	last_notice = "Progresso reiniciado. Hora de construir uma nova reputação."
 	save_game()
 	changed.emit()
@@ -233,6 +275,7 @@ func save_game() -> void:
 		"player": player,
 		"phase": int(phase),
 		"current_bounty": current_bounty,
+		"offered_approaches": offered_approaches,
 		"pending_loot": pending_loot,
 		"hunt_started_at": hunt_started_at,
 		"hunt_ends_at": hunt_ends_at,
@@ -263,6 +306,8 @@ func load_game() -> void:
 				player[key] = loaded_player[key]
 	phase = int(parsed.get("phase", Phase.BOARD))
 	current_bounty = parsed.get("current_bounty", {})
+	var loaded_approaches = parsed.get("offered_approaches", [])
+	offered_approaches.assign(loaded_approaches if loaded_approaches is Array else [])
 	pending_loot = parsed.get("pending_loot", {})
 	hunt_started_at = float(parsed.get("hunt_started_at", 0.0))
 	hunt_ends_at = float(parsed.get("hunt_ends_at", 0.0))

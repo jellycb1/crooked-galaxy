@@ -63,6 +63,48 @@ const PLAYER_ATTACKS := [
 	"Cláusula de Perfuração",
 ]
 
+const CONTRACT_APPROACHES := [
+	{
+		"id": "quiet_net",
+		"name": "Rede Silenciosa",
+		"tag": "SEGURO · +XP",
+		"description": "Cerque o alvo, desligue as saídas e finja que tudo estava planejado.",
+		"duration_mult": 1.35,
+		"power_mult": 0.92,
+		"defense_mult": 0.85,
+		"health_mult": 1.0,
+		"credits_mult": 0.90,
+		"xp_mult": 1.25,
+		"color": "#55e5ff",
+	},
+	{
+		"id": "hot_hatch",
+		"name": "Entrada pela Escotilha",
+		"tag": "RÁPIDO · +CRÉDITOS",
+		"description": "Chegue antes do plano, chute a porta errada e cobre taxa de urgência.",
+		"duration_mult": 0.55,
+		"power_mult": 1.12,
+		"defense_mult": 1.0,
+		"health_mult": 1.08,
+		"credits_mult": 1.35,
+		"xp_mult": 1.0,
+		"color": "#ff6f7d",
+	},
+	{
+		"id": "premium_warrant",
+		"name": "Mandado Corporativo",
+		"tag": "LUCRO · ALTO RISCO",
+		"description": "A corporação paga muito mais, desde que o alvo possa revidar muito mais.",
+		"duration_mult": 1.0,
+		"power_mult": 1.18,
+		"defense_mult": 1.12,
+		"health_mult": 1.12,
+		"credits_mult": 1.65,
+		"xp_mult": 0.85,
+		"color": "#ffc857",
+	},
+]
+
 const ITEM_CATALOG := {
 	"weapon": [
 		{"name": "Desatomizador de Bolso", "description": "Desmonta átomos, garantias e conversas constrangedoras."},
@@ -84,6 +126,25 @@ static func available_bounties(reputation: int) -> Array[Dictionary]:
 	for target in TARGETS:
 		if int(target.rank) <= reputation:
 			result.append(target.duplicate(true))
+	return result
+
+
+static func contract_approaches() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for approach in CONTRACT_APPROACHES:
+		result.append(approach.duplicate(true))
+	return result
+
+
+static func apply_approach(bounty: Dictionary, approach: Dictionary) -> Dictionary:
+	var result := bounty.duplicate(true)
+	result["approach"] = approach.duplicate(true)
+	result["duration"] = maxi(1, ceili(float(bounty.duration) * float(approach.duration_mult)))
+	result["power"] = maxi(1, roundi(float(bounty.power) * float(approach.power_mult)))
+	result["defense"] = maxi(0, roundi(float(bounty.defense) * float(approach.defense_mult)))
+	result["health"] = maxi(1, roundi(float(bounty.health) * float(approach.health_mult)))
+	result["credits"] = maxi(1, roundi(float(bounty.credits) * float(approach.credits_mult)))
+	result["xp"] = maxi(1, roundi(float(bounty.xp) * float(approach.xp_mult)))
 	return result
 
 

@@ -108,6 +108,8 @@ func render() -> void:
 			build_reward()
 		GameState.Phase.VICTORY:
 			build_victory()
+		GameState.Phase.BRIEFING:
+			build_briefing()
 	if GameState.phase == GameState.Phase.COMBAT:
 		if combat_timer.is_stopped():
 			combat_timer.start()
@@ -372,10 +374,87 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 	var risk := label("%s · %d%%" % [risk_text, roundi(odds * 100.0)], 14, risk_color, HORIZONTAL_ALIGNMENT_RIGHT)
 	risk.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.add_child(risk)
-	var hunt := action_button("ACEITAR CONTRATO", CYAN)
-	hunt.pressed.connect(func(): GameState.start_bounty(bounty))
+	var hunt := action_button("ANALISAR ABORDAGENS", CYAN)
+	hunt.pressed.connect(func(): GameState.select_bounty(bounty))
 	box.add_child(hunt)
 	return card
+
+
+func build_briefing() -> void:
+	var bounty := GameState.current_bounty
+	var target_row := HBoxContainer.new()
+	target_row.add_theme_constant_override("separation", 18)
+	content.add_child(target_row)
+	target_row.add_child(character_portrait(str(bounty.id), 104))
+	var target_copy := VBoxContainer.new()
+	target_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	target_copy.add_theme_constant_override("separation", 4)
+	target_row.add_child(target_copy)
+	target_copy.add_child(label("BRIEFING DO CONTRATO", 15, CYAN))
+	target_copy.add_child(label(str(bounty.name), 26, INK))
+	var flavor := label("O alvo é o mesmo. A quantidade de problemas é uma escolha sua.", 14, MUTED)
+	flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	target_copy.add_child(flavor)
+
+	content.add_child(label("ESCOLHA UMA ABORDAGEM", 17, GOLD))
+	var scroller := ScrollContainer.new()
+	scroller.name = "BriefingScroll"
+	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	content.add_child(scroller)
+	var list := VBoxContainer.new()
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.add_theme_constant_override("separation", 12)
+	scroller.add_child(list)
+	for approach in GameState.offered_approaches:
+		list.add_child(approach_card(bounty, approach))
+	var cancel := action_button("VOLTAR AO QUADRO", CORAL, true)
+	cancel.custom_minimum_size = Vector2(0, 48)
+	cancel.pressed.connect(GameState.cancel_briefing)
+	content.add_child(cancel)
+
+
+func approach_card(bounty: Dictionary, approach: Dictionary) -> PanelContainer:
+	var preview := ContentDB.apply_approach(bounty, approach)
+	var color := Color(str(approach.color))
+	var card := panel(VBoxContainer.new(), PANEL, 16, 16)
+	var box := card.get_child(0) as VBoxContainer
+	box.add_theme_constant_override("separation", 8)
+	var heading := HBoxContainer.new()
+	box.add_child(heading)
+	var heading_copy := VBoxContainer.new()
+	heading_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	heading.add_child(heading_copy)
+	heading_copy.add_child(label(str(approach.name).to_upper(), 18, color))
+	heading_copy.add_child(label(str(approach.tag), 12, MUTED))
+	if int(GameState.player.wins) == 0 and str(approach.id) == "quiet_net":
+		heading.add_child(label("RECOMENDADO", 12, LIME, HORIZONTAL_ALIGNMENT_RIGHT))
+	var description := label(str(approach.description), 14, INK)
+	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(description)
+	var odds := CoreRules.bounty_odds(GameState.player, preview)
+	var risk_text := "SEGURO" if odds >= 0.72 else ("ARRISCADO" if odds >= 0.42 else "BRUTAL")
+	var risk_color := LIME if odds >= 0.72 else (GOLD if odds >= 0.42 else CORAL)
+	var metrics := HBoxContainer.new()
+	metrics.add_theme_constant_override("separation", 8)
+	box.add_child(metrics)
+	metrics.add_child(metric_chip("TEMPO", "%ds" % int(preview.duration), MUTED))
+	metrics.add_child(metric_chip("CHANCE", "%d%%" % roundi(odds * 100.0), risk_color))
+	metrics.add_child(metric_chip("PAGAMENTO", "◈ %d" % int(preview.credits), GOLD))
+	metrics.add_child(metric_chip("EXPERIÊNCIA", "%d XP" % int(preview.xp), CYAN))
+	var choose := action_button("ESCOLHER · %s" % risk_text, color)
+	var approach_id := str(approach.id)
+	choose.pressed.connect(func(): GameState.choose_approach(approach_id))
+	box.add_child(choose)
+	return card
+
+
+func metric_chip(title: String, value: String, color: Color) -> PanelContainer:
+	var chip := panel(VBoxContainer.new(), Color("#0a1025"), 9, 7)
+	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var box := chip.get_child(0) as VBoxContainer
+	box.add_child(label(title, 10, MUTED, HORIZONTAL_ALIGNMENT_CENTER))
+	box.add_child(label(value, 13, color, HORIZONTAL_ALIGNMENT_CENTER))
+	return chip
 
 
 func build_hunt() -> void:
@@ -384,6 +463,9 @@ func build_hunt() -> void:
 	content.add_child(center_label("CAÇADA EM ANDAMENTO", 19, CYAN))
 	content.add_child(character_portrait(str(bounty.id), 150))
 	content.add_child(center_label(str(bounty.name), 30, INK))
+	var approach: Dictionary = bounty.get("approach", {})
+	if not approach.is_empty():
+		content.add_child(center_label(str(approach.name).to_upper(), 16, Color(str(approach.color))))
 	content.add_child(center_label("Seguindo sinais, subornando robôs e fingindo ter um plano.", 16, MUTED))
 
 	var progress := ProgressBar.new()
@@ -406,7 +488,9 @@ func build_hunt() -> void:
 
 
 func build_combat() -> void:
-	content.add_child(center_label("ENCONTRO AUTOMÁTICO · TURNO %d" % GameState.combat_round, 17, CORAL))
+	var approach: Dictionary = GameState.current_bounty.get("approach", {})
+	var approach_suffix := " · %s" % str(approach.get("name", "")).to_upper() if not approach.is_empty() else ""
+	content.add_child(center_label("ENCONTRO AUTOMÁTICO · TURNO %d%s" % [GameState.combat_round, approach_suffix], 17, CORAL))
 	var stage := PanelContainer.new()
 	stage.clip_contents = true
 	stage.custom_minimum_size = Vector2(0, 390)
