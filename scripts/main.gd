@@ -4,6 +4,7 @@ const SpaceBackdropScript = preload("res://scripts/space_backdrop.gd")
 const CombatBackdropScript = preload("res://scripts/combat_backdrop.gd")
 const PortraitScript = preload("res://scripts/procedural_portrait.gd")
 const SoundFXScript = preload("res://scripts/sound_fx.gd")
+const EquipmentPresentation = preload("res://scripts/equipment_presentation.gd")
 const INK := Color("#f4f2ff")
 const MUTED := Color("#9da8c8")
 const CYAN := Color("#55e5ff")
@@ -559,33 +560,7 @@ func build_arsenal() -> void:
 
 
 func filtered_inventory() -> Array:
-	var items: Array = []
-	for item in GameState.player.inventory:
-		if inventory_filter == "all" or str(item.get("slot", "")) == inventory_filter:
-			items.append(item.duplicate(true))
-	items.sort_custom(inventory_item_before)
-	return items
-
-
-func inventory_item_before(a: Dictionary, b: Dictionary) -> bool:
-	if inventory_sort == "rarity":
-		var rarity_difference := rarity_weight(str(a.get("rarity", "Comum"))) - rarity_weight(str(b.get("rarity", "Comum")))
-		if rarity_difference != 0:
-			return rarity_difference > 0
-	var power_difference := CoreRules.equipment_score(a) - CoreRules.equipment_score(b)
-	if power_difference != 0:
-		return power_difference > 0
-	return str(a.get("id", "")) < str(b.get("id", ""))
-
-
-func rarity_weight(rarity: String) -> int:
-	match rarity:
-		"Épico":
-			return 3
-		"Raro":
-			return 2
-		_:
-			return 1
+	return EquipmentPresentation.filtered_inventory(GameState.player.inventory, inventory_filter, inventory_sort)
 
 
 func inventory_toolbar() -> VBoxContainer:
@@ -727,20 +702,7 @@ func inventory_item_card(item: Dictionary) -> PanelContainer:
 
 
 func equipment_delta_text(item: Dictionary) -> String:
-	var slot := str(item.get("slot", ""))
-	var current_player: Dictionary = GameState.player
-	var simulated: Dictionary = current_player.duplicate(true)
-	simulated[slot] = item
-	var power_delta := CoreRules.player_power(simulated) - CoreRules.player_power(current_player)
-	var health_delta := CoreRules.max_health(simulated) - CoreRules.max_health(current_player)
-	var parts: Array[String] = []
-	if power_delta != 0:
-		parts.append("%+d PODER" % power_delta)
-	if health_delta != 0:
-		parts.append("%+d VIDA" % health_delta)
-	if parts.is_empty():
-		return "= MESMO EFEITO"
-	return ("▲ " if CoreRules.is_upgrade(item, current_player.get(slot, {})) else "▼ ") + " · ".join(parts)
+	return EquipmentPresentation.equipment_delta_text(GameState.player, item)
 
 
 func workshop_upgrade_card(slot: String) -> PanelContainer:

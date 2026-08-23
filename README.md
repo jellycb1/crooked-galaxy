@@ -26,6 +26,8 @@ godot --headless --path . --script res://tests/test_core.gd
 godot --headless --path . --script res://tests/test_flow.gd
 godot --headless --path . --script res://tests/test_ui.gd
 godot --headless --path . --script res://tests/test_persistence.gd
+godot --headless --path . --script res://tests/test_save_migrations.gd
+godot --headless --path . --script res://tests/test_equipment_presentation.gd
 godot --headless --path . --script res://tests/test_audio.gd
 godot --headless --path . --script res://tests/test_content.gd
 godot --headless --path . --script res://tests/test_mobile.gd

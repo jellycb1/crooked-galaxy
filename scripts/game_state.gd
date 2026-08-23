@@ -1,12 +1,14 @@
 extends Node
 
+const SaveMigrationRules = preload("res://scripts/save_migrations.gd")
+
 signal changed
 signal combat_event(message: String)
 
 enum Phase { BOARD, HUNT, COMBAT, REWARD, VICTORY, BRIEFING, HUNT_EVENT, CHAPTER_COMPLETE }
 
 const SAVE_PATH := "user://crooked_galaxy_save.json"
-const SAVE_VERSION := 3
+const SAVE_VERSION := SaveMigrationRules.CURRENT_VERSION
 
 var player: Dictionary
 var phase: int = Phase.BOARD
@@ -733,36 +735,4 @@ func load_game() -> void:
 
 
 func migrate_save_payload(payload: Dictionary) -> Dictionary:
-	var version := int(payload.get("version", 0))
-	if version <= 0 or version > SAVE_VERSION:
-		return {}
-	var migrated := payload.duplicate(true)
-	while version < SAVE_VERSION:
-		match version:
-			1:
-				var saved_player: Dictionary = migrated.get("player", {})
-				if not saved_player.has("claimed_milestones"):
-					saved_player.claimed_milestones = []
-				if not saved_player.has("career_credits_claimed"):
-					saved_player.career_credits_claimed = 0
-				if not saved_player.has("career_scrap_claimed"):
-					saved_player.career_scrap_claimed = 0
-				migrated.player = saved_player
-				version = 2
-			2:
-				var saved_player: Dictionary = migrated.get("player", {})
-				if not saved_player.has("locked_item_ids"):
-					saved_player.locked_item_ids = []
-				if not saved_player.has("equipment_loadouts"):
-					saved_player.equipment_loadouts = [{"weapon_id": "", "armor_id": ""}, {"weapon_id": "", "armor_id": ""}]
-				for slot in ["weapon", "armor"]:
-					var saved_item: Dictionary = saved_player.get(slot, {})
-					if not saved_item.has("id"):
-						saved_item.id = "migrated_%s" % slot
-						saved_player[slot] = saved_item
-				migrated.player = saved_player
-				version = 3
-			_:
-				return {}
-		migrated.version = version
-	return migrated
+	return SaveMigrationRules.migrate(payload)
