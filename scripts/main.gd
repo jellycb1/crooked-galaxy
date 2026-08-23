@@ -544,6 +544,7 @@ func build_briefing() -> void:
 			"odds": CoreRules.bounty_odds(GameState.player, preview),
 			"credits": int(payout.credits),
 			"xp": int(preview.xp),
+			"scrap": int(preview.get("scrap_reward", 0)),
 			"duration": int(preview.duration),
 		})
 	var recommended_id := ContractRules.recommended_approach_id(evaluations)
@@ -575,6 +576,11 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 	var description := label(str(approach.description), 14, INK)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(description)
+	var scrap_reward := int(preview.get("scrap_reward", 0))
+	if scrap_reward > 0:
+		var scrap_bonus := label("BÔNUS DE VITÓRIA · +%d SUCATA PARA A OFICINA" % scrap_reward, 12, GOLD)
+		scrap_bonus.name = "ApproachScrapReward_%s" % str(approach.id)
+		box.add_child(scrap_bonus)
 	var odds := float(evaluation.odds)
 	var risk_text := "SEGURO" if odds >= 0.72 else ("ARRISCADO" if odds >= 0.42 else "BRUTAL")
 	var risk_color := LIME if odds >= 0.72 else (GOLD if odds >= 0.42 else CORAL)
@@ -859,6 +865,8 @@ func show_toast(summary: Dictionary) -> void:
 	if summary.is_empty():
 		return
 	var message := "+%d créditos · +%d XP" % [int(summary.credits), int(summary.xp)]
+	if int(summary.get("scrap", 0)) > 0:
+		message += " · +%d SUCATA" % int(summary.scrap)
 	if int(summary.levels) > 0:
 		message += " · NÍVEL +%d" % int(summary.levels)
 	if bool(summary.rank_up):

@@ -27,7 +27,7 @@ func _init() -> void:
 	source.player.locked_item_ids = ["test_loot"]
 	source.player.equipment_loadouts = [{"weapon_id": "test_loot", "armor_id": "starter_armor"}, {"weapon_id": "", "armor_id": ""}]
 	source.phase = source.Phase.VICTORY
-	source.current_bounty = ContentDB.TARGETS[0].duplicate(true)
+	source.current_bounty = ContentDB.apply_approach(ContentDB.TARGETS[0], ContentDB.CONTRACT_APPROACHES[2])
 	source.pending_loot = {
 		"id": "test_loot",
 		"name": "Zapper de Teste",
@@ -63,6 +63,7 @@ func _init() -> void:
 	check(restored.player.locked_item_ids.has("test_loot"), "protected inventory ids survive save and load")
 	check(str(restored.player.equipment_loadouts[0].weapon_id) == "test_loot", "equipment loadouts survive save and load")
 	check(restored.phase == restored.Phase.VICTORY, "capture phase survives save and load")
+	check(int(restored.current_bounty.get("scrap_reward", 0)) == 2 and int(restored.current_bounty.get("loot_power", 0)) == int(ContentDB.TARGETS[0].power), "corporate reward and canonical loot tier survive an interrupted capture")
 	check(str(restored.pending_loot.id) == "test_loot", "pending reward survives save and load")
 	check(str(restored.pending_loot.origin_planet_id) == "dustball_prime", "pending reward preserves its planet of origin")
 	check(restored.combat_events.size() == 1, "finishing action survives save and load")

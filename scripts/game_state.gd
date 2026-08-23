@@ -412,6 +412,7 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		"streak_bonus_percent": int(reward.bonus_percent),
 		"streak": new_streak,
 		"scrap": 0,
+		"contract_scrap": 0,
 		"recycled_scrap": 0,
 		"mastery_scrap": 0,
 		"recycled": false,
@@ -438,6 +439,10 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	player.captures_by_target = captures
 	summary.target_mastery = CoreRules.target_mastery_level(int(captures[target_id]))
 	summary.target_mastery_up = int(summary.target_mastery) > old_target_mastery
+	summary.contract_scrap = maxi(0, int(completed_bounty.get("scrap_reward", 0)))
+	if int(summary.contract_scrap) > 0:
+		summary.scrap = int(summary.scrap) + int(summary.contract_scrap)
+		player.scrap = int(player.get("scrap", 0)) + int(summary.contract_scrap)
 	if bool(summary.target_mastery_up):
 		summary.mastery_scrap = CoreRules.target_mastery_scrap_reward(int(summary.target_mastery))
 		summary.scrap = int(summary.scrap) + int(summary.mastery_scrap)
@@ -463,6 +468,8 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		if equip_item:
 			equip(pending_loot)
 	var notice_parts := ["+%d créditos" % int(summary.credits), "+%d XP" % int(summary.xp)]
+	if int(summary.contract_scrap) > 0:
+		notice_parts.append("Mandado corporativo: +%d sucata" % int(summary.contract_scrap))
 	if int(summary.recycled_scrap) > 0:
 		notice_parts.append("Loot reciclado: +%d sucata" % int(summary.recycled_scrap))
 	if int(summary.streak_bonus) > 0:

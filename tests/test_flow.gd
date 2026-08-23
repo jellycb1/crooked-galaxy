@@ -104,6 +104,16 @@ func _init() -> void:
 	check(int(mastery_summary.mastery_scrap) == 6 and int(mastery_state.player.scrap) == 6, "mastery increase funds an immediate workshop decision")
 	check(str(mastery_state.last_notice).contains("Perícia com alvo 1: +6 sucata"), "mastery increase survives as exact board feedback")
 	mastery_state.free()
+	var corporate_state = StateScript.new()
+	corporate_state.persistence_enabled = false
+	corporate_state.player = corporate_state.default_player()
+	corporate_state.phase = corporate_state.Phase.REWARD
+	corporate_state.current_bounty = Content.apply_approach(Content.TARGETS[0], Content.CONTRACT_APPROACHES[2])
+	corporate_state.pending_loot = {"id": "corporate_loot", "name": "Recibo Corporativo", "slot": "armor", "power": 2, "rarity": "Comum", "color": "#b9c2d9"}
+	var corporate_summary := corporate_state.claim_reward(false)
+	check(int(corporate_summary.contract_scrap) == 2 and int(corporate_summary.scrap) == 2 and int(corporate_state.player.scrap) == 2, "corporate victory pays workshop scrap exactly once")
+	check(str(corporate_state.last_notice).contains("Mandado corporativo: +2 sucata"), "corporate workshop reward survives as exact board feedback")
+	corporate_state.free()
 	var tactical_state = StateScript.new()
 	tactical_state.persistence_enabled = false
 	tactical_state.player = tactical_state.default_player()

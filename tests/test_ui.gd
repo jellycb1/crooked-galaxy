@@ -37,6 +37,7 @@ func run_smoke_test() -> void:
 	check(scene.find_child("BriefingScroll", true, false) != null, "contract briefing renders")
 	check(scene.find_child("BriefingMastery", true, false) != null, "briefing explains mastery loot bonuses")
 	check(scene.find_children("RecommendedApproach_*", "Label", true, false).size() == 1, "briefing renders exactly one dynamic recommendation")
+	check(scene.find_child("ApproachScrapReward_premium_warrant", true, false) != null, "briefing exposes the corporate workshop reward before commitment")
 	state.choose_approach("quiet_net")
 	await process_frame
 	check(scene.find_child("HuntProgress", true, false) != null, "hunt screen renders")

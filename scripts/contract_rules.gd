@@ -2,6 +2,7 @@ class_name ContractRules
 extends RefCounted
 
 const MIN_RECOMMENDED_ODDS := 0.55
+const SCRAP_VALUE := 12.0
 
 
 static func recommended_approach_id(evaluations: Array[Dictionary]) -> String:
@@ -28,5 +29,5 @@ static func recommended_approach_id(evaluations: Array[Dictionary]) -> String:
 
 static func expected_return_score(evaluation: Dictionary) -> float:
 	var duration := maxf(1.0, float(evaluation.get("duration", 1.0)))
-	var value := float(evaluation.get("credits", 0)) + float(evaluation.get("xp", 0)) * 0.35
+	var value := float(evaluation.get("credits", 0)) + float(evaluation.get("xp", 0)) * 0.35 + float(evaluation.get("scrap", 0)) * SCRAP_VALUE
 	return float(evaluation.get("odds", 0.0)) * value / duration

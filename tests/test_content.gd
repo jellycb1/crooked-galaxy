@@ -68,8 +68,10 @@ func _init() -> void:
 			check(int(modification.get("power_bonus", 0)) > 0 or int(modification.get("health_bonus", 0)) > 0 or int(modification.get("opening_damage_bonus", 0)) > 0 or int(modification.get("damage_reduction", 0)) > 0, "equipment modification has a mechanical effect: %s" % trait_id)
 
 	check(ContentDB.CONTRACT_APPROACHES.size() == 3, "every contract keeps three strategic approaches")
+	check(int(ContentDB.CONTRACT_APPROACHES[0].get("scrap_reward", 0)) == 0 and int(ContentDB.CONTRACT_APPROACHES[1].get("scrap_reward", 0)) == 0 and int(ContentDB.CONTRACT_APPROACHES[2].get("scrap_reward", 0)) == 2, "only the high-risk corporate warrant funds the workshop")
 	var dustball_premium := ContentDB.apply_approach(ContentDB.TARGETS[1], ContentDB.CONTRACT_APPROACHES[2])
 	var omega_premium := ContentDB.apply_approach(ContentDB.TARGETS[13], ContentDB.CONTRACT_APPROACHES[2])
+	check(int(omega_premium.scrap_reward) == 2, "corporate scrap reward survives contract application")
 	check(int(dustball_premium.power) == roundi(float(ContentDB.TARGETS[1].power) * 1.18), "first-chapter risk calibration remains stable")
 	check(int(omega_premium.power) == roundi(float(ContentDB.TARGETS[13].power) * 1.18), "contract danger remains consistent across frontiers")
 	var base_loot_rng := RandomNumberGenerator.new()

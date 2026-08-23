@@ -120,6 +120,16 @@ func capture() -> void:
 	if save_frame("ui_reward.png") != OK:
 		quit(1)
 		return
+	var regular_reward_bounty: Dictionary = state.current_bounty.duplicate(true)
+	state.current_bounty = ContentDB.apply_approach(ContentDB.get_target(str(regular_reward_bounty.id)), ContentDB.CONTRACT_APPROACHES[2])
+	scene.render()
+	await process_frame
+	await process_frame
+	await create_timer(0.12).timeout
+	if save_frame("ui_reward_corporate.png") != OK:
+		quit(1)
+		return
+	state.current_bounty = regular_reward_bounty
 	state.player.captures_by_target = {"gloop": 2}
 	scene.render()
 	await process_frame

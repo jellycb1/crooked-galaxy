@@ -359,14 +359,15 @@ const CONTRACT_APPROACHES := [
 	{
 		"id": "premium_warrant",
 		"name": "Mandado Corporativo",
-		"tag": "LUCRO · ALTO RISCO",
-		"description": "A corporação paga muito mais, desde que o alvo possa revidar muito mais.",
+		"tag": "LUCRO · +SUCATA · ALTO RISCO",
+		"description": "A corporação paga muito mais e libera peças da oficina, desde que o alvo possa revidar muito mais.",
 		"duration_mult": 1.0,
 		"power_mult": 1.18,
 		"defense_mult": 1.12,
 		"health_mult": 1.12,
 		"credits_mult": 1.65,
 		"xp_mult": 0.85,
+		"scrap_reward": 2,
 		"color": "#ffc857",
 	},
 ]
@@ -765,6 +766,7 @@ static func apply_approach(bounty: Dictionary, approach: Dictionary) -> Dictiona
 	result["health"] = maxi(1, roundi(float(bounty.health) * float(approach.health_mult)))
 	result["credits"] = maxi(1, roundi(float(bounty.credits) * float(approach.credits_mult)))
 	result["xp"] = maxi(1, roundi(float(bounty.xp) * float(approach.xp_mult)))
+	result["scrap_reward"] = maxi(0, int(approach.get("scrap_reward", 0)))
 	return result
 
 

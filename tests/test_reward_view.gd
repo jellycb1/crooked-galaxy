@@ -25,6 +25,13 @@ func _init() -> void:
 	check(host.find_child("ClaimAndRepeat", true, false) != null and host.find_child("ClaimAndBoard", true, false) != null, "isolated reward preserves repeat and board decisions")
 
 	clear_content(content)
+	state.current_bounty = ContentDB.apply_approach(ContentDB.TARGETS[0], ContentDB.CONTRACT_APPROACHES[2])
+	RewardScript.build(host, content, state)
+	var corporate_totals := host.find_child("RewardContractTotals", true, false) as Label
+	check(corporate_totals != null and corporate_totals.text.contains("2 sucata"), "isolated reward previews corporate workshop funding")
+
+	clear_content(content)
+	state.current_bounty = ContentDB.TARGETS[0].duplicate(true)
 	state.player.captures_by_target = {"gloop": 2}
 	RewardScript.build(host, content, state)
 	var mastery_unlock := host.find_child("RewardMasteryUnlock", true, false) as Label

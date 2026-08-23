@@ -6,6 +6,7 @@ var failures := 0
 
 
 func _init() -> void:
+	check(is_equal_approx(ContractRules.expected_return_score({"odds": 1.0, "credits": 0, "xp": 0, "scrap": 1, "duration": 1}), ContractRules.SCRAP_VALUE), "recommendation values explicit workshop funding")
 	var early_game: Array[Dictionary] = [
 		{"id": "quiet", "odds": 0.76, "credits": 52, "xp": 78, "duration": 10},
 		{"id": "fast", "odds": 0.01, "credits": 78, "xp": 62, "duration": 4},

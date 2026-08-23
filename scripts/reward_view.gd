@@ -40,7 +40,13 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		box.add_child(host.center_label("◆ %s · %s" % [str(item.trait.name), str(item.trait.description)], 13, host.GOLD))
 	box.add_child(host.center_label(EquipmentPresentation.equipment_delta_text(state.player, item), 15, host.LIME if effective_upgrade else host.MUTED))
 	box.add_child(host.center_label("EQUIPADO: %s +%d · RECICLAGEM: %d SUCATA" % [str(equipped.name), int(equipped.power), Rules.salvage_value(item)], 12, host.MUTED))
-	box.add_child(host.center_label("◈ %d créditos   ✦ %d XP" % [int(reward_preview.credits), int(state.current_bounty.xp)], 17, host.GOLD))
+	var contract_scrap := int(state.current_bounty.get("scrap_reward", 0))
+	var reward_line := "◈ %d créditos   ✦ %d XP" % [int(reward_preview.credits), int(state.current_bounty.xp)]
+	if contract_scrap > 0:
+		reward_line += "   ⚙ %d sucata" % contract_scrap
+	var reward_totals := host.center_label(reward_line, 17, host.GOLD)
+	reward_totals.name = "RewardContractTotals"
+	box.add_child(reward_totals)
 	var previous_captures := int(state.player.get("captures_by_target", {}).get(str(state.current_bounty.id), 0))
 	var reward_mastery := Rules.target_mastery_level(previous_captures)
 	if reward_mastery > 0:
