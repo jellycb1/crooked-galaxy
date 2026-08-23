@@ -69,6 +69,12 @@ Run the deterministic combat balance simulation:
 godot --headless --path . --script res://tools/simulate_balance.gd
 ```
 
+Audit the loot-only first-chapter repeat path across 100 deterministic careers:
+
+```powershell
+godot --headless --path . --script res://tools/simulate_first_chapter.gd
+```
+
 ## Project layout
 
 - `scenes/` — Godot scenes.
