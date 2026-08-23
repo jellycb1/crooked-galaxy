@@ -36,6 +36,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var set_label := host.label(set_text, 12, set_color)
 	set_label.name = "PlanetaryKitStatus"
 	content.add_child(set_label)
+	content.add_child(field_readiness_card(host, state))
 	var equipped_row := HBoxContainer.new()
 	equipped_row.add_theme_constant_override("separation", 10)
 	content.add_child(equipped_row)
@@ -81,6 +82,62 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 
 static func filtered_inventory(host: CrookedUIFactory, state: StateScript) -> Array:
 	return EquipmentPresentation.filtered_inventory(state.player.inventory, host.inventory_filter, host.inventory_sort)
+
+
+static func field_readiness(state: StateScript) -> Dictionary:
+	var planet_id := str(state.player.get("current_planet_id", Content.PLANET.id))
+	var tier := state.planet_tier(planet_id)
+	var target := Content.target_for_planet_tier(planet_id, mini(3, tier + 1))
+	if target.is_empty():
+		target = Content.target_for_planet_tier(planet_id, tier)
+	if target.is_empty():
+		return {}
+	var power_player := state.player.duplicate(true)
+	var powered_weapon: Dictionary = power_player.get("weapon", {}).duplicate(true)
+	powered_weapon.power = int(powered_weapon.get("power", 0)) + 1
+	power_player.weapon = powered_weapon
+	var health_player := state.player.duplicate(true)
+	var reinforced := false
+	for slot in ["weapon", "armor"]:
+		var candidate: Dictionary = health_player.get(slot, {}).duplicate(true)
+		if Rules.can_upgrade_integrity(candidate):
+			candidate.integrity_upgrades = int(candidate.get("integrity_upgrades", 0)) + 1
+			health_player[slot] = candidate
+			reinforced = true
+			break
+	return {
+		"target": target,
+		"current_odds": Rules.bounty_odds(state.player, target),
+		"power_odds": Rules.bounty_odds(power_player, target),
+		"health_odds": Rules.bounty_odds(health_player, target) if reinforced else Rules.bounty_odds(state.player, target),
+		"can_reinforce": reinforced,
+	}
+
+
+static func field_readiness_card(host: CrookedUIFactory, state: StateScript) -> PanelContainer:
+	var readiness := field_readiness(state)
+	var card := host.panel(VBoxContainer.new(), Color("#13233e"), 12, 10)
+	card.name = "FieldReadiness"
+	var box := card.get_child(0) as VBoxContainer
+	box.add_theme_constant_override("separation", 7)
+	if readiness.is_empty():
+		box.add_child(host.label("TESTE DE CAMPO INDISPONÍVEL", 11, host.MUTED))
+		return card
+	var target: Dictionary = readiness.target
+	box.add_child(host.label("TESTE DE CAMPO · PRÓXIMO MANDADO: %s" % str(target.name).to_upper(), 11, host.GOLD))
+	var metrics := HBoxContainer.new()
+	metrics.add_theme_constant_override("separation", 7)
+	box.add_child(metrics)
+	metrics.add_child(host.metric_chip("AGORA", "%d%%" % roundi(float(readiness.current_odds) * 100.0), readiness_color(host, float(readiness.current_odds))))
+	metrics.add_child(host.metric_chip("+1 PODER", "%d%%" % roundi(float(readiness.power_odds) * 100.0), readiness_color(host, float(readiness.power_odds))))
+	var health_title := "+8 VIDA" if bool(readiness.can_reinforce) else "REF. MÁX."
+	metrics.add_child(host.metric_chip(health_title, "%d%%" % roundi(float(readiness.health_odds) * 100.0), readiness_color(host, float(readiness.health_odds))))
+	box.add_child(host.label("Projeção sem abordagem; contrato e incidentes podem alterar as chances.", 9, host.MUTED))
+	return card
+
+
+static func readiness_color(host: CrookedUIFactory, odds: float) -> Color:
+	return host.LIME if odds >= 0.72 else (host.GOLD if odds >= 0.42 else host.CORAL)
 
 
 static func inventory_toolbar(host: CrookedUIFactory, state: StateScript) -> VBoxContainer:

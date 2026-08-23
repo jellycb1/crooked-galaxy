@@ -27,6 +27,10 @@ func _init() -> void:
 	check(host.find_child("InventoryScroll", true, false) != null, "isolated arsenal builds its inventory scroller")
 	check(host.find_child("Upgrade_weapon", true, false) != null and host.find_child("Reinforce_armor", true, false) != null, "isolated arsenal builds both workshop paths")
 	check(host.find_child("LoadoutToolbar", true, false) != null, "isolated arsenal builds persistent loadouts")
+	check(host.find_child("FieldReadiness", true, false) != null, "isolated arsenal translates upgrades into next-warrant odds")
+	var readiness := ArsenalScript.field_readiness(state)
+	check(str(readiness.target.id) == "baron_boom", "field test selects the next planet-tier target")
+	check(float(readiness.power_odds) >= float(readiness.current_odds) and float(readiness.health_odds) >= float(readiness.current_odds), "field test projections are monotonic for real upgrades")
 	var kit_status := host.find_child("PlanetaryKitStatus", true, false) as Label
 	check(kit_status != null and kit_status.text.contains("DUSTBALL PRIME") and kit_status.text.contains("+1 PODER") and kit_status.text.contains("+6 VIDA"), "arsenal exposes the active planetary kit")
 	check(ArsenalScript.filtered_inventory(host, state).size() == 2, "renderer receives inventory through explicit state")

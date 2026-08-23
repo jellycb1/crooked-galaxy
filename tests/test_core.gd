@@ -122,6 +122,12 @@ func test_bounty_odds() -> void:
 	var safe_baron := Content.apply_approach(Content.TARGETS[1], Content.CONTRACT_APPROACHES[0])
 	var calibrated := Rules.bounty_odds(upgraded, safe_baron)
 	check(calibrated > 0.70 and calibrated < 0.84, "displayed odds stay calibrated to the actual combat rules")
+	var power_projection := upgraded.duplicate(true)
+	power_projection.weapon.power = int(power_projection.weapon.power) + 1
+	var health_projection := upgraded.duplicate(true)
+	health_projection.weapon.integrity_upgrades = 1
+	check(Rules.bounty_odds(power_projection, safe_baron) >= calibrated, "same-target power upgrades never display worse simulated odds")
+	check(Rules.bounty_odds(health_projection, safe_baron) >= calibrated, "same-target health upgrades never display worse simulated odds")
 
 
 func test_loot_generation() -> void:

@@ -111,16 +111,14 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 	# A short seeded simulation follows the actual alternating combat rules. It is
 	# deterministic for identical stats, so UI percentages never flicker.
 	const TRIALS := 1024
-	var hunter_power := player_power(player)
 	var hunter_health := max_health(player)
-	var hunter_defense := int(player.get("armor", {}).get("power", 0)) + 3
-	var opening_damage := player_opening_damage(player)
-	var damage_reduction := player_damage_reduction(player)
 	var target_power := int(target.get("power", 1))
 	var target_defense := int(target.get("defense", 0))
 	var target_health := int(target.get("health", 1))
 	var rng := RandomNumberGenerator.new()
-	rng.seed = hunter_power * 92821 + hunter_health * 68917 + hunter_defense * 31337 + opening_damage * 1741 + damage_reduction * 967 + target_power * 7919 + target_defense * 1543 + target_health * 421
+	# Builds facing the same target share the exact roll stream. This common-random
+	# comparison prevents a real upgrade from displaying lower odds due to sample noise.
+	rng.seed = 90210 + target_power * 7919 + target_defense * 1543 + target_health * 421
 	var wins := 0
 	for _trial in TRIALS:
 		var player_hp := hunter_health
