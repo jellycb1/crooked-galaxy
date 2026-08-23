@@ -12,6 +12,10 @@ const CORAL := Color("#ff6f7d")
 const PANEL := Color("#111a38")
 const PANEL_LIGHT := Color("#18264b")
 
+var view_mode := "board"
+var inventory_filter := "all"
+var inventory_sort := "power"
+
 
 func panel(child: Control, color: Color, radius: int, margin: int) -> PanelContainer:
 	var container := PanelContainer.new()

@@ -5,20 +5,18 @@ const CombatBackdropScript = preload("res://scripts/combat_backdrop.gd")
 const SoundFXScript = preload("res://scripts/sound_fx.gd")
 const EquipmentPresentation = preload("res://scripts/equipment_presentation.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
+const ArsenalView = preload("res://scripts/arsenal_view.gd")
 
 var body: VBoxContainer
 var content: VBoxContainer
 var combat_timer: Timer
 var victory_timer: Timer
 var last_combat_message := ""
-var view_mode := "board"
 var combat_fast := false
 var sound_fx: Node
 var previous_phase := -1
 var space_backdrop: Control
 var safe_container: MarginContainer
-var inventory_filter := "all"
-var inventory_sort := "power"
 
 
 func _ready() -> void:
@@ -501,254 +499,11 @@ func career_target_card(target: Dictionary) -> PanelContainer:
 
 
 func build_arsenal() -> void:
-	var title_row := HBoxContainer.new()
-	title_row.add_theme_constant_override("separation", 12)
-	content.add_child(title_row)
-	var titles := VBoxContainer.new()
-	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title_row.add_child(titles)
-	titles.add_child(label("ARSENAL", 26, INK))
-	titles.add_child(label("Troque peças para ajustar seu poder de caça.", 14, MUTED))
-	var back := action_button("VOLTAR", CYAN, true)
-	back.custom_minimum_size = Vector2(130, 48)
-	back.pressed.connect(func():
-		view_mode = "board"
-		render()
-	)
-	title_row.add_child(back)
-
-	var equipped_title := label("OFICINA · %d SUCATA · PODER TOTAL %d" % [int(GameState.player.get("scrap", 0)), CoreRules.player_power(GameState.player)], 14, GOLD)
-	content.add_child(equipped_title)
-	var equipped_row := HBoxContainer.new()
-	equipped_row.add_theme_constant_override("separation", 10)
-	content.add_child(equipped_row)
-	equipped_row.add_child(workshop_upgrade_card("weapon"))
-	equipped_row.add_child(workshop_upgrade_card("armor"))
-	content.add_child(loadout_toolbar())
-
-	var visible_items := filtered_inventory()
-	var inventory_title := label("ITENS ENCONTRADOS · %d / %d" % [visible_items.size(), GameState.player.inventory.size()], 14, MUTED)
-	content.add_child(inventory_title)
-	content.add_child(inventory_toolbar())
-	var scroller := ScrollContainer.new()
-	scroller.name = "InventoryScroll"
-	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	content.add_child(scroller)
-	var list := VBoxContainer.new()
-	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	list.add_theme_constant_override("separation", 10)
-	scroller.add_child(list)
-	if visible_items.is_empty():
-		var empty := panel(VBoxContainer.new(), PANEL, 24, 24)
-		var empty_box := empty.get_child(0) as VBoxContainer
-		empty_box.add_child(center_label("Nenhuma peça neste filtro.", 18, MUTED))
-		empty_box.add_child(center_label("Outros compartimentos talvez estejam menos vazios.", 14, MUTED))
-		list.add_child(empty)
-	else:
-		for item in visible_items:
-			list.add_child(inventory_item_card(item))
-
-	var audio := action_button("SOM · %s" % ("LIGADO" if bool(GameState.player.get("sound_enabled", true)) else "DESLIGADO"), CYAN, true)
-	audio.custom_minimum_size = Vector2(0, 48)
-	audio.pressed.connect(GameState.toggle_sound)
-	content.add_child(audio)
-	if OS.is_debug_build():
-		var reset := action_button("DEV · REINICIAR PROGRESSO", CORAL, true)
-		reset.custom_minimum_size = Vector2(0, 48)
-		reset.pressed.connect(func():
-			view_mode = "board"
-			GameState.reset_progress()
-		)
-		content.add_child(reset)
-
-
-func filtered_inventory() -> Array:
-	return EquipmentPresentation.filtered_inventory(GameState.player.inventory, inventory_filter, inventory_sort)
-
-
-func inventory_toolbar() -> VBoxContainer:
-	var toolbar := VBoxContainer.new()
-	toolbar.add_theme_constant_override("separation", 7)
-	var filters := HBoxContainer.new()
-	filters.add_theme_constant_override("separation", 6)
-	toolbar.add_child(filters)
-	for definition in [
-		{"id": "all", "text": "TODOS"},
-		{"id": "weapon", "text": "ARMAS"},
-		{"id": "armor", "text": "ARMADURAS"},
-	]:
-		var mode := str(definition.id)
-		var selected := inventory_filter == mode
-		var filter_button := action_button(str(definition.text), CYAN if selected else MUTED, not selected)
-		filter_button.name = "InventoryFilter_%s" % mode
-		filter_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		filter_button.custom_minimum_size = Vector2(0, 44)
-		filter_button.add_theme_font_size_override("font_size", 10)
-		filter_button.pressed.connect(func():
-			inventory_filter = mode
-			render()
-		)
-		filters.add_child(filter_button)
-	var sort := action_button("ORDEM · %s" % ("RARIDADE" if inventory_sort == "rarity" else "PODER"), GOLD, true)
-	sort.name = "InventorySort"
-	sort.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	sort.custom_minimum_size = Vector2(0, 44)
-	sort.add_theme_font_size_override("font_size", 10)
-	sort.pressed.connect(func():
-		inventory_sort = "rarity" if inventory_sort == "power" else "power"
-		render()
-	)
-	filters.add_child(sort)
-	var preview := GameState.inferior_recycle_preview()
-	var recycle := action_button("RECICLAR INFERIORES · %d PEÇAS · +%d SUCATA" % [int(preview.count), int(preview.scrap)], CORAL if int(preview.count) > 0 else MUTED, true)
-	recycle.name = "RecycleInferior"
-	recycle.disabled = int(preview.count) <= 0
-	recycle.custom_minimum_size = Vector2(0, 46)
-	recycle.add_theme_font_size_override("font_size", 11)
-	recycle.tooltip_text = "Recicla apenas peças comuns não equipadas que não superam o efeito atual. Itens modificados são preservados."
-	recycle.pressed.connect(GameState.recycle_inferior_inventory)
-	toolbar.add_child(recycle)
-	return toolbar
-
-
-func loadout_toolbar() -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.name = "LoadoutToolbar"
-	row.add_theme_constant_override("separation", 8)
-	for index in 2:
-		var loadouts: Array = GameState.player.get("equipment_loadouts", [])
-		var loadout: Dictionary = loadouts[index] if index < loadouts.size() else {}
-		var weapon := GameState.inventory_item_by_id(str(loadout.get("weapon_id", "")))
-		var armor := GameState.inventory_item_by_id(str(loadout.get("armor_id", "")))
-		var ready := not weapon.is_empty() and not armor.is_empty()
-		var card := panel(VBoxContainer.new(), Color("#0d1530"), 11, 9)
-		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(card)
-		var box := card.get_child(0) as VBoxContainer
-		box.add_child(label("LOADOUT · %s" % GameState.loadout_name(index), 10, GOLD))
-		var summary := "%s / %s" % [str(weapon.get("name", "não salvo")), str(armor.get("name", "não salvo"))]
-		var summary_label := label(summary, 9, MUTED)
-		summary_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		box.add_child(summary_label)
-		var actions := HBoxContainer.new()
-		actions.add_theme_constant_override("separation", 5)
-		box.add_child(actions)
-		var save := action_button("SALVAR", CYAN, true)
-		save.name = "SaveLoadout_%d" % index
-		save.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		save.custom_minimum_size = Vector2(0, 44)
-		save.add_theme_font_size_override("font_size", 9)
-		save.pressed.connect(func(): GameState.save_equipment_loadout(index))
-		actions.add_child(save)
-		var apply := action_button("USAR", LIME if ready else MUTED, true)
-		apply.name = "ApplyLoadout_%d" % index
-		apply.disabled = not ready
-		apply.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		apply.custom_minimum_size = Vector2(0, 44)
-		apply.add_theme_font_size_override("font_size", 9)
-		apply.pressed.connect(func(): GameState.apply_equipment_loadout(index))
-		actions.add_child(apply)
-	return row
-
-
-func inventory_item_card(item: Dictionary) -> PanelContainer:
-	var card := panel(HBoxContainer.new(), PANEL, 15, 15)
-	var row := card.get_child(0) as HBoxContainer
-	row.add_theme_constant_override("separation", 12)
-	var icon := center_label("⚙", 34, Color(str(item.color)))
-	icon.custom_minimum_size = Vector2(54, 54)
-	icon.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	row.add_child(icon)
-	var details := VBoxContainer.new()
-	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(details)
-	var item_name := label(str(item.name), 16, INK)
-	item_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	details.add_child(item_name)
-	details.add_child(label("%s · %s · +%d poder" % [str(item.rarity), slot_name(str(item.slot)), int(item.power)], 13, Color(str(item.color))))
-	if CoreRules.has_workshop_investment(item):
-		var workshop_parts: Array[String] = []
-		if int(item.get("power_upgrades", 0)) > 0:
-			workshop_parts.append("%d calib." % int(item.power_upgrades))
-		if int(item.get("integrity_upgrades", 0)) > 0:
-			workshop_parts.append("%d reforços · +%d vida" % [int(item.integrity_upgrades), int(item.integrity_upgrades) * CoreRules.INTEGRITY_HEALTH_PER_LEVEL])
-		details.add_child(label("◇ OFICINA · %s" % " · ".join(workshop_parts), 11, CYAN))
-	if item.has("trait"):
-		var trait_line := label("◆ %s · %s" % [str(item.trait.name), str(item.trait.description)], 11, GOLD)
-		trait_line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		details.add_child(trait_line)
-	var current: Dictionary = GameState.player[str(item.slot)]
-	var equipped := str(current.get("id", "")) == str(item.get("id", ""))
-	var score_difference := CoreRules.equipment_score(item) - CoreRules.equipment_score(current)
-	var comparison_text := "EQUIPADO" if equipped else equipment_delta_text(item)
-	var status := label(comparison_text, 11, LIME if score_difference > 0 or equipped else (GOLD if score_difference == 0 else MUTED))
-	status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	row.add_child(status)
-	if not equipped:
-		var buttons := VBoxContainer.new()
-		buttons.add_theme_constant_override("separation", 6)
-		row.add_child(buttons)
-		var equip_button := action_button("EQUIPAR", CYAN, true)
-		equip_button.custom_minimum_size = Vector2(110, 46)
-		var item_id := str(item.id)
-		equip_button.pressed.connect(func(): GameState.equip_from_inventory(item_id))
-		buttons.add_child(equip_button)
-		var manually_locked: bool = GameState.player.get("locked_item_ids", []).has(item_id)
-		var lock_button := action_button("LIBERAR" if manually_locked else "PROTEGER", GOLD, true)
-		lock_button.name = "Lock_%s" % item_id
-		lock_button.custom_minimum_size = Vector2(110, 40)
-		lock_button.add_theme_font_size_override("font_size", 10)
-		lock_button.pressed.connect(func(): GameState.toggle_item_lock(item_id))
-		buttons.add_child(lock_button)
-		var salvage := CoreRules.salvage_value(item)
-		var scrap_button := action_button("RECICLAR +%d" % salvage, CORAL, true)
-		scrap_button.name = "Scrap_%s" % item_id
-		scrap_button.custom_minimum_size = Vector2(110, 44)
-		scrap_button.add_theme_font_size_override("font_size", 11)
-		scrap_button.disabled = GameState.is_item_protected(item_id)
-		scrap_button.pressed.connect(func(): GameState.scrap_item(item_id))
-		buttons.add_child(scrap_button)
-	return card
+	ArsenalView.build(self, content, GameState)
 
 
 func equipment_delta_text(item: Dictionary) -> String:
 	return EquipmentPresentation.equipment_delta_text(GameState.player, item)
-
-
-func workshop_upgrade_card(slot: String) -> PanelContainer:
-	var item: Dictionary = GameState.player[slot]
-	var power_cost := CoreRules.equipment_upgrade_cost(item)
-	var integrity_cost := CoreRules.equipment_integrity_upgrade_cost(item)
-	var power_affordable := int(GameState.player.get("scrap", 0)) >= power_cost
-	var integrity_affordable := int(GameState.player.get("scrap", 0)) >= integrity_cost
-	var integrity_level := int(item.get("integrity_upgrades", 0))
-	var calibration_level := int(item.get("power_upgrades", 0))
-	var integrity_available := CoreRules.can_upgrade_integrity(item)
-	var card := panel(VBoxContainer.new(), Color("#0d1530"), 12, 10)
-	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var box := card.get_child(0) as VBoxContainer
-	box.add_child(label(slot_name(slot).to_upper(), 11, MUTED))
-	box.add_child(label("%s · +%d" % [str(item.name), int(item.power)], 13, INK))
-	box.add_child(label("CALIBRAÇÃO %d · REFORÇO %d/%d · +%d VIDA" % [calibration_level, integrity_level, CoreRules.MAX_INTEGRITY_UPGRADES, integrity_level * CoreRules.INTEGRITY_HEALTH_PER_LEVEL], 10, CYAN if calibration_level > 0 or integrity_level > 0 else MUTED))
-	if item.has("trait"):
-		box.add_child(label("◆ %s" % str(item.trait.name), 10, GOLD))
-	var improve := action_button("+1 PODER · %d SUCATA" % power_cost, LIME if power_affordable else MUTED, true)
-	improve.name = "Upgrade_%s" % slot
-	improve.disabled = not power_affordable
-	improve.custom_minimum_size = Vector2(0, 44)
-	improve.add_theme_font_size_override("font_size", 11)
-	improve.pressed.connect(func(): GameState.upgrade_equipped(slot))
-	box.add_child(improve)
-	var reinforce_text := "+%d VIDA · %d SUCATA" % [CoreRules.INTEGRITY_HEALTH_PER_LEVEL, integrity_cost] if integrity_available else "INTEGRIDADE MÁXIMA"
-	var reinforce := action_button(reinforce_text, CYAN if integrity_affordable and integrity_available else MUTED, true)
-	reinforce.name = "Reinforce_%s" % slot
-	reinforce.disabled = not integrity_affordable or not integrity_available
-	reinforce.custom_minimum_size = Vector2(0, 44)
-	reinforce.add_theme_font_size_override("font_size", 11)
-	reinforce.pressed.connect(func(): GameState.reinforce_equipped(slot))
-	box.add_child(reinforce)
-	return card
 
 
 func onboarding_banner() -> PanelContainer:

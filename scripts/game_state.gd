@@ -1,3 +1,4 @@
+class_name CrookedGameState
 extends Node
 
 const SaveMigrationRules = preload("res://scripts/save_migrations.gd")
