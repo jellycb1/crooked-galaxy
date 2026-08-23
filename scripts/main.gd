@@ -6,6 +6,7 @@ const SoundFXScript = preload("res://scripts/sound_fx.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
 const ArsenalView = preload("res://scripts/arsenal_view.gd")
 const RewardViewScript = preload("res://scripts/reward_view.gd")
+const CareerViewScript = preload("res://scripts/career_view.gd")
 
 var body: VBoxContainer
 var content: VBoxContainer
@@ -354,148 +355,7 @@ func planet_card(planet: Dictionary) -> PanelContainer:
 
 
 func build_career() -> void:
-	var title_row := HBoxContainer.new()
-	content.add_child(title_row)
-	var titles := VBoxContainer.new()
-	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title_row.add_child(titles)
-	titles.add_child(label("CARREIRA DE CAÇADOR", 25, INK))
-	titles.add_child(label("A galáxia esquece crimes. Seu currículo não.", 14, MUTED))
-	var back := action_button("VOLTAR", CYAN, true)
-	back.custom_minimum_size = Vector2(120, 48)
-	back.pressed.connect(func():
-		view_mode = "board"
-		render()
-	)
-	title_row.add_child(back)
-
-	var summary := panel(HBoxContainer.new(), PANEL_LIGHT, 16, 15)
-	summary.name = "CareerSummary"
-	content.add_child(summary)
-	var summary_row := summary.get_child(0) as HBoxContainer
-	summary_row.add_theme_constant_override("separation", 14)
-	summary_row.add_child(character_portrait("hunter", 76))
-	var summary_copy := VBoxContainer.new()
-	summary_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	summary_row.add_child(summary_copy)
-	summary_copy.add_child(label("CAÇADOR NÍVEL %d" % int(GameState.player.level), 18, GOLD))
-	summary_copy.add_child(label("%d capturas · %d planetas concluídos" % [int(GameState.player.wins), GameState.player.get("completed_planets", []).size()], 14, INK))
-	summary_copy.add_child(label("Patrulhas AFK: ◈ %d · %d sucata" % [int(GameState.player.get("afk_credits_earned", 0)), int(GameState.player.get("afk_scrap_earned", 0))], 12, MUTED))
-	summary_copy.add_child(label("Prêmios: ◈ %d · %d sucata" % [int(GameState.player.get("career_credits_claimed", 0)), int(GameState.player.get("career_scrap_claimed", 0))], 12, MUTED))
-	var milestone_count := 0
-	var ready_count := GameState.career_rewards_ready()
-	for milestone in GameState.career_milestones():
-		if bool(milestone.complete):
-			milestone_count += 1
-	var milestone_total := GameState.career_milestones().size()
-	var badge_text := "MARCOS\n%d / %d" % [milestone_count, milestone_total]
-	if ready_count > 0:
-		badge_text += "\n%d A RESGATAR" % ready_count
-	var badge := center_label(badge_text, 13, LIME)
-	badge.custom_minimum_size = Vector2(75, 70)
-	summary_row.add_child(badge)
-	if ready_count > 0:
-		var claim_all := action_button("RESGATAR TODOS · %d" % ready_count, GOLD)
-		claim_all.name = "ClaimAllMilestones"
-		claim_all.custom_minimum_size = Vector2(0, 48)
-		claim_all.pressed.connect(GameState.claim_all_career_milestones)
-		content.add_child(claim_all)
-
-	var scroller := ScrollContainer.new()
-	scroller.name = "CareerScroll"
-	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	content.add_child(scroller)
-	var list := VBoxContainer.new()
-	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	list.add_theme_constant_override("separation", 10)
-	scroller.add_child(list)
-	list.add_child(label("PROGRESSO PLANETÁRIO", 13, MUTED))
-	for planet in ContentDB.PLANETS:
-		list.add_child(career_planet_card(planet))
-	list.add_child(label("MARCOS DA CARREIRA", 13, MUTED))
-	for milestone in GameState.career_milestones():
-		list.add_child(career_milestone_card(milestone))
-	list.add_child(label("ARQUIVO DE PROCURADOS", 13, MUTED))
-	for target in ContentDB.TARGETS:
-		list.add_child(career_target_card(target))
-
-
-func career_planet_card(planet: Dictionary) -> PanelContainer:
-	var planet_id: String = str(planet.id)
-	var completed: bool = GameState.player.get("completed_planets", []).has(planet_id)
-	var unlocked: bool = ContentDB.is_planet_unlocked(planet_id, GameState.player.get("completed_planets", []))
-	var captures: int = GameState.planet_capture_count(planet_id)
-	var accent: Color = Color(str(planet.accent))
-	var card := panel(HBoxContainer.new(), Color("#0d1530"), 12, 11)
-	var row := card.get_child(0) as HBoxContainer
-	var copy := VBoxContainer.new()
-	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(copy)
-	copy.add_child(label(str(planet.name).to_upper(), 15, accent if unlocked else MUTED))
-	copy.add_child(label("%d capturas · Tier %d/3" % [captures, GameState.planet_tier(planet_id)], 12, MUTED))
-	var status: String = "CONCLUÍDO" if completed else ("EM ANDAMENTO" if unlocked else "BLOQUEADO")
-	row.add_child(label(status, 12, LIME if completed else (GOLD if unlocked else MUTED), HORIZONTAL_ALIGNMENT_RIGHT))
-	return card
-
-
-func career_milestone_card(milestone: Dictionary) -> PanelContainer:
-	var complete: bool = bool(milestone.complete)
-	var claimed: bool = bool(milestone.claimed)
-	var card := panel(HBoxContainer.new(), Color("#11213a") if complete else Color("#0a1025"), 11, 10)
-	var row := card.get_child(0) as HBoxContainer
-	row.add_theme_constant_override("separation", 10)
-	row.add_child(center_label("✓" if claimed else ("!" if complete else "·"), 22, LIME if claimed else (GOLD if complete else MUTED)))
-	var copy := VBoxContainer.new()
-	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(copy)
-	copy.add_child(label(str(milestone.name), 13, LIME if claimed else (GOLD if complete else INK)))
-	copy.add_child(label(str(milestone.description), 12, MUTED))
-	var reward_text := "◈ %d" % int(milestone.credits)
-	if int(milestone.scrap) > 0:
-		reward_text += " · %d sucata" % int(milestone.scrap)
-	if claimed:
-		row.add_child(label("RESGATADO", 11, LIME, HORIZONTAL_ALIGNMENT_RIGHT))
-	elif complete:
-		var claim := action_button("RESGATAR\n%s" % reward_text, GOLD)
-		claim.name = "ClaimMilestone_%s" % str(milestone.id)
-		claim.custom_minimum_size = Vector2(112, 48)
-		claim.add_theme_font_size_override("font_size", 10)
-		var milestone_id := str(milestone.id)
-		claim.pressed.connect(func(): GameState.claim_career_milestone(milestone_id))
-		row.add_child(claim)
-	else:
-		row.add_child(label(reward_text, 11, MUTED, HORIZONTAL_ALIGNMENT_RIGHT))
-	return card
-
-
-func career_target_card(target: Dictionary) -> PanelContainer:
-	var target_id := str(target.id)
-	var planet_id := str(target.get("planet_id", ContentDB.PLANET.id))
-	var planet := ContentDB.get_planet(planet_id)
-	var captures := int(GameState.player.get("captures_by_target", {}).get(target_id, 0))
-	var planet_unlocked := ContentDB.is_planet_unlocked(planet_id, GameState.player.get("completed_planets", []))
-	var tier_available := int(target.get("chapter_tier", target.rank)) <= GameState.planet_tier(planet_id)
-	var revealed := captures > 0 or (planet_unlocked and tier_available)
-	var card := panel(HBoxContainer.new(), Color("#101d39") if revealed else Color("#080e20"), 12, 10)
-	card.name = "CareerTarget_%s" % target_id
-	var row := card.get_child(0) as HBoxContainer
-	row.add_theme_constant_override("separation", 11)
-	if revealed:
-		row.add_child(character_portrait(target_id, 58))
-	else:
-		var classified := center_label("?", 28, MUTED)
-		classified.custom_minimum_size = Vector2(58, 58)
-		row.add_child(classified)
-	var copy := VBoxContainer.new()
-	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(copy)
-	copy.add_child(label(str(target.name) if revealed else "MANDADO CLASSIFICADO", 14, Color(str(planet.accent)) if revealed else MUTED))
-	copy.add_child(label("%s · %s" % [str(planet.name), str(target.title) if revealed else "credenciais insuficientes"], 11, MUTED))
-	var record := "CAPTURAS %d" % captures if captures > 0 else ("DISPONÍVEL" if revealed else "BLOQUEADO")
-	if captures > 0:
-		record += " · PERÍCIA %d/3" % CoreRules.target_mastery_level(captures)
-	row.add_child(label(record, 11, LIME if captures > 0 else (GOLD if revealed else MUTED), HORIZONTAL_ALIGNMENT_RIGHT))
-	return card
+	CareerViewScript.build(self, content, GameState)
 
 
 func build_arsenal() -> void:

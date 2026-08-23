@@ -1,6 +1,8 @@
 class_name CareerRules
 extends RefCounted
 
+const CoreRules = preload("res://scripts/core_rules.gd")
+
 
 static func milestones(player: Dictionary) -> Array[Dictionary]:
 	var captures: Dictionary = player.get("captures_by_target", {})
@@ -27,3 +29,29 @@ static func rewards_ready(player: Dictionary) -> Array[Dictionary]:
 		if bool(milestone.complete) and not bool(milestone.claimed):
 			ready.append(milestone)
 	return ready
+
+
+static func next_mastery_objective(player: Dictionary, targets: Array) -> Dictionary:
+	var captures_by_target: Dictionary = player.get("captures_by_target", {})
+	var best: Dictionary = {}
+	for target in targets:
+		var captures := int(captures_by_target.get(str(target.id), 0))
+		if captures <= 0:
+			continue
+		var level := CoreRules.target_mastery_level(captures)
+		var requirement := CoreRules.target_mastery_next_requirement(level)
+		if requirement < 0:
+			continue
+		var candidate := {
+			"target": target,
+			"captures": captures,
+			"level": level,
+			"next_level": level + 1,
+			"next_requirement": requirement,
+			"remaining": requirement - captures,
+			"rare_bonus": (level + 1) * 5,
+			"epic_bonus": (level + 1) * 2,
+		}
+		if best.is_empty() or int(candidate.remaining) < int(best.remaining):
+			best = candidate
+	return best

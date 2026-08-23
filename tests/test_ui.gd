@@ -165,6 +165,7 @@ func run_smoke_test() -> void:
 	check(scene.find_child("ClaimAllMilestones", true, false) != null, "career renders a bulk claim action")
 	check(scene.find_child("ClaimMilestone_first_warrant", true, false) != null, "career renders a claim action for completed milestones")
 	check(scene.find_child("CareerTarget_gloop", true, false) != null, "career renders the wanted archive")
+	check(scene.find_child("MasteryDirective", true, false) != null and scene.find_child("MasteryDirectiveAction", true, false) != null, "career turns repeat progress into a direct next action")
 
 	scene.view_mode = "board"
 	state.phase = state.Phase.BOARD

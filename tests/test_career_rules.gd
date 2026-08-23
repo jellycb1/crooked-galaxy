@@ -21,9 +21,20 @@ func _init() -> void:
 	check(ready.size() == 6, "ready rewards exclude claimed milestones")
 	check(not ready.any(func(milestone): return str(milestone.id) == "first_warrant"), "claimed stable ids cannot become ready again")
 	check(player.claimed_milestones.size() == 1, "derived career rules do not mutate player progress")
+	var targets := [
+		{"id": "far", "name": "Far", "planet_id": "a"},
+		{"id": "near", "name": "Near", "planet_id": "a"},
+		{"id": "mastered", "name": "Mastered", "planet_id": "a"},
+	]
+	player.captures_by_target = {"far": 3, "near": 5, "mastered": 10}
+	var objective := CareerRules.next_mastery_objective(player, targets)
+	check(str(objective.target.id) == "near" and int(objective.remaining) == 1, "career recommends the closest unfinished mastery tier")
+	check(int(objective.next_level) == 2 and int(objective.rare_bonus) == 10 and int(objective.epic_bonus) == 4, "mastery objective explains the next loot bonus")
+	player.captures_by_target = {"mastered": 10}
+	check(CareerRules.next_mastery_objective(player, targets).is_empty(), "fully mastered archives need no repeat directive")
 
 	if failures == 0:
-		print("PASS: career milestones are deterministic")
+		print("PASS: career milestones and repeat objectives are deterministic")
 		quit(0)
 	else:
 		printerr("FAIL: %d career rule test(s) failed" % failures)
