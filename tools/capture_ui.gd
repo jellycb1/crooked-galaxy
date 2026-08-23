@@ -115,6 +115,12 @@ func capture() -> void:
 	state.player.inventory.append({"id": "capture_old_weapon", "name": "Zapper de Gaveta", "description": "Dispara melhor quando a gaveta está aberta.", "slot": "weapon", "power": 1, "rarity": "Comum", "color": "#b9c2d9"})
 	state.player.inventory.append({"id": "capture_old_armor", "name": "Colete Pré-Amassado", "description": "Economiza o trabalho do primeiro impacto.", "slot": "armor", "power": 1, "rarity": "Comum", "color": "#b9c2d9"})
 	state.player.inventory.append({"id": "capture_upgrade_weapon", "name": "Carabina de Cláusula Curta", "description": "O contrato termina antes do carregador.", "slot": "weapon", "power": 7, "rarity": "Raro", "color": "#58d9ff", "trait": {"id": "argument_amplifier", "name": "AMPLIFICADOR DE ARGUMENTO", "description": "+1 poder e +6 integridade.", "power_bonus": 1, "health_bonus": 6}})
+	state.player.inventory.append({"id": "capture_alt_armor", "name": "Colete de Turno Noturno", "description": "Protege melhor depois do expediente.", "slot": "armor", "power": 6, "rarity": "Raro", "color": "#58d9ff", "trait": {"id": "reactive_lining", "name": "FORRO REATIVO", "description": "+14 de integridade máxima.", "power_bonus": 0, "health_bonus": 14}})
+	state.save_equipment_loadout(0)
+	state.equip_from_inventory("capture_upgrade_weapon")
+	state.equip_from_inventory("capture_alt_armor")
+	state.save_equipment_loadout(1)
+	state.apply_equipment_loadout(0)
 	scene.view_mode = "arsenal"
 	scene.render()
 	await process_frame

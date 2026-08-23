@@ -18,6 +18,8 @@ func _init() -> void:
 	source.player.afk_scrap_earned = 8
 	source.player.claimed_milestones = ["first_warrant"]
 	source.player.career_credits_claimed = 40
+	source.player.locked_item_ids = ["test_loot"]
+	source.player.equipment_loadouts = [{"weapon_id": "test_loot", "armor_id": "starter_armor"}, {"weapon_id": "", "armor_id": ""}]
 	source.phase = source.Phase.VICTORY
 	source.current_bounty = ContentDB.TARGETS[0].duplicate(true)
 	source.pending_loot = {
@@ -46,6 +48,8 @@ func _init() -> void:
 	check(int(restored.player.afk_credits_earned) == 220 and int(restored.player.afk_scrap_earned) == 8, "AFK career totals survive save and load")
 	check(restored.player.claimed_milestones.has("first_warrant"), "claimed career rewards survive save and load")
 	check(int(restored.player.career_credits_claimed) == 40, "career reward totals survive save and load")
+	check(restored.player.locked_item_ids.has("test_loot"), "protected inventory ids survive save and load")
+	check(str(restored.player.equipment_loadouts[0].weapon_id) == "test_loot", "equipment loadouts survive save and load")
 	check(restored.phase == restored.Phase.VICTORY, "capture phase survives save and load")
 	check(str(restored.pending_loot.id) == "test_loot", "pending reward survives save and load")
 	check(restored.combat_events.size() == 1, "finishing action survives save and load")
@@ -123,6 +127,8 @@ func _init() -> void:
 	check(int(migrated.player.credits) == 77, "version one player data survives migration")
 	check(migrated.player.claimed_milestones is Array, "migration adds claimed career milestones")
 	check(int(migrated.player.career_credits_claimed) == 0, "migration initializes career reward totals")
+	check(migrated.player.locked_item_ids is Array and migrated.player.equipment_loadouts.size() == 2, "migration initializes protection and loadouts")
+	check(not str(migrated.player.weapon.id).is_empty() and not str(migrated.player.armor.id).is_empty(), "migration assigns stable ids to legacy equipped gear")
 	var migrated_file := FileAccess.open(LEGACY_SAVE, FileAccess.READ)
 	var migrated_payload = JSON.parse_string(migrated_file.get_as_text())
 	check(int(migrated_payload.get("version", 0)) == StateScript.SAVE_VERSION, "successful migration is persisted immediately")

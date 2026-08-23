@@ -66,9 +66,12 @@ func run_smoke_test() -> void:
 	scene.render()
 	await process_frame
 	check(scene.find_child("InventoryScroll", true, false) != null, "arsenal screen renders")
-	check(state.player.inventory.size() == 3, "arsenal receives claimed, spare, and inferior loot")
+	check(state.player.inventory.size() == 4, "arsenal receives claimed, replaced starter, spare, and inferior loot")
 	check(scene.find_child("Upgrade_weapon", true, false) != null, "workshop renders equipment upgrades")
+	check(scene.find_child("LoadoutToolbar", true, false) != null, "arsenal renders equipment loadouts")
+	check(scene.find_child("SaveLoadout_0", true, false) != null, "arsenal can save the hunt loadout")
 	check(scene.find_child("Scrap_ui_spare", true, false) != null, "workshop renders recycling for spare loot")
+	check(scene.find_child("Lock_ui_spare", true, false) != null, "inventory renders manual item protection")
 	check(scene.find_child("InventoryFilter_weapon", true, false) != null, "arsenal renders slot filters")
 	check(scene.find_child("InventorySort", true, false) != null, "arsenal renders inventory sorting")
 	var bulk_recycle := scene.find_child("RecycleInferior", true, false) as Button

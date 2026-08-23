@@ -41,7 +41,7 @@ func _init() -> void:
 	check(state.phase == state.Phase.BOARD, "claiming returns to the bounty board")
 	check(int(state.player.credits) == credits_before + int(active_bounty.credits), "modified credits are awarded")
 	check(int(summary.xp) == int(active_bounty.xp), "modified XP reward is reported")
-	check(state.player.inventory.size() == 1, "loot is retained in inventory")
+	check(state.player.inventory.size() == 2, "loot and replaced starter gear are retained in inventory")
 	check(int(state.player.wins) == 1, "victory progression is retained")
 	check(str(state.player[str(claimed_item.slot)].id) == str(claimed_item.id), "claimed upgrade is equipped")
 	check(not state.last_notice.is_empty(), "reward feedback survives the screen transition")
@@ -73,9 +73,9 @@ func _init() -> void:
 	state.player.inventory.append({"id": "bulk_upgrade", "name": "Canhão Futuro", "slot": "weapon", "power": int(state.player.weapon.power) + 5, "rarity": "Épico", "color": "#d789ff"})
 	state.player.inventory.append({"id": "bulk_trait_upgrade", "name": "Zapper Modificado", "slot": "weapon", "power": maxi(1, int(state.player.weapon.power) - 1), "rarity": "Raro", "color": "#58d9ff", "trait": {"id": "crooked_coil", "name": "BOBINA TORTA", "description": "+2 poder de combate.", "power_bonus": 2, "health_bonus": 0}})
 	var bulk_preview := state.inferior_recycle_preview()
-	check(int(bulk_preview.count) == 2, "bulk recycling selects only non-upgrades")
+	check(int(bulk_preview.count) == 3, "bulk recycling selects non-upgrades including replaced starter gear")
 	var bulk_result := state.recycle_inferior_inventory()
-	check(int(bulk_result.count) == 2, "bulk recycling removes every previewed inferior item")
+	check(int(bulk_result.count) == 3, "bulk recycling removes every previewed inferior item")
 	check(int(state.player.scrap) == bulk_scrap_before + int(bulk_result.scrap), "bulk recycling grants the previewed scrap")
 	check(int(state.player.scrap_recycled_total) == recycled_before + int(bulk_result.scrap), "bulk recycling contributes to lifetime progress")
 	check(state.player.inventory.any(func(item): return str(item.get("id", "")) == "bulk_upgrade"), "bulk recycling preserves upgrades")
@@ -84,6 +84,27 @@ func _init() -> void:
 	check(int(state.inferior_recycle_preview().count) == 0, "bulk recycling excludes modified gear regardless of current score")
 	check(state.recycle_inferior_inventory().count == 0, "bulk recycling leaves a modified keepsake untouched")
 	check(state.player.inventory.any(func(item): return str(item.get("id", "")) == "bulk_trait_keepsake"), "modified keepsake remains in inventory")
+	var loadout_items := [
+		{"id": "loadout_a_weapon", "name": "Arma A", "slot": "weapon", "power": 8, "rarity": "Comum", "color": "#b9c2d9"},
+		{"id": "loadout_a_armor", "name": "Armadura A", "slot": "armor", "power": 7, "rarity": "Comum", "color": "#b9c2d9"},
+		{"id": "loadout_b_weapon", "name": "Arma B", "slot": "weapon", "power": 10, "rarity": "Raro", "color": "#58d9ff"},
+		{"id": "loadout_b_armor", "name": "Armadura B", "slot": "armor", "power": 9, "rarity": "Raro", "color": "#58d9ff"},
+	]
+	state.player.inventory.append_array(loadout_items)
+	state.equip(loadout_items[0])
+	state.equip(loadout_items[1])
+	check(state.save_equipment_loadout(0), "current equipment can be saved as the hunt loadout")
+	state.equip(loadout_items[2])
+	state.equip(loadout_items[3])
+	check(state.save_equipment_loadout(1), "alternate equipment can be saved as the reserve loadout")
+	check(not state.scrap_item("loadout_a_weapon"), "loadout equipment is protected from manual recycling")
+	check(state.apply_equipment_loadout(0), "saved hunt loadout can be restored")
+	check(str(state.player.weapon.id) == "loadout_a_weapon" and str(state.player.armor.id) == "loadout_a_armor", "loadout restores both equipment slots")
+	state.player.inventory.append({"id": "manual_lock", "name": "Lembrança", "slot": "armor", "power": 1, "rarity": "Comum", "color": "#b9c2d9"})
+	check(state.toggle_item_lock("manual_lock"), "inventory item can be manually protected")
+	check(not state.scrap_item("manual_lock"), "manual protection blocks recycling")
+	check(state.toggle_item_lock("manual_lock"), "manual protection can be removed")
+	check(state.scrap_item("manual_lock"), "unprotected inventory item can be recycled")
 	check(state.player.inventory.any(func(item): return str(item.get("id", "")) == str(claimed_item.id)), "bulk recycling preserves equipped items")
 
 	state.start_bounty(Content.TARGETS[0].duplicate(true))

@@ -6,7 +6,7 @@ signal combat_event(message: String)
 enum Phase { BOARD, HUNT, COMBAT, REWARD, VICTORY, BRIEFING, HUNT_EVENT, CHAPTER_COMPLETE }
 
 const SAVE_PATH := "user://crooked_galaxy_save.json"
-const SAVE_VERSION := 2
+const SAVE_VERSION := 3
 
 var player: Dictionary
 var phase: int = Phase.BOARD
@@ -49,6 +49,8 @@ func default_player() -> Dictionary:
 		"claimed_milestones": [],
 		"career_credits_claimed": 0,
 		"career_scrap_claimed": 0,
+		"locked_item_ids": [],
+		"equipment_loadouts": [{"weapon_id": "", "armor_id": ""}, {"weapon_id": "", "armor_id": ""}],
 		"last_seen_unix": Time.get_unix_time_from_system(),
 		"reputation": 0,
 		"wins": 0,
@@ -58,8 +60,8 @@ func default_player() -> Dictionary:
 		"captures_by_planet": {},
 		"completed_planets": [],
 		"current_planet_id": "dustball_prime",
-		"weapon": {"name": "Zapper de Treino", "slot": "weapon", "power": 1, "rarity": "Comum", "color": "#b9c2d9"},
-		"armor": {"name": "Jaqueta Espacial Duvidosa", "slot": "armor", "power": 1, "rarity": "Comum", "color": "#b9c2d9"},
+		"weapon": {"id": "starter_weapon", "name": "Zapper de Treino", "slot": "weapon", "power": 1, "rarity": "Comum", "color": "#b9c2d9"},
+		"armor": {"id": "starter_armor", "name": "Jaqueta Espacial Duvidosa", "slot": "armor", "power": 1, "rarity": "Comum", "color": "#b9c2d9"},
 		"inventory": [],
 	}
 
@@ -423,6 +425,17 @@ func continue_after_chapter() -> void:
 func equip(item: Dictionary) -> void:
 	var slot := str(item.get("slot", ""))
 	if slot == "weapon" or slot == "armor":
+		var previous: Dictionary = player.get(slot, {})
+		var previous_id := str(previous.get("id", ""))
+		var new_id := str(item.get("id", ""))
+		if not previous_id.is_empty() and previous_id != new_id:
+			var already_stored := false
+			for inventory_item in player.get("inventory", []):
+				if str(inventory_item.get("id", "")) == previous_id:
+					already_stored = true
+					break
+			if not already_stored:
+				player.inventory.append(previous.duplicate(true))
 		player[slot] = item.duplicate(true)
 
 
@@ -441,9 +454,8 @@ func equip_from_inventory(item_id: String) -> void:
 func scrap_item(item_id: String) -> bool:
 	if phase != Phase.BOARD:
 		return false
-	for slot in ["weapon", "armor"]:
-		if str(player.get(slot, {}).get("id", "")) == item_id:
-			return false
+	if is_item_protected(item_id):
+		return false
 	for item_index in player.inventory.size():
 		var item: Dictionary = player.inventory[item_index]
 		if str(item.get("id", "")) != item_id:
@@ -460,14 +472,13 @@ func scrap_item(item_id: String) -> bool:
 
 
 func inferior_recycle_preview() -> Dictionary:
-	var equipped_ids := [str(player.get("weapon", {}).get("id", "")), str(player.get("armor", {}).get("id", ""))]
 	var count := 0
 	var scrap := 0
 	for item in player.get("inventory", []):
 		var slot := str(item.get("slot", ""))
 		if slot != "weapon" and slot != "armor":
 			continue
-		if equipped_ids.has(str(item.get("id", ""))):
+		if is_item_protected(str(item.get("id", ""))):
 			continue
 		if item.has("trait"):
 			continue
@@ -483,11 +494,10 @@ func recycle_inferior_inventory() -> Dictionary:
 	var preview := inferior_recycle_preview()
 	if int(preview.count) <= 0:
 		return preview
-	var equipped_ids := [str(player.get("weapon", {}).get("id", "")), str(player.get("armor", {}).get("id", ""))]
 	var retained: Array = []
 	for item in player.get("inventory", []):
 		var slot := str(item.get("slot", ""))
-		var is_equipped: bool = equipped_ids.has(str(item.get("id", "")))
+		var is_equipped: bool = is_item_protected(str(item.get("id", "")))
 		var is_inferior: bool = (slot == "weapon" or slot == "armor") and not item.has("trait") and not CoreRules.is_upgrade(item, player.get(slot, {}))
 		if is_equipped or not is_inferior:
 			retained.append(item)
@@ -498,6 +508,94 @@ func recycle_inferior_inventory() -> Dictionary:
 	save_game()
 	changed.emit()
 	return preview
+
+
+func is_item_protected(item_id: String) -> bool:
+	if item_id.is_empty():
+		return false
+	for slot in ["weapon", "armor"]:
+		if str(player.get(slot, {}).get("id", "")) == item_id:
+			return true
+	if player.get("locked_item_ids", []).has(item_id):
+		return true
+	for loadout in player.get("equipment_loadouts", []):
+		if str(loadout.get("weapon_id", "")) == item_id or str(loadout.get("armor_id", "")) == item_id:
+			return true
+	return false
+
+
+func toggle_item_lock(item_id: String) -> bool:
+	if phase != Phase.BOARD or item_id.is_empty():
+		return false
+	var exists := false
+	for item in player.get("inventory", []):
+		if str(item.get("id", "")) == item_id:
+			exists = true
+			break
+	if not exists:
+		return false
+	var locked: Array = player.get("locked_item_ids", [])
+	if locked.has(item_id):
+		locked.erase(item_id)
+		last_notice = "Proteção removida. A oficina voltou a olhar para essa peça com interesse."
+	else:
+		locked.append(item_id)
+		last_notice = "Peça protegida contra reciclagem manual e em massa."
+	player.locked_item_ids = locked
+	save_game()
+	changed.emit()
+	return true
+
+
+func save_equipment_loadout(index: int) -> bool:
+	var loadouts: Array = player.get("equipment_loadouts", [])
+	if phase != Phase.BOARD or index < 0 or index >= loadouts.size():
+		return false
+	loadouts[index] = {
+		"weapon_id": str(player.get("weapon", {}).get("id", "")),
+		"armor_id": str(player.get("armor", {}).get("id", "")),
+	}
+	player.equipment_loadouts = loadouts
+	last_notice = "Loadout %s arquivado. As peças foram protegidas." % loadout_name(index)
+	save_game()
+	changed.emit()
+	return true
+
+
+func apply_equipment_loadout(index: int) -> bool:
+	var loadouts: Array = player.get("equipment_loadouts", [])
+	if phase != Phase.BOARD or index < 0 or index >= loadouts.size():
+		return false
+	var loadout: Dictionary = loadouts[index]
+	var weapon := inventory_item_by_id(str(loadout.get("weapon_id", "")))
+	var armor := inventory_item_by_id(str(loadout.get("armor_id", "")))
+	if weapon.is_empty() or armor.is_empty():
+		last_notice = "Loadout incompleto. Uma das peças provavelmente virou história de oficina."
+		changed.emit()
+		return false
+	equip(weapon)
+	equip(armor)
+	last_notice = "Loadout %s equipado. Poder %d · Vida %d." % [loadout_name(index), CoreRules.player_power(player), CoreRules.max_health(player)]
+	save_game()
+	changed.emit()
+	return true
+
+
+func inventory_item_by_id(item_id: String) -> Dictionary:
+	if item_id.is_empty():
+		return {}
+	for slot in ["weapon", "armor"]:
+		var equipped: Dictionary = player.get(slot, {})
+		if str(equipped.get("id", "")) == item_id:
+			return equipped.duplicate(true)
+	for item in player.get("inventory", []):
+		if str(item.get("id", "")) == item_id:
+			return item.duplicate(true)
+	return {}
+
+
+func loadout_name(index: int) -> String:
+	return "CAÇA" if index == 0 else "RESERVA"
 
 
 func upgrade_equipped(slot: String) -> bool:
@@ -651,6 +749,19 @@ func migrate_save_payload(payload: Dictionary) -> Dictionary:
 					saved_player.career_scrap_claimed = 0
 				migrated.player = saved_player
 				version = 2
+			2:
+				var saved_player: Dictionary = migrated.get("player", {})
+				if not saved_player.has("locked_item_ids"):
+					saved_player.locked_item_ids = []
+				if not saved_player.has("equipment_loadouts"):
+					saved_player.equipment_loadouts = [{"weapon_id": "", "armor_id": ""}, {"weapon_id": "", "armor_id": ""}]
+				for slot in ["weapon", "armor"]:
+					var saved_item: Dictionary = saved_player.get(slot, {})
+					if not saved_item.has("id"):
+						saved_item.id = "migrated_%s" % slot
+						saved_player[slot] = saved_item
+				migrated.player = saved_player
+				version = 3
 			_:
 				return {}
 		migrated.version = version

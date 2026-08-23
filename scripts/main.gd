@@ -506,6 +506,7 @@ func build_arsenal() -> void:
 	content.add_child(equipped_row)
 	equipped_row.add_child(workshop_upgrade_card("weapon"))
 	equipped_row.add_child(workshop_upgrade_card("armor"))
+	content.add_child(loadout_toolbar())
 
 	var visible_items := filtered_inventory()
 	var inventory_title := label("ITENS ENCONTRADOS · %d / %d" % [visible_items.size(), GameState.player.inventory.size()], 14, MUTED)
@@ -618,6 +619,46 @@ func inventory_toolbar() -> VBoxContainer:
 	return toolbar
 
 
+func loadout_toolbar() -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.name = "LoadoutToolbar"
+	row.add_theme_constant_override("separation", 8)
+	for index in 2:
+		var loadouts: Array = GameState.player.get("equipment_loadouts", [])
+		var loadout: Dictionary = loadouts[index] if index < loadouts.size() else {}
+		var weapon := GameState.inventory_item_by_id(str(loadout.get("weapon_id", "")))
+		var armor := GameState.inventory_item_by_id(str(loadout.get("armor_id", "")))
+		var ready := not weapon.is_empty() and not armor.is_empty()
+		var card := panel(VBoxContainer.new(), Color("#0d1530"), 11, 9)
+		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(card)
+		var box := card.get_child(0) as VBoxContainer
+		box.add_child(label("LOADOUT · %s" % GameState.loadout_name(index), 10, GOLD))
+		var summary := "%s / %s" % [str(weapon.get("name", "não salvo")), str(armor.get("name", "não salvo"))]
+		var summary_label := label(summary, 9, MUTED)
+		summary_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		box.add_child(summary_label)
+		var actions := HBoxContainer.new()
+		actions.add_theme_constant_override("separation", 5)
+		box.add_child(actions)
+		var save := action_button("SALVAR", CYAN, true)
+		save.name = "SaveLoadout_%d" % index
+		save.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		save.custom_minimum_size = Vector2(0, 34)
+		save.add_theme_font_size_override("font_size", 9)
+		save.pressed.connect(func(): GameState.save_equipment_loadout(index))
+		actions.add_child(save)
+		var apply := action_button("USAR", LIME if ready else MUTED, true)
+		apply.name = "ApplyLoadout_%d" % index
+		apply.disabled = not ready
+		apply.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		apply.custom_minimum_size = Vector2(0, 34)
+		apply.add_theme_font_size_override("font_size", 9)
+		apply.pressed.connect(func(): GameState.apply_equipment_loadout(index))
+		actions.add_child(apply)
+	return row
+
+
 func inventory_item_card(item: Dictionary) -> PanelContainer:
 	var card := panel(HBoxContainer.new(), PANEL, 15, 15)
 	var row := card.get_child(0) as HBoxContainer
@@ -649,11 +690,19 @@ func inventory_item_card(item: Dictionary) -> PanelContainer:
 		var item_id := str(item.id)
 		equip_button.pressed.connect(func(): GameState.equip_from_inventory(item_id))
 		buttons.add_child(equip_button)
+		var manually_locked: bool = GameState.player.get("locked_item_ids", []).has(item_id)
+		var lock_button := action_button("LIBERAR" if manually_locked else "PROTEGER", GOLD, true)
+		lock_button.name = "Lock_%s" % item_id
+		lock_button.custom_minimum_size = Vector2(110, 34)
+		lock_button.add_theme_font_size_override("font_size", 10)
+		lock_button.pressed.connect(func(): GameState.toggle_item_lock(item_id))
+		buttons.add_child(lock_button)
 		var salvage := CoreRules.salvage_value(item)
 		var scrap_button := action_button("RECICLAR +%d" % salvage, CORAL, true)
 		scrap_button.name = "Scrap_%s" % item_id
 		scrap_button.custom_minimum_size = Vector2(110, 40)
 		scrap_button.add_theme_font_size_override("font_size", 11)
+		scrap_button.disabled = GameState.is_item_protected(item_id)
 		scrap_button.pressed.connect(func(): GameState.scrap_item(item_id))
 		buttons.add_child(scrap_button)
 	return card
