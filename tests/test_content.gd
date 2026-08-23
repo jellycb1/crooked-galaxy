@@ -68,6 +68,17 @@ func _init() -> void:
 			check(int(modification.get("power_bonus", 0)) > 0 or int(modification.get("health_bonus", 0)) > 0 or int(modification.get("opening_damage_bonus", 0)) > 0 or int(modification.get("damage_reduction", 0)) > 0, "equipment modification has a mechanical effect: %s" % trait_id)
 
 	check(ContentDB.CONTRACT_APPROACHES.size() == 3, "every contract keeps three strategic approaches")
+	var dustball_premium := ContentDB.apply_approach(ContentDB.TARGETS[1], ContentDB.CONTRACT_APPROACHES[2])
+	var omega_premium := ContentDB.apply_approach(ContentDB.TARGETS[13], ContentDB.CONTRACT_APPROACHES[2])
+	check(int(dustball_premium.power) == roundi(float(ContentDB.TARGETS[1].power) * 1.18), "first-chapter risk calibration remains stable")
+	check(int(omega_premium.power) == roundi(float(ContentDB.TARGETS[13].power) * 1.18), "contract danger remains consistent across frontiers")
+	var base_loot_rng := RandomNumberGenerator.new()
+	var premium_loot_rng := RandomNumberGenerator.new()
+	base_loot_rng.seed = 4417
+	premium_loot_rng.seed = 4417
+	var canonical_omega_loot := ContentDB.generate_loot(ContentDB.TARGETS[13], base_loot_rng)
+	var premium_omega_loot := ContentDB.generate_loot(omega_premium, premium_loot_rng)
+	check(int(premium_omega_loot.power) == int(canonical_omega_loot.power), "contract danger does not inflate the dropped equipment tier")
 	check(str(ContentDB.target_for_planet_tier("dustball_prime", 1).id) == "baron_boom", "planet tier resolves the next warrant deterministically")
 	check(ContentDB.planet_tier_from_target_captures("dustball_prime", {"gloop": 9}) == 1, "farming the first warrant cannot skip sequential tiers")
 	check(ContentDB.planet_tier_from_target_captures("dustball_prime", {"gloop": 3, "baron_boom": 3, "madame_vacuum": 3}) == 3, "three captures of each prerequisite unlock the boss")

@@ -11,7 +11,7 @@ const CAREERS := 20
 func _init() -> void:
 	var results: Dictionary = {}
 	for planet in Content.PLANETS:
-		results[str(planet.id)] = {"odds": [[], [], [], []], "power": [[], [], [], []], "health": [[], [], [], []]}
+		results[str(planet.id)] = {"odds": [[], [], [], []], "power": [[], [], [], []], "health": [[], [], [], []], "approach": [[], [], [], []], "option_odds": [[], [], [], []]}
 	for career_seed in CAREERS:
 		var state = StateScript.new()
 		state.persistence_enabled = false
@@ -26,6 +26,8 @@ func _init() -> void:
 				results[planet_id].odds[tier].append(Rules.bounty_odds(state.player, contract))
 				results[planet_id].power[tier].append(Rules.player_power(state.player))
 				results[planet_id].health[tier].append(Rules.max_health(state.player))
+				results[planet_id].approach[tier].append(str(contract.get("approach", {}).get("id", "none")))
+				results[planet_id].option_odds[tier].append(contract_odds(state.player, target))
 				var captures := 1 if tier == 3 else 3
 				for _capture in captures:
 					claim_win(state, contract)
@@ -38,7 +40,7 @@ func _init() -> void:
 		for tier in 4:
 			var target := Content.target_for_planet_tier(planet_id, tier)
 			var odds: Array = results[planet_id].odds[tier]
-			print("  %-24s arrival=%d%% · below 55%%=%d%% · power=%d · health=%d" % [str(target.name), roundi(median(odds) * 100.0), roundi(fraction_below(odds, ContractRulesScript.MIN_RECOMMENDED_ODDS) * 100.0), roundi(median(results[planet_id].power[tier])), roundi(median(results[planet_id].health[tier]))])
+			print("  %-24s arrival=%d%% · below 55%%=%d%% · power=%d · health=%d · approach=%s · options=%s" % [str(target.name), roundi(median(odds) * 100.0), roundi(fraction_below(odds, ContractRulesScript.MIN_RECOMMENDED_ODDS) * 100.0), roundi(median(results[planet_id].power[tier])), roundi(median(results[planet_id].health[tier])), approach_summary(results[planet_id].approach[tier]), option_odds_summary(results[planet_id].option_odds[tier])])
 	quit(0)
 
 
@@ -52,6 +54,13 @@ func recommended_contract(player: Dictionary, target: Dictionary) -> Dictionary:
 		if str(evaluation.id) == recommended_id:
 			return evaluation.contract
 	return target.duplicate(true)
+
+
+func contract_odds(player: Dictionary, target: Dictionary) -> Dictionary:
+	var odds: Dictionary = {}
+	for approach in Content.contract_approaches():
+		odds[str(approach.id)] = Rules.bounty_odds(player, Content.apply_approach(target, approach))
+	return odds
 
 
 func claim_win(state: StateScript, contract: Dictionary) -> void:
@@ -99,3 +108,27 @@ func fraction_below(values: Array, threshold: float) -> float:
 		if float(value) < threshold:
 			count += 1
 	return float(count) / float(values.size())
+
+
+func approach_summary(values: Array) -> String:
+	var counts: Dictionary = {}
+	for value in values:
+		var approach_id := str(value)
+		counts[approach_id] = int(counts.get(approach_id, 0)) + 1
+	var parts: Array[String] = []
+	for approach in Content.contract_approaches():
+		var approach_id := str(approach.id)
+		var count := int(counts.get(approach_id, 0))
+		if count > 0:
+			parts.append("%s %d%%" % [approach_id, roundi(float(count) / float(values.size()) * 100.0)])
+	return ", ".join(parts)
+
+
+func option_odds_summary(samples: Array) -> String:
+	var parts: Array[String] = []
+	for approach in Content.contract_approaches():
+		var values: Array = []
+		for sample in samples:
+			values.append(float(sample.get(str(approach.id), 0.0)))
+		parts.append("%s %d%%" % [str(approach.id), roundi(median(values) * 100.0)])
+	return "/".join(parts)

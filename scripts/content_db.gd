@@ -756,6 +756,9 @@ static func warrant_progress(planet_id: String, captures_by_target: Dictionary) 
 static func apply_approach(bounty: Dictionary, approach: Dictionary) -> Dictionary:
 	var result := bounty.duplicate(true)
 	result["approach"] = approach.duplicate(true)
+	# Contract danger affects the encounter, not the equipment tier that drops.
+	# Otherwise the fastest recommended route compounds its own power advantage.
+	result["loot_power"] = int(bounty.get("loot_power", bounty.power))
 	result["duration"] = maxi(1, ceili(float(bounty.duration) * float(approach.duration_mult)))
 	result["power"] = maxi(1, roundi(float(bounty.power) * float(approach.power_mult)))
 	result["defense"] = maxi(0, roundi(float(bounty.defense) * float(approach.defense_mult)))
@@ -791,7 +794,7 @@ static func generate_loot(target: Dictionary, rng: RandomNumberGenerator, master
 	var item_family: Dictionary = PLANET_ITEM_CATALOGS.get(planet_id, ITEM_CATALOG)
 	var catalog: Array = item_family[slot]
 	var definition: Dictionary = catalog[rng.randi_range(0, catalog.size() - 1)]
-	var base_power := int(target.power * rng.randf_range(0.36, 0.68))
+	var base_power := int(int(target.get("loot_power", target.power)) * rng.randf_range(0.36, 0.68))
 	var rarity_roll := rng.randf()
 	var rarity_thresholds := CoreRulesScript.loot_rarity_thresholds(mastery_level)
 	var rarity := "Comum"
