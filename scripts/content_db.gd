@@ -474,6 +474,18 @@ const HUNT_EVENTS := [
 	},
 ]
 
+const ITEM_TRAITS := {
+	"weapon": [
+		{"id": "crooked_coil", "name": "BOBINA TORTA", "description": "+2 poder de combate.", "power_bonus": 2, "health_bonus": 0},
+		{"id": "argument_amplifier", "name": "AMPLIFICADOR DE ARGUMENTO", "description": "+1 poder e +6 integridade.", "power_bonus": 1, "health_bonus": 6},
+	],
+	"armor": [
+		{"id": "reactive_lining", "name": "FORRO REATIVO", "description": "+14 de integridade máxima.", "power_bonus": 0, "health_bonus": 14},
+		{"id": "illegal_servos", "name": "SERVOS NÃO DECLARADOS", "description": "+1 poder e +8 integridade.", "power_bonus": 1, "health_bonus": 8},
+	],
+}
+
+
 const ITEM_CATALOG := {
 	"weapon": [
 		{"name": "Desatomizador de Bolso", "description": "Desmonta átomos, garantias e conversas constrangedoras."},
@@ -601,7 +613,7 @@ static func generate_loot(target: Dictionary, rng: RandomNumberGenerator) -> Dic
 		rarity = "Raro"
 		rarity_color = "#58d9ff"
 		bonus = 2
-	return {
+	var item := {
 		"id": "%s_%s_%d" % [target.id, slot, rng.randi()],
 		"name": definition.name,
 		"description": definition.description,
@@ -610,6 +622,10 @@ static func generate_loot(target: Dictionary, rng: RandomNumberGenerator) -> Dic
 		"rarity": rarity,
 		"color": rarity_color,
 	}
+	if rarity == "Épico" or (rarity == "Raro" and rng.randf() < 0.65):
+		var traits: Array = ITEM_TRAITS[slot]
+		item.trait = traits[rng.randi_range(0, traits.size() - 1)].duplicate(true)
+	return item
 
 
 static func player_attack(rng: RandomNumberGenerator) -> String:

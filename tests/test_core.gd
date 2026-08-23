@@ -29,6 +29,11 @@ func test_power_and_health() -> void:
 	}
 	check(Rules.player_power(player) == 19, "power includes base, weapon, and armor")
 	check(Rules.max_health(player) == 97, "health includes level and armor")
+	player.weapon.trait = {"power_bonus": 2, "health_bonus": 0}
+	player.armor.trait = {"power_bonus": 0, "health_bonus": 14}
+	check(Rules.player_power(player) == 21, "equipment traits contribute combat power")
+	check(Rules.max_health(player) == 111, "equipment traits contribute maximum health")
+	check(Rules.is_upgrade({"power": 4, "trait": {"power_bonus": 2}}, {"power": 5}), "effective equipment score can outweigh lower base power")
 
 
 func test_damage_boundaries() -> void:
@@ -79,6 +84,7 @@ func test_loot_generation() -> void:
 	check(not str(item.description).is_empty(), "loot carries original flavor text")
 	check(Rules.salvage_value({"power": 9, "rarity": "Comum"}) == 3, "common salvage scales from item power")
 	check(Rules.salvage_value({"power": 9, "rarity": "Épico"}) == 12, "rarity increases salvage yield")
+	check(Rules.salvage_value({"power": 9, "rarity": "Comum", "trait": {"power_bonus": 1}}) == 5, "modified gear grants extra salvage")
 	check(Rules.equipment_upgrade_cost({"power": 10}) == 11, "workshop upgrade cost rises with power")
 	var frozen_rng := RandomNumberGenerator.new()
 	frozen_rng.seed = 8811
@@ -115,6 +121,16 @@ func test_loot_generation() -> void:
 	var fungal_loot := Content.generate_loot(Content.TARGETS[8], fungal_rng)
 	var fungal_names := Content.PLANET_ITEM_CATALOGS.micelia_404.weapon + Content.PLANET_ITEM_CATALOGS.micelia_404.armor
 	check(fungal_names.any(func(definition): return str(definition.name) == str(fungal_loot.name)), "fungal target generates its own item family")
+	var trait_rng := RandomNumberGenerator.new()
+	trait_rng.seed = 77221
+	var found_trait := false
+	for _roll in 80:
+		var rolled_item := Content.generate_loot(Content.TARGETS[7], trait_rng)
+		if rolled_item.has("trait"):
+			found_trait = true
+			check(str(rolled_item.rarity) == "Raro" or str(rolled_item.rarity) == "Épico", "only rare equipment receives a modification")
+			break
+	check(found_trait, "loot generation produces equipment modifications")
 	var safe_approach: Dictionary = Content.contract_approaches()[0]
 	var adjusted := Content.apply_approach(Content.TARGETS[0], safe_approach)
 	check(adjusted.duration == 7, "safe approach lengthens tracking")

@@ -6,6 +6,7 @@ signal combat_event(message: String)
 enum Phase { BOARD, HUNT, COMBAT, REWARD, VICTORY, BRIEFING, HUNT_EVENT, CHAPTER_COMPLETE }
 
 const SAVE_PATH := "user://crooked_galaxy_save.json"
+const SAVE_VERSION := 2
 
 var player: Dictionary
 var phase: int = Phase.BOARD
@@ -457,6 +458,45 @@ func scrap_item(item_id: String) -> bool:
 	return false
 
 
+func inferior_recycle_preview() -> Dictionary:
+	var equipped_ids := [str(player.get("weapon", {}).get("id", "")), str(player.get("armor", {}).get("id", ""))]
+	var count := 0
+	var scrap := 0
+	for item in player.get("inventory", []):
+		var slot := str(item.get("slot", ""))
+		if slot != "weapon" and slot != "armor":
+			continue
+		if equipped_ids.has(str(item.get("id", ""))):
+			continue
+		if not CoreRules.is_upgrade(item, player.get(slot, {})):
+			count += 1
+			scrap += CoreRules.salvage_value(item)
+	return {"count": count, "scrap": scrap}
+
+
+func recycle_inferior_inventory() -> Dictionary:
+	if phase != Phase.BOARD:
+		return {"count": 0, "scrap": 0}
+	var preview := inferior_recycle_preview()
+	if int(preview.count) <= 0:
+		return preview
+	var equipped_ids := [str(player.get("weapon", {}).get("id", "")), str(player.get("armor", {}).get("id", ""))]
+	var retained: Array = []
+	for item in player.get("inventory", []):
+		var slot := str(item.get("slot", ""))
+		var is_equipped := equipped_ids.has(str(item.get("id", "")))
+		var is_inferior := (slot == "weapon" or slot == "armor") and not CoreRules.is_upgrade(item, player.get(slot, {}))
+		if is_equipped or not is_inferior:
+			retained.append(item)
+	player.inventory = retained
+	player.scrap = int(player.get("scrap", 0)) + int(preview.scrap)
+	player.scrap_recycled_total = int(player.get("scrap_recycled_total", 0)) + int(preview.scrap)
+	last_notice = "%d peças inferiores recicladas: +%d sucata." % [int(preview.count), int(preview.scrap)]
+	save_game()
+	changed.emit()
+	return preview
+
+
 func upgrade_equipped(slot: String) -> bool:
 	if phase != Phase.BOARD or (slot != "weapon" and slot != "armor"):
 		return false
@@ -515,7 +555,7 @@ func save_game() -> void:
 		return
 	player.last_seen_unix = Time.get_unix_time_from_system()
 	var payload := {
-		"version": 1,
+		"version": SAVE_VERSION,
 		"player": player,
 		"phase": int(phase),
 		"current_bounty": current_bounty,
@@ -546,7 +586,11 @@ func load_game() -> void:
 	if not file:
 		return
 	var parsed = JSON.parse_string(file.get_as_text())
-	if not parsed is Dictionary or int(parsed.get("version", 0)) != 1:
+	if not parsed is Dictionary:
+		return
+	var requires_migration_save := int(parsed.get("version", 0)) < SAVE_VERSION
+	parsed = migrate_save_payload(parsed)
+	if parsed.is_empty():
 		return
 	var loaded_player = parsed.get("player", {})
 	if loaded_player is Dictionary:
@@ -583,3 +627,28 @@ func load_game() -> void:
 		# Combat resumes safely from its saved health values.
 		player_hp = maxi(1, player_hp)
 		enemy_hp = maxi(1, enemy_hp)
+	if requires_migration_save:
+		save_game()
+
+
+func migrate_save_payload(payload: Dictionary) -> Dictionary:
+	var version := int(payload.get("version", 0))
+	if version <= 0 or version > SAVE_VERSION:
+		return {}
+	var migrated := payload.duplicate(true)
+	while version < SAVE_VERSION:
+		match version:
+			1:
+				var saved_player: Dictionary = migrated.get("player", {})
+				if not saved_player.has("claimed_milestones"):
+					saved_player.claimed_milestones = []
+				if not saved_player.has("career_credits_claimed"):
+					saved_player.career_credits_claimed = 0
+				if not saved_player.has("career_scrap_claimed"):
+					saved_player.career_scrap_claimed = 0
+				migrated.player = saved_player
+				version = 2
+			_:
+				return {}
+		migrated.version = version
+	return migrated

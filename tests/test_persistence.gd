@@ -2,6 +2,7 @@ extends SceneTree
 
 const StateScript = preload("res://scripts/game_state.gd")
 const TEST_SAVE := "user://crooked_galaxy_test_save.json"
+const LEGACY_SAVE := "user://crooked_galaxy_legacy_save.json"
 
 var failures := 0
 
@@ -32,6 +33,9 @@ func _init() -> void:
 		{"actor": "player", "action": "Teste de Impacto", "damage": 17, "quality": "CRÍTICO"},
 	])
 	source.save_game()
+	var saved_file := FileAccess.open(TEST_SAVE, FileAccess.READ)
+	var saved_payload = JSON.parse_string(saved_file.get_as_text())
+	check(int(saved_payload.get("version", 0)) == StateScript.SAVE_VERSION, "new saves use the current schema version")
 
 	var restored = StateScript.new()
 	restored.save_path = TEST_SAVE
@@ -103,14 +107,38 @@ func _init() -> void:
 	offline.dismiss_afk_report()
 	check(offline.afk_report.is_empty(), "AFK report can be dismissed")
 
+	var legacy_player := source.default_player()
+	legacy_player.erase("claimed_milestones")
+	legacy_player.erase("career_credits_claimed")
+	legacy_player.erase("career_scrap_claimed")
+	legacy_player.credits = 77
+	legacy_player.wins = 2
+	legacy_player.last_seen_unix = Time.get_unix_time_from_system()
+	var legacy_file := FileAccess.open(LEGACY_SAVE, FileAccess.WRITE)
+	legacy_file.store_string(JSON.stringify({"version": 1, "player": legacy_player, "phase": source.Phase.BOARD}))
+	legacy_file = null
+	var migrated = StateScript.new()
+	migrated.save_path = LEGACY_SAVE
+	migrated.load_game()
+	check(int(migrated.player.credits) == 77, "version one player data survives migration")
+	check(migrated.player.claimed_milestones is Array, "migration adds claimed career milestones")
+	check(int(migrated.player.career_credits_claimed) == 0, "migration initializes career reward totals")
+	var migrated_file := FileAccess.open(LEGACY_SAVE, FileAccess.READ)
+	var migrated_payload = JSON.parse_string(migrated_file.get_as_text())
+	check(int(migrated_payload.get("version", 0)) == StateScript.SAVE_VERSION, "successful migration is persisted immediately")
+	check(migrated.migrate_save_payload({"version": StateScript.SAVE_VERSION + 1}).is_empty(), "future save versions are rejected safely")
+
 	source.free()
 	restored.free()
 	restored_briefing.free()
 	restored_event.free()
 	restored_chapter.free()
 	offline.free()
+	migrated.free()
 	if FileAccess.file_exists(TEST_SAVE):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SAVE))
+	if FileAccess.file_exists(LEGACY_SAVE):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(LEGACY_SAVE))
 	if failures == 0:
 		print("PASS: save and load preserve an interrupted reward flow")
 		quit(0)

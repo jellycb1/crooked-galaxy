@@ -23,6 +23,8 @@ var combat_fast := false
 var sound_fx: Node
 var previous_phase := -1
 var space_backdrop: Control
+var inventory_filter := "all"
+var inventory_sort := "power"
 
 
 func _ready() -> void:
@@ -498,8 +500,10 @@ func build_arsenal() -> void:
 	equipped_row.add_child(workshop_upgrade_card("weapon"))
 	equipped_row.add_child(workshop_upgrade_card("armor"))
 
-	var inventory_title := label("ITENS ENCONTRADOS", 14, MUTED)
+	var visible_items := filtered_inventory()
+	var inventory_title := label("ITENS ENCONTRADOS · %d / %d" % [visible_items.size(), GameState.player.inventory.size()], 14, MUTED)
 	content.add_child(inventory_title)
+	content.add_child(inventory_toolbar())
 	var scroller := ScrollContainer.new()
 	scroller.name = "InventoryScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -508,16 +512,14 @@ func build_arsenal() -> void:
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", 10)
 	scroller.add_child(list)
-	var items: Array = GameState.player.inventory.duplicate(true)
-	items.sort_custom(func(a, b): return int(a.power) > int(b.power))
-	if items.is_empty():
+	if visible_items.is_empty():
 		var empty := panel(VBoxContainer.new(), PANEL, 24, 24)
 		var empty_box := empty.get_child(0) as VBoxContainer
-		empty_box.add_child(center_label("Seu arsenal ainda ecoa de tão vazio.", 18, MUTED))
-		empty_box.add_child(center_label("Conclua uma bounty para encontrar equipamento.", 14, MUTED))
+		empty_box.add_child(center_label("Nenhuma peça neste filtro.", 18, MUTED))
+		empty_box.add_child(center_label("Outros compartimentos talvez estejam menos vazios.", 14, MUTED))
 		list.add_child(empty)
 	else:
-		for item in items:
+		for item in visible_items:
 			list.add_child(inventory_item_card(item))
 
 	var audio := action_button("SOM · %s" % ("LIGADO" if bool(GameState.player.get("sound_enabled", true)) else "DESLIGADO"), CYAN, true)
@@ -534,6 +536,81 @@ func build_arsenal() -> void:
 		content.add_child(reset)
 
 
+func filtered_inventory() -> Array:
+	var items: Array = []
+	for item in GameState.player.inventory:
+		if inventory_filter == "all" or str(item.get("slot", "")) == inventory_filter:
+			items.append(item.duplicate(true))
+	items.sort_custom(inventory_item_before)
+	return items
+
+
+func inventory_item_before(a: Dictionary, b: Dictionary) -> bool:
+	if inventory_sort == "rarity":
+		var rarity_difference := rarity_weight(str(a.get("rarity", "Comum"))) - rarity_weight(str(b.get("rarity", "Comum")))
+		if rarity_difference != 0:
+			return rarity_difference > 0
+	var power_difference := CoreRules.equipment_score(a) - CoreRules.equipment_score(b)
+	if power_difference != 0:
+		return power_difference > 0
+	return str(a.get("id", "")) < str(b.get("id", ""))
+
+
+func rarity_weight(rarity: String) -> int:
+	match rarity:
+		"Épico":
+			return 3
+		"Raro":
+			return 2
+		_:
+			return 1
+
+
+func inventory_toolbar() -> VBoxContainer:
+	var toolbar := VBoxContainer.new()
+	toolbar.add_theme_constant_override("separation", 7)
+	var filters := HBoxContainer.new()
+	filters.add_theme_constant_override("separation", 6)
+	toolbar.add_child(filters)
+	for definition in [
+		{"id": "all", "text": "TODOS"},
+		{"id": "weapon", "text": "ARMAS"},
+		{"id": "armor", "text": "ARMADURAS"},
+	]:
+		var mode := str(definition.id)
+		var selected := inventory_filter == mode
+		var filter_button := action_button(str(definition.text), CYAN if selected else MUTED, not selected)
+		filter_button.name = "InventoryFilter_%s" % mode
+		filter_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		filter_button.custom_minimum_size = Vector2(0, 39)
+		filter_button.add_theme_font_size_override("font_size", 10)
+		filter_button.pressed.connect(func():
+			inventory_filter = mode
+			render()
+		)
+		filters.add_child(filter_button)
+	var sort := action_button("ORDEM · %s" % ("RARIDADE" if inventory_sort == "rarity" else "PODER"), GOLD, true)
+	sort.name = "InventorySort"
+	sort.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sort.custom_minimum_size = Vector2(0, 39)
+	sort.add_theme_font_size_override("font_size", 10)
+	sort.pressed.connect(func():
+		inventory_sort = "rarity" if inventory_sort == "power" else "power"
+		render()
+	)
+	filters.add_child(sort)
+	var preview := GameState.inferior_recycle_preview()
+	var recycle := action_button("RECICLAR INFERIORES · %d PEÇAS · +%d SUCATA" % [int(preview.count), int(preview.scrap)], CORAL if int(preview.count) > 0 else MUTED, true)
+	recycle.name = "RecycleInferior"
+	recycle.disabled = int(preview.count) <= 0
+	recycle.custom_minimum_size = Vector2(0, 42)
+	recycle.add_theme_font_size_override("font_size", 11)
+	recycle.tooltip_text = "Recicla apenas peças não equipadas que não superam o poder atual do mesmo slot."
+	recycle.pressed.connect(GameState.recycle_inferior_inventory)
+	toolbar.add_child(recycle)
+	return toolbar
+
+
 func inventory_item_card(item: Dictionary) -> PanelContainer:
 	var card := panel(HBoxContainer.new(), PANEL, 15, 15)
 	var row := card.get_child(0) as HBoxContainer
@@ -547,10 +624,13 @@ func inventory_item_card(item: Dictionary) -> PanelContainer:
 	row.add_child(details)
 	details.add_child(label(str(item.name), 16, INK))
 	details.add_child(label("%s · %s · +%d poder" % [str(item.rarity), slot_name(str(item.slot)), int(item.power)], 13, Color(str(item.color))))
+	if item.has("trait"):
+		details.add_child(label("◆ %s · %s" % [str(item.trait.name), str(item.trait.description)], 11, GOLD))
 	var current: Dictionary = GameState.player[str(item.slot)]
 	var equipped := str(current.get("id", "")) == str(item.get("id", ""))
-	var difference := int(item.power) - int(current.power)
-	var status := label("EQUIPADO" if equipped else ("%+d vs. atual" % difference), 13, LIME if difference > 0 or equipped else MUTED)
+	var score_difference := CoreRules.equipment_score(item) - CoreRules.equipment_score(current)
+	var comparison_text := "EQUIPADO" if equipped else equipment_delta_text(item)
+	var status := label(comparison_text, 11, LIME if score_difference > 0 or equipped else (GOLD if score_difference == 0 else MUTED))
 	status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(status)
 	if not equipped:
@@ -572,6 +652,23 @@ func inventory_item_card(item: Dictionary) -> PanelContainer:
 	return card
 
 
+func equipment_delta_text(item: Dictionary) -> String:
+	var slot := str(item.get("slot", ""))
+	var current_player: Dictionary = GameState.player
+	var simulated: Dictionary = current_player.duplicate(true)
+	simulated[slot] = item
+	var power_delta := CoreRules.player_power(simulated) - CoreRules.player_power(current_player)
+	var health_delta := CoreRules.max_health(simulated) - CoreRules.max_health(current_player)
+	var parts: Array[String] = []
+	if power_delta != 0:
+		parts.append("%+d PODER" % power_delta)
+	if health_delta != 0:
+		parts.append("%+d VIDA" % health_delta)
+	if parts.is_empty():
+		return "= MESMO EFEITO"
+	return ("▲ " if CoreRules.is_upgrade(item, current_player.get(slot, {})) else "▼ ") + " · ".join(parts)
+
+
 func workshop_upgrade_card(slot: String) -> PanelContainer:
 	var item: Dictionary = GameState.player[slot]
 	var cost := CoreRules.equipment_upgrade_cost(item)
@@ -581,6 +678,8 @@ func workshop_upgrade_card(slot: String) -> PanelContainer:
 	var box := card.get_child(0) as VBoxContainer
 	box.add_child(label(slot_name(slot).to_upper(), 11, MUTED))
 	box.add_child(label("%s · +%d" % [str(item.name), int(item.power)], 13, INK))
+	if item.has("trait"):
+		box.add_child(label("◆ %s" % str(item.trait.name), 10, GOLD))
 	var improve := action_button("+1 PODER · %d SUCATA" % cost, LIME if affordable else MUTED, true)
 	improve.name = "Upgrade_%s" % slot
 	improve.disabled = not affordable
@@ -954,10 +1053,16 @@ func build_reward() -> void:
 	var comparison_text := "+%d vs. equipado" % comparison if comparison > 0 else "%d vs. equipado" % comparison
 	if comparison > 0:
 		box.add_child(center_label("▲ UPGRADE ENCONTRADO", 15, LIME))
-	box.add_child(center_label(comparison_text, 15, LIME if comparison > 0 else MUTED))
+	var effective_upgrade := CoreRules.is_upgrade(item, equipped)
+	if effective_upgrade and comparison <= 0:
+		box.add_child(center_label("▲ MODIFICAÇÃO SUPERIOR", 15, LIME))
+	if item.has("trait"):
+		box.add_child(center_label("◆ %s · %s" % [str(item.trait.name), str(item.trait.description)], 13, GOLD))
+	box.add_child(center_label(equipment_delta_text(item), 15, LIME if effective_upgrade else MUTED))
+	box.add_child(center_label("EQUIPADO: %s +%d · RECICLAGEM: %d SUCATA" % [str(equipped.name), int(equipped.power), CoreRules.salvage_value(item)], 12, MUTED))
 	box.add_child(center_label("◈ %d créditos   ✦ %d XP" % [int(GameState.current_bounty.credits), int(GameState.current_bounty.xp)], 17, GOLD))
 	content.add_spacer(false)
-	var equip_now := CoreRules.is_upgrade(item, equipped)
+	var equip_now := effective_upgrade
 	var claim := action_button("EQUIPAR E CONTINUAR" if equip_now else "GUARDAR E CONTINUAR", LIME)
 	claim.pressed.connect(func():
 		GameState.claim_reward(equip_now)

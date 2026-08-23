@@ -99,6 +99,10 @@ func capture() -> void:
 		return
 
 	state.open_reward()
+	state.pending_loot.rarity = "Raro"
+	state.pending_loot.color = "#58d9ff"
+	state.pending_loot.trait = {"id": "crooked_coil", "name": "BOBINA TORTA", "description": "+2 poder de combate.", "power_bonus": 2, "health_bonus": 0}
+	scene.render()
 	await process_frame
 	await process_frame
 	await create_timer(0.42).timeout
@@ -108,6 +112,9 @@ func capture() -> void:
 	state.claim_reward(true)
 	state.player.scrap = 18
 	state.player.inventory.append({"id": "capture_spare", "name": "Colete Fiscal Vencido", "description": "A proteção expirou no trimestre passado.", "slot": "armor", "power": 5, "rarity": "Comum", "color": "#b9c2d9"})
+	state.player.inventory.append({"id": "capture_old_weapon", "name": "Zapper de Gaveta", "description": "Dispara melhor quando a gaveta está aberta.", "slot": "weapon", "power": 1, "rarity": "Comum", "color": "#b9c2d9"})
+	state.player.inventory.append({"id": "capture_old_armor", "name": "Colete Pré-Amassado", "description": "Economiza o trabalho do primeiro impacto.", "slot": "armor", "power": 1, "rarity": "Comum", "color": "#b9c2d9"})
+	state.player.inventory.append({"id": "capture_upgrade_weapon", "name": "Carabina de Cláusula Curta", "description": "O contrato termina antes do carregador.", "slot": "weapon", "power": 7, "rarity": "Raro", "color": "#58d9ff", "trait": {"id": "argument_amplifier", "name": "AMPLIFICADOR DE ARGUMENTO", "description": "+1 poder e +6 integridade.", "power_bonus": 1, "health_bonus": 6}})
 	scene.view_mode = "arsenal"
 	scene.render()
 	await process_frame
@@ -115,6 +122,17 @@ func capture() -> void:
 	if save_frame("ui_arsenal.png") != OK:
 		quit(1)
 		return
+	scene.inventory_filter = "weapon"
+	scene.inventory_sort = "rarity"
+	scene.render()
+	await process_frame
+	await process_frame
+	await create_timer(0.12).timeout
+	if save_frame("ui_arsenal_filtered.png") != OK:
+		quit(1)
+		return
+	scene.inventory_filter = "all"
+	scene.inventory_sort = "power"
 	state.player.wins = 10
 	state.player.reputation = 3
 	state.player.level = 4
@@ -258,7 +276,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, AFK return, career, wanted archive, galaxy, incidents, three finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, three finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

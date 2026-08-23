@@ -61,13 +61,28 @@ func run_smoke_test() -> void:
 	state.claim_reward(true)
 	state.player.scrap = 18
 	state.player.inventory.append({"id": "ui_spare", "name": "Peça Obsoleta", "description": "Serve melhor desmontada.", "slot": "armor", "power": 6, "rarity": "Comum", "color": "#b9c2d9"})
+	state.player.inventory.append({"id": "ui_inferior", "name": "Peça Arquivada", "description": "Já perdeu a discussão.", "slot": "weapon", "power": 1, "rarity": "Comum", "color": "#b9c2d9"})
 	scene.view_mode = "arsenal"
 	scene.render()
 	await process_frame
 	check(scene.find_child("InventoryScroll", true, false) != null, "arsenal screen renders")
-	check(state.player.inventory.size() == 2, "arsenal receives claimed and spare loot")
+	check(state.player.inventory.size() == 3, "arsenal receives claimed, spare, and inferior loot")
 	check(scene.find_child("Upgrade_weapon", true, false) != null, "workshop renders equipment upgrades")
 	check(scene.find_child("Scrap_ui_spare", true, false) != null, "workshop renders recycling for spare loot")
+	check(scene.find_child("InventoryFilter_weapon", true, false) != null, "arsenal renders slot filters")
+	check(scene.find_child("InventorySort", true, false) != null, "arsenal renders inventory sorting")
+	var bulk_recycle := scene.find_child("RecycleInferior", true, false) as Button
+	check(bulk_recycle != null and not bulk_recycle.disabled, "arsenal enables safe bulk recycling when inferior items exist")
+	var weapon_filter := scene.find_child("InventoryFilter_weapon", true, false) as Button
+	weapon_filter.pressed.emit()
+	await process_frame
+	check(scene.inventory_filter == "weapon", "weapon filter updates arsenal state")
+	check(scene.find_child("Scrap_ui_spare", true, false) == null, "weapon filter hides armor inventory cards")
+	check(scene.find_child("Scrap_ui_inferior", true, false) != null, "weapon filter keeps weapon inventory cards")
+	var sort_button := scene.find_child("InventorySort", true, false) as Button
+	sort_button.pressed.emit()
+	await process_frame
+	check(scene.inventory_sort == "rarity", "sort control toggles from power to rarity")
 
 	state.phase = state.Phase.CHAPTER_COMPLETE
 	state.chapter_completion = {

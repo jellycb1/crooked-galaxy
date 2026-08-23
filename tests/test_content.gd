@@ -58,6 +58,15 @@ func _init() -> void:
 		check(family.has("weapon") and family.get("weapon", []).size() >= 4, "planet has a weapon family: %s" % str(planet.id))
 		check(family.has("armor") and family.get("armor", []).size() >= 4, "planet has an armor family: %s" % str(planet.id))
 
+	var trait_ids := {}
+	for slot in ["weapon", "armor"]:
+		check(ContentDB.ITEM_TRAITS.has(slot) and ContentDB.ITEM_TRAITS[slot].size() >= 2, "equipment slot has modification variety: %s" % slot)
+		for modification in ContentDB.ITEM_TRAITS[slot]:
+			var trait_id := str(modification.get("id", ""))
+			check(not trait_id.is_empty() and not trait_ids.has(trait_id), "equipment modification id is unique: %s" % trait_id)
+			trait_ids[trait_id] = true
+			check(int(modification.get("power_bonus", 0)) > 0 or int(modification.get("health_bonus", 0)) > 0, "equipment modification has a mechanical effect: %s" % trait_id)
+
 	check(ContentDB.CONTRACT_APPROACHES.size() == 3, "every contract keeps three strategic approaches")
 	if failures == 0:
 		print("PASS: all Crooked Galaxy content is internally consistent")

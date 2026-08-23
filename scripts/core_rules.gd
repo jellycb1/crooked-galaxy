@@ -3,13 +3,27 @@ extends RefCounted
 
 
 static func player_power(player: Dictionary) -> int:
-	var weapon_power := int(player.get("weapon", {}).get("power", 0))
-	var armor_power := int(player.get("armor", {}).get("power", 0))
+	var weapon_power := item_combat_power(player.get("weapon", {}))
+	var armor_power := item_combat_power(player.get("armor", {}))
 	return int(player.get("base_power", 10)) + weapon_power + armor_power
 
 
 static func max_health(player: Dictionary) -> int:
-	return 72 + int(player.get("level", 1)) * 8 + int(player.get("armor", {}).get("power", 0)) * 3
+	var weapon: Dictionary = player.get("weapon", {})
+	var armor: Dictionary = player.get("armor", {})
+	return 72 + int(player.get("level", 1)) * 8 + int(armor.get("power", 0)) * 3 + item_health_bonus(weapon) + item_health_bonus(armor)
+
+
+static func item_combat_power(item: Dictionary) -> int:
+	return int(item.get("power", 0)) + int(item.get("trait", {}).get("power_bonus", 0))
+
+
+static func item_health_bonus(item: Dictionary) -> int:
+	return int(item.get("trait", {}).get("health_bonus", 0))
+
+
+static func equipment_score(item: Dictionary) -> int:
+	return item_combat_power(item) * 6 + item_health_bonus(item)
 
 
 static func damage_roll(power: int, defense: int, roll: float) -> int:
@@ -60,7 +74,7 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 
 
 static func is_upgrade(item: Dictionary, equipped: Dictionary) -> bool:
-	return int(item.get("power", 0)) > int(equipped.get("power", 0))
+	return equipment_score(item) > equipment_score(equipped)
 
 
 static func salvage_value(item: Dictionary) -> int:
@@ -70,7 +84,8 @@ static func salvage_value(item: Dictionary) -> int:
 			multiplier = 2
 		"Épico":
 			multiplier = 4
-	return maxi(1, ceili(float(int(item.get("power", 1)) * multiplier) / 3.0))
+	var trait_bonus := 2 if item.has("trait") else 0
+	return maxi(1, ceili(float(int(item.get("power", 1)) * multiplier) / 3.0) + trait_bonus)
 
 
 static func equipment_upgrade_cost(item: Dictionary) -> int:
