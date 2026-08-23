@@ -113,7 +113,7 @@ func start_hunt() -> void:
 	phase = Phase.HUNT
 	hunt_started_at = Time.get_unix_time_from_system()
 	hunt_ends_at = hunt_started_at + float(current_bounty.duration)
-	hunt_event = ContentDB.random_hunt_event(rng)
+	hunt_event = ContentDB.random_hunt_event(rng, str(current_bounty.get("planet_id", ContentDB.PLANET.id)))
 	hunt_event_triggered = false
 	hunt_elapsed_before_event = 0.0
 	hunt_remaining_after_event = 0.0

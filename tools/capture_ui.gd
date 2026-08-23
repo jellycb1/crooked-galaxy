@@ -149,6 +149,22 @@ func capture() -> void:
 	if save_frame("ui_congelaria_board.png") != OK:
 		quit(1)
 		return
+	state.start_bounty(ContentDB.TARGETS[4].duplicate(true))
+	state.hunt_event = ContentDB.HUNT_EVENTS[2].duplicate(true)
+	state.hunt_event_triggered = true
+	state.hunt_elapsed_before_event = 6.0
+	state.hunt_remaining_after_event = 7.0
+	state.phase = state.Phase.HUNT_EVENT
+	scene.render()
+	await process_frame
+	await process_frame
+	await create_timer(0.12).timeout
+	if save_frame("ui_congelaria_event.png") != OK:
+		quit(1)
+		return
+	state.abandon_bounty()
+	await process_frame
+	await process_frame
 	state.player.wins = 19
 	state.player.captures_by_planet.congelaria_sa = 9
 	state.phase = state.Phase.REWARD
@@ -164,7 +180,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, galaxy map, both chapter finales, boss board, and Congelária board to %s" % OUTPUT_DIR)
+	print("Captured primary UI, galaxy map, planet incidents, both finales, boss board, and Congelária board to %s" % OUTPUT_DIR)
 	quit(0)
 
 

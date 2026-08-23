@@ -68,6 +68,16 @@ func test_loot_generation() -> void:
 	check(Rules.salvage_value({"power": 9, "rarity": "Comum"}) == 3, "common salvage scales from item power")
 	check(Rules.salvage_value({"power": 9, "rarity": "Épico"}) == 12, "rarity increases salvage yield")
 	check(Rules.equipment_upgrade_cost({"power": 10}) == 11, "workshop upgrade cost rises with power")
+	var frozen_rng := RandomNumberGenerator.new()
+	frozen_rng.seed = 8811
+	var frozen_loot := Content.generate_loot(Content.TARGETS[4], frozen_rng)
+	var frozen_names := Content.PLANET_ITEM_CATALOGS.congelaria_sa.weapon + Content.PLANET_ITEM_CATALOGS.congelaria_sa.armor
+	check(frozen_names.any(func(definition): return str(definition.name) == str(frozen_loot.name)), "frozen targets use their planet item family")
+	var event_rng := RandomNumberGenerator.new()
+	event_rng.seed = 551
+	var frozen_event := Content.random_hunt_event(event_rng, "congelaria_sa")
+	check(str(frozen_event.planet_id) == "congelaria_sa", "hunt incidents are selected from the active planet")
+	check(str(frozen_event.symbol) != "D-7" and str(frozen_event.symbol) != "LIVE", "planet incident supplies its own UI symbol")
 	check(Content.available_bounties(0).size() == 1, "rank gates advanced bounties")
 	check(Content.available_bounties(1).size() == 2, "new reputation unlocks a bounty")
 	check(Content.available_bounties(2).size() == 3, "third reputation tier unlocks the final regular bounty")
@@ -91,6 +101,9 @@ func test_loot_generation() -> void:
 	check(bribed.defense == 3, "hunt choice can weaken target defense")
 	var rammed := Content.apply_hunt_choice(Content.TARGETS[0], drone_event.choices[2])
 	check(rammed.power == 12 and rammed.credits == 45, "risky hunt choice raises danger and reward")
+	var heat_event: Dictionary = Content.HUNT_EVENTS[2]
+	var heated := Content.apply_hunt_choice(Content.TARGETS[4], heat_event.choices[2])
+	check(heated.power == 31 and heated.credits == 175, "frozen incident applies its local risk and reward")
 
 
 func check(condition: bool, description: String) -> void:

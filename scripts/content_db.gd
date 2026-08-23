@@ -216,6 +216,8 @@ const CONTRACT_APPROACHES := [
 const HUNT_EVENTS := [
 	{
 		"id": "toll_drone",
+		"planet_id": "dustball_prime",
+		"symbol": "D-7",
 		"title": "Pedágio de Drone D-7",
 		"description": "Um drone municipal bloqueia a rota. O adesivo diz: “totalmente oficial”.",
 		"color": "#55e5ff",
@@ -248,6 +250,8 @@ const HUNT_EVENTS := [
 	},
 	{
 		"id": "bounty_streamer",
+		"planet_id": "dustball_prime",
+		"symbol": "LIVE",
 		"title": "Influencer de Caçada",
 		"description": "Uma repórter transmite sua perseguição ao vivo para onze espectadores e um bot.",
 		"color": "#d789ff",
@@ -278,6 +282,62 @@ const HUNT_EVENTS := [
 			},
 		],
 	},
+	{
+		"id": "heat_inspector",
+		"planet_id": "congelaria_sa",
+		"symbol": "-40°",
+		"title": "Fiscal de Calor",
+		"description": "Um termômetro de terno detectou intenções acima da temperatura permitida.",
+		"color": "#72f1dd",
+		"choices": [
+			{
+				"id": "pay_cooling_fee", "name": "PAGAR 12 CRÉDITOS",
+				"effect_text": "O fiscal congela juntas expostas: -20% defesa do alvo.",
+				"credit_cost": 12, "defense_mult": 0.80,
+				"result": "A taxa de resfriamento foi paga. Até os parafusos do alvo bateram os dentes.",
+			},
+			{
+				"id": "fake_badge", "name": "FALSIFICAR UM CRACHÁ",
+				"effect_text": "+2s de caça e +18% XP pela experiência corporativa.",
+				"duration_add": 2.0, "xp_mult": 1.18,
+				"result": "Seu novo cargo é Vice-Caçador Sênior. Ninguém pediu referências.",
+			},
+			{
+				"id": "overclock_heater", "name": "LIGAR O AQUECEDOR",
+				"effect_text": "+10% poder inimigo, mas +20% créditos por insalubridade.",
+				"power_mult": 1.10, "credits_mult": 1.20,
+				"result": "O aquecedor disparou alarmes, bônus de risco e uma torrada esquecida.",
+			},
+		],
+	},
+	{
+		"id": "corporate_avalanche",
+		"planet_id": "congelaria_sa",
+		"symbol": "RACHOU",
+		"title": "Avalanche Corporativa",
+		"description": "A geleira foi reestruturada sem aviso prévio e metade da rota foi demitida.",
+		"color": "#a97cff",
+		"choices": [
+			{
+				"id": "melt_route", "name": "DERRETER A ROTA · 10 CR",
+				"effect_text": "Atalho térmico: o alvo perde 15% de vida.",
+				"credit_cost": 10, "health_mult": 0.85,
+				"result": "A rota derreteu. O departamento jurídico também, mas só um pouco.",
+			},
+			{
+				"id": "climb_shelf", "name": "ESCALAR A GELEIRA",
+				"effect_text": "+3s de caça e +20% XP por treinamento não solicitado.",
+				"duration_add": 3.0, "xp_mult": 1.20,
+				"result": "Você escalou a nova hierarquia glacial sem uma única reunião.",
+			},
+			{
+				"id": "surf_collapse", "name": "SURFAR O COLAPSO",
+				"effect_text": "+12% poder inimigo, mas +22% créditos pelo espetáculo.",
+				"power_mult": 1.12, "credits_mult": 1.22,
+				"result": "A manobra recebeu nota dez e uma advertência de segurança.",
+			},
+		],
+	},
 ]
 
 const ITEM_CATALOG := {
@@ -293,6 +353,23 @@ const ITEM_CATALOG := {
 		{"name": "Armadura Fiscal", "description": "Deduz parte do dano no próximo ano galáctico."},
 		{"name": "Poncho de Titânio", "description": "Elegância de fronteira com nove quilos por ombro."},
 	],
+}
+
+const PLANET_ITEM_CATALOGS := {
+	"congelaria_sa": {
+		"weapon": [
+			{"name": "Lança-Chamas de Escritório", "description": "Aquece café, contratos e negociações hostis."},
+			{"name": "Carabina Criogênica Reversa", "description": "Congela a culpa e descongela o gatilho."},
+			{"name": "Grampeador Térmico", "description": "Prende folhas a três metros e criminosos a dois."},
+			{"name": "Canhão de Sopa Pressurizada", "description": "O caldo é ilegal. Os croutons são perfurantes."},
+		],
+		"armor": [
+			{"name": "Parka de Reunião Infinita", "description": "Mantém o corpo aquecido enquanto a pauta congela a alma."},
+			{"name": "Colete Antitermostato", "description": "Certificado para sobreviver a três auditorias e meia."},
+			{"name": "Terno de Fibra Glacial", "description": "Elegante, blindado e impossível de passar a ferro."},
+			{"name": "Manta Executiva de Emergência", "description": "Dourada por fora, formulário de despesas por dentro."},
+		],
+	},
 }
 
 
@@ -337,8 +414,14 @@ static func apply_approach(bounty: Dictionary, approach: Dictionary) -> Dictiona
 	return result
 
 
-static func random_hunt_event(rng: RandomNumberGenerator) -> Dictionary:
-	return HUNT_EVENTS[rng.randi_range(0, HUNT_EVENTS.size() - 1)].duplicate(true)
+static func random_hunt_event(rng: RandomNumberGenerator, planet_id := "dustball_prime") -> Dictionary:
+	var candidates: Array[Dictionary] = []
+	for event in HUNT_EVENTS:
+		if str(event.get("planet_id", "dustball_prime")) == planet_id:
+			candidates.append(event)
+	if candidates.is_empty():
+		candidates.append(HUNT_EVENTS[0])
+	return candidates[rng.randi_range(0, candidates.size() - 1)].duplicate(true)
 
 
 static func apply_hunt_choice(bounty: Dictionary, choice: Dictionary) -> Dictionary:
@@ -353,7 +436,9 @@ static func apply_hunt_choice(bounty: Dictionary, choice: Dictionary) -> Diction
 
 static func generate_loot(target: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
 	var slot := "weapon" if rng.randf() < 0.58 else "armor"
-	var catalog: Array = ITEM_CATALOG[slot]
+	var planet_id := str(target.get("planet_id", "dustball_prime"))
+	var item_family: Dictionary = PLANET_ITEM_CATALOGS.get(planet_id, ITEM_CATALOG)
+	var catalog: Array = item_family[slot]
 	var definition: Dictionary = catalog[rng.randi_range(0, catalog.size() - 1)]
 	var base_power := int(target.power * rng.randf_range(0.36, 0.68))
 	var rarity_roll := rng.randf()

@@ -626,7 +626,7 @@ func build_hunt_event() -> void:
 	var incident_box := incident.get_child(0) as VBoxContainer
 	incident_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	incident_box.add_theme_constant_override("separation", 8)
-	var symbol := "D-7" if str(event.get("id", "")) == "toll_drone" else "LIVE"
+	var symbol := str(event.get("symbol", "?!"))
 	incident_box.add_child(center_label(symbol, 42, accent))
 	incident_box.add_child(center_label(str(event.get("title", "Algo Estranho")), 26, INK))
 	var description := center_label(str(event.get("description", "A perseguição ficou mais complicada.")), 15, MUTED)
