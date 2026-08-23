@@ -5,6 +5,7 @@ const CombatBackdropScript = preload("res://scripts/combat_backdrop.gd")
 const PortraitScript = preload("res://scripts/procedural_portrait.gd")
 const SoundFXScript = preload("res://scripts/sound_fx.gd")
 const EquipmentPresentation = preload("res://scripts/equipment_presentation.gd")
+const ContractRules = preload("res://scripts/contract_rules.gd")
 const INK := Color("#f4f2ff")
 const MUTED := Color("#9da8c8")
 const CYAN := Color("#55e5ff")
@@ -854,17 +855,29 @@ func build_briefing() -> void:
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", 12)
 	scroller.add_child(list)
+	var evaluations: Array[Dictionary] = []
 	for approach in GameState.offered_approaches:
-		list.add_child(approach_card(bounty, approach))
+		var preview := ContentDB.apply_approach(bounty, approach)
+		var payout := CoreRules.bounty_streak_reward(int(preview.credits), int(GameState.player.get("capture_streak", 0)) + 1)
+		evaluations.append({
+			"id": str(approach.id),
+			"preview": preview,
+			"odds": CoreRules.bounty_odds(GameState.player, preview),
+			"credits": int(payout.credits),
+			"xp": int(preview.xp),
+			"duration": int(preview.duration),
+		})
+	var recommended_id := ContractRules.recommended_approach_id(evaluations)
+	for index in GameState.offered_approaches.size():
+		list.add_child(approach_card(GameState.offered_approaches[index], evaluations[index], recommended_id))
 	var cancel := action_button("VOLTAR AO QUADRO", CORAL, true)
 	cancel.custom_minimum_size = Vector2(0, 48)
 	cancel.pressed.connect(GameState.cancel_briefing)
 	content.add_child(cancel)
 
 
-func approach_card(bounty: Dictionary, approach: Dictionary) -> PanelContainer:
-	var preview := ContentDB.apply_approach(bounty, approach)
-	var payout := CoreRules.bounty_streak_reward(int(preview.credits), int(GameState.player.get("capture_streak", 0)) + 1)
+func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id: String) -> PanelContainer:
+	var preview: Dictionary = evaluation.preview
 	var color := Color(str(approach.color))
 	var card := panel(VBoxContainer.new(), PANEL, 16, 16)
 	var box := card.get_child(0) as VBoxContainer
@@ -876,12 +889,14 @@ func approach_card(bounty: Dictionary, approach: Dictionary) -> PanelContainer:
 	heading.add_child(heading_copy)
 	heading_copy.add_child(label(str(approach.name).to_upper(), 18, color))
 	heading_copy.add_child(label(str(approach.tag), 12, MUTED))
-	if int(GameState.player.wins) == 0 and str(approach.id) == "quiet_net":
-		heading.add_child(label("RECOMENDADO", 12, LIME, HORIZONTAL_ALIGNMENT_RIGHT))
+	if str(approach.id) == recommended_id:
+		var recommendation := label("RECOMENDADO", 12, LIME, HORIZONTAL_ALIGNMENT_RIGHT)
+		recommendation.name = "RecommendedApproach_%s" % str(approach.id)
+		heading.add_child(recommendation)
 	var description := label(str(approach.description), 14, INK)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(description)
-	var odds := CoreRules.bounty_odds(GameState.player, preview)
+	var odds := float(evaluation.odds)
 	var risk_text := "SEGURO" if odds >= 0.72 else ("ARRISCADO" if odds >= 0.42 else "BRUTAL")
 	var risk_color := LIME if odds >= 0.72 else (GOLD if odds >= 0.42 else CORAL)
 	var metrics := HBoxContainer.new()
@@ -889,7 +904,7 @@ func approach_card(bounty: Dictionary, approach: Dictionary) -> PanelContainer:
 	box.add_child(metrics)
 	metrics.add_child(metric_chip("TEMPO", "%ds" % int(preview.duration), MUTED))
 	metrics.add_child(metric_chip("CHANCE", "%d%%" % roundi(odds * 100.0), risk_color))
-	metrics.add_child(metric_chip("PAGAMENTO", "◈ %d" % int(payout.credits), GOLD))
+	metrics.add_child(metric_chip("PAGAMENTO", "◈ %d" % int(evaluation.credits), GOLD))
 	metrics.add_child(metric_chip("EXPERIÊNCIA", "%d XP" % int(preview.xp), CYAN))
 	var choose := action_button("ESCOLHER · %s" % risk_text, color)
 	var approach_id := str(approach.id)

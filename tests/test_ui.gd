@@ -29,6 +29,7 @@ func run_smoke_test() -> void:
 	state.select_bounty(bounty)
 	await process_frame
 	check(scene.find_child("BriefingScroll", true, false) != null, "contract briefing renders")
+	check(scene.find_children("RecommendedApproach_*", "Label", true, false).size() == 1, "briefing renders exactly one dynamic recommendation")
 	state.choose_approach("quiet_net")
 	await process_frame
 	check(scene.find_child("HuntProgress", true, false) != null, "hunt screen renders")
