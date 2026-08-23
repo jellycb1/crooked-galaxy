@@ -31,6 +31,7 @@ Or run an individual suite:
 godot --headless --path . --script res://tests/test_core.gd
 godot --headless --path . --script res://tests/test_flow.gd
 godot --headless --path . --script res://tests/test_ui.gd
+godot --headless --path . --script res://tests/test_ui_factory.gd
 godot --headless --path . --script res://tests/test_persistence.gd
 godot --headless --path . --script res://tests/test_save_migrations.gd
 godot --headless --path . --script res://tests/test_equipment_presentation.gd
