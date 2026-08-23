@@ -37,6 +37,8 @@ func _init() -> void:
 	check(host.find_child("FieldReadiness", true, false) != null, "isolated arsenal translates upgrades into next-warrant odds")
 	var readiness := ArsenalScript.field_readiness(state)
 	check(str(readiness.target.id) == "baron_boom", "field test selects the next planet-tier target")
+	check(str(readiness.approach.id) == "quiet_net" and str(readiness.contract.approach.id) == "quiet_net", "field test uses the same viable approach recommendation as the briefing")
+	check(float(readiness.current_odds) == CoreRules.bounty_odds(state.player, readiness.contract), "field test odds use the applied contract rather than the canonical target")
 	check(float(readiness.power_odds) >= float(readiness.current_odds) and float(readiness.health_odds) >= float(readiness.current_odds), "field test projections are monotonic for real upgrades")
 	state.player.captures_by_target = {"gloop": 3}
 	state.player.captures_by_planet = {"dustball_prime": 3}
@@ -46,6 +48,8 @@ func _init() -> void:
 	ArsenalScript.build(host, content, state)
 	var unlocked_target_label := host.find_child("FieldReadinessTarget", true, false) as Label
 	check(unlocked_target_label != null and unlocked_target_label.text.contains("MANDADO ATUAL: BARÃO BOOM"), "field test explains that the newly unlocked warrant is currently actionable")
+	var readiness_approach := host.find_child("FieldReadinessApproach", true, false) as Label
+	check(readiness_approach != null and readiness_approach.text.contains("REDE SILENCIOSA"), "field test names the fixed approach behind its projections")
 	var field_action := host.find_child("FieldReadinessAction", true, false) as Button
 	check(field_action != null and field_action.text == "CAÇAR AGORA", "field test links an available uncaptured warrant directly")
 	state.player.captures_by_target.baron_boom = 1
@@ -55,6 +59,20 @@ func _init() -> void:
 	state.player.captures_by_planet.dustball_prime = 3
 	field_action.pressed.emit()
 	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "baron_boom", "field-test action opens the focused warrant briefing")
+	var late_state = StateScript.new()
+	late_state.persistence_enabled = false
+	late_state.player = late_state.default_player()
+	late_state.player.current_planet_id = "ferro_velho_omega"
+	late_state.player.level = 16
+	late_state.player.base_power = 40
+	late_state.player.weapon = {"id": "late_weapon", "name": "Prensa Portátil", "slot": "weapon", "power": 56, "origin_planet_id": "ferro_velho_omega", "integrity_upgrades": 3, "trait": {"power_bonus": 2}}
+	late_state.player.armor = {"id": "late_armor", "name": "Chassi Executivo", "slot": "armor", "power": 49, "origin_planet_id": "ferro_velho_omega", "integrity_upgrades": 3, "trait": {"power_bonus": 1, "health_bonus": 8}}
+	late_state.player.captures_by_target = {"bolt_collector": 3, "doctor_patchwork": 3, "crane_king": 3}
+	late_state.player.captures_by_planet = {"ferro_velho_omega": 9}
+	var late_readiness := ArsenalScript.field_readiness(late_state)
+	check(str(late_readiness.target.id) == "omega_junkyard" and str(late_readiness.approach.id) == "hot_hatch", "boss-ready field test focuses the viable fast contract instead of a saturated base target")
+	check(float(late_readiness.current_odds) < CoreRules.bounty_odds(late_state.player, late_readiness.target), "boss-ready projection preserves the recommended approach's real combat risk")
+	late_state.free()
 	var kit_status := host.find_child("PlanetaryKitStatus", true, false) as Label
 	check(kit_status != null and kit_status.text.contains("DUSTBALL PRIME") and kit_status.text.contains("+1 PODER") and kit_status.text.contains("+6 VIDA"), "arsenal exposes the active planetary kit")
 	check(ArsenalScript.filtered_inventory(host, state).size() == 2, "renderer receives inventory through explicit state")

@@ -534,19 +534,7 @@ func build_briefing() -> void:
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", 12)
 	scroller.add_child(list)
-	var evaluations: Array[Dictionary] = []
-	for approach in GameState.offered_approaches:
-		var preview := ContentDB.apply_approach(bounty, approach)
-		var payout := CoreRules.bounty_streak_reward(int(preview.credits), int(GameState.player.get("capture_streak", 0)) + 1)
-		evaluations.append({
-			"id": str(approach.id),
-			"preview": preview,
-			"odds": CoreRules.bounty_odds(GameState.player, preview),
-			"credits": int(payout.credits),
-			"xp": int(preview.xp),
-			"scrap": int(preview.get("scrap_reward", 0)),
-			"duration": int(preview.duration),
-		})
+	var evaluations := ContractRules.evaluate_approaches(GameState.player, bounty, GameState.offered_approaches)
 	var recommended_id := ContractRules.recommended_approach_id(evaluations)
 	for index in GameState.offered_approaches.size():
 		list.add_child(approach_card(GameState.offered_approaches[index], evaluations[index], recommended_id))

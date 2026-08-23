@@ -1,8 +1,28 @@
 class_name ContractRules
 extends RefCounted
 
+const Rules = preload("res://scripts/core_rules.gd")
+const Content = preload("res://scripts/content_db.gd")
+
 const MIN_RECOMMENDED_ODDS := 0.55
 const SCRAP_VALUE := 12.0
+
+
+static func evaluate_approaches(player: Dictionary, target: Dictionary, approaches: Array[Dictionary]) -> Array[Dictionary]:
+	var evaluations: Array[Dictionary] = []
+	for approach in approaches:
+		var preview := Content.apply_approach(target, approach)
+		var payout := Rules.bounty_streak_reward(int(preview.credits), int(player.get("capture_streak", 0)) + 1)
+		evaluations.append({
+			"id": str(approach.id),
+			"preview": preview,
+			"odds": Rules.bounty_odds(player, preview),
+			"credits": int(payout.credits),
+			"xp": int(preview.xp),
+			"scrap": int(preview.get("scrap_reward", 0)),
+			"duration": int(preview.duration),
+		})
+	return evaluations
 
 
 static func recommended_approach_id(evaluations: Array[Dictionary]) -> String:

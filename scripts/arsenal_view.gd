@@ -5,6 +5,7 @@ const EquipmentPresentation = preload("res://scripts/equipment_presentation.gd")
 const Rules = preload("res://scripts/core_rules.gd")
 const Content = preload("res://scripts/content_db.gd")
 const StateScript = preload("res://scripts/game_state.gd")
+const ContractRules = preload("res://scripts/contract_rules.gd")
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
@@ -114,6 +115,13 @@ static func field_readiness(state: StateScript) -> Dictionary:
 		target = Content.target_for_planet_tier(planet_id, tier)
 	if target.is_empty():
 		return {}
+	var evaluations := ContractRules.evaluate_approaches(state.player, target, Content.contract_approaches())
+	var recommended_id := ContractRules.recommended_approach_id(evaluations)
+	var contract := target
+	for evaluation in evaluations:
+		if str(evaluation.id) == recommended_id:
+			contract = evaluation.preview
+			break
 	var power_player := state.player.duplicate(true)
 	var powered_weapon: Dictionary = power_player.get("weapon", {}).duplicate(true)
 	powered_weapon.power = int(powered_weapon.get("power", 0)) + 1
@@ -129,9 +137,11 @@ static func field_readiness(state: StateScript) -> Dictionary:
 			break
 	return {
 		"target": target,
-		"current_odds": Rules.bounty_odds(state.player, target),
-		"power_odds": Rules.bounty_odds(power_player, target),
-		"health_odds": Rules.bounty_odds(health_player, target) if reinforced else Rules.bounty_odds(state.player, target),
+		"contract": contract,
+		"approach": contract.get("approach", {}),
+		"current_odds": Rules.bounty_odds(state.player, contract),
+		"power_odds": Rules.bounty_odds(power_player, contract),
+		"health_odds": Rules.bounty_odds(health_player, contract) if reinforced else Rules.bounty_odds(state.player, contract),
 		"can_reinforce": reinforced,
 		"target_available": target_is_available,
 		"planet_tier": tier,
@@ -162,7 +172,11 @@ static func field_readiness_card(host: CrookedUIFactory, state: StateScript, rea
 	metrics.add_child(host.metric_chip("+1 PODER", "%d%%" % roundi(float(readiness.power_odds) * 100.0), readiness_color(host, float(readiness.power_odds))))
 	var health_title := "+8 VIDA" if bool(readiness.can_reinforce) else "REF. MÁX."
 	metrics.add_child(host.metric_chip(health_title, "%d%%" % roundi(float(readiness.health_odds) * 100.0), readiness_color(host, float(readiness.health_odds))))
-	box.add_child(host.label("Projeção sem abordagem; contrato e incidentes podem alterar as chances.", 9, host.MUTED))
+	var approach: Dictionary = readiness.get("approach", {})
+	var approach_name := str(approach.get("name", "CONTRATO BASE")).to_upper()
+	var approach_label := host.label("ABORDAGEM TESTADA · %s · incidentes ainda podem alterar as chances" % approach_name, 9, host.MUTED)
+	approach_label.name = "FieldReadinessApproach"
+	box.add_child(approach_label)
 	return card
 
 
@@ -174,7 +188,7 @@ static func recommended_workshop_action(state: StateScript) -> Dictionary:
 	var readiness := field_readiness(state)
 	if readiness.is_empty():
 		return {}
-	var target: Dictionary = readiness.target
+	var target: Dictionary = readiness.contract
 	var current_odds := float(readiness.current_odds)
 	var current_score := Rules.player_build_score(state.player)
 	var scrap := int(state.player.get("scrap", 0))

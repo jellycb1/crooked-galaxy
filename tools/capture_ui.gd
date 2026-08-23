@@ -194,6 +194,24 @@ func capture() -> void:
 	if save_frame("ui_arsenal_filtered.png") != OK:
 		quit(1)
 		return
+	state.player.current_planet_id = "ferro_velho_omega"
+	state.player.level = 16
+	state.player.base_power = 40
+	state.player.scrap = 50
+	state.player.weapon = {"id": "capture_omega_weapon", "name": "Prensa Portátil", "slot": "weapon", "power": 56, "rarity": "Épico", "color": "#d789ff", "origin_planet_id": "ferro_velho_omega", "integrity_upgrades": 3, "trait": {"id": "illegal_servos", "name": "SERVOS NÃO DECLARADOS", "description": "+2 poder.", "power_bonus": 2}}
+	state.player.armor = {"id": "capture_omega_armor", "name": "Chassi Executivo", "slot": "armor", "power": 49, "rarity": "Épico", "color": "#d789ff", "origin_planet_id": "ferro_velho_omega", "integrity_upgrades": 3, "trait": {"id": "argument_amplifier", "name": "AMPLIFICADOR DE ARGUMENTO", "description": "+1 poder e +8 integridade.", "power_bonus": 1, "health_bonus": 8}}
+	state.player.inventory = [state.player.weapon.duplicate(true), state.player.armor.duplicate(true)]
+	state.player.captures_by_target = {"bolt_collector": 3, "doctor_patchwork": 3, "crane_king": 3}
+	state.player.captures_by_planet = {"ferro_velho_omega": 9}
+	scene.inventory_filter = "all"
+	scene.inventory_sort = "power"
+	scene.render()
+	await process_frame
+	await process_frame
+	await create_timer(0.12).timeout
+	if save_frame("ui_arsenal_omega_boss.png") != OK:
+		quit(1)
+		return
 	scene.inventory_filter = "all"
 	scene.inventory_sort = "power"
 	state.player.wins = 10
