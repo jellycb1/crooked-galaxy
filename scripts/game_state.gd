@@ -27,6 +27,7 @@ var player_hp := 0
 var enemy_hp := 0
 var combat_round := 0
 var combat_events: Array[Dictionary] = []
+var combat_summary: Dictionary = {}
 var last_combat_won := false
 var rng := RandomNumberGenerator.new()
 var persistence_enabled := true
@@ -76,6 +77,7 @@ func select_bounty(bounty: Dictionary) -> void:
 	if phase != Phase.BOARD:
 		return
 	last_notice = ""
+	combat_summary = {}
 	current_bounty = bounty.duplicate(true)
 	offered_approaches = ContentDB.contract_approaches()
 	phase = Phase.BRIEFING
@@ -278,6 +280,18 @@ func begin_combat() -> void:
 	enemy_hp = int(current_bounty.health)
 	combat_round = 0
 	combat_events = []
+	combat_summary = {
+		"target_id": str(current_bounty.get("id", "")),
+		"target_name": str(current_bounty.get("name", "Alvo sem recibo")),
+		"rounds": 0,
+		"damage_dealt": 0,
+		"damage_taken": 0,
+		"damage_prevented": 0,
+		"critical_hits": 0,
+		"opening_bonus": CoreRules.player_opening_damage(player),
+		"kit_origin": CoreRules.equipment_set_origin(player),
+		"target_max_health": int(current_bounty.health),
+	}
 	last_combat_won = false
 	save_game()
 	changed.emit()
@@ -300,6 +314,10 @@ func combat_step() -> Dictionary:
 	if opening_bonus > 0:
 		player_event.effect = "EMBOSCADA +%d" % opening_bonus
 	round_events.append(player_event)
+	combat_summary.rounds = combat_round
+	combat_summary.damage_dealt = int(combat_summary.get("damage_dealt", 0)) + mini(enemy_hp, player_damage)
+	if str(player_event.quality) == "CRÍTICO":
+		combat_summary.critical_hits = int(combat_summary.get("critical_hits", 0)) + 1
 	enemy_hp = maxi(0, enemy_hp - player_damage)
 	var message := "%s causa %d de dano." % [player_event.action, player_damage]
 	if enemy_hp <= 0:
@@ -308,7 +326,8 @@ func combat_step() -> Dictionary:
 		return {"message": message, "finished": true, "won": true}
 
 	var enemy_roll := rng.randf()
-	var enemy_damage := CoreRules.enemy_attack_damage(player, int(current_bounty.power), enemy_roll)
+	var enemy_breakdown := CoreRules.enemy_attack_breakdown(player, int(current_bounty.power), enemy_roll)
+	var enemy_damage := int(enemy_breakdown.damage)
 	var enemy_event := {
 		"actor": "enemy",
 		"action": ContentDB.target_attack(current_bounty, rng),
@@ -319,18 +338,24 @@ func combat_step() -> Dictionary:
 	if damage_reduction > 0:
 		enemy_event.effect = "AMORTECEDOR -%d" % damage_reduction
 	round_events.append(enemy_event)
+	combat_summary.damage_taken = int(combat_summary.get("damage_taken", 0)) + mini(player_hp, enemy_damage)
+	combat_summary.damage_prevented = int(combat_summary.get("damage_prevented", 0)) + int(enemy_breakdown.prevented)
 	player_hp = maxi(0, player_hp - enemy_damage)
 	message += "  %s responde com %d." % [enemy_event.action, enemy_damage]
 	combat_events = round_events
 	if player_hp <= 0:
 		finish_combat(false)
 		return {"message": message, "finished": true, "won": false}
+	save_game()
 	combat_event.emit(message)
 	return {"message": message, "finished": false}
 
 
 func finish_combat(won: bool) -> void:
 	last_combat_won = won
+	combat_summary.won = won
+	combat_summary.player_hp_remaining = player_hp
+	combat_summary.enemy_hp_remaining = enemy_hp
 	if won:
 		var target_id := str(current_bounty.get("id", ""))
 		var target_captures := int(player.get("captures_by_target", {}).get(target_id, 0))
@@ -734,6 +759,7 @@ func reset_progress() -> void:
 	hunt_event = {}
 	chapter_completion = {}
 	afk_report = {}
+	combat_summary = {}
 	last_notice = "Progresso reiniciado. Hora de construir uma nova reputação."
 	save_game()
 	changed.emit()
@@ -760,6 +786,7 @@ func save_game() -> void:
 		"enemy_hp": enemy_hp,
 		"combat_round": combat_round,
 		"combat_events": combat_events,
+		"combat_summary": combat_summary,
 		"chapter_completion": chapter_completion,
 	}
 	var file := FileAccess.open(save_path, FileAccess.WRITE)
@@ -805,6 +832,8 @@ func load_game() -> void:
 	combat_round = int(parsed.get("combat_round", 0))
 	var loaded_events = parsed.get("combat_events", [])
 	combat_events.assign(loaded_events if loaded_events is Array else [])
+	var loaded_summary = parsed.get("combat_summary", {})
+	combat_summary = loaded_summary if loaded_summary is Dictionary else {}
 	chapter_completion = parsed.get("chapter_completion", {})
 	var offline_rewards := apply_offline_progress(Time.get_unix_time_from_system())
 	if int(offline_rewards.credits) > 0 or int(offline_rewards.scrap) > 0:

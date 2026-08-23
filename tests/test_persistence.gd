@@ -41,6 +41,7 @@ func _init() -> void:
 	source.combat_events.assign([
 		{"actor": "player", "action": "Teste de Impacto", "damage": 17, "quality": "CRÍTICO"},
 	])
+	source.combat_summary = {"won": true, "rounds": 4, "damage_dealt": 70, "damage_taken": 22, "damage_prevented": 8, "target_id": "gloop"}
 	source.save_game()
 	var saved_file := FileAccess.open(test_save, FileAccess.READ)
 	var saved_payload = JSON.parse_string(saved_file.get_as_text())
@@ -66,6 +67,7 @@ func _init() -> void:
 	check(str(restored.pending_loot.origin_planet_id) == "dustball_prime", "pending reward preserves its planet of origin")
 	check(restored.combat_events.size() == 1, "finishing action survives save and load")
 	check(str(restored.combat_events[0].action) == "Teste de Impacto", "action data is restored")
+	check(int(restored.combat_summary.rounds) == 4 and int(restored.combat_summary.damage_prevented) == 8, "aggregate combat evidence survives save and load")
 
 	source.phase = source.Phase.BOARD
 	source.current_bounty = {}

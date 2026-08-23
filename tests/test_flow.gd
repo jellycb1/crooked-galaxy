@@ -31,6 +31,7 @@ func _init() -> void:
 	check(bool(result.get("won", false)), "winning combat is detected")
 	check(state.phase == state.Phase.VICTORY, "victory opens the capture beat")
 	check(state.combat_events.size() == 1, "combat records the finishing action")
+	check(bool(state.combat_summary.won) and int(state.combat_summary.rounds) == 1 and int(state.combat_summary.damage_dealt) == 1, "victory retains an exact aggregate combat summary")
 	check(not state.pending_loot.is_empty(), "victory generates loot")
 	state.open_reward()
 	check(state.phase == state.Phase.REWARD, "capture beat opens the reward phase")
@@ -114,6 +115,7 @@ func _init() -> void:
 	check(not bool(tactical_step.finished) and tactical_state.combat_events.size() == 2, "tactical traits keep the alternating combat flow")
 	check(str(tactical_state.combat_events[0].get("effect", "")) == "EMBOSCADA +5", "opening-shot trait is recorded in the combat event")
 	check(str(tactical_state.combat_events[1].get("effect", "")) == "AMORTECEDOR -2", "damage-reduction trait is recorded in the combat event")
+	check(int(tactical_state.combat_summary.opening_bonus) == 5 and int(tactical_state.combat_summary.damage_prevented) == 2, "combat summary accumulates tactical contribution across the round")
 	tactical_state.free()
 	check(not state.scrap_item(str(claimed_item.id)), "equipped item cannot be recycled")
 	var spare := {"id": "spare_epic", "name": "Sucata de Teste", "description": "Feita para sumir.", "slot": "armor", "power": 12, "rarity": "Épico", "color": "#d789ff"}

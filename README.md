@@ -12,6 +12,8 @@ It currently includes four complete four-target chapters: Dustball Prime, the fr
 
 Threshold captures explicitly preview and reveal the next warrant, keeping early progression visible without a modal tutorial.
 
+Post-combat reports summarize turns, damage and the contribution of tactical traits or planetary kits; defeats retain a compact diagnosis on the board before the next attempt.
+
 ## Run
 
 Open `project.godot` in Godot 4, or run from a console where Godot is available:

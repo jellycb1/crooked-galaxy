@@ -62,6 +62,7 @@ func run_smoke_test() -> void:
 	await process_frame
 	check(state.phase == state.Phase.VICTORY, "victory screen renders before loot")
 	check(not state.pending_loot.is_empty(), "reward screen receives an item")
+	check(scene.find_child("CombatSummaryVictory", true, false) != null, "victory explains aggregate combat performance")
 
 	state.open_reward()
 	await process_frame
@@ -164,6 +165,19 @@ func run_smoke_test() -> void:
 	check(scene.find_child("ClaimAllMilestones", true, false) != null, "career renders a bulk claim action")
 	check(scene.find_child("ClaimMilestone_first_warrant", true, false) != null, "career renders a claim action for completed milestones")
 	check(scene.find_child("CareerTarget_gloop", true, false) != null, "career renders the wanted archive")
+
+	scene.view_mode = "board"
+	state.phase = state.Phase.BOARD
+	state.current_bounty = ContentDB.TARGETS[1].duplicate(true)
+	state.begin_combat()
+	state.combat_summary.rounds = 6
+	state.combat_summary.damage_dealt = 84
+	state.combat_summary.damage_taken = 83
+	state.player_hp = 0
+	state.enemy_hp = 12
+	state.finish_combat(false)
+	await process_frame
+	check(scene.find_child("CombatSummaryDefeat", true, false) != null, "board keeps a concise defeat diagnosis before the next contract")
 
 	scene.free()
 	await process_frame

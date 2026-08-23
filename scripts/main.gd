@@ -224,9 +224,12 @@ func build_board() -> void:
 	if not GameState.afk_report.is_empty():
 		content.add_child(afk_return_banner())
 	if not GameState.last_notice.is_empty():
-		content.add_child(notice_banner(GameState.last_notice, LIME))
+		var notice_color := CORAL if not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true)) else LIME
+		content.add_child(notice_banner(GameState.last_notice, notice_color))
 	elif int(GameState.player.wins) == 0:
 		content.add_child(onboarding_banner())
+	if not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true)):
+		content.add_child(combat_summary_panel(false))
 	var streak := int(GameState.player.get("capture_streak", 0))
 	if streak > 0:
 		var next_reward := CoreRules.bounty_streak_reward(100, streak + 1)
@@ -525,12 +528,45 @@ func notice_banner(message: String, color: Color) -> PanelContainer:
 	var banner := panel(HBoxContainer.new(), Color("#16363b"), 14, 13)
 	var row := banner.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 12)
-	row.add_child(label("✓", 23, color))
+	row.add_child(label("!" if color == CORAL else "✓", 23, color))
 	var message_label := label(message, 14, INK)
 	message_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	row.add_child(message_label)
 	return banner
+
+
+func combat_summary_panel(won: bool) -> PanelContainer:
+	var summary := GameState.combat_summary
+	var card := panel(VBoxContainer.new(), Color("#16363b") if won else Color("#381c32"), 14, 13)
+	card.name = "CombatSummaryVictory" if won else "CombatSummaryDefeat"
+	var box := card.get_child(0) as VBoxContainer
+	box.add_theme_constant_override("separation", 7)
+	box.add_child(label("RELATÓRIO DO MANDADO" if won else "DIAGNÓSTICO DA FUGA", 13, LIME if won else CORAL))
+	var metrics := HBoxContainer.new()
+	metrics.add_theme_constant_override("separation", 7)
+	box.add_child(metrics)
+	metrics.add_child(metric_chip("TURNOS", str(int(summary.get("rounds", 0))), GOLD))
+	metrics.add_child(metric_chip("CAUSADO", str(int(summary.get("damage_dealt", 0))), CYAN))
+	metrics.add_child(metric_chip("RECEBIDO", str(int(summary.get("damage_taken", 0))), CORAL))
+	var effects: Array[String] = []
+	if int(summary.get("opening_bonus", 0)) > 0:
+		effects.append("emboscada +%d" % int(summary.opening_bonus))
+	if int(summary.get("damage_prevented", 0)) > 0:
+		effects.append("%d dano amortecido" % int(summary.damage_prevented))
+	var kit_origin := str(summary.get("kit_origin", ""))
+	if not kit_origin.is_empty():
+		effects.append("kit %s" % str(ContentDB.get_planet(kit_origin).name))
+	var evidence_text := "BUILD ATIVA · %s" % " · ".join(effects) if not effects.is_empty() else "SEM EFEITOS TÁTICOS · modificações e kits podem mudar o próximo confronto"
+	var evidence := label(evidence_text, 11, GOLD if not effects.is_empty() else MUTED)
+	evidence.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(evidence)
+	if not won:
+		var remaining := int(summary.get("enemy_hp_remaining", 0))
+		var diagnosis := label("O alvo conservou %d HP. Compare as odds, ative um kit ou invista na oficina antes da revanche." % remaining, 12, INK)
+		diagnosis.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		box.add_child(diagnosis)
+	return card
 
 
 func afk_return_banner() -> PanelContainer:
@@ -868,6 +904,8 @@ func build_victory() -> void:
 	if not GameState.combat_events.is_empty():
 		var final_event: Dictionary = GameState.combat_events[0]
 		stamp_box.add_child(center_label("Finalizado com %s · %d de dano" % [str(final_event.action), int(final_event.damage)], 14, GOLD))
+	if not GameState.combat_summary.is_empty():
+		content.add_child(combat_summary_panel(true))
 	content.add_child(center_label("Autenticando pagamento e sacudindo os bolsos do alvo...", 15, MUTED))
 	content.add_spacer(false)
 

@@ -78,8 +78,18 @@ static func player_attack_damage(player: Dictionary, target_defense: int, roll: 
 
 
 static func enemy_attack_damage(player: Dictionary, target_power: int, roll: float) -> int:
+	return int(enemy_attack_breakdown(player, target_power, roll).damage)
+
+
+static func enemy_attack_breakdown(player: Dictionary, target_power: int, roll: float) -> Dictionary:
 	var defense := int(player.get("armor", {}).get("power", 0)) + 3
-	return maxi(1, damage_roll(target_power, defense, roll) - player_damage_reduction(player))
+	var raw_damage := damage_roll(target_power, defense, roll)
+	var damage := maxi(1, raw_damage - player_damage_reduction(player))
+	return {
+		"raw_damage": raw_damage,
+		"damage": damage,
+		"prevented": raw_damage - damage,
+	}
 
 
 static func xp_needed(level: int) -> int:

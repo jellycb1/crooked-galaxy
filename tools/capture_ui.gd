@@ -93,6 +93,12 @@ func capture() -> void:
 		quit(1)
 		return
 
+	state.combat_summary.rounds = 4
+	state.combat_summary.damage_dealt = 70
+	state.combat_summary.damage_taken = 21
+	state.combat_summary.damage_prevented = 8
+	state.combat_summary.critical_hits = 1
+	state.enemy_hp = 0
 	state.finish_combat(true)
 	await process_frame
 	await process_frame
@@ -322,7 +328,21 @@ func capture() -> void:
 	if save_frame("ui_omega_combat.png") != OK:
 		quit(1)
 		return
+	state.combat_summary.rounds = 6
+	state.combat_summary.damage_dealt = 128
+	state.combat_summary.damage_taken = CoreRules.max_health(state.player)
+	state.combat_summary.damage_prevented = 10
+	state.player_hp = 0
+	state.enemy_hp = 37
 	state.finish_combat(false)
+	scene.view_mode = "board"
+	scene.render()
+	await process_frame
+	await process_frame
+	await create_timer(0.12).timeout
+	if save_frame("ui_defeat_report.png") != OK:
+		quit(1)
+		return
 	state.player.wins = 39
 	state.player.captures_by_planet.ferro_velho_omega = 9
 	state.phase = state.Phase.REWARD
