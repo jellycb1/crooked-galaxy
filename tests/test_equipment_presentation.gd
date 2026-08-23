@@ -36,6 +36,14 @@ func _init() -> void:
 	check(EquipmentPresentation.equipment_delta_text(player, ambush_weapon) == "▲ +5 EMBOSCADA", "comparison text exposes opening-shot effects")
 	var dampener_armor := {"slot": "armor", "power": 3, "trait": {"damage_reduction": 2}}
 	check(EquipmentPresentation.equipment_delta_text(player, dampener_armor) == "▲ +2 REDUÇÃO", "comparison text exposes incoming damage reduction")
+	var kit_player := {
+		"level": 1,
+		"base_power": 10,
+		"weapon": {"slot": "weapon", "power": 5, "origin_planet_id": "dustball_prime"},
+		"armor": {"slot": "armor", "power": 3, "origin_planet_id": "congelaria_sa"},
+	}
+	var matching_armor := {"slot": "armor", "power": 2, "origin_planet_id": "dustball_prime"}
+	check(EquipmentPresentation.equipment_delta_text(kit_player, matching_armor) == "▲ +3 VIDA · ATIVA KIT +1 PODER / +6 VIDA", "comparison exposes the full tradeoff when a lower-base item completes a planetary kit")
 
 	if failures == 0:
 		print("PASS: equipment presentation is deterministic")

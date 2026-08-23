@@ -3,18 +3,20 @@ extends RefCounted
 
 const INTEGRITY_HEALTH_PER_LEVEL := 8
 const MAX_INTEGRITY_UPGRADES := 5
+const PLANETARY_KIT_POWER_BONUS := 1
+const PLANETARY_KIT_HEALTH_BONUS := 6
 
 
 static func player_power(player: Dictionary) -> int:
 	var weapon_power := item_combat_power(player.get("weapon", {}))
 	var armor_power := item_combat_power(player.get("armor", {}))
-	return int(player.get("base_power", 10)) + weapon_power + armor_power
+	return int(player.get("base_power", 10)) + weapon_power + armor_power + equipment_set_bonus_power(player)
 
 
 static func max_health(player: Dictionary) -> int:
 	var weapon: Dictionary = player.get("weapon", {})
 	var armor: Dictionary = player.get("armor", {})
-	return 72 + int(player.get("level", 1)) * 8 + int(armor.get("power", 0)) * 3 + item_health_bonus(weapon) + item_health_bonus(armor)
+	return 72 + int(player.get("level", 1)) * 8 + int(armor.get("power", 0)) * 3 + item_health_bonus(weapon) + item_health_bonus(armor) + equipment_set_bonus_health(player)
 
 
 static func item_combat_power(item: Dictionary) -> int:
@@ -41,8 +43,26 @@ static func player_damage_reduction(player: Dictionary) -> int:
 	return item_damage_reduction(player.get("weapon", {})) + item_damage_reduction(player.get("armor", {}))
 
 
+static func equipment_set_origin(player: Dictionary) -> String:
+	var weapon_origin := str(player.get("weapon", {}).get("origin_planet_id", ""))
+	var armor_origin := str(player.get("armor", {}).get("origin_planet_id", ""))
+	return weapon_origin if not weapon_origin.is_empty() and weapon_origin == armor_origin else ""
+
+
+static func equipment_set_bonus_power(player: Dictionary) -> int:
+	return PLANETARY_KIT_POWER_BONUS if not equipment_set_origin(player).is_empty() else 0
+
+
+static func equipment_set_bonus_health(player: Dictionary) -> int:
+	return PLANETARY_KIT_HEALTH_BONUS if not equipment_set_origin(player).is_empty() else 0
+
+
 static func equipment_score(item: Dictionary) -> int:
 	return item_combat_power(item) * 6 + item_health_bonus(item) + item_opening_damage(item) * 2 + item_damage_reduction(item) * 10
+
+
+static func player_build_score(player: Dictionary) -> int:
+	return player_power(player) * 6 + max_health(player) + player_opening_damage(player) * 2 + player_damage_reduction(player) * 10
 
 
 static func damage_roll(power: int, defense: int, roll: float) -> int:
@@ -108,6 +128,15 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 
 static func is_upgrade(item: Dictionary, equipped: Dictionary) -> bool:
 	return equipment_score(item) > equipment_score(equipped)
+
+
+static func is_upgrade_for_player(player: Dictionary, item: Dictionary) -> bool:
+	var slot := str(item.get("slot", ""))
+	if slot != "weapon" and slot != "armor":
+		return false
+	var simulated := player.duplicate(true)
+	simulated[slot] = item
+	return player_build_score(simulated) > player_build_score(player)
 
 
 static func salvage_value(item: Dictionary) -> int:

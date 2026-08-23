@@ -3,6 +3,7 @@ extends RefCounted
 
 const EquipmentPresentation = preload("res://scripts/equipment_presentation.gd")
 const Rules = preload("res://scripts/core_rules.gd")
+const Content = preload("res://scripts/content_db.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 
 
@@ -14,9 +15,11 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(titles)
 	titles.add_child(host.label("ARSENAL", 26, host.INK))
-	titles.add_child(host.label("Troque peças para ajustar seu poder de caça.", 14, host.MUTED))
+	var subtitle := host.label("Troque peças para ajustar seu poder de caça.", 14, host.MUTED)
+	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	titles.add_child(subtitle)
 	var back := host.action_button("VOLTAR", host.CYAN, true)
-	back.custom_minimum_size = Vector2(130, 48)
+	back.custom_minimum_size = Vector2(96, 48)
 	back.pressed.connect(func():
 		host.view_mode = "board"
 		host.call("render")
@@ -24,6 +27,15 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	title_row.add_child(back)
 
 	content.add_child(host.label("OFICINA · %d SUCATA · PODER TOTAL %d" % [int(state.player.get("scrap", 0)), Rules.player_power(state.player)], 14, host.GOLD))
+	var set_origin := Rules.equipment_set_origin(state.player)
+	var set_text := "KIT PLANETÁRIO · INATIVO · combine arma e armadura da mesma origem"
+	var set_color := host.MUTED
+	if not set_origin.is_empty():
+		set_text = "KIT PLANETÁRIO · %s · +%d PODER · +%d VIDA" % [str(Content.get_planet(set_origin).name).to_upper(), Rules.PLANETARY_KIT_POWER_BONUS, Rules.PLANETARY_KIT_HEALTH_BONUS]
+		set_color = host.LIME
+	var set_label := host.label(set_text, 12, set_color)
+	set_label.name = "PlanetaryKitStatus"
+	content.add_child(set_label)
 	var equipped_row := HBoxContainer.new()
 	equipped_row.add_theme_constant_override("separation", 10)
 	content.add_child(equipped_row)
@@ -103,7 +115,7 @@ static func inventory_toolbar(host: CrookedUIFactory, state: StateScript) -> VBo
 		host.inventory_sort = "rarity" if host.inventory_sort == "power" else "power"
 		host.call("render")
 	)
-	filters.add_child(sort)
+	toolbar.add_child(sort)
 	var preview := state.inferior_recycle_preview()
 	var recycle := host.action_button("RECICLAR INFERIORES · %d PEÇAS · +%d SUCATA" % [int(preview.count), int(preview.scrap)], host.CORAL if int(preview.count) > 0 else host.MUTED, true)
 	recycle.name = "RecycleInferior"
@@ -128,11 +140,13 @@ static func loadout_toolbar(host: CrookedUIFactory, state: StateScript) -> HBoxC
 		var ready := not weapon.is_empty() and not armor.is_empty()
 		var card := host.panel(VBoxContainer.new(), Color("#0d1530"), 11, 9)
 		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		card.custom_minimum_size = Vector2.ZERO
 		row.add_child(card)
 		var box := card.get_child(0) as VBoxContainer
 		box.add_child(host.label("LOADOUT · %s" % state.loadout_name(index), 10, host.GOLD))
 		var summary := "%s / %s" % [str(weapon.get("name", "não salvo")), str(armor.get("name", "não salvo"))]
 		var summary_label := host.label(summary, 9, host.MUTED)
+		summary_label.custom_minimum_size = Vector2.ZERO
 		summary_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		box.add_child(summary_label)
 		var actions := HBoxContainer.new()
@@ -166,11 +180,19 @@ static func inventory_item_card(host: CrookedUIFactory, state: StateScript, item
 	row.add_child(icon)
 	var details := VBoxContainer.new()
 	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	details.custom_minimum_size = Vector2.ZERO
 	row.add_child(details)
 	var item_name := host.label(str(item.name), 16, host.INK)
 	item_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	details.add_child(item_name)
-	details.add_child(host.label("%s · %s · +%d poder" % [str(item.rarity), host.slot_name(str(item.slot)), int(item.power)], 13, Color(str(item.color))))
+	var stat_line := host.label("%s · %s · +%d poder" % [str(item.rarity), host.slot_name(str(item.slot)), int(item.power)], 13, Color(str(item.color)))
+	stat_line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	details.add_child(stat_line)
+	var origin_id := str(item.get("origin_planet_id", ""))
+	if not origin_id.is_empty():
+		var origin_line := host.label("ORIGEM · %s" % str(Content.get_planet(origin_id).name).to_upper(), 10, host.CYAN)
+		origin_line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		details.add_child(origin_line)
 	if Rules.has_workshop_investment(item):
 		var workshop_parts: Array[String] = []
 		if int(item.get("power_upgrades", 0)) > 0:
@@ -184,30 +206,32 @@ static func inventory_item_card(host: CrookedUIFactory, state: StateScript, item
 		details.add_child(trait_line)
 	var current: Dictionary = state.player[str(item.slot)]
 	var equipped := str(current.get("id", "")) == str(item.get("id", ""))
-	var score_difference := Rules.equipment_score(item) - Rules.equipment_score(current)
+	var simulated := state.player.duplicate(true)
+	simulated[str(item.slot)] = item
+	var score_difference := Rules.player_build_score(simulated) - Rules.player_build_score(state.player)
 	var comparison_text := "EQUIPADO" if equipped else EquipmentPresentation.equipment_delta_text(state.player, item)
 	var status := host.label(comparison_text, 11, host.LIME if score_difference > 0 or equipped else (host.GOLD if score_difference == 0 else host.MUTED))
-	status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	row.add_child(status)
+	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	details.add_child(status)
 	if not equipped:
 		var buttons := VBoxContainer.new()
 		buttons.add_theme_constant_override("separation", 6)
 		row.add_child(buttons)
 		var equip_button := host.action_button("EQUIPAR", host.CYAN, true)
-		equip_button.custom_minimum_size = Vector2(110, 46)
+		equip_button.custom_minimum_size = Vector2(88, 46)
 		var item_id := str(item.id)
 		equip_button.pressed.connect(func(): state.equip_from_inventory(item_id))
 		buttons.add_child(equip_button)
 		var manually_locked: bool = state.player.get("locked_item_ids", []).has(item_id)
 		var lock_button := host.action_button("LIBERAR" if manually_locked else "PROTEGER", host.GOLD, true)
 		lock_button.name = "Lock_%s" % item_id
-		lock_button.custom_minimum_size = Vector2(110, 40)
+		lock_button.custom_minimum_size = Vector2(88, 40)
 		lock_button.add_theme_font_size_override("font_size", 10)
 		lock_button.pressed.connect(func(): state.toggle_item_lock(item_id))
 		buttons.add_child(lock_button)
 		var scrap_button := host.action_button("RECICLAR +%d" % Rules.salvage_value(item), host.CORAL, true)
 		scrap_button.name = "Scrap_%s" % item_id
-		scrap_button.custom_minimum_size = Vector2(110, 44)
+		scrap_button.custom_minimum_size = Vector2(88, 44)
 		scrap_button.add_theme_font_size_override("font_size", 11)
 		scrap_button.disabled = state.is_item_protected(item_id)
 		scrap_button.pressed.connect(func(): state.scrap_item(item_id))
@@ -226,12 +250,22 @@ static func workshop_upgrade_card(host: CrookedUIFactory, state: StateScript, sl
 	var integrity_available := Rules.can_upgrade_integrity(item)
 	var card := host.panel(VBoxContainer.new(), Color("#0d1530"), 12, 10)
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card.custom_minimum_size = Vector2.ZERO
 	var box := card.get_child(0) as VBoxContainer
 	box.add_child(host.label(host.slot_name(slot).to_upper(), 11, host.MUTED))
-	box.add_child(host.label("%s · +%d" % [str(item.name), int(item.power)], 13, host.INK))
-	box.add_child(host.label("CALIBRAÇÃO %d · REFORÇO %d/%d · +%d VIDA" % [calibration_level, integrity_level, Rules.MAX_INTEGRITY_UPGRADES, integrity_level * Rules.INTEGRITY_HEALTH_PER_LEVEL], 10, host.CYAN if calibration_level > 0 or integrity_level > 0 else host.MUTED))
+	var item_label := host.label("%s · +%d" % [str(item.name), int(item.power)], 13, host.INK)
+	item_label.custom_minimum_size = Vector2.ZERO
+	item_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	box.add_child(item_label)
+	var workshop_status := host.label("CAL %d · REF %d/%d · +%d VIDA" % [calibration_level, integrity_level, Rules.MAX_INTEGRITY_UPGRADES, integrity_level * Rules.INTEGRITY_HEALTH_PER_LEVEL], 9, host.CYAN if calibration_level > 0 or integrity_level > 0 else host.MUTED)
+	workshop_status.custom_minimum_size = Vector2.ZERO
+	workshop_status.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	box.add_child(workshop_status)
 	if item.has("trait"):
-		box.add_child(host.label("◆ %s" % str(item.trait.name), 10, host.GOLD))
+		var trait_label := host.label("◆ %s" % str(item.trait.name), 10, host.GOLD)
+		trait_label.custom_minimum_size = Vector2.ZERO
+		trait_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		box.add_child(trait_label)
 	var improve := host.action_button("+1 PODER · %d SUCATA" % power_cost, host.LIME if power_affordable else host.MUTED, true)
 	improve.name = "Upgrade_%s" % slot
 	improve.disabled = not power_affordable

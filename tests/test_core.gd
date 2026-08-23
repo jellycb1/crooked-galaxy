@@ -53,6 +53,19 @@ func test_power_and_health() -> void:
 	check(Rules.enemy_attack_damage(tactical_player, 18, 0.5) == maxi(1, raw_enemy_damage - 2), "armor dampener reduces every incoming strike")
 	check(Rules.equipment_score({"trait": {"opening_damage_bonus": 5}}) == 10, "opening damage participates in equipment comparison")
 	check(Rules.equipment_score({"trait": {"damage_reduction": 2}}) == 20, "damage reduction participates in equipment comparison")
+	var kit_player := {
+		"level": 1,
+		"base_power": 10,
+		"weapon": {"slot": "weapon", "power": 5, "origin_planet_id": "dustball_prime"},
+		"armor": {"slot": "armor", "power": 4, "origin_planet_id": "congelaria_sa"},
+	}
+	check(Rules.equipment_set_origin(kit_player).is_empty() and Rules.equipment_set_bonus_power(kit_player) == 0, "mixed-origin equipment does not activate a planetary kit")
+	var kit_armor := {"slot": "armor", "power": 3, "origin_planet_id": "dustball_prime"}
+	check(not Rules.is_upgrade(kit_armor, kit_player.armor), "kit candidate can be weaker in isolation")
+	check(Rules.is_upgrade_for_player(kit_player, kit_armor), "matching origin can make a lower-power item improve the complete build")
+	kit_player.armor = kit_armor
+	check(Rules.equipment_set_origin(kit_player) == "dustball_prime", "matching origins expose the active planetary kit")
+	check(Rules.player_power(kit_player) == 19 and Rules.max_health(kit_player) == 95, "planetary kit grants its explicit power and integrity bonuses")
 
 
 func test_damage_boundaries() -> void:
@@ -115,6 +128,7 @@ func test_loot_generation() -> void:
 	check(item.slot == "weapon" or item.slot == "armor", "loot has a valid slot")
 	check(int(item.power) >= 1, "loot has positive power")
 	check(not str(item.description).is_empty(), "loot carries original flavor text")
+	check(str(item.origin_planet_id) == str(target.planet_id), "loot records its planet of origin")
 	check(Rules.salvage_value({"power": 9, "rarity": "Comum"}) == 3, "common salvage scales from item power")
 	check(Rules.salvage_value({"power": 9, "rarity": "Épico"}) == 12, "rarity increases salvage yield")
 	check(Rules.salvage_value({"power": 9, "rarity": "Comum", "trait": {"power_bonus": 1}}) == 5, "modified gear grants extra salvage")
@@ -125,6 +139,7 @@ func test_loot_generation() -> void:
 	var frozen_rng := RandomNumberGenerator.new()
 	frozen_rng.seed = 8811
 	var frozen_loot := Content.generate_loot(Content.TARGETS[4], frozen_rng)
+	check(str(frozen_loot.origin_planet_id) == "congelaria_sa", "planet item families retain their origin for kit building")
 	var frozen_names := Content.PLANET_ITEM_CATALOGS.congelaria_sa.weapon + Content.PLANET_ITEM_CATALOGS.congelaria_sa.armor
 	check(frozen_names.any(func(definition): return str(definition.name) == str(frozen_loot.name)), "frozen targets use their planet item family")
 	var event_rng := RandomNumberGenerator.new()

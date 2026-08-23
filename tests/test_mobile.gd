@@ -16,6 +16,8 @@ func run_mobile_audit() -> void:
 	state.persistence_enabled = false
 	state.player = state.default_player()
 	state.phase = state.Phase.BOARD
+	state.player.weapon.origin_planet_id = "dustball_prime"
+	state.player.armor.origin_planet_id = "dustball_prime"
 	state.player.inventory = [
 		{"id": "mobile_weapon", "name": "Arma de Bolso", "slot": "weapon", "power": 4, "rarity": "Raro", "color": "#58d9ff"},
 		{"id": "mobile_armor", "name": "Colete de Bolso", "slot": "armor", "power": 4, "rarity": "Comum", "color": "#b9c2d9"},
@@ -31,6 +33,7 @@ func run_mobile_audit() -> void:
 	check_touch_targets(scene, "arsenal")
 	var inventory_scroll := scene.find_child("InventoryScroll", true, false) as ScrollContainer
 	check(inventory_scroll != null and inventory_scroll.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "arsenal disables horizontal scrolling")
+	check(inventory_scroll != null and inventory_scroll.size.y >= 120.0, "arsenal reserves useful vertical space for the inventory on mobile")
 
 	state.select_bounty(ContentDB.TARGETS[0])
 	await process_frame
@@ -49,11 +52,13 @@ func run_mobile_audit() -> void:
 
 
 func check_touch_targets(node: Node, context: String) -> void:
+	var viewport_width := float((node as Control).size.x)
 	for candidate in node.find_children("*", "Button", true, false):
 		var button := candidate as Button
 		if not button.visible or button.disabled:
 			continue
 		check(button.size.y >= 40.0, "%s button keeps a 40-unit touch target: %s" % [context, button.name])
+		check(button.global_position.x >= -0.5 and button.global_position.x + button.size.x <= viewport_width + 0.5, "%s button stays inside the horizontal viewport: %s" % [context, button.name])
 
 
 func finish() -> void:

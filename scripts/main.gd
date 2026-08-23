@@ -506,6 +506,11 @@ func equipment_delta_text(item: Dictionary) -> String:
 	return EquipmentPresentation.equipment_delta_text(GameState.player, item)
 
 
+func equipment_origin_name(item: Dictionary) -> String:
+	var origin_id := str(item.get("origin_planet_id", ""))
+	return str(ContentDB.get_planet(origin_id).name) if not origin_id.is_empty() else ""
+
+
 func onboarding_banner() -> PanelContainer:
 	var banner := panel(HBoxContainer.new(), Color("#173356"), 15, 15)
 	var row := banner.get_child(0) as HBoxContainer
@@ -616,6 +621,9 @@ func build_briefing() -> void:
 	target_row.add_child(target_copy)
 	target_copy.add_child(label("BRIEFING DO CONTRATO", 15, CYAN))
 	target_copy.add_child(label(str(bounty.name), 26, INK))
+	var kit_origin := CoreRules.equipment_set_origin(GameState.player)
+	if not kit_origin.is_empty():
+		target_copy.add_child(label("KIT PLANETÁRIO · %s · +%d PODER · +%d VIDA" % [str(ContentDB.get_planet(kit_origin).name).to_upper(), CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS], 12, GOLD))
 	var target_captures := int(GameState.player.get("captures_by_target", {}).get(str(bounty.id), 0))
 	var target_mastery := CoreRules.target_mastery_level(target_captures)
 	if target_mastery > 0:
@@ -882,6 +890,9 @@ func build_reward() -> void:
 	box.add_child(center_label("⚙", 76, Color(str(item.color))))
 	box.add_child(center_label(str(item.rarity).to_upper(), 15, Color(str(item.color))))
 	box.add_child(center_label(str(item.name), 25, INK))
+	var origin_name := equipment_origin_name(item)
+	if not origin_name.is_empty():
+		box.add_child(center_label("ORIGEM · %s" % origin_name.to_upper(), 12, CYAN))
 	var description := center_label(str(item.get("description", "Procedência criativamente desconhecida.")), 15, MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(description)
@@ -891,7 +902,7 @@ func build_reward() -> void:
 	var comparison_text := "+%d vs. equipado" % comparison if comparison > 0 else "%d vs. equipado" % comparison
 	if comparison > 0:
 		box.add_child(center_label("▲ UPGRADE ENCONTRADO", 15, LIME))
-	var effective_upgrade := CoreRules.is_upgrade(item, equipped)
+	var effective_upgrade := CoreRules.is_upgrade_for_player(GameState.player, item)
 	if effective_upgrade and comparison <= 0:
 		box.add_child(center_label("▲ MODIFICAÇÃO SUPERIOR", 15, LIME))
 	if item.has("trait"):
@@ -976,6 +987,10 @@ func fighter(title: String, character_id: String, hp: int, maximum: int, color: 
 	var name_label := center_label(title.to_upper(), 16, color)
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	fighter_box.add_child(name_label)
+	if character_id == "hunter":
+		var kit_origin := CoreRules.equipment_set_origin(GameState.player)
+		if not kit_origin.is_empty():
+			fighter_box.add_child(center_label("KIT %s · +%d PODER · +%d VIDA" % [str(ContentDB.get_planet(kit_origin).name).to_upper(), CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS], 10, GOLD))
 	var health := ProgressBar.new()
 	health.max_value = maximum
 	health.value = hp

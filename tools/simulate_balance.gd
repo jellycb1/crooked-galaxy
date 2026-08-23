@@ -57,6 +57,22 @@ func _init() -> void:
 		CoreRules.player_damage_reduction(tactical_profile),
 	])
 
+	var mixed_kit_profile: Dictionary = profiles[1].duplicate(true)
+	mixed_kit_profile.weapon.origin_planet_id = "dustball_prime"
+	mixed_kit_profile.armor.origin_planet_id = "congelaria_sa"
+	var matched_kit_profile: Dictionary = mixed_kit_profile.duplicate(true)
+	matched_kit_profile.armor.origin_planet_id = "dustball_prime"
+	var mixed_kit_result := simulate_target(mixed_kit_profile, approach_target, FIGHTS_PER_CASE)
+	var matched_kit_result := simulate_target(matched_kit_profile, approach_target, FIGHTS_PER_CASE)
+	print("\nPlanetary kit vs. %s: mixed=%5.1f%% matched=%5.1f%% estimate=%d%% bonus=+%d power/+%d health" % [
+		str(approach_target.name),
+		float(mixed_kit_result.wins) / FIGHTS_PER_CASE * 100.0,
+		float(matched_kit_result.wins) / FIGHTS_PER_CASE * 100.0,
+		roundi(CoreRules.bounty_odds(matched_kit_profile, approach_target) * 100.0),
+		CoreRules.equipment_set_bonus_power(matched_kit_profile),
+		CoreRules.equipment_set_bonus_health(matched_kit_profile),
+	])
+
 	var event_profile: Dictionary = profiles[0]
 	var safe_contract := ContentDB.apply_approach(ContentDB.TARGETS[0], ContentDB.CONTRACT_APPROACHES[0])
 	var event: Dictionary = ContentDB.HUNT_EVENTS[0]

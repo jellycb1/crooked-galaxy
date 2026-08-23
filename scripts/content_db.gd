@@ -778,6 +778,7 @@ static func generate_loot(target: Dictionary, rng: RandomNumberGenerator, master
 		"name": definition.name,
 		"description": definition.description,
 		"slot": slot,
+		"origin_planet_id": planet_id,
 		"power": maxi(1, base_power + bonus),
 		"rarity": rarity,
 		"color": rarity_color,

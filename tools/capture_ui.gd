@@ -50,6 +50,8 @@ func capture() -> void:
 	await process_frame
 
 	var bounty: Dictionary = ContentDB.TARGETS[0].duplicate(true)
+	state.player.weapon.origin_planet_id = "dustball_prime"
+	state.player.armor.origin_planet_id = "dustball_prime"
 	state.player.captures_by_target = {"gloop": 6}
 	state.select_bounty(bounty)
 	await process_frame
@@ -124,11 +126,11 @@ func capture() -> void:
 	state.pending_loot = featured_loot
 	state.claim_reward(true)
 	state.player.scrap = 18
-	state.player.inventory.append({"id": "capture_spare", "name": "Colete Fiscal Vencido", "description": "A proteção expirou no trimestre passado.", "slot": "armor", "power": 5, "rarity": "Comum", "color": "#b9c2d9"})
+	state.player.inventory.append({"id": "capture_spare", "name": "Colete Fiscal Vencido", "description": "A proteção expirou no trimestre passado.", "slot": "armor", "origin_planet_id": "dustball_prime", "power": 5, "rarity": "Comum", "color": "#b9c2d9"})
 	state.player.inventory.append({"id": "capture_old_weapon", "name": "Zapper de Gaveta", "description": "Dispara melhor quando a gaveta está aberta.", "slot": "weapon", "power": 1, "rarity": "Comum", "color": "#b9c2d9"})
 	state.player.inventory.append({"id": "capture_old_armor", "name": "Colete Pré-Amassado", "description": "Economiza o trabalho do primeiro impacto.", "slot": "armor", "power": 1, "rarity": "Comum", "color": "#b9c2d9"})
-	state.player.inventory.append({"id": "capture_upgrade_weapon", "name": "Carabina de Cláusula Curta", "description": "O contrato termina antes do carregador.", "slot": "weapon", "power": 7, "rarity": "Raro", "color": "#58d9ff", "trait": {"id": "argument_amplifier", "name": "AMPLIFICADOR DE ARGUMENTO", "description": "+1 poder e +6 integridade.", "power_bonus": 1, "health_bonus": 6}})
-	state.player.inventory.append({"id": "capture_alt_armor", "name": "Colete de Turno Noturno", "description": "Protege melhor depois do expediente.", "slot": "armor", "power": 6, "rarity": "Raro", "color": "#58d9ff", "trait": {"id": "reactive_lining", "name": "FORRO REATIVO", "description": "+14 de integridade máxima.", "power_bonus": 0, "health_bonus": 14}})
+	state.player.inventory.append({"id": "capture_upgrade_weapon", "name": "Carabina de Cláusula Curta", "description": "O contrato termina antes do carregador.", "slot": "weapon", "origin_planet_id": "congelaria_sa", "power": 7, "rarity": "Raro", "color": "#58d9ff", "trait": {"id": "argument_amplifier", "name": "AMPLIFICADOR DE ARGUMENTO", "description": "+1 poder e +6 integridade.", "power_bonus": 1, "health_bonus": 6}})
+	state.player.inventory.append({"id": "capture_alt_armor", "name": "Colete de Turno Noturno", "description": "Protege melhor depois do expediente.", "slot": "armor", "origin_planet_id": "congelaria_sa", "power": 6, "rarity": "Raro", "color": "#58d9ff", "trait": {"id": "reactive_lining", "name": "FORRO REATIVO", "description": "+14 de integridade máxima.", "power_bonus": 0, "health_bonus": 14}})
 	state.save_equipment_loadout(0)
 	state.equip_from_inventory("capture_upgrade_weapon")
 	state.equip_from_inventory("capture_alt_armor")

@@ -86,6 +86,10 @@ func _init() -> void:
 	check(recycle_reward_state.phase == recycle_reward_state.Phase.REWARD and str(recycle_reward_state.pending_loot.id) == "protected_trait", "rejected recycling leaves the special reward untouched")
 	recycle_reward_state.pending_loot = {"id": "protected_investment", "name": "Peça Trabalhada", "slot": "weapon", "power": 0, "rarity": "Comum", "color": "#b9c2d9", "power_upgrades": 1}
 	check(recycle_reward_state.claim_reward(false, false, true).is_empty(), "immediate recycling rejects workshop-invested rewards")
+	recycle_reward_state.player.weapon.origin_planet_id = "dustball_prime"
+	recycle_reward_state.pending_loot = {"id": "kit_armor", "name": "Colete Coordenado", "slot": "armor", "origin_planet_id": "dustball_prime", "power": 0, "rarity": "Comum", "color": "#b9c2d9"}
+	check(CoreRules.is_upgrade_for_player(recycle_reward_state.player, recycle_reward_state.pending_loot), "matching-origin reward can improve the build despite lower base power")
+	check(recycle_reward_state.claim_reward(false, false, true).is_empty(), "immediate recycling preserves a common item that completes a planetary kit")
 	recycle_reward_state.free()
 	var mastery_state = StateScript.new()
 	mastery_state.persistence_enabled = false

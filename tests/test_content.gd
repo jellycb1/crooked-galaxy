@@ -76,6 +76,7 @@ func _init() -> void:
 		mastery_rng.seed = seed + 1000
 		var base_loot := ContentDB.generate_loot(ContentDB.TARGETS[0], base_rng, 0)
 		var mastery_loot := ContentDB.generate_loot(ContentDB.TARGETS[0], mastery_rng, 3)
+		check(str(base_loot.origin_planet_id) == "dustball_prime" and str(mastery_loot.origin_planet_id) == "dustball_prime", "generated loot keeps a valid origin for seed %d" % seed)
 		check(rarity_weight(str(mastery_loot.rarity)) >= rarity_weight(str(base_loot.rarity)), "mastery never lowers loot rarity for seed %d" % seed)
 		if rarity_weight(str(mastery_loot.rarity)) > rarity_weight(str(base_loot.rarity)):
 			promoted_loot += 1

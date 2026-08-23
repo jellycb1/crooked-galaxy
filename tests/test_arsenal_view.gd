@@ -12,6 +12,8 @@ func _init() -> void:
 	state.persistence_enabled = false
 	state.player = state.default_player()
 	state.player.scrap = 20
+	state.player.weapon.origin_planet_id = "dustball_prime"
+	state.player.armor.origin_planet_id = "dustball_prime"
 	state.player.inventory = [
 		{"id": "view_weapon", "name": "Arma de Vista", "slot": "weapon", "power": 5, "rarity": "Raro", "color": "#58d9ff"},
 		{"id": "view_armor", "name": "Armadura de Vista", "slot": "armor", "power": 4, "rarity": "Comum", "color": "#b9c2d9"},
@@ -25,6 +27,8 @@ func _init() -> void:
 	check(host.find_child("InventoryScroll", true, false) != null, "isolated arsenal builds its inventory scroller")
 	check(host.find_child("Upgrade_weapon", true, false) != null and host.find_child("Reinforce_armor", true, false) != null, "isolated arsenal builds both workshop paths")
 	check(host.find_child("LoadoutToolbar", true, false) != null, "isolated arsenal builds persistent loadouts")
+	var kit_status := host.find_child("PlanetaryKitStatus", true, false) as Label
+	check(kit_status != null and kit_status.text.contains("DUSTBALL PRIME") and kit_status.text.contains("+1 PODER") and kit_status.text.contains("+6 VIDA"), "arsenal exposes the active planetary kit")
 	check(ArsenalScript.filtered_inventory(host, state).size() == 2, "renderer receives inventory through explicit state")
 	host.inventory_filter = "weapon"
 	check(ArsenalScript.filtered_inventory(host, state).size() == 1, "renderer preserves host filter state")

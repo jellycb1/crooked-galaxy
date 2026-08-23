@@ -22,6 +22,8 @@ func _init() -> void:
 	source.player.best_capture_streak = 7
 	source.player.weapon.integrity_upgrades = 2
 	source.player.weapon.power_upgrades = 3
+	source.player.weapon.origin_planet_id = "dustball_prime"
+	source.player.armor.origin_planet_id = "dustball_prime"
 	source.player.locked_item_ids = ["test_loot"]
 	source.player.equipment_loadouts = [{"weapon_id": "test_loot", "armor_id": "starter_armor"}, {"weapon_id": "", "armor_id": ""}]
 	source.phase = source.Phase.VICTORY
@@ -31,6 +33,7 @@ func _init() -> void:
 		"name": "Zapper de Teste",
 		"description": "Existe apenas durante o teste.",
 		"slot": "weapon",
+		"origin_planet_id": "dustball_prime",
 		"power": 7,
 		"rarity": "Raro",
 		"color": "#58d9ff",
@@ -55,10 +58,12 @@ func _init() -> void:
 	check(int(restored.player.capture_streak) == 4 and int(restored.player.best_capture_streak) == 7, "capture streaks survive save and load")
 	check(int(restored.player.weapon.integrity_upgrades) == 2, "equipment reinforcement survives save and load")
 	check(int(restored.player.weapon.power_upgrades) == 3, "power calibration history survives save and load")
+	check(CoreRules.equipment_set_origin(restored.player) == "dustball_prime", "planetary kit origin survives save and load")
 	check(restored.player.locked_item_ids.has("test_loot"), "protected inventory ids survive save and load")
 	check(str(restored.player.equipment_loadouts[0].weapon_id) == "test_loot", "equipment loadouts survive save and load")
 	check(restored.phase == restored.Phase.VICTORY, "capture phase survives save and load")
 	check(str(restored.pending_loot.id) == "test_loot", "pending reward survives save and load")
+	check(str(restored.pending_loot.origin_planet_id) == "dustball_prime", "pending reward preserves its planet of origin")
 	check(restored.combat_events.size() == 1, "finishing action survives save and load")
 	check(str(restored.combat_events[0].action) == "Teste de Impacto", "action data is restored")
 

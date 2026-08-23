@@ -368,7 +368,7 @@ func can_recycle_reward(item: Dictionary) -> bool:
 	var slot := str(item.get("slot", ""))
 	if slot != "weapon" and slot != "armor":
 		return false
-	return not item.has("trait") and not CoreRules.has_workshop_investment(item) and not CoreRules.is_upgrade(item, player.get(slot, {}))
+	return not item.has("trait") and not CoreRules.has_workshop_investment(item) and not CoreRules.is_upgrade_for_player(player, item)
 
 
 func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := false) -> Dictionary:
@@ -541,7 +541,7 @@ func inferior_recycle_preview() -> Dictionary:
 			continue
 		if CoreRules.has_workshop_investment(item):
 			continue
-		if not CoreRules.is_upgrade(item, player.get(slot, {})):
+		if not CoreRules.is_upgrade_for_player(player, item):
 			count += 1
 			scrap += CoreRules.salvage_value(item)
 	return {"count": count, "scrap": scrap}
@@ -557,7 +557,7 @@ func recycle_inferior_inventory() -> Dictionary:
 	for item in player.get("inventory", []):
 		var slot := str(item.get("slot", ""))
 		var is_equipped: bool = is_item_protected(str(item.get("id", "")))
-		var is_inferior: bool = (slot == "weapon" or slot == "armor") and not item.has("trait") and not CoreRules.has_workshop_investment(item) and not CoreRules.is_upgrade(item, player.get(slot, {}))
+		var is_inferior: bool = (slot == "weapon" or slot == "armor") and not item.has("trait") and not CoreRules.has_workshop_investment(item) and not CoreRules.is_upgrade_for_player(player, item)
 		if is_equipped or not is_inferior:
 			retained.append(item)
 	player.inventory = retained
