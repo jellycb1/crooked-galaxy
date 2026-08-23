@@ -11,6 +11,7 @@ func _init() -> void:
 	var state = StateScript.new()
 	state.persistence_enabled = false
 	state.player = state.default_player()
+	state.last_notice = "Perícia com alvo 1: +6 sucata"
 	state.player.captures_by_target = {"gloop": 1}
 	state.player.captures_by_planet = {"dustball_prime": 1}
 	state.player.scrap = 20
@@ -27,6 +28,8 @@ func _init() -> void:
 	ArsenalScript.build(host, content, state)
 
 	check(host.find_child("InventoryScroll", true, false) != null, "isolated arsenal builds its inventory scroller")
+	var workshop_notice := host.find_child("WorkshopNotice", true, false) as Label
+	check(workshop_notice != null and workshop_notice.text.contains("+6 sucata"), "isolated arsenal preserves the transaction that funded the workshop")
 	check(host.find_child("Upgrade_weapon", true, false) != null and host.find_child("Reinforce_armor", true, false) != null, "isolated arsenal builds both workshop paths")
 	check(host.find_child("LoadoutToolbar", true, false) != null, "isolated arsenal builds persistent loadouts")
 	check(host.find_child("FieldReadiness", true, false) != null, "isolated arsenal translates upgrades into next-warrant odds")

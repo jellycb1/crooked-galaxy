@@ -26,6 +26,11 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	)
 	title_row.add_child(back)
 
+	if not state.last_notice.is_empty():
+		var notice := host.label("REGISTRO DA OFICINA · %s" % state.last_notice, 11, host.LIME)
+		notice.name = "WorkshopNotice"
+		notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		content.add_child(notice)
 	content.add_child(host.label("OFICINA · %d SUCATA · PODER TOTAL %d" % [int(state.player.get("scrap", 0)), Rules.player_power(state.player)], 14, host.GOLD))
 	var set_origin := Rules.equipment_set_origin(state.player)
 	var set_text := "KIT PLANETÁRIO · INATIVO · combine arma e armadura da mesma origem"
