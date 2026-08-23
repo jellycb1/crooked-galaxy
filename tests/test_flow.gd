@@ -98,6 +98,19 @@ func _init() -> void:
 	check(bool(mastery_summary.target_mastery_up) and int(mastery_summary.target_mastery) == 1, "third target capture reports a mastery increase")
 	check(str(mastery_state.last_notice).contains("Perícia com alvo 1"), "mastery increase survives as board feedback")
 	mastery_state.free()
+	var tactical_state = StateScript.new()
+	tactical_state.persistence_enabled = false
+	tactical_state.player = tactical_state.default_player()
+	tactical_state.player.weapon.trait = {"opening_damage_bonus": 5}
+	tactical_state.player.armor.trait = {"damage_reduction": 2}
+	tactical_state.current_bounty = Content.TARGETS[0].duplicate(true)
+	tactical_state.current_bounty.health = 999
+	tactical_state.begin_combat()
+	var tactical_step := tactical_state.combat_step()
+	check(not bool(tactical_step.finished) and tactical_state.combat_events.size() == 2, "tactical traits keep the alternating combat flow")
+	check(str(tactical_state.combat_events[0].get("effect", "")) == "EMBOSCADA +5", "opening-shot trait is recorded in the combat event")
+	check(str(tactical_state.combat_events[1].get("effect", "")) == "AMORTECEDOR -2", "damage-reduction trait is recorded in the combat event")
+	tactical_state.free()
 	check(not state.scrap_item(str(claimed_item.id)), "equipped item cannot be recycled")
 	var spare := {"id": "spare_epic", "name": "Sucata de Teste", "description": "Feita para sumir.", "slot": "armor", "power": 12, "rarity": "Épico", "color": "#d789ff"}
 	state.player.inventory.append(spare)

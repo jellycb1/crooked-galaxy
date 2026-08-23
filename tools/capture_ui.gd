@@ -79,8 +79,8 @@ func capture() -> void:
 	state.enemy_hp -= 34
 	state.combat_round = 4
 	state.combat_events.assign([
-		{"actor": "player", "action": "Ricochete de Plasma", "damage": 14, "quality": "CRÍTICO"},
-		{"actor": "enemy", "action": "Tapa Tentacular", "damage": 8, "quality": "ACERTO"},
+		{"actor": "player", "action": "Ricochete de Plasma", "damage": 14, "quality": "CRÍTICO", "effect": "EMBOSCADA +5"},
+		{"actor": "enemy", "action": "Tapa Tentacular", "damage": 8, "quality": "ACERTO", "effect": "AMORTECEDOR -2"},
 	])
 	scene.last_combat_message = "Ricochete de Plasma causa 14. Tapa Tentacular responde com 8."
 	scene.render()
@@ -104,7 +104,7 @@ func capture() -> void:
 	state.player.best_capture_streak = 3
 	state.pending_loot.rarity = "Raro"
 	state.pending_loot.color = "#58d9ff"
-	state.pending_loot.trait = {"id": "crooked_coil", "name": "BOBINA TORTA", "description": "+2 poder de combate.", "power_bonus": 2, "health_bonus": 0}
+	state.pending_loot.trait = {"id": "ambush_capacitor", "name": "CAPACITOR DE EMBOSCADA", "description": "+5 dano no primeiro disparo.", "power_bonus": 0, "health_bonus": 0, "opening_damage_bonus": 5}
 	scene.render()
 	await process_frame
 	await process_frame

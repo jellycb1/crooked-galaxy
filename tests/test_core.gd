@@ -40,6 +40,19 @@ func test_power_and_health() -> void:
 	check(Rules.equipment_integrity_upgrade_cost({"power": 10, "integrity_upgrades": 0}) == 10, "integrity cost scales from item power")
 	check(Rules.equipment_integrity_upgrade_cost({"power": 10, "integrity_upgrades": 2}) == 18, "integrity cost rises with reinforcement level")
 	check(Rules.can_upgrade_integrity({"integrity_upgrades": 4}) and not Rules.can_upgrade_integrity({"integrity_upgrades": 5}), "integrity reinforcement has an explicit cap")
+	var tactical_player := {
+		"level": 1,
+		"base_power": 10,
+		"weapon": {"power": 2, "trait": {"opening_damage_bonus": 5}},
+		"armor": {"power": 2, "trait": {"damage_reduction": 2}},
+	}
+	var raw_player_damage := Rules.damage_roll(Rules.player_power(tactical_player), 4, 0.5)
+	check(Rules.player_attack_damage(tactical_player, 4, 0.5, 1) == raw_player_damage + 5, "ambush damage applies only to the opening shot")
+	check(Rules.player_attack_damage(tactical_player, 4, 0.5, 2) == raw_player_damage, "ambush damage expires after round one")
+	var raw_enemy_damage := Rules.damage_roll(18, 5, 0.5)
+	check(Rules.enemy_attack_damage(tactical_player, 18, 0.5) == maxi(1, raw_enemy_damage - 2), "armor dampener reduces every incoming strike")
+	check(Rules.equipment_score({"trait": {"opening_damage_bonus": 5}}) == 10, "opening damage participates in equipment comparison")
+	check(Rules.equipment_score({"trait": {"damage_reduction": 2}}) == 20, "damage reduction participates in equipment comparison")
 
 
 func test_damage_boundaries() -> void:

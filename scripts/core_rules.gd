@@ -25,13 +25,41 @@ static func item_health_bonus(item: Dictionary) -> int:
 	return int(item.get("trait", {}).get("health_bonus", 0)) + int(item.get("integrity_upgrades", 0)) * INTEGRITY_HEALTH_PER_LEVEL
 
 
+static func item_opening_damage(item: Dictionary) -> int:
+	return int(item.get("trait", {}).get("opening_damage_bonus", 0))
+
+
+static func item_damage_reduction(item: Dictionary) -> int:
+	return int(item.get("trait", {}).get("damage_reduction", 0))
+
+
+static func player_opening_damage(player: Dictionary) -> int:
+	return item_opening_damage(player.get("weapon", {})) + item_opening_damage(player.get("armor", {}))
+
+
+static func player_damage_reduction(player: Dictionary) -> int:
+	return item_damage_reduction(player.get("weapon", {})) + item_damage_reduction(player.get("armor", {}))
+
+
 static func equipment_score(item: Dictionary) -> int:
-	return item_combat_power(item) * 6 + item_health_bonus(item)
+	return item_combat_power(item) * 6 + item_health_bonus(item) + item_opening_damage(item) * 2 + item_damage_reduction(item) * 10
 
 
 static func damage_roll(power: int, defense: int, roll: float) -> int:
 	var variance := lerpf(0.82, 1.18, clampf(roll, 0.0, 1.0))
 	return maxi(1, roundi(float(power) * variance - float(defense) * 0.45))
+
+
+static func player_attack_damage(player: Dictionary, target_defense: int, roll: float, round_number: int) -> int:
+	var damage := damage_roll(player_power(player), target_defense, roll)
+	if round_number == 1:
+		damage += player_opening_damage(player)
+	return damage
+
+
+static func enemy_attack_damage(player: Dictionary, target_power: int, roll: float) -> int:
+	var defense := int(player.get("armor", {}).get("power", 0)) + 3
+	return maxi(1, damage_roll(target_power, defense, roll) - player_damage_reduction(player))
 
 
 static func xp_needed(level: int) -> int:
@@ -56,11 +84,13 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 	var hunter_power := player_power(player)
 	var hunter_health := max_health(player)
 	var hunter_defense := int(player.get("armor", {}).get("power", 0)) + 3
+	var opening_damage := player_opening_damage(player)
+	var damage_reduction := player_damage_reduction(player)
 	var target_power := int(target.get("power", 1))
 	var target_defense := int(target.get("defense", 0))
 	var target_health := int(target.get("health", 1))
 	var rng := RandomNumberGenerator.new()
-	rng.seed = hunter_power * 92821 + hunter_health * 68917 + hunter_defense * 31337 + target_power * 7919 + target_defense * 1543 + target_health * 421
+	rng.seed = hunter_power * 92821 + hunter_health * 68917 + hunter_defense * 31337 + opening_damage * 1741 + damage_reduction * 967 + target_power * 7919 + target_defense * 1543 + target_health * 421
 	var wins := 0
 	for _trial in TRIALS:
 		var player_hp := hunter_health
@@ -68,11 +98,11 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 		var rounds := 0
 		while player_hp > 0 and enemy_hp > 0 and rounds < 100:
 			rounds += 1
-			enemy_hp -= damage_roll(hunter_power, target_defense, rng.randf())
+			enemy_hp -= player_attack_damage(player, target_defense, rng.randf(), rounds)
 			if enemy_hp <= 0:
 				wins += 1
 				break
-			player_hp -= damage_roll(target_power, hunter_defense, rng.randf())
+			player_hp -= enemy_attack_damage(player, target_power, rng.randf())
 	return clampf(float(wins) / float(TRIALS), 0.01, 0.99)
 
 

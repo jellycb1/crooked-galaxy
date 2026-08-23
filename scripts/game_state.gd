@@ -289,13 +289,16 @@ func combat_step() -> Dictionary:
 	combat_round += 1
 	var round_events: Array[Dictionary] = []
 	var player_roll := rng.randf()
-	var player_damage := CoreRules.damage_roll(CoreRules.player_power(player), int(current_bounty.defense), player_roll)
+	var player_damage := CoreRules.player_attack_damage(player, int(current_bounty.defense), player_roll, combat_round)
 	var player_event := {
 		"actor": "player",
 		"action": ContentDB.player_attack(rng),
 		"damage": player_damage,
 		"quality": combat_quality(player_roll),
 	}
+	var opening_bonus := CoreRules.player_opening_damage(player) if combat_round == 1 else 0
+	if opening_bonus > 0:
+		player_event.effect = "EMBOSCADA +%d" % opening_bonus
 	round_events.append(player_event)
 	enemy_hp = maxi(0, enemy_hp - player_damage)
 	var message := "%s causa %d de dano." % [player_event.action, player_damage]
@@ -305,13 +308,16 @@ func combat_step() -> Dictionary:
 		return {"message": message, "finished": true, "won": true}
 
 	var enemy_roll := rng.randf()
-	var enemy_damage := CoreRules.damage_roll(int(current_bounty.power), int(player.get("armor", {}).get("power", 0)) + 3, enemy_roll)
+	var enemy_damage := CoreRules.enemy_attack_damage(player, int(current_bounty.power), enemy_roll)
 	var enemy_event := {
 		"actor": "enemy",
 		"action": ContentDB.target_attack(current_bounty, rng),
 		"damage": enemy_damage,
 		"quality": combat_quality(enemy_roll),
 	}
+	var damage_reduction := CoreRules.player_damage_reduction(player)
+	if damage_reduction > 0:
+		enemy_event.effect = "AMORTECEDOR -%d" % damage_reduction
 	round_events.append(enemy_event)
 	player_hp = maxi(0, player_hp - enemy_damage)
 	message += "  %s responde com %d." % [enemy_event.action, enemy_damage]

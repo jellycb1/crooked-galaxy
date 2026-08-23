@@ -846,6 +846,8 @@ func combat_event_chip(event: Dictionary) -> PanelContainer:
 	var quality := str(event.get("quality", "ACERTO"))
 	var quality_color := GOLD if quality == "CRÍTICO" else (MUTED if quality == "DE RASPÃO" else INK)
 	box.add_child(label("%d DANO · %s" % [int(event.get("damage", 0)), quality], 12, quality_color, HORIZONTAL_ALIGNMENT_CENTER))
+	if event.has("effect"):
+		box.add_child(label(str(event.effect), 10, LIME if player_action else CYAN, HORIZONTAL_ALIGNMENT_CENTER))
 	return chip
 
 

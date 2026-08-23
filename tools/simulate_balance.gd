@@ -44,6 +44,19 @@ func _init() -> void:
 			int(adjusted.xp),
 		])
 
+	var tactical_profile: Dictionary = profiles[1].duplicate(true)
+	tactical_profile.name = "tactical traits"
+	tactical_profile.weapon.trait = {"opening_damage_bonus": 5}
+	tactical_profile.armor.trait = {"damage_reduction": 2}
+	var tactical_result := simulate_target(tactical_profile, approach_target, FIGHTS_PER_CASE)
+	print("\nTactical traits vs. %s: win=%.1f%% estimate=%d%% opening=+%d reduction=%d" % [
+		str(approach_target.name),
+		float(tactical_result.wins) / FIGHTS_PER_CASE * 100.0,
+		roundi(CoreRules.bounty_odds(tactical_profile, approach_target) * 100.0),
+		CoreRules.player_opening_damage(tactical_profile),
+		CoreRules.player_damage_reduction(tactical_profile),
+	])
+
 	var event_profile: Dictionary = profiles[0]
 	var safe_contract := ContentDB.apply_approach(ContentDB.TARGETS[0], ContentDB.CONTRACT_APPROACHES[0])
 	var event: Dictionary = ContentDB.HUNT_EVENTS[0]
@@ -89,10 +102,10 @@ func simulate_target(player: Dictionary, target: Dictionary, count: int) -> Dict
 		var rounds := 0
 		while player_hp > 0 and enemy_hp > 0 and rounds < 100:
 			rounds += 1
-			enemy_hp -= CoreRules.damage_roll(CoreRules.player_power(player), int(target.defense), rng.randf())
+			enemy_hp -= CoreRules.player_attack_damage(player, int(target.defense), rng.randf(), rounds)
 			if enemy_hp <= 0:
 				wins += 1
 				break
-			player_hp -= CoreRules.damage_roll(int(target.power), int(player.armor.power) + 3, rng.randf())
+			player_hp -= CoreRules.enemy_attack_damage(player, int(target.power), rng.randf())
 		total_rounds += rounds
 	return {"wins": wins, "rounds": total_rounds}

@@ -32,6 +32,10 @@ func _init() -> void:
 	check(bool(deltas.upgrade), "comparison recognizes a modified upgrade")
 	check(EquipmentPresentation.equipment_delta_text(player, stronger) == "▲ +1 PODER · +10 VIDA", "comparison text summarizes both effects")
 	check(EquipmentPresentation.equipment_delta_text(player, player.weapon) == "= MESMO EFEITO", "equal equipment has a stable summary")
+	var ambush_weapon := {"slot": "weapon", "power": 5, "trait": {"opening_damage_bonus": 5}}
+	check(EquipmentPresentation.equipment_delta_text(player, ambush_weapon) == "▲ +5 EMBOSCADA", "comparison text exposes opening-shot effects")
+	var dampener_armor := {"slot": "armor", "power": 3, "trait": {"damage_reduction": 2}}
+	check(EquipmentPresentation.equipment_delta_text(player, dampener_armor) == "▲ +2 REDUÇÃO", "comparison text exposes incoming damage reduction")
 
 	if failures == 0:
 		print("PASS: equipment presentation is deterministic")

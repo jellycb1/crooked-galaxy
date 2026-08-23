@@ -18,6 +18,9 @@ if ($GodotCandidates.Count -eq 0) {
 }
 
 $GodotExe = $GodotCandidates[0]
+$RunId = [Guid]::NewGuid().ToString("N")
+$LogRoot = Join-Path $ProjectRoot ".godot\test-logs\$RunId"
+New-Item -ItemType Directory -Path $LogRoot -Force | Out-Null
 $Tests = @(
     "test_core.gd",
     "test_flow.gd",
@@ -37,14 +40,16 @@ $Tests = @(
 Write-Host "Crooked Galaxy checks using $GodotExe"
 foreach ($TestFile in $Tests) {
     Write-Host "`n[$TestFile]"
-    & $GodotExe --headless --path $ProjectRoot --script "res://tests/$TestFile"
+    $LogFile = Join-Path $LogRoot "$TestFile.log"
+    & $GodotExe --headless --path $ProjectRoot --log-file $LogFile --script "res://tests/$TestFile"
     if ($LASTEXITCODE -ne 0) {
         throw "$TestFile failed with exit code $LASTEXITCODE."
     }
 }
 
 Write-Host "`n[project boot]"
-& $GodotExe --headless --path $ProjectRoot --quit-after 2
+$BootLog = Join-Path $LogRoot "project_boot.log"
+& $GodotExe --headless --path $ProjectRoot --log-file $BootLog --quit-after 2
 if ($LASTEXITCODE -ne 0) {
     throw "Project boot failed with exit code $LASTEXITCODE."
 }

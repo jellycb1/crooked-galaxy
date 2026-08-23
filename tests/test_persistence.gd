@@ -1,15 +1,15 @@
 extends SceneTree
 
 const StateScript = preload("res://scripts/game_state.gd")
-const TEST_SAVE := "user://crooked_galaxy_test_save.json"
-const LEGACY_SAVE := "user://crooked_galaxy_legacy_save.json"
+var test_save := "res://.godot/crooked_galaxy_test_save_%s.json" % OS.get_process_id()
+var legacy_save := "res://.godot/crooked_galaxy_legacy_save_%s.json" % OS.get_process_id()
 
 var failures := 0
 
 
 func _init() -> void:
 	var source = StateScript.new()
-	source.save_path = TEST_SAVE
+	source.save_path = test_save
 	source.player = source.default_player()
 	source.player.credits = 123
 	source.player.scrap = 27
@@ -39,12 +39,12 @@ func _init() -> void:
 		{"actor": "player", "action": "Teste de Impacto", "damage": 17, "quality": "CRÍTICO"},
 	])
 	source.save_game()
-	var saved_file := FileAccess.open(TEST_SAVE, FileAccess.READ)
+	var saved_file := FileAccess.open(test_save, FileAccess.READ)
 	var saved_payload = JSON.parse_string(saved_file.get_as_text())
 	check(int(saved_payload.get("version", 0)) == StateScript.SAVE_VERSION, "new saves use the current schema version")
 
 	var restored = StateScript.new()
-	restored.save_path = TEST_SAVE
+	restored.save_path = test_save
 	restored.load_game()
 	check(int(restored.player.credits) == 123, "player data survives save and load")
 	check(int(restored.player.scrap) == 27, "workshop currency survives save and load")
@@ -67,7 +67,7 @@ func _init() -> void:
 	source.pending_loot = {}
 	source.select_bounty(ContentDB.TARGETS[0])
 	var restored_briefing = StateScript.new()
-	restored_briefing.save_path = TEST_SAVE
+	restored_briefing.save_path = test_save
 	restored_briefing.load_game()
 	check(restored_briefing.phase == restored_briefing.Phase.BRIEFING, "briefing phase survives save and load")
 	check(restored_briefing.offered_approaches.size() == 3, "approach choices survive save and load")
@@ -80,7 +80,7 @@ func _init() -> void:
 	source.phase = source.Phase.HUNT_EVENT
 	source.save_game()
 	var restored_event = StateScript.new()
-	restored_event.save_path = TEST_SAVE
+	restored_event.save_path = test_save
 	restored_event.load_game()
 	check(restored_event.phase == restored_event.Phase.HUNT_EVENT, "mid-hunt incident survives save and load")
 	check(str(restored_event.hunt_event.id) == "bounty_streamer", "incident content is restored")
@@ -94,7 +94,7 @@ func _init() -> void:
 	source.phase = source.Phase.CHAPTER_COMPLETE
 	source.save_game()
 	var restored_chapter = StateScript.new()
-	restored_chapter.save_path = TEST_SAVE
+	restored_chapter.save_path = test_save
 	restored_chapter.load_game()
 	check(restored_chapter.phase == restored_chapter.Phase.CHAPTER_COMPLETE, "chapter finale survives save and load")
 	check(restored_chapter.player.completed_planets.has(ContentDB.PLANET.id), "planet completion survives save and load")
@@ -125,18 +125,18 @@ func _init() -> void:
 	legacy_player.credits = 77
 	legacy_player.wins = 2
 	legacy_player.last_seen_unix = Time.get_unix_time_from_system()
-	var legacy_file := FileAccess.open(LEGACY_SAVE, FileAccess.WRITE)
+	var legacy_file := FileAccess.open(legacy_save, FileAccess.WRITE)
 	legacy_file.store_string(JSON.stringify({"version": 1, "player": legacy_player, "phase": source.Phase.BOARD}))
 	legacy_file = null
 	var migrated = StateScript.new()
-	migrated.save_path = LEGACY_SAVE
+	migrated.save_path = legacy_save
 	migrated.load_game()
 	check(int(migrated.player.credits) == 77, "version one player data survives migration")
 	check(migrated.player.claimed_milestones is Array, "migration adds claimed career milestones")
 	check(int(migrated.player.career_credits_claimed) == 0, "migration initializes career reward totals")
 	check(migrated.player.locked_item_ids is Array and migrated.player.equipment_loadouts.size() == 2, "migration initializes protection and loadouts")
 	check(not str(migrated.player.weapon.id).is_empty() and not str(migrated.player.armor.id).is_empty(), "migration assigns stable ids to legacy equipped gear")
-	var migrated_file := FileAccess.open(LEGACY_SAVE, FileAccess.READ)
+	var migrated_file := FileAccess.open(legacy_save, FileAccess.READ)
 	var migrated_payload = JSON.parse_string(migrated_file.get_as_text())
 	check(int(migrated_payload.get("version", 0)) == StateScript.SAVE_VERSION, "successful migration is persisted immediately")
 	check(migrated.migrate_save_payload({"version": StateScript.SAVE_VERSION + 1}).is_empty(), "future save versions are rejected safely")
@@ -148,10 +148,10 @@ func _init() -> void:
 	restored_chapter.free()
 	offline.free()
 	migrated.free()
-	if FileAccess.file_exists(TEST_SAVE):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SAVE))
-	if FileAccess.file_exists(LEGACY_SAVE):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(LEGACY_SAVE))
+	if FileAccess.file_exists(test_save):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(test_save))
+	if FileAccess.file_exists(legacy_save):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(legacy_save))
 	if failures == 0:
 		print("PASS: save and load preserve an interrupted reward flow")
 		quit(0)
