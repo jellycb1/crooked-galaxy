@@ -1,0 +1,17 @@
+# Godot generated files
+.godot/
+*.tmp
+
+# Local exports and runtime logs
+builds/
+logs/
+
+# Editor / OS noise
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Proprietary study material: keep local and outside version control.
+References/*
+!References/.gdignore

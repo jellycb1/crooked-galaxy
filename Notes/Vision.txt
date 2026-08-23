@@ -1,0 +1,189 @@
+CROOKED GALAXY — VISION
+
+Crooked Galaxy is a stylized comedic sci-fi idle RPG focused on the fantasy of becoming one of the galaxy’s greatest bounty hunters.
+
+CORE PILLARS
+
+1. BOUNTY HUNTER FANTASY
+
+The player is an interstellar bounty hunter.
+
+The main progression loop is:
+
+Inspect Bounties
+→ Choose Contract
+→ Hunt
+→ Encounter Target
+→ Automatic Combat
+→ Receive Reward
+→ Collect Loot
+→ Equip Better Gear
+→ Become Stronger
+→ Unlock Harder Bounties
+→ Travel to New Planets
+
+The player should constantly feel that they are building a bounty hunting career.
+
+2. STYLIZED / COMEDIC SCI-FI
+
+The universe should be colorful, strange, dangerous and funny.
+
+The tone is:
+
+stylized
+
+* comedic
+* adventurous
+* occasionally epic
+
+The game can contain:
+
+* bizarre aliens;
+* ridiculous criminals;
+* strange technology;
+* unusual weapons;
+* corrupt corporations;
+* shady stations;
+* weird planets;
+* space-western influences;
+* humorous item and bounty descriptions.
+
+The game should not become hard military sci-fi or generic realistic science fiction.
+
+3. PLANETS AS PROGRESSION
+
+Planets act as chapters.
+
+Each new planet can introduce:
+
+* new species;
+* new bounty targets;
+* new enemies;
+* new equipment;
+* new visual themes;
+* new dungeon/event types;
+* new stories;
+* new mechanics.
+
+The galaxy should feel almost unlimited.
+
+A planet can be:
+
+* desert;
+* frozen;
+* oceanic;
+* mechanical;
+* fungal;
+* cyberpunk;
+* living;
+* ruined;
+* prison-based;
+* controlled by machines;
+* inside an alien megastructure.
+
+Almost nothing is too strange if it fits the Crooked Galaxy tone.
+
+GAME TYPE
+
+Crooked Galaxy is primarily:
+
+* idle / AFK RPG;
+* character progression RPG;
+* loot-driven RPG;
+* asynchronous online RPG.
+
+Combat is mainly automatic.
+
+The player’s decisions come from:
+
+* bounty selection;
+* equipment;
+* builds;
+* upgrades;
+* progression;
+* risk/reward choices;
+* future PvP and Syndicate systems.
+
+VISUAL DIRECTION
+
+Target style:
+
+2D hand-drawn cartoon/comic sci-fi.
+
+Characters should use:
+
+* caricatural proportions;
+* expressive faces;
+* bold outlines;
+* simple shapes;
+* flat colors;
+* limited cel shading;
+* low-to-medium detail;
+* strong mobile readability.
+
+The game should prioritize personality over realism.
+
+Character and equipment art should eventually use a modular paper-doll system where practical.
+
+PLAYER PROGRESSION
+
+Important long-term systems may include:
+
+* Character Level;
+* Bounty Rank / Reputation;
+* equipment;
+* archetypes;
+* species;
+* planets;
+* inventory;
+* ship progression;
+* Arena;
+* rankings;
+* Syndicates;
+* global events.
+
+Not all of these belong in the first MVP.
+
+FIRST PRODUCT GOAL
+
+The first playable version should prove one thing:
+
+Completing a bounty, receiving loot and becoming stronger should make the player want to take another bounty.
+
+Do not build the entire galaxy before this loop is fun.
+
+REFERENCE MATERIAL
+
+Shakes & Fidget files may be stored in the reference project for internal study.
+
+They are reference material only.
+
+They may be used as Placeholders keeping a record of each one used to replace later.
+
+Do not directly copy or redistribute:
+
+* source code;
+* proprietary assets;
+* formulas;
+* internal data;
+* names;
+* UI;
+* text;
+* protocols.
+
+Use them only to study general principles such as:
+
+* system structure;
+* content organization;
+* progression;
+* item families;
+* combat flow;
+* UI density;
+* asset reuse;
+* server architecture.
+
+Crooked Galaxy must be independently designed and implemented.
+
+PRODUCT SUMMARY
+
+Crooked Galaxy is a colorful, humorous sci-fi RPG where the player builds an interstellar bounty hunter, tracks bizarre criminals across increasingly strange planets, collects alien loot and rises through the ranks in a galaxy full of crooked people, crooked systems and crooked worlds.
