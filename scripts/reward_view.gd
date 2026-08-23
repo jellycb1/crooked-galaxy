@@ -50,9 +50,12 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var captures_after_reward := previous_captures + 1
 	var mastery_after_reward := Rules.target_mastery_level(captures_after_reward)
 	if mastery_after_reward > reward_mastery:
-		var mastery_unlock := host.center_label("NOVA PERÍCIA AO RECEBER · NÍVEL %d/3 · +%d%% RARO · +%d%% ÉPICO · +%d SUCATA" % [mastery_after_reward, mastery_after_reward * 5, mastery_after_reward * 2, Rules.target_mastery_scrap_reward(mastery_after_reward)], 13, host.GOLD)
+		var mastery_unlock := host.center_label("NOVA PERÍCIA AO RECEBER · NÍVEL %d/3" % mastery_after_reward, 13, host.GOLD)
 		mastery_unlock.name = "RewardMasteryUnlock"
 		box.add_child(mastery_unlock)
+		var mastery_bonus := host.center_label("+%d%% RARO · +%d%% ÉPICO · OFICINA +%d SUCATA" % [mastery_after_reward * 5, mastery_after_reward * 2, Rules.target_mastery_scrap_reward(mastery_after_reward)], 12, host.LIME)
+		mastery_bonus.name = "RewardMasteryUnlockBonus"
+		box.add_child(mastery_bonus)
 	else:
 		var next_mastery_requirement := Rules.target_mastery_next_requirement(reward_mastery)
 		if next_mastery_requirement > 0:
@@ -98,6 +101,15 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		recycle_complete.custom_minimum_size = Vector2(0, 48)
 		recycle_complete.pressed.connect(func(): state.claim_reward(false, false, true))
 		content.add_child(recycle_complete)
+	if mastery_after_reward > reward_mastery and not completes_chapter and not unlocks_new_warrant:
+		var workshop := host.action_button("EQUIPAR E IR À OFICINA" if effective_upgrade else "GUARDAR E IR À OFICINA", host.CYAN, true)
+		workshop.name = "ClaimAndWorkshop"
+		workshop.custom_minimum_size = Vector2(0, 48)
+		workshop.pressed.connect(func():
+			host.view_mode = "arsenal"
+			state.claim_reward(effective_upgrade)
+		)
+		content.add_child(workshop)
 	var claim_text := ""
 	if completes_chapter:
 		claim_text = "RECEBER E CONCLUIR CAPÍTULO"

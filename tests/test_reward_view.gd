@@ -28,9 +28,17 @@ func _init() -> void:
 	state.player.captures_by_target = {"gloop": 2}
 	RewardScript.build(host, content, state)
 	var mastery_unlock := host.find_child("RewardMasteryUnlock", true, false) as Label
-	check(mastery_unlock != null and mastery_unlock.text.contains("+6 SUCATA"), "isolated reward previews the mastery threshold and its workshop funding before claiming")
+	var mastery_bonus := host.find_child("RewardMasteryUnlockBonus", true, false) as Label
+	check(mastery_unlock != null and mastery_bonus != null and mastery_bonus.text.contains("OFICINA +6 SUCATA"), "isolated reward previews the mastery threshold and its workshop funding before claiming")
+	var workshop_action := host.find_child("ClaimAndWorkshop", true, false) as Button
+	check(workshop_action != null, "mastery threshold offers a direct workshop route")
+	workshop_action.pressed.emit()
+	check(state.phase == state.Phase.BOARD and host.view_mode == "arsenal" and int(state.player.scrap) == 6, "workshop route claims the reward and carries mastery funding into the arsenal")
 
 	clear_content(content)
+	state.phase = state.Phase.REWARD
+	state.current_bounty = ContentDB.TARGETS[0].duplicate(true)
+	state.pending_loot = reward_item(6)
 	state.player.captures_by_target = {}
 	state.player.captures_by_planet = {ContentDB.PLANET.id: 2}
 	RewardScript.build(host, content, state)
