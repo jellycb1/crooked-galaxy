@@ -7,6 +7,7 @@ const ContractRulesScript = preload("res://scripts/contract_rules.gd")
 
 const CAREERS := 20
 const STRATEGIES := ["recommended", "corporate_when_viable"]
+const MAX_ATTEMPTS_PER_CAPTURE := 25
 
 
 func _init() -> void:
@@ -15,33 +16,65 @@ func _init() -> void:
 		var results := empty_results()
 		var corporate_scrap_totals: Array = []
 		var workshop_action_totals: Array = []
+		var stalled_careers := 0
 		for career_seed in CAREERS:
 			var state = StateScript.new()
 			state.persistence_enabled = false
 			state.player = state.default_player()
 			state.rng.seed = 150000 + career_seed * 211
+			var fight_rng := RandomNumberGenerator.new()
+			fight_rng.seed = 250000 + career_seed * 307
 			var corporate_scrap := 0
 			var workshop_actions := 0
+			var career_stalled := false
 			for planet in Content.PLANETS:
 				var planet_id := str(planet.id)
 				state.player.current_planet_id = planet_id
 				for tier in 4:
 					var target := Content.target_for_planet_tier(planet_id, tier)
-					var contract := strategy_contract(state.player, target, strategy)
-					results[planet_id].odds[tier].append(Rules.bounty_odds(state.player, contract))
+					var arrival_contract := strategy_contract(state.player, target, strategy)
+					results[planet_id].odds[tier].append(Rules.bounty_odds(state.player, arrival_contract))
 					results[planet_id].power[tier].append(Rules.player_power(state.player))
 					results[planet_id].health[tier].append(Rules.max_health(state.player))
-					results[planet_id].approach[tier].append(str(contract.get("approach", {}).get("id", "none")))
+					results[planet_id].approach[tier].append(str(arrival_contract.get("approach", {}).get("id", "none")))
 					results[planet_id].option_odds[tier].append(contract_odds(state.player, target))
 					var captures := 1 if tier == 3 else 3
+					var tier_attempts := 0
+					var tier_defeats := 0
 					for _capture in captures:
-						var summary := claim_win(state, contract)
-						corporate_scrap += int(summary.get("contract_scrap", 0))
-						workshop_actions += spend_workshop_scrap(state)
+						var won := false
+						var contract := strategy_contract(state.player, target, strategy)
+						for _attempt in MAX_ATTEMPTS_PER_CAPTURE:
+							var fight_odds := Rules.bounty_odds(state.player, contract)
+							results[planet_id].attempt_odds[tier].append(fight_odds)
+							results[planet_id].attempt_approach[tier].append(str(contract.get("approach", {}).get("id", "none")))
+							tier_attempts += 1
+							if fight_rng.randf() <= fight_odds:
+								var summary := claim_win(state, contract)
+								corporate_scrap += int(summary.get("contract_scrap", 0))
+								workshop_actions += spend_workshop_scrap(state)
+								won = true
+								break
+							tier_defeats += 1
+							var recommendation_changed := int(state.player.get("capture_streak", 0)) > 0
+							state.player.capture_streak = 0
+							if recommendation_changed:
+								contract = strategy_contract(state.player, target, strategy)
+						if not won:
+							career_stalled = true
+							break
+					results[planet_id].attempts[tier].append(tier_attempts)
+					results[planet_id].defeats[tier].append(tier_defeats)
+					if career_stalled:
+						break
+				if career_stalled:
+					break
 			corporate_scrap_totals.append(corporate_scrap)
 			workshop_action_totals.append(workshop_actions)
+			if career_stalled:
+				stalled_careers += 1
 			state.free()
-		print("\n=== %s · corporate scrap=%d · workshop actions=%d ===" % [strategy, roundi(median(corporate_scrap_totals)), roundi(median(workshop_action_totals))])
+		print("\n=== %s · stalled=%d%% · corporate scrap=%d · workshop actions=%d ===" % [strategy, roundi(float(stalled_careers) / float(CAREERS) * 100.0), roundi(median(corporate_scrap_totals)), roundi(median(workshop_action_totals))])
 		print_results(results)
 	quit(0)
 
@@ -49,7 +82,7 @@ func _init() -> void:
 func empty_results() -> Dictionary:
 	var results: Dictionary = {}
 	for planet in Content.PLANETS:
-		results[str(planet.id)] = {"odds": [[], [], [], []], "power": [[], [], [], []], "health": [[], [], [], []], "approach": [[], [], [], []], "option_odds": [[], [], [], []]}
+		results[str(planet.id)] = {"odds": [[], [], [], []], "power": [[], [], [], []], "health": [[], [], [], []], "approach": [[], [], [], []], "option_odds": [[], [], [], []], "attempts": [[], [], [], []], "defeats": [[], [], [], []], "attempt_odds": [[], [], [], []], "attempt_approach": [[], [], [], []]}
 	return results
 
 
@@ -60,7 +93,11 @@ func print_results(results: Dictionary) -> void:
 		for tier in 4:
 			var target := Content.target_for_planet_tier(planet_id, tier)
 			var odds: Array = results[planet_id].odds[tier]
-			print("  %-24s arrival=%d%% · below 55%%=%d%% · power=%d · health=%d · approach=%s · options=%s" % [str(target.name), roundi(median(odds) * 100.0), roundi(fraction_below(odds, ContractRulesScript.MIN_RECOMMENDED_ODDS) * 100.0), roundi(median(results[planet_id].power[tier])), roundi(median(results[planet_id].health[tier])), approach_summary(results[planet_id].approach[tier]), option_odds_summary(results[planet_id].option_odds[tier])])
+			if odds.is_empty():
+				print("  %-24s unreached" % str(target.name))
+				continue
+			print("  %-24s arrival=%d%% · power=%d · health=%d · options=%s" % [str(target.name), roundi(median(odds) * 100.0), roundi(median(results[planet_id].power[tier])), roundi(median(results[planet_id].health[tier])), option_odds_summary(results[planet_id].option_odds[tier])])
+			print("    attempts=%d · defeat careers=%d%% · fight odds=%d%% (min %d%%, below 55%%=%d%%) · routes=%s" % [roundi(median(results[planet_id].attempts[tier])), roundi(fraction_above(results[planet_id].defeats[tier], 0.0) * 100.0), roundi(median(results[planet_id].attempt_odds[tier]) * 100.0), roundi(minimum(results[planet_id].attempt_odds[tier]) * 100.0), roundi(fraction_below(results[planet_id].attempt_odds[tier], ContractRulesScript.MIN_RECOMMENDED_ODDS) * 100.0), approach_summary(results[planet_id].attempt_approach[tier])])
 
 
 func strategy_contract(player: Dictionary, target: Dictionary, strategy: String) -> Dictionary:
@@ -129,12 +166,27 @@ func median(values: Array) -> float:
 	return float(sorted[sorted.size() / 2])
 
 
+func fraction_above(values: Array, threshold: float) -> float:
+	var count := 0
+	for value in values:
+		if float(value) > threshold:
+			count += 1
+	return float(count) / float(values.size())
+
+
 func fraction_below(values: Array, threshold: float) -> float:
 	var count := 0
 	for value in values:
 		if float(value) < threshold:
 			count += 1
 	return float(count) / float(values.size())
+
+
+func minimum(values: Array) -> float:
+	var result := INF
+	for value in values:
+		result = minf(result, float(value))
+	return result
 
 
 func approach_summary(values: Array) -> String:

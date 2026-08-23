@@ -75,21 +75,11 @@ func _init() -> void:
 
 
 func recommended_contract(player: Dictionary, target: Dictionary) -> Dictionary:
-	var evaluations: Array[Dictionary] = []
-	for approach in Content.contract_approaches():
-		var contract := Content.apply_approach(target, approach)
-		evaluations.append({
-			"id": str(approach.id),
-			"odds": Rules.bounty_odds(player, contract),
-			"duration": float(contract.duration),
-			"credits": int(contract.credits),
-			"xp": int(contract.xp),
-			"contract": contract,
-		})
+	var evaluations := ContractRulesScript.evaluate_approaches(player, target, Content.contract_approaches())
 	var recommended_id := ContractRulesScript.recommended_approach_id(evaluations)
 	for evaluation in evaluations:
 		if str(evaluation.id) == recommended_id:
-			return evaluation.contract
+			return evaluation.preview
 	return target.duplicate(true)
 
 
