@@ -3,9 +3,9 @@ extends "res://scripts/ui_factory.gd"
 const SpaceBackdropScript = preload("res://scripts/space_backdrop.gd")
 const CombatBackdropScript = preload("res://scripts/combat_backdrop.gd")
 const SoundFXScript = preload("res://scripts/sound_fx.gd")
-const EquipmentPresentation = preload("res://scripts/equipment_presentation.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
 const ArsenalView = preload("res://scripts/arsenal_view.gd")
+const RewardViewScript = preload("res://scripts/reward_view.gd")
 
 var body: VBoxContainer
 var content: VBoxContainer
@@ -502,15 +502,6 @@ func build_arsenal() -> void:
 	ArsenalView.build(self, content, GameState)
 
 
-func equipment_delta_text(item: Dictionary) -> String:
-	return EquipmentPresentation.equipment_delta_text(GameState.player, item)
-
-
-func equipment_origin_name(item: Dictionary) -> String:
-	var origin_id := str(item.get("origin_planet_id", ""))
-	return str(ContentDB.get_planet(origin_id).name) if not origin_id.is_empty() else ""
-
-
 func onboarding_banner() -> PanelContainer:
 	var banner := panel(HBoxContainer.new(), Color("#173356"), 15, 15)
 	var row := banner.get_child(0) as HBoxContainer
@@ -911,98 +902,7 @@ func build_victory() -> void:
 
 
 func build_reward() -> void:
-	var item := GameState.pending_loot
-	var reward_preview := CoreRules.bounty_streak_reward(int(GameState.current_bounty.credits), int(GameState.player.get("capture_streak", 0)) + 1)
-	content.add_child(center_label("CONTRATO CONCLUÍDO · %s" % str(GameState.current_bounty.name).to_upper(), 16, LIME))
-	content.add_child(center_label("RECOMPENSA CAPTURADA", 32, INK))
-	var reward_panel := panel(VBoxContainer.new(), PANEL_LIGHT, 26, 26)
-	reward_panel.modulate = Color(1, 1, 1, 0)
-	content.add_child(reward_panel)
-	reward_panel.create_tween().tween_property(reward_panel, "modulate", Color.WHITE, 0.32)
-	var box := reward_panel.get_child(0) as VBoxContainer
-	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_theme_constant_override("separation", 10)
-	box.add_child(center_label("⚙", 76, Color(str(item.color))))
-	box.add_child(center_label(str(item.rarity).to_upper(), 15, Color(str(item.color))))
-	box.add_child(center_label(str(item.name), 25, INK))
-	var origin_name := equipment_origin_name(item)
-	if not origin_name.is_empty():
-		box.add_child(center_label("ORIGEM · %s" % origin_name.to_upper(), 12, CYAN))
-	var description := center_label(str(item.get("description", "Procedência criativamente desconhecida.")), 15, MUTED)
-	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	box.add_child(description)
-	box.add_child(center_label("+%d PODER · %s" % [int(item.power), slot_name(str(item.slot))], 18, GOLD))
-	var equipped: Dictionary = GameState.player[str(item.slot)]
-	var comparison := int(item.power) - int(equipped.power)
-	var comparison_text := "+%d vs. equipado" % comparison if comparison > 0 else "%d vs. equipado" % comparison
-	if comparison > 0:
-		box.add_child(center_label("▲ UPGRADE ENCONTRADO", 15, LIME))
-	var effective_upgrade := CoreRules.is_upgrade_for_player(GameState.player, item)
-	if effective_upgrade and comparison <= 0:
-		box.add_child(center_label("▲ MODIFICAÇÃO SUPERIOR", 15, LIME))
-	if item.has("trait"):
-		box.add_child(center_label("◆ %s · %s" % [str(item.trait.name), str(item.trait.description)], 13, GOLD))
-	box.add_child(center_label(equipment_delta_text(item), 15, LIME if effective_upgrade else MUTED))
-	box.add_child(center_label("EQUIPADO: %s +%d · RECICLAGEM: %d SUCATA" % [str(equipped.name), int(equipped.power), CoreRules.salvage_value(item)], 12, MUTED))
-	box.add_child(center_label("◈ %d créditos   ✦ %d XP" % [int(reward_preview.credits), int(GameState.current_bounty.xp)], 17, GOLD))
-	var previous_captures := int(GameState.player.get("captures_by_target", {}).get(str(GameState.current_bounty.id), 0))
-	var reward_mastery := CoreRules.target_mastery_level(previous_captures)
-	if reward_mastery > 0:
-		var mastery_label := center_label("PERÍCIA COM ALVO %d/3 · QUALIDADE DE LOOT AMPLIADA" % reward_mastery, 13, LIME)
-		mastery_label.name = "RewardMastery"
-		box.add_child(mastery_label)
-	if int(reward_preview.bonus_credits) > 0:
-		box.add_child(center_label("EMBALO ×%d · +%d créditos (+%d%%)" % [int(reward_preview.streak), int(reward_preview.bonus_credits), int(reward_preview.bonus_percent)], 14, LIME))
-	var planet_id := str(GameState.current_bounty.get("planet_id", ContentDB.PLANET.id))
-	var captures_before := GameState.planet_capture_count(planet_id)
-	var captures_after := captures_before + 1
-	var tier_before := CoreRules.planet_tier_from_captures(captures_before)
-	var tier_after := CoreRules.planet_tier_from_captures(captures_after)
-	var next_target := ContentDB.target_for_planet_tier(planet_id, tier_after if tier_after > tier_before else tier_before + 1)
-	var unlocks_new_warrant := tier_after > tier_before and not next_target.is_empty()
-	if unlocks_new_warrant:
-		var unlock_label := center_label("NOVO MANDADO AO RECEBER · %s" % str(next_target.name).to_upper(), 14, LIME)
-		unlock_label.name = "RewardWarrantUnlock"
-		box.add_child(unlock_label)
-	elif not next_target.is_empty():
-		var requirement := CoreRules.planet_next_tier_requirement(captures_after)
-		var progress_label := center_label("RUMO A %s · %d/%d CAPTURAS" % [str(next_target.name).to_upper(), captures_after, requirement], 13, CYAN)
-		progress_label.name = "RewardWarrantProgress"
-		box.add_child(progress_label)
-	content.add_spacer(false)
-	var equip_now := effective_upgrade
-	var completes_chapter: bool = bool(GameState.current_bounty.get("boss", false)) and not bool(GameState.player.get("completed_planets", []).has(planet_id))
-	var safe_to_recycle := GameState.can_recycle_reward(item)
-	if not completes_chapter and not unlocks_new_warrant:
-		var repeat := action_button("EQUIPAR E REPETIR" if equip_now else "GUARDAR E REPETIR", LIME)
-		repeat.name = "ClaimAndRepeat"
-		repeat.pressed.connect(func(): GameState.claim_reward(equip_now, true))
-		content.add_child(repeat)
-		if safe_to_recycle:
-			var recycle_repeat := action_button("RECICLAR +%d SUCATA E REPETIR" % CoreRules.salvage_value(item), CORAL, true)
-			recycle_repeat.name = "RecycleAndRepeat"
-			recycle_repeat.custom_minimum_size = Vector2(0, 48)
-			recycle_repeat.pressed.connect(func(): GameState.claim_reward(false, true, true))
-			content.add_child(recycle_repeat)
-	elif safe_to_recycle:
-		var recycle_destination := "VER NOVO MANDADO" if unlocks_new_warrant else "CONCLUIR"
-		var recycle_complete := action_button("RECICLAR +%d SUCATA E %s" % [CoreRules.salvage_value(item), recycle_destination], CORAL, true)
-		recycle_complete.name = "RecycleAndComplete"
-		recycle_complete.custom_minimum_size = Vector2(0, 48)
-		recycle_complete.pressed.connect(func(): GameState.claim_reward(false, false, true))
-		content.add_child(recycle_complete)
-	var claim_text := ""
-	if completes_chapter:
-		claim_text = "RECEBER E CONCLUIR CAPÍTULO"
-	elif unlocks_new_warrant:
-		claim_text = "EQUIPAR E VER NOVO MANDADO" if equip_now else "GUARDAR E VER NOVO MANDADO"
-	else:
-		claim_text = "EQUIPAR E VOLTAR AO QUADRO" if equip_now else "GUARDAR E VOLTAR AO QUADRO"
-	var claim := action_button(claim_text, LIME if completes_chapter or unlocks_new_warrant else GOLD, true)
-	claim.name = "ClaimAndUnlock" if unlocks_new_warrant else "ClaimAndBoard"
-	claim.custom_minimum_size = Vector2(0, 48)
-	claim.pressed.connect(func(): GameState.claim_reward(equip_now))
-	content.add_child(claim)
+	RewardViewScript.build(self, content, GameState)
 
 
 func build_chapter_complete() -> void:
