@@ -49,9 +49,11 @@ func test_level_progression() -> void:
 
 
 func test_bounty_odds() -> void:
-	check(is_equal_approx(Rules.bounty_odds(10, 10), 0.5), "equal power has even odds")
-	check(Rules.bounty_odds(999, 1) == 0.96, "odds are capped")
-	check(Rules.bounty_odds(1, 999) == 0.12, "odds have a floor")
+	var player := {"level": 1, "base_power": 10, "weapon": {"power": 1}, "armor": {"power": 1}}
+	var easy := {"power": 4, "defense": 1, "health": 20}
+	var brutal := {"power": 99, "defense": 30, "health": 999}
+	check(Rules.bounty_odds(player, easy) > 0.9, "easy fights show strong odds")
+	check(Rules.bounty_odds(player, brutal) < 0.1, "brutal fights show low odds")
 
 
 func test_loot_generation() -> void:
@@ -62,11 +64,11 @@ func test_loot_generation() -> void:
 	check(item.has("id") and not str(item.id).is_empty(), "loot has a stable runtime id")
 	check(item.slot == "weapon" or item.slot == "armor", "loot has a valid slot")
 	check(int(item.power) >= 1, "loot has positive power")
-	check(Content.available_bounties(0).size() == 2, "rank gates advanced bounties")
+	check(Content.available_bounties(0).size() == 1, "rank gates advanced bounties")
+	check(Content.available_bounties(1).size() == 2, "new reputation unlocks a bounty")
 
 
 func check(condition: bool, description: String) -> void:
 	if not condition:
 		failures += 1
 		printerr("  FAIL: %s" % description)
-

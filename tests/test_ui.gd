@@ -38,6 +38,13 @@ func run_smoke_test() -> void:
 	await process_frame
 	check(not state.pending_loot.is_empty(), "reward screen receives an item")
 
+	state.claim_reward(true)
+	scene.view_mode = "arsenal"
+	scene.render()
+	await process_frame
+	check(scene.find_child("InventoryScroll", true, false) != null, "arsenal screen renders")
+	check(state.player.inventory.size() == 1, "arsenal receives claimed loot")
+
 	scene.queue_free()
 	await process_frame
 	finish()

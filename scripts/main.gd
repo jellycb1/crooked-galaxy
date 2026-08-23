@@ -1,5 +1,6 @@
 extends Control
 
+const SpaceBackdropScript = preload("res://scripts/space_backdrop.gd")
 const INK := Color("#f4f2ff")
 const MUTED := Color("#9da8c8")
 const CYAN := Color("#55e5ff")
@@ -13,6 +14,7 @@ var body: VBoxContainer
 var content: VBoxContainer
 var combat_timer: Timer
 var last_combat_message := ""
+var view_mode := "board"
 
 
 func _ready() -> void:
@@ -29,16 +31,9 @@ func _notification(what: int) -> void:
 
 
 func build_shell() -> void:
-	var background := ColorRect.new()
-	background.color = Color("#070b1d")
+	var background: Control = SpaceBackdropScript.new()
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
-
-	var glow := ColorRect.new()
-	glow.color = Color("#10234b")
-	glow.position = Vector2(0, 0)
-	glow.size = Vector2(720, 260)
-	background.add_child(glow)
 
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -75,7 +70,10 @@ func render() -> void:
 	build_header()
 	match GameState.phase:
 		GameState.Phase.BOARD:
-			build_board()
+			if view_mode == "arsenal":
+				build_arsenal()
+			else:
+				build_board()
 		GameState.Phase.HUNT:
 			build_hunt()
 		GameState.Phase.COMBAT:
@@ -125,11 +123,28 @@ func build_board() -> void:
 	title_box.add_child(label("QUADRO DE PROCURADOS", 24, INK))
 	title_box.add_child(label(ContentDB.PLANET.subtitle, 15, MUTED))
 
+	var actions := VBoxContainer.new()
+	actions.add_theme_constant_override("separation", 5)
+	title_row.add_child(actions)
 	var xp_needed := CoreRules.xp_needed(int(GameState.player.level))
 	var xp_text := "XP %d/%d" % [int(GameState.player.xp), xp_needed]
-	title_row.add_child(label(xp_text, 14, MUTED, HORIZONTAL_ALIGNMENT_RIGHT))
+	actions.add_child(label(xp_text, 14, MUTED, HORIZONTAL_ALIGNMENT_RIGHT))
+	var arsenal := action_button("ARSENAL · %d" % GameState.player.inventory.size(), GOLD, true)
+	arsenal.custom_minimum_size = Vector2(160, 42)
+	arsenal.add_theme_font_size_override("font_size", 13)
+	arsenal.pressed.connect(func():
+		view_mode = "arsenal"
+		render()
+	)
+	actions.add_child(arsenal)
+
+	if not GameState.last_notice.is_empty():
+		content.add_child(notice_banner(GameState.last_notice, LIME))
+	elif int(GameState.player.wins) == 0:
+		content.add_child(onboarding_banner())
 
 	var scroller := ScrollContainer.new()
+	scroller.name = "BountyScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	content.add_child(scroller)
 	var list := VBoxContainer.new()
@@ -139,11 +154,156 @@ func build_board() -> void:
 	for bounty in ContentDB.available_bounties(int(GameState.player.reputation)):
 		list.add_child(bounty_card(bounty))
 
+	content.add_child(rank_progress_panel())
 	var equipment := HBoxContainer.new()
 	equipment.add_theme_constant_override("separation", 10)
 	content.add_child(equipment)
 	equipment.add_child(equipment_chip(GameState.player.weapon))
 	equipment.add_child(equipment_chip(GameState.player.armor))
+
+
+func rank_progress_panel() -> PanelContainer:
+	var rank := int(GameState.player.reputation)
+	var next_target: Dictionary = {}
+	for target in ContentDB.TARGETS:
+		if int(target.rank) == rank + 1:
+			next_target = target
+			break
+	var card := panel(VBoxContainer.new(), Color("#0d1530"), 12, 11)
+	var box := card.get_child(0) as VBoxContainer
+	box.add_theme_constant_override("separation", 6)
+	var row := HBoxContainer.new()
+	box.add_child(row)
+	if next_target.is_empty():
+		row.add_child(label("RANK MÁXIMO DE DUSTBALL PRIME", 12, LIME))
+		var complete := label("SETOR DOMINADO", 12, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
+		complete.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(complete)
+		return card
+	var progress_value := int(GameState.player.wins) % 3
+	row.add_child(label("PRÓXIMO ALVO: %s" % str(next_target.name).to_upper(), 12, MUTED))
+	var count := label("%d / 3 CAPTURAS" % progress_value, 12, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
+	count.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(count)
+	var progress := ProgressBar.new()
+	progress.max_value = 3
+	progress.value = progress_value
+	progress.show_percentage = false
+	progress.custom_minimum_size = Vector2(0, 9)
+	progress.add_theme_stylebox_override("background", box_style(PANEL_LIGHT, 5))
+	progress.add_theme_stylebox_override("fill", box_style(GOLD, 5))
+	box.add_child(progress)
+	return card
+
+
+func build_arsenal() -> void:
+	var title_row := HBoxContainer.new()
+	title_row.add_theme_constant_override("separation", 12)
+	content.add_child(title_row)
+	var titles := VBoxContainer.new()
+	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_row.add_child(titles)
+	titles.add_child(label("ARSENAL", 26, INK))
+	titles.add_child(label("Troque peças para ajustar seu poder de caça.", 14, MUTED))
+	var back := action_button("VOLTAR", CYAN, true)
+	back.custom_minimum_size = Vector2(130, 48)
+	back.pressed.connect(func():
+		view_mode = "board"
+		render()
+	)
+	title_row.add_child(back)
+
+	var equipped_title := label("EQUIPADO · PODER TOTAL %d" % CoreRules.player_power(GameState.player), 14, GOLD)
+	content.add_child(equipped_title)
+	var equipped_row := HBoxContainer.new()
+	equipped_row.add_theme_constant_override("separation", 10)
+	content.add_child(equipped_row)
+	equipped_row.add_child(equipment_chip(GameState.player.weapon))
+	equipped_row.add_child(equipment_chip(GameState.player.armor))
+
+	var inventory_title := label("ITENS ENCONTRADOS", 14, MUTED)
+	content.add_child(inventory_title)
+	var scroller := ScrollContainer.new()
+	scroller.name = "InventoryScroll"
+	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	content.add_child(scroller)
+	var list := VBoxContainer.new()
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.add_theme_constant_override("separation", 10)
+	scroller.add_child(list)
+	var items: Array = GameState.player.inventory.duplicate(true)
+	items.sort_custom(func(a, b): return int(a.power) > int(b.power))
+	if items.is_empty():
+		var empty := panel(VBoxContainer.new(), PANEL, 24, 24)
+		var empty_box := empty.get_child(0) as VBoxContainer
+		empty_box.add_child(center_label("Seu arsenal ainda ecoa de tão vazio.", 18, MUTED))
+		empty_box.add_child(center_label("Conclua uma bounty para encontrar equipamento.", 14, MUTED))
+		list.add_child(empty)
+	else:
+		for item in items:
+			list.add_child(inventory_item_card(item))
+
+	if OS.is_debug_build():
+		var reset := action_button("DEV · REINICIAR PROGRESSO", CORAL, true)
+		reset.custom_minimum_size = Vector2(0, 48)
+		reset.pressed.connect(func():
+			view_mode = "board"
+			GameState.reset_progress()
+		)
+		content.add_child(reset)
+
+
+func inventory_item_card(item: Dictionary) -> PanelContainer:
+	var card := panel(HBoxContainer.new(), PANEL, 15, 15)
+	var row := card.get_child(0) as HBoxContainer
+	row.add_theme_constant_override("separation", 12)
+	var icon := center_label("⚙", 34, Color(str(item.color)))
+	icon.custom_minimum_size = Vector2(54, 54)
+	icon.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	row.add_child(icon)
+	var details := VBoxContainer.new()
+	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(details)
+	details.add_child(label(str(item.name), 16, INK))
+	details.add_child(label("%s · %s · +%d poder" % [str(item.rarity), slot_name(str(item.slot)), int(item.power)], 13, Color(str(item.color))))
+	var current: Dictionary = GameState.player[str(item.slot)]
+	var equipped := str(current.get("id", "")) == str(item.get("id", ""))
+	var difference := int(item.power) - int(current.power)
+	var status := label("EQUIPADO" if equipped else ("%+d vs. atual" % difference), 13, LIME if difference > 0 or equipped else MUTED)
+	status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(status)
+	if not equipped:
+		var equip_button := action_button("EQUIPAR", CYAN, true)
+		equip_button.custom_minimum_size = Vector2(110, 46)
+		var item_id := str(item.id)
+		equip_button.pressed.connect(func(): GameState.equip_from_inventory(item_id))
+		row.add_child(equip_button)
+	return card
+
+
+func onboarding_banner() -> PanelContainer:
+	var banner := panel(HBoxContainer.new(), Color("#173356"), 15, 15)
+	var row := banner.get_child(0) as HBoxContainer
+	row.add_theme_constant_override("separation", 14)
+	row.add_child(center_label("1", 30, CYAN))
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(copy)
+	copy.add_child(label("PRIMEIRO TRABALHO", 14, CYAN))
+	copy.add_child(label("Aceite Gloop. A primeira captura ensina o ciclo e garante seu primeiro loot.", 14, INK))
+	return banner
+
+
+func notice_banner(message: String, color: Color) -> PanelContainer:
+	var banner := panel(HBoxContainer.new(), Color("#16363b"), 14, 13)
+	var row := banner.get_child(0) as HBoxContainer
+	row.add_theme_constant_override("separation", 12)
+	row.add_child(label("✓", 23, color))
+	var message_label := label(message, 14, INK)
+	message_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	row.add_child(message_label)
+	return banner
 
 
 func bounty_card(bounty: Dictionary) -> PanelContainer:
@@ -171,7 +331,7 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	details.add_child(description)
 
-	var odds := CoreRules.bounty_odds(CoreRules.player_power(GameState.player), int(bounty.power))
+	var odds := CoreRules.bounty_odds(GameState.player, bounty)
 	var footer := HBoxContainer.new()
 	footer.add_theme_constant_override("separation", 10)
 	box.add_child(footer)
@@ -259,8 +419,7 @@ func build_reward() -> void:
 	var equip_now := CoreRules.is_upgrade(item, equipped)
 	var claim := action_button("EQUIPAR E CONTINUAR" if equip_now else "GUARDAR E CONTINUAR", LIME)
 	claim.pressed.connect(func():
-		var summary := GameState.claim_reward(equip_now)
-		show_toast(summary)
+		GameState.claim_reward(equip_now)
 	)
 	content.add_child(claim)
 

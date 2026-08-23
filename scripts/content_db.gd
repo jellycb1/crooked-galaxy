@@ -21,7 +21,7 @@ const TARGETS := [
 		"duration": 5,
 		"credits": 38,
 		"xp": 42,
-		"rank": 1,
+		"rank": 0,
 	},
 	{
 		"id": "baron_boom",
@@ -62,7 +62,7 @@ const ITEM_NAMES := {
 static func available_bounties(reputation: int) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	for target in TARGETS:
-		if int(target.rank) <= reputation + 1:
+		if int(target.rank) <= reputation:
 			result.append(target.duplicate(true))
 	return result
 

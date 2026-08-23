@@ -8,6 +8,14 @@ func _init() -> void:
 
 
 func capture() -> void:
+	var state = root.get_node_or_null("GameState")
+	if state:
+		state.persistence_enabled = false
+		state.player = state.default_player()
+		state.phase = state.Phase.BOARD
+		state.current_bounty = {}
+		state.pending_loot = {}
+		state.last_notice = ""
 	var packed_scene: PackedScene = load("res://scenes/main.tscn")
 	var scene: Control = packed_scene.instantiate()
 	root.add_child(scene)

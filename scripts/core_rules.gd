@@ -32,11 +32,17 @@ static func apply_xp(player: Dictionary, amount: int) -> int:
 	return levels_gained
 
 
-static func bounty_odds(player_power_value: int, target_power: int) -> float:
-	var ratio := float(player_power_value) / maxf(1.0, float(target_power))
-	return clampf(0.5 + (ratio - 1.0) * 0.72, 0.12, 0.96)
+static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
+	var player_damage := maxf(1.0, float(player_power(player)) - float(target.get("defense", 0)) * 0.45)
+	var enemy_defense := int(player.get("armor", {}).get("power", 0)) + 3
+	var enemy_damage := maxf(1.0, float(target.get("power", 1)) - float(enemy_defense) * 0.45)
+	var turns_to_win := ceilf(float(target.get("health", 1)) / player_damage)
+	var turns_to_lose := ceilf(float(max_health(player)) / enemy_damage)
+	# The player attacks first, so an even race slightly favors the hunter.
+	var race_advantage := (turns_to_lose - turns_to_win) * 1.35 + 0.35
+	var estimate := 1.0 / (1.0 + exp(-race_advantage))
+	return clampf(estimate, 0.01, 0.99)
 
 
 static func is_upgrade(item: Dictionary, equipped: Dictionary) -> bool:
 	return int(item.get("power", 0)) > int(equipped.get("power", 0))
-

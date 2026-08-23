@@ -8,7 +8,7 @@ The prototype implements the product's central test:
 
 `BOUNTY → HUNT → AUTOMATIC COMBAT → REWARD → LOOT → EQUIP → STRONGER BOUNTY`
 
-It currently includes three original bounties on Dustball Prime, procedural equipment, XP and level progression, reputation ranks, risk estimates, and local persistence.
+It currently includes three original bounties on Dustball Prime, a guided first contract, procedural equipment, an arsenal screen, XP and level progression, reputation-gated targets, simulation-backed risk estimates, post-reward feedback, and local persistence.
 
 ## Run
 
@@ -31,6 +31,12 @@ Capture the current bounty board for visual review:
 
 ```powershell
 godot --headless --path . --script res://tools/capture_ui.gd
+```
+
+Run the deterministic combat balance simulation:
+
+```powershell
+godot --headless --path . --script res://tools/simulate_balance.gd
 ```
 
 ## Project layout

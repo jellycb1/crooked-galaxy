@@ -1,0 +1,44 @@
+extends SceneTree
+
+const FIGHTS_PER_CASE := 5000
+
+
+func _init() -> void:
+	print("Crooked Galaxy balance simulation (%d fights per target)" % FIGHTS_PER_CASE)
+	var profiles := [
+		{"name": "starter", "level": 1, "xp": 0, "base_power": 10, "weapon": {"power": 1}, "armor": {"power": 1}},
+		{"name": "first upgrade", "level": 1, "xp": 42, "base_power": 10, "weapon": {"power": 6}, "armor": {"power": 1}},
+		{"name": "level 2 geared", "level": 2, "xp": 10, "base_power": 12, "weapon": {"power": 6}, "armor": {"power": 4}},
+		{"name": "rank 3 geared", "level": 3, "xp": 40, "base_power": 14, "weapon": {"power": 11}, "armor": {"power": 8}},
+	]
+	for profile in profiles:
+		print("\n%s (power %d, hp %d)" % [profile.name, CoreRules.player_power(profile), CoreRules.max_health(profile)])
+		for target in ContentDB.TARGETS:
+			var result := simulate_target(profile, target, FIGHTS_PER_CASE)
+			print("  %-24s win=%5.1f%%  rounds=%4.1f  UI estimate=%d%%" % [
+				target.name,
+				float(result.wins) / FIGHTS_PER_CASE * 100.0,
+				float(result.rounds) / FIGHTS_PER_CASE,
+				roundi(CoreRules.bounty_odds(profile, target) * 100.0),
+			])
+	quit(0)
+
+
+func simulate_target(player: Dictionary, target: Dictionary, count: int) -> Dictionary:
+	var wins := 0
+	var total_rounds := 0
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 90210 + int(target.power)
+	for _fight in count:
+		var player_hp := CoreRules.max_health(player)
+		var enemy_hp := int(target.health)
+		var rounds := 0
+		while player_hp > 0 and enemy_hp > 0 and rounds < 100:
+			rounds += 1
+			enemy_hp -= CoreRules.damage_roll(CoreRules.player_power(player), int(target.defense), rng.randf())
+			if enemy_hp <= 0:
+				wins += 1
+				break
+			player_hp -= CoreRules.damage_roll(int(target.power), int(player.armor.power) + 3, rng.randf())
+		total_rounds += rounds
+	return {"wins": wins, "rounds": total_rounds}

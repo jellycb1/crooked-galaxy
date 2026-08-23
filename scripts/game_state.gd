@@ -19,6 +19,7 @@ var combat_round := 0
 var last_combat_won := false
 var rng := RandomNumberGenerator.new()
 var persistence_enabled := true
+var last_notice := ""
 
 
 func _ready() -> void:
@@ -43,6 +44,7 @@ func default_player() -> Dictionary:
 func start_bounty(bounty: Dictionary) -> void:
 	if phase != Phase.BOARD:
 		return
+	last_notice = ""
 	current_bounty = bounty.duplicate(true)
 	phase = Phase.HUNT
 	hunt_started_at = Time.get_unix_time_from_system()
@@ -126,11 +128,17 @@ func claim_reward(equip_item: bool) -> Dictionary:
 	summary.levels = CoreRules.apply_xp(player, summary.xp)
 	player.wins = int(player.wins) + 1
 	var old_reputation := int(player.reputation)
-	player.reputation = int(player.wins) / 3
+	player.reputation = floori(float(player.wins) / 3.0)
 	summary.rank_up = int(player.reputation) > old_reputation
 	player.inventory.append(pending_loot.duplicate(true))
 	if equip_item:
 		equip(pending_loot)
+	var notice_parts := ["+%d créditos" % int(summary.credits), "+%d XP" % int(summary.xp)]
+	if int(summary.levels) > 0:
+		notice_parts.append("Nível +%d" % int(summary.levels))
+	if bool(summary.rank_up):
+		notice_parts.append("Novo contrato liberado")
+	last_notice = "Contrato pago: " + " · ".join(notice_parts)
 	phase = Phase.BOARD
 	current_bounty = {}
 	pending_loot = {}
@@ -143,6 +151,18 @@ func equip(item: Dictionary) -> void:
 	var slot := str(item.get("slot", ""))
 	if slot == "weapon" or slot == "armor":
 		player[slot] = item.duplicate(true)
+
+
+func equip_from_inventory(item_id: String) -> void:
+	if phase != Phase.BOARD:
+		return
+	for item in player.inventory:
+		if str(item.get("id", "")) == item_id:
+			equip(item)
+			last_notice = "%s equipado. Poder total: %d." % [str(item.name), CoreRules.player_power(player)]
+			save_game()
+			changed.emit()
+			return
 
 
 func abandon_bounty() -> void:
@@ -158,6 +178,7 @@ func reset_progress() -> void:
 	phase = Phase.BOARD
 	current_bounty = {}
 	pending_loot = {}
+	last_notice = "Progresso reiniciado. Hora de construir uma nova reputação."
 	save_game()
 	changed.emit()
 
