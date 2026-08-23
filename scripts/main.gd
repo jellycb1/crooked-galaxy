@@ -404,6 +404,12 @@ func build_career() -> void:
 	var badge := center_label(badge_text, 13, LIME)
 	badge.custom_minimum_size = Vector2(75, 70)
 	summary_row.add_child(badge)
+	if ready_count > 0:
+		var claim_all := action_button("RESGATAR TODOS · %d" % ready_count, GOLD)
+		claim_all.name = "ClaimAllMilestones"
+		claim_all.custom_minimum_size = Vector2(0, 48)
+		claim_all.pressed.connect(GameState.claim_all_career_milestones)
+		content.add_child(claim_all)
 
 	var scroller := ScrollContainer.new()
 	scroller.name = "CareerScroll"

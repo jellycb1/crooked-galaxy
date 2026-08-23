@@ -1,6 +1,7 @@
 extends Node
 
 const SaveMigrationRules = preload("res://scripts/save_migrations.gd")
+const CareerRules = preload("res://scripts/career_rules.gd")
 
 signal changed
 signal combat_event(message: String)
@@ -128,30 +129,11 @@ func dismiss_afk_report() -> void:
 
 
 func career_milestones() -> Array[Dictionary]:
-	var captures: Dictionary = player.get("captures_by_target", {})
-	var has_repeat_target := false
-	for count in captures.values():
-		if int(count) >= 3:
-			has_repeat_target = true
-	var completed_count: int = player.get("completed_planets", []).size()
-	var claimed: Array = player.get("claimed_milestones", [])
-	return [
-		{"id": "first_warrant", "name": "PRIMEIRO MANDADO", "description": "Execute sua primeira captura.", "complete": int(player.wins) >= 1, "claimed": claimed.has("first_warrant"), "credits": 40, "scrap": 0},
-		{"id": "repeat_customer", "name": "CLIENTE FREQUENTE", "description": "Capture o mesmo alvo três vezes.", "complete": has_repeat_target, "claimed": claimed.has("repeat_customer"), "credits": 70, "scrap": 2},
-		{"id": "sector_owner", "name": "DONO DO SETOR", "description": "Conclua seu primeiro planeta.", "complete": completed_count >= 1, "claimed": claimed.has("sector_owner"), "credits": 120, "scrap": 4},
-		{"id": "triple_frontier", "name": "TRÍPLICE FRONTEIRA", "description": "Conclua três planetas.", "complete": completed_count >= 3, "claimed": claimed.has("triple_frontier"), "credits": 300, "scrap": 10},
-		{"id": "omega_mechanic", "name": "MECÂNICO DO APOCALIPSE", "description": "Conclua quatro planetas.", "complete": completed_count >= 4, "claimed": claimed.has("omega_mechanic"), "credits": 450, "scrap": 14},
-		{"id": "nothing_wasted", "name": "NADA SE PERDE", "description": "Recicle pelo menos 25 pontos de sucata.", "complete": int(player.get("scrap_recycled_total", 0)) >= 25, "claimed": claimed.has("nothing_wasted"), "credits": 90, "scrap": 5},
-		{"id": "hot_pursuit", "name": "PERSEGUIÇÃO AQUECIDA", "description": "Mantenha um embalo de cinco capturas.", "complete": int(player.get("best_capture_streak", 0)) >= 5, "claimed": claimed.has("hot_pursuit"), "credits": 110, "scrap": 4},
-	]
+	return CareerRules.milestones(player)
 
 
 func career_rewards_ready() -> int:
-	var ready := 0
-	for milestone in career_milestones():
-		if bool(milestone.complete) and not bool(milestone.claimed):
-			ready += 1
-	return ready
+	return CareerRules.rewards_ready(player).size()
 
 
 func claim_career_milestone(milestone_id: String) -> bool:
@@ -172,6 +154,28 @@ func claim_career_milestone(milestone_id: String) -> bool:
 		changed.emit()
 		return true
 	return false
+
+
+func claim_all_career_milestones() -> Dictionary:
+	var ready := CareerRules.rewards_ready(player)
+	if ready.is_empty():
+		return {"count": 0, "credits": 0, "scrap": 0}
+	var claimed: Array = player.get("claimed_milestones", []).duplicate()
+	var credits := 0
+	var scrap := 0
+	for milestone in ready:
+		claimed.append(str(milestone.id))
+		credits += int(milestone.credits)
+		scrap += int(milestone.scrap)
+	player.claimed_milestones = claimed
+	player.credits = int(player.credits) + credits
+	player.scrap = int(player.get("scrap", 0)) + scrap
+	player.career_credits_claimed = int(player.get("career_credits_claimed", 0)) + credits
+	player.career_scrap_claimed = int(player.get("career_scrap_claimed", 0)) + scrap
+	last_notice = "%d marcos resgatados: +%d créditos · +%d sucata." % [ready.size(), credits, scrap]
+	save_game()
+	changed.emit()
+	return {"count": ready.size(), "credits": credits, "scrap": scrap}
 
 
 func choose_approach(approach_id: String) -> void:

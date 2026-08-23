@@ -133,6 +133,7 @@ func run_smoke_test() -> void:
 	await process_frame
 	check(scene.find_child("CareerSummary", true, false) != null, "career summary renders")
 	check(scene.find_child("CareerScroll", true, false) != null, "career planet and milestone list renders")
+	check(scene.find_child("ClaimAllMilestones", true, false) != null, "career renders a bulk claim action")
 	check(scene.find_child("ClaimMilestone_first_warrant", true, false) != null, "career renders a claim action for completed milestones")
 	check(scene.find_child("CareerTarget_gloop", true, false) != null, "career renders the wanted archive")
 

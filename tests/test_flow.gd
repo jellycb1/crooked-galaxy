@@ -87,6 +87,21 @@ func _init() -> void:
 	check(int(state.player.credits) == credits_before_milestone + 40, "career reward grants its listed credits")
 	check(state.player.claimed_milestones.has("first_warrant"), "claimed milestone is retained by stable id")
 	check(not state.claim_career_milestone("first_warrant"), "career reward cannot be claimed twice")
+	var career_state = StateScript.new()
+	career_state.persistence_enabled = false
+	career_state.player = career_state.default_player()
+	career_state.player.wins = 12
+	career_state.player.captures_by_target = {"gloop": 3}
+	career_state.player.completed_planets = ["dustball_prime", "congelaria_sa", "micelia_404", "ferro_velho_omega"]
+	career_state.player.scrap_recycled_total = 25
+	career_state.player.best_capture_streak = 5
+	var all_credits_before := int(career_state.player.credits)
+	var all_scrap_before := int(career_state.player.scrap)
+	var all_rewards := career_state.claim_all_career_milestones()
+	check(int(all_rewards.count) == 7 and career_state.player.claimed_milestones.size() == 7, "claim all collects every ready career milestone")
+	check(int(career_state.player.credits) == all_credits_before + int(all_rewards.credits) and int(career_state.player.scrap) == all_scrap_before + int(all_rewards.scrap), "claim all applies aggregate currencies once")
+	check(int(career_state.claim_all_career_milestones().count) == 0, "claim all is idempotent after collection")
+	career_state.free()
 	var bulk_scrap_before := int(state.player.scrap)
 	var recycled_before := int(state.player.scrap_recycled_total)
 	state.player.inventory.append({"id": "bulk_low_weapon", "name": "Zapper Cansado", "slot": "weapon", "power": maxi(1, int(state.player.weapon.power) - 1), "rarity": "Comum", "color": "#b9c2d9"})
