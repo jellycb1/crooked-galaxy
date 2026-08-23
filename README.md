@@ -76,6 +76,12 @@ Audit the failure-aware first-chapter repeat path across 100 deterministic caree
 godot --headless --path . --script res://tools/simulate_first_chapter.gd
 ```
 
+Run a continuous four-planet campaign sample with real loot, mastery, XP, and workshop spending:
+
+```powershell
+godot --headless --path . --script res://tools/simulate_campaign.gd
+```
+
 ## Project layout
 
 - `scenes/` — Godot scenes.
