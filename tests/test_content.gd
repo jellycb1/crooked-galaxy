@@ -68,6 +68,18 @@ func _init() -> void:
 			check(int(modification.get("power_bonus", 0)) > 0 or int(modification.get("health_bonus", 0)) > 0, "equipment modification has a mechanical effect: %s" % trait_id)
 
 	check(ContentDB.CONTRACT_APPROACHES.size() == 3, "every contract keeps three strategic approaches")
+	var promoted_loot := 0
+	for seed in 240:
+		var base_rng := RandomNumberGenerator.new()
+		base_rng.seed = seed + 1000
+		var mastery_rng := RandomNumberGenerator.new()
+		mastery_rng.seed = seed + 1000
+		var base_loot := ContentDB.generate_loot(ContentDB.TARGETS[0], base_rng, 0)
+		var mastery_loot := ContentDB.generate_loot(ContentDB.TARGETS[0], mastery_rng, 3)
+		check(rarity_weight(str(mastery_loot.rarity)) >= rarity_weight(str(base_loot.rarity)), "mastery never lowers loot rarity for seed %d" % seed)
+		if rarity_weight(str(mastery_loot.rarity)) > rarity_weight(str(base_loot.rarity)):
+			promoted_loot += 1
+	check(promoted_loot > 0, "maximum mastery promotes deterministic loot rolls")
 	if failures == 0:
 		print("PASS: all Crooked Galaxy content is internally consistent")
 		quit(0)
@@ -80,3 +92,13 @@ func check(condition: bool, description: String) -> void:
 	if not condition:
 		failures += 1
 		printerr("  FAIL: %s" % description)
+
+
+func rarity_weight(rarity: String) -> int:
+	match rarity:
+		"Épico":
+			return 2
+		"Raro":
+			return 1
+		_:
+			return 0

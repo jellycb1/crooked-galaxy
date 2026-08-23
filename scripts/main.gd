@@ -494,6 +494,8 @@ func career_target_card(target: Dictionary) -> PanelContainer:
 	copy.add_child(label(str(target.name) if revealed else "MANDADO CLASSIFICADO", 14, Color(str(planet.accent)) if revealed else MUTED))
 	copy.add_child(label("%s · %s" % [str(planet.name), str(target.title) if revealed else "credenciais insuficientes"], 11, MUTED))
 	var record := "CAPTURAS %d" % captures if captures > 0 else ("DISPONÍVEL" if revealed else "BLOQUEADO")
+	if captures > 0:
+		record += " · PERÍCIA %d/3" % CoreRules.target_mastery_level(captures)
 	row.add_child(label(record, 11, LIME if captures > 0 else (GOLD if revealed else MUTED), HORIZONTAL_ALIGNMENT_RIGHT))
 	return card
 
@@ -819,8 +821,13 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 	details.add_child(label(str(bounty.title), 14, CORAL))
 	var captures: Dictionary = GameState.player.get("captures_by_target", {})
 	var capture_count := int(captures.get(str(bounty.id), 0))
+	var mastery_level := CoreRules.target_mastery_level(capture_count)
 	if capture_count > 0:
-		details.add_child(label("CAPTURAS REGISTRADAS · %d" % capture_count, 11, LIME))
+		var next_requirement := CoreRules.target_mastery_next_requirement(mastery_level)
+		var mastery_progress := "MÁX." if next_requirement < 0 else "%d/%d" % [capture_count, next_requirement]
+		var mastery_label := label("CAPTURAS %d · PERÍCIA %d/3 · %s" % [capture_count, mastery_level, mastery_progress], 11, LIME)
+		mastery_label.name = "BountyMastery_%s" % str(bounty.id)
+		details.add_child(mastery_label)
 	var description := label(str(bounty.description), 14, MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	details.add_child(description)
@@ -854,6 +861,12 @@ func build_briefing() -> void:
 	target_row.add_child(target_copy)
 	target_copy.add_child(label("BRIEFING DO CONTRATO", 15, CYAN))
 	target_copy.add_child(label(str(bounty.name), 26, INK))
+	var target_captures := int(GameState.player.get("captures_by_target", {}).get(str(bounty.id), 0))
+	var target_mastery := CoreRules.target_mastery_level(target_captures)
+	if target_mastery > 0:
+		var mastery_label := label("PERÍCIA %d/3 · +%d%% RARO · +%d%% ÉPICO" % [target_mastery, target_mastery * 5, target_mastery * 2], 12, LIME)
+		mastery_label.name = "BriefingMastery"
+		target_copy.add_child(mastery_label)
 	var flavor := label("O alvo é o mesmo. A quantidade de problemas é uma escolha sua.", 14, MUTED)
 	flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	target_copy.add_child(flavor)
@@ -1129,6 +1142,12 @@ func build_reward() -> void:
 	box.add_child(center_label(equipment_delta_text(item), 15, LIME if effective_upgrade else MUTED))
 	box.add_child(center_label("EQUIPADO: %s +%d · RECICLAGEM: %d SUCATA" % [str(equipped.name), int(equipped.power), CoreRules.salvage_value(item)], 12, MUTED))
 	box.add_child(center_label("◈ %d créditos   ✦ %d XP" % [int(reward_preview.credits), int(GameState.current_bounty.xp)], 17, GOLD))
+	var previous_captures := int(GameState.player.get("captures_by_target", {}).get(str(GameState.current_bounty.id), 0))
+	var reward_mastery := CoreRules.target_mastery_level(previous_captures)
+	if reward_mastery > 0:
+		var mastery_label := center_label("PERÍCIA COM ALVO %d/3 · QUALIDADE DE LOOT AMPLIADA" % reward_mastery, 13, LIME)
+		mastery_label.name = "RewardMastery"
+		box.add_child(mastery_label)
 	if int(reward_preview.bonus_credits) > 0:
 		box.add_child(center_label("EMBALO ×%d · +%d créditos (+%d%%)" % [int(reward_preview.streak), int(reward_preview.bonus_credits), int(reward_preview.bonus_percent)], 14, LIME))
 	content.add_spacer(false)

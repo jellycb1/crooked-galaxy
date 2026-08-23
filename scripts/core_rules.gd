@@ -111,6 +111,36 @@ static func can_upgrade_integrity(item: Dictionary) -> bool:
 	return int(item.get("integrity_upgrades", 0)) < MAX_INTEGRITY_UPGRADES
 
 
+static func target_mastery_level(captures: int) -> int:
+	if captures >= 10:
+		return 3
+	if captures >= 6:
+		return 2
+	if captures >= 3:
+		return 1
+	return 0
+
+
+static func target_mastery_next_requirement(level: int) -> int:
+	match level:
+		0:
+			return 3
+		1:
+			return 6
+		2:
+			return 10
+		_:
+			return -1
+
+
+static func loot_rarity_thresholds(mastery_level: int) -> Dictionary:
+	var level := clampi(mastery_level, 0, 3)
+	return {
+		"rare": 0.68 - float(level) * 0.05,
+		"epic": 0.92 - float(level) * 0.02,
+	}
+
+
 static func bounty_streak_reward(base_credits: int, streak: int) -> Dictionary:
 	var bonus_percent := mini(25, maxi(0, streak - 1) * 5)
 	var bonus := roundi(float(maxi(0, base_credits)) * float(bonus_percent) / 100.0)

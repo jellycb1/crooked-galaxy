@@ -325,7 +325,9 @@ func combat_step() -> Dictionary:
 func finish_combat(won: bool) -> void:
 	last_combat_won = won
 	if won:
-		pending_loot = ContentDB.generate_loot(current_bounty, rng)
+		var target_id := str(current_bounty.get("id", ""))
+		var target_captures := int(player.get("captures_by_target", {}).get(target_id, 0))
+		pending_loot = ContentDB.generate_loot(current_bounty, rng, CoreRules.target_mastery_level(target_captures))
 		phase = Phase.VICTORY
 	else:
 		player.capture_streak = 0
@@ -382,6 +384,8 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		"rank_up": false,
 		"chapter_tier_up": false,
 		"chapter_complete": false,
+		"target_mastery_up": false,
+		"target_mastery": 0,
 	}
 	var completed_bounty := current_bounty.duplicate(true)
 	var completed_planet_id := str(completed_bounty.get("planet_id", ContentDB.PLANET.id))
@@ -393,8 +397,11 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	player.wins = int(player.wins) + 1
 	var captures: Dictionary = player.get("captures_by_target", {})
 	var target_id := str(completed_bounty.get("id", "unknown"))
+	var old_target_mastery := CoreRules.target_mastery_level(int(captures.get(target_id, 0)))
 	captures[target_id] = int(captures.get(target_id, 0)) + 1
 	player.captures_by_target = captures
+	summary.target_mastery = CoreRules.target_mastery_level(int(captures[target_id]))
+	summary.target_mastery_up = int(summary.target_mastery) > old_target_mastery
 	var planet_captures: Dictionary = player.get("captures_by_planet", {})
 	planet_captures[completed_planet_id] = int(planet_captures.get(completed_planet_id, 0)) + 1
 	player.captures_by_planet = planet_captures
@@ -425,6 +432,8 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		notice_parts.append("Novo contrato liberado")
 	elif bool(summary.chapter_tier_up):
 		notice_parts.append("Novo mandado planetário")
+	if bool(summary.target_mastery_up):
+		notice_parts.append("Perícia com alvo %d" % int(summary.target_mastery))
 	var completed_planets: Array = player.get("completed_planets", [])
 	var completed_planet := ContentDB.get_planet(completed_planet_id)
 	var first_boss_capture := bool(completed_bounty.get("boss", false)) and not completed_planets.has(completed_planet_id)

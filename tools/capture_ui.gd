@@ -50,6 +50,7 @@ func capture() -> void:
 	await process_frame
 
 	var bounty: Dictionary = ContentDB.TARGETS[0].duplicate(true)
+	state.player.captures_by_target = {"gloop": 6}
 	state.select_bounty(bounty)
 	await process_frame
 	await process_frame

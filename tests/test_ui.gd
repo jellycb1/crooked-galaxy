@@ -26,9 +26,14 @@ func run_smoke_test() -> void:
 	check(scene.content.get_child_count() >= 4, "bounty board renders")
 
 	var bounty: Dictionary = ContentDB.TARGETS[0].duplicate(true)
+	state.player.captures_by_target = {"gloop": 3}
+	scene.render()
+	await process_frame
+	check(scene.find_child("BountyMastery_gloop", true, false) != null, "bounty cards expose target mastery progress")
 	state.select_bounty(bounty)
 	await process_frame
 	check(scene.find_child("BriefingScroll", true, false) != null, "contract briefing renders")
+	check(scene.find_child("BriefingMastery", true, false) != null, "briefing explains mastery loot bonuses")
 	check(scene.find_children("RecommendedApproach_*", "Label", true, false).size() == 1, "briefing renders exactly one dynamic recommendation")
 	state.choose_approach("quiet_net")
 	await process_frame
@@ -59,6 +64,7 @@ func run_smoke_test() -> void:
 
 	state.open_reward()
 	await process_frame
+	check(scene.find_child("RewardMastery", true, false) != null, "reward screen confirms applied target mastery")
 	check(scene.find_child("ClaimAndRepeat", true, false) != null, "reward screen offers another contract immediately")
 	check(scene.find_child("ClaimAndBoard", true, false) != null, "reward screen preserves the board return path")
 	state.claim_reward(true)

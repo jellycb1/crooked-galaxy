@@ -1,6 +1,8 @@
 class_name ContentDB
 extends RefCounted
 
+const CoreRulesScript = preload("res://scripts/core_rules.gd")
+
 
 const PLANET := {
 	"id": "dustball_prime",
@@ -749,7 +751,7 @@ static func apply_hunt_choice(bounty: Dictionary, choice: Dictionary) -> Diction
 	return result
 
 
-static func generate_loot(target: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
+static func generate_loot(target: Dictionary, rng: RandomNumberGenerator, mastery_level := 0) -> Dictionary:
 	var slot := "weapon" if rng.randf() < 0.58 else "armor"
 	var planet_id := str(target.get("planet_id", "dustball_prime"))
 	var item_family: Dictionary = PLANET_ITEM_CATALOGS.get(planet_id, ITEM_CATALOG)
@@ -757,14 +759,15 @@ static func generate_loot(target: Dictionary, rng: RandomNumberGenerator) -> Dic
 	var definition: Dictionary = catalog[rng.randi_range(0, catalog.size() - 1)]
 	var base_power := int(target.power * rng.randf_range(0.36, 0.68))
 	var rarity_roll := rng.randf()
+	var rarity_thresholds := CoreRulesScript.loot_rarity_thresholds(mastery_level)
 	var rarity := "Comum"
 	var rarity_color := "#b9c2d9"
 	var bonus := 0
-	if rarity_roll > 0.92:
+	if rarity_roll > float(rarity_thresholds.epic):
 		rarity = "Épico"
 		rarity_color = "#d789ff"
 		bonus = 5
-	elif rarity_roll > 0.68:
+	elif rarity_roll > float(rarity_thresholds.rare):
 		rarity = "Raro"
 		rarity_color = "#58d9ff"
 		bonus = 2

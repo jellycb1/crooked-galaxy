@@ -87,6 +87,17 @@ func _init() -> void:
 	recycle_reward_state.pending_loot = {"id": "protected_investment", "name": "Peça Trabalhada", "slot": "weapon", "power": 0, "rarity": "Comum", "color": "#b9c2d9", "power_upgrades": 1}
 	check(recycle_reward_state.claim_reward(false, false, true).is_empty(), "immediate recycling rejects workshop-invested rewards")
 	recycle_reward_state.free()
+	var mastery_state = StateScript.new()
+	mastery_state.persistence_enabled = false
+	mastery_state.player = mastery_state.default_player()
+	mastery_state.player.captures_by_target = {"gloop": 2}
+	mastery_state.phase = mastery_state.Phase.REWARD
+	mastery_state.current_bounty = Content.TARGETS[0].duplicate(true)
+	mastery_state.pending_loot = {"id": "mastery_loot", "name": "Prova de Perícia", "slot": "armor", "power": 2, "rarity": "Comum", "color": "#b9c2d9"}
+	var mastery_summary := mastery_state.claim_reward(false)
+	check(bool(mastery_summary.target_mastery_up) and int(mastery_summary.target_mastery) == 1, "third target capture reports a mastery increase")
+	check(str(mastery_state.last_notice).contains("Perícia com alvo 1"), "mastery increase survives as board feedback")
+	mastery_state.free()
 	check(not state.scrap_item(str(claimed_item.id)), "equipped item cannot be recycled")
 	var spare := {"id": "spare_epic", "name": "Sucata de Teste", "description": "Feita para sumir.", "slot": "armor", "power": 12, "rarity": "Épico", "color": "#d789ff"}
 	state.player.inventory.append(spare)
