@@ -70,6 +70,10 @@ func test_loot_generation() -> void:
 	check(Content.available_bounties(2).size() == 3, "third reputation tier unlocks the final regular bounty")
 	check(Content.available_bounties(3).size() == 4, "maximum reputation unlocks the chapter boss")
 	check(bool(Content.TARGETS[3].boss), "final Dustball target is marked as a chapter boss")
+	check(Content.available_bounties(3, "congelaria_sa").size() == 1, "unlocked second planet starts with one bounty")
+	check(str(Content.get_planet("congelaria_sa").name) == "Congelária S.A.", "planets resolve from stable ids")
+	check(not Content.is_planet_unlocked("congelaria_sa", []), "second planet starts locked")
+	check(Content.is_planet_unlocked("congelaria_sa", [Content.PLANET.id]), "first chapter completion unlocks the next planet")
 	var safe_approach: Dictionary = Content.contract_approaches()[0]
 	var adjusted := Content.apply_approach(Content.TARGETS[0], safe_approach)
 	check(adjusted.duration == 7, "safe approach lengthens tracking")

@@ -131,10 +131,25 @@ func capture() -> void:
 	if save_frame("ui_boss_board.png") != OK:
 		quit(1)
 		return
+	scene.view_mode = "galaxy"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_galaxy_map.png") != OK:
+		quit(1)
+		return
+	scene.view_mode = "board"
+	state.travel_to_planet("congelaria_sa")
+	await process_frame
+	await process_frame
+	await create_timer(0.15).timeout
+	if save_frame("ui_congelaria_board.png") != OK:
+		quit(1)
+		return
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured board, briefing, hunt event, combat, victory, reward, arsenal, boss board, and chapter completion UI to %s" % OUTPUT_DIR)
+	print("Captured primary UI, galaxy map, boss board, chapter completion, and Congelária board to %s" % OUTPUT_DIR)
 	quit(0)
 
 

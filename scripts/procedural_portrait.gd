@@ -22,6 +22,8 @@ func _draw() -> void:
 			draw_madame()
 		"mayor_gold_dust":
 			draw_mayor()
+		"auditor_frost":
+			draw_auditor()
 		_:
 			draw_hunter()
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -140,6 +142,25 @@ func draw_mayor() -> void:
 	filled_polygon([Vector2(0.50, 0.61), Vector2(0.58, 0.56), Vector2(0.75, 0.60), Vector2(0.66, 0.70), Vector2(0.50, 0.65)], gold, ink)
 	# Crooked seven-point badge: official enough from a distance.
 	filled_polygon([Vector2(0.72, 0.72), Vector2(0.76, 0.79), Vector2(0.84, 0.78), Vector2(0.80, 0.85), Vector2(0.84, 0.92), Vector2(0.75, 0.90), Vector2(0.69, 0.95), Vector2(0.68, 0.86), Vector2(0.61, 0.81), Vector2(0.70, 0.79)], gold, ink)
+
+
+func draw_auditor() -> void:
+	var ink := Color("#071528")
+	var ice := Color("#72f1dd")
+	var blue := Color("#4d8bd6")
+	draw_frame(Color("#163c5b"), ice)
+	filled_polygon([Vector2(0.12, 0.95), Vector2(0.20, 0.68), Vector2(0.80, 0.68), Vector2(0.88, 0.95)], blue, ink)
+	# Transparent cryogenic dome over a permanently unimpressed inspector.
+	outlined_circle(Vector2(0.50, 0.48), 0.32, Color("#b8dddf"), ink, 0.034)
+	draw_arc(Vector2(0.50, 0.47), 0.27, PI + 0.25, TAU - 0.2, 28, Color(0.85, 1.0, 1.0, 0.75), 0.035, true)
+	for eye in [Vector2(0.39, 0.46), Vector2(0.61, 0.46)]:
+		draw_line(eye - Vector2(0.06, 0.01), eye + Vector2(0.06, 0.01), ink, 0.035, true)
+	draw_line(Vector2(0.42, 0.62), Vector2(0.59, 0.61), ink, 0.027, true)
+	# Clipboard antenna and icicle tie make the bureaucratic role readable at mobile size.
+	filled_polygon([Vector2(0.25, 0.24), Vector2(0.31, 0.08), Vector2(0.39, 0.11), Vector2(0.34, 0.28)], Color("#e8f3ee"), ink)
+	filled_polygon([Vector2(0.46, 0.70), Vector2(0.54, 0.70), Vector2(0.58, 0.88), Vector2(0.50, 0.94), Vector2(0.42, 0.88)], ice, ink)
+	for x in [0.25, 0.75]:
+		filled_polygon([Vector2(x - 0.05, 0.71), Vector2(x + 0.05, 0.71), Vector2(x, 0.86)], ice, ink)
 
 
 func outlined_circle(center: Vector2, radius: float, fill: Color, outline: Color, width: float) -> void:

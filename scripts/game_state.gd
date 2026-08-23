@@ -46,6 +46,7 @@ func default_player() -> Dictionary:
 		"sound_enabled": true,
 		"captures_by_target": {},
 		"completed_planets": [],
+		"current_planet_id": "dustball_prime",
 		"weapon": {"name": "Zapper de Treino", "slot": "weapon", "power": 1, "rarity": "Comum", "color": "#b9c2d9"},
 		"armor": {"name": "Jaqueta Espacial Duvidosa", "slot": "armor", "power": 1, "rarity": "Comum", "color": "#b9c2d9"},
 		"inventory": [],
@@ -61,6 +62,20 @@ func select_bounty(bounty: Dictionary) -> void:
 	phase = Phase.BRIEFING
 	save_game()
 	changed.emit()
+
+
+func travel_to_planet(planet_id: String) -> bool:
+	if phase != Phase.BOARD:
+		return false
+	var completed: Array = player.get("completed_planets", [])
+	if not ContentDB.is_planet_unlocked(planet_id, completed):
+		return false
+	var planet := ContentDB.get_planet(planet_id)
+	player.current_planet_id = str(planet.id)
+	last_notice = "Rota confirmada: %s. O combustível será explicado na fatura." % str(planet.name)
+	save_game()
+	changed.emit()
+	return true
 
 
 func choose_approach(approach_id: String) -> void:
@@ -258,7 +273,10 @@ func claim_reward(equip_item: bool) -> Dictionary:
 	captures[target_id] = int(captures.get(target_id, 0)) + 1
 	player.captures_by_target = captures
 	var old_reputation := int(player.reputation)
-	player.reputation = mini(floori(float(player.wins) / 3.0), int(ContentDB.TARGETS[-1].rank))
+	var highest_rank := 0
+	for target in ContentDB.TARGETS:
+		highest_rank = maxi(highest_rank, int(target.rank))
+	player.reputation = mini(floori(float(player.wins) / 3.0), highest_rank)
 	summary.rank_up = int(player.reputation) > old_reputation
 	player.inventory.append(pending_loot.duplicate(true))
 	if equip_item:
@@ -269,13 +287,15 @@ func claim_reward(equip_item: bool) -> Dictionary:
 	if bool(summary.rank_up):
 		notice_parts.append("Novo contrato liberado")
 	var completed_planets: Array = player.get("completed_planets", [])
-	var first_boss_capture := bool(completed_bounty.get("boss", false)) and not completed_planets.has(ContentDB.PLANET.id)
+	var completed_planet_id := str(completed_bounty.get("planet_id", ContentDB.PLANET.id))
+	var completed_planet := ContentDB.get_planet(completed_planet_id)
+	var first_boss_capture := bool(completed_bounty.get("boss", false)) and not completed_planets.has(completed_planet_id)
 	if first_boss_capture:
-		completed_planets.append(ContentDB.PLANET.id)
+		completed_planets.append(completed_planet_id)
 		player.completed_planets = completed_planets
 		summary.chapter_complete = true
 		chapter_completion = {
-			"planet": ContentDB.PLANET.duplicate(true),
+			"planet": completed_planet,
 			"target": completed_bounty,
 			"total_captures": int(player.wins),
 			"credits": int(summary.credits),
@@ -295,9 +315,10 @@ func claim_reward(equip_item: bool) -> Dictionary:
 func continue_after_chapter() -> void:
 	if phase != Phase.CHAPTER_COMPLETE:
 		return
+	var completed_planet: Dictionary = chapter_completion.get("planet", ContentDB.PLANET)
 	phase = Phase.BOARD
 	chapter_completion = {}
-	last_notice = "Dustball Prime pacificada. Contratos reabertos para melhorar equipamento e recordes."
+	last_notice = "%s pacificada. Contratos reabertos para melhorar equipamento e recordes." % str(completed_planet.name)
 	save_game()
 	changed.emit()
 

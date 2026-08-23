@@ -75,6 +75,7 @@ func _init() -> void:
 	check(state.phase == state.Phase.BOARD and state.current_bounty.is_empty(), "briefing can be cancelled safely")
 	state.toggle_sound()
 	check(not bool(state.player.sound_enabled), "audio preference can be disabled")
+	check(not state.travel_to_planet("congelaria_sa"), "travel rejects locked planets")
 
 	var chapter_state = StateScript.new()
 	chapter_state.persistence_enabled = false
@@ -95,6 +96,8 @@ func _init() -> void:
 	check(str(chapter_state.chapter_completion.target.id) == "mayor_gold_dust", "chapter finale retains the defeated boss")
 	chapter_state.continue_after_chapter()
 	check(chapter_state.phase == chapter_state.Phase.BOARD, "chapter finale returns to repeatable bounties")
+	check(chapter_state.travel_to_planet("congelaria_sa"), "chapter completion opens travel to the next planet")
+	check(str(chapter_state.player.current_planet_id) == "congelaria_sa", "travel updates the active planet")
 	chapter_state.phase = chapter_state.Phase.REWARD
 	chapter_state.current_bounty = Content.TARGETS[3].duplicate(true)
 	chapter_state.pending_loot = {

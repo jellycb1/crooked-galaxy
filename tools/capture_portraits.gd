@@ -35,6 +35,7 @@ func capture() -> void:
 		{"id": "baron_boom", "name": "BARÃO BOOM"},
 		{"id": "madame_vacuum", "name": "MADAME VÁCUO"},
 		{"id": "mayor_gold_dust", "name": "PREFEITO PÓ-DE-OURO"},
+		{"id": "auditor_frost", "name": "AUDITOR GEADA"},
 	]
 	for row_index in 3:
 		var row := HBoxContainer.new()

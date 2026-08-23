@@ -22,6 +22,7 @@ var view_mode := "board"
 var combat_fast := false
 var sound_fx: Node
 var previous_phase := -1
+var space_backdrop: Control
 
 
 func _ready() -> void:
@@ -38,9 +39,9 @@ func _notification(what: int) -> void:
 
 
 func build_shell() -> void:
-	var background: Control = SpaceBackdropScript.new()
-	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(background)
+	space_backdrop = SpaceBackdropScript.new()
+	space_backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(space_backdrop)
 	sound_fx = SoundFXScript.new()
 	add_child(sound_fx)
 
@@ -79,6 +80,8 @@ func build_shell() -> void:
 
 
 func render() -> void:
+	if space_backdrop:
+		space_backdrop.planet_id = str(GameState.player.get("current_planet_id", ContentDB.PLANET.id))
 	if sound_fx:
 		sound_fx.enabled = bool(GameState.player.get("sound_enabled", true))
 	var phase_changed := previous_phase >= 0 and previous_phase != GameState.phase
@@ -102,6 +105,8 @@ func render() -> void:
 		GameState.Phase.BOARD:
 			if view_mode == "arsenal":
 				build_arsenal()
+			elif view_mode == "galaxy":
+				build_galaxy_map()
 			else:
 				build_board()
 		GameState.Phase.HUNT:
@@ -131,6 +136,7 @@ func render() -> void:
 
 
 func build_header() -> void:
+	var planet := active_planet()
 	var top := HBoxContainer.new()
 	top.add_theme_constant_override("separation", 12)
 	content.add_child(top)
@@ -139,7 +145,7 @@ func build_header() -> void:
 	identity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(identity)
 	identity.add_child(label("CROOKED GALAXY", 30, CYAN))
-	identity.add_child(label(ContentDB.PLANET.name.to_upper(), 15, MUTED))
+	identity.add_child(label(str(planet.name).to_upper(), 15, Color(str(planet.accent))))
 
 	var level_badge := panel(VBoxContainer.new(), PANEL_LIGHT, 14, 14)
 	level_badge.custom_minimum_size = Vector2(122, 72)
@@ -157,14 +163,19 @@ func build_header() -> void:
 	stats.add_child(stat_chip("VITÓRIAS", str(GameState.player.wins), CYAN))
 
 
+func active_planet() -> Dictionary:
+	return ContentDB.get_planet(str(GameState.player.get("current_planet_id", ContentDB.PLANET.id)))
+
+
 func build_board() -> void:
+	var planet := active_planet()
 	var title_row := HBoxContainer.new()
 	content.add_child(title_row)
 	var title_box := VBoxContainer.new()
 	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title_box)
 	title_box.add_child(label("QUADRO DE PROCURADOS", 24, INK))
-	title_box.add_child(label(ContentDB.PLANET.subtitle, 15, MUTED))
+	title_box.add_child(label(str(planet.subtitle), 15, MUTED))
 
 	var actions := VBoxContainer.new()
 	actions.add_theme_constant_override("separation", 5)
@@ -180,6 +191,14 @@ func build_board() -> void:
 		render()
 	)
 	actions.add_child(arsenal)
+	var galaxy := action_button("MAPA GALÁCTICO", CYAN, true)
+	galaxy.custom_minimum_size = Vector2(160, 42)
+	galaxy.add_theme_font_size_override("font_size", 12)
+	galaxy.pressed.connect(func():
+		view_mode = "galaxy"
+		render()
+	)
+	actions.add_child(galaxy)
 
 	if not GameState.last_notice.is_empty():
 		content.add_child(notice_banner(GameState.last_notice, LIME))
@@ -194,7 +213,7 @@ func build_board() -> void:
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", 14)
 	scroller.add_child(list)
-	for bounty in ContentDB.available_bounties(int(GameState.player.reputation)):
+	for bounty in ContentDB.available_bounties(int(GameState.player.reputation), str(planet.id)):
 		list.add_child(bounty_card(bounty))
 
 	content.add_child(rank_progress_panel())
@@ -207,9 +226,10 @@ func build_board() -> void:
 
 func rank_progress_panel() -> PanelContainer:
 	var rank := int(GameState.player.reputation)
+	var planet := active_planet()
 	var next_target: Dictionary = {}
 	for target in ContentDB.TARGETS:
-		if int(target.rank) == rank + 1:
+		if str(target.get("planet_id", ContentDB.PLANET.id)) == str(planet.id) and int(target.rank) == rank + 1:
 			next_target = target
 			break
 	var card := panel(VBoxContainer.new(), Color("#0d1530"), 12, 11)
@@ -218,9 +238,15 @@ func rank_progress_panel() -> PanelContainer:
 	var row := HBoxContainer.new()
 	box.add_child(row)
 	if next_target.is_empty():
-		var planet_complete: bool = GameState.player.get("completed_planets", []).has(ContentDB.PLANET.id)
-		row.add_child(label("RANK MÁXIMO DE DUSTBALL PRIME" if planet_complete else "ALVO-CHEFE DISPONÍVEL", 12, LIME if planet_complete else CORAL))
-		var complete := label("SETOR DOMINADO" if planet_complete else "EXECUTE O MANDADO FINAL", 12, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
+		var planet_complete: bool = GameState.player.get("completed_planets", []).has(str(planet.id))
+		var has_boss := false
+		for target in ContentDB.TARGETS:
+			if str(target.get("planet_id", "")) == str(planet.id) and bool(target.get("boss", false)):
+				has_boss = true
+		var left_text := "RANK MÁXIMO DE %s" % str(planet.name).to_upper() if planet_complete else ("ALVO-CHEFE DISPONÍVEL" if has_boss else "FRONTEIRA RECÉM-ABERTA")
+		var right_text := "SETOR DOMINADO" if planet_complete else ("EXECUTE O MANDADO FINAL" if has_boss else "NOVOS MANDADOS EM BREVE")
+		row.add_child(label(left_text, 12, LIME if planet_complete or not has_boss else CORAL))
+		var complete := label(right_text, 12, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
 		complete.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(complete)
 		return card
@@ -237,6 +263,61 @@ func rank_progress_panel() -> PanelContainer:
 	progress.add_theme_stylebox_override("background", box_style(PANEL_LIGHT, 5))
 	progress.add_theme_stylebox_override("fill", box_style(GOLD, 5))
 	box.add_child(progress)
+	return card
+
+
+func build_galaxy_map() -> void:
+	var title_row := HBoxContainer.new()
+	content.add_child(title_row)
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_row.add_child(copy)
+	copy.add_child(label("MAPA GALÁCTICO", 27, INK))
+	copy.add_child(label("Planetas são capítulos. Combustível é uma opinião contábil.", 14, MUTED))
+	var back := action_button("VOLTAR", CYAN, true)
+	back.custom_minimum_size = Vector2(120, 48)
+	back.pressed.connect(func():
+		view_mode = "board"
+		render()
+	)
+	title_row.add_child(back)
+	var route := VBoxContainer.new()
+	route.name = "GalaxyRoutes"
+	route.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	route.add_theme_constant_override("separation", 14)
+	content.add_child(route)
+	for planet in ContentDB.PLANETS:
+		route.add_child(planet_card(planet))
+
+
+func planet_card(planet: Dictionary) -> PanelContainer:
+	var planet_id := str(planet.id)
+	var current := planet_id == str(GameState.player.get("current_planet_id", ContentDB.PLANET.id))
+	var unlocked := ContentDB.is_planet_unlocked(planet_id, GameState.player.get("completed_planets", []))
+	var accent := Color(str(planet.accent))
+	var card := panel(VBoxContainer.new(), PANEL_LIGHT if unlocked else Color("#0b1228"), 18, 18)
+	var box := card.get_child(0) as VBoxContainer
+	box.add_theme_constant_override("separation", 9)
+	var heading := HBoxContainer.new()
+	box.add_child(heading)
+	var names := VBoxContainer.new()
+	names.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	heading.add_child(names)
+	names.add_child(label(str(planet.name).to_upper(), 22, accent if unlocked else MUTED))
+	names.add_child(label(str(planet.subtitle), 14, MUTED))
+	heading.add_child(label("EM ÓRBITA" if current else ("ROTA ABERTA" if unlocked else "BLOQUEADO"), 12, LIME if current else (accent if unlocked else CORAL), HORIZONTAL_ALIGNMENT_RIGHT))
+	var description := label(str(planet.get("description", "Fronteira empoeirada, contratos duvidosos e estacionamento abundante.")), 14, INK if unlocked else MUTED)
+	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(description)
+	if unlocked and not current:
+		var travel := action_button("VIAJAR PARA %s" % str(planet.name).to_upper(), accent)
+		travel.pressed.connect(func():
+			view_mode = "board"
+			GameState.travel_to_planet(planet_id)
+		)
+		box.add_child(travel)
+	elif not unlocked:
+		box.add_child(center_label("CONCLUA DUSTBALL PRIME PARA TRAÇAR ESTA ROTA", 12, MUTED))
 	return card
 
 
@@ -681,6 +762,7 @@ func build_reward() -> void:
 func build_chapter_complete() -> void:
 	var completion := GameState.chapter_completion
 	var target: Dictionary = completion.get("target", {})
+	var planet: Dictionary = completion.get("planet", ContentDB.PLANET)
 	var chapter := panel(VBoxContainer.new(), Color("#302541"), 24, 24)
 	chapter.name = "ChapterComplete"
 	content.add_child(chapter)
@@ -688,7 +770,7 @@ func build_chapter_complete() -> void:
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation", 9)
 	box.add_child(center_label("CAPÍTULO CONCLUÍDO", 16, GOLD))
-	box.add_child(center_label(str(ContentDB.PLANET.name).to_upper(), 34, INK))
+	box.add_child(center_label(str(planet.name).to_upper(), 34, INK))
 	box.add_child(character_portrait(str(target.get("id", "mayor_gold_dust")), 174))
 	box.add_child(center_label("MANDADO FINAL EXECUTADO", 18, LIME))
 	box.add_child(center_label(str(target.get("name", "Prefeito Pó-de-Ouro")), 25, GOLD))
@@ -701,7 +783,7 @@ func build_chapter_complete() -> void:
 	stats.add_child(metric_chip("CAPTURAS", str(completion.get("total_captures", GameState.player.wins)), CYAN))
 	stats.add_child(metric_chip("REPUTAÇÃO", "RANK %d" % (int(GameState.player.reputation) + 1), LIME))
 	stats.add_child(metric_chip("PAGAMENTO", "◈ %d" % int(completion.get("credits", 0)), GOLD))
-	content.add_child(center_label("Dustball Prime permanece aberto para novas caçadas e equipamento melhor.", 14, MUTED))
+	content.add_child(center_label("%s permanece aberto para novas caçadas e equipamento melhor." % str(planet.name), 14, MUTED))
 	content.add_spacer(false)
 	var continue_button := action_button("CONTINUAR CAÇANDO", GOLD)
 	continue_button.pressed.connect(GameState.continue_after_chapter)

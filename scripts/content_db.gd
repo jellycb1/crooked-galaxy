@@ -6,11 +6,25 @@ const PLANET := {
 	"id": "dustball_prime",
 	"name": "Dustball Prime",
 	"subtitle": "A poeira entra em tudo. Inclusive nos contratos.",
+	"accent": "#ffc857",
 }
+
+const PLANETS := [
+	PLANET,
+	{
+		"id": "congelaria_sa",
+		"name": "Congelária S.A.",
+		"subtitle": "Tudo abaixo de zero. Inclusive o atendimento.",
+		"description": "Um frigorífico planetário privatizado, com geleiras, cubículos e multas por aquecimento.",
+		"accent": "#72f1dd",
+		"unlock_after": "dustball_prime",
+	},
+]
 
 const TARGETS := [
 	{
 		"id": "gloop",
+		"planet_id": "dustball_prime",
 		"name": "Gloop, o Inconveniente",
 		"title": "Ladrão de estacionamento orbital",
 		"description": "Roubou 43 naves. Nenhuma era a nave certa.",
@@ -26,6 +40,7 @@ const TARGETS := [
 	},
 	{
 		"id": "baron_boom",
+		"planet_id": "dustball_prime",
 		"name": "Barão Boom",
 		"title": "Nobreza autoproclamada e explosiva",
 		"description": "Assina todos os documentos com dinamite. Até recibos.",
@@ -41,6 +56,7 @@ const TARGETS := [
 	},
 	{
 		"id": "madame_vacuum",
+		"planet_id": "dustball_prime",
 		"name": "Madame Vácuo",
 		"title": "Contrabandista de oxigênio premium",
 		"description": "Vende ar engarrafado e cobra pela tampa separadamente.",
@@ -56,6 +72,7 @@ const TARGETS := [
 	},
 	{
 		"id": "mayor_gold_dust",
+		"planet_id": "dustball_prime",
 		"name": "Prefeito Pó-de-Ouro",
 		"title": "Prefeito, xerife e dono do cartório",
 		"description": "Emitiu o próprio mandado, carimbou como inocente e cobrou a taxa de leitura.",
@@ -69,6 +86,22 @@ const TARGETS := [
 		"rank": 3,
 		"boss": true,
 		"attacks": ["Veto de Plasma", "Carimbo de Emergência", "Imposto sobre Esquiva"],
+	},
+	{
+		"id": "auditor_frost",
+		"planet_id": "congelaria_sa",
+		"name": "Auditor Geada",
+		"title": "Fiscal de aquecedores clandestinos",
+		"description": "Confiscou o último cobertor do hemisfério sul por excesso de conforto.",
+		"emoji": "❄",
+		"power": 28,
+		"defense": 11,
+		"health": 165,
+		"duration": 13,
+		"credits": 146,
+		"xp": 140,
+		"rank": 3,
+		"attacks": ["Auto de Infração Glacial", "Caneta Criogênica", "Juros Congelantes"],
 	},
 ]
 
@@ -204,10 +237,23 @@ const ITEM_CATALOG := {
 }
 
 
-static func available_bounties(reputation: int) -> Array[Dictionary]:
+static func get_planet(planet_id: String) -> Dictionary:
+	for planet in PLANETS:
+		if str(planet.id) == planet_id:
+			return planet.duplicate(true)
+	return PLANET.duplicate(true)
+
+
+static func is_planet_unlocked(planet_id: String, completed_planets: Array) -> bool:
+	var planet := get_planet(planet_id)
+	var requirement := str(planet.get("unlock_after", ""))
+	return requirement.is_empty() or completed_planets.has(requirement)
+
+
+static func available_bounties(reputation: int, planet_id := "dustball_prime") -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	for target in TARGETS:
-		if int(target.rank) <= reputation:
+		if str(target.get("planet_id", "dustball_prime")) == planet_id and int(target.rank) <= reputation:
 			result.append(target.duplicate(true))
 	return result
 

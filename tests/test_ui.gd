@@ -76,6 +76,19 @@ func run_smoke_test() -> void:
 	await process_frame
 	check(scene.find_child("ChapterComplete", true, false) != null, "planet completion screen renders")
 
+	state.phase = state.Phase.BOARD
+	state.player.completed_planets = [ContentDB.PLANET.id]
+	state.player.current_planet_id = ContentDB.PLANET.id
+	state.player.reputation = 3
+	scene.view_mode = "galaxy"
+	scene.render()
+	await process_frame
+	check(scene.find_child("GalaxyRoutes", true, false) != null, "galaxy map renders unlocked routes")
+	scene.view_mode = "board"
+	check(state.travel_to_planet("congelaria_sa"), "UI state can travel to an unlocked planet")
+	await process_frame
+	check(scene.find_child("BountyCard_auditor_frost", true, false) != null, "second planet bounty board renders")
+
 	scene.free()
 	await process_frame
 	# Let the dummy audio driver release active playback handles before shutdown.
