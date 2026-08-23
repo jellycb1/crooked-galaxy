@@ -92,6 +92,8 @@ func render() -> void:
 				sound_fx.play_reward(str(GameState.pending_loot.get("rarity", "Comum")))
 			GameState.Phase.HUNT_EVENT:
 				sound_fx.play("accept", 0.72)
+			GameState.Phase.CHAPTER_COMPLETE:
+				sound_fx.play_victory()
 	previous_phase = GameState.phase
 	for child in content.get_children():
 		child.queue_free()
@@ -114,6 +116,8 @@ func render() -> void:
 			build_briefing()
 		GameState.Phase.HUNT_EVENT:
 			build_hunt_event()
+		GameState.Phase.CHAPTER_COMPLETE:
+			build_chapter_complete()
 	if GameState.phase == GameState.Phase.COMBAT:
 		if combat_timer.is_stopped():
 			combat_timer.start()
@@ -214,8 +218,9 @@ func rank_progress_panel() -> PanelContainer:
 	var row := HBoxContainer.new()
 	box.add_child(row)
 	if next_target.is_empty():
-		row.add_child(label("RANK MÁXIMO DE DUSTBALL PRIME", 12, LIME))
-		var complete := label("SETOR DOMINADO", 12, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
+		var planet_complete: bool = GameState.player.get("completed_planets", []).has(ContentDB.PLANET.id)
+		row.add_child(label("RANK MÁXIMO DE DUSTBALL PRIME" if planet_complete else "ALVO-CHEFE DISPONÍVEL", 12, LIME if planet_complete else CORAL))
+		var complete := label("SETOR DOMINADO" if planet_complete else "EXECUTE O MANDADO FINAL", 12, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
 		complete.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(complete)
 		return card
@@ -351,6 +356,7 @@ func notice_banner(message: String, color: Color) -> PanelContainer:
 
 func bounty_card(bounty: Dictionary) -> PanelContainer:
 	var card := panel(VBoxContainer.new(), PANEL, 18, 20)
+	card.name = "BountyCard_%s" % str(bounty.id)
 	var box := card.get_child(0) as VBoxContainer
 	box.add_theme_constant_override("separation", 10)
 	var row := HBoxContainer.new()
@@ -362,8 +368,14 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 	var details := VBoxContainer.new()
 	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(details)
-	details.add_child(label(str(bounty.name), 21, INK))
+	if bool(bounty.get("boss", false)):
+		details.add_child(label("CHEFE DO CAPÍTULO", 12, GOLD))
+	details.add_child(label(str(bounty.name), 21, GOLD if bool(bounty.get("boss", false)) else INK))
 	details.add_child(label(str(bounty.title), 14, CORAL))
+	var captures: Dictionary = GameState.player.get("captures_by_target", {})
+	var capture_count := int(captures.get(str(bounty.id), 0))
+	if capture_count > 0:
+		details.add_child(label("CAPTURAS REGISTRADAS · %d" % capture_count, 11, LIME))
 	var description := label(str(bounty.description), 14, MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	details.add_child(description)
@@ -664,6 +676,36 @@ func build_reward() -> void:
 		GameState.claim_reward(equip_now)
 	)
 	content.add_child(claim)
+
+
+func build_chapter_complete() -> void:
+	var completion := GameState.chapter_completion
+	var target: Dictionary = completion.get("target", {})
+	var chapter := panel(VBoxContainer.new(), Color("#302541"), 24, 24)
+	chapter.name = "ChapterComplete"
+	content.add_child(chapter)
+	var box := chapter.get_child(0) as VBoxContainer
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	box.add_theme_constant_override("separation", 9)
+	box.add_child(center_label("CAPÍTULO CONCLUÍDO", 16, GOLD))
+	box.add_child(center_label(str(ContentDB.PLANET.name).to_upper(), 34, INK))
+	box.add_child(character_portrait(str(target.get("id", "mayor_gold_dust")), 174))
+	box.add_child(center_label("MANDADO FINAL EXECUTADO", 18, LIME))
+	box.add_child(center_label(str(target.get("name", "Prefeito Pó-de-Ouro")), 25, GOLD))
+	var verdict := center_label("O prefeito foi afastado do cargo, da delegacia e do próprio cartório. A papelada continua foragida.", 15, MUTED)
+	verdict.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(verdict)
+	var stats := HBoxContainer.new()
+	stats.add_theme_constant_override("separation", 8)
+	box.add_child(stats)
+	stats.add_child(metric_chip("CAPTURAS", str(completion.get("total_captures", GameState.player.wins)), CYAN))
+	stats.add_child(metric_chip("REPUTAÇÃO", "RANK %d" % (int(GameState.player.reputation) + 1), LIME))
+	stats.add_child(metric_chip("PAGAMENTO", "◈ %d" % int(completion.get("credits", 0)), GOLD))
+	content.add_child(center_label("Dustball Prime permanece aberto para novas caçadas e equipamento melhor.", 14, MUTED))
+	content.add_spacer(false)
+	var continue_button := action_button("CONTINUAR CAÇANDO", GOLD)
+	continue_button.pressed.connect(GameState.continue_after_chapter)
+	content.add_child(continue_button)
 
 
 func fighter(title: String, character_id: String, hp: int, maximum: int, color: Color) -> VBoxContainer:

@@ -90,7 +90,51 @@ func capture() -> void:
 	if save_frame("ui_arsenal.png") != OK:
 		quit(1)
 		return
-	print("Captured board, briefing, hunt event, combat, victory, reward, and arsenal UI to %s" % OUTPUT_DIR)
+	state.player.wins = 10
+	state.player.reputation = 3
+	state.player.level = 4
+	state.player.base_power = 16
+	state.player.weapon = {"name": "Canhão de Recibos", "slot": "weapon", "power": 15, "rarity": "Raro", "color": "#58d9ff"}
+	state.player.armor = {"name": "Poncho de Titânio", "slot": "armor", "power": 11, "rarity": "Raro", "color": "#58d9ff"}
+	state.player.completed_planets = [ContentDB.PLANET.id]
+	state.player.captures_by_target = {"gloop": 4, "baron_boom": 3, "madame_vacuum": 2, "mayor_gold_dust": 1}
+	state.chapter_completion = {
+		"planet": ContentDB.PLANET.duplicate(true),
+		"target": ContentDB.TARGETS[3].duplicate(true),
+		"total_captures": 10,
+		"credits": ContentDB.TARGETS[3].credits,
+		"xp": ContentDB.TARGETS[3].xp,
+	}
+	state.phase = state.Phase.CHAPTER_COMPLETE
+	scene.view_mode = "board"
+	scene.render()
+	await process_frame
+	await process_frame
+	await create_timer(0.12).timeout
+	if save_frame("ui_chapter_complete.png") != OK:
+		quit(1)
+		return
+	state.continue_after_chapter()
+	await process_frame
+	await process_frame
+	var bounty_scroll := scene.content.find_child("BountyScroll", true, false) as ScrollContainer
+	if bounty_scroll:
+		await create_timer(0.1).timeout
+		var scroll_bar := bounty_scroll.get_v_scroll_bar()
+		bounty_scroll.scroll_vertical = maxi(0, roundi(scroll_bar.max_value - scroll_bar.page))
+		await process_frame
+		await process_frame
+	else:
+		printerr("Failed to locate BountyScroll for boss capture")
+		quit(1)
+		return
+	if save_frame("ui_boss_board.png") != OK:
+		quit(1)
+		return
+	scene.free()
+	await process_frame
+	await create_timer(0.5).timeout
+	print("Captured board, briefing, hunt event, combat, victory, reward, arsenal, boss board, and chapter completion UI to %s" % OUTPUT_DIR)
 	quit(0)
 
 

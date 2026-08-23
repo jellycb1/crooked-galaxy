@@ -34,21 +34,25 @@ func capture() -> void:
 		{"id": "gloop", "name": "GLOOP"},
 		{"id": "baron_boom", "name": "BARÃO BOOM"},
 		{"id": "madame_vacuum", "name": "MADAME VÁCUO"},
+		{"id": "mayor_gold_dust", "name": "PREFEITO PÓ-DE-OURO"},
 	]
-	for row_index in 2:
+	for row_index in 3:
 		var row := HBoxContainer.new()
 		row.alignment = BoxContainer.ALIGNMENT_CENTER
 		row.add_theme_constant_override("separation", 34)
 		layout.add_child(row)
 		for column_index in 2:
-			var definition: Dictionary = characters[row_index * 2 + column_index]
+			var character_index := row_index * 2 + column_index
+			if character_index >= characters.size():
+				break
+			var definition: Dictionary = characters[character_index]
 			var cell := VBoxContainer.new()
-			cell.custom_minimum_size = Vector2(270, 350)
+			cell.custom_minimum_size = Vector2(260, 280)
 			cell.alignment = BoxContainer.ALIGNMENT_CENTER
 			row.add_child(cell)
 			var portrait: Control = PortraitScript.new()
 			portrait.character_id = str(definition.id)
-			portrait.custom_minimum_size = Vector2(260, 260)
+			portrait.custom_minimum_size = Vector2(220, 220)
 			portrait.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 			cell.add_child(portrait)
 			var caption := Label.new()

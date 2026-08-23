@@ -67,6 +67,9 @@ func test_loot_generation() -> void:
 	check(not str(item.description).is_empty(), "loot carries original flavor text")
 	check(Content.available_bounties(0).size() == 1, "rank gates advanced bounties")
 	check(Content.available_bounties(1).size() == 2, "new reputation unlocks a bounty")
+	check(Content.available_bounties(2).size() == 3, "third reputation tier unlocks the final regular bounty")
+	check(Content.available_bounties(3).size() == 4, "maximum reputation unlocks the chapter boss")
+	check(bool(Content.TARGETS[3].boss), "final Dustball target is marked as a chapter boss")
 	var safe_approach: Dictionary = Content.contract_approaches()[0]
 	var adjusted := Content.apply_approach(Content.TARGETS[0], safe_approach)
 	check(adjusted.duration == 7, "safe approach lengthens tracking")

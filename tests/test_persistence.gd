@@ -60,10 +60,24 @@ func _init() -> void:
 	check(str(restored_event.hunt_event.id) == "bounty_streamer", "incident content is restored")
 	check(is_equal_approx(restored_event.hunt_remaining_after_event, 5.0), "paused hunt time is restored")
 
+	source.player.completed_planets = [ContentDB.PLANET.id]
+	source.player.captures_by_target = {"mayor_gold_dust": 1}
+	source.chapter_completion = {"planet": ContentDB.PLANET.duplicate(true), "target": ContentDB.TARGETS[3].duplicate(true)}
+	source.phase = source.Phase.CHAPTER_COMPLETE
+	source.save_game()
+	var restored_chapter = StateScript.new()
+	restored_chapter.save_path = TEST_SAVE
+	restored_chapter.load_game()
+	check(restored_chapter.phase == restored_chapter.Phase.CHAPTER_COMPLETE, "chapter finale survives save and load")
+	check(restored_chapter.player.completed_planets.has(ContentDB.PLANET.id), "planet completion survives save and load")
+	check(int(restored_chapter.player.captures_by_target.mayor_gold_dust) == 1, "per-target captures survive save and load")
+	check(str(restored_chapter.chapter_completion.target.id) == "mayor_gold_dust", "chapter summary survives save and load")
+
 	source.free()
 	restored.free()
 	restored_briefing.free()
 	restored_event.free()
+	restored_chapter.free()
 	if FileAccess.file_exists(TEST_SAVE):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SAVE))
 	if failures == 0:

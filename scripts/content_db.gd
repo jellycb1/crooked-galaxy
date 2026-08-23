@@ -54,6 +54,22 @@ const TARGETS := [
 		"rank": 2,
 		"attacks": ["Vácuo Executivo", "Taxa de Respiração", "Sucção Premium"],
 	},
+	{
+		"id": "mayor_gold_dust",
+		"name": "Prefeito Pó-de-Ouro",
+		"title": "Prefeito, xerife e dono do cartório",
+		"description": "Emitiu o próprio mandado, carimbou como inocente e cobrou a taxa de leitura.",
+		"emoji": "⭐",
+		"power": 28,
+		"defense": 11,
+		"health": 160,
+		"duration": 12,
+		"credits": 138,
+		"xp": 132,
+		"rank": 3,
+		"boss": true,
+		"attacks": ["Veto de Plasma", "Carimbo de Emergência", "Imposto sobre Esquiva"],
+	},
 ]
 
 const PLAYER_ATTACKS := [

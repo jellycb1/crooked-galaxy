@@ -76,6 +76,38 @@ func _init() -> void:
 	state.toggle_sound()
 	check(not bool(state.player.sound_enabled), "audio preference can be disabled")
 
+	var chapter_state = StateScript.new()
+	chapter_state.persistence_enabled = false
+	chapter_state.player = chapter_state.default_player()
+	chapter_state.player.wins = 9
+	chapter_state.player.reputation = 3
+	chapter_state.phase = chapter_state.Phase.REWARD
+	chapter_state.current_bounty = Content.TARGETS[3].duplicate(true)
+	chapter_state.pending_loot = {
+		"id": "chapter_test_loot", "name": "Distintivo Apreendido", "description": "Prova A.",
+		"slot": "armor", "power": 12, "rarity": "Raro", "color": "#58d9ff",
+	}
+	var chapter_summary := chapter_state.claim_reward(true)
+	check(chapter_state.phase == chapter_state.Phase.CHAPTER_COMPLETE, "first boss capture opens the chapter finale")
+	check(bool(chapter_summary.chapter_complete), "boss reward reports chapter completion")
+	check(int(chapter_state.player.captures_by_target.mayor_gold_dust) == 1, "captures are tracked per target")
+	check(chapter_state.player.completed_planets.has(Content.PLANET.id), "completed planet is retained in progression")
+	check(str(chapter_state.chapter_completion.target.id) == "mayor_gold_dust", "chapter finale retains the defeated boss")
+	chapter_state.continue_after_chapter()
+	check(chapter_state.phase == chapter_state.Phase.BOARD, "chapter finale returns to repeatable bounties")
+	chapter_state.phase = chapter_state.Phase.REWARD
+	chapter_state.current_bounty = Content.TARGETS[3].duplicate(true)
+	chapter_state.pending_loot = {
+		"id": "repeat_boss_loot", "name": "Carimbo Reincidente", "description": "Prova B.",
+		"slot": "weapon", "power": 13, "rarity": "Comum", "color": "#b9c2d9",
+	}
+	var repeat_summary := chapter_state.claim_reward(false)
+	check(chapter_state.phase == chapter_state.Phase.BOARD, "repeat boss capture skips the one-time finale")
+	check(not bool(repeat_summary.chapter_complete), "planet completion is awarded only once")
+	check(int(chapter_state.player.captures_by_target.mayor_gold_dust) == 2, "repeat captures increment the target record")
+	check(int(chapter_state.player.reputation) == 3, "reputation stays capped at the highest available rank")
+	chapter_state.free()
+
 	state.free()
 	if failures == 0:
 		print("PASS: complete bounty flow")

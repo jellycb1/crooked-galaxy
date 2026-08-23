@@ -65,6 +65,17 @@ func run_smoke_test() -> void:
 	check(scene.find_child("InventoryScroll", true, false) != null, "arsenal screen renders")
 	check(state.player.inventory.size() == 1, "arsenal receives claimed loot")
 
+	state.phase = state.Phase.CHAPTER_COMPLETE
+	state.chapter_completion = {
+		"planet": ContentDB.PLANET.duplicate(true),
+		"target": ContentDB.TARGETS[3].duplicate(true),
+		"total_captures": 10,
+		"credits": ContentDB.TARGETS[3].credits,
+	}
+	scene.render()
+	await process_frame
+	check(scene.find_child("ChapterComplete", true, false) != null, "planet completion screen renders")
+
 	scene.free()
 	await process_frame
 	# Let the dummy audio driver release active playback handles before shutdown.

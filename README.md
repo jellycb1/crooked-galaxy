@@ -8,7 +8,7 @@ The prototype implements the product's central test:
 
 `BOUNTY → APPROACH → HUNT / INCIDENT → AUTOMATIC COMBAT → REWARD → LOOT → EQUIP → STRONGER BOUNTY`
 
-It currently includes three original bounties on Dustball Prime, three risk/reward approaches per contract, mid-hunt incidents with economic and combat consequences, AFK-safe hunt resolution, a guided first contract, scalable procedural character portraits, runtime-synthesized sound effects, layered automatic combat with named actions and speed control, a capture beat, procedural equipment with original flavor text, an arsenal screen, XP and level progression, reputation-gated targets, simulation-backed risk estimates, post-reward feedback, and local persistence.
+It currently includes four original bounties on Dustball Prime, culminating in a chapter boss and planet-completion screen. The slice also includes per-target capture records, three risk/reward approaches per contract, mid-hunt incidents with economic and combat consequences, AFK-safe hunt resolution, a guided first contract, scalable procedural character portraits, runtime-synthesized sound effects, layered automatic combat with named actions and speed control, a capture beat, procedural equipment with original flavor text, an arsenal screen, XP and level progression, reputation-gated targets, simulation-backed risk estimates, post-reward feedback, and local persistence.
 
 ## Run
 
@@ -29,7 +29,7 @@ godot --headless --path . --script res://tests/test_persistence.gd
 godot --headless --path . --script res://tests/test_audio.gd
 ```
 
-Capture the bounty board, contract briefing, hunt incident, combat, victory, reward, and arsenal states for visual review:
+Capture the bounty board, unlocked boss board, contract briefing, hunt incident, combat, victory, reward, arsenal, and chapter-completion states for visual review:
 
 ```powershell
 godot --path . --script res://tools/capture_ui.gd

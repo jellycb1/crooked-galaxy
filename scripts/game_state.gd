@@ -3,7 +3,7 @@ extends Node
 signal changed
 signal combat_event(message: String)
 
-enum Phase { BOARD, HUNT, COMBAT, REWARD, VICTORY, BRIEFING, HUNT_EVENT }
+enum Phase { BOARD, HUNT, COMBAT, REWARD, VICTORY, BRIEFING, HUNT_EVENT, CHAPTER_COMPLETE }
 
 const SAVE_PATH := "user://crooked_galaxy_save.json"
 
@@ -27,6 +27,7 @@ var rng := RandomNumberGenerator.new()
 var persistence_enabled := true
 var save_path := SAVE_PATH
 var last_notice := ""
+var chapter_completion: Dictionary = {}
 
 
 func _ready() -> void:
@@ -43,6 +44,8 @@ func default_player() -> Dictionary:
 		"wins": 0,
 		"base_power": 10,
 		"sound_enabled": true,
+		"captures_by_target": {},
+		"completed_planets": [],
 		"weapon": {"name": "Zapper de Treino", "slot": "weapon", "power": 1, "rarity": "Comum", "color": "#b9c2d9"},
 		"armor": {"name": "Jaqueta Espacial Duvidosa", "slot": "armor", "power": 1, "rarity": "Comum", "color": "#b9c2d9"},
 		"inventory": [],
@@ -244,12 +247,18 @@ func claim_reward(equip_item: bool) -> Dictionary:
 		"xp": int(current_bounty.xp),
 		"levels": 0,
 		"rank_up": false,
+		"chapter_complete": false,
 	}
+	var completed_bounty := current_bounty.duplicate(true)
 	player.credits = int(player.credits) + summary.credits
 	summary.levels = CoreRules.apply_xp(player, summary.xp)
 	player.wins = int(player.wins) + 1
+	var captures: Dictionary = player.get("captures_by_target", {})
+	var target_id := str(completed_bounty.get("id", "unknown"))
+	captures[target_id] = int(captures.get(target_id, 0)) + 1
+	player.captures_by_target = captures
 	var old_reputation := int(player.reputation)
-	player.reputation = floori(float(player.wins) / 3.0)
+	player.reputation = mini(floori(float(player.wins) / 3.0), int(ContentDB.TARGETS[-1].rank))
 	summary.rank_up = int(player.reputation) > old_reputation
 	player.inventory.append(pending_loot.duplicate(true))
 	if equip_item:
@@ -259,8 +268,21 @@ func claim_reward(equip_item: bool) -> Dictionary:
 		notice_parts.append("Nível +%d" % int(summary.levels))
 	if bool(summary.rank_up):
 		notice_parts.append("Novo contrato liberado")
+	var completed_planets: Array = player.get("completed_planets", [])
+	var first_boss_capture := bool(completed_bounty.get("boss", false)) and not completed_planets.has(ContentDB.PLANET.id)
+	if first_boss_capture:
+		completed_planets.append(ContentDB.PLANET.id)
+		player.completed_planets = completed_planets
+		summary.chapter_complete = true
+		chapter_completion = {
+			"planet": ContentDB.PLANET.duplicate(true),
+			"target": completed_bounty,
+			"total_captures": int(player.wins),
+			"credits": int(summary.credits),
+			"xp": int(summary.xp),
+		}
 	last_notice = "Contrato pago: " + " · ".join(notice_parts)
-	phase = Phase.BOARD
+	phase = Phase.CHAPTER_COMPLETE if first_boss_capture else Phase.BOARD
 	current_bounty = {}
 	pending_loot = {}
 	offered_approaches = []
@@ -268,6 +290,16 @@ func claim_reward(equip_item: bool) -> Dictionary:
 	save_game()
 	changed.emit()
 	return summary
+
+
+func continue_after_chapter() -> void:
+	if phase != Phase.CHAPTER_COMPLETE:
+		return
+	phase = Phase.BOARD
+	chapter_completion = {}
+	last_notice = "Dustball Prime pacificada. Contratos reabertos para melhorar equipamento e recordes."
+	save_game()
+	changed.emit()
 
 
 func equip(item: Dictionary) -> void:
@@ -311,6 +343,7 @@ func reset_progress() -> void:
 	pending_loot = {}
 	offered_approaches = []
 	hunt_event = {}
+	chapter_completion = {}
 	last_notice = "Progresso reiniciado. Hora de construir uma nova reputação."
 	save_game()
 	changed.emit()
@@ -336,6 +369,7 @@ func save_game() -> void:
 		"enemy_hp": enemy_hp,
 		"combat_round": combat_round,
 		"combat_events": combat_events,
+		"chapter_completion": chapter_completion,
 	}
 	var file := FileAccess.open(save_path, FileAccess.WRITE)
 	if file:
@@ -373,6 +407,7 @@ func load_game() -> void:
 	combat_round = int(parsed.get("combat_round", 0))
 	var loaded_events = parsed.get("combat_events", [])
 	combat_events.assign(loaded_events if loaded_events is Array else [])
+	chapter_completion = parsed.get("chapter_completion", {})
 	if phase == Phase.HUNT and Time.get_unix_time_from_system() >= hunt_ends_at:
 		begin_combat()
 	elif phase == Phase.COMBAT:

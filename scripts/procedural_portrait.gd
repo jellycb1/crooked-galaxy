@@ -20,6 +20,8 @@ func _draw() -> void:
 			draw_baron()
 		"madame_vacuum":
 			draw_madame()
+		"mayor_gold_dust":
+			draw_mayor()
 		_:
 			draw_hunter()
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -117,6 +119,27 @@ func draw_madame() -> void:
 	draw_circle(Vector2(0.50, 0.64), 0.023, ink)
 	draw_line(Vector2(0.28, 0.29), Vector2(0.18, 0.15), violet, 0.034, true)
 	draw_line(Vector2(0.72, 0.29), Vector2(0.82, 0.12), violet, 0.034, true)
+
+
+func draw_mayor() -> void:
+	var ink := Color("#160d19")
+	var gold := Color("#ffc857")
+	var rust := Color("#b9583f")
+	draw_frame(Color("#56352b"), gold)
+	# A broad coat, badge, hat and mechanical moustache give the chapter boss a civic-western silhouette.
+	filled_polygon([Vector2(0.10, 0.96), Vector2(0.19, 0.68), Vector2(0.81, 0.68), Vector2(0.90, 0.96)], rust, ink)
+	outlined_ellipse(Vector2(0.50, 0.50), Vector2(0.31, 0.34), Color("#d69a66"), ink, 0.035)
+	filled_polygon([Vector2(0.15, 0.30), Vector2(0.85, 0.27), Vector2(0.77, 0.38), Vector2(0.21, 0.39)], Color("#6e3327"), ink)
+	filled_polygon([Vector2(0.31, 0.30), Vector2(0.36, 0.09), Vector2(0.68, 0.08), Vector2(0.75, 0.31)], Color("#8d4630"), ink)
+	draw_line(Vector2(0.35, 0.27), Vector2(0.72, 0.26), gold, 0.035, true)
+	for eye in [Vector2(0.38, 0.47), Vector2(0.62, 0.47)]:
+		outlined_circle(eye, 0.063, Color("#f5ead8"), ink, 0.021)
+		draw_circle(eye + Vector2(0.012, 0.0), 0.024, ink)
+	# A deliberately over-engineered brass moustache.
+	filled_polygon([Vector2(0.50, 0.61), Vector2(0.42, 0.56), Vector2(0.25, 0.60), Vector2(0.34, 0.70), Vector2(0.50, 0.65)], gold, ink)
+	filled_polygon([Vector2(0.50, 0.61), Vector2(0.58, 0.56), Vector2(0.75, 0.60), Vector2(0.66, 0.70), Vector2(0.50, 0.65)], gold, ink)
+	# Crooked seven-point badge: official enough from a distance.
+	filled_polygon([Vector2(0.72, 0.72), Vector2(0.76, 0.79), Vector2(0.84, 0.78), Vector2(0.80, 0.85), Vector2(0.84, 0.92), Vector2(0.75, 0.90), Vector2(0.69, 0.95), Vector2(0.68, 0.86), Vector2(0.61, 0.81), Vector2(0.70, 0.79)], gold, ink)
 
 
 func outlined_circle(center: Vector2, radius: float, fill: Color, outline: Color, width: float) -> void:
