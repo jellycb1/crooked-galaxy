@@ -67,6 +67,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	content.add_child(set_label)
 	content.add_child(field_readiness_card(host, state, readiness))
 	var workshop_recommendation := recommended_workshop_action(state)
+	content.add_child(workshop_recommendation_card(host, state, workshop_recommendation, readiness))
 	var equipped_row := HBoxContainer.new()
 	equipped_row.add_theme_constant_override("separation", 10)
 	content.add_child(equipped_row)
@@ -307,8 +308,64 @@ static func recommended_workshop_action(state: StateScript) -> Dictionary:
 			var value := odds_gain / float(cost) + score_gain / float(cost) * 0.00001
 			if value > best_value:
 				best_value = value
-				best = {"slot": slot, "kind": action.kind, "cost": cost, "odds": projected_odds, "odds_gain": odds_gain}
+				best = {
+					"slot": slot,
+					"kind": action.kind,
+					"cost": cost,
+					"odds": projected_odds,
+					"current_odds": current_odds,
+					"odds_gain": odds_gain,
+					"score_gain": score_gain,
+					"item_name": str(item.get("name", host_slot_fallback(slot))),
+				}
 	return best
+
+
+static func host_slot_fallback(slot: String) -> String:
+	return "Arma equipada" if slot == "weapon" else "Armadura equipada"
+
+
+static func workshop_recommendation_card(host: CrookedUIFactory, state: StateScript, recommendation: Dictionary, readiness: Dictionary = {}) -> PanelContainer:
+	# The 48 px action defines this strip's height; compact vertical padding preserves
+	# a full inventory touch row in the 450x800 Android viewport.
+	var card := host.panel(HBoxContainer.new(), Color("#19233a"), 12, 6)
+	card.name = "WorkshopRecommendation"
+	var row := card.get_child(0) as HBoxContainer
+	row.add_theme_constant_override("separation", 10)
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.add_theme_constant_override("separation", 2)
+	row.add_child(copy)
+	if recommendation.is_empty():
+		copy.add_child(host.label("PRÓXIMO INVESTIMENTO", 10, host.GOLD))
+		var unavailable := host.label("Nenhuma melhoria está ao alcance da sucata atual.", 11, host.MUTED)
+		unavailable.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		copy.add_child(unavailable)
+		return card
+	var slot := str(recommendation.slot)
+	var kind := str(recommendation.kind)
+	var action_name := "+1 PODER" if kind == "power" else "+%d VIDA" % Rules.INTEGRITY_HEALTH_PER_LEVEL
+	copy.add_child(host.label("MELHOR INVESTIMENTO · %s" % host.slot_name(slot).to_upper(), 10, host.GOLD))
+	var item_line := host.label("%s · %s" % [str(recommendation.item_name), action_name], 12, host.INK)
+	item_line.custom_minimum_size = Vector2.ZERO
+	item_line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	copy.add_child(item_line)
+	var current_percent := roundi(float(recommendation.get("current_odds", readiness.get("current_odds", 0.0))) * 100.0)
+	var projected_percent := roundi(float(recommendation.odds) * 100.0)
+	var impact := "%d%% → %d%% no teste" % [current_percent, projected_percent]
+	if projected_percent == current_percent:
+		impact = "chance já no limite · impacto de build +%d" % maxi(1, roundi(float(recommendation.get("score_gain", 1.0))))
+	copy.add_child(host.label("%d sucata · %s" % [int(recommendation.cost), impact], 9, host.LIME))
+	var apply := host.action_button("APLICAR", host.LIME, true)
+	apply.name = "RecommendedWorkshopAction"
+	apply.custom_minimum_size = Vector2(96, 48)
+	apply.tooltip_text = "Executa a melhoria com o melhor ganho projetado por sucata."
+	if kind == "power":
+		apply.pressed.connect(func(): state.upgrade_equipped(slot))
+	else:
+		apply.pressed.connect(func(): state.reinforce_equipped(slot))
+	row.add_child(apply)
+	return card
 
 
 static func inventory_toolbar(host: CrookedUIFactory, state: StateScript) -> VBoxContainer:

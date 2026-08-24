@@ -96,6 +96,8 @@ Claim summaries and the persistent board/workshop record name whether the captur
 
 After an equipped claim with enough scrap for at least one calibration, the board's arsenal shortcut becomes a contextual `TESTAR BUILD` action that opens the field-test odds beside the new loadout. Unfunded early loot keeps the ordinary arsenal link, leaving the repeat contract as the clear first-session action.
 
+The workshop presents one explicit `MELHOR INVESTIMENTO` strip between the field test and equipped pieces. It names the affected slot and item, exact scrap cost, projected odds change (or saturated-build impact), and exposes a single 48-unit `APLICAR` action while retaining both manual upgrade paths below. Recommendation, loadouts, filters, recycling, and the bounded 12-item inventory page remain visually distinct in the initial Android viewport.
+
 When that field test focuses an available warrant, its `ESCOLHER ROTA` action opens the briefing and preserves the same recommendation instead of implying that combat begins immediately.
 
 Briefings opened through that handoff display the tested route and odds as confirmed context while keeping all three approach choices available; ordinary board and career briefings remain context-free.

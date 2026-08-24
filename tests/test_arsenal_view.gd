@@ -35,6 +35,11 @@ func _init() -> void:
 	check(host.find_child("Upgrade_weapon", true, false) != null and host.find_child("Reinforce_armor", true, false) != null, "isolated arsenal builds both workshop paths")
 	var recommended_buttons := host.find_children("*", "Button", true, false).filter(func(button): return str(button.text).begins_with("★"))
 	check(recommended_buttons.size() == 1, "workshop marks exactly one affordable best-value action")
+	var recommendation := ArsenalScript.recommended_workshop_action(state)
+	var recommendation_card := host.find_child("WorkshopRecommendation", true, false) as PanelContainer
+	var recommendation_action := host.find_child("RecommendedWorkshopAction", true, false) as Button
+	check(recommendation_card != null and recommendation_action != null and recommendation_action.text == "APLICAR", "workshop elevates the best-value upgrade into one explicit primary action")
+	check(not recommendation.is_empty() and int(recommendation.cost) <= int(state.player.scrap) and recommendation.has("current_odds") and recommendation.has("score_gain"), "workshop recommendation carries an affordable, auditable impact projection")
 	check(host.find_child("LoadoutToolbar", true, false) != null, "isolated arsenal builds persistent loadouts")
 	check(host.find_child("FieldReadiness", true, false) != null, "isolated arsenal translates upgrades into next-warrant odds")
 	var readiness := ArsenalScript.field_readiness(state)
