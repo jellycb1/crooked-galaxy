@@ -31,6 +31,7 @@ $Tests = @(
     "test_reward_view.gd",
     "test_career_view.gd",
     "test_persistence.gd",
+    "test_afk_persistence.gd",
     "test_clean_roundtrip.gd",
     "test_save_migrations.gd",
     "test_equipment_presentation.gd",

@@ -48,6 +48,8 @@ Chapter finales survive reload until acknowledged. Continuing consumes only the 
 
 AFK rewards immediately persist their updated wallet and `last_seen` timestamp, including after chapter continuation, so a second launch cannot claim the completed-planet patrol multiplier twice.
 
+The AFK settlement watermark is monotonic: a device-clock rollback pays nothing and cannot manufacture a later patrol when the clock catches up. Boundary tests cover the five-minute minimum, exact and exceeded eight-hour cap, pre-capture lock, duplicate launch, and a return that also repairs save data.
+
 The reward receipt retains paid incident cost and reconciles gross payout with the exact net wallet gain from before the choice.
 
 Claim summaries and the persistent board/workshop record name whether the captured item was equipped, stored, or recycled, including the exact item name.

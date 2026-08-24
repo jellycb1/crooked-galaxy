@@ -118,7 +118,9 @@ func apply_offline_progress(now_unix: float) -> Dictionary:
 	var last_seen := float(player.get("last_seen_unix", now_unix))
 	var elapsed := maxf(0.0, now_unix - last_seen)
 	var rewards := CoreRules.offline_patrol_rewards(elapsed, player.get("completed_planets", []).size(), int(player.get("wins", 0)))
-	player.last_seen_unix = now_unix
+	# A clock rollback must not move the settlement watermark backwards and turn
+	# the same interval into a future patrol payout when the clock catches up.
+	player.last_seen_unix = maxf(last_seen, now_unix)
 	if int(rewards.credits) <= 0 and int(rewards.scrap) <= 0:
 		afk_report = {}
 		return rewards
@@ -849,7 +851,7 @@ func reset_progress() -> void:
 func save_game() -> void:
 	if not persistence_enabled:
 		return
-	player.last_seen_unix = Time.get_unix_time_from_system()
+	player.last_seen_unix = maxf(float(player.get("last_seen_unix", 0.0)), Time.get_unix_time_from_system())
 	var payload := {
 		"version": SAVE_VERSION,
 		"player": player,
