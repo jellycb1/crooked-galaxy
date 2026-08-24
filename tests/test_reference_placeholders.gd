@@ -19,19 +19,22 @@ func run() -> void:
 	var backdrop := ReferenceBackdrop.new()
 	root.add_child(backdrop)
 	await process_frame
-	check(backdrop.CONTEXT_PATHS.size() == 6, "all documented composition placeholders keep an explicit context mapping")
-	for context in ["contracts", "world", "workshop", "combat", "class_ui", "career_ui"]:
+	check(backdrop.CONTEXT_PATHS.size() == 8, "all documented composition placeholders keep an explicit context mapping")
+	for context in ["contracts", "world", "workshop", "market", "hangar", "combat", "class_ui", "career_ui"]:
 		check(FileAccess.file_exists(str(backdrop.CONTEXT_PATHS[context])), "documented local placeholder exists for '%s'" % context)
 	check(backdrop.UI_PATHS.size() == 5, "class icons and ornamental UI assets have explicit internal mappings")
 	for class_id in backdrop.UI_PATHS:
 		check(FileAccess.file_exists(str(backdrop.UI_PATHS[class_id])), "documented local class icon exists for '%s'" % class_id)
 	check(not backdrop.local_placeholders_allowed(), "headless validation never decodes visual placeholders")
-	for context in ["contracts", "world", "workshop", "combat", "class_ui", "career_ui", "unknown"]:
+	for context in ["contracts", "world", "workshop", "market", "hangar", "combat", "class_ui", "career_ui", "unknown"]:
 		backdrop.show_context(context)
 		check(not backdrop.visible, "headless context '%s' keeps the placeholder hidden" % context)
 	check(backdrop.loaded_source_path.is_empty() and backdrop.texture_rect.texture == null, "headless validation does not retain a decoded reference image")
-	var decoded := backdrop.load_local_texture(str(backdrop.CONTEXT_PATHS.contracts))
-	check(decoded != null, "registered local PNG can be decoded by the same runtime path used in the editor")
+	var decoded: Texture2D
+	for context in backdrop.CONTEXT_PATHS:
+		decoded = backdrop.load_local_texture(str(backdrop.CONTEXT_PATHS[context]))
+		check(decoded != null, "registered local PNG for '%s' can be decoded by the runtime path" % context)
+	decoded = backdrop.load_local_texture(str(backdrop.CONTEXT_PATHS.contracts))
 	backdrop.texture_rect.texture = decoded
 	backdrop.loaded_source_path = str(backdrop.CONTEXT_PATHS.contracts)
 	backdrop.release_texture()

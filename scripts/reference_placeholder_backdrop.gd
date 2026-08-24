@@ -6,6 +6,8 @@ const CONTEXT_PATHS := {
 	"contracts": SOURCE_ROOT + "tavern/tavern_back.png",
 	"world": SOURCE_ROOT + "town/bg_town_day.png",
 	"workshop": SOURCE_ROOT + "locations/bg_fort_0.png",
+	"market": SOURCE_ROOT + "dealer/default/dealer_day.png",
+	"hangar": SOURCE_ROOT + "stable/stable_Tag_good_2k.png",
 	"combat": SOURCE_ROOT + "locations/location_battle_0.png",
 	"class_ui": SOURCE_ROOT + "ui/sf_4k_UI-BG-navi.png",
 	"career_ui": SOURCE_ROOT + "ui/sf_4k_UI-BG-navi-login.png",
@@ -14,6 +16,8 @@ const INTERNAL_CONTEXT_PATHS := {
 	"contracts": "res://internal_reference_assets/contracts.png.bin",
 	"world": "res://internal_reference_assets/world.png.bin",
 	"workshop": "res://internal_reference_assets/workshop.png.bin",
+	"market": "res://internal_reference_assets/market.png.bin",
+	"hangar": "res://internal_reference_assets/hangar.png.bin",
 	"combat": "res://internal_reference_assets/combat.png.bin",
 	"class_ui": "res://internal_reference_assets/class_ui.png.bin",
 	"career_ui": "res://internal_reference_assets/career_ui.png.bin",
@@ -87,7 +91,7 @@ func show_context(context: String) -> void:
 		return
 	texture_rect.texture = texture
 	loaded_source_path = source_path
-	scrim.color = Color(0.015, 0.025, 0.075, 0.38 if context == "class_ui" or context == "career_ui" else (0.76 if context == "world" or context == "workshop" else (0.58 if context == "combat" else 0.66)))
+	scrim.color = Color(0.015, 0.025, 0.075, 0.38 if context == "class_ui" or context == "career_ui" else (0.76 if context == "world" or context == "workshop" else (0.70 if context == "market" or context == "hangar" else (0.58 if context == "combat" else 0.66))))
 	visible = true
 
 

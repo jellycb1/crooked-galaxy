@@ -264,7 +264,7 @@ Capture the bounty boards, market, transport hangar, defeat recovery and post-up
 godot --path . --script res://tools/capture_ui.gd
 ```
 
-The proprietary study art in `References/` remains local, Git-ignored, and documented. The single Android test APK stages exactly eleven registered images for composition testing on our own device: four environmental studies, two long-form interface surfaces, three provisional class emblems, one portrait frame, and one board divider. Raw source files never enter Git or the package; only the explicit staged allowlist is exported, and every use and intended replacement is tracked in `Notes/REFERENCE_PLACEHOLDERS.md`.
+The proprietary study art in `References/` remains local, Git-ignored, and documented. The single Android test APK stages exactly thirteen registered images for composition testing on our own device: six environmental studies, two long-form interface surfaces, three provisional class emblems, one portrait frame, and one board divider. Market and hangar now have distinct temporary environments instead of sharing the arsenal location. Raw source files never enter Git or the package; only the explicit staged allowlist is exported, and every use and intended replacement is tracked in `Notes/REFERENCE_PLACEHOLDERS.md`.
 
 The internal adapter decodes only the visible 2000×1400 placeholder and releases it on context changes. It also unloads the corresponding production backdrop, bounding reference-image residency near 10.7 MB instead of accumulating roughly 42.7 MB across a complete navigation session.
 
@@ -312,6 +312,6 @@ The campaign simulator now selects each prototype class and automatically spends
 - `scripts/` — gameplay state, deterministic rules, content, and interface.
 - `tests/` — headless deterministic tests.
 - `Notes/` — product vision and development rules.
-- `References/` — external study material, excluded from Godot imports by `.gdignore`; the Android checker stages only the eleven registered placeholders into the single test APK.
+- `References/` — external study material, excluded from Godot imports by `.gdignore`; the Android checker stages only the thirteen registered placeholders into the single test APK.
 
 Content in `References/` is temporary test material, not Crooked Galaxy production content. Code, names, formulas, and original assets remain independently created.

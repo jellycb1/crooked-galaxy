@@ -278,8 +278,12 @@ func render() -> void:
 
 func environment_context() -> String:
 	if GameState.phase == GameState.Phase.BOARD:
-		if view_mode == "arsenal" or view_mode == "market" or view_mode == "hangar":
+		if view_mode == "arsenal":
 			return "workshop"
+		if view_mode == "market":
+			return "market" if reference_backdrop != null and reference_backdrop.local_placeholders_allowed() else "workshop"
+		if view_mode == "hangar":
+			return "hangar" if reference_backdrop != null and reference_backdrop.local_placeholders_allowed() else "workshop"
 		if view_mode == "career" and reference_backdrop != null and reference_backdrop.local_placeholders_allowed():
 			return "career_ui"
 		if view_mode == "classes" and reference_backdrop != null and reference_backdrop.local_placeholders_allowed():
