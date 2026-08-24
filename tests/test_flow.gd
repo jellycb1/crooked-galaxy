@@ -115,7 +115,7 @@ func _init() -> void:
 	check(int(next_quiet_reward.bonus_percent) == int(next_premium_reward.bonus_percent) and int(next_quiet_reward.bonus_credits) != int(next_premium_reward.bonus_credits), "repeat briefing preserves the advertised streak percentage while approach choice changes exact credits")
 	streak_state.choose_approach("quiet_net")
 	streak_state.abandon_bounty()
-	check(int(streak_state.player.capture_streak) == 0, "abandoning a hunt breaks the capture streak")
+	check(int(streak_state.player.capture_streak) == 0 and streak_state.last_notice.contains("após 3 capturas") and streak_state.last_notice_context == "contract", "abandoning a hunt breaks and reports the exact capture streak")
 	streak_state.free()
 	var recycle_reward_state = StateScript.new()
 	recycle_reward_state.persistence_enabled = false

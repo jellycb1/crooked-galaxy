@@ -718,7 +718,8 @@ func build_hunt() -> void:
 	countdown.name = "HuntCountdown"
 	content.add_child(countdown)
 	content.add_spacer(false)
-	var abandon := action_button("ABANDONAR CONTRATO", CORAL, true)
+	var abandon := action_button(abandon_contract_text(), CORAL, true)
+	abandon.name = "HuntAbandonAction"
 	abandon.pressed.connect(GameState.abandon_bounty)
 	content.add_child(abandon)
 
@@ -755,10 +756,16 @@ func build_hunt_event() -> void:
 	for choice in event.get("choices", []):
 		choices.add_child(hunt_choice_card(choice, accent))
 	content.add_spacer(false)
-	var abandon := action_button("ABANDONAR CONTRATO", CORAL, true)
+	var abandon := action_button(abandon_contract_text(), CORAL, true)
+	abandon.name = "HuntAbandonAction"
 	abandon.custom_minimum_size = Vector2(0, 46)
 	abandon.pressed.connect(GameState.abandon_bounty)
 	content.add_child(abandon)
+
+
+func abandon_contract_text() -> String:
+	var streak := int(GameState.player.get("capture_streak", 0))
+	return "ABANDONAR · PERDER EMBALO ×%d" % streak if streak > 0 else "ABANDONAR CONTRATO"
 
 
 func hunt_choice_card(choice: Dictionary, accent: Color) -> PanelContainer:

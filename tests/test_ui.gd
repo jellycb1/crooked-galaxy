@@ -50,6 +50,8 @@ func run_smoke_test() -> void:
 	state.choose_approach("quiet_net")
 	await process_frame
 	check(scene.find_child("HuntProgress", true, false) != null, "hunt screen renders")
+	var hunt_abandon := scene.find_child("HuntAbandonAction", true, false) as Button
+	check(hunt_abandon != null and hunt_abandon.text.contains("PERDER EMBALO ×2"), "active hunt announces the exact streak cost before abandonment")
 	state.hunt_event = ContentDB.HUNT_EVENTS[0].duplicate(true)
 	state.hunt_event_triggered = true
 	state.hunt_elapsed_before_event = 3.0
@@ -58,6 +60,8 @@ func run_smoke_test() -> void:
 	scene.render()
 	await process_frame
 	check(scene.find_child("HuntEventChoices", true, false) != null, "mid-hunt incident renders")
+	var incident_abandon := scene.find_child("HuntAbandonAction", true, false) as Button
+	check(incident_abandon != null and incident_abandon.text.contains("PERDER EMBALO ×2"), "paused incident preserves the same explicit abandonment consequence")
 	var pause_status := scene.find_child("HuntEventPauseStatus", true, false) as Label
 	check(pause_status != null and pause_status.text.contains("PAUSADA EM") and pause_status.text.contains("RESTANTES"), "incident explains the paused hunt position and remaining time")
 	var incident_payments := scene.find_children("HuntChoicePayment_*", "Label", true, false)
