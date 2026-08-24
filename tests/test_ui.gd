@@ -262,6 +262,35 @@ func run_smoke_test() -> void:
 	check(scene.find_child("ClaimMilestone_first_warrant", true, false) != null, "career renders a claim action for completed milestones")
 	check(scene.find_child("CareerTarget_gloop", true, false) != null, "career renders the wanted archive")
 	check(scene.find_child("MasteryDirective", true, false) != null and scene.find_child("MasteryDirectiveAction", true, false) != null, "career turns repeat progress into a direct next action")
+	var career_archive_jump := scene.find_child("CareerArchiveJump", true, false) as Button
+	career_archive_jump.pressed.emit()
+	await process_frame
+	var career_scroll := scene.find_child("CareerScroll", true, false) as ScrollContainer
+	var archive_position := career_scroll.scroll_vertical
+	check(archive_position > 0 and scene.career_scroll_position == archive_position, "career remembers direct section navigation")
+	var milestone_claim := scene.find_child("ClaimMilestone_first_warrant", true, false) as Button
+	milestone_claim.pressed.emit()
+	await process_frame
+	await process_frame
+	career_scroll = null
+	for child in scene.content.get_children():
+		if child is ScrollContainer:
+			career_scroll = child
+			break
+	check(career_scroll != null and career_scroll.scroll_vertical == archive_position, "claiming a milestone restores the exact career scroll position after rerender")
+	scene.view_mode = "board"
+	scene.render()
+	await process_frame
+	scene.view_mode = "career"
+	scene.render()
+	await process_frame
+	await process_frame
+	career_scroll = null
+	for child in scene.content.get_children():
+		if child is ScrollContainer:
+			career_scroll = child
+			break
+	check(career_scroll != null and career_scroll.scroll_vertical == archive_position, "career restores its last section after leaving and returning in the same session")
 
 	scene.view_mode = "board"
 	state.phase = state.Phase.BOARD

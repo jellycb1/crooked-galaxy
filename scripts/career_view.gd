@@ -69,12 +69,19 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	list.add_child(archive_heading)
 	for target in ordered_archive_targets(state):
 		list.add_child(target_card(host, state, target))
-	progress_jump.pressed.connect(func(): scroll_to_section(scroller, progress_heading))
-	archive_jump.pressed.connect(func(): scroll_to_section(scroller, archive_heading))
+	scroller.get_v_scroll_bar().value_changed.connect(func(value: float):
+		host.career_scroll_position = roundi(value)
+	)
+	if host.career_scroll_position > 0:
+		scroller.set_deferred("scroll_vertical", host.career_scroll_position)
+	progress_jump.pressed.connect(func(): scroll_to_section(host, scroller, progress_heading))
+	archive_jump.pressed.connect(func(): scroll_to_section(host, scroller, archive_heading))
 
 
-static func scroll_to_section(scroller: ScrollContainer, heading: Control) -> void:
-	scroller.scroll_vertical = maxi(0, roundi(heading.position.y))
+static func scroll_to_section(host: CrookedUIFactory, scroller: ScrollContainer, heading: Control) -> void:
+	var position := maxi(0, roundi(heading.position.y))
+	host.career_scroll_position = position
+	scroller.scroll_vertical = position
 
 
 static func ordered_archive_targets(state: StateScript) -> Array[Dictionary]:

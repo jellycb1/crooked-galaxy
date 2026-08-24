@@ -16,6 +16,7 @@ var view_mode := "board"
 var inventory_filter := "all"
 var inventory_sort := "power"
 var briefing_context: Dictionary = {}
+var career_scroll_position := 0
 
 
 func panel(child: Control, color: Color, radius: int, margin: int) -> PanelContainer:

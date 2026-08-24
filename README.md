@@ -58,6 +58,8 @@ Every revealed and currently available wanted record in that archive has a 48-un
 
 The archive keeps all twenty records but orders the active planet's four warrants first, making late-career contract access immediate without erasing chronological history.
 
+Career scroll position is session-persistent: claiming a milestone, rerendering the ledger, or briefly visiting another hub returns to the same section instead of the top.
+
 ## Run
 
 Open `project.godot` in Godot 4, or run from a console where Godot is available:
