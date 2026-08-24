@@ -152,6 +152,8 @@ The career summary now exposes next-level XP as a real progress bar. Its five de
 
 The arsenal is divided into three explicit surfaces. `EQUIPADO` presents weapon and armor as full-width visual workbench rows with their own calibration and reinforcement actions; `MOCHILA` owns filters, sorting, protection, equipping, and recycling; `AJUSTES` owns sound, reduced motion, and the clearly separated local test reset. This prevents device controls from consuming inventory space or competing with loot decisions.
 
+Reward progression uses an original three-symbol receipt grammar: a crosshair identifies target mastery, forward chevrons identify capture streak, and a document identifies warrant progression. Exact bonuses, requirements, projected route odds, and destination actions remain textual beside those markers, but dense mastery-and-unlock states no longer collapse into an undifferentiated centered paragraph.
+
 Career scroll position is session-persistent: claiming a milestone, rerendering the ledger, or briefly visiting another hub returns to the same section instead of the top.
 
 Milestone claims leave an exact in-career receipt for individual or bulk rewards, including both credits and scrap, while the shared renderer cleanly replaces the previous UI tree before rebuilding transactional views.

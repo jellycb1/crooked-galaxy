@@ -22,6 +22,7 @@ func _init() -> void:
 	RewardScript.build(host, content, state)
 	check(host.find_child("RewardLootHeader", true, false) != null and host.find_child("RewardEquipmentComparison", true, false) != null, "isolated reward separates loot identity from equipment comparison")
 	check(host.find_child("RewardContractReceipt", true, false) != null and host.find_child("RewardProgressPanel", true, false) != null, "isolated reward groups the contract receipt and progression evidence")
+	check(host.find_child("RewardProgressIcon_streak", true, false) != null and host.find_child("RewardProgressIcon_warrant", true, false) != null, "progress receipt gives streak and warrant distinct visual identities")
 	check(host.find_child("RewardNewPower", true, false) != null and host.find_child("RewardEquippedPower", true, false) != null and host.find_child("RewardEquipmentResult", true, false) != null, "equipment decision exposes new, equipped, and result metrics in one row")
 	check(host.find_child("RewardWarrantProgress", true, false) != null, "isolated reward renders next-warrant progress")
 	var next_hunt_impact := host.find_child("RewardNextHuntImpact", true, false) as Label
@@ -63,6 +64,7 @@ func _init() -> void:
 	var mastery_unlock := host.find_child("RewardMasteryUnlock", true, false) as Label
 	var mastery_bonus := host.find_child("RewardMasteryUnlockBonus", true, false) as Label
 	check(mastery_unlock != null and mastery_bonus != null and mastery_bonus.text.contains("OFICINA +6 SUCATA"), "isolated reward previews the mastery threshold and its workshop funding before claiming")
+	check(host.find_child("RewardProgressIcon_mastery", true, false) != null, "mastery threshold uses its own target marker")
 	var workshop_action := host.find_child("ClaimAndWorkshop", true, false) as Button
 	check(workshop_action != null, "mastery threshold offers a direct workshop route")
 	workshop_action.pressed.emit()

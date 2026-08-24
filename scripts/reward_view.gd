@@ -6,6 +6,7 @@ const Rules = preload("res://scripts/core_rules.gd")
 const Content = preload("res://scripts/content_db.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
+const RewardProgressIconScript = preload("res://scripts/reward_progress_icon.gd")
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
@@ -84,13 +85,13 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		receipt_box.add_child(incident_net)
 	var progress_box := VBoxContainer.new()
 	progress_box.name = "RewardProgressSummary"
-	progress_box.add_theme_constant_override("separation", 2)
+	progress_box.add_theme_constant_override("separation", 5)
 	var previous_captures := int(state.player.get("captures_by_target", {}).get(str(state.current_bounty.id), 0))
 	var reward_mastery := Rules.target_mastery_level(previous_captures)
 	if reward_mastery > 0:
 		var mastery_label := host.center_label("PERÍCIA COM ALVO %d/3 · QUALIDADE DE LOOT AMPLIADA" % reward_mastery, 13, host.LIME)
 		mastery_label.name = "RewardMastery"
-		progress_box.add_child(mastery_label)
+		progress_box.add_child(reward_progress_row(host, "mastery", mastery_label, null, host.LIME))
 	var captures_after_reward := previous_captures + 1
 	var mastery_after_reward := Rules.target_mastery_level(captures_after_reward)
 	var planet_id := str(state.current_bounty.get("planet_id", Content.PLANET.id))
@@ -107,10 +108,9 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	if mastery_after_reward > reward_mastery:
 		var mastery_unlock := host.center_label("NOVA PERÍCIA AO RECEBER · NÍVEL %d/3" % mastery_after_reward, 13, host.GOLD)
 		mastery_unlock.name = "RewardMasteryUnlock"
-		progress_box.add_child(mastery_unlock)
 		var mastery_bonus := host.center_label("+%d%% RARO · +%d%% ÉPICO · OFICINA +%d SUCATA" % [mastery_after_reward * 5, mastery_after_reward * 2, Rules.target_mastery_scrap_reward(mastery_after_reward)], 12, host.LIME)
 		mastery_bonus.name = "RewardMasteryUnlockBonus"
-		progress_box.add_child(mastery_bonus)
+		progress_box.add_child(reward_progress_row(host, "mastery", mastery_unlock, mastery_bonus, host.GOLD))
 	elif captures_after_reward > 1:
 		var next_mastery_requirement := Rules.target_mastery_next_requirement(reward_mastery)
 		if next_mastery_requirement > 0:
@@ -119,25 +119,25 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 				mastery_progress_text = "PRÓXIMA CAPTURA · PERÍCIA 1/3 + MANDADO %s" % str(next_target.name).to_upper()
 			var mastery_progress := host.center_label(mastery_progress_text, 12, host.CYAN)
 			mastery_progress.name = "RewardMasteryProgress"
-			progress_box.add_child(mastery_progress)
+			progress_box.add_child(reward_progress_row(host, "mastery", mastery_progress, null, host.CYAN))
 	if int(reward_preview.bonus_credits) > 0:
 		var streak_bonus := host.center_label("EMBALO ×%d · +%d créditos (+%d%%)" % [int(reward_preview.streak), int(reward_preview.bonus_credits), int(reward_preview.bonus_percent)], 14, host.LIME)
 		streak_bonus.name = "RewardStreakBonus"
-		progress_box.add_child(streak_bonus)
+		progress_box.add_child(reward_progress_row(host, "streak", streak_bonus, null, host.LIME))
 	elif int(reward_preview.streak) == 1:
 		var streak_start := host.center_label("EMBALO REINICIADO ×1 · BÔNUS COMEÇA NA PRÓXIMA CAPTURA", 12, host.CYAN)
 		streak_start.name = "RewardStreakStart"
-		progress_box.add_child(streak_start)
+		progress_box.add_child(reward_progress_row(host, "streak", streak_start, null, host.CYAN))
 	if unlocks_new_warrant:
 		var unlock_label := host.center_label("NOVO MANDADO AO RECEBER · %s" % str(next_target.name).to_upper(), 14, host.LIME)
 		unlock_label.name = "RewardWarrantUnlock"
-		progress_box.add_child(unlock_label)
-		progress_box.add_child(warrant_impact_label(host, state.player, item, next_target, effective_upgrade, int(state.current_bounty.xp), "RewardWarrantOdds"))
+		var unlock_impact := warrant_impact_label(host, state.player, item, next_target, effective_upgrade, int(state.current_bounty.xp), "RewardWarrantOdds")
+		progress_box.add_child(reward_progress_row(host, "warrant", unlock_label, unlock_impact, host.LIME))
 	elif not next_target.is_empty() and not combined_next_capture:
 		var progress_label := host.center_label("RUMO A %s · %d/%d CAPTURAS DE %s" % [str(next_target.name).to_upper(), int(progress_after.progress), int(progress_after.requirement), str(progress_after.prerequisite.name).to_upper()], 13, host.CYAN)
 		progress_label.name = "RewardWarrantProgress"
-		progress_box.add_child(progress_label)
-		progress_box.add_child(warrant_impact_label(host, state.player, item, next_target, effective_upgrade, int(state.current_bounty.xp), "RewardNextHuntImpact"))
+		var next_impact := warrant_impact_label(host, state.player, item, next_target, effective_upgrade, int(state.current_bounty.xp), "RewardNextHuntImpact")
+		progress_box.add_child(reward_progress_row(host, "warrant", progress_label, next_impact, host.CYAN))
 	if progress_box.get_child_count() > 0:
 		var progress_panel := host.panel(progress_box, Color("#10233b"), 10, 7)
 		progress_panel.name = "RewardProgressPanel"
@@ -203,6 +203,30 @@ static func reward_metric_chip(host: CrookedUIFactory, title: String, value: Str
 	chip_box.add_child(host.label(title, 9, host.MUTED, HORIZONTAL_ALIGNMENT_CENTER))
 	chip_box.add_child(host.label(value, 13, color, HORIZONTAL_ALIGNMENT_CENTER))
 	return chip
+
+
+static func reward_progress_row(host: CrookedUIFactory, kind: String, primary: Label, secondary: Label, accent: Color) -> PanelContainer:
+	var card := host.panel(HBoxContainer.new(), Color("#0b1830"), 9, 5)
+	card.name = "RewardProgressRow_%s" % kind
+	var row := card.get_child(0) as HBoxContainer
+	row.add_theme_constant_override("separation", 8)
+	var icon: Control = RewardProgressIconScript.new()
+	icon.name = "RewardProgressIcon_%s" % kind
+	icon.configure(kind, accent)
+	row.add_child(icon)
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.alignment = BoxContainer.ALIGNMENT_CENTER
+	copy.add_theme_constant_override("separation", 1)
+	row.add_child(copy)
+	primary.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	primary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	copy.add_child(primary)
+	if secondary != null:
+		secondary.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		secondary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		copy.add_child(secondary)
+	return card
 
 
 static func warrant_impact(player: Dictionary, item: Dictionary, target: Dictionary, equip_item: bool, reward_xp: int) -> Dictionary:
