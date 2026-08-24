@@ -22,6 +22,7 @@ func _init() -> void:
 	CareerViewScript.build(host, content, state)
 
 	check(host.find_child("CareerSummary", true, false) != null, "isolated career builds its summary")
+	check(host.find_child("CareerClaimReceipt", true, false) == null, "career does not mislabel unrelated state as a milestone receipt")
 	check(host.find_child("CareerScroll", true, false) != null, "isolated career builds its archive scroller")
 	check(host.find_child("CareerProgressJump", true, false) != null, "career provides a direct route back to progression")
 	check(host.find_child("CareerArchiveJump", true, false) != null, "career provides a direct route to the wanted archive")
@@ -57,6 +58,14 @@ func _init() -> void:
 	check(cross_planet_action != null, "archive exposes targets on unlocked completed routes")
 	cross_planet_action.pressed.emit()
 	check(str(state.player.current_planet_id) == "congelaria_sa" and state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "auditor_frost", "archive action travels to another planet and opens the selected briefing")
+	state.cancel_briefing()
+	state.last_notice = "2 marcos resgatados: +110 créditos · +2 sucata."
+	for child in content.get_children():
+		child.free()
+	CareerViewScript.build(host, content, state)
+	var receipt := host.find_child("CareerClaimReceipt", true, false) as PanelContainer
+	check(receipt != null, "career renders its own exact milestone receipt")
+	check(find_text(receipt).contains("+110 créditos") and find_text(receipt).contains("+2 sucata"), "career receipt preserves aggregate currency values")
 
 	host.free()
 	state.free()
@@ -72,3 +81,12 @@ func check(condition: bool, description: String) -> void:
 	if not condition:
 		failures += 1
 		printerr("  FAIL: %s" % description)
+
+
+func find_text(node: Node) -> String:
+	var result := ""
+	if node is Label:
+		result += str(node.text) + "\n"
+	for child in node.get_children():
+		result += find_text(child)
+	return result

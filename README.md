@@ -60,6 +60,8 @@ The archive keeps all twenty records but orders the active planet's four warrant
 
 Career scroll position is session-persistent: claiming a milestone, rerendering the ledger, or briefly visiting another hub returns to the same section instead of the top.
 
+Milestone claims leave an exact in-career receipt for individual or bulk rewards, including both credits and scrap, while the shared renderer cleanly replaces the previous UI tree before rebuilding transactional views.
+
 ## Run
 
 Open `project.godot` in Godot 4, or run from a console where Godot is available:

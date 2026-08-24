@@ -589,6 +589,23 @@ func capture() -> void:
 	if save_frame("ui_career.png") != OK:
 		quit(1)
 		return
+	var claim_all_milestones := scene.find_child("ClaimAllMilestones", true, false) as Button
+	if claim_all_milestones:
+		claim_all_milestones.pressed.emit()
+		await process_frame
+		await process_frame
+		await create_timer(0.12).timeout
+	else:
+		printerr("Failed to locate career milestone claim for capture")
+		quit(1)
+		return
+	if save_frame("ui_career_claim_receipt.png") != OK:
+		quit(1)
+		return
+	state.last_notice = ""
+	scene.render()
+	await process_frame
+	await process_frame
 	var archive_jump := scene.find_child("CareerArchiveJump", true, false) as Button
 	if archive_jump:
 		archive_jump.pressed.emit()
@@ -605,7 +622,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, reward/mastery/warrant-unlock decisions, post-claim receipts, defeat recovery and upgrade, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

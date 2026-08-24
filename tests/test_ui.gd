@@ -278,6 +278,9 @@ func run_smoke_test() -> void:
 			career_scroll = child
 			break
 	check(career_scroll != null and career_scroll.scroll_vertical == archive_position, "claiming a milestone restores the exact career scroll position after rerender")
+	var career_receipt := scene.find_child("CareerClaimReceipt", true, false) as PanelContainer
+	check(career_receipt != null and state.last_notice.contains("+40 créditos"), "claimed milestone leaves its exact receipt inside the career hub")
+	check(scene.find_child("CareerSummary", true, false) != null, "transaction rerender replaces the career tree cleanly without duplicate-name layout drift")
 	scene.view_mode = "board"
 	scene.render()
 	await process_frame

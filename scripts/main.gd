@@ -109,6 +109,7 @@ func render() -> void:
 				sound_fx.play_victory()
 	previous_phase = GameState.phase
 	for child in content.get_children():
+		content.remove_child(child)
 		child.queue_free()
 	build_header()
 	match GameState.phase:

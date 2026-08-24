@@ -24,6 +24,9 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	title_row.add_child(back)
 
 	content.add_child(summary_card(host, state))
+	var claim_notice := career_claim_notice(state)
+	if not claim_notice.is_empty():
+		content.add_child(claim_receipt_card(host, claim_notice))
 	var ready_count := state.career_rewards_ready()
 	if ready_count > 0:
 		var claim_all := host.action_button("RESGATAR TODOS · %d" % ready_count, host.GOLD)
@@ -94,6 +97,31 @@ static func ordered_archive_targets(state: StateScript) -> Array[Dictionary]:
 		if str(target.get("planet_id", Content.PLANET.id)) != current_planet_id:
 			ordered.append(target)
 	return ordered
+
+
+static func career_claim_notice(state: StateScript) -> String:
+	var notice := str(state.last_notice)
+	if notice.begins_with("Marco resgatado:") or notice.contains(" marcos resgatados:"):
+		return notice
+	return ""
+
+
+static func claim_receipt_card(host: CrookedUIFactory, notice: String) -> PanelContainer:
+	var receipt := host.panel(HBoxContainer.new(), Color("#173356"), 12, 11)
+	receipt.name = "CareerClaimReceipt"
+	var row := receipt.get_child(0) as HBoxContainer
+	row.add_theme_constant_override("separation", 10)
+	var stamp := host.center_label("✓", 20, host.LIME)
+	stamp.custom_minimum_size = Vector2(28, 28)
+	row.add_child(stamp)
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(copy)
+	copy.add_child(host.label("RECIBO DA CARREIRA", 11, host.LIME))
+	var message := host.label(notice, 12, host.INK)
+	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	copy.add_child(message)
+	return receipt
 
 
 static func summary_card(host: CrookedUIFactory, state: StateScript) -> PanelContainer:
