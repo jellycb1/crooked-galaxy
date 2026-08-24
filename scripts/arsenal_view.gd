@@ -347,8 +347,8 @@ static func inventory_item_card(host: CrookedUIFactory, state: StateScript, item
 	var card := host.panel(HBoxContainer.new(), host.PANEL, 15, 15)
 	var row := card.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 12)
-	var icon := host.center_label("⚙", 34, Color(str(item.color)))
-	icon.custom_minimum_size = Vector2(54, 54)
+	var icon := host.equipment_icon(item, 58)
+	icon.name = "EquipmentIcon_%s" % str(item.get("id", "unknown"))
 	icon.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	row.add_child(icon)
 	var details := VBoxContainer.new()

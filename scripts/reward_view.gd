@@ -24,7 +24,9 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var box := reward_panel.get_child(0) as VBoxContainer
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation", 3)
-	box.add_child(host.center_label("⚙", 46, Color(str(item.color))))
+	var loot_icon := host.equipment_icon(item, 76)
+	loot_icon.name = "RewardEquipmentIcon"
+	box.add_child(loot_icon)
 	box.add_child(host.center_label(str(item.rarity).to_upper(), 15, Color(str(item.color))))
 	var item_name := host.center_label(str(item.name), 25, host.INK)
 	item_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

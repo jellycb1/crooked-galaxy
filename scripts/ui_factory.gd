@@ -2,6 +2,7 @@ class_name CrookedUIFactory
 extends Control
 
 const PortraitScript = preload("res://scripts/procedural_portrait.gd")
+const EquipmentIconScript = preload("res://scripts/equipment_icon.gd")
 
 const INK := Color("#f4f2ff")
 const MUTED := Color("#9da8c8")
@@ -99,6 +100,15 @@ func character_portrait(character_id: String, dimension: float, equipment_profil
 	var result: Control = PortraitScript.new()
 	result.character_id = character_id
 	result.equipment_profile = equipment_profile.duplicate(true)
+	result.custom_minimum_size = Vector2(dimension, dimension)
+	result.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	result.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return result
+
+
+func equipment_icon(item: Dictionary, dimension: float) -> Control:
+	var result: Control = EquipmentIconScript.new()
+	result.item = item.duplicate(true)
 	result.custom_minimum_size = Vector2(dimension, dimension)
 	result.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	result.size_flags_vertical = Control.SIZE_SHRINK_CENTER

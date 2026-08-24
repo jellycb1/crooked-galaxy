@@ -111,6 +111,7 @@ func run_smoke_test() -> void:
 
 	state.open_reward()
 	await process_frame
+	check(scene.find_child("RewardEquipmentIcon", true, false) != null, "reward presents loot with a slot- and origin-specific icon")
 	check(scene.find_child("RewardMastery", true, false) != null, "reward screen confirms applied target mastery")
 	check(scene.find_child("RewardMasteryProgress", true, false) != null, "reward screen counts the pending capture toward the next mastery")
 	check(scene.find_child("RewardWarrantProgress", true, false) != null, "reward screen previews progress toward the next warrant")
