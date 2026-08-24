@@ -625,9 +625,11 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 	metrics.add_child(metric_chip("EXPERIÊNCIA", "%d XP" % int(preview.xp), CYAN))
 	var choose := action_button("ESCOLHER · %s" % risk_text, color)
 	var approach_id := str(approach.id)
+	choose.name = "ChooseApproach_%s" % approach_id
 	choose.pressed.connect(func():
+		var tested_context := briefing_context.duplicate(true)
 		briefing_context = {}
-		GameState.choose_approach(approach_id)
+		GameState.choose_approach(approach_id, tested_context)
 	)
 	box.add_child(choose)
 	return card
@@ -642,6 +644,17 @@ func build_hunt() -> void:
 	var approach: Dictionary = bounty.get("approach", {})
 	if not approach.is_empty():
 		content.add_child(center_label(str(approach.name).to_upper(), 16, Color(str(approach.color))))
+	var field_test_context: Dictionary = bounty.get("field_test_context", {})
+	if not field_test_context.is_empty():
+		var test_text := "TESTE DE CAMPO CONFIRMADO · %s · %d%%" % [str(field_test_context.tested_approach_name).to_upper(), roundi(float(field_test_context.tested_odds) * 100.0)]
+		var test_color := LIME
+		if bool(field_test_context.overridden):
+			test_text = "ROTA TESTADA SUBSTITUÍDA · %s %d%% → %s" % [str(field_test_context.tested_approach_name).to_upper(), roundi(float(field_test_context.tested_odds) * 100.0), str(field_test_context.chosen_approach_name).to_upper()]
+			test_color = GOLD
+		var test_label := center_label(test_text, 13, test_color)
+		test_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		test_label.name = "HuntFieldTestContext"
+		content.add_child(test_label)
 	content.add_child(center_label("Seguindo sinais, subornando robôs e fingindo ter um plano.", 16, MUTED))
 	if bounty.has("hunt_event_result"):
 		content.add_child(notice_banner(str(bounty.hunt_event_result), GOLD))

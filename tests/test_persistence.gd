@@ -80,7 +80,7 @@ func _init() -> void:
 	check(restored_briefing.phase == restored_briefing.Phase.BRIEFING, "briefing phase survives save and load")
 	check(restored_briefing.offered_approaches.size() == 3, "approach choices survive save and load")
 
-	source.choose_approach("quiet_net")
+	source.choose_approach("quiet_net", {"target_id": "gloop", "approach_id": "quiet_net", "approach_name": "Rede Silenciosa", "odds": 0.74})
 	source.hunt_event = ContentDB.HUNT_EVENTS[1].duplicate(true)
 	source.hunt_event_triggered = true
 	source.hunt_elapsed_before_event = 4.0
@@ -93,6 +93,7 @@ func _init() -> void:
 	check(restored_event.phase == restored_event.Phase.HUNT_EVENT, "mid-hunt incident survives save and load")
 	check(str(restored_event.hunt_event.id) == "bounty_streamer", "incident content is restored")
 	check(is_equal_approx(restored_event.hunt_remaining_after_event, 5.0), "paused hunt time is restored")
+	check(not bool(restored_event.current_bounty.field_test_context.overridden) and str(restored_event.current_bounty.field_test_context.tested_approach_id) == "quiet_net", "confirmed field-test route survives an interrupted hunt")
 
 	source.player.completed_planets = [ContentDB.PLANET.id]
 	source.player.current_planet_id = "congelaria_sa"

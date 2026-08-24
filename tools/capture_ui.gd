@@ -190,13 +190,26 @@ func capture() -> void:
 	if save_frame("ui_tested_briefing.png") != OK:
 		quit(1)
 		return
-	var tested_briefing_cancel := scene.find_child("BriefingCancel", true, false) as Button
-	if tested_briefing_cancel == null:
-		printerr("Failed to leave tested briefing capture")
+	var tested_approach_id := str(scene.briefing_context.get("approach_id", ""))
+	var override_approach_id := "premium_warrant" if tested_approach_id != "premium_warrant" else "quiet_net"
+	var override_route_action := scene.find_child("ChooseApproach_%s" % override_approach_id, true, false) as Button
+	if override_route_action == null:
+		printerr("Failed to locate route override for hunt capture")
 		quit(1)
 		return
-	tested_briefing_cancel.pressed.emit()
+	var receipt_notice: String = str(state.last_notice)
+	var receipt_streak := int(state.player.capture_streak)
+	override_route_action.pressed.emit()
 	await process_frame
+	await process_frame
+	await create_timer(0.2).timeout
+	if save_frame("ui_tested_route_override_hunt.png") != OK:
+		quit(1)
+		return
+	state.abandon_bounty()
+	await process_frame
+	state.last_notice = receipt_notice
+	state.player.capture_streak = receipt_streak
 	scene.view_mode = "arsenal"
 	scene.render()
 	await process_frame

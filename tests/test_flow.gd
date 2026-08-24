@@ -68,6 +68,18 @@ func _init() -> void:
 	check(str(claimed_readiness.target.id) == str(projected_target.id) and str(claimed_readiness.approach.id) == str(reward_impact.approach_id), "post-claim field test keeps the reward's projected target and fixed route")
 	check(is_equal_approx(float(claimed_readiness.current_odds), float(reward_impact.projected_odds)), "post-claim field test exactly confirms the reward's projected odds after XP and equipment")
 	projection_state.free()
+	var tested_route_state = StateScript.new()
+	tested_route_state.persistence_enabled = false
+	tested_route_state.player = tested_route_state.default_player()
+	var tested_route_context := {"target_id": "gloop", "approach_id": "quiet_net", "approach_name": "Rede Silenciosa", "odds": 0.74}
+	tested_route_state.select_bounty(Content.TARGETS[0])
+	tested_route_state.choose_approach("quiet_net", tested_route_context)
+	check(not bool(tested_route_state.current_bounty.field_test_context.overridden), "choosing the tested route records a confirmed field test on the active contract")
+	tested_route_state.abandon_bounty()
+	tested_route_state.select_bounty(Content.TARGETS[0])
+	tested_route_state.choose_approach("premium_warrant", tested_route_context)
+	check(bool(tested_route_state.current_bounty.field_test_context.overridden) and str(tested_route_state.current_bounty.field_test_context.chosen_approach_id) == "premium_warrant", "overriding the tested route records the deliberate contract choice")
+	tested_route_state.free()
 	var streak_state = StateScript.new()
 	streak_state.persistence_enabled = false
 	streak_state.player = streak_state.default_player()

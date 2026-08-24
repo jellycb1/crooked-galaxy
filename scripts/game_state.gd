@@ -183,12 +183,21 @@ func claim_all_career_milestones() -> Dictionary:
 	return {"count": ready.size(), "credits": credits, "scrap": scrap}
 
 
-func choose_approach(approach_id: String) -> void:
+func choose_approach(approach_id: String, tested_context: Dictionary = {}) -> void:
 	if phase != Phase.BRIEFING:
 		return
 	for approach in offered_approaches:
 		if str(approach.id) == approach_id:
 			current_bounty = ContentDB.apply_approach(current_bounty, approach)
+			if str(tested_context.get("target_id", "")) == str(current_bounty.get("id", "")) and not str(tested_context.get("approach_id", "")).is_empty():
+				current_bounty.field_test_context = {
+					"tested_approach_id": str(tested_context.approach_id),
+					"tested_approach_name": str(tested_context.get("approach_name", "CONTRATO BASE")),
+					"tested_odds": float(tested_context.get("odds", 0.0)),
+					"chosen_approach_id": approach_id,
+					"chosen_approach_name": str(approach.name),
+					"overridden": str(tested_context.approach_id) != approach_id,
+				}
 			offered_approaches = []
 			start_hunt()
 			return

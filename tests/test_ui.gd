@@ -115,6 +115,26 @@ func run_smoke_test() -> void:
 			briefing_cancel.pressed.emit()
 			await process_frame
 		check(scene.briefing_context.is_empty(), "leaving the tested briefing clears its transient context")
+		scene.view_mode = "arsenal"
+		scene.render()
+		await process_frame
+		var second_route_action := scene.find_child("FieldReadinessAction", true, false) as Button
+		check(second_route_action != null, "tested briefing can be reopened after a clean cancellation")
+		if second_route_action != null:
+			second_route_action.pressed.emit()
+			await process_frame
+			var tested_id := str(scene.briefing_context.get("approach_id", ""))
+			var override_id := "premium_warrant" if tested_id != "premium_warrant" else "quiet_net"
+			var override_action := scene.find_child("ChooseApproach_%s" % override_id, true, false) as Button
+			check(override_action != null, "tested briefing retains an explicit alternative route")
+			if override_action != null:
+				override_action.pressed.emit()
+				await process_frame
+				var override_record := scene.find_child("HuntFieldTestContext", true, false) as Label
+				check(override_record != null and override_record.text.contains("SUBSTITUÍDA") and override_record.text.contains("→"), "hunt records a deliberate override of the tested route")
+				check(scene.briefing_context.is_empty(), "choosing a route clears transient briefing context after persisting the contract record")
+				state.abandon_bounty()
+				await process_frame
 	scene.view_mode = "board"
 	state.last_notice = "Contrato pago: Peça de Reserva guardado"
 	scene.render()
