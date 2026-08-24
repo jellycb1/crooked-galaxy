@@ -46,6 +46,8 @@ Immediate repeat saves only after replacing the completed modified contract with
 
 Chapter finales survive reload until acknowledged. Continuing consumes only the finale evidence; completed-planet and active-route progress remain persistent, and later reloads cannot resurrect the completion screen.
 
+AFK rewards immediately persist their updated wallet and `last_seen` timestamp, including after chapter continuation, so a second launch cannot claim the completed-planet patrol multiplier twice.
+
 The reward receipt retains paid incident cost and reconciles gross payout with the exact net wallet gain from before the choice.
 
 Claim summaries and the persistent board/workshop record name whether the captured item was equipped, stored, or recycled, including the exact item name.

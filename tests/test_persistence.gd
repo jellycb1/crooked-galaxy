@@ -216,6 +216,27 @@ func _init() -> void:
 	check(restored_after_chapter.phase == restored_after_chapter.Phase.BOARD and restored_after_chapter.chapter_completion.is_empty(), "reload after finale continuation cannot resurrect the completion screen")
 	check(restored_after_chapter.player.completed_planets.has(ContentDB.PLANET.id) and str(restored_after_chapter.player.current_planet_id) == "congelaria_sa", "reload after finale continuation preserves completion and active travel progress")
 	check(restored_after_chapter.last_notice.is_empty() and restored_after_chapter.last_notice_context.is_empty(), "clean post-finale reload does not repeat a stale chapter or recovery receipt")
+	var post_finale_file := FileAccess.open(test_save, FileAccess.READ)
+	var post_finale_payload = JSON.parse_string(post_finale_file.get_as_text())
+	post_finale_file = null
+	post_finale_payload.player.wins = 10
+	post_finale_payload.player.last_seen_unix = Time.get_unix_time_from_system() - 3700.0
+	post_finale_file = FileAccess.open(test_save, FileAccess.WRITE)
+	post_finale_file.store_string(JSON.stringify(post_finale_payload))
+	post_finale_file = null
+	var first_post_finale_return = StateScript.new()
+	first_post_finale_return.save_path = test_save
+	first_post_finale_return.load_game()
+	check(not first_post_finale_return.afk_report.is_empty() and int(first_post_finale_return.afk_report.credits) > 0, "first load after post-finale absence applies the completed-planet patrol reward")
+	var post_finale_credits := int(first_post_finale_return.player.credits)
+	var post_finale_scrap := int(first_post_finale_return.player.scrap)
+	var second_post_finale_return = StateScript.new()
+	second_post_finale_return.save_path = test_save
+	second_post_finale_return.load_game()
+	check(int(second_post_finale_return.player.credits) == post_finale_credits and int(second_post_finale_return.player.scrap) == post_finale_scrap, "immediate second post-finale load cannot duplicate AFK currency")
+	check(second_post_finale_return.afk_report.is_empty(), "persisted last-seen timestamp suppresses a duplicate AFK report")
+	second_post_finale_return.free()
+	first_post_finale_return.free()
 	restored_after_chapter.free()
 
 	var offline = StateScript.new()
