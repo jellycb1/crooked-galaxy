@@ -55,7 +55,7 @@ func run_smoke_test() -> void:
 	check(incident_payments.size() == 3 and incident_payments.all(func(payment): return str(payment.text).contains("EMBALO") and str(payment.text).contains("INCLUÍDO")), "incident choices project streak-adjusted victory payments")
 	var paid_incident := scene.find_child("HuntChoicePayment_bribe", true, false) as Label
 	check(paid_incident != null and paid_incident.text.contains("LÍQUIDO APÓS CUSTO"), "paid incident choice exposes its net contract gain")
-	state.resolve_hunt_event("detour")
+	state.resolve_hunt_event("bribe")
 	await process_frame
 
 	state.begin_combat()
@@ -73,12 +73,15 @@ func run_smoke_test() -> void:
 	check(state.phase == state.Phase.VICTORY, "victory screen renders before loot")
 	check(not state.pending_loot.is_empty(), "reward screen receives an item")
 	check(scene.find_child("CombatSummaryVictory", true, false) != null, "victory explains aggregate combat performance")
+	var victory_payment := scene.find_child("VictoryPayment", true, false) as Label
+	check(victory_payment != null and victory_payment.text.contains("EMBALO") and victory_payment.text.contains("SALDO"), "victory preserves the paid-incident payout receipt")
 
 	state.open_reward()
 	await process_frame
 	check(scene.find_child("RewardMastery", true, false) != null, "reward screen confirms applied target mastery")
 	check(scene.find_child("RewardMasteryProgress", true, false) != null, "reward screen counts the pending capture toward the next mastery")
 	check(scene.find_child("RewardWarrantProgress", true, false) != null, "reward screen previews progress toward the next warrant")
+	check(scene.find_child("RewardIncidentNet", true, false) != null, "reward screen receives the same paid-incident receipt")
 	check(scene.find_child("ClaimAndRepeat", true, false) != null, "reward screen offers another contract immediately")
 	check(scene.find_child("ClaimAndBoard", true, false) != null, "reward screen preserves the board return path")
 	state.player.captures_by_planet = {ContentDB.PLANET.id: 2}

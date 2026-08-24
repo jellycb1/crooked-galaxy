@@ -809,6 +809,16 @@ func build_victory() -> void:
 		stamp_box.add_child(center_label("Finalizado com %s · %d de dano" % [str(final_event.action), int(final_event.damage)], 14, GOLD))
 	if not GameState.combat_summary.is_empty():
 		content.add_child(combat_summary_panel(true))
+	var victory_payment := CoreRules.bounty_streak_reward(int(GameState.current_bounty.credits), int(GameState.player.get("capture_streak", 0)) + 1)
+	var payment_text := "PAGAMENTO APROVADO · ◈ %d" % int(victory_payment.credits)
+	if int(victory_payment.bonus_credits) > 0:
+		payment_text += " · EMBALO +%d INCLUÍDO" % int(victory_payment.bonus_credits)
+	var incident_cost := maxi(0, int(GameState.current_bounty.get("hunt_event_credit_cost", 0)))
+	if incident_cost > 0:
+		payment_text += " · SALDO +%d APÓS CUSTO" % (int(victory_payment.credits) - incident_cost)
+	var payment := center_label(payment_text, 12, GOLD)
+	payment.name = "VictoryPayment"
+	content.add_child(payment)
 	content.add_child(center_label("Autenticando pagamento e sacudindo os bolsos do alvo...", 15, MUTED))
 	content.add_spacer(false)
 
