@@ -33,12 +33,22 @@ func run_mobile_audit() -> void:
 	check_touch_targets(scene, "bounty board")
 	var header_character := scene.find_child("HeaderCharacterAction", true, false) as Button
 	check(header_character != null and header_character.size.y >= 48.0, "header character card remains a mobile touch target")
+	check(scene.find_child("BountyScroll", true, false) != null and scene.find_child("BoardHubGrid", true, false) == null, "bounty board opens directly on contracts without competing destination actions")
+	var destination_tab := scene.find_child("BoardTab_destinations", true, false) as Button
+	check(destination_tab != null and destination_tab.size.y >= 40.0, "destination tab remains a mobile touch target")
+	if destination_tab != null:
+		destination_tab.pressed.emit()
+		await process_frame
 	var board_hub_grid := scene.find_child("BoardHubGrid", true, false) as GridContainer
-	check(board_hub_grid != null and board_hub_grid.columns == 3 and board_hub_grid.get_child_count() == 6, "bounty board compacts six secondary destinations into a 3 by 2 mobile grid")
+	check(board_hub_grid != null and board_hub_grid.columns == 2 and board_hub_grid.get_child_count() == 6, "destinations use a readable 2 by 3 mobile grid")
+	check_touch_targets(scene, "board destinations")
+	check(scene.android_back_action() == "board_bounties", "Android Back returns destinations to the primary contract view")
+	scene.handle_android_back_request()
+	await process_frame
 	var build_version := scene.find_child("BuildVersion", true, false) as Label
 	check(build_version != null and build_version.text == "v%s" % str(ProjectSettings.get_setting("application/config/version")), "installed build version remains visible in the compact header")
 	check(scene.hunt_timer.is_stopped(), "high-frequency hunt refresh stays asleep on the bounty board")
-	check(scene.android_back_action() == "quit", "Android Back exits only from the root bounty board")
+	check(scene.android_back_action() == "quit" and scene.find_child("BountyScroll", true, false) != null, "Android Back exits only from the root contract view")
 
 	scene.view_mode = "arsenal"
 	scene.arsenal_section = "inventory"

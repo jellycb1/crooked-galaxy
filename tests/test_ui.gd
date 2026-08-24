@@ -161,8 +161,11 @@ func run_smoke_test() -> void:
 	await process_frame
 	state.claim_reward(true)
 	await process_frame
+	scene.board_section = "destinations"
+	scene.render()
+	await process_frame
 	var post_claim_field_test := scene.find_child("PostClaimFieldTestAction", true, false) as Button
-	check(post_claim_field_test != null and post_claim_field_test.text == "TESTAR BUILD", "equipped reward receipt turns the board arsenal shortcut into a field-test continuation")
+	check(post_claim_field_test != null and post_claim_field_test.text.contains("TESTAR BUILD"), "equipped reward receipt turns the board arsenal shortcut into a field-test continuation")
 	post_claim_field_test.pressed.emit()
 	await process_frame
 	check(scene.view_mode == "arsenal" and scene.find_child("FieldReadiness", true, false) != null, "post-claim shortcut opens the newly equipped build beside its field odds")
@@ -232,6 +235,7 @@ func run_smoke_test() -> void:
 	scene.render()
 	await process_frame
 	check(scene.find_child("ArsenalAction", true, false) != null and scene.find_child("PostClaimFieldTestAction", true, false) == null, "stored reward receipts keep the ordinary arsenal action")
+	scene.board_section = "bounties"
 	state.player.capture_streak = 1
 	state.last_notice = "Contrato pago: +34 créditos · +53 XP · Peça de Reserva guardada · Embalo ×1 iniciado: próxima captura +5%"
 	state.last_notice_context = "reward_stored"
@@ -239,9 +243,11 @@ func run_smoke_test() -> void:
 	await process_frame
 	check(scene.find_child("StreakNotice", true, false) == null, "sequence-opening reward receipt prevents a duplicate streak tutorial on the board")
 	state.player.capture_streak = 2
+	scene.board_section = "bounties"
 	scene.render()
 	await process_frame
 	check(scene.find_child("StreakNotice", true, false) != null, "an established streak keeps its forward-looking board reminder")
+	scene.board_section = "destinations"
 	state.player.scrap = 0
 	state.last_notice = "Contrato pago: +34 créditos · +53 XP · Primeira Melhoria equipada"
 	state.last_notice_context = "reward_equipped"
@@ -316,6 +322,7 @@ func run_smoke_test() -> void:
 	check(scene.find_child("GalaxyRoutes", true, false) != null, "galaxy map renders unlocked routes")
 	check(scene.find_children("GalaxyPlanetIcon_*", "Control", true, false).size() == ContentDB.PLANETS.size(), "every galaxy destination has a stable visual identity")
 	scene.view_mode = "board"
+	scene.board_section = "bounties"
 	check(state.travel_to_planet("congelaria_sa"), "UI state can travel to an unlocked planet")
 	await process_frame
 	check(scene.find_child("BountyCard_auditor_frost", true, false) != null, "second planet bounty board renders")
@@ -419,8 +426,14 @@ func run_smoke_test() -> void:
 	check(scene.find_child("BoardNotice", true, false) == null, "complete defeat diagnosis replaces the redundant escape receipt")
 	var defeat_heading := scene.find_child("CombatReportTitle", true, false) as Label
 	check(defeat_heading != null and defeat_heading.text.contains("BARÃO BOOM"), "defeat diagnosis retains the escaped target identity after the redundant receipt is removed")
+	scene.board_section = "destinations"
+	scene.render()
+	await process_frame
 	var career_action := scene.find_child("BoardCareerAction", true, false) as Button
-	check(career_action != null and (state.career_rewards_ready() == 0 or career_action.text.contains("· %d" % state.career_rewards_ready())), "claimable career rewards remain a counted secondary header action beside defeat recovery")
+	check(career_action != null and (state.career_rewards_ready() == 0 or career_action.text.contains("%d PRÊMIOS" % state.career_rewards_ready())), "claimable career rewards remain counted in the destinations view after a defeat")
+	scene.board_section = "bounties"
+	scene.render()
+	await process_frame
 	var defeat_route := scene.find_child("DefeatFieldTestDiagnosis", true, false) as Label
 	check(defeat_route != null and defeat_route.text.contains("OVERRIDE DERROTADO") and defeat_route.text.contains("REAVALIE A ROTA"), "defeat board turns the tested-route override into actionable diagnosis")
 	var defeat_route_text := defeat_route.text if defeat_route != null else ""

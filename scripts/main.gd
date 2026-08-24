@@ -66,7 +66,9 @@ func _notification(what: int) -> void:
 
 func android_back_action() -> String:
 	if GameState.phase == GameState.Phase.BOARD:
-		return "board" if view_mode != "board" else "quit"
+		if view_mode != "board":
+			return "board"
+		return "board_bounties" if board_section != "bounties" else "quit"
 	if GameState.phase == GameState.Phase.BRIEFING:
 		return "cancel_briefing"
 	return "guard_contract"
@@ -76,6 +78,9 @@ func handle_android_back_request() -> void:
 	match android_back_action():
 		"board":
 			view_mode = "board"
+			render()
+		"board_bounties":
+			board_section = "bounties"
 			render()
 		"cancel_briefing":
 			GameState.cancel_briefing()
@@ -433,44 +438,83 @@ func build_board() -> void:
 	xp_label.name = "BoardXpStatus"
 	xp_label.custom_minimum_size = Vector2(88, 0)
 	title_row.add_child(xp_label)
+	content.add_child(board_section_tabs())
+	if board_section == "destinations":
+		build_board_destinations()
+		return
+	build_board_bounties()
+
+
+func board_section_tabs() -> HBoxContainer:
+	var tabs := HBoxContainer.new()
+	tabs.name = "BoardSectionTabs"
+	tabs.add_theme_constant_override("separation", 8)
+	for definition in [
+		{"id": "bounties", "text": "MANDADOS", "color": CORAL},
+		{"id": "destinations", "text": "DESTINOS", "color": CYAN},
+	]:
+		var section := str(definition.id)
+		var selected := board_section == section
+		var tab := action_button(str(definition.text), definition.color, not selected)
+		tab.name = "BoardTab_%s" % section
+		tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		tab.custom_minimum_size = Vector2(0, 48)
+		tab.add_theme_font_size_override("font_size", 13)
+		tab.pressed.connect(func():
+			board_section = section
+			render()
+		)
+		tabs.add_child(tab)
+	return tabs
+
+
+func build_board_destinations() -> void:
+	var intro := panel(VBoxContainer.new(), Color("#173356"), 14, 13)
+	intro.name = "BoardDestinationsIntro"
+	var intro_box := intro.get_child(0) as VBoxContainer
+	intro_box.add_child(label("NAVEGAÇÃO DA FRONTEIRA", 14, CYAN))
+	var intro_copy := label("Prepare o caçador, compre equipamento ou trace a próxima rota.", 12, INK)
+	intro_copy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	intro_box.add_child(intro_copy)
+	content.add_child(intro)
 
 	var hub_grid := GridContainer.new()
 	hub_grid.name = "BoardHubGrid"
-	hub_grid.columns = 3
-	hub_grid.add_theme_constant_override("h_separation", 7)
-	hub_grid.add_theme_constant_override("v_separation", 7)
+	hub_grid.columns = 2
+	hub_grid.add_theme_constant_override("h_separation", 10)
+	hub_grid.add_theme_constant_override("v_separation", 10)
 	content.add_child(hub_grid)
 	var equipped_receipt := GameState.last_notice_context == "reward_equipped"
 	var scrap := int(GameState.player.get("scrap", 0))
 	var cheapest_calibration := mini(CoreRules.equipment_upgrade_cost(GameState.player.weapon), CoreRules.equipment_upgrade_cost(GameState.player.armor))
 	var funded_field_test := equipped_receipt and scrap >= cheapest_calibration
-	hub_grid.add_child(board_hub_action("TESTAR BUILD" if funded_field_test else "ARSENAL · %d" % GameState.player.inventory.size(), LIME if funded_field_test else GOLD, "PostClaimFieldTestAction" if funded_field_test else "ArsenalAction", func():
+	hub_grid.add_child(board_hub_action("TESTAR BUILD\nOFICINA" if funded_field_test else "ARSENAL\n%d PEÇAS" % GameState.player.inventory.size(), LIME if funded_field_test else GOLD, "PostClaimFieldTestAction" if funded_field_test else "ArsenalAction", func():
 		if funded_field_test:
 			arsenal_section = "equipped"
 		view_mode = "arsenal"
 		render()
 	))
-	hub_grid.add_child(board_hub_action("MERCADO", GOLD, "BoardMarketAction", func():
+	hub_grid.add_child(board_hub_action("MERCADO\nEQUIPAMENTO", GOLD, "BoardMarketAction", func():
 		view_mode = "market"
 		render()
 	))
-	hub_grid.add_child(board_hub_action("HANGAR", CYAN, "BoardHangarAction", func():
+	hub_grid.add_child(board_hub_action("HANGAR\nTRANSPORTE", CYAN, "BoardHangarAction", func():
 		view_mode = "hangar"
 		render()
 	))
-	hub_grid.add_child(board_hub_action("MAPA", CYAN, "BoardGalaxyAction", func():
+	hub_grid.add_child(board_hub_action("MAPA\nPLANETAS", CYAN, "BoardGalaxyAction", func():
 		view_mode = "galaxy"
 		render()
 	))
 	var ready_rewards := GameState.career_rewards_ready()
-	var career_text := "CARREIRA · %d" % ready_rewards if ready_rewards > 0 else "CARREIRA"
+	var career_text := "CARREIRA\n%d PRÊMIOS" % ready_rewards if ready_rewards > 0 else "CARREIRA\nPROGRESSO"
 	hub_grid.add_child(board_hub_action(career_text, LIME, "BoardCareerAction", func():
 		view_mode = "career"
 		render()
 	))
 	var available_points := int(GameState.player.get("stat_points", 0))
 	var class_unassigned := str(GameState.player.get("class_id", "")).is_empty()
-	var attributes_text := "CLASSE" if class_unassigned else ("ATRIBUTOS · %d" % available_points if available_points > 0 else "ATRIBUTOS")
+	var attributes_text := "CAÇADOR\nESCOLHER CLASSE" if class_unassigned else ("CAÇADOR\n%d PONTOS" % available_points if available_points > 0 else "CAÇADOR\nEQUIPAMENTO E STATUS")
 	hub_grid.add_child(board_hub_action(attributes_text, CORAL if class_unassigned or available_points > 0 else CYAN, "BoardAttributesAction", func():
 		attribute_draft = {}
 		view_mode = "attributes"
@@ -479,6 +523,18 @@ func build_board() -> void:
 	var hub_divider := reference_ui_decoration("hub_divider", 12.0)
 	if hub_divider != null:
 		content.add_child(hub_divider)
+	var active_transport := TransportRulesScript.active_transport(GameState.player)
+	var status := panel(VBoxContainer.new(), Color("#0d1530"), 14, 13)
+	status.name = "BoardDestinationStatus"
+	var status_box := status.get_child(0) as VBoxContainer
+	status_box.add_child(label("POSIÇÃO ATUAL · %s" % str(active_planet().name).to_upper(), 13, GOLD))
+	var transport_text := "SEM TRANSPORTE ATIVO" if active_transport.is_empty() else "EM TRÂNSITO · %s" % str(active_transport.name).to_upper()
+	status_box.add_child(label(transport_text, 12, MUTED))
+	content.add_child(status)
+
+
+func build_board_bounties() -> void:
+	var planet := active_planet()
 
 	var recovery_inside_afk := not GameState.afk_report.is_empty() and GameState.last_notice_context == "system_recovery"
 	var defeat_report_visible := GameState.last_notice_context == "defeat" and not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true))
@@ -529,19 +585,13 @@ func build_board() -> void:
 	for bounty in board_bounties:
 		list.add_child(bounty_card(bounty))
 
-	var equipment := HBoxContainer.new()
-	equipment.add_theme_constant_override("separation", 10)
-	content.add_child(equipment)
-	equipment.add_child(equipment_chip(GameState.player.weapon))
-	equipment.add_child(equipment_chip(GameState.player.armor))
-
 
 func board_hub_action(text_value: String, color: Color, node_name: String, callback: Callable) -> Button:
 	var button := action_button(text_value, color, true)
 	button.name = node_name
-	button.custom_minimum_size = Vector2(0, 48)
+	button.custom_minimum_size = Vector2(0, 78)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.add_theme_font_size_override("font_size", 13)
+	button.add_theme_font_size_override("font_size", 12)
 	button.pressed.connect(callback)
 	return button
 

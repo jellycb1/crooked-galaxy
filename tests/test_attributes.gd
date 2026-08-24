@@ -50,6 +50,9 @@ func run_attributes_test() -> void:
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
+	scene.board_section = "destinations"
+	scene.render()
+	await process_frame
 	check(scene.find_child("BoardAttributesAction", true, false) != null, "the bounty board exposes the attribute hub")
 	scene.view_mode = "attributes"
 	scene.render()

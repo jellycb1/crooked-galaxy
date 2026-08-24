@@ -26,7 +26,7 @@ The mobile arsenal separates the reference-inspired equipped build from the back
 
 The bounty board now links to a deterministic three-offer planet market. Credits buy weapons or armor, with upgrades equipped automatically and alternatives stored; paid stock renewal creates a repeatable credit sink. Stock deliberately trails the active warrant tier, preventing the market from selling the next target's reward before the fight. Offer-cycle and purchase records persist through save schema 9 and are bounded during load sanitization.
 
-The bounty board keeps its next contract visually dominant through a compact 3×2 hunter-hub grid. Arsenal, market, hangar, galaxy, career, and class/attribute destinations retain 48-unit touch targets without consuming a full six-button column; pending class choice, attribute points, career claims, and funded build testing remain visible through concise labels and color.
+The bounty board opens directly on `MANDADOS`: onboarding or receipts, exact warrant progress, and the active contract form one uninterrupted decision path. A session-only `DESTINOS` tab moves arsenal, market, hangar, galaxy, career, and hunter management into a readable 2×3 navigation surface with contextual counts and continuation states. Android Back returns that secondary surface to the contracts before it may exit, and equipment details remain in the dedicated hunter/arsenal screens instead of competing with the bounty.
 
 The persistent header keeps the equipped hunter visible beside level and power. Its framed portrait is also a 48-unit character shortcut, taking the player directly to class and attribute decisions without adding another board row.
 
