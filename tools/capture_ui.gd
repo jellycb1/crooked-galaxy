@@ -369,6 +369,20 @@ func capture() -> void:
 	if save_frame("ui_market.png") != OK:
 		quit(1)
 		return
+	state.player.credits = 9000
+	state.player.completed_planets = ["dustball_prime", "congelaria_sa"]
+	state.player.owned_transport_ids = ["licensed_junkbox", "cloned_warp_taxi"]
+	state.player.active_transport_id = "cloned_warp_taxi"
+	state.last_notice = "Hangar: TÁXI WARP CLONADO agora responde pelos seus atrasos."
+	state.last_notice_context = "hangar"
+	scene.view_mode = "hangar"
+	scene.render()
+	await process_frame
+	await process_frame
+	await create_timer(0.12).timeout
+	if save_frame("ui_hangar.png") != OK:
+		quit(1)
+		return
 	state.player.stat_points = 6
 	scene.attribute_draft = {"vitality": 1, "cunning": 1}
 	scene.view_mode = "attributes"
@@ -759,7 +773,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, market, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters/paging, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, market, transport hangar, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters/paging, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

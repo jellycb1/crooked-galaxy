@@ -28,6 +28,7 @@ func _init() -> void:
 	check(int(migrated.player.stat_points) == 0, "a level-one legacy hunter receives no unearned retroactive points")
 	check(str(migrated.player.class_id).is_empty(), "legacy hunters remain unassigned so migration never chooses a build for them")
 	check(int(migrated.player.market_cycle) == 0 and migrated.player.market_purchased_offer_ids.is_empty(), "legacy hunters receive a clean deterministic market cycle")
+	check(migrated.player.owned_transport_ids.is_empty() and str(migrated.player.active_transport_id).is_empty(), "legacy hunters receive an empty hangar without losing credits")
 	check(not version_one.player.has("claimed_milestones"), "migration does not mutate its source payload")
 
 	var existing_ids := {
@@ -51,6 +52,11 @@ func _init() -> void:
 	var established_v8 := SaveMigrations.migrate(established_v7)
 	check(int(established_v8.player.market_cycle) == 0 and established_v8.player.market_purchased_offer_ids.is_empty(), "version-eight migration initializes only market persistence")
 	check(str(established_v8.player.class_id) == "orbit_gunslinger", "market migration preserves the selected prototype class")
+
+	var established_v8_payload := {"version": 8, "player": {"credits": 91, "market_cycle": 2, "market_purchased_offer_ids": ["market_kept"]}}
+	var established_v9 := SaveMigrations.migrate(established_v8_payload)
+	check(established_v9.player.owned_transport_ids.is_empty() and str(established_v9.player.active_transport_id).is_empty(), "version-nine migration initializes only transport persistence")
+	check(int(established_v9.player.market_cycle) == 2 and established_v9.player.market_purchased_offer_ids == ["market_kept"], "transport migration preserves established market records")
 
 	var current := {"version": SaveMigrations.CURRENT_VERSION, "player": {"credits": 5}}
 	var current_copy := SaveMigrations.migrate(current)

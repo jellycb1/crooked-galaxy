@@ -5,6 +5,7 @@ const SaveMigrationRules = preload("res://scripts/save_migrations.gd")
 const CareerRules = preload("res://scripts/career_rules.gd")
 const ClassRules = preload("res://scripts/class_rules.gd")
 const MarketRulesScript = preload("res://scripts/market_rules.gd")
+const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 
 signal changed
 signal combat_event(message: String)
@@ -68,6 +69,8 @@ func default_player() -> Dictionary:
 		"best_capture_streak": 0,
 		"market_cycle": 0,
 		"market_purchased_offer_ids": [],
+		"owned_transport_ids": [],
+		"active_transport_id": "",
 		"locked_item_ids": [],
 		"equipment_loadouts": [{"weapon_id": "", "armor_id": ""}, {"weapon_id": "", "armor_id": ""}],
 		"last_seen_unix": Time.get_unix_time_from_system(),
@@ -172,6 +175,30 @@ func refresh_market() -> bool:
 	player.market_purchased_offer_ids = []
 	last_notice = "Mercado renovado por %d créditos. A procedência continua confidencial." % cost
 	last_notice_context = "market"
+	save_game()
+	changed.emit()
+	return true
+
+
+func acquire_or_equip_transport(transport_id: String) -> bool:
+	if phase != Phase.BOARD:
+		return false
+	var transport := TransportRulesScript.definition(transport_id)
+	if transport.is_empty() or not TransportRulesScript.is_unlocked(player, transport):
+		return false
+	var owned: Array = player.get("owned_transport_ids", [])
+	if not owned.has(transport_id):
+		var price := int(transport.price)
+		if price <= 0 or int(player.credits) < price:
+			return false
+		player.credits = int(player.credits) - price
+		owned.append(transport_id)
+		player.owned_transport_ids = owned
+		last_notice = "Hangar: %s comprado por %d créditos e definido como transporte ativo." % [str(transport.name), price]
+	else:
+		last_notice = "Hangar: %s agora responde pelos seus atrasos." % str(transport.name)
+	player.active_transport_id = transport_id
+	last_notice_context = "hangar"
 	save_game()
 	changed.emit()
 	return true
@@ -300,7 +327,7 @@ func start_bounty(bounty: Dictionary) -> void:
 func start_hunt() -> void:
 	phase = Phase.HUNT
 	hunt_started_at = Time.get_unix_time_from_system()
-	hunt_ends_at = hunt_started_at + float(current_bounty.duration)
+	hunt_ends_at = hunt_started_at + TransportRulesScript.effective_hunt_duration(player, float(current_bounty.duration))
 	hunt_event = ContentDB.random_hunt_event(rng, str(current_bounty.get("planet_id", ContentDB.PLANET.id)))
 	hunt_event_triggered = false
 	hunt_elapsed_before_event = 0.0
@@ -1353,6 +1380,22 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 				current_planet_id = str(planet.id)
 		sanitized.current_planet_id = current_planet_id
 		repaired = true
+	var clean_transport_ids: Array = []
+	var loaded_transport_ids = sanitized.get("owned_transport_ids", [])
+	if loaded_transport_ids is Array:
+		for transport in TransportRulesScript.DEFINITIONS:
+			var transport_id := str(transport.id)
+			if loaded_transport_ids.has(transport_id) and TransportRulesScript.is_unlocked(sanitized, transport):
+				clean_transport_ids.append(transport_id)
+		if clean_transport_ids.size() != loaded_transport_ids.size():
+			repaired = true
+	else:
+		repaired = true
+	sanitized.owned_transport_ids = clean_transport_ids
+	var active_transport_id := str(sanitized.get("active_transport_id", ""))
+	if not active_transport_id.is_empty() and not clean_transport_ids.has(active_transport_id):
+		sanitized.active_transport_id = ""
+		repaired = true
 	var known_milestone_ids := {}
 	for milestone in CareerRules.milestones(sanitized):
 		known_milestone_ids[str(milestone.id)] = true
@@ -1626,7 +1669,7 @@ func reconcile_loaded_phase() -> bool:
 			var now := Time.get_unix_time_from_system()
 			if hunt_started_at <= 0.0 or hunt_ends_at <= hunt_started_at:
 				hunt_started_at = now
-				hunt_ends_at = now + float(current_bounty.duration)
+				hunt_ends_at = now + TransportRulesScript.effective_hunt_duration(player, float(current_bounty.duration))
 				repaired = true
 			elif hunt_started_at > now:
 				var saved_duration := maxf(0.1, hunt_ends_at - hunt_started_at)

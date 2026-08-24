@@ -50,6 +50,13 @@ func run_mobile_audit() -> void:
 	check_touch_targets(scene, "planet market")
 	check(scene.find_child("MarketScroll", true, false) != null and scene.find_children("MarketOffer_*", "PanelContainer", true, false).size() == 3, "all three market offers remain reachable in the portrait scroller")
 	check(scene.android_back_action() == "board", "Android Back routes the market safely to the bounty board")
+	scene.view_mode = "hangar"
+	scene.render()
+	await process_frame
+	await process_frame
+	check_touch_targets(scene, "transport hangar")
+	check(scene.find_child("HangarScroll", true, false) != null and scene.find_children("HangarTransport_*", "PanelContainer", true, false).size() == 4, "all four transports remain reachable in the portrait scroller")
+	check(scene.android_back_action() == "board", "Android Back routes the hangar safely to the bounty board")
 	scene.view_mode = "arsenal"
 	scene.render()
 	await process_frame

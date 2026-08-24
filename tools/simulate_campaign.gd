@@ -5,6 +5,7 @@ const Rules = preload("res://scripts/core_rules.gd")
 const Content = preload("res://scripts/content_db.gd")
 const ContractRulesScript = preload("res://scripts/contract_rules.gd")
 const SimulationBuildsScript = preload("res://tools/simulation_builds.gd")
+const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 
 const CAREERS := 20
 const STRATEGIES := ["recommended", "corporate_when_viable"]
@@ -17,22 +18,27 @@ func _init() -> void:
 	var strategies: Array = [OS.get_environment("CG_CAMPAIGN_STRATEGY")] if not OS.get_environment("CG_CAMPAIGN_STRATEGY").is_empty() else STRATEGIES
 	var build_policies := SimulationBuildsScript.selected_policies(OS.get_environment("CG_CAMPAIGN_BUILD"))
 	var market_policy := OS.get_environment("CG_CAMPAIGN_MARKET") if not OS.get_environment("CG_CAMPAIGN_MARKET").is_empty() else "active"
+	var transport_policy := OS.get_environment("CG_CAMPAIGN_TRANSPORT") if not OS.get_environment("CG_CAMPAIGN_TRANSPORT").is_empty() else "active"
 	if not market_policy in ["active", "off"]:
 		printerr("Unknown CG_CAMPAIGN_MARKET. Use active or off.")
+		quit(2)
+		return
+	if not transport_policy in ["active", "off"]:
+		printerr("Unknown CG_CAMPAIGN_TRANSPORT. Use active or off.")
 		quit(2)
 		return
 	if build_policies.is_empty():
 		printerr("Unknown CG_CAMPAIGN_BUILD. Use breaker_balanced, gunslinger_balanced, hacker_balanced, or unassigned_control.")
 		quit(2)
 		return
-	print("Crooked Galaxy sequential campaign (%d deterministic careers per strategy/build · market=%s)" % [career_count, market_policy])
+	print("Crooked Galaxy sequential campaign (%d deterministic careers per strategy/build · market=%s · transport=%s)" % [career_count, market_policy, transport_policy])
 	for strategy in strategies:
 		for build_policy in build_policies:
-			run_strategy_build(strategy, build_policy, career_count, market_policy)
+			run_strategy_build(strategy, build_policy, career_count, market_policy, transport_policy)
 	quit(0)
 
 
-func run_strategy_build(strategy: String, build_policy: Dictionary, career_count: int, market_policy: String) -> void:
+func run_strategy_build(strategy: String, build_policy: Dictionary, career_count: int, market_policy: String, transport_policy: String) -> void:
 	var results := empty_results()
 	var corporate_scrap_totals: Array = []
 	var workshop_action_totals: Array = []
@@ -43,6 +49,10 @@ func run_strategy_build(strategy: String, build_policy: Dictionary, career_count
 	var market_spend_totals: Array = []
 	var market_purchase_totals: Array = []
 	var market_refresh_totals: Array = []
+	var transport_spend_totals: Array = []
+	var transport_purchase_totals: Array = []
+	var transport_saved_seconds_totals: Array = []
+	var final_transports: Array[String] = []
 	var stalled_careers := 0
 	for career_seed in career_count:
 		var state = StateScript.new()
@@ -57,11 +67,18 @@ func run_strategy_build(strategy: String, build_policy: Dictionary, career_count
 		var market_spend := 0
 		var market_purchases := 0
 		var market_refreshes := 0
+		var transport_spend := 0
+		var transport_purchases := 0
+		var transport_saved_seconds := 0.0
 		var career_stalled := false
 		for planet in Content.PLANETS:
 			var planet_id := str(planet.id)
 			state.player.current_planet_id = planet_id
 			for tier in 4:
+				if transport_policy == "active":
+					var hangar_result := visit_hangar(state)
+					transport_spend += int(hangar_result.spent)
+					transport_purchases += int(hangar_result.purchases)
 				if market_policy == "active":
 					var market_result := visit_market(state)
 					market_spend += int(market_result.spent)
@@ -81,6 +98,7 @@ func run_strategy_build(strategy: String, build_policy: Dictionary, career_count
 					var won := false
 					var contract := strategy_contract(state.player, target, strategy)
 					for _attempt in MAX_ATTEMPTS_PER_CAPTURE:
+						transport_saved_seconds += TransportRulesScript.saved_seconds(state.player, float(contract.duration))
 						var fight_odds := Rules.bounty_odds(state.player, contract)
 						results[planet_id].attempt_odds[tier].append(fight_odds)
 						results[planet_id].attempt_approach[tier].append(str(contract.get("approach", {}).get("id", "none")))
@@ -115,11 +133,15 @@ func run_strategy_build(strategy: String, build_policy: Dictionary, career_count
 		market_spend_totals.append(market_spend)
 		market_purchase_totals.append(market_purchases)
 		market_refresh_totals.append(market_refreshes)
+		transport_spend_totals.append(transport_spend)
+		transport_purchase_totals.append(transport_purchases)
+		transport_saved_seconds_totals.append(transport_saved_seconds)
+		final_transports.append(str(state.player.get("active_transport_id", "none")))
 		if career_stalled:
 			stalled_careers += 1
 		state.free()
 	print("\n=== %s · %s · stalled=%d%% ===" % [strategy, str(build_policy.name), roundi(float(stalled_careers) / float(career_count) * 100.0)])
-	print("FINAL · level=%d · credits=%d · scrap=%d · corporate scrap=%d · workshop actions=%d · market spent=%d/buys=%d/refreshes=%d · %s" % [roundi(median(final_levels)), roundi(median(final_credits)), roundi(median(final_scrap)), roundi(median(corporate_scrap_totals)), roundi(median(workshop_action_totals)), roundi(median(market_spend_totals)), roundi(median(market_purchase_totals)), roundi(median(market_refresh_totals)), representative_string(final_attributes)])
+	print("FINAL · level=%d · credits=%d · scrap=%d · corporate scrap=%d · workshop actions=%d · market spent=%d/buys=%d/refreshes=%d · hangar spent=%d/buys=%d/saved=%ds/active=%s · %s" % [roundi(median(final_levels)), roundi(median(final_credits)), roundi(median(final_scrap)), roundi(median(corporate_scrap_totals)), roundi(median(workshop_action_totals)), roundi(median(market_spend_totals)), roundi(median(market_purchase_totals)), roundi(median(market_refresh_totals)), roundi(median(transport_spend_totals)), roundi(median(transport_purchase_totals)), roundi(median(transport_saved_seconds_totals)), representative_string(final_transports), representative_string(final_attributes)])
 	print_decision_summary(results)
 	print_results(results)
 
@@ -285,6 +307,21 @@ func visit_market(state: StateScript) -> Dictionary:
 		refreshes = 1
 		purchases += buy_market_upgrades(state)
 	return {"spent": credits_before - int(state.player.credits), "purchases": purchases, "refreshes": refreshes}
+
+
+func visit_hangar(state: StateScript) -> Dictionary:
+	var credits_before := int(state.player.credits)
+	var purchases := 0
+	# Permanent speed is valuable, but a rational hunter keeps a small reserve
+	# for incidents and equipment. Prefer the fastest unlocked affordable model.
+	for index in range(TransportRulesScript.DEFINITIONS.size() - 1, -1, -1):
+		var transport: Dictionary = TransportRulesScript.DEFINITIONS[index]
+		if not TransportRulesScript.is_unlocked(state.player, transport) or TransportRulesScript.is_owned(state.player, str(transport.id)):
+			continue
+		if int(state.player.credits) >= int(transport.price) + 250 and state.acquire_or_equip_transport(str(transport.id)):
+			purchases = 1
+			break
+	return {"spent": credits_before - int(state.player.credits), "purchases": purchases}
 
 
 func buy_market_upgrades(state: StateScript) -> int:

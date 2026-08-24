@@ -16,7 +16,9 @@ Three prototype bounty-hunter classes currently exercise that foundation: Quebra
 
 The workshop paginates filtered and sorted inventory into twelve-card windows. Only the active page is instantiated, keeping touch navigation and rendering bounded even when a long-running hunter retains hundreds of pieces; page choice remains transient and never expands the save schema.
 
-The bounty board now links to a deterministic three-offer planet market. Credits buy weapons or armor, with upgrades equipped automatically and alternatives stored; paid stock renewal creates a repeatable credit sink. Stock deliberately trails the active warrant tier, preventing the market from selling the next target's reward before the fight. Offer-cycle and purchase records persist through save schema 8 and are bounded during load sanitization.
+The bounty board now links to a deterministic three-offer planet market. Credits buy weapons or armor, with upgrades equipped automatically and alternatives stored; paid stock renewal creates a repeatable credit sink. Stock deliberately trails the active warrant tier, preventing the market from selling the next target's reward before the fight. Offer-cycle and purchase records persist through save schema 9 and are bounded during load sanitization.
+
+The `HANGAR DUVIDOSO` adds four permanent transports unlocked across chapter completion. Bought models can be equipped freely and reduce only the approach's base hunt time by 10–40%; incident delays remain fully additive, while combat odds, rewards, loot power, and AFK patrols remain unchanged. Prices compete directly with market spending, turning the fastest models into campaign and post-campaign credit goals rather than compulsory combat upgrades. Ownership and the active model persist atomically through save schema 9, while malformed or prematurely unlocked records are repaired safely.
 
 Aggressive contract routes now preserve their identity as equipment grows. The fast route grants 45% more credits but adds substantially more target resistance; the corporate route grants 85% more credits and two workshop scrap at still higher combat pressure. Resistance pressure rises gently by planet while attack pressure remains fixed, avoiding hidden player-scaled enemies and preserving the safe route as recovery. Equipment drops remain anchored to the canonical target, so extra danger cannot inflate the loot tier.
 
@@ -229,6 +231,7 @@ godot --headless --path . --script res://tests/test_flow.gd
 godot --headless --path . --script res://tests/test_ui.gd
 godot --headless --path . --script res://tests/test_ui_factory.gd
 godot --headless --path . --script res://tests/test_arsenal_view.gd
+godot --headless --path . --script res://tests/test_transport.gd
 godot --headless --path . --script res://tests/test_reward_view.gd
 godot --headless --path . --script res://tests/test_career_view.gd
 godot --headless --path . --script res://tests/test_persistence.gd
@@ -243,7 +246,7 @@ godot --headless --path . --script res://tests/test_content.gd
 godot --headless --path . --script res://tests/test_mobile.gd
 ```
 
-Capture the bounty boards, defeat recovery and post-upgrade workshop, AFK return, career, galaxy map, unlocked boss, contract briefing, hunt incident, combat, victory, reward decisions, arsenal filters, and chapter-completion states for visual review:
+Capture the bounty boards, market, transport hangar, defeat recovery and post-upgrade workshop, AFK return, career, galaxy map, unlocked boss, contract briefing, hunt incident, combat, victory, reward decisions, arsenal filters, and chapter-completion states for visual review:
 
 ```powershell
 godot --path . --script res://tools/capture_ui.gd
@@ -281,7 +284,7 @@ Run a continuous five-planet, failure-aware campaign sample with real loot, mast
 godot --headless --path . --script res://tools/simulate_campaign.gd
 ```
 
-The campaign simulator now selects each prototype class and automatically spends earned attribute points through comparable 50/25/25 primary-attribute, Vitality, and Cunning policies. It reports final attributes and currency plus route/odds saturation, market spend, purchases, and renewals. `CG_CAMPAIGN_MARKET=active|off` compares the optional sink; `CG_CAMPAIGN_BUILD` can isolate `breaker_balanced`, `gunslinger_balanced`, `hacker_balanced`, or the intentionally obsolete `unassigned_control`; `CG_CAMPAIGN_STRATEGY` and `CG_CAMPAIGN_CAREERS` narrow route policy and sample count.
+The campaign simulator now selects each prototype class and automatically spends earned attribute points through comparable 50/25/25 primary-attribute, Vitality, and Cunning policies. It reports final attributes and currency plus route/odds saturation, market and hangar spend, purchases, active transport, and seconds saved. `CG_CAMPAIGN_MARKET=active|off` and `CG_CAMPAIGN_TRANSPORT=active|off` compare the optional sinks; `CG_CAMPAIGN_BUILD` can isolate `breaker_balanced`, `gunslinger_balanced`, `hacker_balanced`, or the intentionally obsolete `unassigned_control`; `CG_CAMPAIGN_STRATEGY` and `CG_CAMPAIGN_CAREERS` narrow route policy and sample count.
 
 ## Project layout
 

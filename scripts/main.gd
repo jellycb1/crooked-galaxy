@@ -13,6 +13,8 @@ const CareerViewScript = preload("res://scripts/career_view.gd")
 const AttributesViewScript = preload("res://scripts/attributes_view.gd")
 const ClassesViewScript = preload("res://scripts/classes_view.gd")
 const MarketViewScript = preload("res://scripts/market_view.gd")
+const HangarViewScript = preload("res://scripts/hangar_view.gd")
+const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 
 var body: VBoxContainer
 var content: VBoxContainer
@@ -235,6 +237,8 @@ func render() -> void:
 				build_classes()
 			elif view_mode == "market":
 				build_market()
+			elif view_mode == "hangar":
+				build_hangar()
 			else:
 				build_board()
 		GameState.Phase.HUNT:
@@ -271,7 +275,7 @@ func render() -> void:
 
 func environment_context() -> String:
 	if GameState.phase == GameState.Phase.BOARD:
-		if view_mode == "arsenal" or view_mode == "market":
+		if view_mode == "arsenal" or view_mode == "market" or view_mode == "hangar":
 			return "workshop"
 		if view_mode == "galaxy" or view_mode == "career" or view_mode == "attributes" or view_mode == "classes":
 			return "world"
@@ -379,6 +383,15 @@ func build_board() -> void:
 		render()
 	)
 	actions.add_child(market)
+	var hangar := action_button("HANGAR DUVIDOSO", CYAN, true)
+	hangar.name = "BoardHangarAction"
+	hangar.custom_minimum_size = Vector2(160, 48)
+	hangar.add_theme_font_size_override("font_size", 11)
+	hangar.pressed.connect(func():
+		view_mode = "hangar"
+		render()
+	)
+	actions.add_child(hangar)
 	var galaxy := action_button("MAPA GALÁCTICO", CYAN, true)
 	galaxy.custom_minimum_size = Vector2(160, 48)
 	galaxy.add_theme_font_size_override("font_size", 12)
@@ -600,6 +613,10 @@ func build_market() -> void:
 	MarketViewScript.build(self, content, GameState)
 
 
+func build_hangar() -> void:
+	HangarViewScript.build(self, content, GameState)
+
+
 func onboarding_banner() -> PanelContainer:
 	var banner := panel(HBoxContainer.new(), Color("#173356"), 15, 15)
 	var row := banner.get_child(0) as HBoxContainer
@@ -784,7 +801,8 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 	var footer := HBoxContainer.new()
 	footer.add_theme_constant_override("separation", 10)
 	box.add_child(footer)
-	footer.add_child(label("◈ %d%s   ✦ %d XP   %ds" % [int(payout.credits), " +EMBALO" if int(payout.bonus_credits) > 0 else "", int(bounty.xp), int(bounty.duration)], 15, GOLD))
+	var hunt_duration := TransportRulesScript.effective_hunt_duration(GameState.player, float(bounty.duration))
+	footer.add_child(label("◈ %d%s   ✦ %d XP   %ds" % [int(payout.credits), " +EMBALO" if int(payout.bonus_credits) > 0 else "", int(bounty.xp), ceili(hunt_duration)], 15, GOLD))
 	var risk_text := "SEGURO" if odds >= 0.72 else ("ARRISCADO" if odds >= 0.42 else "BRUTAL")
 	var risk_color := LIME if odds >= 0.72 else (GOLD if odds >= 0.42 else CORAL)
 	var risk := label("%s · %d%%" % [risk_text, roundi(odds * 100.0)], 14, risk_color, HORIZONTAL_ALIGNMENT_RIGHT)
@@ -890,7 +908,8 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 	var metrics := HBoxContainer.new()
 	metrics.add_theme_constant_override("separation", 8)
 	box.add_child(metrics)
-	metrics.add_child(metric_chip("TEMPO", "%ds" % int(preview.duration), MUTED))
+	var hunt_duration := TransportRulesScript.effective_hunt_duration(GameState.player, float(preview.duration))
+	metrics.add_child(metric_chip("TEMPO", "%ds" % ceili(hunt_duration), MUTED))
 	metrics.add_child(metric_chip("CHANCE", "%d%%" % roundi(odds * 100.0), risk_color))
 	metrics.add_child(metric_chip("PAGAMENTO", "◈ %d" % int(evaluation.credits), GOLD))
 	metrics.add_child(metric_chip("EXPERIÊNCIA", "%d XP" % int(preview.xp), CYAN))
@@ -930,6 +949,9 @@ func build_hunt() -> void:
 	var approach: Dictionary = bounty.get("approach", {})
 	if not approach.is_empty():
 		content.add_child(center_label(str(approach.name).to_upper(), 16, Color(str(approach.color))))
+	var transport := TransportRulesScript.active_transport(GameState.player)
+	if not transport.is_empty():
+		content.add_child(center_label("%s · -%d%% TEMPO" % [str(transport.name), roundi(float(transport.speed_bonus) * 100.0)], 12, Color(str(transport.color))))
 	var field_test_record := field_test_record_label("HuntFieldTestContext")
 	if field_test_record != null:
 		content.add_child(field_test_record)
