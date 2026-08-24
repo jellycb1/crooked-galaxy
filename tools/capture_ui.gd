@@ -206,10 +206,31 @@ func capture() -> void:
 	if save_frame("ui_tested_route_override_hunt.png") != OK:
 		quit(1)
 		return
-	state.abandon_bounty()
+	state.hunt_event = ContentDB.HUNT_EVENTS[0].duplicate(true)
+	state.hunt_event_triggered = true
+	state.hunt_elapsed_before_event = 2.0
+	state.hunt_remaining_after_event = 3.0
+	state.phase = state.Phase.HUNT_EVENT
+	scene.render()
+	await process_frame
+	await process_frame
+	await create_timer(0.2).timeout
+	if save_frame("ui_tested_route_override_incident.png") != OK:
+		quit(1)
+		return
+	state.resolve_hunt_event(str(ContentDB.HUNT_EVENTS[0].choices[0].id))
+	state.begin_combat()
+	await process_frame
+	await process_frame
+	await create_timer(0.2).timeout
+	if save_frame("ui_tested_route_override_combat.png") != OK:
+		quit(1)
+		return
+	state.finish_combat(false)
 	await process_frame
 	state.last_notice = receipt_notice
 	state.player.capture_streak = receipt_streak
+	state.combat_summary = {}
 	scene.view_mode = "arsenal"
 	scene.render()
 	await process_frame

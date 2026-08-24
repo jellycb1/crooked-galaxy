@@ -132,9 +132,25 @@ func run_smoke_test() -> void:
 				await process_frame
 				var override_record := scene.find_child("HuntFieldTestContext", true, false) as Label
 				check(override_record != null and override_record.text.contains("SUBSTITUÍDA") and override_record.text.contains("→"), "hunt records a deliberate override of the tested route")
+				var override_text := override_record.text if override_record != null else ""
 				check(scene.briefing_context.is_empty(), "choosing a route clears transient briefing context after persisting the contract record")
-				state.abandon_bounty()
+				state.hunt_event = ContentDB.HUNT_EVENTS[0].duplicate(true)
+				state.hunt_event_triggered = true
+				state.hunt_elapsed_before_event = 2.0
+				state.hunt_remaining_after_event = 3.0
+				state.phase = state.Phase.HUNT_EVENT
+				scene.render()
 				await process_frame
+				var incident_test_record := scene.find_child("IncidentFieldTestContext", true, false) as Label
+				check(incident_test_record != null and incident_test_record.text == override_text, "hunt incident preserves the exact tested-route override record")
+				state.resolve_hunt_event(str(ContentDB.HUNT_EVENTS[0].choices[0].id))
+				state.begin_combat()
+				await process_frame
+				var combat_test_record := scene.find_child("CombatFieldTestContext", true, false) as Label
+				check(combat_test_record != null and combat_test_record.text == override_text, "combat preserves the exact tested-route override record beside the selected approach")
+				state.finish_combat(false)
+				await process_frame
+				state.combat_summary = {}
 	scene.view_mode = "board"
 	state.last_notice = "Contrato pago: Peça de Reserva guardado"
 	scene.render()

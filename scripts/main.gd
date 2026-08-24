@@ -635,6 +635,21 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 	return card
 
 
+func field_test_record_label(node_name: String) -> Label:
+	var context: Dictionary = GameState.current_bounty.get("field_test_context", {})
+	if context.is_empty():
+		return null
+	var text_value := "TESTE DE CAMPO CONFIRMADO · %s · %d%%" % [str(context.tested_approach_name).to_upper(), roundi(float(context.tested_odds) * 100.0)]
+	var text_color := LIME
+	if bool(context.overridden):
+		text_value = "ROTA TESTADA SUBSTITUÍDA · %s %d%% → %s" % [str(context.tested_approach_name).to_upper(), roundi(float(context.tested_odds) * 100.0), str(context.chosen_approach_name).to_upper()]
+		text_color = GOLD
+	var result := center_label(text_value, 13, text_color)
+	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	result.name = node_name
+	return result
+
+
 func build_hunt() -> void:
 	var bounty := GameState.current_bounty
 	content.add_spacer(false)
@@ -644,17 +659,9 @@ func build_hunt() -> void:
 	var approach: Dictionary = bounty.get("approach", {})
 	if not approach.is_empty():
 		content.add_child(center_label(str(approach.name).to_upper(), 16, Color(str(approach.color))))
-	var field_test_context: Dictionary = bounty.get("field_test_context", {})
-	if not field_test_context.is_empty():
-		var test_text := "TESTE DE CAMPO CONFIRMADO · %s · %d%%" % [str(field_test_context.tested_approach_name).to_upper(), roundi(float(field_test_context.tested_odds) * 100.0)]
-		var test_color := LIME
-		if bool(field_test_context.overridden):
-			test_text = "ROTA TESTADA SUBSTITUÍDA · %s %d%% → %s" % [str(field_test_context.tested_approach_name).to_upper(), roundi(float(field_test_context.tested_odds) * 100.0), str(field_test_context.chosen_approach_name).to_upper()]
-			test_color = GOLD
-		var test_label := center_label(test_text, 13, test_color)
-		test_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		test_label.name = "HuntFieldTestContext"
-		content.add_child(test_label)
+	var field_test_record := field_test_record_label("HuntFieldTestContext")
+	if field_test_record != null:
+		content.add_child(field_test_record)
 	content.add_child(center_label("Seguindo sinais, subornando robôs e fingindo ter um plano.", 16, MUTED))
 	if bounty.has("hunt_event_result"):
 		content.add_child(notice_banner(str(bounty.hunt_event_result), GOLD))
@@ -683,6 +690,9 @@ func build_hunt_event() -> void:
 	var accent := Color(str(event.get("color", "#ffc857")))
 	content.add_spacer(false)
 	content.add_child(center_label("IMPREVISTO NA CAÇADA", 17, CORAL))
+	var field_test_record := field_test_record_label("IncidentFieldTestContext")
+	if field_test_record != null:
+		content.add_child(field_test_record)
 	var incident := panel(VBoxContainer.new(), Color("#18264b"), 20, 22)
 	content.add_child(incident)
 	var incident_box := incident.get_child(0) as VBoxContainer
@@ -745,6 +755,9 @@ func build_combat() -> void:
 	var approach: Dictionary = GameState.current_bounty.get("approach", {})
 	var approach_suffix := " · %s" % str(approach.get("name", "")).to_upper() if not approach.is_empty() else ""
 	content.add_child(center_label("ENCONTRO AUTOMÁTICO · TURNO %d%s" % [GameState.combat_round, approach_suffix], 17, CORAL))
+	var field_test_record := field_test_record_label("CombatFieldTestContext")
+	if field_test_record != null:
+		content.add_child(field_test_record)
 	if GameState.current_bounty.has("hunt_event_result"):
 		var combat_payment := CoreRules.bounty_streak_reward(int(GameState.current_bounty.credits), int(GameState.player.get("capture_streak", 0)) + 1)
 		var incident_text := "INCIDENTE APLICADO · %s · PAGAMENTO ◈ %d" % [str(GameState.current_bounty.hunt_event_result), int(combat_payment.credits)]

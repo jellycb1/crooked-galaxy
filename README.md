@@ -36,6 +36,8 @@ Briefings opened through that handoff display the tested route and odds as confi
 
 The active hunt persists whether the player confirmed that tested route or deliberately replaced it, so the decision remains visible through interruptions and later incident resolution.
 
+That compact tested-versus-chosen record is reused on the paused incident and automatic-combat screens, alongside the selected approach and incident-adjusted payment.
+
 Every reward with a next warrant translates the full pending receipt—XP level gains plus the chosen equipment state—into same-route win odds before and after claiming, directly connecting loot to the next hunt and the workshop field test.
 
 Automatic combat retains the selected incident result and adjusted payment above the encounter, preserving economic context through resolution.
