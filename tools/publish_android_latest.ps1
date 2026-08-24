@@ -20,7 +20,13 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $Commit = (& git -C $ProjectRoot rev-parse --short HEAD).Trim()
-$Notes = "Automated Android test build from commit $Commit. ARM64, debug-signed for direct testing."
+$ProjectText = Get-Content -LiteralPath (Join-Path $ProjectRoot "project.godot") -Raw
+$VersionMatch = [regex]::Match($ProjectText, 'config/version="([^"]+)"')
+if (-not $VersionMatch.Success) {
+    throw "Could not resolve config/version from project.godot."
+}
+$Version = $VersionMatch.Groups[1].Value
+$Notes = "Crooked Galaxy $Version Android test build from commit $Commit. ARM64, update-compatible debug signature for direct testing."
 
 & gh release view latest --repo $Repository *> $null
 if ($LASTEXITCODE -eq 0) {

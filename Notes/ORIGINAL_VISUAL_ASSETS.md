@@ -12,6 +12,7 @@ Generated on 2026-08-24 with the built-in OpenAI image-generation workflow. No r
 ## Production constraints
 
 - Portrait 9:16 composition for the 720×1280 logical viewport.
+- Godot import limits every texture to a 1280-pixel longest edge, matching the logical viewport and avoiding oversized mobile residency.
 - Hand-painted, satirical science-fiction environment style with an original design language.
 - No embedded UI, text, letters, numbers, logos, trademarks, watermarks, or recognizable third-party characters.
 - Environment detail remains near the frame; central contrast is controlled by `EnvironmentBackdrop` scrims.
