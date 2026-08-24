@@ -47,7 +47,11 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	class_copy.add_child(host.label("CLASSE", 11, host.MUTED))
 	class_copy.add_child(host.label(ClassRulesScript.class_name_for(class_id), 17, host.GOLD if not class_definition.is_empty() else host.CORAL))
 	if not class_definition.is_empty():
-		class_copy.add_child(host.label("PRINCIPAL · %s · +%d PODER" % [str(class_definition.primary_name), ClassRulesScript.specialization_power(state.player, Rules.BASE_ATTRIBUTE_VALUE)], 11, host.LIME))
+		var class_effect := "PRINCIPAL · %s · +%d PODER" % [str(class_definition.primary_name), ClassRulesScript.specialization_power(state.player, Rules.BASE_ATTRIBUTE_VALUE)]
+		var class_opening := ClassRulesScript.specialization_opening_damage(state.player, Rules.BASE_ATTRIBUTE_VALUE)
+		if class_opening > 0:
+			class_effect += " · +%d ABERTURA" % class_opening
+		class_copy.add_child(host.label(class_effect, 11, host.LIME))
 	var choose_class := host.action_button("TROCAR" if not class_definition.is_empty() else "ESCOLHER", host.CYAN, true)
 	choose_class.name = "ChooseClassAction"
 	choose_class.custom_minimum_size = Vector2(112, 48)

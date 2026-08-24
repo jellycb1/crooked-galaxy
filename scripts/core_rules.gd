@@ -70,7 +70,7 @@ static func item_damage_reduction(item: Dictionary) -> int:
 
 
 static func player_opening_damage(player: Dictionary) -> int:
-	return item_opening_damage(player.get("weapon", {})) + item_opening_damage(player.get("armor", {})) + floori(float(attribute_investment(player, "intelligence")) / 2.0)
+	return item_opening_damage(player.get("weapon", {})) + item_opening_damage(player.get("armor", {})) + floori(float(attribute_investment(player, "intelligence")) / 2.0) + ClassRulesScript.specialization_opening_damage(player, BASE_ATTRIBUTE_VALUE)
 
 
 static func player_damage_reduction(player: Dictionary) -> int:

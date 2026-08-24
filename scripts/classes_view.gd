@@ -78,6 +78,9 @@ static func class_card(host: CrookedUIFactory, definition: Dictionary, pending_i
 	var flavor := host.label(str(definition.flavor), 11, host.MUTED)
 	flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(flavor)
+	var specialization := host.label("ESPECIALIZAÇÃO · %s" % str(definition.specialization), 10, host.GOLD)
+	specialization.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	copy.add_child(specialization)
 	var choose := host.action_button("MARCADO" if selected else "ESCOLHER", host.GOLD if selected else host.CYAN, true)
 	choose.name = "ClassSelect_%s" % class_id
 	choose.custom_minimum_size = Vector2(104, 48)

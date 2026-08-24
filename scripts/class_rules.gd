@@ -10,6 +10,7 @@ const DEFINITIONS := [
 		"primary_name": "FORÇA",
 		"tagline": "Impacto, armamento pesado e cobranças sem sutileza.",
 		"flavor": "Resolve contratos pesados com ferramentas ainda mais pesadas.",
+		"specialization": "+1 Poder a cada 2 pontos de Força investidos.",
 	},
 	{
 		"id": "orbit_gunslinger",
@@ -18,6 +19,7 @@ const DEFINITIONS := [
 		"primary_name": "DESTREZA",
 		"tagline": "Reflexos, posicionamento e precisão em movimento.",
 		"flavor": "Transforma ângulos ruins e probabilidades piores em vantagem.",
+		"specialization": "+1 Poder a cada 2 pontos de Destreza investidos.",
 	},
 	{
 		"id": "contract_hacker",
@@ -26,6 +28,7 @@ const DEFINITIONS := [
 		"primary_name": "INTELIGÊNCIA",
 		"tagline": "Dispositivos, abertura tática e tecnologia improvisada.",
 		"flavor": "Reescreve fechaduras, drones e ocasionalmente a definição de legal.",
+		"specialization": "+1 Poder a cada 2 pontos e +2 abertura por Inteligência investida.",
 	},
 ]
 
@@ -61,3 +64,10 @@ static func specialization_power(player: Dictionary, base_attribute_value: int) 
 		return 0
 	var value := int(player.get("attributes", {}).get(attribute_id, base_attribute_value))
 	return floori(float(maxi(0, value - base_attribute_value)) / 2.0)
+
+
+static func specialization_opening_damage(player: Dictionary, base_attribute_value: int) -> int:
+	if str(player.get("class_id", UNASSIGNED_ID)) != "contract_hacker":
+		return 0
+	var value := int(player.get("attributes", {}).get("intelligence", base_attribute_value))
+	return maxi(0, value - base_attribute_value) * 2

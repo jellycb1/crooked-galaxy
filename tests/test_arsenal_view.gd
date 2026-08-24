@@ -105,6 +105,24 @@ func _init() -> void:
 	check(ArsenalScript.filtered_inventory(host, state).size() == 2, "renderer receives inventory through explicit state")
 	host.inventory_filter = "weapon"
 	check(ArsenalScript.filtered_inventory(host, state).size() == 1, "renderer preserves host filter state")
+	host.inventory_filter = "all"
+	state.player.inventory.clear()
+	for index in 30:
+		state.player.inventory.append({"id": "page_%02d" % index, "name": "Peça %02d" % index, "slot": "weapon" if index % 2 == 0 else "armor", "power": index + 1, "rarity": "Comum", "color": "#b9c2d9"})
+	host.inventory_page = 0
+	var first_page := ArsenalScript.paginated_inventory(host, state)
+	check(first_page.items.size() == ArsenalScript.INVENTORY_PAGE_SIZE and int(first_page.page_count) == 3, "inventory pagination bounds the rendered card window")
+	host.inventory_page = 2
+	var last_page := ArsenalScript.paginated_inventory(host, state)
+	check(last_page.items.size() == 6 and int(last_page.page) == 2, "final inventory page keeps the exact remainder")
+	host.inventory_page = 99
+	check(int(ArsenalScript.paginated_inventory(host, state).page) == 2, "inventory page clamps after filtering, recycling, or stale navigation")
+	clear_children(content)
+	ArsenalScript.build(host, content, state)
+	check(host.find_children("InventoryItem_*", "PanelContainer", true, false).size() == 6, "arsenal builds only the active page's item cards")
+	var previous_page := host.find_child("InventoryPagePrevious", true, false) as Button
+	var next_page := host.find_child("InventoryPageNext", true, false) as Button
+	check(previous_page != null and not previous_page.disabled and next_page != null and next_page.disabled, "pager exposes correct boundary actions on the last page")
 	state.last_notice = "Rota confirmada: Congelária S.A."
 	state.last_notice_context = "travel"
 	clear_children(content)

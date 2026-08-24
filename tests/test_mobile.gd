@@ -23,6 +23,8 @@ func run_mobile_audit() -> void:
 		{"id": "mobile_weapon", "name": "Arma de Bolso", "slot": "weapon", "power": 4, "rarity": "Raro", "color": "#58d9ff"},
 		{"id": "mobile_armor", "name": "Colete de Bolso", "slot": "armor", "power": 4, "rarity": "Comum", "color": "#b9c2d9"},
 	]
+	for index in 28:
+		state.player.inventory.append({"id": "mobile_page_%02d" % index, "name": "Peça Móvel %02d" % index, "slot": "weapon" if index % 2 == 0 else "armor", "power": index + 2, "rarity": "Comum", "color": "#b9c2d9"})
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
@@ -47,6 +49,13 @@ func run_mobile_audit() -> void:
 	var inventory_scroll := scene.find_child("InventoryScroll", true, false) as ScrollContainer
 	check(inventory_scroll != null and inventory_scroll.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "arsenal disables horizontal scrolling")
 	check(inventory_scroll != null and inventory_scroll.size.y >= 48.0, "arsenal reserves a complete touch row for the inventory on mobile (actual %.1f)" % (inventory_scroll.size.y if inventory_scroll != null else -1.0))
+	check(scene.find_children("InventoryItem_*", "PanelContainer", true, false).size() == 12, "mobile arsenal instantiates only one bounded inventory page")
+	var next_inventory_page := scene.find_child("InventoryPageNext", true, false) as Button
+	check(next_inventory_page != null and next_inventory_page.custom_minimum_size.y >= 48.0, "inventory pager preserves a complete mobile touch target")
+	if next_inventory_page != null:
+		next_inventory_page.pressed.emit()
+		await process_frame
+	check(scene.inventory_page == 1 and (scene.find_child("InventoryPageStatus", true, false) as Label).text == "2 / 3", "mobile inventory navigation advances one page without touching the save")
 
 	scene.view_mode = "career"
 	scene.render()

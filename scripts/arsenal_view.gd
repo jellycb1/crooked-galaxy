@@ -6,6 +6,7 @@ const Rules = preload("res://scripts/core_rules.gd")
 const Content = preload("res://scripts/content_db.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
+const INVENTORY_PAGE_SIZE := 12
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
@@ -73,8 +74,9 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	equipped_row.add_child(workshop_upgrade_card(host, state, "armor", workshop_recommendation))
 	content.add_child(loadout_toolbar(host, state))
 
-	var visible_items := filtered_inventory(host, state)
-	content.add_child(host.label("ITENS ENCONTRADOS · %d / %d" % [visible_items.size(), state.player.inventory.size()], 14, host.MUTED))
+	var page_data := paginated_inventory(host, state)
+	var visible_items: Array = page_data.items
+	content.add_child(inventory_header(host, page_data, state.player.inventory.size()))
 	content.add_child(inventory_toolbar(host, state))
 	var scroller := ScrollContainer.new()
 	scroller.name = "InventoryScroll"
@@ -123,6 +125,58 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 
 static func filtered_inventory(host: CrookedUIFactory, state: StateScript) -> Array:
 	return EquipmentPresentation.filtered_inventory(state.player.inventory, host.inventory_filter, host.inventory_sort)
+
+
+static func paginated_inventory(host: CrookedUIFactory, state: StateScript) -> Dictionary:
+	# Cards only read item dictionaries. Sorting references avoids deep-copying an
+	# unbounded inventory before retaining the small visible page.
+	var filtered := EquipmentPresentation.filtered_inventory_refs(state.player.inventory, host.inventory_filter, host.inventory_sort)
+	var page_count := maxi(1, ceili(float(filtered.size()) / float(INVENTORY_PAGE_SIZE)))
+	host.inventory_page = clampi(host.inventory_page, 0, page_count - 1)
+	var first := host.inventory_page * INVENTORY_PAGE_SIZE
+	var last := mini(filtered.size(), first + INVENTORY_PAGE_SIZE)
+	return {
+		"items": filtered.slice(first, last),
+		"filtered_count": filtered.size(),
+		"page": host.inventory_page,
+		"page_count": page_count,
+	}
+
+
+static func inventory_header(host: CrookedUIFactory, page_data: Dictionary, inventory_count: int) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.name = "InventoryPager"
+	row.add_theme_constant_override("separation", 8)
+	var summary := host.label("ITENS · %d / %d" % [int(page_data.filtered_count), inventory_count], 13, host.MUTED)
+	summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(summary)
+	if int(page_data.page_count) <= 1:
+		return row
+	var previous := host.action_button("‹", host.CYAN, true)
+	previous.name = "InventoryPagePrevious"
+	previous.custom_minimum_size = Vector2(48, 48)
+	previous.tooltip_text = "Página anterior do inventário"
+	previous.disabled = int(page_data.page) <= 0
+	previous.pressed.connect(func():
+		host.inventory_page = maxi(0, host.inventory_page - 1)
+		host.call("render")
+	)
+	row.add_child(previous)
+	var status := host.center_label("%d / %d" % [int(page_data.page) + 1, int(page_data.page_count)], 12, host.GOLD)
+	status.name = "InventoryPageStatus"
+	status.custom_minimum_size = Vector2(54, 48)
+	row.add_child(status)
+	var next := host.action_button("›", host.CYAN, true)
+	next.name = "InventoryPageNext"
+	next.custom_minimum_size = Vector2(48, 48)
+	next.tooltip_text = "Próxima página do inventário"
+	next.disabled = int(page_data.page) >= int(page_data.page_count) - 1
+	next.pressed.connect(func():
+		host.inventory_page = mini(int(page_data.page_count) - 1, host.inventory_page + 1)
+		host.call("render")
+	)
+	row.add_child(next)
+	return row
 
 
 static func field_readiness(state: StateScript) -> Dictionary:
@@ -277,9 +331,13 @@ static func inventory_toolbar(host: CrookedUIFactory, state: StateScript) -> VBo
 		filter_button.add_theme_font_size_override("font_size", 10)
 		filter_button.pressed.connect(func():
 			host.inventory_filter = mode
+			host.inventory_page = 0
 			host.call("render")
 		)
 		filters.add_child(filter_button)
+	var utility_row := HBoxContainer.new()
+	utility_row.add_theme_constant_override("separation", 6)
+	toolbar.add_child(utility_row)
 	var sort := host.action_button("ORDEM · %s" % ("RARIDADE" if host.inventory_sort == "rarity" else "PODER"), host.GOLD, true)
 	sort.name = "InventorySort"
 	sort.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -287,18 +345,20 @@ static func inventory_toolbar(host: CrookedUIFactory, state: StateScript) -> VBo
 	sort.add_theme_font_size_override("font_size", 10)
 	sort.pressed.connect(func():
 		host.inventory_sort = "rarity" if host.inventory_sort == "power" else "power"
+		host.inventory_page = 0
 		host.call("render")
 	)
-	toolbar.add_child(sort)
+	utility_row.add_child(sort)
 	var preview := state.inferior_recycle_preview()
-	var recycle := host.action_button("RECICLAR INFERIORES · %d PEÇAS · +%d SUCATA" % [int(preview.count), int(preview.scrap)], host.CORAL if int(preview.count) > 0 else host.MUTED, true)
+	var recycle := host.action_button("RECICLAR · %d · +%d" % [int(preview.count), int(preview.scrap)], host.CORAL if int(preview.count) > 0 else host.MUTED, true)
 	recycle.name = "RecycleInferior"
+	recycle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	recycle.disabled = int(preview.count) <= 0
 	recycle.custom_minimum_size = Vector2(0, 46)
-	recycle.add_theme_font_size_override("font_size", 11)
+	recycle.add_theme_font_size_override("font_size", 10)
 	recycle.tooltip_text = "Recicla apenas peças comuns sem modificações ou investimento que não superam o efeito atual."
 	recycle.pressed.connect(state.recycle_inferior_inventory)
-	toolbar.add_child(recycle)
+	utility_row.add_child(recycle)
 	return toolbar
 
 
@@ -346,6 +406,7 @@ static func loadout_toolbar(host: CrookedUIFactory, state: StateScript) -> HBoxC
 
 static func inventory_item_card(host: CrookedUIFactory, state: StateScript, item: Dictionary) -> PanelContainer:
 	var card := host.panel(HBoxContainer.new(), host.PANEL, 15, 15)
+	card.name = "InventoryItem_%s" % str(item.get("id", "unknown"))
 	var row := card.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 12)
 	var icon := host.equipment_icon(item, 58)

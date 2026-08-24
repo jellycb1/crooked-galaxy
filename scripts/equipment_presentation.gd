@@ -5,10 +5,15 @@ const CoreRules = preload("res://scripts/core_rules.gd")
 
 
 static func filtered_inventory(inventory: Array, slot_filter: String, sort_mode: String) -> Array:
+	var items := filtered_inventory_refs(inventory, slot_filter, sort_mode)
+	return items.map(func(item): return item.duplicate(true))
+
+
+static func filtered_inventory_refs(inventory: Array, slot_filter: String, sort_mode: String) -> Array:
 	var items: Array = []
 	for item in inventory:
 		if slot_filter == "all" or str(item.get("slot", "")) == slot_filter:
-			items.append(item.duplicate(true))
+			items.append(item)
 	items.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return inventory_item_before(a, b, sort_mode)
 	)

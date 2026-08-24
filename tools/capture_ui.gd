@@ -387,6 +387,20 @@ func capture() -> void:
 	if save_frame("ui_arsenal_filtered.png") != OK:
 		quit(1)
 		return
+	var inventory_before_paging: Array = state.player.inventory.duplicate(true)
+	for page_index in 30:
+		state.player.inventory.append({"id": "capture_page_%02d" % page_index, "name": "Peça Retida %02d" % page_index, "slot": "weapon" if page_index % 2 == 0 else "armor", "power": page_index + 2, "rarity": "Raro" if page_index % 3 == 0 else "Comum", "color": "#58d9ff" if page_index % 3 == 0 else "#b9c2d9"})
+	scene.inventory_filter = "all"
+	scene.inventory_sort = "power"
+	scene.inventory_page = 1
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_arsenal_paged.png") != OK:
+		quit(1)
+		return
+	state.player.inventory = inventory_before_paging
+	scene.inventory_page = 0
 	state.player.current_planet_id = "ferro_velho_omega"
 	state.player.level = 16
 	state.player.base_power = 40
@@ -731,7 +745,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters/paging, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

@@ -33,6 +33,29 @@ func run_classes_test() -> void:
 		specialized.class_id = str(definition.id)
 		check(Rules.player_power(specialized) == Rules.player_power(unassigned) + 1, "%s gains the documented primary-stat specialization" % str(definition.name))
 
+	var neutral_intelligence: Dictionary = state.default_player()
+	neutral_intelligence.attributes.intelligence = 12
+	var hacker: Dictionary = neutral_intelligence.duplicate(true)
+	hacker.class_id = "contract_hacker"
+	check(Rules.player_opening_damage(hacker) == Rules.player_opening_damage(neutral_intelligence) + 4, "contract hacker converts each invested intelligence point into two additional opening damage")
+	var breaker: Dictionary = state.default_player()
+	breaker.attributes.strength = 12
+	breaker.class_id = "warrant_breaker"
+	var gunslinger: Dictionary = state.default_player()
+	gunslinger.attributes.dexterity = 12
+	gunslinger.class_id = "orbit_gunslinger"
+	var baron_profile := {"level": 1, "base_power": 10, "weapon": {"power": 6}, "armor": {"power": 1}}
+	for key in ["attributes", "class_id"]:
+		baron_profile[key] = hacker[key]
+	var hacker_odds := Rules.bounty_odds(baron_profile, ContentDB.TARGETS[1])
+	for key in ["attributes", "class_id"]:
+		baron_profile[key] = breaker[key]
+	var breaker_odds := Rules.bounty_odds(baron_profile, ContentDB.TARGETS[1])
+	for key in ["attributes", "class_id"]:
+		baron_profile[key] = gunslinger[key]
+	var gunslinger_odds := Rules.bounty_odds(baron_profile, ContentDB.TARGETS[1])
+	check(hacker_odds >= 0.65 and hacker_odds <= breaker_odds and hacker_odds > gunslinger_odds, "opening specialization closes the early hacker gap without overtaking the strength specialist")
+
 	check(not state.select_class("totally_real_class"), "unknown classes cannot enter the save")
 	check(state.select_class("warrant_breaker") and str(state.player.class_id) == "warrant_breaker", "a valid board selection commits immediately")
 	check(state.select_class("contract_hacker") and str(state.player.class_id) == "contract_hacker", "early-access reclassification remains free and reversible")
