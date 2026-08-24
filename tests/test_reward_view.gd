@@ -24,6 +24,8 @@ func _init() -> void:
 	var streak_start := host.find_child("RewardStreakStart", true, false) as Label
 	check(streak_start != null and streak_start.text.contains("×1") and streak_start.text.contains("PRÓXIMA CAPTURA"), "first reward explains streak restart and when its bonus begins")
 	check(host.find_child("RewardMasteryProgress", true, false) != null, "isolated reward previews progress from the pending capture")
+	var repeat_value := host.find_child("RewardRepeatValue", true, false) as Label
+	check(repeat_value != null and repeat_value.text.contains("EMBALO ×2") and repeat_value.text.contains("+5%"), "regular reward quantifies the next consecutive-capture value")
 	check(host.find_child("ClaimAndRepeat", true, false) != null and host.find_child("ClaimAndBoard", true, false) != null, "isolated reward preserves repeat and board decisions")
 
 	clear_content(content)
@@ -55,6 +57,7 @@ func _init() -> void:
 	state.player.captures_by_planet = {ContentDB.PLANET.id: 2}
 	RewardScript.build(host, content, state)
 	check(host.find_child("RewardWarrantUnlock", true, false) != null, "isolated reward previews a threshold unlock")
+	check(host.find_child("RewardRepeatValue", true, false) == null, "new-warrant threshold does not distract with obsolete repeat value")
 	var warrant_odds := host.find_child("RewardWarrantOdds", true, false) as Label
 	check(warrant_odds != null and warrant_odds.text.contains("BARÃO BOOM") == false and warrant_odds.text.contains("%"), "threshold reward previews the best post-loot route and its odds")
 	check(host.find_child("ClaimAndRepeat", true, false) == null and host.find_child("ClaimAndUnlock", true, false) != null, "threshold unlock prioritizes the expanded board")
