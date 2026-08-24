@@ -34,6 +34,7 @@ function Require-ConfigMatch {
 Require-ConfigMatch $ProjectText '^window/size/viewport_width=720$' "portrait viewport width must remain 720"
 Require-ConfigMatch $ProjectText '^window/size/viewport_height=1280$' "portrait viewport height must remain 1280"
 Require-ConfigMatch $ProjectText '^window/handheld/orientation=1$' "handheld orientation must remain portrait"
+Require-ConfigMatch $ProjectText '^window/stretch/aspect="expand"$' "modern portrait screens must expand instead of letterboxing"
 Require-ConfigMatch $ProjectText '^renderer/rendering_method.mobile="gl_compatibility"$' "mobile renderer must remain GL Compatibility"
 Require-ConfigMatch $ProjectText '^textures/vram_compression/import_etc2_astc=true$' "mobile texture compression must remain enabled"
 Require-ConfigMatch $PresetText '^architectures/armeabi-v7a=false$' "32-bit ARM must remain excluded from the compact APK"

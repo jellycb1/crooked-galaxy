@@ -99,6 +99,7 @@ func check_android_first_project_profile() -> void:
 	check(int(ProjectSettings.get_setting("display/window/size/viewport_height", 0)) == 1280, "project keeps the 1280-unit portrait design height")
 	check(int(ProjectSettings.get_setting("display/window/handheld/orientation", 0)) == 1, "handheld orientation remains portrait")
 	check(str(ProjectSettings.get_setting("display/window/stretch/mode", "")) == "canvas_items", "mobile layout uses canvas-items stretching")
+	check(str(ProjectSettings.get_setting("display/window/stretch/aspect", "")) == "expand", "modern tall screens expand beyond the 9:16 minimum instead of letterboxing")
 	check(str(ProjectSettings.get_setting("rendering/renderer/rendering_method.mobile", "")) == "gl_compatibility", "mobile renderer stays on the broad-compatibility path")
 	check(bool(ProjectSettings.get_setting("rendering/textures/vram_compression/import_etc2_astc", false)), "mobile texture compression remains enabled")
 
