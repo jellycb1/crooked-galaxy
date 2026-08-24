@@ -5,6 +5,9 @@ const INTEGRITY_HEALTH_PER_LEVEL := 8
 const MAX_INTEGRITY_UPGRADES := 5
 const PLANETARY_KIT_POWER_BONUS := 1
 const PLANETARY_KIT_HEALTH_BONUS := 6
+const BOUNTY_ODDS_CACHE_LIMIT := 512
+
+static var bounty_odds_cache: Dictionary = {}
 
 
 static func player_power(player: Dictionary) -> int:
@@ -112,9 +115,16 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 	# deterministic for identical stats, so UI percentages never flicker.
 	const TRIALS := 1024
 	var hunter_health := max_health(player)
+	var hunter_power := player_power(player)
+	var armor_power := int(player.get("armor", {}).get("power", 0))
+	var opening_damage := player_opening_damage(player)
+	var damage_reduction := player_damage_reduction(player)
 	var target_power := int(target.get("power", 1))
 	var target_defense := int(target.get("defense", 0))
 	var target_health := int(target.get("health", 1))
+	var cache_key := "%d:%d:%d:%d:%d:%d:%d:%d" % [hunter_health, hunter_power, armor_power, opening_damage, damage_reduction, target_power, target_defense, target_health]
+	if bounty_odds_cache.has(cache_key):
+		return float(bounty_odds_cache[cache_key])
 	var rng := RandomNumberGenerator.new()
 	# Builds facing the same target share the exact roll stream. This common-random
 	# comparison prevents a real upgrade from displaying lower odds due to sample noise.
@@ -131,7 +141,15 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 				wins += 1
 				break
 			player_hp -= enemy_attack_damage(player, target_power, rng.randf())
-	return clampf(float(wins) / float(TRIALS), 0.01, 0.99)
+	var result := clampf(float(wins) / float(TRIALS), 0.01, 0.99)
+	if bounty_odds_cache.size() >= BOUNTY_ODDS_CACHE_LIMIT:
+		bounty_odds_cache.clear()
+	bounty_odds_cache[cache_key] = result
+	return result
+
+
+static func clear_bounty_odds_cache() -> void:
+	bounty_odds_cache.clear()
 
 
 static func is_upgrade(item: Dictionary, equipped: Dictionary) -> bool:

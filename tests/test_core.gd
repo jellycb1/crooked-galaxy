@@ -110,10 +110,16 @@ func test_bounty_streak_rewards() -> void:
 
 
 func test_bounty_odds() -> void:
+	Rules.clear_bounty_odds_cache()
 	var player := {"level": 1, "base_power": 10, "weapon": {"power": 1}, "armor": {"power": 1}}
 	var easy := {"power": 4, "defense": 1, "health": 20}
 	var brutal := {"power": 99, "defense": 30, "health": 999}
-	check(Rules.bounty_odds(player, easy) > 0.9, "easy fights show strong odds")
+	var easy_odds := Rules.bounty_odds(player, easy)
+	check(easy_odds > 0.9, "easy fights show strong odds")
+	check(Rules.bounty_odds_cache.size() == 1, "first unique build-target pair populates the odds cache")
+	var irrelevant_change := player.duplicate(true)
+	irrelevant_change.credits = 99999
+	check(is_equal_approx(Rules.bounty_odds(irrelevant_change, easy), easy_odds) and Rules.bounty_odds_cache.size() == 1, "noncombat player fields reuse the deterministic odds result")
 	check(Rules.bounty_odds(player, brutal) < 0.1, "brutal fights show low odds")
 	var upgraded := {"level": 1, "base_power": 10, "weapon": {"power": 6}, "armor": {"power": 1}}
 	var safe_baron := Content.apply_approach(Content.TARGETS[1], Content.CONTRACT_APPROACHES[0])
