@@ -74,6 +74,30 @@ func _init() -> void:
 	check(str(restored.combat_summary.target_name) == str(ContentDB.TARGETS[0].name) and int(restored.combat_summary.enemy_hp_remaining) <= int(restored.combat_summary.target_max_health), "combat evidence restores canonical target identity and bounded remaining health")
 	check(not restored.combat_summary.has("kit_origin"), "combat evidence cannot retain an unknown planetary kit")
 
+	restored.player.wins = 2
+	restored.player.captures_by_target = {"gloop": 2}
+	restored.player.captures_by_planet = {"dustball_prime": 2}
+	restored.save_game()
+	restored.open_reward()
+	var reward_credits_before := int(restored.player.credits)
+	var reward_scrap_before := int(restored.player.scrap)
+	var reward_inventory_before: int = restored.player.inventory.size()
+	var atomic_reward := restored.claim_reward(true)
+	check(int(atomic_reward.mastery_scrap) == 6 and int(restored.player.scrap) == reward_scrap_before + 8, "third corporate capture atomically grants contract and mastery scrap")
+	check(int(restored.player.credits) == reward_credits_before + int(atomic_reward.credits) and int(restored.player.captures_by_target.gloop) == 3, "reward claim atomically applies credits and capture progression")
+	check(restored.player.inventory.size() == reward_inventory_before + 2 and restored.pending_loot.is_empty(), "reward claim atomically stores loot, retains replaced equipment, and clears the pending item")
+	var restored_after_reward = StateScript.new()
+	restored_after_reward.save_path = test_save
+	restored_after_reward.load_game()
+	check(restored_after_reward.phase == restored_after_reward.Phase.BOARD and int(restored_after_reward.player.credits) == int(restored.player.credits) and int(restored_after_reward.player.scrap) == int(restored.player.scrap), "reload after claim preserves the single credit and scrap transaction")
+	check(int(restored_after_reward.player.captures_by_target.gloop) == 3 and restored_after_reward.pending_loot.is_empty(), "reload after claim preserves progression without resurrecting pending loot")
+	var claimed_credits := int(restored_after_reward.player.credits)
+	var claimed_scrap := int(restored_after_reward.player.scrap)
+	var claimed_inventory: int = restored_after_reward.player.inventory.size()
+	check(restored_after_reward.claim_reward(true).is_empty(), "claimed reward cannot execute again outside the reward phase")
+	check(int(restored_after_reward.player.credits) == claimed_credits and int(restored_after_reward.player.scrap) == claimed_scrap and restored_after_reward.player.inventory.size() == claimed_inventory, "rejected duplicate claim leaves every reward total unchanged")
+	restored_after_reward.free()
+
 	source.phase = source.Phase.BOARD
 	source.current_bounty = {}
 	source.pending_loot = {}

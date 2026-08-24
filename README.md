@@ -38,6 +38,8 @@ If a paid choice is unaffordable, its disabled action states the exact missing c
 
 Incident resolution is persisted atomically with its cost and applied choice: reloading resumes the mutated hunt, cannot charge the same option twice, and cannot resurrect it after abandonment.
 
+Reward claiming has the same transaction guarantee across credits, XP/captures, contract and mastery scrap, equipment/inventory changes, and pending-loot cleanup; reload cannot execute the receipt twice.
+
 The reward receipt retains paid incident cost and reconciles gross payout with the exact net wallet gain from before the choice.
 
 Claim summaries and the persistent board/workshop record name whether the captured item was equipped, stored, or recycled, including the exact item name.
