@@ -77,6 +77,31 @@ func capture() -> void:
 		quit(1)
 		return
 	state.player = state.default_player()
+	state.player.wins = 1
+	state.player.capture_streak = 1
+	state.player.best_capture_streak = 1
+	state.player.captures_by_target = {"gloop": 1}
+	state.player.captures_by_planet = {"dustball_prime": 1}
+	state.phase = state.Phase.REWARD
+	state.current_bounty = ContentDB.apply_approach(ContentDB.TARGETS[0], ContentDB.CONTRACT_APPROACHES[0])
+	state.pending_loot = {"id": "second_capture_armor", "name": "Colete de Duas Parcelas", "description": "A segunda ainda persegue o antigo dono.", "slot": "armor", "power": 3, "rarity": "Comum", "color": "#b9c2d9", "origin_planet_id": "dustball_prime"}
+	state.last_notice = ""
+	state.last_notice_context = ""
+	scene.render()
+	await process_frame
+	await process_frame
+	await create_timer(0.42).timeout
+	if save_frame("ui_second_reward.png") != OK:
+		quit(1)
+		return
+	state.claim_reward(true)
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_second_claim_board.png") != OK:
+		quit(1)
+		return
+	state.player = state.default_player()
 	state.phase = state.Phase.BOARD
 	state.current_bounty = {}
 	state.pending_loot = {}
@@ -663,7 +688,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, first-session reward handoff, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, first/second-session reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

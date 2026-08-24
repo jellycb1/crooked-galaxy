@@ -61,27 +61,6 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		box.add_child(mastery_label)
 	var captures_after_reward := previous_captures + 1
 	var mastery_after_reward := Rules.target_mastery_level(captures_after_reward)
-	if mastery_after_reward > reward_mastery:
-		var mastery_unlock := host.center_label("NOVA PERÍCIA AO RECEBER · NÍVEL %d/3" % mastery_after_reward, 13, host.GOLD)
-		mastery_unlock.name = "RewardMasteryUnlock"
-		box.add_child(mastery_unlock)
-		var mastery_bonus := host.center_label("+%d%% RARO · +%d%% ÉPICO · OFICINA +%d SUCATA" % [mastery_after_reward * 5, mastery_after_reward * 2, Rules.target_mastery_scrap_reward(mastery_after_reward)], 12, host.LIME)
-		mastery_bonus.name = "RewardMasteryUnlockBonus"
-		box.add_child(mastery_bonus)
-	elif captures_after_reward > 1:
-		var next_mastery_requirement := Rules.target_mastery_next_requirement(reward_mastery)
-		if next_mastery_requirement > 0:
-			var mastery_progress := host.center_label("PRÓXIMA PERÍCIA · %d/%d CAPTURAS" % [captures_after_reward, next_mastery_requirement], 12, host.CYAN)
-			mastery_progress.name = "RewardMasteryProgress"
-			box.add_child(mastery_progress)
-	if int(reward_preview.bonus_credits) > 0:
-		var streak_bonus := host.center_label("EMBALO ×%d · +%d créditos (+%d%%)" % [int(reward_preview.streak), int(reward_preview.bonus_credits), int(reward_preview.bonus_percent)], 14, host.LIME)
-		streak_bonus.name = "RewardStreakBonus"
-		box.add_child(streak_bonus)
-	elif int(reward_preview.streak) == 1:
-		var streak_start := host.center_label("EMBALO REINICIADO ×1 · BÔNUS COMEÇA NA PRÓXIMA CAPTURA", 12, host.CYAN)
-		streak_start.name = "RewardStreakStart"
-		box.add_child(streak_start)
 	var planet_id := str(state.current_bounty.get("planet_id", Content.PLANET.id))
 	var captures_before: Dictionary = state.player.get("captures_by_target", {})
 	var captures_after := captures_before.duplicate(true)
@@ -92,12 +71,37 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var progress_after := Content.warrant_progress(planet_id, captures_after)
 	var next_target: Dictionary = Content.target_for_planet_tier(planet_id, tier_after) if tier_after > tier_before else progress_after.next_target
 	var unlocks_new_warrant := tier_after > tier_before and not next_target.is_empty()
+	var combined_next_capture := captures_after_reward == 2 and reward_mastery == 0 and not next_target.is_empty() and int(progress_after.progress) == 2 and int(progress_after.requirement) == 3
+	if mastery_after_reward > reward_mastery:
+		var mastery_unlock := host.center_label("NOVA PERÍCIA AO RECEBER · NÍVEL %d/3" % mastery_after_reward, 13, host.GOLD)
+		mastery_unlock.name = "RewardMasteryUnlock"
+		box.add_child(mastery_unlock)
+		var mastery_bonus := host.center_label("+%d%% RARO · +%d%% ÉPICO · OFICINA +%d SUCATA" % [mastery_after_reward * 5, mastery_after_reward * 2, Rules.target_mastery_scrap_reward(mastery_after_reward)], 12, host.LIME)
+		mastery_bonus.name = "RewardMasteryUnlockBonus"
+		box.add_child(mastery_bonus)
+	elif captures_after_reward > 1:
+		var next_mastery_requirement := Rules.target_mastery_next_requirement(reward_mastery)
+		if next_mastery_requirement > 0:
+			var mastery_progress_text := "PRÓXIMA PERÍCIA · %d/%d CAPTURAS" % [captures_after_reward, next_mastery_requirement]
+			if combined_next_capture:
+				mastery_progress_text = "PRÓXIMA CAPTURA · PERÍCIA 1/3 + MANDADO %s" % str(next_target.name).to_upper()
+			var mastery_progress := host.center_label(mastery_progress_text, 12, host.CYAN)
+			mastery_progress.name = "RewardMasteryProgress"
+			box.add_child(mastery_progress)
+	if int(reward_preview.bonus_credits) > 0:
+		var streak_bonus := host.center_label("EMBALO ×%d · +%d créditos (+%d%%)" % [int(reward_preview.streak), int(reward_preview.bonus_credits), int(reward_preview.bonus_percent)], 14, host.LIME)
+		streak_bonus.name = "RewardStreakBonus"
+		box.add_child(streak_bonus)
+	elif int(reward_preview.streak) == 1:
+		var streak_start := host.center_label("EMBALO REINICIADO ×1 · BÔNUS COMEÇA NA PRÓXIMA CAPTURA", 12, host.CYAN)
+		streak_start.name = "RewardStreakStart"
+		box.add_child(streak_start)
 	if unlocks_new_warrant:
 		var unlock_label := host.center_label("NOVO MANDADO AO RECEBER · %s" % str(next_target.name).to_upper(), 14, host.LIME)
 		unlock_label.name = "RewardWarrantUnlock"
 		box.add_child(unlock_label)
 		box.add_child(warrant_impact_label(host, state.player, item, next_target, effective_upgrade, int(state.current_bounty.xp), "RewardWarrantOdds"))
-	elif not next_target.is_empty():
+	elif not next_target.is_empty() and not combined_next_capture:
 		var progress_label := host.center_label("RUMO A %s · %d/%d CAPTURAS DE %s" % [str(next_target.name).to_upper(), int(progress_after.progress), int(progress_after.requirement), str(progress_after.prerequisite.name).to_upper()], 13, host.CYAN)
 		progress_label.name = "RewardWarrantProgress"
 		box.add_child(progress_label)

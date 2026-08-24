@@ -34,7 +34,8 @@ func _init() -> void:
 	state.player.captures_by_target = {"gloop": 1}
 	RewardScript.build(host, content, state)
 	var second_capture_mastery := host.find_child("RewardMasteryProgress", true, false) as Label
-	check(second_capture_mastery != null and second_capture_mastery.text.contains("2/3"), "second capture introduces mastery through progress toward its imminent outcome")
+	check(second_capture_mastery != null and second_capture_mastery.text.contains("PRÓXIMA CAPTURA") and second_capture_mastery.text.contains("PERÍCIA 1/3") and second_capture_mastery.text.contains("BARÃO BOOM"), "second capture unifies its imminent mastery and warrant outcomes")
+	check(host.find_child("RewardWarrantProgress", true, false) == null, "combined second-capture promise replaces the duplicate warrant progress line")
 	state.player.captures_by_target = {}
 
 	clear_content(content)
