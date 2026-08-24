@@ -12,6 +12,7 @@ const RewardViewScript = preload("res://scripts/reward_view.gd")
 const CareerViewScript = preload("res://scripts/career_view.gd")
 const AttributesViewScript = preload("res://scripts/attributes_view.gd")
 const ClassesViewScript = preload("res://scripts/classes_view.gd")
+const MarketViewScript = preload("res://scripts/market_view.gd")
 
 var body: VBoxContainer
 var content: VBoxContainer
@@ -232,6 +233,8 @@ func render() -> void:
 				build_attributes()
 			elif view_mode == "classes":
 				build_classes()
+			elif view_mode == "market":
+				build_market()
 			else:
 				build_board()
 		GameState.Phase.HUNT:
@@ -268,7 +271,7 @@ func render() -> void:
 
 func environment_context() -> String:
 	if GameState.phase == GameState.Phase.BOARD:
-		if view_mode == "arsenal":
+		if view_mode == "arsenal" or view_mode == "market":
 			return "workshop"
 		if view_mode == "galaxy" or view_mode == "career" or view_mode == "attributes" or view_mode == "classes":
 			return "world"
@@ -367,6 +370,15 @@ func build_board() -> void:
 		render()
 	)
 	actions.add_child(arsenal)
+	var market := action_button("MERCADO TORTO", GOLD, true)
+	market.name = "BoardMarketAction"
+	market.custom_minimum_size = Vector2(160, 48)
+	market.add_theme_font_size_override("font_size", 12)
+	market.pressed.connect(func():
+		view_mode = "market"
+		render()
+	)
+	actions.add_child(market)
 	var galaxy := action_button("MAPA GALÁCTICO", CYAN, true)
 	galaxy.custom_minimum_size = Vector2(160, 48)
 	galaxy.add_theme_font_size_override("font_size", 12)
@@ -582,6 +594,10 @@ func build_attributes() -> void:
 
 func build_classes() -> void:
 	ClassesViewScript.build(self, content, GameState)
+
+
+func build_market() -> void:
+	MarketViewScript.build(self, content, GameState)
 
 
 func onboarding_banner() -> PanelContainer:

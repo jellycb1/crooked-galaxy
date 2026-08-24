@@ -358,6 +358,17 @@ func capture() -> void:
 	if save_frame("ui_arsenal.png") != OK:
 		quit(1)
 		return
+	state.player.credits = 2500
+	state.player.market_cycle = 0
+	state.player.market_purchased_offer_ids = []
+	scene.view_mode = "market"
+	scene.render()
+	await process_frame
+	await process_frame
+	await create_timer(0.12).timeout
+	if save_frame("ui_market.png") != OK:
+		quit(1)
+		return
 	state.player.stat_points = 6
 	scene.attribute_draft = {"vitality": 1, "cunning": 1}
 	scene.view_mode = "attributes"
@@ -748,7 +759,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters/paging, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, market, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters/paging, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

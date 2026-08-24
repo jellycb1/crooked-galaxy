@@ -68,6 +68,11 @@ func run_text_audit() -> void:
 	scene.render()
 	await audit_scaled_screen(scene, "verbose arsenal")
 
+	state.player.credits = 99999
+	scene.view_mode = "market"
+	scene.render()
+	await audit_scaled_screen(scene, "planet market")
+
 	state.player.stat_points = 8
 	scene.view_mode = "attributes"
 	scene.render()

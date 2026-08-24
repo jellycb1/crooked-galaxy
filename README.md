@@ -16,6 +16,8 @@ Three prototype bounty-hunter classes currently exercise that foundation: Quebra
 
 The workshop paginates filtered and sorted inventory into twelve-card windows. Only the active page is instantiated, keeping touch navigation and rendering bounded even when a long-running hunter retains hundreds of pieces; page choice remains transient and never expands the save schema.
 
+The bounty board now links to a deterministic three-offer planet market. Credits buy weapons or armor, with upgrades equipped automatically and alternatives stored; paid stock renewal creates a repeatable credit sink. Stock deliberately trails the active warrant tier, preventing the market from selling the next target's reward before the fight. Offer-cycle and purchase records persist through save schema 8 and are bounded during load sanitization.
+
 Four original portrait environment paintings now ground the primary mobile contexts: bounty office, frontier spaceport, arsenal workshop, and encounter arena. They are production assets included in desktop and Android exports; proprietary study references have no active runtime mapping and remain export-excluded.
 
 Every primary screen also exposes a visible keyboard/controller focus ring. Rebuilt layouts restore the equivalent focused action when possible and otherwise select the first enabled action, including automatic combat redraws.
@@ -275,7 +277,7 @@ Run a continuous five-planet, failure-aware campaign sample with real loot, mast
 godot --headless --path . --script res://tools/simulate_campaign.gd
 ```
 
-The campaign simulator now selects each prototype class and automatically spends earned attribute points through comparable 50/25/25 primary-attribute, Vitality, and Cunning policies. It reports final attributes and currency plus route/odds saturation. `CG_CAMPAIGN_BUILD` can isolate `breaker_balanced`, `gunslinger_balanced`, `hacker_balanced`, or the intentionally obsolete `unassigned_control`; `CG_CAMPAIGN_STRATEGY` and `CG_CAMPAIGN_CAREERS` narrow route policy and sample count.
+The campaign simulator now selects each prototype class and automatically spends earned attribute points through comparable 50/25/25 primary-attribute, Vitality, and Cunning policies. It reports final attributes and currency plus route/odds saturation, market spend, purchases, and renewals. `CG_CAMPAIGN_MARKET=active|off` compares the optional sink; `CG_CAMPAIGN_BUILD` can isolate `breaker_balanced`, `gunslinger_balanced`, `hacker_balanced`, or the intentionally obsolete `unassigned_control`; `CG_CAMPAIGN_STRATEGY` and `CG_CAMPAIGN_CAREERS` narrow route policy and sample count.
 
 ## Project layout
 

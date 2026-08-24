@@ -33,14 +33,19 @@ const CONTROL_POLICY := {
 
 
 static func selected_policies(requested_id: String = "") -> Array[Dictionary]:
+	var selected: Array[Dictionary] = []
 	if requested_id == str(CONTROL_POLICY.id):
-		return [CONTROL_POLICY]
+		selected.append(CONTROL_POLICY)
+		return selected
 	if not requested_id.is_empty():
 		for policy in POLICIES:
 			if str(policy.id) == requested_id:
-				return [policy]
-		return []
-	return POLICIES.duplicate(true)
+				selected.append(policy)
+				return selected
+		return selected
+	for policy in POLICIES:
+		selected.append(policy.duplicate(true))
+	return selected
 
 
 static func configure_player(player: Dictionary, policy: Dictionary) -> void:

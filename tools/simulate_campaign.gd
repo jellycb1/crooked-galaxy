@@ -16,18 +16,23 @@ func _init() -> void:
 	career_count = maxi(1, career_count)
 	var strategies: Array = [OS.get_environment("CG_CAMPAIGN_STRATEGY")] if not OS.get_environment("CG_CAMPAIGN_STRATEGY").is_empty() else STRATEGIES
 	var build_policies := SimulationBuildsScript.selected_policies(OS.get_environment("CG_CAMPAIGN_BUILD"))
+	var market_policy := OS.get_environment("CG_CAMPAIGN_MARKET") if not OS.get_environment("CG_CAMPAIGN_MARKET").is_empty() else "active"
+	if not market_policy in ["active", "off"]:
+		printerr("Unknown CG_CAMPAIGN_MARKET. Use active or off.")
+		quit(2)
+		return
 	if build_policies.is_empty():
 		printerr("Unknown CG_CAMPAIGN_BUILD. Use breaker_balanced, gunslinger_balanced, hacker_balanced, or unassigned_control.")
 		quit(2)
 		return
-	print("Crooked Galaxy sequential campaign (%d deterministic careers per strategy/build)" % career_count)
+	print("Crooked Galaxy sequential campaign (%d deterministic careers per strategy/build · market=%s)" % [career_count, market_policy])
 	for strategy in strategies:
 		for build_policy in build_policies:
-			run_strategy_build(strategy, build_policy, career_count)
+			run_strategy_build(strategy, build_policy, career_count, market_policy)
 	quit(0)
 
 
-func run_strategy_build(strategy: String, build_policy: Dictionary, career_count: int) -> void:
+func run_strategy_build(strategy: String, build_policy: Dictionary, career_count: int, market_policy: String) -> void:
 	var results := empty_results()
 	var corporate_scrap_totals: Array = []
 	var workshop_action_totals: Array = []
@@ -35,6 +40,9 @@ func run_strategy_build(strategy: String, build_policy: Dictionary, career_count
 	var final_credits: Array = []
 	var final_scrap: Array = []
 	var final_attributes: Array[String] = []
+	var market_spend_totals: Array = []
+	var market_purchase_totals: Array = []
+	var market_refresh_totals: Array = []
 	var stalled_careers := 0
 	for career_seed in career_count:
 		var state = StateScript.new()
@@ -46,11 +54,19 @@ func run_strategy_build(strategy: String, build_policy: Dictionary, career_count
 		fight_rng.seed = 250000 + career_seed * 307
 		var corporate_scrap := 0
 		var workshop_actions := 0
+		var market_spend := 0
+		var market_purchases := 0
+		var market_refreshes := 0
 		var career_stalled := false
 		for planet in Content.PLANETS:
 			var planet_id := str(planet.id)
 			state.player.current_planet_id = planet_id
 			for tier in 4:
+				if market_policy == "active":
+					var market_result := visit_market(state)
+					market_spend += int(market_result.spent)
+					market_purchases += int(market_result.purchases)
+					market_refreshes += int(market_result.refreshes)
 				var target := Content.target_for_planet_tier(planet_id, tier)
 				var arrival_contract := strategy_contract(state.player, target, strategy)
 				results[planet_id].odds[tier].append(Rules.bounty_odds(state.player, arrival_contract))
@@ -96,11 +112,14 @@ func run_strategy_build(strategy: String, build_policy: Dictionary, career_count
 		final_credits.append(int(state.player.credits))
 		final_scrap.append(int(state.player.scrap))
 		final_attributes.append(SimulationBuildsScript.attribute_summary(state.player))
+		market_spend_totals.append(market_spend)
+		market_purchase_totals.append(market_purchases)
+		market_refresh_totals.append(market_refreshes)
 		if career_stalled:
 			stalled_careers += 1
 		state.free()
 	print("\n=== %s · %s · stalled=%d%% ===" % [strategy, str(build_policy.name), roundi(float(stalled_careers) / float(career_count) * 100.0)])
-	print("FINAL · level=%d · credits=%d · scrap=%d · corporate scrap=%d · workshop actions=%d · %s" % [roundi(median(final_levels)), roundi(median(final_credits)), roundi(median(final_scrap)), roundi(median(corporate_scrap_totals)), roundi(median(workshop_action_totals)), representative_string(final_attributes)])
+	print("FINAL · level=%d · credits=%d · scrap=%d · corporate scrap=%d · workshop actions=%d · market spent=%d/buys=%d/refreshes=%d · %s" % [roundi(median(final_levels)), roundi(median(final_credits)), roundi(median(final_scrap)), roundi(median(corporate_scrap_totals)), roundi(median(workshop_action_totals)), roundi(median(market_spend_totals)), roundi(median(market_purchase_totals)), roundi(median(market_refresh_totals)), representative_string(final_attributes)])
 	print_decision_summary(results)
 	print_results(results)
 
@@ -204,6 +223,38 @@ func spend_workshop_scrap(state: StateScript) -> int:
 			state.reinforce_equipped(str(best.slot))
 		actions += 1
 	return actions
+
+
+func visit_market(state: StateScript) -> Dictionary:
+	var credits_before := int(state.player.credits)
+	var purchases := buy_market_upgrades(state)
+	var refreshes := 0
+	# A rational player renews stale stock only with a healthy reserve. This
+	# keeps the simulator from treating the sink as a compulsory progression tax.
+	var refresh_cost := MarketRules.refresh_cost(state.player)
+	if purchases == 0 and int(state.player.credits) >= refresh_cost * 3 and state.refresh_market():
+		refreshes = 1
+		purchases += buy_market_upgrades(state)
+	return {"spent": credits_before - int(state.player.credits), "purchases": purchases, "refreshes": refreshes}
+
+
+func buy_market_upgrades(state: StateScript) -> int:
+	var purchases := 0
+	for _attempt in 3:
+		var choices: Array[Dictionary] = []
+		for offer in state.market_offers():
+			if bool(offer.purchased) or int(offer.price) > int(state.player.credits) or not Rules.is_upgrade_for_player(state.player, offer.item):
+				continue
+			var equipped: Dictionary = state.player[str(offer.item.slot)]
+			var gain := maxi(1, int(offer.item.power) - int(equipped.power))
+			choices.append({"id": str(offer.id), "price": int(offer.price), "efficiency": float(gain) / float(offer.price)})
+		if choices.is_empty():
+			break
+		choices.sort_custom(func(a, b): return float(a.efficiency) > float(b.efficiency))
+		if not state.buy_market_offer(str(choices[0].id)):
+			break
+		purchases += 1
+	return purchases
 
 
 func median(values: Array) -> float:

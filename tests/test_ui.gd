@@ -29,6 +29,8 @@ func run_smoke_test() -> void:
 	check(scene.environment_context() == "contracts", "board resolves the original bounty-office environment")
 	scene.view_mode = "arsenal"
 	check(scene.environment_context() == "workshop", "arsenal resolves the original workshop environment")
+	scene.view_mode = "market"
+	check(scene.environment_context() == "workshop", "market shares the equipment workshop environment")
 	scene.view_mode = "career"
 	check(scene.environment_context() == "world", "career resolves the original frontier-world environment")
 	scene.view_mode = "attributes"

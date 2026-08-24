@@ -987,8 +987,8 @@ static func apply_hunt_choice(bounty: Dictionary, choice: Dictionary) -> Diction
 	return result
 
 
-static func generate_loot(target: Dictionary, rng: RandomNumberGenerator, mastery_level := 0) -> Dictionary:
-	var slot := "weapon" if rng.randf() < 0.58 else "armor"
+static func generate_loot(target: Dictionary, rng: RandomNumberGenerator, mastery_level := 0, forced_slot := "") -> Dictionary:
+	var slot := forced_slot if forced_slot == "weapon" or forced_slot == "armor" else ("weapon" if rng.randf() < 0.58 else "armor")
 	var planet_id := str(target.get("planet_id", "dustball_prime"))
 	var item_family: Dictionary = PLANET_ITEM_CATALOGS.get(planet_id, ITEM_CATALOG)
 	var catalog: Array = item_family[slot]

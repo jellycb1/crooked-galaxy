@@ -4,6 +4,7 @@ extends Node
 const SaveMigrationRules = preload("res://scripts/save_migrations.gd")
 const CareerRules = preload("res://scripts/career_rules.gd")
 const ClassRules = preload("res://scripts/class_rules.gd")
+const MarketRulesScript = preload("res://scripts/market_rules.gd")
 
 signal changed
 signal combat_event(message: String)
@@ -65,6 +66,8 @@ func default_player() -> Dictionary:
 		"career_scrap_claimed": 0,
 		"capture_streak": 0,
 		"best_capture_streak": 0,
+		"market_cycle": 0,
+		"market_purchased_offer_ids": [],
 		"locked_item_ids": [],
 		"equipment_loadouts": [{"weapon_id": "", "armor_id": ""}, {"weapon_id": "", "armor_id": ""}],
 		"last_seen_unix": Time.get_unix_time_from_system(),
@@ -123,6 +126,55 @@ func planet_tier(planet_id: String) -> int:
 	if player.get("completed_planets", []).has(planet_id):
 		return 3
 	return ContentDB.planet_tier_from_target_captures(planet_id, player.get("captures_by_target", {}))
+
+
+func market_offers() -> Array[Dictionary]:
+	return MarketRulesScript.offers(player)
+
+
+func buy_market_offer(offer_id: String) -> bool:
+	if phase != Phase.BOARD or offer_id.is_empty() or player.get("market_purchased_offer_ids", []).has(offer_id):
+		return false
+	var selected: Dictionary = {}
+	for offer in market_offers():
+		if str(offer.id) == offer_id:
+			selected = offer
+			break
+	if selected.is_empty():
+		return false
+	var price := int(selected.price)
+	if price <= 0 or int(player.credits) < price:
+		return false
+	var item: Dictionary = selected.item.duplicate(true)
+	var equipped := CoreRules.is_upgrade_for_player(player, item)
+	player.credits = int(player.credits) - price
+	player.market_purchased_offer_ids.append(offer_id)
+	if equipped:
+		equip(item)
+	else:
+		player.inventory.append(item)
+	last_notice = "Mercado: %s comprado por %d créditos e %s." % [str(item.name), price, "equipado" if equipped else "guardado"]
+	last_notice_context = "market"
+	CoreRules.clear_bounty_odds_cache()
+	save_game()
+	changed.emit()
+	return true
+
+
+func refresh_market() -> bool:
+	if phase != Phase.BOARD:
+		return false
+	var cost := MarketRulesScript.refresh_cost(player)
+	if cost <= 0 or int(player.credits) < cost:
+		return false
+	player.credits = int(player.credits) - cost
+	player.market_cycle = int(player.get("market_cycle", 0)) + 1
+	player.market_purchased_offer_ids = []
+	last_notice = "Mercado renovado por %d créditos. A procedência continua confidencial." % cost
+	last_notice_context = "market"
+	save_game()
+	changed.emit()
+	return true
 
 
 func apply_offline_progress(now_unix: float) -> Dictionary:
@@ -1255,6 +1307,13 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	else:
 		repaired = true
 	sanitized.attributes = clean_attributes
+	var market_cycle = sanitized.get("market_cycle", 0)
+	if not (market_cycle is int or market_cycle is float) or float(market_cycle) != float(int(market_cycle)) or int(market_cycle) < 0 or int(market_cycle) > 1000000:
+		sanitized.market_cycle = clampi(int(market_cycle) if market_cycle is int or market_cycle is float else 0, 0, 1000000)
+		repaired = true
+	if not MarketRulesScript.purchase_records_are_safe(sanitized.get("market_purchased_offer_ids", [])):
+		sanitized.market_purchased_offer_ids = []
+		repaired = true
 	if not ClassRules.is_valid(str(sanitized.get("class_id", ""))):
 		sanitized.class_id = ""
 		repaired = true
