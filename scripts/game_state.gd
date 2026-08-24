@@ -42,6 +42,10 @@ var save_recovery_required := false
 
 func _ready() -> void:
 	rng.randomize()
+	if OS.get_cmdline_user_args().has("--smoke-test"):
+		persistence_enabled = false
+		player = default_player()
+		return
 	load_game()
 
 

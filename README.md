@@ -159,6 +159,14 @@ godot --path . --editor
 godot --path .
 ```
 
+Create and smoke-boot the local Windows release without touching the player's real save:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\check_windows_export.ps1
+```
+
+The tracked `Windows Desktop` preset emits `builds/windows/CrookedGalaxy.exe` plus its PCK. Export filters exclude tests, tools, captures, notes, references, and prior builds; `builds/.gdignore` also prevents generated review images and binaries from entering Godot's resource scan.
+
 Run deterministic core tests:
 
 ```powershell

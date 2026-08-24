@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="space" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#18264b"/>
+      <stop offset="1" stop-color="#070b1d"/>
+    </linearGradient>
+    <linearGradient id="planet" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#55e5ff"/>
+      <stop offset="1" stop-color="#8f6cff"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="54" fill="url(#space)" stroke="#55e5ff" stroke-width="10"/>
+  <path d="M28 147c31-33 77-52 131-47 34 3 58 15 71 31-26-5-54-5-81 0-48 8-83 27-102 49-13-7-20-18-19-33z" fill="none" stroke="#ffc857" stroke-width="15" stroke-linecap="round"/>
+  <circle cx="132" cy="127" r="55" fill="url(#planet)" stroke="#f4f2ff" stroke-width="8"/>
+  <path d="M93 102c16-17 43-25 67-15M104 158c19 10 43 8 60-5" fill="none" stroke="#18264b" stroke-width="10" stroke-linecap="round" opacity=".8"/>
+  <path d="M187 51l6 15 16 2-12 10 4 16-14-8-14 8 4-16-12-10 16-2z" fill="#b8f45d" stroke="#07101c" stroke-width="4" stroke-linejoin="round"/>
+</svg>

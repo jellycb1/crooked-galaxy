@@ -3,7 +3,8 @@
 *.tmp
 
 # Local exports and runtime logs
-builds/
+builds/*
+!builds/.gdignore
 logs/
 
 # Editor / OS noise
