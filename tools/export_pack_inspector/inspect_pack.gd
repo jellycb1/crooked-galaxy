@@ -14,32 +14,59 @@ const REQUIRED_PRODUCTION_ASSETS := [
 	"res://assets/backgrounds/arsenal_workshop.png",
 	"res://assets/backgrounds/frontier_arena.png",
 ]
+const INTERNAL_REFERENCE_PATHS := [
+	"res://internal_reference_assets/contracts.png.bin",
+	"res://internal_reference_assets/world.png.bin",
+	"res://internal_reference_assets/workshop.png.bin",
+	"res://internal_reference_assets/combat.png.bin",
+]
 
 
 func _init() -> void:
 	var arguments := OS.get_cmdline_user_args()
-	if arguments.size() != 1:
-		printerr("FAIL: expected one exported pack path")
+	if arguments.size() < 1 or arguments.size() > 2:
+		printerr("FAIL: expected an exported pack path and optional internal-references mode")
 		quit(2)
 		return
+	var internal_references := arguments.size() == 2 and arguments[1] == "internal-references"
 	var pack_path := ProjectSettings.globalize_path(arguments[0])
 	if not ProjectSettings.load_resource_pack(pack_path, true):
 		printerr("FAIL: could not mount exported pack: %s" % pack_path)
 		quit(2)
 		return
-	if DirAccess.dir_exists_absolute("res://References"):
+	if not internal_references and DirAccess.dir_exists_absolute("res://References"):
 		printerr("FAIL: exported pack contains the References directory")
 		quit(1)
 		return
 	for forbidden_path in FORBIDDEN_PATHS:
-		if FileAccess.file_exists(forbidden_path):
+		if not internal_references and FileAccess.file_exists(forbidden_path):
 			printerr("FAIL: exported pack contains proprietary placeholder: %s" % forbidden_path)
 			quit(1)
 			return
+	if internal_references:
+		for internal_path in INTERNAL_REFERENCE_PATHS:
+			if not FileAccess.file_exists(internal_path):
+				printerr("FAIL: internal test pack is missing staged placeholder: %s" % internal_path)
+				quit(1)
+				return
+			var image := Image.new()
+			if image.load_png_from_buffer(FileAccess.get_file_as_bytes(internal_path)) != OK or image.get_width() <= 0 or image.get_height() <= 0:
+				printerr("FAIL: internal staged placeholder is not a readable PNG: %s" % internal_path)
+				quit(1)
+				return
+	else:
+		for internal_path in INTERNAL_REFERENCE_PATHS:
+			if FileAccess.file_exists(internal_path):
+				printerr("FAIL: public pack contains staged internal placeholder: %s" % internal_path)
+				quit(1)
+				return
 	for required_path in REQUIRED_PRODUCTION_ASSETS:
 		if not ResourceLoader.exists(required_path):
 			printerr("FAIL: exported pack is missing original production asset: %s" % required_path)
 			quit(1)
 			return
-	print("PASS: exported pack contains required original art and no proprietary reference placeholders")
+	if internal_references:
+		print("PASS: internal test pack contains original art and all four documented reference placeholders")
+	else:
+		print("PASS: exported pack contains required original art and no proprietary reference placeholders")
 	quit()

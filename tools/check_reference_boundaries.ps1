@@ -19,7 +19,12 @@ if (-not (Test-Path -LiteralPath $ReferenceIgnore)) {
 $PresetText = Get-Content -LiteralPath (Join-Path $ProjectRoot "export_presets.cfg") -Raw
 $ExcludedPresetCount = [regex]::Matches($PresetText, 'exclude_filter="[^"]*References/\*[^"]*"').Count
 if ($ExcludedPresetCount -lt 2) {
-    throw "Every tracked export preset must exclude References/*."
+    throw "Public Windows and Android export presets must exclude References/*."
+}
+if (-not $PresetText.Contains('name="Android Internal References"') -or
+    -not $PresetText.Contains('custom_features="reference_placeholders"') -or
+    -not $PresetText.Contains('include_filter="internal_reference_assets/*.png.bin"')) {
+    throw "The internal Android reference profile must remain explicitly feature-gated and staged."
 }
 
 $ApprovedReferencePathFiles = @(
@@ -37,4 +42,4 @@ foreach ($RelativePath in $TrackedRuntimeFiles) {
     }
 }
 
-Write-Host "PASS: proprietary reference placeholders remain local-only and export-excluded."
+Write-Host "PASS: reference placeholders remain Git-local, public-export-excluded, and explicitly gated in the internal Android profile."

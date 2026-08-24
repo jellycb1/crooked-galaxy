@@ -19,3 +19,4 @@ Thumbs.db
 # Proprietary study material: keep local and outside version control.
 References/*
 !References/.gdignore
+internal_reference_assets/

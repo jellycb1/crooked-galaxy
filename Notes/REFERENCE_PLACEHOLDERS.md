@@ -4,7 +4,7 @@
 
 The current Quebra-Mandados, Pistoleiro Orbital, and Hacker de Contratos trio is mechanical prototype content. Names, descriptions, themes, and eventual visual identities are not final. Each definition carries `prototype: true`, while its effect values remain data-driven test scaffolding; replacing the roster must preserve save-ID migration explicitly rather than silently reassigning existing hunters.
 
-These files are proprietary study material that was used only to prototype composition in local interactive editor runs. They are not tracked, imported by Godot, or permitted in Windows/Android exports. All four studied contexts now use independently generated original production art, so the placeholder adapter has no active mappings.
+These files are proprietary study material used as temporary composition placeholders. They are never tracked or imported by Godot. The four documented images may be staged into the separate `Android Internal References` profile for testing on our own device; public Windows/Android builds retain the independently generated original production art and exclude every reference file.
 
 | Context | Local source under `References/` | Prototype purpose | Original replacement |
 | --- | --- | --- | --- |
@@ -15,10 +15,10 @@ These files are proprietary study material that was used only to prototype compo
 
 ## Boundary rules
 
-- `ReferencePlaceholderBackdrop` is retained as the only runtime file allowed to name `res://References/` paths, but currently exposes no contexts.
-- Raw image loading is limited to editor-feature binaries with a non-headless display.
+- `ReferencePlaceholderBackdrop` is the only runtime file allowed to name `res://References/` paths and maps exactly the four registered contexts.
+- Raw image loading is limited to interactive editor runs or builds carrying the explicit `reference_placeholders` feature.
 - `References/.gdignore` remains mandatory, so Godot never imports these assets.
-- All export presets must exclude `References/*`.
-- Exported packs are mounted in an isolated inspector and rejected if any known placeholder or `References` directory is present.
-- Captures containing the visible `PLACEHOLDER INTERNO` watermark are internal composition evidence, never marketing material.
+- Public export presets must exclude `References/*`; the internal Android profile stages only the four registered PNGs as Git-ignored raw bytes.
+- Exported public packs reject reference content, while the internal pack inspector requires and decodes all four staged placeholders.
+- Builds and captures containing the visible `PLACEHOLDER INTERNO · SUBSTITUIR` watermark are internal test material, never release or marketing material.
 - Replacement art must be independently created; reference names, characters, layouts, text, code, data, and formulas are not production content.

@@ -256,7 +256,13 @@ Capture the bounty boards, market, transport hangar, defeat recovery and post-up
 godot --path . --script res://tools/capture_ui.gd
 ```
 
-The proprietary study art in `References/` is retained only as local, documented design evidence. Runtime contexts now use independently generated original production environments; the reference adapter has no active mappings. Every former usage and replacement is tracked in `Notes/REFERENCE_PLACEHOLDERS.md`, while normal checks and mounted Windows/Android pack inspections reject leaked reference files.
+The proprietary study art in `References/` remains local, Git-ignored, and documented. Public builds use independently generated original production environments and reject leaked reference files. A separate `Android Internal References` profile can stage exactly four registered images into a watermarked APK for composition testing on our own device; every use and intended replacement is tracked in `Notes/REFERENCE_PLACEHOLDERS.md`.
+
+Build and inspect that internal-only APK:
+
+```powershell
+.\tools\check_android_internal_export.ps1
+```
 
 Capture the procedural character lineup:
 
@@ -296,6 +302,6 @@ The campaign simulator now selects each prototype class and automatically spends
 - `scripts/` — gameplay state, deterministic rules, content, and interface.
 - `tests/` — headless deterministic tests.
 - `Notes/` — product vision and development rules.
-- `References/` — external study material, excluded from Godot imports by `.gdignore`.
+- `References/` — external study material, excluded from Godot imports by `.gdignore`; four registered placeholders can be staged only by the internal Android checker.
 
-Content in `References/` is not part of the game. Crooked Galaxy's code, names, formulas, UI, and distributable assets must remain independently created.
+Content in `References/` is temporary internal test material, not Crooked Galaxy production content. Code, names, formulas, UI, and public distributable assets remain independently created.
