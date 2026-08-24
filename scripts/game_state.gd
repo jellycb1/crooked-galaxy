@@ -880,7 +880,9 @@ func save_game() -> bool:
 		"combat_summary": combat_summary,
 		"chapter_completion": chapter_completion,
 	}
-	var file := FileAccess.open(save_path, FileAccess.WRITE)
+	var staging_path := "%s.tmp" % save_path
+	var backup_path := "%s.bak" % save_path
+	var file := FileAccess.open(staging_path, FileAccess.WRITE)
 	if file == null:
 		save_warning = "PROGRESSO AINDA NÃO SALVO · armazenamento local indisponível. Mantenha o jogo aberto e tente novamente."
 		return false
@@ -889,6 +891,26 @@ func save_game() -> bool:
 	if file.get_error() != OK:
 		save_warning = "PROGRESSO AINDA NÃO SALVO · falha ao gravar no armazenamento local. Mantenha o jogo aberto e tente novamente."
 		return false
+	file = null
+	var primary_absolute := ProjectSettings.globalize_path(save_path)
+	var staging_absolute := ProjectSettings.globalize_path(staging_path)
+	var backup_absolute := ProjectSettings.globalize_path(backup_path)
+	if FileAccess.file_exists(save_path):
+		if FileAccess.file_exists(backup_path):
+			DirAccess.remove_absolute(backup_absolute)
+		if DirAccess.rename_absolute(primary_absolute, backup_absolute) != OK:
+			save_warning = "PROGRESSO AINDA NÃO SALVO · não foi possível preparar a substituição segura. Mantenha o jogo aberto e tente novamente."
+			return false
+	if DirAccess.rename_absolute(staging_absolute, primary_absolute) != OK:
+		if not FileAccess.file_exists(save_path) and FileAccess.file_exists(backup_path):
+			DirAccess.rename_absolute(backup_absolute, primary_absolute)
+		save_warning = "PROGRESSO AINDA NÃO SALVO · não foi possível concluir a substituição segura. Mantenha o jogo aberto e tente novamente."
+		return false
+	# The backup mirrors the latest committed transaction. A corrupt primary can
+	# therefore never resurrect a claimed reward or paid incident from one save ago.
+	if FileAccess.file_exists(backup_path):
+		DirAccess.remove_absolute(backup_absolute)
+	DirAccess.copy_absolute(primary_absolute, backup_absolute)
 	save_warning = ""
 	return true
 
@@ -905,14 +927,19 @@ func load_game() -> void:
 	afk_report = {}
 	save_warning = ""
 	player = default_player()
-	if not FileAccess.file_exists(save_path):
+	# A fully flushed staging file means promotion was interrupted or blocked; it
+	# is newer than both committed copies and must win recovery precedence.
+	var parsed: Dictionary = read_save_dictionary("%s.tmp" % save_path)
+	var recovered_from_copy := not parsed.is_empty()
+	if parsed.is_empty():
+		parsed = read_save_dictionary(save_path)
+	if parsed.is_empty():
+		parsed = read_save_dictionary("%s.bak" % save_path)
+		recovered_from_copy = not parsed.is_empty()
+	if parsed.is_empty():
 		return
-	var file := FileAccess.open(save_path, FileAccess.READ)
-	if not file:
-		return
-	var parsed = JSON.parse_string(file.get_as_text())
-	if not parsed is Dictionary:
-		return
+	if recovered_from_copy and FileAccess.file_exists(save_path):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(save_path))
 	var requires_migration_save := int(parsed.get("version", 0)) < SAVE_VERSION
 	parsed = migrate_save_payload(parsed)
 	if parsed.is_empty():
@@ -1007,14 +1034,32 @@ func load_game() -> void:
 		# Combat resumes safely from its saved health values.
 		player_hp = maxi(1, player_hp)
 		enemy_hp = maxi(1, enemy_hp)
-	if requires_migration_save:
+	if recovered_from_copy:
+		last_notice = "SAVE RECUPERADO: a última cópia íntegra foi restaurada sem repetir transações."
+		last_notice_context = "system_recovery"
+	elif requires_migration_save:
 		last_notice = "SAVE ATUALIZADO: progresso legado preservado e registros ausentes reconstruídos."
 		last_notice_context = "system_recovery"
 	elif repaired_phase:
 		last_notice = "SAVE RECUPERADO: progresso válido preservado; registros inconsistentes foram isolados."
 		last_notice_context = "system_recovery"
-	if requires_migration_save or repaired_phase:
+	if recovered_from_copy or requires_migration_save or repaired_phase:
 		save_game()
+
+
+func read_save_dictionary(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return {}
+	var parser := JSON.new()
+	if parser.parse(file.get_as_text()) != OK:
+		file = null
+		return {}
+	var parsed = parser.data
+	file = null
+	return parsed if parsed is Dictionary else {}
 
 
 func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:

@@ -47,6 +47,7 @@ func _init() -> void:
 	source.save_game()
 	var saved_file := FileAccess.open(test_save, FileAccess.READ)
 	var saved_payload = JSON.parse_string(saved_file.get_as_text())
+	saved_file = null
 	check(int(saved_payload.get("version", 0)) == StateScript.SAVE_VERSION, "new saves use the current schema version")
 
 	var restored = StateScript.new()
@@ -377,12 +378,10 @@ func _init() -> void:
 	offline.free()
 	migrated.free()
 	repaired.free()
-	if FileAccess.file_exists(test_save):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(test_save))
-	if FileAccess.file_exists(legacy_save):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(legacy_save))
-	if FileAccess.file_exists(damaged_save):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(damaged_save))
+	for base_path in [test_save, legacy_save, damaged_save]:
+		for path in [base_path, "%s.tmp" % base_path, "%s.bak" % base_path]:
+			if FileAccess.file_exists(path):
+				DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 	if failures == 0:
 		print("PASS: save and load preserve an interrupted reward flow")
 		quit(0)

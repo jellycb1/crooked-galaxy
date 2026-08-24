@@ -72,8 +72,9 @@ func prepare_reward(state) -> void:
 
 
 func finish() -> void:
-	if FileAccess.file_exists(test_save):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(test_save))
+	for path in [test_save, "%s.tmp" % test_save, "%s.bak" % test_save]:
+		if FileAccess.file_exists(path):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 	if failures == 0:
 		print("PASS: reduced motion removes decoration without shortening readable pauses")
 		quit(0)

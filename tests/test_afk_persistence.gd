@@ -9,8 +9,9 @@ var test_save := "res://.godot/crooked_galaxy_afk_persistence_%s.json" % OS.get_
 func _init() -> void:
 	audit_boundaries()
 	audit_recovery_return()
-	if FileAccess.file_exists(test_save):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(test_save))
+	for path in [test_save, "%s.tmp" % test_save, "%s.bak" % test_save]:
+		if FileAccess.file_exists(path):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 	if failures == 0:
 		print("PASS: AFK settlement is bounded, monotonic, and atomic")
 		quit(0)

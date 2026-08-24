@@ -51,8 +51,9 @@ func run_save_failure_audit() -> void:
 	scene.free()
 	await process_frame
 	state.persistence_enabled = false
-	if FileAccess.file_exists(test_save):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(test_save))
+	for path in [test_save, "%s.tmp" % test_save, "%s.bak" % test_save]:
+		if FileAccess.file_exists(path):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_dir))
 	await create_timer(0.5).timeout
 	finish()

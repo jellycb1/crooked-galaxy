@@ -83,8 +83,9 @@ func _init() -> void:
 	audit_contract_approach_roundtrips()
 	audit_equipment_roundtrips()
 
-	if FileAccess.file_exists(test_save):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(test_save))
+	for path in [test_save, "%s.tmp" % test_save, "%s.bak" % test_save]:
+		if FileAccess.file_exists(path):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 	if failures == 0:
 		print("PASS: every current-schema phase round-trips without false recovery")
 		quit(0)

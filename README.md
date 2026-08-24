@@ -20,6 +20,8 @@ Window focus and mobile suspension explicitly freeze automatic combat and preser
 
 Local write failures no longer fail silently. A phase-independent warning explains that progress remains only in memory and offers a retry; it clears only after the complete current payload is flushed successfully, without hiding the mobile victory action.
 
+Save replacement is crash-resilient: a fully flushed staging payload is promoted before a latest-state backup is refreshed. Loading prefers a valid interrupted staging write, then primary, then backup; copy recovery is visible and rewrites the primary without rolling reward or incident transactions backward.
+
 Threshold captures explicitly preview and reveal the next warrant, keeping early progression visible without a modal tutorial.
 
 Reward screens also count the pending capture toward target mastery and preview its rare/epic loot bonus plus one-time workshop scrap funding before the player commits the loot decision.
