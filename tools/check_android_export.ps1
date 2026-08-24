@@ -20,6 +20,33 @@ $OutputApk = Join-Path $BuildRoot "CrookedGalaxy.apk"
 $LogRoot = Join-Path $ProjectRoot ".godot\export-logs"
 $ContentPack = Join-Path $LogRoot "android_content_check.pck"
 $DebugKey = Join-Path $ProjectRoot "android\crooked-galaxy-debug.keystore"
+$ProjectText = Get-Content -LiteralPath (Join-Path $ProjectRoot "project.godot") -Raw
+$PresetText = Get-Content -LiteralPath (Join-Path $ProjectRoot "export_presets.cfg") -Raw
+
+function Require-ConfigMatch {
+    param([string]$Text, [string]$Pattern, [string]$Description)
+    if (-not [regex]::IsMatch($Text, $Pattern, [System.Text.RegularExpressions.RegexOptions]::Multiline)) {
+        throw "Android-first configuration drift: $Description."
+    }
+}
+
+Require-ConfigMatch $ProjectText '^window/size/viewport_width=720$' "portrait viewport width must remain 720"
+Require-ConfigMatch $ProjectText '^window/size/viewport_height=1280$' "portrait viewport height must remain 1280"
+Require-ConfigMatch $ProjectText '^window/handheld/orientation=1$' "handheld orientation must remain portrait"
+Require-ConfigMatch $ProjectText '^renderer/rendering_method.mobile="gl_compatibility"$' "mobile renderer must remain GL Compatibility"
+Require-ConfigMatch $ProjectText '^textures/vram_compression/import_etc2_astc=true$' "mobile texture compression must remain enabled"
+Require-ConfigMatch $PresetText '^architectures/armeabi-v7a=false$' "32-bit ARM must remain excluded from the compact APK"
+Require-ConfigMatch $PresetText '^architectures/arm64-v8a=true$' "64-bit ARM must remain enabled"
+Require-ConfigMatch $PresetText '^architectures/x86=false$' "x86 must remain excluded from the device APK"
+Require-ConfigMatch $PresetText '^architectures/x86_64=false$' "x86-64 must remain excluded from the device APK"
+Require-ConfigMatch $PresetText '^screen/immersive_mode=true$' "immersive mode must remain enabled"
+
+$ProjectVersion = [regex]::Match($ProjectText, 'config/version="([^"]+)"').Groups[1].Value
+$AndroidVersion = [regex]::Match($PresetText, 'version/name="([^"]+)"').Groups[1].Value
+$WindowsVersion = [regex]::Match($PresetText, 'application/product_version="([^"]+)"').Groups[1].Value
+if ([string]::IsNullOrWhiteSpace($ProjectVersion) -or $ProjectVersion -ne $AndroidVersion -or $WindowsVersion -ne "$ProjectVersion.0") {
+    throw "Project, Android, and Windows release versions are not synchronized."
+}
 New-Item -ItemType Directory -Path $BuildRoot -Force | Out-Null
 New-Item -ItemType Directory -Path $LogRoot -Force | Out-Null
 
@@ -43,7 +70,6 @@ if (-not (Test-Path -LiteralPath $OutputApk)) {
     throw "Android export did not produce CrookedGalaxy.apk."
 }
 
-$PresetText = Get-Content -LiteralPath (Join-Path $ProjectRoot "export_presets.cfg") -Raw
 $ExpectedPackage = [regex]::Match($PresetText, 'package/unique_name="([^"]+)"').Groups[1].Value
 $ExpectedVersionCode = [regex]::Match($PresetText, 'version/code=([0-9]+)').Groups[1].Value
 $ExpectedVersionName = [regex]::Match($PresetText, 'version/name="([^"]+)"').Groups[1].Value

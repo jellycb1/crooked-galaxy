@@ -8,6 +8,7 @@ func _init() -> void:
 
 
 func run_mobile_audit() -> void:
+	check_android_first_project_profile()
 	var state = root.get_node_or_null("GameState")
 	if state == null:
 		check(false, "autoload is available for mobile audit")
@@ -71,6 +72,15 @@ func run_mobile_audit() -> void:
 	await process_frame
 	await create_timer(0.5).timeout
 	finish()
+
+
+func check_android_first_project_profile() -> void:
+	check(int(ProjectSettings.get_setting("display/window/size/viewport_width", 0)) == 720, "project keeps the 720-unit portrait design width")
+	check(int(ProjectSettings.get_setting("display/window/size/viewport_height", 0)) == 1280, "project keeps the 1280-unit portrait design height")
+	check(int(ProjectSettings.get_setting("display/window/handheld/orientation", 0)) == 1, "handheld orientation remains portrait")
+	check(str(ProjectSettings.get_setting("display/window/stretch/mode", "")) == "canvas_items", "mobile layout uses canvas-items stretching")
+	check(str(ProjectSettings.get_setting("rendering/renderer/rendering_method.mobile", "")) == "gl_compatibility", "mobile renderer stays on the broad-compatibility path")
+	check(bool(ProjectSettings.get_setting("rendering/textures/vram_compression/import_etc2_astc", false)), "mobile texture compression remains enabled")
 
 
 func check_touch_targets(node: Node, context: String) -> void:
