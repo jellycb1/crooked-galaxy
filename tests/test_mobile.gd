@@ -46,6 +46,7 @@ func run_mobile_audit() -> void:
 		await process_frame
 	var board_hub_grid := scene.find_child("BoardHubGrid", true, false) as GridContainer
 	check(board_hub_grid != null and board_hub_grid.columns == 2 and board_hub_grid.get_child_count() == 4, "secondary menu uses a readable 2 by 2 mobile grid")
+	check(scene.find_children("PrimaryNav_*", "Button", true, false).size() == 5 and scene.find_children("PrimaryNavIcon_*", "Control", true, false).size() == 5, "rapid menu navigation replaces the dock atomically without stale or missing items")
 	check(scene.find_children("BoardHubIcon_*", "Control", true, false).size() == 4, "every secondary service has a distinct scalable navigation icon")
 	var settings_action := scene.find_child("BoardSettingsAction", true, false) as Button
 	check(settings_action != null, "settings live in the secondary menu instead of the equipment inventory")

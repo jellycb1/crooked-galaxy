@@ -61,7 +61,10 @@ func hide_and_clear() -> void:
 func clear_items() -> void:
 	for child in get_children():
 		remove_child(child)
-		child.queue_free()
+		# The dock is rebuilt synchronously inside the host render. Free the old
+		# row immediately so stale CanvasItems cannot survive into the same frame
+		# and intermittently mask freshly drawn icons on mobile GPUs.
+		child.free()
 
 
 func navigation_button(destination_id: String, display_label: String, icon_kind: String, accent: Color, selected: bool, badge_count: int) -> Button:
