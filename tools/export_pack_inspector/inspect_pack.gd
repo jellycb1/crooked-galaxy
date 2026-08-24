@@ -9,6 +9,9 @@ const FORBIDDEN_PATHS := [
 	"res://References/Shakes and Fidget Assets/StreamingAssets/registration/icon_warrior_active.png",
 	"res://References/Shakes and Fidget Assets/StreamingAssets/registration/icon_hunter_active.png",
 	"res://References/Shakes and Fidget Assets/StreamingAssets/registration/icon_mage_active.png",
+	"res://References/Shakes and Fidget Assets/StreamingAssets/ui/sf_4k_UI-BG-navi-login.png",
+	"res://References/Shakes and Fidget Assets/StreamingAssets/z_shared/portrait_glow_border_300.png",
+	"res://References/Shakes and Fidget Assets/StreamingAssets/ui/frame_top.png",
 ]
 const REQUIRED_PRODUCTION_ASSETS := [
 	"res://assets/boot_splash.png",
@@ -27,6 +30,9 @@ const INTERNAL_REFERENCE_PATHS := [
 	"res://internal_reference_assets/class_breaker.png.bin",
 	"res://internal_reference_assets/class_gunslinger.png.bin",
 	"res://internal_reference_assets/class_hacker.png.bin",
+	"res://internal_reference_assets/career_ui.png.bin",
+	"res://internal_reference_assets/portrait_frame.png.bin",
+	"res://internal_reference_assets/hub_divider.png.bin",
 ]
 
 
@@ -74,7 +80,7 @@ func _init() -> void:
 			quit(1)
 			return
 	if internal_references:
-		print("PASS: internal test pack contains original art and all eight documented reference placeholders")
+		print("PASS: internal test pack contains original art and all eleven documented reference placeholders")
 	else:
 		print("PASS: exported pack contains required original art and no proprietary reference placeholders")
 	quit()

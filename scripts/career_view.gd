@@ -126,7 +126,7 @@ static func summary_card(host: CrookedUIFactory, state: StateScript) -> PanelCon
 	summary.name = "CareerSummary"
 	var row := summary.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 14)
-	row.add_child(host.character_portrait("hunter", 76))
+	row.add_child(framed_portrait(host, "hunter", 76))
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
@@ -156,7 +156,7 @@ static func mastery_directive_card(host: CrookedUIFactory, state: StateScript, o
 	card.name = "MasteryDirective"
 	var row := card.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 10)
-	row.add_child(host.character_portrait(str(target.id), 58))
+	row.add_child(framed_portrait(host, str(target.id), 58))
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
@@ -177,6 +177,36 @@ static func mastery_directive_card(host: CrookedUIFactory, state: StateScript, o
 	)
 	row.add_child(action)
 	return card
+
+
+static func framed_portrait(host: CrookedUIFactory, character_id: String, dimension: float) -> Control:
+	var reference_layer = host.get("reference_backdrop")
+	if reference_layer == null or not reference_layer.has_method("ui_texture"):
+		return host.character_portrait(character_id, dimension)
+	var frame_texture: Texture2D = reference_layer.ui_texture("portrait_frame")
+	if frame_texture == null:
+		return host.character_portrait(character_id, dimension)
+	var stack := Control.new()
+	stack.name = "ReferenceFramedPortrait_%s" % character_id
+	stack.custom_minimum_size = Vector2(dimension, dimension)
+	stack.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	stack.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var portrait := host.character_portrait(character_id, dimension - 8.0)
+	portrait.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	portrait.offset_left = 4.0
+	portrait.offset_top = 4.0
+	portrait.offset_right = -4.0
+	portrait.offset_bottom = -4.0
+	stack.add_child(portrait)
+	var frame := TextureRect.new()
+	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	frame.texture = frame_texture
+	frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	frame.stretch_mode = TextureRect.STRETCH_SCALE
+	frame.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_child(frame)
+	return stack
 
 
 static func planet_card(host: CrookedUIFactory, state: StateScript, planet: Dictionary) -> PanelContainer:

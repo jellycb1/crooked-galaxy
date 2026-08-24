@@ -280,6 +280,8 @@ func environment_context() -> String:
 	if GameState.phase == GameState.Phase.BOARD:
 		if view_mode == "arsenal" or view_mode == "market" or view_mode == "hangar":
 			return "workshop"
+		if view_mode == "career" and reference_backdrop != null and reference_backdrop.local_placeholders_allowed():
+			return "career_ui"
 		if view_mode == "classes" and reference_backdrop != null and reference_backdrop.local_placeholders_allowed():
 			return "class_ui"
 		if view_mode == "galaxy" or view_mode == "career" or view_mode == "attributes" or view_mode == "classes":
@@ -409,6 +411,9 @@ func build_board() -> void:
 		view_mode = "attributes"
 		render()
 	))
+	var hub_divider := reference_ui_decoration("hub_divider", 12.0)
+	if hub_divider != null:
+		content.add_child(hub_divider)
 
 	var recovery_inside_afk := not GameState.afk_report.is_empty() and GameState.last_notice_context == "system_recovery"
 	var defeat_report_visible := GameState.last_notice_context == "defeat" and not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true))
@@ -474,6 +479,24 @@ func board_hub_action(text_value: String, color: Color, node_name: String, callb
 	button.add_theme_font_size_override("font_size", 13)
 	button.pressed.connect(callback)
 	return button
+
+
+func reference_ui_decoration(key: String, height: float) -> TextureRect:
+	if reference_backdrop == null or not reference_backdrop.has_method("ui_texture"):
+		return null
+	var texture: Texture2D = reference_backdrop.ui_texture(key)
+	if texture == null:
+		return null
+	var decoration := TextureRect.new()
+	decoration.name = "ReferenceDecoration_%s" % key
+	decoration.custom_minimum_size = Vector2(0, height)
+	decoration.texture = texture
+	decoration.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	decoration.stretch_mode = TextureRect.STRETCH_SCALE
+	decoration.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	decoration.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	decoration.tooltip_text = "PLACEHOLDER INTERNO · ornamento provisório"
+	return decoration
 
 
 func rank_progress_panel() -> PanelContainer:

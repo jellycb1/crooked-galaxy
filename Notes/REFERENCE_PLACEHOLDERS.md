@@ -4,7 +4,7 @@
 
 The current Quebra-Mandados, Pistoleiro Orbital, and Hacker de Contratos trio is mechanical prototype content. Names, descriptions, themes, and eventual visual identities are not final. Each definition carries `prototype: true`, while its effect values remain data-driven test scaffolding; replacing the roster must preserve save-ID migration explicitly rather than silently reassigning existing hunters.
 
-These files are proprietary study material used as temporary composition placeholders. They are never tracked or imported by Godot. The eight documented images may be staged into the separate `Android Internal References` profile for testing on our own device; public Windows/Android builds retain the independently generated original production art and exclude every reference file.
+These files are proprietary study material used as temporary composition placeholders. They are never tracked or imported by Godot. The eleven documented images may be staged into the separate `Android Internal References` profile for testing on our own device; public Windows/Android builds retain the independently generated original production art and exclude every reference file.
 
 | Context | Local source under `References/` | Prototype purpose | Original replacement |
 | --- | --- | --- | --- |
@@ -16,14 +16,17 @@ These files are proprietary study material used as temporary composition placeho
 | Quebra-Mandados prototype icon | `Shakes and Fidget Assets/StreamingAssets/registration/icon_warrior_active.png` | Test immediate heavy-class recognition inside cards and the attribute profile | Original class emblem after the placeholder roster is finalized |
 | Pistoleiro Orbital prototype icon | `Shakes and Fidget Assets/StreamingAssets/registration/icon_hunter_active.png` | Test immediate precision-class recognition inside cards and the attribute profile | Original class emblem after the placeholder roster is finalized |
 | Hacker de Contratos prototype icon | `Shakes and Fidget Assets/StreamingAssets/registration/icon_mage_active.png` | Test immediate technology-class recognition inside cards and the attribute profile | Original class emblem after the placeholder roster is finalized |
+| Career surface | `Shakes and Fidget Assets/StreamingAssets/ui/sf_4k_UI-BG-navi-login.png` | Test a dedicated long-form career ledger instead of reusing the galaxy-map surface | Original Crooked Galaxy career/archive frame |
+| Important portrait frame | `Shakes and Fidget Assets/StreamingAssets/z_shared/portrait_glow_border_300.png` | Test visual priority around hunter and current-mastery portraits | Original modular portrait frame |
+| Board hub divider | `Shakes and Fidget Assets/StreamingAssets/ui/frame_top.png` | Test a lightweight boundary between secondary destinations and the active contract | Original sci-fi board divider |
 
 ## Boundary rules
 
-- `ReferencePlaceholderBackdrop` is the only runtime file allowed to name `res://References/` paths and maps five composition surfaces plus three class icons.
+- `ReferencePlaceholderBackdrop` is the only runtime file allowed to name `res://References/` paths and maps six composition surfaces plus five interface textures.
 - Raw image loading is limited to interactive editor runs or builds carrying the explicit `reference_placeholders` feature.
 - The adapter retains only the current decoded placeholder. Changing or leaving a context drops the previous texture, and the production backdrop is unloaded while a placeholder is visible.
 - `References/.gdignore` remains mandatory, so Godot never imports these assets.
-- Public export presets must exclude `References/*`; the internal Android profile stages only the eight registered PNGs as Git-ignored raw bytes.
-- Exported public packs reject reference content, while the internal pack inspector requires and decodes all eight staged placeholders.
+- Public export presets must exclude `References/*`; the internal Android profile stages only the eleven registered PNGs as Git-ignored raw bytes.
+- Exported public packs reject reference content, while the internal pack inspector requires and decodes all eleven staged placeholders.
 - Builds and captures containing the visible `PLACEHOLDER INTERNO · SUBSTITUIR` watermark are internal test material, never release or marketing material.
 - Replacement art must be independently created; reference names, characters, layouts, text, code, data, and formulas are not production content.

@@ -18,6 +18,9 @@ $StageMap = @{
 	"class_breaker.png.bin" = Join-Path $ReferenceRoot "registration\icon_warrior_active.png"
 	"class_gunslinger.png.bin" = Join-Path $ReferenceRoot "registration\icon_hunter_active.png"
 	"class_hacker.png.bin" = Join-Path $ReferenceRoot "registration\icon_mage_active.png"
+	"career_ui.png.bin" = Join-Path $ReferenceRoot "ui\sf_4k_UI-BG-navi-login.png"
+	"portrait_frame.png.bin" = Join-Path $ReferenceRoot "z_shared\portrait_glow_border_300.png"
+	"hub_divider.png.bin" = Join-Path $ReferenceRoot "ui\frame_top.png"
 }
 
 New-Item -ItemType Directory -Path $StageRoot -Force | Out-Null

@@ -8,6 +8,7 @@ const CONTEXT_PATHS := {
 	"workshop": SOURCE_ROOT + "locations/bg_fort_0.png",
 	"combat": SOURCE_ROOT + "locations/location_battle_0.png",
 	"class_ui": SOURCE_ROOT + "ui/sf_4k_UI-BG-navi.png",
+	"career_ui": SOURCE_ROOT + "ui/sf_4k_UI-BG-navi-login.png",
 }
 const INTERNAL_CONTEXT_PATHS := {
 	"contracts": "res://internal_reference_assets/contracts.png.bin",
@@ -15,16 +16,21 @@ const INTERNAL_CONTEXT_PATHS := {
 	"workshop": "res://internal_reference_assets/workshop.png.bin",
 	"combat": "res://internal_reference_assets/combat.png.bin",
 	"class_ui": "res://internal_reference_assets/class_ui.png.bin",
+	"career_ui": "res://internal_reference_assets/career_ui.png.bin",
 }
 const UI_PATHS := {
 	"warrant_breaker": SOURCE_ROOT + "registration/icon_warrior_active.png",
 	"orbit_gunslinger": SOURCE_ROOT + "registration/icon_hunter_active.png",
 	"contract_hacker": SOURCE_ROOT + "registration/icon_mage_active.png",
+	"portrait_frame": SOURCE_ROOT + "z_shared/portrait_glow_border_300.png",
+	"hub_divider": SOURCE_ROOT + "ui/frame_top.png",
 }
 const INTERNAL_UI_PATHS := {
 	"warrant_breaker": "res://internal_reference_assets/class_breaker.png.bin",
 	"orbit_gunslinger": "res://internal_reference_assets/class_gunslinger.png.bin",
 	"contract_hacker": "res://internal_reference_assets/class_hacker.png.bin",
+	"portrait_frame": "res://internal_reference_assets/portrait_frame.png.bin",
+	"hub_divider": "res://internal_reference_assets/hub_divider.png.bin",
 }
 
 var texture_rect: TextureRect
@@ -81,7 +87,7 @@ func show_context(context: String) -> void:
 		return
 	texture_rect.texture = texture
 	loaded_source_path = source_path
-	scrim.color = Color(0.015, 0.025, 0.075, 0.38 if context == "class_ui" else (0.76 if context == "world" or context == "workshop" else (0.58 if context == "combat" else 0.66)))
+	scrim.color = Color(0.015, 0.025, 0.075, 0.38 if context == "class_ui" or context == "career_ui" else (0.76 if context == "world" or context == "workshop" else (0.58 if context == "combat" else 0.66)))
 	visible = true
 
 
