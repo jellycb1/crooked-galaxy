@@ -95,6 +95,7 @@ func run_mobile_audit() -> void:
 
 
 func check_android_first_project_profile() -> void:
+	check(not bool(ProjectSettings.get_setting("application/config/quit_on_go_back", true)), "Godot delegates Android Back to the safe in-game router")
 	check(int(ProjectSettings.get_setting("display/window/size/viewport_width", 0)) == 720, "project keeps the 720-unit portrait design width")
 	check(int(ProjectSettings.get_setting("display/window/size/viewport_height", 0)) == 1280, "project keeps the 1280-unit portrait design height")
 	check(int(ProjectSettings.get_setting("display/window/handheld/orientation", 0)) == 1, "handheld orientation remains portrait")

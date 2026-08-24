@@ -33,6 +33,7 @@ function Require-ConfigMatch {
 
 Require-ConfigMatch $ProjectText '^window/size/viewport_width=720$' "portrait viewport width must remain 720"
 Require-ConfigMatch $ProjectText '^window/size/viewport_height=1280$' "portrait viewport height must remain 1280"
+Require-ConfigMatch $ProjectText '^config/quit_on_go_back=false$' "Android Back must remain delegated to the safe in-game router"
 Require-ConfigMatch $ProjectText '^window/handheld/orientation=1$' "handheld orientation must remain portrait"
 Require-ConfigMatch $ProjectText '^window/stretch/aspect="expand"$' "modern portrait screens must expand instead of letterboxing"
 Require-ConfigMatch $ProjectText '^renderer/rendering_method.mobile="gl_compatibility"$' "mobile renderer must remain GL Compatibility"
