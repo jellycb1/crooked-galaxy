@@ -22,6 +22,8 @@ Repeated-contract briefings mark each route's displayed payment as already strea
 
 Hunt incidents recompute and display the final victory payment for every choice, including any streak amount already embedded after that consequence.
 
+Automatic combat retains the selected incident result and adjusted payment above the encounter, preserving economic context through resolution.
+
 When a capture reveals a new warrant, the reward also projects the best approach and win chance after equipping the pending item, so the direct-contract and workshop routes have visible context.
 
 Post-combat reports summarize turns, damage and the contribution of tactical traits or planetary kits; defeats name any lost capture streak, explain its ×1 restart, retain a compact diagnosis on the board, and link directly to a field-test workshop that keeps the failed warrant focused through the next attempt.

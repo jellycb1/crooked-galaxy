@@ -713,6 +713,15 @@ func build_combat() -> void:
 	var approach: Dictionary = GameState.current_bounty.get("approach", {})
 	var approach_suffix := " · %s" % str(approach.get("name", "")).to_upper() if not approach.is_empty() else ""
 	content.add_child(center_label("ENCONTRO AUTOMÁTICO · TURNO %d%s" % [GameState.combat_round, approach_suffix], 17, CORAL))
+	if GameState.current_bounty.has("hunt_event_result"):
+		var combat_payment := CoreRules.bounty_streak_reward(int(GameState.current_bounty.credits), int(GameState.player.get("capture_streak", 0)) + 1)
+		var incident_text := "INCIDENTE APLICADO · %s · PAGAMENTO ◈ %d" % [str(GameState.current_bounty.hunt_event_result), int(combat_payment.credits)]
+		if int(combat_payment.bonus_credits) > 0:
+			incident_text += " (EMBALO +%d INCLUÍDO)" % int(combat_payment.bonus_credits)
+		var incident_summary := center_label(incident_text, 11, GOLD)
+		incident_summary.name = "CombatIncidentSummary"
+		incident_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		content.add_child(incident_summary)
 	var stage := PanelContainer.new()
 	stage.clip_contents = true
 	stage.custom_minimum_size = Vector2(0, 390)

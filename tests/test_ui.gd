@@ -59,6 +59,8 @@ func run_smoke_test() -> void:
 	state.begin_combat()
 	await process_frame
 	check(state.player_hp > 0 and state.enemy_hp > 0, "combat screen initializes")
+	var combat_incident := scene.find_child("CombatIncidentSummary", true, false) as Label
+	check(combat_incident != null and combat_incident.text.contains("PAGAMENTO") and combat_incident.text.contains("EMBALO"), "combat carries the chosen incident consequence and adjusted payout")
 	state.combat_step()
 	scene.render()
 	await process_frame
