@@ -76,6 +76,8 @@ Numerical repair enforces only canonical lower bounds and existing reinforcement
 
 Identifier repair accepts only canonical targets, planets, and milestones, removes duplicates, routes an invalid current planet to the furthest legitimately unlocked chapter, and clears protection/loadout references to items the player no longer owns.
 
+Equipment repair canonicalizes rarity colors and known modification payloads, removes unknown planetary origins or traits, and applies the same rules to pending reward loot so an interrupted decision survives whenever the base item remains usable.
+
 ## Run
 
 Open `project.godot` in Godot 4, or run from a console where Godot is available:

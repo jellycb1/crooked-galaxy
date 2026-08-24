@@ -880,13 +880,24 @@ func load_game() -> void:
 			player.captures_by_planet = {ContentDB.PLANET.id: int(player.wins)}
 	else:
 		player_repaired = true
+	var phase_payload_repaired := false
 	phase = int(parsed.get("phase", Phase.BOARD))
 	var loaded_bounty = parsed.get("current_bounty", {})
 	current_bounty = loaded_bounty if loaded_bounty is Dictionary else {}
+	if not loaded_bounty is Dictionary:
+		phase_payload_repaired = true
 	var loaded_approaches = parsed.get("offered_approaches", [])
 	offered_approaches.assign(loaded_approaches if loaded_approaches is Array else [])
 	var loaded_loot = parsed.get("pending_loot", {})
-	pending_loot = loaded_loot if loaded_loot is Dictionary else {}
+	pending_loot = loaded_loot.duplicate(true) if loaded_loot is Dictionary else {}
+	if not loaded_loot is Dictionary:
+		phase_payload_repaired = true
+	elif not pending_loot.is_empty():
+		if loaded_equipment_is_safe(pending_loot, str(pending_loot.get("slot", ""))):
+			phase_payload_repaired = sanitize_loaded_equipment(pending_loot) or phase_payload_repaired
+		else:
+			pending_loot = {}
+			phase_payload_repaired = true
 	hunt_started_at = float(parsed.get("hunt_started_at", 0.0))
 	hunt_ends_at = float(parsed.get("hunt_ends_at", 0.0))
 	var loaded_hunt_event = parsed.get("hunt_event", {})
@@ -904,7 +915,7 @@ func load_game() -> void:
 	var loaded_chapter = parsed.get("chapter_completion", {})
 	chapter_completion = loaded_chapter if loaded_chapter is Dictionary else {}
 	var repaired_phase_state := reconcile_loaded_phase()
-	var repaired_phase := player_repaired or repaired_phase_state
+	var repaired_phase := player_repaired or phase_payload_repaired or repaired_phase_state
 	var offline_rewards := apply_offline_progress(Time.get_unix_time_from_system())
 	if int(offline_rewards.credits) > 0 or int(offline_rewards.scrap) > 0:
 		# Persist immediately so an abrupt close cannot claim the same patrol twice.
@@ -953,7 +964,7 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 				sanitized[slot] = fallback
 				repaired = true
 			else:
-				repaired = sanitize_loaded_equipment_numbers(item) or repaired
+				repaired = sanitize_loaded_equipment(item) or repaired
 				sanitized[slot] = item
 		else:
 			sanitized[slot] = fallback
@@ -964,7 +975,7 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 		for entry in loaded_inventory:
 			if entry is Dictionary and loaded_equipment_is_safe(entry, str(entry.get("slot", ""))):
 				var clean_entry: Dictionary = entry.duplicate(true)
-				repaired = sanitize_loaded_equipment_numbers(clean_entry) or repaired
+				repaired = sanitize_loaded_equipment(clean_entry) or repaired
 				clean_inventory.append(clean_entry)
 			else:
 				repaired = true
@@ -1072,7 +1083,7 @@ func loaded_equipment_is_safe(item: Dictionary, expected_slot: String) -> bool:
 	return not item.has("trait") or item.trait is Dictionary
 
 
-func sanitize_loaded_equipment_numbers(item: Dictionary) -> bool:
+func sanitize_loaded_equipment(item: Dictionary) -> bool:
 	var repaired := false
 	if int(item.power) < 0:
 		item.power = 0
@@ -1087,6 +1098,33 @@ func sanitize_loaded_equipment_numbers(item: Dictionary) -> bool:
 	if int(item.get("integrity_upgrades", 0)) > CoreRules.MAX_INTEGRITY_UPGRADES:
 		item.integrity_upgrades = CoreRules.MAX_INTEGRITY_UPGRADES
 		repaired = true
+	var rarity_colors := {"Comum": "#b9c2d9", "Raro": "#58d9ff", "Épico": "#d789ff"}
+	var rarity := str(item.get("rarity", "Comum"))
+	if not rarity_colors.has(rarity):
+		rarity = "Comum"
+		item.rarity = rarity
+		repaired = true
+	if str(item.get("color", "")) != str(rarity_colors[rarity]):
+		item.color = str(rarity_colors[rarity])
+		repaired = true
+	if item.has("origin_planet_id"):
+		var origin_is_known := ContentDB.PLANETS.any(func(planet): return str(planet.id) == str(item.origin_planet_id))
+		if not origin_is_known:
+			item.erase("origin_planet_id")
+			repaired = true
+	if item.has("trait"):
+		var canonical_trait := {}
+		var trait_id := str(item.trait.get("id", ""))
+		for definition in ContentDB.ITEM_TRAITS[str(item.slot)]:
+			if str(definition.id) == trait_id:
+				canonical_trait = definition.duplicate(true)
+				break
+		if canonical_trait.is_empty():
+			item.erase("trait")
+			repaired = true
+		elif item.trait != canonical_trait:
+			item.trait = canonical_trait
+			repaired = true
 	return repaired
 
 

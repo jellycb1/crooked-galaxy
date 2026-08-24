@@ -174,7 +174,11 @@ func _init() -> void:
 			"locked_item_ids": ["missing_item"],
 			"weapon": ["not an item"],
 			"armor": {"id": "", "name": "", "slot": "armor", "power": "broken"},
-			"inventory": ["not an item", {"id": "", "slot": "weapon"}],
+			"inventory": [
+				"not an item",
+				{"id": "", "slot": "weapon"},
+				{"id": "nested_bad", "name": "Peça Adulterada", "slot": "weapon", "power": 5, "rarity": "Mítico", "color": "not-a-color", "origin_planet_id": "invented_planet", "trait": {"id": "ambush_capacitor", "name": "CAPACITOR FORJADO", "description": "+999", "opening_damage_bonus": 999}},
+			],
 			"equipment_loadouts": [{"weapon_id": "missing"}],
 			"captures_by_target": {"invented_target": 99, "gloop": -3},
 			"captures_by_planet": {"invented_planet": 99, "dustball_prime": 2},
@@ -192,7 +196,10 @@ func _init() -> void:
 	check(repaired.phase == repaired.Phase.BOARD and repaired.current_bounty.is_empty() and repaired.pending_loot.is_empty(), "damaged interrupted phase falls back safely to the board")
 	check(int(repaired.player.credits) == 88 and int(repaired.player.wins) == 2, "phase repair preserves valid player progression")
 	check(repaired.player.weapon is Dictionary and not str(repaired.player.weapon.id).is_empty() and repaired.player.armor is Dictionary, "damaged equipment falls back to usable starter items")
-	check(repaired.player.inventory is Array and repaired.player.inventory.is_empty() and repaired.player.captures_by_target is Dictionary, "damaged compound player fields return to safe defaults")
+	check(repaired.player.inventory is Array and repaired.player.inventory.size() == 1 and repaired.player.captures_by_target is Dictionary, "damaged compound player fields retain only structurally usable inventory")
+	var repaired_item: Dictionary = repaired.player.inventory[0]
+	check(str(repaired_item.rarity) == "Comum" and str(repaired_item.color) == "#b9c2d9" and not repaired_item.has("origin_planet_id"), "unknown rarity, color, and origin return to canonical item presentation")
+	check(str(repaired_item.trait.name) == "CAPACITOR DE EMBOSCADA" and int(repaired_item.trait.opening_damage_bonus) == 5, "known trait ids restore canonical modifiers instead of accepting forged nested values")
 	check(repaired.player.equipment_loadouts.size() == 2 and repaired.player.equipment_loadouts.all(func(loadout): return loadout is Dictionary), "damaged loadouts normalize to two usable slots")
 	check(int(repaired.player.scrap) == 0 and int(repaired.player.level) == 1 and int(repaired.player.base_power) == 1, "impossible negative progression values are clamped to canonical lower bounds")
 	check(int(repaired.player.capture_streak) == 4 and int(repaired.player.best_capture_streak) == 4, "best streak remains coherent with the active streak after repair")
@@ -204,6 +211,18 @@ func _init() -> void:
 	var repaired_file := FileAccess.open(damaged_save, FileAccess.READ)
 	var repaired_payload = JSON.parse_string(repaired_file.get_as_text())
 	check(int(repaired_payload.phase) == repaired.Phase.BOARD and repaired_payload.current_bounty is Dictionary, "phase repair is persisted so the same damaged save cannot recur")
+	repaired_file = FileAccess.open(damaged_save, FileAccess.WRITE)
+	repaired_file.store_string(JSON.stringify({
+		"version": StateScript.SAVE_VERSION,
+		"player": source.default_player(),
+		"phase": source.Phase.REWARD,
+		"current_bounty": ContentDB.TARGETS[0],
+		"pending_loot": {"id": "pending_forged", "name": "Loot Adulterado", "slot": "weapon", "power": 6, "rarity": "Épico", "color": "#d789ff", "origin_planet_id": "invented_planet", "trait": {"id": "ambush_capacitor", "name": "FORJADO", "description": "+999", "opening_damage_bonus": 999}},
+	}))
+	repaired_file = null
+	repaired.load_game()
+	check(repaired.phase == repaired.Phase.REWARD and str(repaired.pending_loot.id) == "pending_forged", "usable pending loot preserves the interrupted reward decision during nested repair")
+	check(int(repaired.pending_loot.trait.opening_damage_bonus) == 5 and not repaired.pending_loot.has("origin_planet_id"), "pending loot receives the same canonical trait and origin repair as owned equipment")
 	repaired_file = FileAccess.open(damaged_save, FileAccess.WRITE)
 	repaired_file.store_string(JSON.stringify({
 		"version": StateScript.SAVE_VERSION,
