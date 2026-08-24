@@ -13,9 +13,12 @@ func run() -> void:
 	var backdrop := EnvironmentBackdropScript.new()
 	root.add_child(backdrop)
 	await process_frame
-	backdrop.show_context("contracts")
+	backdrop.show_context("contracts", "dustball_prime")
 	check(backdrop.visible, "original contract environment is available in exported and headless builds")
 	check(backdrop.loaded_context == "contracts", "environment loads only the requested contract context")
+	var dustball_modulate := backdrop.texture_rect.modulate
+	backdrop.show_context("contracts", "congelaria_sa")
+	check(backdrop.texture_rect.modulate != dustball_modulate, "same environment receives a distinct active-planet tint without reloading its texture")
 	check(backdrop.texture_rect.texture != null, "contract environment resolves its imported texture")
 	check(maxi(backdrop.texture_rect.texture.get_width(), backdrop.texture_rect.texture.get_height()) <= 1280, "contract environment stays within the Android-first texture budget")
 	backdrop.show_context("world")
@@ -27,6 +30,7 @@ func run() -> void:
 	backdrop.show_context("combat")
 	check(backdrop.visible and backdrop.texture_rect.texture != null, "original combat environment is runtime-ready")
 	check(maxi(backdrop.texture_rect.texture.get_width(), backdrop.texture_rect.texture.get_height()) <= 1280, "combat environment stays within the Android-first texture budget")
+	check(backdrop.planet_tint("unknown") == Color.WHITE, "unknown planets preserve the neutral production painting")
 	backdrop.show_context("unknown")
 	check(not backdrop.visible and backdrop.texture_rect.texture == null and backdrop.loaded_context.is_empty(), "unknown contexts release the prior texture and fail closed")
 	backdrop.queue_free()

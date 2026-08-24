@@ -33,7 +33,7 @@ func _ready() -> void:
 	visible = false
 
 
-func show_context(context: String) -> void:
+func show_context(context: String, planet_id := "") -> void:
 	if not CONTEXT_PATHS.has(context):
 		texture_rect.texture = null
 		loaded_context = ""
@@ -48,5 +48,16 @@ func show_context(context: String) -> void:
 			return
 		texture_rect.texture = texture
 		loaded_context = context
+	texture_rect.modulate = Color.WHITE.lerp(planet_tint(planet_id), 0.14)
 	scrim.color = Color(0.015, 0.025, 0.075, 0.72 if context == "world" or context == "workshop" else (0.52 if context == "combat" else 0.60))
 	visible = true
+
+
+func planet_tint(planet_id: String) -> Color:
+	match planet_id:
+		"dustball_prime": return Color("#ffc857")
+		"congelaria_sa": return Color("#72f1dd")
+		"micelia_404": return Color("#b8f45d")
+		"ferro_velho_omega": return Color("#ff9f43")
+		"cassino_quasar": return Color("#ff75d8")
+		_: return Color.WHITE

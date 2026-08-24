@@ -143,7 +143,7 @@ func render() -> void:
 	if space_backdrop:
 		space_backdrop.planet_id = str(GameState.player.get("current_planet_id", ContentDB.PLANET.id))
 	if environment_backdrop:
-		environment_backdrop.show_context(environment_context())
+		environment_backdrop.show_context(environment_context(), str(GameState.player.get("current_planet_id", ContentDB.PLANET.id)))
 	if reference_backdrop:
 		reference_backdrop.show_context(environment_context())
 	if sound_fx:
