@@ -28,7 +28,7 @@ The bounty board now links to a deterministic three-offer planet market. Credits
 
 The bounty board opens directly on `MANDADOS`: onboarding or receipts, exact warrant progress, and the active contract form one uninterrupted decision path. A session-only `DESTINOS` tab moves arsenal, market, hangar, galaxy, career, and hunter management into a readable 2×3 navigation surface with contextual counts and continuation states. Android Back returns that secondary surface to the contracts before it may exit, and equipment details remain in the dedicated hunter/arsenal screens instead of competing with the bounty.
 
-The persistent header keeps the equipped hunter visible beside level and power. Its framed portrait is also a 48-unit character shortcut, taking the player directly to class and attribute decisions without adding another board row.
+The persistent header keeps the equipped hunter visible beside level and power. Its framed portrait is also a 48-unit character shortcut, taking the player directly to class and attribute decisions without adding another board row. Credits, scrap, rank, and victories now share one compact ledger instead of four stacked dashboard cards, returning vertical space to the active contract, commerce, and combat surfaces on physical Android screens.
 
 The `HANGAR DUVIDOSO` adds four permanent transports unlocked across chapter completion. Bought models can be equipped freely and reduce only the approach's base hunt time by 10–40%; incident delays remain fully additive, while combat odds, rewards, loot power, and AFK patrols remain unchanged. Prices compete directly with market spending, turning the fastest models into campaign and post-campaign credit goals rather than compulsory combat upgrades. Ownership and the active model persist atomically through save schema 9, while malformed or prematurely unlocked records are repaired safely.
 
@@ -82,7 +82,7 @@ Repeated-contract briefings mark each route's displayed payment as already strea
 
 Hunt incidents recompute and display the final victory payment for every choice, including any streak amount already embedded after that consequence.
 
-Every incident uses the same visual decision grammar: a shield marks paid tactical advantage, a branching route and clock mark the slower experience path, and a lightning bolt marks the higher-risk credit option. Distinct card colors and compact `VITÓRIA / LÍQUIDO` receipts keep all three consequences comparable without turning the encounter into a financial form.
+Every incident uses the same visual decision grammar: a shield marks paid tactical advantage, a branching route and clock mark the slower experience path, and a lightning bolt marks the higher-risk credit option. A compact signal dossier now binds event code, title, fiction, paused position, and remaining time before the three decisions. Distinct card colors and compact `VITÓRIA / LÍQUIDO` receipts keep all consequences comparable without turning the encounter into a financial form.
 
 Their interruption panel also names the exact paused hunt percentage and remaining seconds, making it clear that the idle timer resumes after the choice rather than having stalled.
 

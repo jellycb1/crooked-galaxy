@@ -28,6 +28,7 @@ func run_smoke_test() -> void:
 	check(scene.content.get_child_count() >= 4, "bounty board renders")
 	var header_character := scene.find_child("HeaderCharacterAction", true, false) as Button
 	check(header_character != null and scene.find_child("HeaderHunterPortrait", true, false) != null, "primary header keeps hunter identity and character navigation visible")
+	check(scene.find_child("HeaderResourceStrip", true, false) != null and ["HeaderCredits", "HeaderScrap", "HeaderReputation", "HeaderWins"].all(func(node_name): return scene.find_child(node_name, true, false) != null), "primary header keeps all resources in one compact ledger")
 	if header_character != null:
 		header_character.pressed.emit()
 		await process_frame
@@ -86,6 +87,7 @@ func run_smoke_test() -> void:
 	scene.render()
 	await process_frame
 	check(scene.find_child("HuntEventChoices", true, false) != null, "mid-hunt incident renders")
+	check(scene.find_child("HuntEventDossier", true, false) != null and scene.find_child("HuntEventSignal", true, false) != null, "incident leads with one illustrated field dossier before its decisions")
 	var incident_icons := scene.find_children("HuntChoiceIcon_*", "Control", true, false)
 	var incident_kinds := {}
 	for icon in incident_icons:

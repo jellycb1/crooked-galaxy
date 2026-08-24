@@ -334,11 +334,11 @@ func build_header() -> void:
 	var identity := VBoxContainer.new()
 	identity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(identity)
-	identity.add_child(label("CROOKED GALAXY", 30, CYAN))
+	identity.add_child(label("CROOKED GALAXY", 26, CYAN))
 	var location_row := HBoxContainer.new()
 	location_row.add_theme_constant_override("separation", 10)
 	identity.add_child(location_row)
-	var location := label(str(planet.name).to_upper(), 15, Color(str(planet.accent)))
+	var location := label(str(planet.name).to_upper(), 13, Color(str(planet.accent)))
 	location.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	location_row.add_child(location)
 	var build_version := label("v%s" % str(ProjectSettings.get_setting("application/config/version", "dev")), 11, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
@@ -347,7 +347,7 @@ func build_header() -> void:
 
 	var character_badge := Button.new()
 	character_badge.name = "HeaderCharacterAction"
-	character_badge.custom_minimum_size = Vector2(132, 72)
+	character_badge.custom_minimum_size = Vector2(124, 60)
 	character_badge.focus_mode = Control.FOCUS_ALL
 	character_badge.tooltip_text = "Abrir classe e atributos"
 	character_badge.add_theme_stylebox_override("normal", box_style(PANEL_LIGHT, 14))
@@ -363,14 +363,14 @@ func build_header() -> void:
 	var badge_margin := MarginContainer.new()
 	badge_margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side in ["left", "top", "right", "bottom"]:
-		badge_margin.add_theme_constant_override("margin_%s" % side, 7)
+		badge_margin.add_theme_constant_override("margin_%s" % side, 6)
 	badge_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	character_badge.add_child(badge_margin)
 	var badge_row := HBoxContainer.new()
 	badge_row.add_theme_constant_override("separation", 5)
 	badge_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	badge_margin.add_child(badge_row)
-	var header_portrait := framed_hunter_portrait(50)
+	var header_portrait := framed_hunter_portrait(42)
 	header_portrait.name = "HeaderHunterPortrait"
 	badge_row.add_child(header_portrait)
 	var badge_copy := VBoxContainer.new()
@@ -378,16 +378,28 @@ func build_header() -> void:
 	badge_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	badge_copy.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	badge_row.add_child(badge_copy)
-	badge_copy.add_child(label("NÍVEL %d" % int(GameState.player.level), 12, GOLD, HORIZONTAL_ALIGNMENT_CENTER))
-	badge_copy.add_child(label("PODER %d" % CoreRules.player_power(GameState.player), 13, INK, HORIZONTAL_ALIGNMENT_CENTER))
+	badge_copy.add_child(label("NÍVEL %d" % int(GameState.player.level), 10, GOLD, HORIZONTAL_ALIGNMENT_CENTER))
+	badge_copy.add_child(label("PODER %d" % CoreRules.player_power(GameState.player), 11, INK, HORIZONTAL_ALIGNMENT_CENTER))
 
-	var stats := HBoxContainer.new()
-	stats.add_theme_constant_override("separation", 10)
-	content.add_child(stats)
-	stats.add_child(stat_chip("CRÉDITOS", str(GameState.player.credits), GOLD))
-	stats.add_child(stat_chip("SUCATA", str(GameState.player.get("scrap", 0)), CORAL))
-	stats.add_child(stat_chip("REPUTAÇÃO", "RANK %d" % (int(GameState.player.reputation) + 1), LIME))
-	stats.add_child(stat_chip("VITÓRIAS", str(GameState.player.wins), CYAN))
+	var ledger := panel(HBoxContainer.new(), Color("#09132a"), 9, 6)
+	ledger.name = "HeaderResourceStrip"
+	var stats := ledger.get_child(0) as HBoxContainer
+	stats.add_theme_constant_override("separation", 4)
+	stats.add_child(header_resource_cell("HeaderCredits", "CRÉDITOS", str(GameState.player.credits), GOLD))
+	stats.add_child(header_resource_cell("HeaderScrap", "SUCATA", str(GameState.player.get("scrap", 0)), CORAL))
+	stats.add_child(header_resource_cell("HeaderReputation", "RANK", str(int(GameState.player.reputation) + 1), LIME))
+	stats.add_child(header_resource_cell("HeaderWins", "VITÓRIAS", str(GameState.player.wins), CYAN))
+	content.add_child(ledger)
+
+
+func header_resource_cell(node_name: String, title: String, value: String, color: Color) -> VBoxContainer:
+	var cell := VBoxContainer.new()
+	cell.name = node_name
+	cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cell.add_theme_constant_override("separation", 0)
+	cell.add_child(label(title, 9, MUTED, HORIZONTAL_ALIGNMENT_CENTER))
+	cell.add_child(label(value, 13, color, HORIZONTAL_ALIGNMENT_CENTER))
+	return cell
 
 
 func build_character_header() -> void:
@@ -1250,25 +1262,43 @@ func build_hunt() -> void:
 func build_hunt_event() -> void:
 	var event := GameState.hunt_event
 	var accent := Color(str(event.get("color", "#ffc857")))
-	content.add_spacer(false)
-	content.add_child(center_label("IMPREVISTO NA CAÇADA", 17, CORAL))
+	var event_heading := HBoxContainer.new()
+	event_heading.add_theme_constant_override("separation", 8)
+	content.add_child(event_heading)
+	var heading_copy := VBoxContainer.new()
+	heading_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	event_heading.add_child(heading_copy)
+	heading_copy.add_child(label("IMPREVISTO NA CAÇADA", 17, CORAL))
+	heading_copy.add_child(label("DECISÃO DE CAMPO · A CAÇA ESTÁ PAUSADA", 11, MUTED))
 	var field_test_record := field_test_record_label("IncidentFieldTestContext")
 	if field_test_record != null:
 		content.add_child(field_test_record)
-	var incident := panel(VBoxContainer.new(), Color("#18264b"), 20, 22)
+	var incident := panel(HBoxContainer.new(), Color("#18264b"), 18, 16)
+	incident.name = "HuntEventDossier"
 	content.add_child(incident)
-	var incident_box := incident.get_child(0) as VBoxContainer
-	incident_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	incident_box.add_theme_constant_override("separation", 8)
+	var incident_row := incident.get_child(0) as HBoxContainer
+	incident_row.add_theme_constant_override("separation", 14)
 	var symbol := str(event.get("symbol", "?!"))
-	incident_box.add_child(center_label(symbol, 42, accent))
-	incident_box.add_child(center_label(str(event.get("title", "Algo Estranho")), 26, INK))
-	var description := center_label(str(event.get("description", "A perseguição ficou mais complicada.")), 15, MUTED)
+	var signal_panel := panel(VBoxContainer.new(), Color("#08142d"), 14, 10)
+	signal_panel.name = "HuntEventSignal"
+	signal_panel.custom_minimum_size = Vector2(86, 86)
+	var signal_box := signal_panel.get_child(0) as VBoxContainer
+	signal_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	signal_box.add_child(center_label("SINAL", 10, MUTED))
+	signal_box.add_child(center_label(symbol, 30, accent))
+	incident_row.add_child(signal_panel)
+	var incident_box := VBoxContainer.new()
+	incident_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	incident_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	incident_box.add_theme_constant_override("separation", 4)
+	incident_row.add_child(incident_box)
+	incident_box.add_child(label(str(event.get("title", "Algo Estranho")), 22, INK))
+	var description := label(str(event.get("description", "A perseguição ficou mais complicada.")), 13, MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	incident_box.add_child(description)
 	var paused_duration := maxf(0.1, GameState.hunt_elapsed_before_event + GameState.hunt_remaining_after_event)
 	var paused_percent := roundi(100.0 * GameState.hunt_elapsed_before_event / paused_duration)
-	var pause_status := center_label("CAÇA PAUSADA EM %d%% · %ds RESTANTES APÓS A ESCOLHA" % [paused_percent, ceili(GameState.hunt_remaining_after_event)], 12, GOLD)
+	var pause_status := label("CAÇA PAUSADA EM %d%% · %ds RESTANTES APÓS A ESCOLHA" % [paused_percent, ceili(GameState.hunt_remaining_after_event)], 11, GOLD)
 	pause_status.name = "HuntEventPauseStatus"
 	incident_box.add_child(pause_status)
 
