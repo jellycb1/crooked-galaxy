@@ -696,6 +696,9 @@ func hunt_choice_card(choice: Dictionary, accent: Color) -> PanelContainer:
 	var payment_text := "PAGAMENTO SE VENCER · ◈ %d" % int(projected_payment.credits)
 	if int(projected_payment.bonus_credits) > 0:
 		payment_text += " · EMBALO +%d INCLUÍDO" % int(projected_payment.bonus_credits)
+	var choice_cost := int(choice.get("credit_cost", 0))
+	if choice_cost > 0:
+		payment_text += " · LÍQUIDO APÓS CUSTO ◈ %d" % (int(projected_payment.credits) - choice_cost)
 	var payment := label(payment_text, 11, GOLD)
 	payment.name = "HuntChoicePayment_%s" % str(choice.id)
 	copy.add_child(payment)
