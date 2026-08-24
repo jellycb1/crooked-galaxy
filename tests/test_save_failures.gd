@@ -29,6 +29,12 @@ func run_save_failure_audit() -> void:
 	var warning := scene.find_child("SaveWarningBanner", true, false) as PanelContainer
 	var retry := scene.find_child("RetrySaveAction", true, false) as Button
 	check(warning != null and retry != null, "save failure is visible with an explicit retry action")
+	state.save_warning = ""
+	scene.render()
+	scene._notification(Node.NOTIFICATION_APPLICATION_PAUSED)
+	scene._notification(Node.NOTIFICATION_APPLICATION_RESUMED)
+	await process_frame
+	check(scene.find_child("SaveWarningBanner", true, false) != null, "a failed Android background save is visible immediately after resume")
 	check(not scene.try_save_before_quit(), "window close and Android Back refuse to exit while progress cannot be saved")
 	check(scene.find_child("SaveWarningBanner", true, false) != null, "refused exit keeps the recovery action visible")
 	state.phase = state.Phase.VICTORY

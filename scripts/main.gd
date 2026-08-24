@@ -54,6 +54,8 @@ func _notification(what: int) -> void:
 		set_lifecycle_suspension("application", true)
 	elif what == NOTIFICATION_APPLICATION_RESUMED:
 		set_lifecycle_suspension("application", false)
+		if not GameState.save_warning.is_empty():
+			call_deferred("render")
 
 
 func android_back_action() -> String:
