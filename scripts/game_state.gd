@@ -998,17 +998,65 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	if int(sanitized.best_capture_streak) < int(sanitized.capture_streak):
 		sanitized.best_capture_streak = int(sanitized.capture_streak)
 		repaired = true
+	var known_target_ids := {}
+	for target in ContentDB.TARGETS:
+		known_target_ids[str(target.id)] = true
+	var known_planet_ids := {}
+	for planet in ContentDB.PLANETS:
+		known_planet_ids[str(planet.id)] = true
 	for key in ["captures_by_target", "captures_by_planet"]:
 		var clean_counts := {}
+		var known_ids: Dictionary = known_target_ids if key == "captures_by_target" else known_planet_ids
 		for record_id in sanitized[key]:
 			var value = sanitized[key][record_id]
-			if not (value is int or value is float) or str(record_id).is_empty():
+			if not known_ids.has(str(record_id)) or not (value is int or value is float):
 				repaired = true
 				continue
 			clean_counts[str(record_id)] = maxi(0, int(value))
 			if int(value) < 0:
 				repaired = true
 		sanitized[key] = clean_counts
+	var clean_completed: Array = []
+	for planet in ContentDB.PLANETS:
+		if sanitized.completed_planets.has(str(planet.id)):
+			clean_completed.append(str(planet.id))
+	if clean_completed.size() != sanitized.completed_planets.size():
+		repaired = true
+	sanitized.completed_planets = clean_completed
+	var current_planet_id := str(sanitized.current_planet_id)
+	if not known_planet_ids.has(current_planet_id) or not ContentDB.is_planet_unlocked(current_planet_id, clean_completed):
+		current_planet_id = str(ContentDB.PLANET.id)
+		for planet in ContentDB.PLANETS:
+			if ContentDB.is_planet_unlocked(str(planet.id), clean_completed):
+				current_planet_id = str(planet.id)
+		sanitized.current_planet_id = current_planet_id
+		repaired = true
+	var known_milestone_ids := {}
+	for milestone in CareerRules.milestones(sanitized):
+		known_milestone_ids[str(milestone.id)] = true
+	var clean_claimed: Array = []
+	for milestone_id in sanitized.claimed_milestones:
+		if known_milestone_ids.has(str(milestone_id)) and not clean_claimed.has(str(milestone_id)):
+			clean_claimed.append(str(milestone_id))
+		else:
+			repaired = true
+	sanitized.claimed_milestones = clean_claimed
+	var owned_item_ids := {str(sanitized.weapon.id): true, str(sanitized.armor.id): true}
+	for item in sanitized.inventory:
+		owned_item_ids[str(item.id)] = true
+	var clean_locked_ids: Array = []
+	for item_id in sanitized.locked_item_ids:
+		if owned_item_ids.has(str(item_id)) and not clean_locked_ids.has(str(item_id)):
+			clean_locked_ids.append(str(item_id))
+		else:
+			repaired = true
+	sanitized.locked_item_ids = clean_locked_ids
+	for loadout in sanitized.equipment_loadouts:
+		for slot in ["weapon", "armor"]:
+			var id_key := "%s_id" % slot
+			if not str(loadout[id_key]).is_empty() and not owned_item_ids.has(str(loadout[id_key])):
+				loadout[id_key] = ""
+				repaired = true
 	return {"player": sanitized, "repaired": repaired}
 
 

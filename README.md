@@ -74,6 +74,8 @@ When loading performs a migration or repair, the next board visit receives a con
 
 Numerical repair enforces only canonical lower bounds and existing reinforcement caps: currencies and counters cannot be negative, level/base power stay at least one, and best streak cannot trail the active streak, while legitimately high long-career power and level remain untouched.
 
+Identifier repair accepts only canonical targets, planets, and milestones, removes duplicates, routes an invalid current planet to the furthest legitimately unlocked chapter, and clears protection/loadout references to items the player no longer owns.
+
 ## Run
 
 Open `project.godot` in Godot 4, or run from a console where Godot is available:

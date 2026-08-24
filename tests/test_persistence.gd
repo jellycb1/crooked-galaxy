@@ -25,8 +25,8 @@ func _init() -> void:
 	source.player.weapon.power_upgrades = 3
 	source.player.weapon.origin_planet_id = "dustball_prime"
 	source.player.armor.origin_planet_id = "dustball_prime"
-	source.player.locked_item_ids = ["test_loot"]
-	source.player.equipment_loadouts = [{"weapon_id": "test_loot", "armor_id": "starter_armor"}, {"weapon_id": "", "armor_id": ""}]
+	source.player.locked_item_ids = ["starter_weapon"]
+	source.player.equipment_loadouts = [{"weapon_id": "starter_weapon", "armor_id": "starter_armor"}, {"weapon_id": "", "armor_id": ""}]
 	source.phase = source.Phase.VICTORY
 	source.current_bounty = ContentDB.apply_approach(ContentDB.TARGETS[0], ContentDB.CONTRACT_APPROACHES[2])
 	source.pending_loot = {
@@ -61,8 +61,8 @@ func _init() -> void:
 	check(int(restored.player.weapon.integrity_upgrades) == 2, "equipment reinforcement survives save and load")
 	check(int(restored.player.weapon.power_upgrades) == 3, "power calibration history survives save and load")
 	check(CoreRules.equipment_set_origin(restored.player) == "dustball_prime", "planetary kit origin survives save and load")
-	check(restored.player.locked_item_ids.has("test_loot"), "protected inventory ids survive save and load")
-	check(str(restored.player.equipment_loadouts[0].weapon_id) == "test_loot", "equipment loadouts survive save and load")
+	check(restored.player.locked_item_ids.has("starter_weapon"), "protected equipment ids survive save and load")
+	check(str(restored.player.equipment_loadouts[0].weapon_id) == "starter_weapon", "equipment loadouts survive save and load")
 	check(restored.phase == restored.Phase.VICTORY, "capture phase survives save and load")
 	check(int(restored.current_bounty.get("scrap_reward", 0)) == 2 and int(restored.current_bounty.get("loot_power", 0)) == int(ContentDB.TARGETS[0].power), "corporate reward and canonical loot tier survive an interrupted capture")
 	check(str(restored.pending_loot.id) == "test_loot", "pending reward survives save and load")
@@ -168,11 +168,16 @@ func _init() -> void:
 			"capture_streak": 4,
 			"best_capture_streak": 1,
 			"wins": 2,
+			"current_planet_id": "planet_that_never_existed",
+			"completed_planets": ["planet_that_never_existed", "dustball_prime", "dustball_prime"],
+			"claimed_milestones": ["invented_milestone", "first_warrant", "first_warrant"],
+			"locked_item_ids": ["missing_item"],
 			"weapon": ["not an item"],
 			"armor": {"id": "", "name": "", "slot": "armor", "power": "broken"},
 			"inventory": ["not an item", {"id": "", "slot": "weapon"}],
 			"equipment_loadouts": [{"weapon_id": "missing"}],
-			"captures_by_target": "not a capture map",
+			"captures_by_target": {"invented_target": 99, "gloop": -3},
+			"captures_by_planet": {"invented_planet": 99, "dustball_prime": 2},
 		},
 		"phase": source.Phase.REWARD,
 		"current_bounty": "missing contract object",
@@ -191,6 +196,10 @@ func _init() -> void:
 	check(repaired.player.equipment_loadouts.size() == 2 and repaired.player.equipment_loadouts.all(func(loadout): return loadout is Dictionary), "damaged loadouts normalize to two usable slots")
 	check(int(repaired.player.scrap) == 0 and int(repaired.player.level) == 1 and int(repaired.player.base_power) == 1, "impossible negative progression values are clamped to canonical lower bounds")
 	check(int(repaired.player.capture_streak) == 4 and int(repaired.player.best_capture_streak) == 4, "best streak remains coherent with the active streak after repair")
+	check(str(repaired.player.current_planet_id) == "congelaria_sa" and repaired.player.completed_planets == ["dustball_prime"], "unknown and duplicate planet ids repair to the latest unlocked canonical route")
+	check(repaired.player.captures_by_target == {"gloop": 0} and repaired.player.captures_by_planet == {"dustball_prime": 2}, "unknown capture records cannot affect progression or career milestones")
+	check(repaired.player.claimed_milestones == ["first_warrant"] and repaired.player.locked_item_ids.is_empty(), "unknown and duplicate milestone or item ids are removed")
+	check(str(repaired.player.equipment_loadouts[0].weapon_id).is_empty(), "loadouts cannot retain references to missing inventory")
 	check(repaired.last_notice_context == "system_recovery" and repaired.last_notice.contains("progresso válido preservado"), "damaged save repair explains the recovery without exposing implementation details")
 	var repaired_file := FileAccess.open(damaged_save, FileAccess.READ)
 	var repaired_payload = JSON.parse_string(repaired_file.get_as_text())
