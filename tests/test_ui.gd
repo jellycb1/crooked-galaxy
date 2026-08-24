@@ -84,6 +84,8 @@ func run_smoke_test() -> void:
 	check(scene.find_child("CombatSummaryVictory", true, false) != null, "victory explains aggregate combat performance")
 	var victory_payment := scene.find_child("VictoryPayment", true, false) as Label
 	check(victory_payment != null and victory_payment.text.contains("EMBALO") and victory_payment.text.contains("SALDO"), "victory preserves the paid-incident payout receipt")
+	var open_reward_action := scene.find_child("OpenRewardAction", true, false) as Button
+	check(open_reward_action != null and scene.victory_timer.wait_time >= 2.5, "victory allows an immediate reward while preserving a readable automatic pause")
 
 	state.open_reward()
 	await process_frame

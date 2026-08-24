@@ -63,7 +63,7 @@ func build_shell() -> void:
 	add_child(combat_timer)
 	victory_timer = Timer.new()
 	victory_timer.one_shot = true
-	victory_timer.wait_time = 1.35
+	victory_timer.wait_time = 2.8
 	victory_timer.timeout.connect(GameState.open_reward)
 	add_child(victory_timer)
 
@@ -908,6 +908,11 @@ func build_victory() -> void:
 	content.add_child(payment)
 	content.add_child(center_label("Autenticando pagamento e sacudindo os bolsos do alvo...", 15, MUTED))
 	content.add_spacer(false)
+	var open_reward := action_button("ABRIR RECOMPENSA", LIME)
+	open_reward.name = "OpenRewardAction"
+	open_reward.custom_minimum_size = Vector2(0, 48)
+	open_reward.pressed.connect(GameState.open_reward)
+	content.add_child(open_reward)
 
 
 func build_reward() -> void:

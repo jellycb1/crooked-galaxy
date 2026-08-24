@@ -58,6 +58,8 @@ Automatic combat retains the selected incident result and adjusted payment above
 
 The victory beat confirms that same gross payment, embedded streak bonus, and net balance before revealing loot.
 
+It remains on screen for 2.8 seconds so the decisive hit, build contribution, combat totals, and payment can be read; `ABRIR RECOMPENSA` lets players skip that pause immediately.
+
 When a capture reveals a new warrant, the reward also projects the best approach and win chance after equipping the pending item, so the direct-contract and workshop routes have visible context.
 
 Post-combat reports summarize turns, damage and the contribution of tactical traits or planetary kits; defeats name any lost capture streak, explain its ×1 restart, retain a compact diagnosis on the board, and link directly to a field-test workshop that keeps the failed warrant focused through the next attempt.
