@@ -81,6 +81,7 @@ func _init() -> void:
 
 	audit_hunt_choice_roundtrips()
 	audit_contract_approach_roundtrips()
+	audit_equipment_roundtrips()
 
 	if FileAccess.file_exists(test_save):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(test_save))
@@ -177,6 +178,52 @@ func audit_contract_approach_roundtrips() -> void:
 			check(int(restored.current_bounty.loot_power) == expected_loot_power and expected_loot_power == int(target.power), "contract %s preserves canonical loot tier" % context)
 			restored.free()
 			source.free()
+
+
+func audit_equipment_roundtrips() -> void:
+	var rarity_colors := {"Comum": "#b9c2d9", "Raro": "#58d9ff", "Épico": "#d789ff"}
+	var calibration_histories := [0, 1, 5]
+	for slot in ContentDB.ITEM_TRAITS:
+		for trait_definition in ContentDB.ITEM_TRAITS[slot]:
+			for rarity in rarity_colors:
+				for planet in ContentDB.PLANETS:
+					for power_upgrades in calibration_histories:
+						for integrity_upgrades in range(CoreRules.MAX_INTEGRITY_UPGRADES + 1):
+							var context := "%s/%s/%s/cal%d/ref%d" % [str(trait_definition.id), str(rarity), str(planet.id), power_upgrades, integrity_upgrades]
+							var item := {
+								"id": "equipped_%s" % context,
+								"name": "Equipamento auditado",
+								"slot": str(slot),
+								"origin_planet_id": str(planet.id),
+								"power": 12 + power_upgrades,
+								"rarity": str(rarity),
+								"color": str(rarity_colors[rarity]),
+								"trait": trait_definition.duplicate(true),
+								"power_upgrades": power_upgrades,
+								"integrity_upgrades": integrity_upgrades,
+							}
+							var reserve := item.duplicate(true)
+							reserve.id = "reserve_%s" % context
+							var source := clean_state()
+							source.player[slot] = item.duplicate(true)
+							source.player.inventory = [reserve.duplicate(true)]
+							source.player.locked_item_ids = [str(item.id), str(reserve.id)]
+							var id_key := "%s_id" % str(slot)
+							source.player.equipment_loadouts[0][id_key] = str(item.id)
+							source.player.equipment_loadouts[1][id_key] = str(reserve.id)
+							source.save_game()
+							var restored = StateScript.new()
+							restored.save_path = test_save
+							restored.load_game()
+							var restored_item: Dictionary = restored.player[slot]
+							var restored_reserve: Dictionary = restored.player.inventory[0] if not restored.player.inventory.is_empty() else {}
+							check(restored.last_notice_context != "system_recovery", "equipment %s does not emit false recovery" % context)
+							check(restored.payloads_equivalent(restored_item, item), "equipment %s preserves its equipped payload" % context)
+							check(restored.payloads_equivalent(restored_reserve, reserve), "equipment %s preserves its reserve payload" % context)
+							check(restored.player.locked_item_ids.has(str(item.id)) and restored.player.locked_item_ids.has(str(reserve.id)), "equipment %s preserves protection" % context)
+							check(str(restored.player.equipment_loadouts[0][id_key]) == str(item.id) and str(restored.player.equipment_loadouts[1][id_key]) == str(reserve.id), "equipment %s preserves loadouts" % context)
+							restored.free()
+							source.free()
 
 
 func check(condition: bool, description: String) -> void:
