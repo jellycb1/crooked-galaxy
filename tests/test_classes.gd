@@ -41,6 +41,9 @@ func run_classes_test() -> void:
 	hacker.class_id = "contract_hacker"
 	check(Rules.player_opening_damage(hacker) == Rules.player_opening_damage(neutral_intelligence) + 4, "contract hacker converts each invested intelligence point into two additional opening damage")
 	check(int(Classes.DEFINITIONS[2].effects.opening_damage_per_primary_point) == 2 and not Classes.specialization_opening_damage(hacker, Rules.BASE_ATTRIBUTE_VALUE) == 0, "opening damage comes from the class effect definition instead of an ID-specific combat branch")
+	var hacker_preview := Classes.specialization_preview(Classes.DEFINITIONS[2], neutral_intelligence.attributes, Rules.BASE_ATTRIBUTE_VALUE)
+	check(int(hacker_preview.power) == 1 and int(hacker_preview.opening_damage) == 4, "a class can preview its exact bonus without mutating or selecting it")
+	check(str(neutral_intelligence.class_id).is_empty(), "class preview leaves the inspected player unassigned")
 	var breaker: Dictionary = state.default_player()
 	breaker.attributes.strength = 12
 	breaker.class_id = "warrant_breaker"
@@ -67,6 +70,9 @@ func run_classes_test() -> void:
 
 	state.phase = state.Phase.BOARD
 	state.player = state.default_player()
+	state.player.attributes.strength = 12
+	state.player.attributes.dexterity = 13
+	state.player.attributes.intelligence = 12
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
@@ -80,6 +86,8 @@ func run_classes_test() -> void:
 	await process_frame
 	check(scene.find_children("Class_*", "PanelContainer", true, false).size() == 3, "the class screen renders every initial archetype")
 	check(find_label_with_text(scene, "ARQUÉTIPOS PROVISÓRIOS") != null, "the selector clearly identifies the current roster as provisional")
+	var hacker_impact := scene.find_child("ClassImpact_contract_hacker", true, false) as Label
+	check(hacker_impact != null and hacker_impact.text.contains("+1 PODER") and hacker_impact.text.contains("+4 ABERTURA"), "each card previews its exact effect on the hunter's current build")
 	var select := scene.find_child("ClassSelect_orbit_gunslinger", true, false) as Button
 	check(select != null and not select.disabled, "an archetype can be drafted from its mobile action")
 	if select != null:

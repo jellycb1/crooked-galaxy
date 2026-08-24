@@ -2,6 +2,7 @@ class_name ClassesView
 extends RefCounted
 
 const ClassRulesScript = preload("res://scripts/class_rules.gd")
+const Rules = preload("res://scripts/core_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 
 
@@ -45,7 +46,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	list.add_theme_constant_override("separation", 9)
 	scroller.add_child(list)
 	for definition in ClassRulesScript.DEFINITIONS:
-		list.add_child(class_card(host, definition, pending_id, current_id))
+		list.add_child(class_card(host, definition, state.player, pending_id, current_id))
 
 	var changed := not host.class_draft.is_empty() and host.class_draft != current_id
 	var confirm := host.action_button("CONFIRMAR CLASSE", host.LIME, true)
@@ -59,7 +60,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	content.add_child(confirm)
 
 
-static func class_card(host: CrookedUIFactory, definition: Dictionary, pending_id: String, current_id: String) -> PanelContainer:
+static func class_card(host: CrookedUIFactory, definition: Dictionary, player: Dictionary, pending_id: String, current_id: String) -> PanelContainer:
 	var class_id := str(definition.id)
 	var selected := class_id == pending_id
 	var card := host.panel(HBoxContainer.new(), host.PANEL_LIGHT if selected else host.PANEL, 15, 12)
@@ -81,6 +82,10 @@ static func class_card(host: CrookedUIFactory, definition: Dictionary, pending_i
 	var specialization := host.label("ESPECIALIZAÇÃO · %s" % ClassRulesScript.specialization_text(definition), 10, host.GOLD)
 	specialization.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(specialization)
+	var impact := host.label(current_impact_text(definition, player), 11, host.LIME)
+	impact.name = "ClassImpact_%s" % class_id
+	impact.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	copy.add_child(impact)
 	var choose := host.action_button("MARCADO" if selected else "ESCOLHER", host.GOLD if selected else host.CYAN, true)
 	choose.name = "ClassSelect_%s" % class_id
 	choose.custom_minimum_size = Vector2(104, 48)
@@ -91,3 +96,13 @@ static func class_card(host: CrookedUIFactory, definition: Dictionary, pending_i
 	)
 	row.add_child(choose)
 	return card
+
+
+static func current_impact_text(definition: Dictionary, player: Dictionary) -> String:
+	var preview := ClassRulesScript.specialization_preview(definition, player.get("attributes", {}), Rules.BASE_ATTRIBUTE_VALUE)
+	var parts: Array[String] = []
+	if int(preview.power) > 0:
+		parts.append("+%d PODER" % int(preview.power))
+	if int(preview.opening_damage) > 0:
+		parts.append("+%d ABERTURA" % int(preview.opening_damage))
+	return "BÔNUS NA BUILD · %s" % (" · ".join(parts) if not parts.is_empty() else "AINDA INATIVO")

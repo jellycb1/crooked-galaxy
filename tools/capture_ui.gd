@@ -368,6 +368,9 @@ func capture() -> void:
 		quit(1)
 		return
 	scene.attribute_draft = {}
+	state.player.attributes.strength = 12
+	state.player.attributes.dexterity = 13
+	state.player.attributes.intelligence = 12
 	scene.class_draft = "orbit_gunslinger"
 	scene.view_mode = "classes"
 	scene.render()

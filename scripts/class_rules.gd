@@ -77,22 +77,25 @@ static func specialization_text(definition: Dictionary) -> String:
 	return ". ".join(parts) + ("." if not parts.is_empty() else "Sem bônus mecânico.")
 
 
-static func primary_investment(player: Dictionary, base_attribute_value: int) -> int:
-	var attribute_id := primary_attribute(str(player.get("class_id", UNASSIGNED_ID)))
-	if attribute_id.is_empty():
-		return 0
-	return maxi(0, int(player.get("attributes", {}).get(attribute_id, base_attribute_value)) - base_attribute_value)
+static func specialization_preview(definition: Dictionary, attributes: Dictionary, base_attribute_value: int) -> Dictionary:
+	var attribute_id := str(definition.get("primary_attribute", ""))
+	var investment := maxi(0, int(attributes.get(attribute_id, base_attribute_value)) - base_attribute_value) if not attribute_id.is_empty() else 0
+	var effects: Dictionary = definition.get("effects", {})
+	var points_per_power := int(effects.get("power_per_primary_points", 0))
+	var power := floori(float(investment) / float(points_per_power)) if points_per_power > 0 else 0
+	var opening_multiplier := maxi(0, int(effects.get("opening_damage_per_primary_point", 0)))
+	return {
+		"investment": investment,
+		"power": power,
+		"opening_damage": investment * opening_multiplier,
+	}
 
 
 static func specialization_power(player: Dictionary, base_attribute_value: int) -> int:
 	var definition := get_definition(str(player.get("class_id", UNASSIGNED_ID)))
-	var points_per_power := int(definition.get("effects", {}).get("power_per_primary_points", 0))
-	if points_per_power <= 0:
-		return 0
-	return floori(float(primary_investment(player, base_attribute_value)) / float(points_per_power))
+	return int(specialization_preview(definition, player.get("attributes", {}), base_attribute_value).power)
 
 
 static func specialization_opening_damage(player: Dictionary, base_attribute_value: int) -> int:
 	var definition := get_definition(str(player.get("class_id", UNASSIGNED_ID)))
-	var multiplier := int(definition.get("effects", {}).get("opening_damage_per_primary_point", 0))
-	return primary_investment(player, base_attribute_value) * maxi(0, multiplier)
+	return int(specialization_preview(definition, player.get("attributes", {}), base_attribute_value).opening_damage)
