@@ -111,6 +111,13 @@ static func field_readiness(state: StateScript) -> Dictionary:
 	var current_captures := int(state.player.get("captures_by_target", {}).get(str(current_target.get("id", "")), 0))
 	var target_is_available := not current_target.is_empty() and current_captures == 0
 	var target := current_target if target_is_available else Content.target_for_planet_tier(planet_id, mini(3, tier + 1))
+	var recovery_focus := false
+	if not state.combat_summary.is_empty() and not bool(state.combat_summary.get("won", true)) and not state.current_bounty.is_empty():
+		var defeated_target := Content.get_target(str(state.current_bounty.get("id", "")))
+		if not defeated_target.is_empty() and str(defeated_target.get("planet_id", "")) == planet_id and int(defeated_target.get("chapter_tier", defeated_target.rank)) <= tier:
+			target = defeated_target
+			target_is_available = true
+			recovery_focus = true
 	if target.is_empty():
 		target = Content.target_for_planet_tier(planet_id, tier)
 	if target.is_empty():
@@ -144,6 +151,7 @@ static func field_readiness(state: StateScript) -> Dictionary:
 		"health_odds": Rules.bounty_odds(health_player, contract) if reinforced else Rules.bounty_odds(state.player, contract),
 		"can_reinforce": reinforced,
 		"target_available": target_is_available,
+		"recovery_focus": recovery_focus,
 		"planet_tier": tier,
 	}
 
@@ -159,7 +167,7 @@ static func field_readiness_card(host: CrookedUIFactory, state: StateScript, rea
 		box.add_child(host.label("TESTE DE CAMPO INDISPONÍVEL", 11, host.MUTED))
 		return card
 	var target: Dictionary = readiness.target
-	var target_context := "MANDADO ATUAL" if bool(readiness.target_available) else "PRÓXIMO MANDADO"
+	var target_context := "REVANCHE" if bool(readiness.get("recovery_focus", false)) else ("MANDADO ATUAL" if bool(readiness.target_available) else "PRÓXIMO MANDADO")
 	if int(readiness.planet_tier) >= 3:
 		target_context = "CHEFE DO CAPÍTULO"
 	var target_label := host.label("TESTE DE CAMPO · %s: %s" % [target_context, str(target.name).to_upper()], 11, host.GOLD)

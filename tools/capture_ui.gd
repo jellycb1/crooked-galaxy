@@ -383,6 +383,20 @@ func capture() -> void:
 	if save_frame("ui_defeat_report.png") != OK:
 		quit(1)
 		return
+	var defeat_workshop := scene.find_child("DefeatWorkshopAction", true, false) as Button
+	if defeat_workshop:
+		defeat_workshop.pressed.emit()
+		await process_frame
+		await process_frame
+		await create_timer(0.12).timeout
+	else:
+		printerr("Failed to locate defeat workshop route for capture")
+		quit(1)
+		return
+	if save_frame("ui_defeat_workshop.png") != OK:
+		quit(1)
+		return
+	scene.view_mode = "board"
 	state.player.wins = 39
 	state.player.captures_by_planet.ferro_velho_omega = 9
 	state.phase = state.Phase.REWARD
@@ -466,7 +480,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, reward/mastery/warrant-unlock decisions, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, reward/mastery/warrant-unlock decisions, defeat recovery, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

@@ -55,6 +55,11 @@ func _init() -> void:
 	state.player.captures_by_target.baron_boom = 1
 	state.player.captures_by_planet.dustball_prime = 4
 	check(str(ArsenalScript.field_readiness(state).target.id) == "madame_vacuum", "field test advances after the new warrant's first capture")
+	state.current_bounty = ContentDB.TARGETS[1].duplicate(true)
+	state.combat_summary = {"won": false, "enemy_hp_remaining": 12}
+	var recovery_readiness := ArsenalScript.field_readiness(state)
+	check(str(recovery_readiness.target.id) == "baron_boom" and bool(recovery_readiness.recovery_focus), "field test keeps the defeated warrant in focus instead of projecting a locked tier")
+	state.combat_summary = {}
 	state.player.captures_by_target.erase("baron_boom")
 	state.player.captures_by_planet.dustball_prime = 3
 	field_action.pressed.emit()

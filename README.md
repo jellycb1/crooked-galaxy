@@ -16,7 +16,7 @@ Reward screens also count the pending capture toward target mastery and preview 
 
 When a capture reveals a new warrant, the reward also projects the best approach and win chance after equipping the pending item, so the direct-contract and workshop routes have visible context.
 
-Post-combat reports summarize turns, damage and the contribution of tactical traits or planetary kits; defeats retain a compact diagnosis on the board and link directly to the field-test workshop before the next attempt.
+Post-combat reports summarize turns, damage and the contribution of tactical traits or planetary kits; defeats retain a compact diagnosis on the board and link directly to a field-test workshop that keeps the failed warrant focused through the next attempt.
 
 Long-career navigation keeps progress legible: galaxy cards distinguish completed chapters and name each open planet's current warrant, while career shortcuts jump directly between planetary progress and the twenty-target archive.
 
@@ -56,7 +56,7 @@ godot --headless --path . --script res://tests/test_content.gd
 godot --headless --path . --script res://tests/test_mobile.gd
 ```
 
-Capture the bounty boards, AFK return, career, galaxy map, unlocked boss, contract briefing, hunt incident, combat, victory, reward decisions, arsenal filters, and chapter-completion states for visual review:
+Capture the bounty boards, defeat recovery workshop, AFK return, career, galaxy map, unlocked boss, contract briefing, hunt incident, combat, victory, reward decisions, arsenal filters, and chapter-completion states for visual review:
 
 ```powershell
 godot --path . --script res://tools/capture_ui.gd
