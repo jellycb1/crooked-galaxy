@@ -320,10 +320,14 @@ func begin_combat() -> void:
 		"damage_prevented": 0,
 		"critical_hits": 0,
 		"opening_bonus": CoreRules.player_opening_damage(player),
-		"kit_origin": CoreRules.equipment_set_origin(player),
 		"target_max_health": int(current_bounty.health),
-		"field_test_context": current_bounty.get("field_test_context", {}).duplicate(true),
 	}
+	var kit_origin := CoreRules.equipment_set_origin(player)
+	if not kit_origin.is_empty():
+		combat_summary.kit_origin = kit_origin
+	var field_test_context: Dictionary = current_bounty.get("field_test_context", {})
+	if not field_test_context.is_empty():
+		combat_summary.field_test_context = field_test_context.duplicate(true)
 	last_combat_won = false
 	save_game()
 	changed.emit()
@@ -537,7 +541,7 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		summary.chapter_complete = true
 		chapter_completion = {
 			"planet": completed_planet,
-			"target": completed_bounty,
+			"target": ContentDB.get_target(target_id),
 			"total_captures": planet_capture_count(completed_planet_id),
 			"credits": int(summary.credits),
 			"xp": int(summary.xp),
