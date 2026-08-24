@@ -100,6 +100,8 @@ Save loading clears runtime-only receipts before restoration, type-checks interr
 
 A dedicated current-schema matrix round-trips board, briefing, hunt, incident, combat, victory, reward, and chapter-complete states and rejects any false `SAVE RECUPERADO` notice from data written by the game itself.
 
+Its combat variant also proves optional active-kit and confirmed tested-route evidence survives when present, while empty optional fields remain omitted.
+
 Loaded player data is shape-checked against canonical defaults: scalar progress is preserved when compatible, invalid equipment falls back safely, malformed inventory entries are discarded, and loadouts always normalize to two usable slots before any renderer sees them.
 
 When loading performs a migration or repair, the next board visit receives a concise session-only `SAVE ATUALIZADO` or `SAVE RECUPERADO` notice that emphasizes preserved progress without exposing storage internals.

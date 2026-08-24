@@ -52,6 +52,23 @@ func _init() -> void:
 	reward.open_reward()
 	assert_clean_roundtrip(reward, reward.Phase.REWARD, "reward")
 
+	var evidenced_combat := clean_state()
+	evidenced_combat.player.weapon.origin_planet_id = "dustball_prime"
+	evidenced_combat.player.armor.origin_planet_id = "dustball_prime"
+	evidenced_combat.select_bounty(ContentDB.TARGETS[0])
+	evidenced_combat.choose_approach("quiet_net", {"target_id": "gloop", "approach_id": "quiet_net", "approach_name": "Rede Silenciosa", "odds": 0.74})
+	evidenced_combat.begin_combat()
+	evidenced_combat.save_game()
+	var restored_evidence = StateScript.new()
+	restored_evidence.save_path = test_save
+	restored_evidence.load_game()
+	check(restored_evidence.last_notice_context != "system_recovery", "combat with optional evidence does not emit false recovery")
+	check(str(restored_evidence.combat_summary.get("kit_origin", "")) == "dustball_prime", "active planetary kit survives a clean combat round-trip")
+	var restored_field_context: Dictionary = restored_evidence.combat_summary.get("field_test_context", {})
+	check(not restored_field_context.is_empty() and not bool(restored_field_context.overridden) and str(restored_field_context.tested_approach_id) == "quiet_net", "confirmed tested-route context survives a clean combat round-trip")
+	restored_evidence.free()
+	evidenced_combat.free()
+
 	var finale := clean_state()
 	var boss := ContentDB.TARGETS[3].duplicate(true)
 	finale.player.completed_planets = ["dustball_prime"]
