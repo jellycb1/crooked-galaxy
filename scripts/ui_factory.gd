@@ -67,13 +67,22 @@ func center_label(text_value: String, size: int, color: Color) -> Label:
 func action_button(text_value: String, color: Color, outline := false) -> Button:
 	var button := Button.new()
 	button.text = text_value
+	button.focus_mode = Control.FOCUS_ALL
 	button.custom_minimum_size = Vector2(0, 62)
 	button.add_theme_font_size_override("font_size", 17)
 	button.add_theme_color_override("font_color", color if outline else Color("#07101c"))
 	button.add_theme_color_override("font_hover_color", Color("#07101c"))
+	button.add_theme_color_override("font_focus_color", INK if outline else Color("#07101c"))
 	button.add_theme_stylebox_override("normal", box_style(Color("#00000000") if outline else color, 14))
 	button.add_theme_stylebox_override("hover", box_style(color.lightened(0.12), 14))
 	button.add_theme_stylebox_override("pressed", box_style(color.darkened(0.14), 14))
+	var focus := box_style(Color("#ffffff18"), 14)
+	focus.border_width_left = 3
+	focus.border_width_top = 3
+	focus.border_width_right = 3
+	focus.border_width_bottom = 3
+	focus.border_color = color.lightened(0.2)
+	button.add_theme_stylebox_override("focus", focus)
 	if outline:
 		var normal := box_style(Color("#00000000"), 14)
 		normal.border_width_left = 2

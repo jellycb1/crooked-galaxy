@@ -19,6 +19,7 @@ var sound_fx: Node
 var previous_phase := -1
 var space_backdrop: Control
 var safe_container: MarginContainer
+var render_generation := 0
 
 
 func _ready() -> void:
@@ -88,6 +89,12 @@ func apply_safe_area() -> void:
 
 
 func render() -> void:
+	var previous_focus_name := ""
+	var focus_owner := get_viewport().gui_get_focus_owner()
+	if focus_owner != null and content != null and content.is_ancestor_of(focus_owner):
+		previous_focus_name = str(focus_owner.name)
+	render_generation += 1
+	var current_generation := render_generation
 	if space_backdrop:
 		space_backdrop.planet_id = str(GameState.player.get("current_planet_id", ContentDB.PLANET.id))
 	if sound_fx:
@@ -146,6 +153,27 @@ func render() -> void:
 			victory_timer.start()
 	else:
 		victory_timer.stop()
+	call_deferred("restore_action_focus", previous_focus_name, current_generation)
+
+
+func restore_action_focus(previous_focus_name: String, expected_generation: int) -> void:
+	if expected_generation != render_generation or content == null:
+		return
+	var current := get_viewport().gui_get_focus_owner()
+	if current is Button and content.is_ancestor_of(current) and current.visible and not current.disabled:
+		return
+	var fallback: Button = null
+	for candidate in content.find_children("*", "Button", true, false):
+		var button := candidate as Button
+		if not button.visible or button.disabled or button.focus_mode == Control.FOCUS_NONE:
+			continue
+		if fallback == null:
+			fallback = button
+		if not previous_focus_name.is_empty() and str(button.name) == previous_focus_name:
+			button.grab_focus()
+			return
+	if fallback != null:
+		fallback.grab_focus()
 
 
 func build_header() -> void:

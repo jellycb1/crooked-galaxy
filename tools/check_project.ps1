@@ -27,6 +27,7 @@ $Tests = @(
     "test_flow.gd",
     "test_ui.gd",
     "test_ui_factory.gd",
+    "test_focus_navigation.gd",
     "test_arsenal_view.gd",
     "test_reward_view.gd",
     "test_career_view.gd",
