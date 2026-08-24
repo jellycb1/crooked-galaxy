@@ -265,14 +265,19 @@ func run_smoke_test() -> void:
 	state.player.inventory.append({"id": "ui_spare", "name": "Peça Obsoleta", "description": "Serve melhor desmontada.", "slot": "armor", "power": 6, "rarity": "Comum", "color": "#b9c2d9"})
 	state.player.inventory.append({"id": "ui_inferior", "name": "Peça Arquivada", "description": "Já perdeu a discussão.", "slot": "weapon", "power": 1, "rarity": "Comum", "color": "#b9c2d9"})
 	scene.view_mode = "arsenal"
+	scene.arsenal_section = "equipped"
 	scene.render()
 	await process_frame
-	check(scene.find_child("InventoryScroll", true, false) != null, "arsenal screen renders")
+	check(scene.find_child("ArsenalSectionTabs", true, false) != null and scene.find_child("InventoryScroll", true, false) == null, "arsenal opens on a focused equipped-build section")
 	check(state.player.inventory.size() == 4, "arsenal receives claimed, replaced starter, spare, and inferior loot")
 	check(scene.find_child("Upgrade_weapon", true, false) != null, "workshop renders equipment upgrades")
 	check(scene.find_child("Reinforce_weapon", true, false) != null, "workshop renders integrity reinforcement")
 	check(scene.find_child("LoadoutToolbar", true, false) != null, "arsenal renders equipment loadouts")
 	check(scene.find_child("SaveLoadout_0", true, false) != null, "arsenal can save the hunt loadout")
+	var backpack_tab := scene.find_child("ArsenalTab_inventory", true, false) as Button
+	backpack_tab.pressed.emit()
+	await process_frame
+	check(scene.arsenal_section == "inventory" and scene.find_child("InventoryScroll", true, false) != null and scene.find_child("Upgrade_weapon", true, false) == null, "backpack tab replaces workshop controls with the inventory list")
 	check(scene.find_child("Scrap_ui_spare", true, false) != null, "workshop renders recycling for spare loot")
 	check(scene.find_child("Lock_ui_spare", true, false) != null, "inventory renders manual item protection")
 	check(scene.find_child("InventoryFilter_weapon", true, false) != null, "arsenal renders slot filters")

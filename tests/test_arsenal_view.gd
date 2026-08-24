@@ -29,7 +29,8 @@ func _init() -> void:
 	host.add_child(content)
 	ArsenalScript.build(host, content, state)
 
-	check(host.find_child("InventoryScroll", true, false) != null, "isolated arsenal builds its inventory scroller")
+	check(host.find_child("ArsenalSectionTabs", true, false) != null and host.find_child("ArsenalTab_equipped", true, false) != null and host.find_child("ArsenalTab_inventory", true, false) != null, "isolated arsenal exposes explicit equipped and backpack sections")
+	check(host.find_child("InventoryScroll", true, false) == null, "equipped section does not compete with the backpack list")
 	var workshop_notice := host.find_child("WorkshopNotice", true, false) as Label
 	check(workshop_notice != null and workshop_notice.text.contains("+6 sucata"), "isolated arsenal preserves the transaction that funded the workshop")
 	check(host.find_child("Upgrade_weapon", true, false) != null and host.find_child("Reinforce_armor", true, false) != null, "isolated arsenal builds both workshop paths")
@@ -125,14 +126,17 @@ func _init() -> void:
 	check(last_page.items.size() == 6 and int(last_page.page) == 2, "final inventory page keeps the exact remainder")
 	host.inventory_page = 99
 	check(int(ArsenalScript.paginated_inventory(host, state).page) == 2, "inventory page clamps after filtering, recycling, or stale navigation")
+	host.arsenal_section = "inventory"
 	clear_children(content)
 	ArsenalScript.build(host, content, state)
+	check(host.find_child("InventoryScroll", true, false) != null and host.find_child("Upgrade_weapon", true, false) == null, "backpack section reserves the screen for item management")
 	check(host.find_children("InventoryItem_*", "PanelContainer", true, false).size() == 6, "arsenal builds only the active page's item cards")
 	var previous_page := host.find_child("InventoryPagePrevious", true, false) as Button
 	var next_page := host.find_child("InventoryPageNext", true, false) as Button
 	check(previous_page != null and not previous_page.disabled and next_page != null and next_page.disabled, "pager exposes correct boundary actions on the last page")
 	state.last_notice = "Rota confirmada: Congelária S.A."
 	state.last_notice_context = "travel"
+	host.arsenal_section = "equipped"
 	clear_children(content)
 	ArsenalScript.build(host, content, state)
 	check(host.find_child("WorkshopNotice", true, false) == null, "arsenal ignores receipts owned by unrelated hubs")

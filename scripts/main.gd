@@ -445,6 +445,8 @@ func build_board() -> void:
 	var cheapest_calibration := mini(CoreRules.equipment_upgrade_cost(GameState.player.weapon), CoreRules.equipment_upgrade_cost(GameState.player.armor))
 	var funded_field_test := equipped_receipt and scrap >= cheapest_calibration
 	hub_grid.add_child(board_hub_action("TESTAR BUILD" if funded_field_test else "ARSENAL · %d" % GameState.player.inventory.size(), LIME if funded_field_test else GOLD, "PostClaimFieldTestAction" if funded_field_test else "ArsenalAction", func():
+		if funded_field_test:
+			arsenal_section = "equipped"
 		view_mode = "arsenal"
 		render()
 	))
@@ -854,6 +856,7 @@ func combat_summary_panel(won: bool) -> PanelContainer:
 		workshop.name = "DefeatWorkshopAction"
 		workshop.custom_minimum_size = Vector2(0, 44)
 		workshop.pressed.connect(func():
+			arsenal_section = "equipped"
 			view_mode = "arsenal"
 			render()
 		)

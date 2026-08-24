@@ -41,6 +41,7 @@ func run_mobile_audit() -> void:
 	check(scene.android_back_action() == "quit", "Android Back exits only from the root bounty board")
 
 	scene.view_mode = "arsenal"
+	scene.arsenal_section = "inventory"
 	scene.render()
 	await process_frame
 	check_touch_targets(scene, "arsenal")

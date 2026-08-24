@@ -22,6 +22,8 @@ Three prototype bounty-hunter classes currently exercise that foundation: Quebra
 
 The workshop paginates filtered and sorted inventory into twelve-card windows. Only the active page is instantiated, keeping touch navigation and rendering bounded even when a long-running hunter retains hundreds of pieces; page choice remains transient and never expands the save schema.
 
+The mobile arsenal separates the reference-inspired equipped build from the backpack. `EQUIPADO` owns field odds, the best investment, weapon and armor upgrades, and two loadouts; `MOCHILA` owns filtering, sorting, recycling, paging, accessibility preferences, and the item list. The selected section is session-only, while contextual recovery and character-sheet routes always open the equipped build that motivated them.
+
 The bounty board now links to a deterministic three-offer planet market. Credits buy weapons or armor, with upgrades equipped automatically and alternatives stored; paid stock renewal creates a repeatable credit sink. Stock deliberately trails the active warrant tier, preventing the market from selling the next target's reward before the fight. Offer-cycle and purchase records persist through save schema 9 and are bounded during load sanitization.
 
 The bounty board keeps its next contract visually dominant through a compact 3×2 hunter-hub grid. Arsenal, market, hangar, galaxy, career, and class/attribute destinations retain 48-unit touch targets without consuming a full six-button column; pending class choice, attribute points, career claims, and funded build testing remain visible through concise labels and color.

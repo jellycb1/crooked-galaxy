@@ -166,6 +166,7 @@ static func hunter_profile(host: CrookedUIFactory, state: StateScript, class_id:
 	arsenal.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	arsenal.pressed.connect(func():
 		host.attribute_draft = {}
+		host.arsenal_section = "equipped"
 		host.view_mode = "arsenal"
 		host.call("render")
 	)

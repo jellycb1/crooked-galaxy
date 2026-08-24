@@ -18,6 +18,7 @@ var view_mode := "board"
 var inventory_filter := "all"
 var inventory_sort := "power"
 var inventory_page := 0
+var arsenal_section := "equipped"
 var briefing_context: Dictionary = {}
 var career_scroll_position := 0
 var attribute_draft: Dictionary = {}
@@ -29,6 +30,7 @@ func reset_transient_navigation() -> void:
 	inventory_filter = "all"
 	inventory_sort = "power"
 	inventory_page = 0
+	arsenal_section = "equipped"
 	briefing_context = {}
 	career_scroll_position = 0
 	attribute_draft = {}

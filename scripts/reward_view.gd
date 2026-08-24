@@ -175,6 +175,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		workshop.name = "ClaimAndWorkshop"
 		workshop.custom_minimum_size = Vector2(0, 48)
 		workshop.pressed.connect(func():
+			host.arsenal_section = "equipped"
 			host.view_mode = "arsenal"
 			state.claim_reward(effective_upgrade)
 		)

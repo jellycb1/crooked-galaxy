@@ -24,10 +24,11 @@ func _init() -> void:
 	factory.inventory_filter = "armor"
 	factory.inventory_sort = "rarity"
 	factory.inventory_page = 3
+	factory.arsenal_section = "inventory"
 	factory.briefing_context = {"target_id": "gloop"}
 	factory.career_scroll_position = 900
 	factory.reset_transient_navigation()
-	check(factory.view_mode == "board" and factory.inventory_filter == "all" and factory.inventory_sort == "power" and factory.inventory_page == 0, "factory reset restores default hub navigation")
+	check(factory.view_mode == "board" and factory.inventory_filter == "all" and factory.inventory_sort == "power" and factory.inventory_page == 0 and factory.arsenal_section == "equipped", "factory reset restores default hub navigation")
 	check(factory.briefing_context.is_empty() and factory.career_scroll_position == 0, "factory reset clears stale briefing and career positions")
 
 	for control in [title, button, outlined, portrait, equipment, card]:

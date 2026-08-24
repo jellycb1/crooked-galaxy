@@ -19,10 +19,11 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(titles)
 	titles.add_child(host.label("ARSENAL", 26, host.INK))
-	var subtitle := host.label("Troque peças para ajustar seu poder de caça.", 14, host.MUTED)
+	var subtitle_text := "BUILD E MELHORIAS" if host.arsenal_section == "equipped" else "MOCHILA · %d ITENS" % state.player.inventory.size()
+	var subtitle := host.label(subtitle_text, 11, host.MUTED)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	titles.add_child(subtitle)
-	if not readiness.is_empty() and bool(readiness.target_available):
+	if host.arsenal_section == "equipped" and not readiness.is_empty() and bool(readiness.target_available):
 		var focused_target: Dictionary = readiness.target
 		var analyze := host.action_button("ESCOLHER ROTA", host.LIME, true)
 		analyze.name = "FieldReadinessAction"
@@ -47,6 +48,37 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		host.call("render")
 	)
 	title_row.add_child(back)
+	content.add_child(section_tabs(host))
+	if host.arsenal_section == "inventory":
+		build_inventory_section(host, content, state)
+	else:
+		build_equipped_section(host, content, state, readiness)
+
+
+static func section_tabs(host: CrookedUIFactory) -> HBoxContainer:
+	var tabs := HBoxContainer.new()
+	tabs.name = "ArsenalSectionTabs"
+	tabs.add_theme_constant_override("separation", 8)
+	for definition in [
+		{"id": "equipped", "text": "EQUIPADO", "color": host.GOLD},
+		{"id": "inventory", "text": "MOCHILA", "color": host.CYAN},
+	]:
+		var section := str(definition.id)
+		var selected := host.arsenal_section == section
+		var tab := host.action_button(str(definition.text), definition.color, not selected)
+		tab.name = "ArsenalTab_%s" % section
+		tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		tab.custom_minimum_size = Vector2(0, 48)
+		tab.add_theme_font_size_override("font_size", 13)
+		tab.pressed.connect(func():
+			host.arsenal_section = section
+			host.call("render")
+		)
+		tabs.add_child(tab)
+	return tabs
+
+
+static func build_equipped_section(host: CrookedUIFactory, content: VBoxContainer, state: StateScript, readiness: Dictionary) -> void:
 
 	var notice_context := str(state.last_notice_context)
 	if notice_context == "workshop" or notice_context.begins_with("reward_"):
@@ -75,6 +107,9 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	equipped_row.add_child(workshop_upgrade_card(host, state, "armor", workshop_recommendation))
 	content.add_child(loadout_toolbar(host, state))
 
+
+static func build_inventory_section(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
+
 	var page_data := paginated_inventory(host, state)
 	var visible_items: Array = page_data.items
 	content.add_child(inventory_header(host, page_data, state.player.inventory.size()))
@@ -97,11 +132,16 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	else:
 		for item in visible_items:
 			list.add_child(inventory_item_card(host, state, item))
+	content.add_child(preferences_panel(host, state))
 
+
+static func preferences_panel(host: CrookedUIFactory, state: StateScript) -> VBoxContainer:
+	var result := VBoxContainer.new()
+	result.add_theme_constant_override("separation", 8)
 	var preferences := HBoxContainer.new()
 	preferences.name = "AccessibilityPreferences"
 	preferences.add_theme_constant_override("separation", 8)
-	content.add_child(preferences)
+	result.add_child(preferences)
 	var audio := host.action_button("SOM · %s" % ("LIGADO" if bool(state.player.get("sound_enabled", true)) else "DESLIGADO"), host.CYAN, true)
 	audio.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	audio.custom_minimum_size = Vector2(0, 48)
@@ -121,7 +161,8 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 			host.reset_transient_navigation()
 			state.reset_progress()
 		)
-		content.add_child(reset)
+		result.add_child(reset)
+	return result
 
 
 static func filtered_inventory(host: CrookedUIFactory, state: StateScript) -> Array:

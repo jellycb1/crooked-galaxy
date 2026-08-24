@@ -39,8 +39,14 @@ func run_motion_audit() -> void:
 
 	state.phase = state.Phase.BOARD
 	scene.view_mode = "arsenal"
+	scene.arsenal_section = "equipped"
 	scene.render()
 	await process_frame
+	var backpack_tab := scene.find_child("ArsenalTab_inventory", true, false) as Button
+	check(backpack_tab != null, "arsenal exposes the backpack section that owns accessibility preferences")
+	if backpack_tab != null:
+		backpack_tab.pressed.emit()
+		await process_frame
 	var motion_action := scene.find_child("MotionPreferenceAction", true, false) as Button
 	check(motion_action != null and motion_action.text.contains("REDUZIDO"), "arsenal exposes the active motion preference")
 	motion_action.pressed.emit()
