@@ -5,7 +5,7 @@ const SOURCE_ROOT := "res://References/Shakes and Fidget Assets/StreamingAssets/
 const CONTEXT_PATHS := {
 	"contracts": SOURCE_ROOT + "tavern/tavern_back.png",
 	"world": SOURCE_ROOT + "town/bg_town_day.png",
-	"workshop": SOURCE_ROOT + "locations/bg_fort_0.png",
+	"workshop": SOURCE_ROOT + "others/shopsprites/Shakes_Store_2K.png",
 	"market": SOURCE_ROOT + "dealer/default/dealer_day.png",
 	"hangar": SOURCE_ROOT + "stable/stable_Tag_good_2k.png",
 	"combat": SOURCE_ROOT + "locations/location_battle_0.png",

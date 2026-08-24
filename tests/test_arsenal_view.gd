@@ -29,11 +29,12 @@ func _init() -> void:
 	host.add_child(content)
 	ArsenalScript.build(host, content, state)
 
-	check(host.find_child("ArsenalSectionTabs", true, false) != null and host.find_child("ArsenalTab_equipped", true, false) != null and host.find_child("ArsenalTab_inventory", true, false) != null, "isolated arsenal exposes explicit equipped and backpack sections")
+	check(host.find_child("ArsenalSectionTabs", true, false) != null and host.find_child("ArsenalTab_equipped", true, false) != null and host.find_child("ArsenalTab_inventory", true, false) != null and host.find_child("ArsenalTab_settings", true, false) != null, "isolated arsenal separates equipped, backpack, and device settings")
 	check(host.find_child("InventoryScroll", true, false) == null, "equipped section does not compete with the backpack list")
 	var workshop_notice := host.find_child("WorkshopNotice", true, false) as Label
 	check(workshop_notice != null and workshop_notice.text.contains("+6 sucata"), "isolated arsenal preserves the transaction that funded the workshop")
 	check(host.find_child("Upgrade_weapon", true, false) != null and host.find_child("Reinforce_armor", true, false) != null, "isolated arsenal builds both workshop paths")
+	check(host.find_child("EquippedWorkbenchIcon_weapon", true, false) != null and host.find_child("EquippedWorkbenchIcon_armor", true, false) != null, "equipped workbench gives both slots immediate visual identity")
 	var recommended_buttons := host.find_children("*", "Button", true, false).filter(func(button): return str(button.text).begins_with("★"))
 	check(recommended_buttons.size() == 1, "workshop marks exactly one affordable best-value action")
 	var recommendation := ArsenalScript.recommended_workshop_action(state)
@@ -134,6 +135,11 @@ func _init() -> void:
 	var previous_page := host.find_child("InventoryPagePrevious", true, false) as Button
 	var next_page := host.find_child("InventoryPageNext", true, false) as Button
 	check(previous_page != null and not previous_page.disabled and next_page != null and next_page.disabled, "pager exposes correct boundary actions on the last page")
+	host.arsenal_section = "settings"
+	clear_children(content)
+	ArsenalScript.build(host, content, state)
+	check(host.find_child("ArsenalSettingsPanel", true, false) != null and host.find_child("AccessibilityPreferences", true, false) != null, "settings section owns device preferences outside the backpack")
+	check(host.find_child("MotionPreferenceAction", true, false) != null and host.find_child("InventoryScroll", true, false) == null, "settings replace inventory content without duplicating item controls")
 	state.last_notice = "Rota confirmada: Congelária S.A."
 	state.last_notice_context = "travel"
 	host.arsenal_section = "equipped"

@@ -3,7 +3,7 @@ extends SceneTree
 const FORBIDDEN_PATHS := [
 	"res://References/Shakes and Fidget Assets/StreamingAssets/tavern/tavern_back.png",
 	"res://References/Shakes and Fidget Assets/StreamingAssets/town/bg_town_day.png",
-	"res://References/Shakes and Fidget Assets/StreamingAssets/locations/bg_fort_0.png",
+	"res://References/Shakes and Fidget Assets/StreamingAssets/others/shopsprites/Shakes_Store_2K.png",
 	"res://References/Shakes and Fidget Assets/StreamingAssets/dealer/default/dealer_day.png",
 	"res://References/Shakes and Fidget Assets/StreamingAssets/stable/stable_Tag_good_2k.png",
 	"res://References/Shakes and Fidget Assets/StreamingAssets/locations/location_battle_0.png",

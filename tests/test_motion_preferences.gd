@@ -42,10 +42,10 @@ func run_motion_audit() -> void:
 	scene.arsenal_section = "equipped"
 	scene.render()
 	await process_frame
-	var backpack_tab := scene.find_child("ArsenalTab_inventory", true, false) as Button
-	check(backpack_tab != null, "arsenal exposes the backpack section that owns accessibility preferences")
-	if backpack_tab != null:
-		backpack_tab.pressed.emit()
+	var settings_tab := scene.find_child("ArsenalTab_settings", true, false) as Button
+	check(settings_tab != null, "arsenal exposes a dedicated section for device preferences")
+	if settings_tab != null:
+		settings_tab.pressed.emit()
 		await process_frame
 	var motion_action := scene.find_child("MotionPreferenceAction", true, false) as Button
 	check(motion_action != null and motion_action.text.contains("REDUZIDO"), "arsenal exposes the active motion preference")

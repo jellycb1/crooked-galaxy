@@ -16,7 +16,7 @@ These files are proprietary study material used as temporary composition placeho
 | --- | --- | --- | --- |
 | Contract board, briefing, hunt, incident, reward | `Shakes and Fidget Assets/StreamingAssets/tavern/tavern_back.png` | Test a character-rich illustrated mission hub behind the card hierarchy | `assets/backgrounds/bounty_office.png` |
 | Galaxy map and career | `Shakes and Fidget Assets/StreamingAssets/town/bg_town_day.png` | Test a navigable illustrated world overview rather than an abstract list | `assets/backgrounds/frontier_spaceport.png` |
-| Arsenal and workshop | `Shakes and Fidget Assets/StreamingAssets/locations/bg_fort_0.png` | Test a visually grounded upgrade location | `assets/backgrounds/arsenal_workshop.png` |
+| Arsenal and workshop | `Shakes and Fidget Assets/StreamingAssets/others/shopsprites/Shakes_Store_2K.png` | Test a visually explicit equipment bench with recognizable weapon and armor silhouettes | `assets/backgrounds/arsenal_workshop.png` |
 | Market | `Shakes and Fidget Assets/StreamingAssets/dealer/default/dealer_day.png` | Give the equipment shop a recognizable merchant silhouette instead of reusing the arsenal | Original Crooked Galaxy frontier dealer |
 | Transport hangar | `Shakes and Fidget Assets/StreamingAssets/stable/stable_Tag_good_2k.png` | Test an immediately recognizable vehicle showroom composition | Original Crooked Galaxy orbital hangar |
 | Combat and victory | `Shakes and Fidget Assets/StreamingAssets/locations/location_battle_0.png` | Test illustrated arena depth behind automatic combat | `assets/backgrounds/frontier_arena.png` |

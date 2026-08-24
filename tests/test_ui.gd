@@ -293,6 +293,7 @@ func run_smoke_test() -> void:
 	check(scene.find_child("Lock_ui_spare", true, false) != null, "inventory renders manual item protection")
 	check(scene.find_child("InventoryFilter_weapon", true, false) != null, "arsenal renders slot filters")
 	check(scene.find_child("InventorySort", true, false) != null, "arsenal renders inventory sorting")
+	check(scene.find_child("AccessibilityPreferences", true, false) == null, "backpack keeps device preferences out of the item workflow")
 	var bulk_recycle := scene.find_child("RecycleInferior", true, false) as Button
 	check(bulk_recycle != null and not bulk_recycle.disabled, "arsenal enables safe bulk recycling when inferior items exist")
 	var weapon_filter := scene.find_child("InventoryFilter_weapon", true, false) as Button

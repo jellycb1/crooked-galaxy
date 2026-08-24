@@ -150,6 +150,8 @@ Class selection uses three compact archetype selectors and one focused sheet, so
 
 The career summary now exposes next-level XP as a real progress bar. Its five destination rows reuse the galaxy's original planet motifs, colored capture bars, and explicit completed/current/locked states, keeping the complete sector overview visible before milestones while the twenty-record archive remains one shortcut away.
 
+The arsenal is divided into three explicit surfaces. `EQUIPADO` presents weapon and armor as full-width visual workbench rows with their own calibration and reinforcement actions; `MOCHILA` owns filters, sorting, protection, equipping, and recycling; `AJUSTES` owns sound, reduced motion, and the clearly separated local test reset. This prevents device controls from consuming inventory space or competing with loot decisions.
+
 Career scroll position is session-persistent: claiming a milestone, rerendering the ledger, or briefly visiting another hub returns to the same section instead of the top.
 
 Milestone claims leave an exact in-career receipt for individual or bulk rewards, including both credits and scrap, while the shared renderer cleanly replaces the previous UI tree before rebuilding transactional views.
