@@ -68,9 +68,9 @@ static func transport_card(host: CrookedUIFactory, state: StateScript, transport
 	card.name = "HangarTransport_%s" % transport_id
 	var row := card.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 11)
-	var symbol := host.center_label(str(transport.symbol), 28, Color(str(transport.color)))
-	symbol.custom_minimum_size = Vector2(54, 54)
-	row.add_child(symbol)
+	var transport_icon := host.transport_icon(transport, 58)
+	transport_icon.name = "HangarTransportIcon_%s" % transport_id
+	row.add_child(transport_icon)
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)

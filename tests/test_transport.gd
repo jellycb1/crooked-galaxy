@@ -79,6 +79,7 @@ func _init() -> void:
 	HangarViewScript.build(host, content, state)
 	check(host.find_child("HangarScroll", true, false) != null, "hangar renderer provides a portrait-safe scroller")
 	check(host.find_children("HangarTransport_*", "PanelContainer", true, false).size() == 4, "hangar renders every launch transport once")
+	check(host.find_children("HangarTransportIcon_*", "Control", true, false).size() == 4, "every launch transport renders an original scalable silhouette")
 	check(host.find_children("HangarAction_*", "Button", true, false).size() == 4, "every transport owns an explicit transaction action")
 	for button in host.find_children("HangarAction_*", "Button", true, false):
 		check((button as Button).custom_minimum_size.y >= 48.0, "transport action preserves an Android-first touch target")

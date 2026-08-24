@@ -383,6 +383,21 @@ func capture() -> void:
 	if save_frame("ui_hangar.png") != OK:
 		quit(1)
 		return
+	state.select_bounty(ContentDB.TARGETS[1])
+	await process_frame
+	await process_frame
+	if save_frame("ui_transport_briefing.png") != OK:
+		quit(1)
+		return
+	state.choose_approach("quiet_net")
+	await process_frame
+	await process_frame
+	if save_frame("ui_transport_hunt.png") != OK:
+		quit(1)
+		return
+	state.abandon_bounty()
+	state.last_notice = ""
+	state.last_notice_context = ""
 	state.player.stat_points = 6
 	scene.attribute_draft = {"vitality": 1, "cunning": 1}
 	scene.view_mode = "attributes"
@@ -773,7 +788,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, market, transport hangar, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters/paging, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, market, transport hangar/briefing/hunt identity, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters/paging, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

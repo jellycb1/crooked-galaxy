@@ -3,6 +3,7 @@ extends Control
 
 const PortraitScript = preload("res://scripts/procedural_portrait.gd")
 const EquipmentIconScript = preload("res://scripts/equipment_icon.gd")
+const TransportIconScript = preload("res://scripts/transport_icon.gd")
 
 const INK := Color("#f4f2ff")
 const MUTED := Color("#9da8c8")
@@ -115,6 +116,17 @@ func character_portrait(character_id: String, dimension: float, equipment_profil
 func equipment_icon(item: Dictionary, dimension: float) -> Control:
 	var result: Control = EquipmentIconScript.new()
 	result.item = item.duplicate(true)
+	result.custom_minimum_size = Vector2(dimension, dimension)
+	result.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	result.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return result
+
+
+func transport_icon(transport: Dictionary, dimension: float) -> Control:
+	var result: Control = TransportIconScript.new()
+	result.transport_id = str(transport.get("id", ""))
+	var raw_color := str(transport.get("color", "#55e5ff"))
+	result.accent = Color(raw_color) if Color.html_is_valid(raw_color) else CYAN
 	result.custom_minimum_size = Vector2(dimension, dimension)
 	result.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	result.size_flags_vertical = Control.SIZE_SHRINK_CENTER

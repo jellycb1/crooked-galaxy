@@ -535,6 +535,33 @@ func build_galaxy_map() -> void:
 		render()
 	)
 	title_row.add_child(back)
+	var active_transport := TransportRulesScript.active_transport(GameState.player)
+	var transport_status := panel(HBoxContainer.new(), Color("#173356"), 14, 12)
+	transport_status.name = "GalaxyTransportStatus"
+	var transport_row := transport_status.get_child(0) as HBoxContainer
+	transport_row.add_theme_constant_override("separation", 10)
+	var transport_copy := VBoxContainer.new()
+	transport_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if active_transport.is_empty():
+		transport_copy.add_child(label("SEM TRANSPORTE ATIVO", 13, GOLD))
+		transport_copy.add_child(label("O mapa calcula cada rota na velocidade burocrática padrão.", 11, MUTED))
+	else:
+		var map_icon := transport_icon(active_transport, 54)
+		map_icon.name = "GalaxyTransportIcon"
+		transport_row.add_child(map_icon)
+		transport_copy.add_child(label("EM TRÂNSITO · %s" % str(active_transport.name), 13, Color(str(active_transport.color))))
+		transport_copy.add_child(label("-%d%% no tempo-base de todas as caçadas" % roundi(float(active_transport.speed_bonus) * 100.0), 11, LIME))
+	transport_row.add_child(transport_copy)
+	var open_hangar := action_button("ABRIR HANGAR", CYAN, true)
+	open_hangar.name = "GalaxyHangarAction"
+	open_hangar.custom_minimum_size = Vector2(118, 48)
+	open_hangar.add_theme_font_size_override("font_size", 10)
+	open_hangar.pressed.connect(func():
+		view_mode = "hangar"
+		render()
+	)
+	transport_row.add_child(open_hangar)
+	content.add_child(transport_status)
 	var route_scroll := ScrollContainer.new()
 	route_scroll.name = "GalaxyScroll"
 	route_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -831,6 +858,11 @@ func build_briefing() -> void:
 	target_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	target_copy.add_theme_constant_override("separation", 4)
 	target_row.add_child(target_copy)
+	var active_transport := TransportRulesScript.active_transport(GameState.player)
+	if not active_transport.is_empty():
+		var briefing_transport := transport_icon(active_transport, 58)
+		briefing_transport.name = "BriefingTransportIcon"
+		target_row.add_child(briefing_transport)
 	target_copy.add_child(label("BRIEFING DO CONTRATO", 15, CYAN))
 	target_copy.add_child(label(str(bounty.name), 26, INK))
 	if str(briefing_context.get("target_id", "")) == str(bounty.id) and str(briefing_context.get("approach_id", "")) == recommended_id:
@@ -951,7 +983,15 @@ func build_hunt() -> void:
 		content.add_child(center_label(str(approach.name).to_upper(), 16, Color(str(approach.color))))
 	var transport := TransportRulesScript.active_transport(GameState.player)
 	if not transport.is_empty():
-		content.add_child(center_label("%s · -%d%% TEMPO" % [str(transport.name), roundi(float(transport.speed_bonus) * 100.0)], 12, Color(str(transport.color))))
+		var transport_row := HBoxContainer.new()
+		transport_row.name = "HuntTransportStatus"
+		transport_row.alignment = BoxContainer.ALIGNMENT_CENTER
+		transport_row.add_theme_constant_override("separation", 8)
+		var hunt_transport := transport_icon(transport, 46)
+		hunt_transport.name = "HuntTransportIcon"
+		transport_row.add_child(hunt_transport)
+		transport_row.add_child(label("%s · -%d%% TEMPO" % [str(transport.name), roundi(float(transport.speed_bonus) * 100.0)], 12, Color(str(transport.color))))
+		content.add_child(transport_row)
 	var field_test_record := field_test_record_label("HuntFieldTestContext")
 	if field_test_record != null:
 		content.add_child(field_test_record)

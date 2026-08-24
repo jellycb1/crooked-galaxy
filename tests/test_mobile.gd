@@ -19,6 +19,8 @@ func run_mobile_audit() -> void:
 	state.phase = state.Phase.BOARD
 	state.player.weapon.origin_planet_id = "dustball_prime"
 	state.player.armor.origin_planet_id = "dustball_prime"
+	state.player.owned_transport_ids = ["licensed_junkbox"]
+	state.player.active_transport_id = "licensed_junkbox"
 	state.player.inventory = [
 		{"id": "mobile_weapon", "name": "Arma de Bolso", "slot": "weapon", "power": 4, "rarity": "Raro", "color": "#58d9ff"},
 		{"id": "mobile_armor", "name": "Colete de Bolso", "slot": "armor", "power": 4, "rarity": "Comum", "color": "#b9c2d9"},
@@ -56,7 +58,13 @@ func run_mobile_audit() -> void:
 	await process_frame
 	check_touch_targets(scene, "transport hangar")
 	check(scene.find_child("HangarScroll", true, false) != null and scene.find_children("HangarTransport_*", "PanelContainer", true, false).size() == 4, "all four transports remain reachable in the portrait scroller")
+	check(scene.find_children("HangarTransportIcon_*", "Control", true, false).size() == 4, "hangar silhouettes remain visible at the mobile card size")
 	check(scene.android_back_action() == "board", "Android Back routes the hangar safely to the bounty board")
+	scene.view_mode = "galaxy"
+	scene.render()
+	await process_frame
+	check_touch_targets(scene, "transport galaxy status")
+	check(scene.find_child("GalaxyTransportIcon", true, false) != null and scene.find_child("GalaxyHangarAction", true, false) != null, "galaxy map carries the active transport identity and hangar route")
 	scene.view_mode = "arsenal"
 	scene.render()
 	await process_frame
@@ -95,6 +103,7 @@ func run_mobile_audit() -> void:
 	state.select_bounty(ContentDB.TARGETS[0])
 	await process_frame
 	check_touch_targets(scene, "contract briefing")
+	check(scene.find_child("BriefingTransportIcon", true, false) != null, "contract briefing carries the active transport silhouette")
 	check(scene.android_back_action() == "cancel_briefing", "Android Back maps an uncommitted briefing to its safe cancel action")
 	scene.handle_android_back_request()
 	await process_frame
@@ -102,6 +111,8 @@ func run_mobile_audit() -> void:
 	state.select_bounty(ContentDB.TARGETS[0])
 	await process_frame
 	state.choose_approach("quiet_net")
+	await process_frame
+	check(scene.find_child("HuntTransportIcon", true, false) != null, "active hunt carries the transport silhouette and timing identity")
 	check(not scene.hunt_timer.is_stopped(), "hunt refresh wakes only for the timed hunt phase")
 	check(scene.android_back_action() == "guard_contract", "Android Back cannot accidentally abandon an active timed contract")
 	state.hunt_event = ContentDB.HUNT_EVENTS[0].duplicate(true)
