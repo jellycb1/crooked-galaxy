@@ -412,6 +412,8 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		"base_credits": int(reward.base_credits),
 		"streak_bonus": int(reward.bonus_credits),
 		"streak_bonus_percent": int(reward.bonus_percent),
+		"incident_cost": maxi(0, int(current_bounty.get("hunt_event_credit_cost", 0))),
+		"net_contract_credits": int(reward.credits) - maxi(0, int(current_bounty.get("hunt_event_credit_cost", 0))),
 		"streak": new_streak,
 		"scrap": 0,
 		"contract_scrap": 0,
@@ -470,6 +472,8 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		if equip_item:
 			equip(pending_loot)
 	var notice_parts := ["+%d créditos" % int(summary.credits), "+%d XP" % int(summary.xp)]
+	if int(summary.incident_cost) > 0:
+		notice_parts.append("Incidente já pago: saldo +%d créditos" % int(summary.net_contract_credits))
 	if int(summary.contract_scrap) > 0:
 		notice_parts.append("Mandado corporativo: +%d sucata" % int(summary.contract_scrap))
 	if int(summary.recycled_scrap) > 0:

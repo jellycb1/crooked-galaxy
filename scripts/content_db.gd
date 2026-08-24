@@ -935,6 +935,7 @@ static func apply_hunt_choice(bounty: Dictionary, choice: Dictionary) -> Diction
 		if choice.has(multiplier_key):
 			result[stat] = maxi(1 if stat != "defense" else 0, roundi(float(result[stat]) * float(choice[multiplier_key])))
 	result["hunt_event_result"] = str(choice.get("result", "A perseguição ficou ligeiramente mais estranha."))
+	result["hunt_event_credit_cost"] = maxi(0, int(choice.get("credit_cost", 0)))
 	return result
 
 

@@ -74,7 +74,7 @@ func capture() -> void:
 	if save_frame("ui_hunt_event.png") != OK:
 		quit(1)
 		return
-	state.resolve_hunt_event("detour")
+	state.resolve_hunt_event("bribe")
 	await process_frame
 	await process_frame
 	state.begin_combat()
@@ -143,7 +143,8 @@ func capture() -> void:
 	scene.render()
 	await process_frame
 	await process_frame
-	await create_timer(0.12).timeout
+	await create_timer(0.3).timeout
+	await process_frame
 	if save_frame("ui_reward_unlock.png") != OK:
 		quit(1)
 		return

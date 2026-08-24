@@ -24,6 +24,8 @@ Hunt incidents recompute and display the final victory payment for every choice,
 
 Paid incident options additionally show the net contract gain after their immediate credit cost.
 
+The reward receipt retains paid incident cost and reconciles gross payout with the exact net wallet gain from before the choice.
+
 Automatic combat retains the selected incident result and adjusted payment above the encounter, preserving economic context through resolution.
 
 When a capture reveals a new warrant, the reward also projects the best approach and win chance after equipping the pending item, so the direct-contract and workshop routes have visible context.

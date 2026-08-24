@@ -249,6 +249,7 @@ func _init() -> void:
 	check(int(paid_event_reward.credits) - 8 == 38 and int(paid_event_reward.bonus_percent) == 20, "paid incident net preview combines the charged cost with the active ×5 payout")
 	check(state.current_bounty.defense == 3, "event consequence modifies the target")
 	check(state.current_bounty.has("hunt_event_result"), "event result is retained for feedback")
+	check(int(state.current_bounty.get("hunt_event_credit_cost", 0)) == 8, "paid incident cost remains attached to the live contract receipt")
 	state.begin_combat()
 	state.enemy_hp = 9999
 	state.player_hp = 1
@@ -286,6 +287,27 @@ func _init() -> void:
 	check(bool(recovery_summary.target_mastery_up) and int(recovery_summary.target_mastery) == 1 and int(recovery_summary.mastery_scrap) == 6, "recovered third capture still grants the exact mastery threshold funding")
 	check(int(recovery_state.player.captures_by_target.gloop) == 3 and recovery_state.planet_tier(Content.PLANET.id) == 1, "recovered threshold capture advances the sequential warrant")
 	recovery_state.free()
+
+	var receipt_state = StateScript.new()
+	receipt_state.persistence_enabled = false
+	receipt_state.player = receipt_state.default_player()
+	receipt_state.player.capture_streak = 4
+	receipt_state.select_bounty(Content.TARGETS[0])
+	receipt_state.choose_approach("quiet_net")
+	receipt_state.hunt_event = Content.HUNT_EVENTS[0].duplicate(true)
+	receipt_state.phase = receipt_state.Phase.HUNT_EVENT
+	var receipt_credits_before := int(receipt_state.player.credits)
+	var projected_paid_contract := Content.apply_hunt_choice(receipt_state.current_bounty, receipt_state.hunt_event.choices[0])
+	var projected_paid_reward := CoreRules.bounty_streak_reward(int(projected_paid_contract.credits), 5)
+	check(receipt_state.resolve_hunt_event("bribe"), "receipt scenario accepts the paid incident")
+	receipt_state.begin_combat()
+	receipt_state.enemy_hp = 0
+	receipt_state.finish_combat(true)
+	receipt_state.open_reward()
+	var receipt_summary := receipt_state.claim_reward(false)
+	check(int(receipt_summary.credits) == int(projected_paid_reward.credits) and int(receipt_summary.incident_cost) == 8 and int(receipt_summary.net_contract_credits) == int(projected_paid_reward.credits) - 8, "reward receipt matches the incident projection exactly")
+	check(int(receipt_state.player.credits) == receipt_credits_before + int(receipt_summary.net_contract_credits), "wallet delta from pre-choice to reward equals the displayed net contract gain")
+	receipt_state.free()
 	state.toggle_sound()
 	check(not bool(state.player.sound_enabled), "audio preference can be disabled")
 	check(not state.travel_to_planet("congelaria_sa"), "travel rejects locked planets")

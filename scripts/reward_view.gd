@@ -13,14 +13,14 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var reward_preview := Rules.bounty_streak_reward(int(state.current_bounty.credits), int(state.player.get("capture_streak", 0)) + 1)
 	content.add_child(host.center_label("CONTRATO CONCLUÍDO · %s" % str(state.current_bounty.name).to_upper(), 16, host.LIME))
 	content.add_child(host.center_label("RECOMPENSA CAPTURADA", 32, host.INK))
-	var reward_panel := host.panel(VBoxContainer.new(), host.PANEL_LIGHT, 26, 26)
+	var reward_panel := host.panel(VBoxContainer.new(), host.PANEL_LIGHT, 20, 20)
 	reward_panel.modulate = Color(1, 1, 1, 0)
 	content.add_child(reward_panel)
 	reward_panel.create_tween().tween_property(reward_panel, "modulate", Color.WHITE, 0.32)
 	var box := reward_panel.get_child(0) as VBoxContainer
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_theme_constant_override("separation", 10)
-	box.add_child(host.center_label("⚙", 76, Color(str(item.color))))
+	box.add_theme_constant_override("separation", 7)
+	box.add_child(host.center_label("⚙", 58, Color(str(item.color))))
 	box.add_child(host.center_label(str(item.rarity).to_upper(), 15, Color(str(item.color))))
 	box.add_child(host.center_label(str(item.name), 25, host.INK))
 	var origin_id := str(item.get("origin_planet_id", ""))
@@ -48,6 +48,11 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var reward_totals := host.center_label(reward_line, 17, host.GOLD)
 	reward_totals.name = "RewardContractTotals"
 	box.add_child(reward_totals)
+	var incident_cost := maxi(0, int(state.current_bounty.get("hunt_event_credit_cost", 0)))
+	if incident_cost > 0:
+		var incident_net := host.center_label("INCIDENTE JÁ PAGO · -%d CRÉDITOS · SALDO DO CONTRATO +%d" % [incident_cost, int(reward_preview.credits) - incident_cost], 12, host.CYAN)
+		incident_net.name = "RewardIncidentNet"
+		box.add_child(incident_net)
 	var previous_captures := int(state.player.get("captures_by_target", {}).get(str(state.current_bounty.id), 0))
 	var reward_mastery := Rules.target_mastery_level(previous_captures)
 	if reward_mastery > 0:

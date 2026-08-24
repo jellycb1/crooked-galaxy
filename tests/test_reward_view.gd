@@ -29,6 +29,12 @@ func _init() -> void:
 	check(host.find_child("ClaimAndRepeat", true, false) != null and host.find_child("ClaimAndBoard", true, false) != null, "isolated reward preserves repeat and board decisions")
 
 	clear_content(content)
+	state.current_bounty = ContentDB.apply_hunt_choice(ContentDB.TARGETS[0], ContentDB.HUNT_EVENTS[0].choices[0])
+	RewardScript.build(host, content, state)
+	var incident_net := host.find_child("RewardIncidentNet", true, false) as Label
+	check(incident_net != null and incident_net.text.contains("-8 CRÉDITOS") and incident_net.text.contains("SALDO DO CONTRATO"), "paid incident reward reconciles gross payout with its already charged cost")
+
+	clear_content(content)
 	state.current_bounty = ContentDB.apply_approach(ContentDB.TARGETS[0], ContentDB.CONTRACT_APPROACHES[2])
 	state.player.capture_streak = 1
 	RewardScript.build(host, content, state)
