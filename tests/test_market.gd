@@ -4,6 +4,8 @@ const FactoryScript = preload("res://scripts/ui_factory.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const MarketRulesScript = preload("res://scripts/market_rules.gd")
 const MarketViewScript = preload("res://scripts/market_view.gd")
+const SpendingGuidanceScript = preload("res://scripts/spending_guidance.gd")
+const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 
 var failures := 0
 
@@ -25,6 +27,13 @@ func _init() -> void:
 		check(int(offer.price) > 0, "every market offer has a positive price")
 	check(offer_ids.duplicate().all(func(id): return offer_ids.count(id) == 1), "market offer ids are unique")
 	check(slots.has("weapon") and slots.has("armor"), "every stock cycle includes both equipment slots")
+	var first_transport := SpendingGuidanceScript.next_transport_goal(state.player)
+	check(str(first_transport.id) == "licensed_junkbox", "spending guidance exposes the first permanent mobility alternative without buying it")
+	state.player.owned_transport_ids = ["licensed_junkbox"]
+	check(str(SpendingGuidanceScript.next_transport_goal(state.player).id) == "cloned_warp_taxi", "spending guidance advances to the nearest locked transport goal")
+	state.player.owned_transport_ids = TransportRulesScript.DEFINITIONS.map(func(entry): return str(entry.id))
+	check(SpendingGuidanceScript.next_transport_goal(state.player).is_empty(), "spending guidance recognizes a complete transport collection")
+	state.player.owned_transport_ids = []
 
 	state.player.captures_by_target = {"gloop": 3}
 	var catchup_offers := state.market_offers()
@@ -98,6 +107,8 @@ func _init() -> void:
 	check(host.find_children("MarketBuy_*", "Button", true, false).size() == 3, "every offer has a purchase action")
 	var refresh := host.find_child("MarketRefresh", true, false) as Button
 	check(refresh != null and refresh.custom_minimum_size.y >= 48.0, "renewal action preserves an Android-first touch target")
+	var hangar_action := host.find_child("MarketHangarAction", true, false) as Button
+	check(hangar_action != null and hangar_action.custom_minimum_size.y >= 48.0, "market exposes a touch-safe route to the permanent transport alternative")
 	for button in host.find_children("MarketBuy_*", "Button", true, false):
 		check((button as Button).custom_minimum_size.y >= 48.0, "purchase action preserves an Android-first touch target")
 

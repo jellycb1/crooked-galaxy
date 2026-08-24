@@ -2,6 +2,7 @@ class_name HangarView
 extends RefCounted
 
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
+const SpendingGuidanceScript = preload("res://scripts/spending_guidance.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 
 
@@ -36,6 +37,39 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		status_box.add_child(host.label("ATIVO · %s" % str(active.name), 14, Color(str(active.color))))
 		status_box.add_child(host.label("CAÇADAS %d%% MAIS RÁPIDAS · atrasos de incidentes não recebem desconto" % roundi(float(active.speed_bonus) * 100.0), 11, host.LIME))
 	content.add_child(status)
+
+	var market_summary := SpendingGuidanceScript.market_upgrade_summary(state.player, state.market_offers())
+	var alternative := host.panel(HBoxContainer.new(), Color("#342b1c"), 13, 10)
+	alternative.name = "HangarMarketAlternative"
+	var alternative_row := alternative.get_child(0) as HBoxContainer
+	alternative_row.add_theme_constant_override("separation", 10)
+	var alternative_copy := VBoxContainer.new()
+	alternative_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	alternative_row.add_child(alternative_copy)
+	if int(market_summary.count) > 0:
+		var upgrade_label := host.label("ALTERNATIVA DE COMBATE · %d MELHORIA%s" % [int(market_summary.count), "S" if int(market_summary.count) != 1 else ""], 11, host.GOLD)
+		upgrade_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		alternative_copy.add_child(upgrade_label)
+		var price_label := host.label("Stock atual desde ◈ %d · equipamento imediato" % int(market_summary.cheapest_price), 10, host.MUTED)
+		price_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		alternative_copy.add_child(price_label)
+	else:
+		var no_upgrade_label := host.label("ALTERNATIVA DE COMBATE · SEM MELHORIA DIRETA", 11, host.MUTED)
+		no_upgrade_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		alternative_copy.add_child(no_upgrade_label)
+		var collection_label := host.label("O stock atual serve apenas coleção; renovar é opcional.", 10, host.MUTED)
+		collection_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		alternative_copy.add_child(collection_label)
+	var market_action := host.action_button("VER MERCADO", host.GOLD, true)
+	market_action.name = "HangarMarketAction"
+	market_action.custom_minimum_size = Vector2(112, 48)
+	market_action.add_theme_font_size_override("font_size", 10)
+	market_action.pressed.connect(func():
+		host.view_mode = "market"
+		host.call("render")
+	)
+	alternative_row.add_child(market_action)
+	content.add_child(alternative)
 
 	if state.last_notice_context == "hangar" and not state.last_notice.is_empty():
 		var receipt := host.panel(VBoxContainer.new(), Color("#16363b"), 12, 10)

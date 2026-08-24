@@ -4,6 +4,8 @@ extends RefCounted
 const Rules = preload("res://scripts/core_rules.gd")
 const MarketRulesScript = preload("res://scripts/market_rules.gd")
 const EquipmentPresentation = preload("res://scripts/equipment_presentation.gd")
+const SpendingGuidanceScript = preload("res://scripts/spending_guidance.gd")
+const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 
 
@@ -45,6 +47,43 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	refresh.disabled = int(state.player.credits) < refresh_cost
 	refresh.pressed.connect(state.refresh_market)
 	info_row.add_child(refresh)
+
+	var transport_goal := SpendingGuidanceScript.next_transport_goal(state.player)
+	var alternative := host.panel(HBoxContainer.new(), Color("#173356"), 13, 10)
+	alternative.name = "MarketTransportAlternative"
+	var alternative_row := alternative.get_child(0) as HBoxContainer
+	alternative_row.add_theme_constant_override("separation", 10)
+	var alternative_copy := VBoxContainer.new()
+	alternative_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	alternative_row.add_child(alternative_copy)
+	if transport_goal.is_empty():
+		var complete_label := host.label("MOBILIDADE PERMANENTE · COLEÇÃO COMPLETA", 11, host.CYAN)
+		complete_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		alternative_copy.add_child(complete_label)
+		var optional_label := host.label("O mercado continua opcional para equipamento e coleção.", 10, host.MUTED)
+		optional_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		alternative_copy.add_child(optional_label)
+	else:
+		var unlocked := TransportRulesScript.is_unlocked(state.player, transport_goal)
+		var goal_label := host.label("ALTERNATIVA PERMANENTE · %s" % str(transport_goal.name), 11, host.CYAN if unlocked else host.MUTED)
+		goal_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		alternative_copy.add_child(goal_label)
+		var transport_copy := "-%d%% tempo de caça · ◈ %d" % [roundi(float(transport_goal.speed_bonus) * 100.0), int(transport_goal.price)]
+		if not unlocked:
+			transport_copy += " · após %d capítulos" % int(transport_goal.required_completed_planets)
+		var detail_label := host.label(transport_copy, 10, host.MUTED)
+		detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		alternative_copy.add_child(detail_label)
+	var hangar_action := host.action_button("VER HANGAR", host.CYAN, true)
+	hangar_action.name = "MarketHangarAction"
+	hangar_action.custom_minimum_size = Vector2(112, 48)
+	hangar_action.add_theme_font_size_override("font_size", 10)
+	hangar_action.pressed.connect(func():
+		host.view_mode = "hangar"
+		host.call("render")
+	)
+	alternative_row.add_child(hangar_action)
+	content.add_child(alternative)
 
 	if state.last_notice_context == "market" and not state.last_notice.is_empty():
 		var receipt := host.panel(VBoxContainer.new(), Color("#173356"), 12, 10)

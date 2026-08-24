@@ -4,6 +4,7 @@ const FactoryScript = preload("res://scripts/ui_factory.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const HangarViewScript = preload("res://scripts/hangar_view.gd")
+const SpendingGuidanceScript = preload("res://scripts/spending_guidance.gd")
 
 var failures := 0
 
@@ -16,6 +17,10 @@ func _init() -> void:
 	check(is_equal_approx(TransportRulesScript.effective_hunt_duration(state.player, 20.0), 20.0), "a hunter without transport keeps the canonical hunt duration")
 	check(TransportRulesScript.is_unlocked(state.player, TransportRulesScript.DEFINITIONS[0]), "starter transport is visible before chapter completion")
 	check(not TransportRulesScript.is_unlocked(state.player, TransportRulesScript.DEFINITIONS[1]), "second transport remains chapter-gated")
+	var default_market_summary := SpendingGuidanceScript.market_upgrade_summary(state.player, state.market_offers())
+	check(int(default_market_summary.count) >= 0 and int(default_market_summary.cheapest_price) >= 0, "combat alternative projection is bounded and side-effect free")
+	var no_upgrade_summary := SpendingGuidanceScript.market_upgrade_summary(state.player, [{"item": state.player.weapon.duplicate(true), "price": 100, "purchased": false}])
+	check(int(no_upgrade_summary.count) == 0 and int(no_upgrade_summary.cheapest_price) == 0, "combat guidance does not advertise equal equipment as an upgrade")
 
 	state.player.credits = 499
 	check(not state.acquire_or_equip_transport("licensed_junkbox"), "underfunded transport purchase is rejected")
@@ -81,6 +86,8 @@ func _init() -> void:
 	check(host.find_children("HangarTransport_*", "PanelContainer", true, false).size() == 4, "hangar renders every launch transport once")
 	check(host.find_children("HangarTransportIcon_*", "Control", true, false).size() == 4, "every launch transport renders an original scalable silhouette")
 	check(host.find_children("HangarAction_*", "Button", true, false).size() == 4, "every transport owns an explicit transaction action")
+	var market_action := host.find_child("HangarMarketAction", true, false) as Button
+	check(market_action != null and market_action.custom_minimum_size.y >= 48.0, "hangar exposes a touch-safe route to the combat equipment alternative")
 	for button in host.find_children("HangarAction_*", "Button", true, false):
 		check((button as Button).custom_minimum_size.y >= 48.0, "transport action preserves an Android-first touch target")
 

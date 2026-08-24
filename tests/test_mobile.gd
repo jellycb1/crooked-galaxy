@@ -51,15 +51,24 @@ func run_mobile_audit() -> void:
 	await process_frame
 	check_touch_targets(scene, "planet market")
 	check(scene.find_child("MarketScroll", true, false) != null and scene.find_children("MarketOffer_*", "PanelContainer", true, false).size() == 3, "all three market offers remain reachable in the portrait scroller")
+	var market_hangar_action := scene.find_child("MarketHangarAction", true, false) as Button
+	check(market_hangar_action != null, "market keeps the transport alternative one touch away")
 	check(scene.android_back_action() == "board", "Android Back routes the market safely to the bounty board")
-	scene.view_mode = "hangar"
-	scene.render()
+	if market_hangar_action != null:
+		market_hangar_action.pressed.emit()
 	await process_frame
 	await process_frame
+	check(scene.view_mode == "hangar", "market alternative action opens the hangar without returning through the board")
 	check_touch_targets(scene, "transport hangar")
 	check(scene.find_child("HangarScroll", true, false) != null and scene.find_children("HangarTransport_*", "PanelContainer", true, false).size() == 4, "all four transports remain reachable in the portrait scroller")
 	check(scene.find_children("HangarTransportIcon_*", "Control", true, false).size() == 4, "hangar silhouettes remain visible at the mobile card size")
+	var hangar_market_action := scene.find_child("HangarMarketAction", true, false) as Button
+	check(hangar_market_action != null, "hangar keeps the combat alternative one touch away")
 	check(scene.android_back_action() == "board", "Android Back routes the hangar safely to the bounty board")
+	if hangar_market_action != null:
+		hangar_market_action.pressed.emit()
+	await process_frame
+	check(scene.view_mode == "market", "hangar alternative action opens the market without returning through the board")
 	scene.view_mode = "galaxy"
 	scene.render()
 	await process_frame
