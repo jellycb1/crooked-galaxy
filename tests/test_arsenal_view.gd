@@ -13,6 +13,7 @@ func _init() -> void:
 	state.persistence_enabled = false
 	state.player = state.default_player()
 	state.last_notice = "Perícia com alvo 1: +6 sucata"
+	state.last_notice_context = "reward_stored"
 	state.player.captures_by_target = {"gloop": 1}
 	state.player.captures_by_planet = {"dustball_prime": 1}
 	state.player.scrap = 20
@@ -104,6 +105,11 @@ func _init() -> void:
 	check(ArsenalScript.filtered_inventory(host, state).size() == 2, "renderer receives inventory through explicit state")
 	host.inventory_filter = "weapon"
 	check(ArsenalScript.filtered_inventory(host, state).size() == 1, "renderer preserves host filter state")
+	state.last_notice = "Rota confirmada: Congelária S.A."
+	state.last_notice_context = "travel"
+	clear_children(content)
+	ArsenalScript.build(host, content, state)
+	check(host.find_child("WorkshopNotice", true, false) == null, "arsenal ignores receipts owned by unrelated hubs")
 
 	host.free()
 	state.free()

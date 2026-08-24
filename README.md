@@ -62,6 +62,8 @@ Career scroll position is session-persistent: claiming a milestone, rerendering 
 
 Milestone claims leave an exact in-career receipt for individual or bulk rewards, including both credits and scrap, while the shared renderer cleanly replaces the previous UI tree before rebuilding transactional views.
 
+Transient notices carry explicit provenance: reward-equipped receipts alone activate `TESTAR BUILD`, career receipts stay in career, and the arsenal distinguishes contract receipts from its own workshop records while ignoring unrelated travel or system messages.
+
 ## Run
 
 Open `project.godot` in Godot 4, or run from a console where Godot is available:

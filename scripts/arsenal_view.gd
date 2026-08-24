@@ -46,8 +46,10 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	)
 	title_row.add_child(back)
 
-	if not state.last_notice.is_empty():
-		var notice := host.label("REGISTRO DA OFICINA · %s" % state.last_notice, 11, host.LIME)
+	var notice_context := str(state.last_notice_context)
+	if notice_context == "workshop" or notice_context.begins_with("reward_"):
+		var notice_title := "REGISTRO DA OFICINA" if notice_context == "workshop" else "RECIBO DE CONTRATO"
+		var notice := host.label("%s · %s" % [notice_title, state.last_notice], 11, host.LIME)
 		notice.name = "WorkshopNotice"
 		notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		content.add_child(notice)

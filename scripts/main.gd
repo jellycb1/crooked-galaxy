@@ -197,7 +197,7 @@ func build_board() -> void:
 	var xp_needed := CoreRules.xp_needed(int(GameState.player.level))
 	var xp_text := "XP %d/%d" % [int(GameState.player.xp), xp_needed]
 	actions.add_child(label(xp_text, 14, MUTED, HORIZONTAL_ALIGNMENT_RIGHT))
-	var equipped_receipt := GameState.last_notice.begins_with("Contrato pago:") and GameState.last_notice.contains(" equipado")
+	var equipped_receipt := GameState.last_notice_context == "reward_equipped"
 	var arsenal := action_button("TESTAR BUILD" if equipped_receipt else "ARSENAL · %d" % GameState.player.inventory.size(), LIME if equipped_receipt else GOLD, true)
 	arsenal.name = "PostClaimFieldTestAction" if equipped_receipt else "ArsenalAction"
 	arsenal.custom_minimum_size = Vector2(160, 48)

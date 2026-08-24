@@ -18,6 +18,8 @@ func run_smoke_test() -> void:
 	state.phase = state.Phase.BOARD
 	state.current_bounty = {}
 	state.pending_loot = {}
+	state.last_notice = ""
+	state.last_notice_context = ""
 
 	var packed_scene: PackedScene = load("res://scenes/main.tscn")
 	var scene: Control = packed_scene.instantiate()
@@ -165,9 +167,15 @@ func run_smoke_test() -> void:
 				await process_frame
 	scene.view_mode = "board"
 	state.last_notice = "Contrato pago: Peça de Reserva guardado"
+	state.last_notice_context = "reward_stored"
 	scene.render()
 	await process_frame
 	check(scene.find_child("ArsenalAction", true, false) != null and scene.find_child("PostClaimFieldTestAction", true, false) == null, "stored reward receipts keep the ordinary arsenal action")
+	state.last_notice = "Contrato pago: Recibo antigo equipado"
+	state.last_notice_context = "career"
+	scene.render()
+	await process_frame
+	check(scene.find_child("ArsenalAction", true, false) != null and scene.find_child("PostClaimFieldTestAction", true, false) == null, "equipped-looking stale text cannot forge a contextual field-test action")
 	state.phase = state.Phase.REWARD
 	state.current_bounty = bounty.duplicate(true)
 	state.pending_loot = {"id": "ui_instant_scrap", "name": "Zapper Cansado", "slot": "weapon", "power": 0, "rarity": "Comum", "color": "#b9c2d9"}

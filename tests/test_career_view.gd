@@ -60,6 +60,7 @@ func _init() -> void:
 	check(str(state.player.current_planet_id) == "congelaria_sa" and state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "auditor_frost", "archive action travels to another planet and opens the selected briefing")
 	state.cancel_briefing()
 	state.last_notice = "2 marcos resgatados: +110 créditos · +2 sucata."
+	state.last_notice_context = "career"
 	for child in content.get_children():
 		child.free()
 	CareerViewScript.build(host, content, state)

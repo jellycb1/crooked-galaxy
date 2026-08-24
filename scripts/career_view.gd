@@ -100,10 +100,7 @@ static func ordered_archive_targets(state: StateScript) -> Array[Dictionary]:
 
 
 static func career_claim_notice(state: StateScript) -> String:
-	var notice := str(state.last_notice)
-	if notice.begins_with("Marco resgatado:") or notice.contains(" marcos resgatados:"):
-		return notice
-	return ""
+	return str(state.last_notice) if state.last_notice_context == "career" else ""
 
 
 static func claim_receipt_card(host: CrookedUIFactory, notice: String) -> PanelContainer:

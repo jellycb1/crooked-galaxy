@@ -16,6 +16,7 @@ func capture() -> void:
 		state.current_bounty = {}
 		state.pending_loot = {}
 		state.last_notice = ""
+		state.last_notice_context = ""
 	var packed_scene: PackedScene = load("res://scenes/main.tscn")
 	var scene: Control = packed_scene.instantiate()
 	root.add_child(scene)
@@ -198,6 +199,7 @@ func capture() -> void:
 		quit(1)
 		return
 	var receipt_notice: String = str(state.last_notice)
+	var receipt_notice_context: String = str(state.last_notice_context)
 	var receipt_streak := int(state.player.capture_streak)
 	override_route_action.pressed.emit()
 	await process_frame
@@ -240,6 +242,7 @@ func capture() -> void:
 	state.current_bounty = {}
 	state.pending_loot = {}
 	state.last_notice = receipt_notice
+	state.last_notice_context = receipt_notice_context
 	state.player.capture_streak = receipt_streak
 	state.combat_summary = {}
 	scene.view_mode = "arsenal"
@@ -603,6 +606,7 @@ func capture() -> void:
 		quit(1)
 		return
 	state.last_notice = ""
+	state.last_notice_context = ""
 	scene.render()
 	await process_frame
 	await process_frame

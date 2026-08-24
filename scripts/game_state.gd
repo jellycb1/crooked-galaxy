@@ -33,6 +33,7 @@ var rng := RandomNumberGenerator.new()
 var persistence_enabled := true
 var save_path := SAVE_PATH
 var last_notice := ""
+var last_notice_context := ""
 var chapter_completion: Dictionary = {}
 var afk_report: Dictionary = {}
 
@@ -77,6 +78,7 @@ func select_bounty(bounty: Dictionary) -> void:
 	if phase != Phase.BOARD:
 		return
 	last_notice = ""
+	last_notice_context = ""
 	combat_summary = {}
 	current_bounty = bounty.duplicate(true)
 	offered_approaches = ContentDB.contract_approaches()
@@ -94,6 +96,7 @@ func travel_to_planet(planet_id: String) -> bool:
 	var planet := ContentDB.get_planet(planet_id)
 	player.current_planet_id = str(planet.id)
 	last_notice = "Rota confirmada: %s. O combustível será explicado na fatura." % str(planet.name)
+	last_notice_context = "travel"
 	save_game()
 	changed.emit()
 	return true
@@ -155,6 +158,7 @@ func claim_career_milestone(milestone_id: String) -> bool:
 		player.career_credits_claimed = int(player.get("career_credits_claimed", 0)) + credits
 		player.career_scrap_claimed = int(player.get("career_scrap_claimed", 0)) + scrap
 		last_notice = "Marco resgatado: %s. +%d créditos%s" % [str(milestone.name), credits, " · +%d sucata" % scrap if scrap > 0 else ""]
+		last_notice_context = "career"
 		save_game()
 		changed.emit()
 		return true
@@ -178,6 +182,7 @@ func claim_all_career_milestones() -> Dictionary:
 	player.career_credits_claimed = int(player.get("career_credits_claimed", 0)) + credits
 	player.career_scrap_claimed = int(player.get("career_scrap_claimed", 0)) + scrap
 	last_notice = "%d marcos resgatados: +%d créditos · +%d sucata." % [ready.size(), credits, scrap]
+	last_notice_context = "career"
 	save_game()
 	changed.emit()
 	return {"count": ready.size(), "credits": credits, "scrap": scrap}
@@ -207,6 +212,7 @@ func start_bounty(bounty: Dictionary) -> void:
 	if phase != Phase.BOARD:
 		return
 	last_notice = ""
+	last_notice_context = ""
 	current_bounty = bounty.duplicate(true)
 	offered_approaches = []
 	start_hunt()
@@ -379,6 +385,7 @@ func finish_combat(won: bool) -> void:
 		player.capture_streak = 0
 		phase = Phase.BOARD
 		last_notice = "%s escapou. Seu equipamento precisa de argumentos melhores.%s" % [str(current_bounty.name), " Embalo ×%d perdido." % lost_streak if lost_streak > 0 else ""]
+		last_notice_context = "defeat"
 		current_bounty = {}
 		pending_loot = {}
 		offered_approaches = []
@@ -519,6 +526,7 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 			"xp": int(summary.xp),
 		}
 	last_notice = "Contrato pago: " + " · ".join(notice_parts)
+	last_notice_context = "reward_%s" % str(summary.loot_action)
 	phase = Phase.CHAPTER_COMPLETE if first_boss_capture else (Phase.BRIEFING if repeat_contract else Phase.BOARD)
 	current_bounty = ContentDB.get_target(target_id) if repeat_contract and not first_boss_capture else {}
 	pending_loot = {}
@@ -538,6 +546,7 @@ func continue_after_chapter() -> void:
 	phase = Phase.BOARD
 	chapter_completion = {}
 	last_notice = "%s pacificada. Contratos reabertos para melhorar equipamento e recordes." % str(completed_planet.name)
+	last_notice_context = "chapter"
 	save_game()
 	changed.emit()
 
@@ -566,6 +575,7 @@ func equip_from_inventory(item_id: String) -> void:
 		if str(item.get("id", "")) == item_id:
 			equip(item)
 			last_notice = "%s equipado. Poder total: %d." % [str(item.name), CoreRules.player_power(player)]
+			last_notice_context = "workshop"
 			save_game()
 			changed.emit()
 			return
@@ -585,6 +595,7 @@ func scrap_item(item_id: String) -> bool:
 		player.scrap = int(player.get("scrap", 0)) + value
 		player.scrap_recycled_total = int(player.get("scrap_recycled_total", 0)) + value
 		last_notice = "%s reciclado: +%d sucata." % [str(item.name), value]
+		last_notice_context = "workshop"
 		save_game()
 		changed.emit()
 		return true
@@ -627,6 +638,7 @@ func recycle_inferior_inventory() -> Dictionary:
 	player.scrap = int(player.get("scrap", 0)) + int(preview.scrap)
 	player.scrap_recycled_total = int(player.get("scrap_recycled_total", 0)) + int(preview.scrap)
 	last_notice = "%d peças inferiores recicladas: +%d sucata." % [int(preview.count), int(preview.scrap)]
+	last_notice_context = "workshop"
 	save_game()
 	changed.emit()
 	return preview
@@ -663,6 +675,7 @@ func toggle_item_lock(item_id: String) -> bool:
 	else:
 		locked.append(item_id)
 		last_notice = "Peça protegida contra reciclagem manual e em massa."
+	last_notice_context = "workshop"
 	player.locked_item_ids = locked
 	save_game()
 	changed.emit()
@@ -679,6 +692,7 @@ func save_equipment_loadout(index: int) -> bool:
 	}
 	player.equipment_loadouts = loadouts
 	last_notice = "Loadout %s arquivado. As peças foram protegidas." % loadout_name(index)
+	last_notice_context = "workshop"
 	save_game()
 	changed.emit()
 	return true
@@ -693,11 +707,13 @@ func apply_equipment_loadout(index: int) -> bool:
 	var armor := inventory_item_by_id(str(loadout.get("armor_id", "")))
 	if weapon.is_empty() or armor.is_empty():
 		last_notice = "Loadout incompleto. Uma das peças provavelmente virou história de oficina."
+		last_notice_context = "workshop"
 		changed.emit()
 		return false
 	equip(weapon)
 	equip(armor)
 	last_notice = "Loadout %s equipado. Poder %d · Vida %d." % [loadout_name(index), CoreRules.player_power(player), CoreRules.max_health(player)]
+	last_notice_context = "workshop"
 	save_game()
 	changed.emit()
 	return true
@@ -734,6 +750,7 @@ func upgrade_equipped(slot: String) -> bool:
 	player[slot] = item
 	sync_item_to_inventory(item)
 	last_notice = "%s calibrado para +%d poder." % [str(item.name), int(item.power)]
+	last_notice_context = "workshop"
 	save_game()
 	changed.emit()
 	return true
@@ -754,6 +771,7 @@ func reinforce_equipped(slot: String) -> bool:
 	player[slot] = item
 	sync_item_to_inventory(item)
 	last_notice = "%s reforçado: +%d vida total." % [str(item.name), int(item.integrity_upgrades) * CoreRules.INTEGRITY_HEALTH_PER_LEVEL]
+	last_notice_context = "workshop"
 	save_game()
 	changed.emit()
 	return true
@@ -784,6 +802,7 @@ func abandon_bounty() -> void:
 		offered_approaches = []
 		hunt_event = {}
 		last_notice = "Contrato abandonado%s. O embalo foi perdido." % (" após %d capturas" % lost_streak if lost_streak > 0 else "")
+		last_notice_context = "contract"
 		save_game()
 		changed.emit()
 
@@ -799,6 +818,7 @@ func reset_progress() -> void:
 	afk_report = {}
 	combat_summary = {}
 	last_notice = "Progresso reiniciado. Hora de construir uma nova reputação."
+	last_notice_context = "system"
 	save_game()
 	changed.emit()
 
