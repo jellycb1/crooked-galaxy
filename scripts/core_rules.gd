@@ -1,6 +1,8 @@
 class_name CoreRules
 extends RefCounted
 
+const ClassRulesScript = preload("res://scripts/class_rules.gd")
+
 const INTEGRITY_HEALTH_PER_LEVEL := 8
 const MAX_INTEGRITY_UPGRADES := 5
 const PLANETARY_KIT_POWER_BONUS := 1
@@ -16,7 +18,7 @@ static var bounty_odds_cache: Dictionary = {}
 static func player_power(player: Dictionary) -> int:
 	var weapon_power := item_combat_power(player.get("weapon", {}))
 	var armor_power := item_combat_power(player.get("armor", {}))
-	return int(player.get("base_power", 10)) + weapon_power + armor_power + equipment_set_bonus_power(player) + floori(float(attribute_investment(player, "strength")) / 2.0)
+	return int(player.get("base_power", 10)) + weapon_power + armor_power + equipment_set_bonus_power(player) + floori(float(attribute_investment(player, "strength")) / 2.0) + ClassRulesScript.specialization_power(player, BASE_ATTRIBUTE_VALUE)
 
 
 static func max_health(player: Dictionary) -> int:

@@ -368,6 +368,15 @@ func capture() -> void:
 		quit(1)
 		return
 	scene.attribute_draft = {}
+	scene.class_draft = "orbit_gunslinger"
+	scene.view_mode = "classes"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_classes.png") != OK:
+		quit(1)
+		return
+	scene.class_draft = ""
 	scene.view_mode = "arsenal"
 	scene.inventory_filter = "weapon"
 	scene.inventory_sort = "rarity"
@@ -722,7 +731,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

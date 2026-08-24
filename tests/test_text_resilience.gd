@@ -73,6 +73,10 @@ func run_text_audit() -> void:
 	scene.render()
 	await audit_scaled_screen(scene, "attribute allocation")
 
+	scene.view_mode = "classes"
+	scene.render()
+	await audit_scaled_screen(scene, "class selection")
+
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout

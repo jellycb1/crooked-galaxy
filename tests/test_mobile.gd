@@ -61,6 +61,13 @@ func run_mobile_audit() -> void:
 	check_touch_targets(scene, "attributes")
 	check(scene.find_child("AttributeScroll", true, false) != null and scene.find_children("AttributeAdd_*", "Button", true, false).size() == 5, "all five attributes remain reachable in the portrait scroller")
 
+	scene.view_mode = "classes"
+	scene.render()
+	await process_frame
+	await process_frame
+	check_touch_targets(scene, "class selection")
+	check(scene.find_child("ClassScroll", true, false) != null and scene.find_children("ClassSelect_*", "Button", true, false).size() == 3, "all initial classes remain reachable in the portrait scroller")
+
 	state.select_bounty(ContentDB.TARGETS[0])
 	await process_frame
 	check_touch_targets(scene, "contract briefing")

@@ -21,7 +21,7 @@ func run_focus_audit() -> void:
 	await settle_focus()
 	check_screen_focus(scene, "bounty board")
 
-	for view_mode in ["galaxy", "career", "arsenal", "attributes"]:
+	for view_mode in ["galaxy", "career", "arsenal", "attributes", "classes"]:
 		scene.view_mode = view_mode
 		scene.render()
 		await settle_focus()

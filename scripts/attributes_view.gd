@@ -2,6 +2,7 @@ class_name AttributesView
 extends RefCounted
 
 const Rules = preload("res://scripts/core_rules.gd")
+const ClassRulesScript = preload("res://scripts/class_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 
 const DEFINITIONS := [
@@ -21,7 +22,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(titles)
 	titles.add_child(host.label("ATRIBUTOS DO CAÇADOR", 25, host.INK))
-	var subtitle := host.label("Bônus universais agora; a classe futura ampliará o atributo principal.", 13, host.MUTED)
+	var subtitle := host.label("Atributos universais e especialização da classe em um só perfil.", 13, host.MUTED)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	titles.add_child(subtitle)
 	var back := host.action_button("VOLTAR", host.CYAN, true)
@@ -32,6 +33,30 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		host.call("render")
 	)
 	title_row.add_child(back)
+
+	var class_id := str(state.player.get("class_id", ClassRulesScript.UNASSIGNED_ID))
+	var class_definition := ClassRulesScript.get_definition(class_id)
+	var class_panel := host.panel(HBoxContainer.new(), host.PANEL_LIGHT, 16, 12)
+	class_panel.name = "HunterClassSummary"
+	content.add_child(class_panel)
+	var class_row := class_panel.get_child(0) as HBoxContainer
+	class_row.add_theme_constant_override("separation", 12)
+	var class_copy := VBoxContainer.new()
+	class_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	class_row.add_child(class_copy)
+	class_copy.add_child(host.label("CLASSE", 11, host.MUTED))
+	class_copy.add_child(host.label(ClassRulesScript.class_name_for(class_id), 17, host.GOLD if not class_definition.is_empty() else host.CORAL))
+	if not class_definition.is_empty():
+		class_copy.add_child(host.label("PRINCIPAL · %s · +%d PODER" % [str(class_definition.primary_name), ClassRulesScript.specialization_power(state.player, Rules.BASE_ATTRIBUTE_VALUE)], 11, host.LIME))
+	var choose_class := host.action_button("TROCAR" if not class_definition.is_empty() else "ESCOLHER", host.CYAN, true)
+	choose_class.name = "ChooseClassAction"
+	choose_class.custom_minimum_size = Vector2(112, 48)
+	choose_class.pressed.connect(func():
+		host.class_draft = ""
+		host.view_mode = "classes"
+		host.call("render")
+	)
+	class_row.add_child(choose_class)
 
 	var drafted := draft_total(host.attribute_draft)
 	var available := maxi(0, int(state.player.get("stat_points", 0)) - drafted)

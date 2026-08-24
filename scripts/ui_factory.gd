@@ -19,6 +19,7 @@ var inventory_sort := "power"
 var briefing_context: Dictionary = {}
 var career_scroll_position := 0
 var attribute_draft: Dictionary = {}
+var class_draft := ""
 
 
 func reset_transient_navigation() -> void:
@@ -28,6 +29,7 @@ func reset_transient_navigation() -> void:
 	briefing_context = {}
 	career_scroll_position = 0
 	attribute_draft = {}
+	class_draft = ""
 
 
 func panel(child: Control, color: Color, radius: int, margin: int) -> PanelContainer:

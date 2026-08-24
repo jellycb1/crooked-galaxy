@@ -26,6 +26,7 @@ func _init() -> void:
 	check(not bool(migrated.player.reduced_motion), "motion preference defaults to full during migration")
 	check(migrated.player.attributes.size() == 5 and int(migrated.player.attributes.cunning) == 10, "legacy saves receive all five neutral attributes")
 	check(int(migrated.player.stat_points) == 0, "a level-one legacy hunter receives no unearned retroactive points")
+	check(str(migrated.player.class_id).is_empty(), "legacy hunters remain unassigned so migration never chooses a build for them")
 	check(not version_one.player.has("claimed_milestones"), "migration does not mutate its source payload")
 
 	var existing_ids := {
@@ -43,6 +44,7 @@ func _init() -> void:
 	var established_v6 := SaveMigrations.migrate(established_v5)
 	check(int(established_v6.player.stat_points) == 6, "established hunters receive two retroactive points for every completed level")
 	check(int(established_v6.player.attributes.strength) == 10, "retroactive migration preserves neutral unspent attributes")
+	check(str(established_v6.player.class_id).is_empty(), "version-six hunters receive the explicit unassigned class state")
 
 	var current := {"version": SaveMigrations.CURRENT_VERSION, "player": {"credits": 5}}
 	var current_copy := SaveMigrations.migrate(current)

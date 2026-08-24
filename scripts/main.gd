@@ -11,6 +11,7 @@ const ArsenalView = preload("res://scripts/arsenal_view.gd")
 const RewardViewScript = preload("res://scripts/reward_view.gd")
 const CareerViewScript = preload("res://scripts/career_view.gd")
 const AttributesViewScript = preload("res://scripts/attributes_view.gd")
+const ClassesViewScript = preload("res://scripts/classes_view.gd")
 
 var body: VBoxContainer
 var content: VBoxContainer
@@ -229,6 +230,8 @@ func render() -> void:
 				build_career()
 			elif view_mode == "attributes":
 				build_attributes()
+			elif view_mode == "classes":
+				build_classes()
 			else:
 				build_board()
 		GameState.Phase.HUNT:
@@ -267,7 +270,7 @@ func environment_context() -> String:
 	if GameState.phase == GameState.Phase.BOARD:
 		if view_mode == "arsenal":
 			return "workshop"
-		if view_mode == "galaxy" or view_mode == "career" or view_mode == "attributes":
+		if view_mode == "galaxy" or view_mode == "career" or view_mode == "attributes" or view_mode == "classes":
 			return "world"
 	if GameState.phase == GameState.Phase.COMBAT or GameState.phase == GameState.Phase.VICTORY:
 		return "combat"
@@ -384,7 +387,7 @@ func build_board() -> void:
 	)
 	actions.add_child(career)
 	var available_points := int(GameState.player.get("stat_points", 0))
-	var attributes_text := "ATRIBUTOS · %d" % available_points if available_points > 0 else "ATRIBUTOS"
+	var attributes_text := "ESCOLHER CLASSE" if str(GameState.player.get("class_id", "")).is_empty() else ("ATRIBUTOS · %d" % available_points if available_points > 0 else "ATRIBUTOS")
 	var attributes := action_button(attributes_text, CORAL if available_points > 0 else CYAN, true)
 	attributes.name = "BoardAttributesAction"
 	attributes.custom_minimum_size = Vector2(160, 48)
@@ -575,6 +578,10 @@ func build_arsenal() -> void:
 
 func build_attributes() -> void:
 	AttributesViewScript.build(self, content, GameState)
+
+
+func build_classes() -> void:
+	ClassesViewScript.build(self, content, GameState)
 
 
 func onboarding_banner() -> PanelContainer:

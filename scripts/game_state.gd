@@ -3,6 +3,7 @@ extends Node
 
 const SaveMigrationRules = preload("res://scripts/save_migrations.gd")
 const CareerRules = preload("res://scripts/career_rules.gd")
+const ClassRules = preload("res://scripts/class_rules.gd")
 
 signal changed
 signal combat_event(message: String)
@@ -51,6 +52,7 @@ func _ready() -> void:
 
 func default_player() -> Dictionary:
 	return {
+		"class_id": "",
 		"level": 1,
 		"xp": 0,
 		"credits": 25,
@@ -859,6 +861,18 @@ func allocate_attribute_points(allocations: Dictionary) -> bool:
 	return true
 
 
+func select_class(class_id: String) -> bool:
+	if phase != Phase.BOARD or class_id.is_empty() or not ClassRules.is_valid(class_id):
+		return false
+	player.class_id = class_id
+	last_notice = "Classe confirmada: %s. Especialização recalculada." % ClassRules.class_name_for(class_id)
+	last_notice_context = "class"
+	CoreRules.clear_bounty_odds_cache()
+	save_game()
+	changed.emit()
+	return true
+
+
 func abandon_bounty() -> void:
 	if phase == Phase.HUNT or phase == Phase.HUNT_EVENT:
 		var lost_streak := int(player.get("capture_streak", 0))
@@ -1241,6 +1255,9 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	else:
 		repaired = true
 	sanitized.attributes = clean_attributes
+	if not ClassRules.is_valid(str(sanitized.get("class_id", ""))):
+		sanitized.class_id = ""
+		repaired = true
 	if int(sanitized.best_capture_streak) < int(sanitized.capture_streak):
 		sanitized.best_capture_streak = int(sanitized.capture_streak)
 		repaired = true
