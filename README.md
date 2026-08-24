@@ -68,6 +68,8 @@ All warrant handoffs that open a briefing now say `ESCOLHER ROTA`; a full develo
 
 Save loading clears runtime-only receipts before restoration, type-checks interrupted-phase objects, reconstructs missing briefing routes when the contract is valid, and repairs incoherent phases back to the board without discarding valid player progression.
 
+Loaded player data is shape-checked against canonical defaults: scalar progress is preserved when compatible, invalid equipment falls back safely, malformed inventory entries are discarded, and loadouts always normalize to two usable slots before any renderer sees them.
+
 ## Run
 
 Open `project.godot` in Godot 4, or run from a console where Godot is available:

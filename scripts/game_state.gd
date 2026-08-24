@@ -870,13 +870,16 @@ func load_game() -> void:
 	if parsed.is_empty():
 		return
 	var loaded_player = parsed.get("player", {})
+	var player_repaired := false
 	if loaded_player is Dictionary:
-		for key in player:
-			if loaded_player.has(key):
-				player[key] = loaded_player[key]
+		var sanitized_player := sanitize_loaded_player(loaded_player)
+		player = sanitized_player.player
+		player_repaired = bool(sanitized_player.repaired)
 		# Saves created before per-planet progression inherit their existing Dustball victories.
 		if not loaded_player.has("captures_by_planet") and int(player.wins) > 0:
 			player.captures_by_planet = {ContentDB.PLANET.id: int(player.wins)}
+	else:
+		player_repaired = true
 	phase = int(parsed.get("phase", Phase.BOARD))
 	var loaded_bounty = parsed.get("current_bounty", {})
 	current_bounty = loaded_bounty if loaded_bounty is Dictionary else {}
@@ -900,7 +903,8 @@ func load_game() -> void:
 	combat_summary = loaded_summary if loaded_summary is Dictionary else {}
 	var loaded_chapter = parsed.get("chapter_completion", {})
 	chapter_completion = loaded_chapter if loaded_chapter is Dictionary else {}
-	var repaired_phase := reconcile_loaded_phase()
+	var repaired_phase_state := reconcile_loaded_phase()
+	var repaired_phase := player_repaired or repaired_phase_state
 	var offline_rewards := apply_offline_progress(Time.get_unix_time_from_system())
 	if int(offline_rewards.credits) > 0 or int(offline_rewards.scrap) > 0:
 		# Persist immediately so an abrupt close cannot claim the same patrol twice.
@@ -913,6 +917,80 @@ func load_game() -> void:
 		enemy_hp = maxi(1, enemy_hp)
 	if requires_migration_save or repaired_phase:
 		save_game()
+
+
+func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
+	var sanitized := default_player()
+	var repaired := false
+	for key in sanitized:
+		if not loaded.has(key):
+			repaired = true
+			continue
+		var incoming = loaded[key]
+		var expected = sanitized[key]
+		var compatible := typeof(incoming) == typeof(expected)
+		if (expected is int or expected is float) and (incoming is int or incoming is float):
+			compatible = true
+		if compatible:
+			sanitized[key] = incoming
+		else:
+			repaired = true
+	for slot in ["weapon", "armor"]:
+		var fallback: Dictionary = default_player()[slot]
+		var loaded_item = loaded.get(slot, {})
+		if loaded_item is Dictionary:
+			var item := fallback.duplicate(true)
+			for key in loaded_item:
+				item[key] = loaded_item[key]
+			item.slot = slot
+			if not loaded_equipment_is_safe(item, slot):
+				sanitized[slot] = fallback
+				repaired = true
+			else:
+				sanitized[slot] = item
+		else:
+			sanitized[slot] = fallback
+			repaired = true
+	var clean_inventory: Array = []
+	var loaded_inventory = loaded.get("inventory", [])
+	if loaded_inventory is Array:
+		for entry in loaded_inventory:
+			if entry is Dictionary and loaded_equipment_is_safe(entry, str(entry.get("slot", ""))):
+				clean_inventory.append(entry)
+			else:
+				repaired = true
+	else:
+		repaired = true
+	sanitized.inventory = clean_inventory
+	var clean_loadouts := [{"weapon_id": "", "armor_id": ""}, {"weapon_id": "", "armor_id": ""}]
+	var loaded_loadouts = loaded.get("equipment_loadouts", [])
+	if loaded_loadouts is Array:
+		for index in mini(2, loaded_loadouts.size()):
+			if loaded_loadouts[index] is Dictionary:
+				clean_loadouts[index] = {
+					"weapon_id": str(loaded_loadouts[index].get("weapon_id", "")),
+					"armor_id": str(loaded_loadouts[index].get("armor_id", "")),
+				}
+			else:
+				repaired = true
+		if loaded_loadouts.size() != 2:
+			repaired = true
+	else:
+		repaired = true
+	sanitized.equipment_loadouts = clean_loadouts
+	return {"player": sanitized, "repaired": repaired}
+
+
+func loaded_equipment_is_safe(item: Dictionary, expected_slot: String) -> bool:
+	if expected_slot != "weapon" and expected_slot != "armor":
+		return false
+	if str(item.get("slot", "")) != expected_slot or str(item.get("id", "")).is_empty() or str(item.get("name", "")).is_empty():
+		return false
+	if not (item.get("power", 0) is int or item.get("power", 0) is float):
+		return false
+	if str(item.get("rarity", "")).is_empty() or str(item.get("color", "")).is_empty():
+		return false
+	return not item.has("trait") or item.trait is Dictionary
 
 
 func reconcile_loaded_phase() -> bool:

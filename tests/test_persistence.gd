@@ -159,7 +159,15 @@ func _init() -> void:
 	var damaged_file := FileAccess.open(damaged_save, FileAccess.WRITE)
 	damaged_file.store_string(JSON.stringify({
 		"version": StateScript.SAVE_VERSION,
-		"player": {"credits": 88, "wins": 2},
+		"player": {
+			"credits": 88,
+			"wins": 2,
+			"weapon": ["not an item"],
+			"armor": {"id": "", "name": "", "slot": "armor", "power": "broken"},
+			"inventory": ["not an item", {"id": "", "slot": "weapon"}],
+			"equipment_loadouts": [{"weapon_id": "missing"}],
+			"captures_by_target": "not a capture map",
+		},
 		"phase": source.Phase.REWARD,
 		"current_bounty": "missing contract object",
 		"pending_loot": ["missing loot object"],
@@ -172,6 +180,9 @@ func _init() -> void:
 	repaired.load_game()
 	check(repaired.phase == repaired.Phase.BOARD and repaired.current_bounty.is_empty() and repaired.pending_loot.is_empty(), "damaged interrupted phase falls back safely to the board")
 	check(int(repaired.player.credits) == 88 and int(repaired.player.wins) == 2, "phase repair preserves valid player progression")
+	check(repaired.player.weapon is Dictionary and not str(repaired.player.weapon.id).is_empty() and repaired.player.armor is Dictionary, "damaged equipment falls back to usable starter items")
+	check(repaired.player.inventory is Array and repaired.player.inventory.is_empty() and repaired.player.captures_by_target is Dictionary, "damaged compound player fields return to safe defaults")
+	check(repaired.player.equipment_loadouts.size() == 2 and repaired.player.equipment_loadouts.all(func(loadout): return loadout is Dictionary), "damaged loadouts normalize to two usable slots")
 	var repaired_file := FileAccess.open(damaged_save, FileAccess.READ)
 	var repaired_payload = JSON.parse_string(repaired_file.get_as_text())
 	check(int(repaired_payload.phase) == repaired.Phase.BOARD and repaired_payload.current_bounty is Dictionary, "phase repair is persisted so the same damaged save cannot recur")
