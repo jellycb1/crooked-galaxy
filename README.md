@@ -16,7 +16,7 @@ Reward screens also count the pending capture toward target mastery and preview 
 
 The first reward in any sequence explicitly marks embalo ×1 and explains that its credit bonus begins on the next consecutive capture; later rewards show the exact active bonus.
 
-On ordinary rewards, the repeat route previews the next streak multiplier, percentage, and exact added credits. Threshold rewards suppress that prompt and prioritize the newly opened warrant.
+On ordinary rewards, the repeat route previews the next streak multiplier and approach-invariant percentage. Exact credits remain attached to the selected approach and incident outcome. Threshold rewards suppress the repeat prompt and prioritize the newly opened warrant.
 
 When a capture reveals a new warrant, the reward also projects the best approach and win chance after equipping the pending item, so the direct-contract and workshop routes have visible context.
 

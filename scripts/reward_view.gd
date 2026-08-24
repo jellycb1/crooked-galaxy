@@ -114,7 +114,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var safe_to_recycle := state.can_recycle_reward(item)
 	if not completes_chapter and not unlocks_new_warrant:
 		var next_streak_reward := Rules.bounty_streak_reward(int(state.current_bounty.credits), int(reward_preview.streak) + 1)
-		var repeat_value := host.center_label("PRÓXIMA CAPTURA SEGUIDA · EMBALO ×%d · +%d%% (+%d CRÉDITOS)" % [int(next_streak_reward.streak), int(next_streak_reward.bonus_percent), int(next_streak_reward.bonus_credits)], 12, host.CYAN)
+		var repeat_value := host.center_label("PRÓXIMA CAPTURA SEGUIDA · EMBALO ×%d · +%d%% SOBRE O PAGAMENTO" % [int(next_streak_reward.streak), int(next_streak_reward.bonus_percent)], 12, host.CYAN)
 		repeat_value.name = "RewardRepeatValue"
 		content.add_child(repeat_value)
 		var repeat := host.action_button("EQUIPAR E REPETIR" if effective_upgrade else "GUARDAR E REPETIR", host.LIME)

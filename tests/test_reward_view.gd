@@ -25,7 +25,7 @@ func _init() -> void:
 	check(streak_start != null and streak_start.text.contains("×1") and streak_start.text.contains("PRÓXIMA CAPTURA"), "first reward explains streak restart and when its bonus begins")
 	check(host.find_child("RewardMasteryProgress", true, false) != null, "isolated reward previews progress from the pending capture")
 	var repeat_value := host.find_child("RewardRepeatValue", true, false) as Label
-	check(repeat_value != null and repeat_value.text.contains("EMBALO ×2") and repeat_value.text.contains("+5%"), "regular reward quantifies the next consecutive-capture value")
+	check(repeat_value != null and repeat_value.text.contains("EMBALO ×2") and repeat_value.text.contains("+5% SOBRE O PAGAMENTO") and not repeat_value.text.contains("CRÉDITOS"), "regular reward promises only the approach-invariant next streak value")
 	check(host.find_child("ClaimAndRepeat", true, false) != null and host.find_child("ClaimAndBoard", true, false) != null, "isolated reward preserves repeat and board decisions")
 
 	clear_content(content)
