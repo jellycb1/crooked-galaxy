@@ -173,6 +173,8 @@ powershell -ExecutionPolicy Bypass -File .\tools\check_fast.ps1
 
 The full checker remains the release/commit authority and reports per-suite timing. The exhaustive matrix can also run independently with `res://tests/test_persistence_matrix.gd`.
 
+Successful checker runs retain only the three newest `.godot/test-logs` directories. Failed runs exit before pruning, so their diagnostics survive until later successful runs age them out; `-RetainedLogRuns` can raise the bounded retention when needed.
+
 Or run an individual suite:
 
 ```powershell

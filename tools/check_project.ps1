@@ -1,6 +1,8 @@
 param(
     [string]$GodotPath = "",
-    [switch]$Fast
+    [switch]$Fast,
+    [ValidateRange(1, 20)]
+    [int]$RetainedLogRuns = 3
 )
 
 $ErrorActionPreference = "Stop"
@@ -79,4 +81,20 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $SuiteStopwatch.Stop()
+if (Test-Path -LiteralPath $LogRoot) {
+    $ResolvedProjectRoot = [System.IO.Path]::GetFullPath($ProjectRoot).TrimEnd([System.IO.Path]::DirectorySeparatorChar)
+    $ResolvedLogParent = [System.IO.Path]::GetFullPath((Split-Path -Parent $LogRoot)).TrimEnd([System.IO.Path]::DirectorySeparatorChar)
+    $ExpectedLogParent = Join-Path $ResolvedProjectRoot ".godot\test-logs"
+    if ($ResolvedLogParent -ne [System.IO.Path]::GetFullPath($ExpectedLogParent).TrimEnd([System.IO.Path]::DirectorySeparatorChar)) {
+        throw "Refusing to prune test logs outside the project log directory: $ResolvedLogParent"
+    }
+    $OldLogRuns = @(Get-ChildItem -LiteralPath $ResolvedLogParent -Directory | Sort-Object LastWriteTimeUtc -Descending | Select-Object -Skip $RetainedLogRuns)
+    foreach ($OldLogRun in $OldLogRuns) {
+        $ResolvedOldLogRun = [System.IO.Path]::GetFullPath($OldLogRun.FullName)
+        if (-not $ResolvedOldLogRun.StartsWith($ResolvedLogParent + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {
+            throw "Refusing to remove an unexpected test-log path: $ResolvedOldLogRun"
+        }
+        Remove-Item -LiteralPath $ResolvedOldLogRun -Recurse -Force
+    }
+}
 Write-Host ("`nPASS: all Crooked Galaxy {0} checks completed in {1:N2}s." -f $Profile, $SuiteStopwatch.Elapsed.TotalSeconds)
