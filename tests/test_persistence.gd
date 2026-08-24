@@ -111,6 +111,22 @@ func _init() -> void:
 	check(str(restored_event.hunt_event.id) == "bounty_streamer", "incident content is restored")
 	check(is_equal_approx(restored_event.hunt_remaining_after_event, 5.0), "paused hunt time is restored")
 	check(not bool(restored_event.current_bounty.field_test_context.overridden) and str(restored_event.current_bounty.field_test_context.tested_approach_id) == "quiet_net", "confirmed field-test route survives an interrupted hunt")
+	var event_credits_before := int(restored_event.player.credits)
+	check(restored_event.resolve_hunt_event("jam_signal"), "restored incident can atomically apply its paid choice")
+	check(restored_event.phase == restored_event.Phase.HUNT and int(restored_event.player.credits) == event_credits_before - 6, "paid incident resumes the hunt and charges exactly once")
+	var restored_after_choice = StateScript.new()
+	restored_after_choice.save_path = test_save
+	restored_after_choice.load_game()
+	check(restored_after_choice.phase == restored_after_choice.Phase.HUNT and str(restored_after_choice.current_bounty.get("hunt_event_choice_id", "")) == "jam_signal", "reloading after payment restores the applied choice instead of the offered incident")
+	var credits_after_reload := int(restored_after_choice.player.credits)
+	check(not restored_after_choice.resolve_hunt_event("jam_signal") and int(restored_after_choice.player.credits) == credits_after_reload, "an applied incident cannot be charged a second time after reload")
+	restored_after_choice.abandon_bounty()
+	var restored_after_abandon = StateScript.new()
+	restored_after_abandon.save_path = test_save
+	restored_after_abandon.load_game()
+	check(restored_after_abandon.phase == restored_after_abandon.Phase.BOARD and restored_after_abandon.current_bounty.is_empty() and int(restored_after_abandon.player.credits) == credits_after_reload, "reloading after abandonment cannot resurrect the paid hunt or its choice")
+	restored_after_abandon.free()
+	restored_after_choice.free()
 	source.phase = source.Phase.COMBAT
 	source.player_hp = 99999
 	source.enemy_hp = 99999

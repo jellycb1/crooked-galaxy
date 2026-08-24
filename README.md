@@ -36,6 +36,8 @@ Paid incident options additionally show the net contract gain after their immedi
 
 If a paid choice is unaffordable, its disabled action states the exact missing credits; zero-cost alternatives remain enabled in the same incident.
 
+Incident resolution is persisted atomically with its cost and applied choice: reloading resumes the mutated hunt, cannot charge the same option twice, and cannot resurrect it after abandonment.
+
 The reward receipt retains paid incident cost and reconciles gross payout with the exact net wallet gain from before the choice.
 
 Claim summaries and the persistent board/workshop record name whether the captured item was equipped, stored, or recycled, including the exact item name.
