@@ -13,6 +13,7 @@ const CareerViewScript = preload("res://scripts/career_view.gd")
 
 var body: VBoxContainer
 var content: VBoxContainer
+var hunt_timer: Timer
 var combat_timer: Timer
 var victory_timer: Timer
 var last_combat_message := ""
@@ -99,6 +100,8 @@ func set_lifecycle_suspension(reason: String, suspended: bool) -> void:
 		return
 	timed_actions_suspended = should_suspend
 	if timed_actions_suspended:
+		if hunt_timer != null:
+			hunt_timer.stop()
 		if combat_timer != null:
 			combat_timer.stop()
 		if victory_timer != null and not victory_timer.is_stopped():
@@ -107,6 +110,8 @@ func set_lifecycle_suspension(reason: String, suspended: bool) -> void:
 		return
 	if GameState.phase == GameState.Phase.HUNT:
 		on_hunt_timer()
+		if GameState.phase == GameState.Phase.HUNT and hunt_timer != null:
+			hunt_timer.start()
 	if GameState.phase == GameState.Phase.COMBAT and combat_timer != null:
 		combat_timer.start()
 	elif GameState.phase == GameState.Phase.VICTORY and victory_timer != null:
@@ -149,10 +154,9 @@ func build_shell() -> void:
 	victory_timer.timeout.connect(GameState.open_reward)
 	add_child(victory_timer)
 
-	var hunt_timer := Timer.new()
+	hunt_timer = Timer.new()
 	hunt_timer.wait_time = 0.1
 	hunt_timer.timeout.connect(on_hunt_timer)
-	hunt_timer.autostart = true
 	add_child(hunt_timer)
 
 
@@ -245,6 +249,11 @@ func render() -> void:
 			victory_timer.start()
 	else:
 		victory_timer.stop()
+	if GameState.phase == GameState.Phase.HUNT and not timed_actions_suspended:
+		if hunt_timer.is_stopped():
+			hunt_timer.start()
+	else:
+		hunt_timer.stop()
 	call_deferred("restore_action_focus", previous_focus_name, current_generation)
 
 

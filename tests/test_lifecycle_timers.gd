@@ -25,6 +25,7 @@ func run_lifecycle_audit() -> void:
 	root.add_child(scene)
 	await process_frame
 	check(not scene.combat_timer.is_stopped(), "focused combat starts its automatic timer")
+	check(scene.hunt_timer.is_stopped(), "hunt refresh is inactive during combat")
 
 	var round_before := int(state.combat_round)
 	scene._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
@@ -60,6 +61,7 @@ func run_lifecycle_audit() -> void:
 	state.hunt_started_at = Time.get_unix_time_from_system() - 5.0
 	state.hunt_ends_at = Time.get_unix_time_from_system() - 1.0
 	scene.render()
+	check(scene.hunt_timer.is_stopped(), "background suspension prevents hunt refresh from waking")
 	scene._notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN)
 	await process_frame
 	check(state.phase == state.Phase.COMBAT, "resumed idle hunt reconciles elapsed wall-clock time")

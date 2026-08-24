@@ -29,6 +29,7 @@ func run_mobile_audit() -> void:
 	check_touch_targets(scene, "bounty board")
 	var build_version := scene.find_child("BuildVersion", true, false) as Label
 	check(build_version != null and build_version.text == "v%s" % str(ProjectSettings.get_setting("application/config/version")), "installed build version remains visible in the compact header")
+	check(scene.hunt_timer.is_stopped(), "high-frequency hunt refresh stays asleep on the bounty board")
 	check(scene.android_back_action() == "quit", "Android Back exits only from the root bounty board")
 
 	scene.view_mode = "arsenal"
@@ -61,11 +62,13 @@ func run_mobile_audit() -> void:
 	state.select_bounty(ContentDB.TARGETS[0])
 	await process_frame
 	state.choose_approach("quiet_net")
+	check(not scene.hunt_timer.is_stopped(), "hunt refresh wakes only for the timed hunt phase")
 	check(scene.android_back_action() == "guard_contract", "Android Back cannot accidentally abandon an active timed contract")
 	state.hunt_event = ContentDB.HUNT_EVENTS[0].duplicate(true)
 	state.phase = state.Phase.HUNT_EVENT
 	scene.render()
 	await process_frame
+	check(scene.hunt_timer.is_stopped(), "hunt refresh sleeps again while an incident awaits input")
 	check_touch_targets(scene, "hunt incident")
 
 	state.player = state.default_player()
