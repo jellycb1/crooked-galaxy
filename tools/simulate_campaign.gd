@@ -4,6 +4,7 @@ const StateScript = preload("res://scripts/game_state.gd")
 const Rules = preload("res://scripts/core_rules.gd")
 const Content = preload("res://scripts/content_db.gd")
 const ContractRulesScript = preload("res://scripts/contract_rules.gd")
+const SimulationBuildsScript = preload("res://tools/simulation_builds.gd")
 
 const CAREERS := 20
 const STRATEGIES := ["recommended", "corporate_when_viable"]
@@ -14,72 +15,94 @@ func _init() -> void:
 	var career_count := int(OS.get_environment("CG_CAMPAIGN_CAREERS")) if not OS.get_environment("CG_CAMPAIGN_CAREERS").is_empty() else CAREERS
 	career_count = maxi(1, career_count)
 	var strategies: Array = [OS.get_environment("CG_CAMPAIGN_STRATEGY")] if not OS.get_environment("CG_CAMPAIGN_STRATEGY").is_empty() else STRATEGIES
-	print("Crooked Galaxy sequential campaign (%d deterministic careers per strategy)" % career_count)
+	var build_policies := SimulationBuildsScript.selected_policies(OS.get_environment("CG_CAMPAIGN_BUILD"))
+	if build_policies.is_empty():
+		printerr("Unknown CG_CAMPAIGN_BUILD. Use breaker_balanced, gunslinger_balanced, hacker_balanced, or unassigned_control.")
+		quit(2)
+		return
+	print("Crooked Galaxy sequential campaign (%d deterministic careers per strategy/build)" % career_count)
 	for strategy in strategies:
-		var results := empty_results()
-		var corporate_scrap_totals: Array = []
-		var workshop_action_totals: Array = []
-		var stalled_careers := 0
-		for career_seed in career_count:
-			var state = StateScript.new()
-			state.persistence_enabled = false
-			state.player = state.default_player()
-			state.rng.seed = 150000 + career_seed * 211
-			var fight_rng := RandomNumberGenerator.new()
-			fight_rng.seed = 250000 + career_seed * 307
-			var corporate_scrap := 0
-			var workshop_actions := 0
-			var career_stalled := false
-			for planet in Content.PLANETS:
-				var planet_id := str(planet.id)
-				state.player.current_planet_id = planet_id
-				for tier in 4:
-					var target := Content.target_for_planet_tier(planet_id, tier)
-					var arrival_contract := strategy_contract(state.player, target, strategy)
-					results[planet_id].odds[tier].append(Rules.bounty_odds(state.player, arrival_contract))
-					results[planet_id].power[tier].append(Rules.player_power(state.player))
-					results[planet_id].health[tier].append(Rules.max_health(state.player))
-					results[planet_id].approach[tier].append(str(arrival_contract.get("approach", {}).get("id", "none")))
-					results[planet_id].option_odds[tier].append(contract_odds(state.player, target))
-					var captures := 1 if tier == 3 else 3
-					var tier_attempts := 0
-					var tier_defeats := 0
-					for _capture in captures:
-						var won := false
-						var contract := strategy_contract(state.player, target, strategy)
-						for _attempt in MAX_ATTEMPTS_PER_CAPTURE:
-							var fight_odds := Rules.bounty_odds(state.player, contract)
-							results[planet_id].attempt_odds[tier].append(fight_odds)
-							results[planet_id].attempt_approach[tier].append(str(contract.get("approach", {}).get("id", "none")))
-							tier_attempts += 1
-							if fight_rng.randf() <= fight_odds:
-								var summary := claim_win(state, contract)
-								corporate_scrap += int(summary.get("contract_scrap", 0))
-								workshop_actions += spend_workshop_scrap(state)
-								won = true
-								break
-							tier_defeats += 1
-							var recommendation_changed := int(state.player.get("capture_streak", 0)) > 0
-							state.player.capture_streak = 0
-							if recommendation_changed:
-								contract = strategy_contract(state.player, target, strategy)
-						if not won:
-							career_stalled = true
+		for build_policy in build_policies:
+			run_strategy_build(strategy, build_policy, career_count)
+	quit(0)
+
+
+func run_strategy_build(strategy: String, build_policy: Dictionary, career_count: int) -> void:
+	var results := empty_results()
+	var corporate_scrap_totals: Array = []
+	var workshop_action_totals: Array = []
+	var final_levels: Array = []
+	var final_credits: Array = []
+	var final_scrap: Array = []
+	var final_attributes: Array[String] = []
+	var stalled_careers := 0
+	for career_seed in career_count:
+		var state = StateScript.new()
+		state.persistence_enabled = false
+		state.player = state.default_player()
+		SimulationBuildsScript.configure_player(state.player, build_policy)
+		state.rng.seed = 150000 + career_seed * 211
+		var fight_rng := RandomNumberGenerator.new()
+		fight_rng.seed = 250000 + career_seed * 307
+		var corporate_scrap := 0
+		var workshop_actions := 0
+		var career_stalled := false
+		for planet in Content.PLANETS:
+			var planet_id := str(planet.id)
+			state.player.current_planet_id = planet_id
+			for tier in 4:
+				var target := Content.target_for_planet_tier(planet_id, tier)
+				var arrival_contract := strategy_contract(state.player, target, strategy)
+				results[planet_id].odds[tier].append(Rules.bounty_odds(state.player, arrival_contract))
+				results[planet_id].power[tier].append(Rules.player_power(state.player))
+				results[planet_id].health[tier].append(Rules.max_health(state.player))
+				results[planet_id].approach[tier].append(str(arrival_contract.get("approach", {}).get("id", "none")))
+				results[planet_id].option_odds[tier].append(contract_odds(state.player, target))
+				var captures := 1 if tier == 3 else 3
+				var tier_attempts := 0
+				var tier_defeats := 0
+				for _capture in captures:
+					var won := false
+					var contract := strategy_contract(state.player, target, strategy)
+					for _attempt in MAX_ATTEMPTS_PER_CAPTURE:
+						var fight_odds := Rules.bounty_odds(state.player, contract)
+						results[planet_id].attempt_odds[tier].append(fight_odds)
+						results[planet_id].attempt_approach[tier].append(str(contract.get("approach", {}).get("id", "none")))
+						tier_attempts += 1
+						if fight_rng.randf() <= fight_odds:
+							var summary := claim_win(state, contract)
+							corporate_scrap += int(summary.get("contract_scrap", 0))
+							SimulationBuildsScript.apply_available_points(state.player, build_policy)
+							workshop_actions += spend_workshop_scrap(state)
+							won = true
 							break
-					results[planet_id].attempts[tier].append(tier_attempts)
-					results[planet_id].defeats[tier].append(tier_defeats)
-					if career_stalled:
+						tier_defeats += 1
+						var recommendation_changed := int(state.player.get("capture_streak", 0)) > 0
+						state.player.capture_streak = 0
+						if recommendation_changed:
+							contract = strategy_contract(state.player, target, strategy)
+					if not won:
+						career_stalled = true
 						break
+				results[planet_id].attempts[tier].append(tier_attempts)
+				results[planet_id].defeats[tier].append(tier_defeats)
 				if career_stalled:
 					break
-			corporate_scrap_totals.append(corporate_scrap)
-			workshop_action_totals.append(workshop_actions)
 			if career_stalled:
-				stalled_careers += 1
-			state.free()
-		print("\n=== %s · stalled=%d%% · corporate scrap=%d · workshop actions=%d ===" % [strategy, roundi(float(stalled_careers) / float(career_count) * 100.0), roundi(median(corporate_scrap_totals)), roundi(median(workshop_action_totals))])
-		print_results(results)
-	quit(0)
+				break
+		corporate_scrap_totals.append(corporate_scrap)
+		workshop_action_totals.append(workshop_actions)
+		final_levels.append(int(state.player.level))
+		final_credits.append(int(state.player.credits))
+		final_scrap.append(int(state.player.scrap))
+		final_attributes.append(SimulationBuildsScript.attribute_summary(state.player))
+		if career_stalled:
+			stalled_careers += 1
+		state.free()
+	print("\n=== %s · %s · stalled=%d%% ===" % [strategy, str(build_policy.name), roundi(float(stalled_careers) / float(career_count) * 100.0)])
+	print("FINAL · level=%d · credits=%d · scrap=%d · corporate scrap=%d · workshop actions=%d · %s" % [roundi(median(final_levels)), roundi(median(final_credits)), roundi(median(final_scrap)), roundi(median(corporate_scrap_totals)), roundi(median(workshop_action_totals)), representative_string(final_attributes)])
+	print_decision_summary(results)
+	print_results(results)
 
 
 func empty_results() -> Dictionary:
@@ -101,6 +124,26 @@ func print_results(results: Dictionary) -> void:
 				continue
 			print("  %-24s arrival=%d%% · power=%d · health=%d · options=%s" % [str(target.name), roundi(median(odds) * 100.0), roundi(median(results[planet_id].power[tier])), roundi(median(results[planet_id].health[tier])), option_odds_summary(results[planet_id].option_odds[tier])])
 			print("    attempts=%d · defeat careers=%d%% · fight odds=%d%% (min %d%%, below 55%%=%d%%) · routes=%s" % [roundi(median(results[planet_id].attempts[tier])), roundi(fraction_above(results[planet_id].defeats[tier], 0.0) * 100.0), roundi(median(results[planet_id].attempt_odds[tier]) * 100.0), roundi(minimum(results[planet_id].attempt_odds[tier]) * 100.0), roundi(fraction_below(results[planet_id].attempt_odds[tier], ContractRulesScript.MIN_RECOMMENDED_ODDS) * 100.0), approach_summary(results[planet_id].attempt_approach[tier])])
+
+
+func print_decision_summary(results: Dictionary) -> void:
+	var option_total := 0
+	var saturated_options := 0
+	var chosen_arrivals: Array = []
+	var all_routes: Array = []
+	for planet in Content.PLANETS:
+		var planet_results: Dictionary = results[str(planet.id)]
+		for tier in 4:
+			chosen_arrivals.append_array(planet_results.odds[tier])
+			all_routes.append_array(planet_results.attempt_approach[tier])
+			for sample in planet_results.option_odds[tier]:
+				for odds in sample.values():
+					option_total += 1
+					if float(odds) >= 0.99:
+						saturated_options += 1
+	var saturated_percent := roundi(float(saturated_options) / float(maxi(1, option_total)) * 100.0)
+	var arrival_percent := roundi(fraction_at_least(chosen_arrivals, 0.99) * 100.0)
+	print("DECISÕES · opções em 99%%=%d%% · chegadas em 99%%=%d%% · rotas escolhidas=%s" % [saturated_percent, arrival_percent, approach_summary(all_routes)])
 
 
 func strategy_contract(player: Dictionary, target: Dictionary, strategy: String) -> Dictionary:
@@ -185,11 +228,27 @@ func fraction_below(values: Array, threshold: float) -> float:
 	return float(count) / float(values.size())
 
 
+func fraction_at_least(values: Array, threshold: float) -> float:
+	if values.is_empty():
+		return 0.0
+	var count := 0
+	for value in values:
+		if float(value) >= threshold:
+			count += 1
+	return float(count) / float(values.size())
+
+
 func minimum(values: Array) -> float:
 	var result := INF
 	for value in values:
 		result = minf(result, float(value))
 	return result
+
+
+func representative_string(values: Array) -> String:
+	if values.is_empty():
+		return "sem dados"
+	return str(values[values.size() / 2])
 
 
 func approach_summary(values: Array) -> String:

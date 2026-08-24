@@ -275,6 +275,8 @@ Run a continuous five-planet, failure-aware campaign sample with real loot, mast
 godot --headless --path . --script res://tools/simulate_campaign.gd
 ```
 
+The campaign simulator now selects each prototype class and automatically spends earned attribute points through comparable 50/25/25 primary-attribute, Vitality, and Cunning policies. It reports final attributes and currency plus route/odds saturation. `CG_CAMPAIGN_BUILD` can isolate `breaker_balanced`, `gunslinger_balanced`, `hacker_balanced`, or the intentionally obsolete `unassigned_control`; `CG_CAMPAIGN_STRATEGY` and `CG_CAMPAIGN_CAREERS` narrow route policy and sample count.
+
 ## Project layout
 
 - `scenes/` — Godot scenes.
