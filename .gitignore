@@ -7,6 +7,9 @@ builds/*
 !builds/.gdignore
 logs/
 
+# Local Android signing material (the shared test key lives in GitHub Actions secrets)
+android/*.keystore
+
 # Editor / OS noise
 .idea/
 .vscode/
