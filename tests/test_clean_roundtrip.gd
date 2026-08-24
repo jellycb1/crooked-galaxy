@@ -80,6 +80,7 @@ func _init() -> void:
 	assert_clean_roundtrip(finale, finale.Phase.CHAPTER_COMPLETE, "chapter complete")
 
 	audit_hunt_choice_roundtrips()
+	audit_contract_approach_roundtrips()
 
 	if FileAccess.file_exists(test_save):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(test_save))
@@ -141,6 +142,39 @@ func audit_hunt_choice_roundtrips() -> void:
 			check(restored.last_notice_context != "system_recovery", "choice %s does not emit false recovery" % str(choice.id))
 			check(restored.phase == restored.Phase.HUNT and str(restored.current_bounty.get("hunt_event_choice_id", "")) == str(choice.id), "choice %s restores its applied hunt outcome" % str(choice.id))
 			check(int(restored.player.credits) == expected_credits, "choice %s preserves its exact charged wallet" % str(choice.id))
+			restored.free()
+			source.free()
+
+
+func audit_contract_approach_roundtrips() -> void:
+	for target_index in [0, 8, 19]:
+		var target: Dictionary = ContentDB.TARGETS[target_index]
+		for approach in ContentDB.CONTRACT_APPROACHES:
+			var source := clean_state()
+			var completed_planets: Array = []
+			for planet in ContentDB.PLANETS:
+				if str(planet.id) == str(target.planet_id):
+					break
+				completed_planets.append(str(planet.id))
+			source.player.completed_planets = completed_planets
+			source.player.current_planet_id = str(target.planet_id)
+			var captures: Dictionary = {}
+			for prerequisite in ContentDB.TARGETS:
+				if str(prerequisite.planet_id) == str(target.planet_id) and int(prerequisite.get("chapter_tier", prerequisite.rank)) < int(target.get("chapter_tier", target.rank)):
+					captures[str(prerequisite.id)] = 3
+			source.player.captures_by_target = captures
+			source.select_bounty(target)
+			source.choose_approach(str(approach.id))
+			var expected_scrap := int(source.current_bounty.get("scrap_reward", 0))
+			var expected_loot_power := int(source.current_bounty.loot_power)
+			var restored = StateScript.new()
+			restored.save_path = test_save
+			restored.load_game()
+			var context := "%s/%s" % [str(target.id), str(approach.id)]
+			check(restored.last_notice_context != "system_recovery", "contract %s does not emit false recovery" % context)
+			check(restored.phase == restored.Phase.HUNT and str(restored.current_bounty.approach.id) == str(approach.id), "contract %s restores its applied approach" % context)
+			check(int(restored.current_bounty.get("scrap_reward", 0)) == expected_scrap, "contract %s preserves corporate scrap metadata" % context)
+			check(int(restored.current_bounty.loot_power) == expected_loot_power and expected_loot_power == int(target.power), "contract %s preserves canonical loot tier" % context)
 			restored.free()
 			source.free()
 
