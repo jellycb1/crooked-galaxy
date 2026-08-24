@@ -120,6 +120,8 @@ Briefings opened through that handoff display the tested route and odds as confi
 
 The active hunt persists whether the player confirmed that tested route or deliberately replaced it, so the decision remains visible through interruptions and later incident resolution.
 
+The live pursuit now frames its progress as `PARTIDA → estágio/percentual → ALVO`. Named departure, tracking, and imminent-contact stages make the timer legible at a glance while preserving the target portrait, chosen approach, active transport, exact countdown, and authoritative wall-clock behavior.
+
 That compact tested-versus-chosen record is reused on the paused incident and automatic-combat screens, alongside the selected approach and incident-adjusted payment.
 
 Victory closes that provenance trail beside the capture report; the reward screen then replaces it with loot, receipt, mastery, streak, and next-hunt projection evidence.

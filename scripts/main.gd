@@ -1250,9 +1250,21 @@ func build_hunt() -> void:
 	if bounty.has("hunt_event_result"):
 		content.add_child(notice_banner(str(bounty.hunt_event_result), GOLD))
 
+	var progress_value := clampf(GameState.hunt_progress(), 0.0, 1.0)
+	var progress_row := HBoxContainer.new()
+	progress_row.name = "HuntProgressStatus"
+	progress_row.add_theme_constant_override("separation", 8)
+	progress_row.add_child(label("PARTIDA", 10, MUTED))
+	var stage_text := "SAINDO DO SETOR" if progress_value < 0.25 else ("RASTREANDO SINAL" if progress_value < 0.8 else "CONTATO IMINENTE")
+	var stage := label("%s · %d%%" % [stage_text, roundi(progress_value * 100.0)], 11, CYAN, HORIZONTAL_ALIGNMENT_CENTER)
+	stage.name = "HuntProgressStage"
+	stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	progress_row.add_child(stage)
+	progress_row.add_child(label("ALVO", 10, GOLD, HORIZONTAL_ALIGNMENT_RIGHT))
+	content.add_child(progress_row)
 	var progress := ProgressBar.new()
 	progress.name = "HuntProgress"
-	progress.value = GameState.hunt_progress() * 100.0
+	progress.value = progress_value * 100.0
 	progress.show_percentage = false
 	progress.custom_minimum_size = Vector2(0, 24)
 	progress.add_theme_stylebox_override("background", box_style(PANEL_LIGHT, 12))

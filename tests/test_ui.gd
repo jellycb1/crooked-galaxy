@@ -75,7 +75,8 @@ func run_smoke_test() -> void:
 	check(scene.find_children("ApproachBuildRisk_*", "Label", true, false).size() == 3 and scene.find_children("ApproachBuild_*", "PanelContainer", true, false).size() == 3, "every route exposes explicit build odds and a risk reading in the same scan order")
 	state.choose_approach("quiet_net")
 	await process_frame
-	check(scene.find_child("HuntProgress", true, false) != null, "hunt screen renders")
+	var hunt_progress_stage := scene.find_child("HuntProgressStage", true, false) as Label
+	check(scene.find_child("HuntProgress", true, false) != null and hunt_progress_stage != null and hunt_progress_stage.text.contains("%"), "hunt screen renders a named pursuit stage with exact progress")
 	var hunt_abandon := scene.find_child("HuntAbandonAction", true, false) as Button
 	check(hunt_abandon != null and hunt_abandon.text.contains("PERDER EMBALO ×2"), "active hunt announces the exact streak cost before abandonment")
 	state.hunt_event = ContentDB.HUNT_EVENTS[0].duplicate(true)
