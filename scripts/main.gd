@@ -40,6 +40,8 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		GameState.save_game()
 		get_tree().quit()
+	elif what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		handle_android_back_request()
 	elif what == NOTIFICATION_RESIZED and is_node_ready():
 		call_deferred("apply_safe_area")
 	elif what == NOTIFICATION_APPLICATION_FOCUS_OUT:
@@ -51,6 +53,31 @@ func _notification(what: int) -> void:
 		set_lifecycle_suspension("application", true)
 	elif what == NOTIFICATION_APPLICATION_RESUMED:
 		set_lifecycle_suspension("application", false)
+
+
+func android_back_action() -> String:
+	if GameState.phase == GameState.Phase.BOARD:
+		return "board" if view_mode != "board" else "quit"
+	if GameState.phase == GameState.Phase.BRIEFING:
+		return "cancel_briefing"
+	return "guard_contract"
+
+
+func handle_android_back_request() -> void:
+	match android_back_action():
+		"board":
+			view_mode = "board"
+			render()
+		"cancel_briefing":
+			GameState.cancel_briefing()
+		"quit":
+			GameState.save_game()
+			get_tree().quit()
+		# Timed hunts, incidents, combat, victory, rewards, and finales all have
+		# explicit safe actions. Consume Back rather than turning it into an
+		# accidental abandon/claim while the contract owns the screen.
+		"guard_contract":
+			pass
 
 
 func set_lifecycle_suspension(reason: String, suspended: bool) -> void:

@@ -234,7 +234,7 @@ Capture the bounty boards, defeat recovery and post-upgrade workshop, AFK return
 godot --path . --script res://tools/capture_ui.gd
 ```
 
-Interactive editor runs use the locally available proprietary study art in `References/` as visibly watermarked composition placeholders. Headless tests and exported templates always fall back to the original procedural backgrounds. Every usage and replacement target is tracked in `Notes/REFERENCE_PLACEHOLDERS.md`; the normal checker enforces Git/export boundaries, and Windows/Android export checks mount the produced content pack to reject leaked reference files.
+The proprietary study art in `References/` is retained only as local, documented design evidence. Runtime contexts now use independently generated original production environments; the reference adapter has no active mappings. Every former usage and replacement is tracked in `Notes/REFERENCE_PLACEHOLDERS.md`, while normal checks and mounted Windows/Android pack inspections reject leaked reference files.
 
 Capture the procedural character lineup:
 

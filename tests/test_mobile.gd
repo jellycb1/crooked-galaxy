@@ -27,11 +27,19 @@ func run_mobile_audit() -> void:
 	root.add_child(scene)
 	await process_frame
 	check_touch_targets(scene, "bounty board")
+	check(scene.android_back_action() == "quit", "Android Back exits only from the root bounty board")
 
 	scene.view_mode = "arsenal"
 	scene.render()
 	await process_frame
 	check_touch_targets(scene, "arsenal")
+	check(scene.android_back_action() == "board", "Android Back routes secondary hubs to the bounty board")
+	scene.handle_android_back_request()
+	await process_frame
+	check(scene.view_mode == "board" and state.phase == state.Phase.BOARD, "Android Back performs safe hub navigation without exiting")
+	scene.view_mode = "arsenal"
+	scene.render()
+	await process_frame
 	var inventory_scroll := scene.find_child("InventoryScroll", true, false) as ScrollContainer
 	check(inventory_scroll != null and inventory_scroll.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "arsenal disables horizontal scrolling")
 	check(inventory_scroll != null and inventory_scroll.size.y >= 120.0, "arsenal reserves useful vertical space for the inventory on mobile")
@@ -44,7 +52,14 @@ func run_mobile_audit() -> void:
 	state.select_bounty(ContentDB.TARGETS[0])
 	await process_frame
 	check_touch_targets(scene, "contract briefing")
+	check(scene.android_back_action() == "cancel_briefing", "Android Back maps an uncommitted briefing to its safe cancel action")
+	scene.handle_android_back_request()
+	await process_frame
+	check(state.phase == state.Phase.BOARD, "Android Back cancels a briefing before any route is committed")
+	state.select_bounty(ContentDB.TARGETS[0])
+	await process_frame
 	state.choose_approach("quiet_net")
+	check(scene.android_back_action() == "guard_contract", "Android Back cannot accidentally abandon an active timed contract")
 	state.hunt_event = ContentDB.HUNT_EVENTS[0].duplicate(true)
 	state.phase = state.Phase.HUNT_EVENT
 	scene.render()
