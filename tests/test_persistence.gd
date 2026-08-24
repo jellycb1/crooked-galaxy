@@ -208,6 +208,15 @@ func _init() -> void:
 	check(str(restored_chapter.chapter_completion.target.id) == "mayor_gold_dust", "chapter summary survives save and load")
 	check(str(restored_chapter.chapter_completion.planet.name) == str(ContentDB.PLANET.name) and str(restored_chapter.chapter_completion.target.name) == str(ContentDB.TARGETS[3].name), "chapter evidence restores canonical planet and boss identity")
 	check(int(restored_chapter.chapter_completion.total_captures) == 0 and int(restored_chapter.chapter_completion.credits) == 0, "chapter evidence clamps impossible negative totals")
+	restored_chapter.continue_after_chapter()
+	check(restored_chapter.phase == restored_chapter.Phase.BOARD and restored_chapter.chapter_completion.is_empty(), "continuing from a restored finale consumes its chapter evidence")
+	var restored_after_chapter = StateScript.new()
+	restored_after_chapter.save_path = test_save
+	restored_after_chapter.load_game()
+	check(restored_after_chapter.phase == restored_after_chapter.Phase.BOARD and restored_after_chapter.chapter_completion.is_empty(), "reload after finale continuation cannot resurrect the completion screen")
+	check(restored_after_chapter.player.completed_planets.has(ContentDB.PLANET.id) and str(restored_after_chapter.player.current_planet_id) == "congelaria_sa", "reload after finale continuation preserves completion and active travel progress")
+	check(restored_after_chapter.last_notice.is_empty() and restored_after_chapter.last_notice_context.is_empty(), "clean post-finale reload does not repeat a stale chapter or recovery receipt")
+	restored_after_chapter.free()
 
 	var offline = StateScript.new()
 	offline.persistence_enabled = false

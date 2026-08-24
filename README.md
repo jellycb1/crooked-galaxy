@@ -44,6 +44,8 @@ Claiming also consumes the completed victory log before saving. The evidence rem
 
 Immediate repeat saves only after replacing the completed modified contract with a canonical target and three fresh approaches, so reload cannot retain the old route or skip the next route decision.
 
+Chapter finales survive reload until acknowledged. Continuing consumes only the finale evidence; completed-planet and active-route progress remain persistent, and later reloads cannot resurrect the completion screen.
+
 The reward receipt retains paid incident cost and reconciles gross payout with the exact net wallet gain from before the choice.
 
 Claim summaries and the persistent board/workshop record name whether the captured item was equipped, stored, or recycled, including the exact item name.
