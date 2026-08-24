@@ -524,13 +524,18 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 	risk.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.add_child(risk)
 	var hunt := action_button("ANALISAR ABORDAGENS", CYAN)
-	hunt.pressed.connect(func(): GameState.select_bounty(bounty))
+	hunt.pressed.connect(func():
+		briefing_context = {}
+		GameState.select_bounty(bounty)
+	)
 	box.add_child(hunt)
 	return card
 
 
 func build_briefing() -> void:
 	var bounty := GameState.current_bounty
+	var evaluations := ContractRules.evaluate_approaches(GameState.player, bounty, GameState.offered_approaches)
+	var recommended_id := ContractRules.recommended_approach_id(evaluations)
 	var target_row := HBoxContainer.new()
 	target_row.add_theme_constant_override("separation", 18)
 	content.add_child(target_row)
@@ -541,6 +546,10 @@ func build_briefing() -> void:
 	target_row.add_child(target_copy)
 	target_copy.add_child(label("BRIEFING DO CONTRATO", 15, CYAN))
 	target_copy.add_child(label(str(bounty.name), 26, INK))
+	if str(briefing_context.get("target_id", "")) == str(bounty.id) and str(briefing_context.get("approach_id", "")) == recommended_id:
+		var tested_context := label("BUILD TESTADA · %s · %d%% · RECOMENDAÇÃO CONFIRMADA" % [str(briefing_context.get("approach_name", "CONTRATO BASE")).to_upper(), roundi(float(briefing_context.get("odds", 0.0)) * 100.0)], 11, LIME)
+		tested_context.name = "BriefingFieldTestContext"
+		target_copy.add_child(tested_context)
 	var kit_origin := CoreRules.equipment_set_origin(GameState.player)
 	if not kit_origin.is_empty():
 		target_copy.add_child(label("KIT PLANETÁRIO · %s · +%d PODER · +%d VIDA" % [str(ContentDB.get_planet(kit_origin).name).to_upper(), CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS], 12, GOLD))
@@ -563,13 +572,15 @@ func build_briefing() -> void:
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", 12)
 	scroller.add_child(list)
-	var evaluations := ContractRules.evaluate_approaches(GameState.player, bounty, GameState.offered_approaches)
-	var recommended_id := ContractRules.recommended_approach_id(evaluations)
 	for index in GameState.offered_approaches.size():
 		list.add_child(approach_card(GameState.offered_approaches[index], evaluations[index], recommended_id))
 	var cancel := action_button("VOLTAR AO QUADRO", CORAL, true)
+	cancel.name = "BriefingCancel"
 	cancel.custom_minimum_size = Vector2(0, 48)
-	cancel.pressed.connect(GameState.cancel_briefing)
+	cancel.pressed.connect(func():
+		briefing_context = {}
+		GameState.cancel_briefing()
+	)
 	content.add_child(cancel)
 
 
@@ -614,7 +625,10 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 	metrics.add_child(metric_chip("EXPERIÊNCIA", "%d XP" % int(preview.xp), CYAN))
 	var choose := action_button("ESCOLHER · %s" % risk_text, color)
 	var approach_id := str(approach.id)
-	choose.pressed.connect(func(): GameState.choose_approach(approach_id))
+	choose.pressed.connect(func():
+		briefing_context = {}
+		GameState.choose_approach(approach_id)
+	)
 	box.add_child(choose)
 	return card
 

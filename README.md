@@ -32,6 +32,8 @@ After an equipped claim, the board's arsenal shortcut becomes a contextual `TEST
 
 When that field test focuses an available warrant, its `ESCOLHER ROTA` action opens the briefing and preserves the same recommendation instead of implying that combat begins immediately.
 
+Briefings opened through that handoff display the tested route and odds as confirmed context while keeping all three approach choices available; ordinary board and career briefings remain context-free.
+
 Every reward with a next warrant translates the full pending receipt—XP level gains plus the chosen equipment state—into same-route win odds before and after claiming, directly connecting loot to the next hunt and the workshop field test.
 
 Automatic combat retains the selected incident result and adjusted payment above the encounter, preserving economic context through resolution.

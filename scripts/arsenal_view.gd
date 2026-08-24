@@ -29,6 +29,12 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		var target_id := str(focused_target.id)
 		analyze.pressed.connect(func():
 			host.view_mode = "board"
+			host.briefing_context = {
+				"target_id": target_id,
+				"approach_id": str(readiness.get("approach", {}).get("id", "")),
+				"approach_name": str(readiness.get("approach", {}).get("name", "CONTRATO BASE")),
+				"odds": float(readiness.get("current_odds", 0.0)),
+			}
 			state.select_bounty(Content.get_target(target_id))
 		)
 		title_row.add_child(analyze)

@@ -127,6 +127,7 @@ static func mastery_directive_card(host: CrookedUIFactory, state: StateScript, o
 	var target_id := str(target.id)
 	action.pressed.connect(func():
 		host.view_mode = "board"
+		host.briefing_context = {}
 		if state.travel_to_planet(planet_id):
 			state.select_bounty(Content.get_target(target_id))
 	)

@@ -75,6 +75,7 @@ func _init() -> void:
 	state.player.captures_by_planet.dustball_prime = 3
 	field_action.pressed.emit()
 	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "baron_boom", "field-test action opens the focused warrant briefing")
+	check(str(host.briefing_context.approach_id) == str(recovery_after_upgrade.approach.id), "field-test handoff carries its tested recommendation into the briefing host")
 	var briefing_evaluations := ContractRules.evaluate_approaches(state.player, state.current_bounty, state.offered_approaches)
 	check(ContractRules.recommended_approach_id(briefing_evaluations) == str(recovery_after_upgrade.approach.id), "briefing preserves the same recommended approach shown by the field test")
 	var late_state = StateScript.new()

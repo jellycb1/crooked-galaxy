@@ -36,6 +36,7 @@ func run_smoke_test() -> void:
 	state.select_bounty(bounty)
 	await process_frame
 	check(scene.find_child("BriefingScroll", true, false) != null, "contract briefing renders")
+	check(scene.find_child("BriefingFieldTestContext", true, false) == null, "ordinary board briefings do not claim a prior field test")
 	check(scene.find_child("BriefingMastery", true, false) != null, "briefing explains mastery loot bonuses")
 	check(scene.find_children("RecommendedApproach_*", "Label", true, false).size() == 1, "briefing renders exactly one dynamic recommendation")
 	check(scene.find_children("ApproachStreak_*", "Label", true, false).size() == 3, "briefing marks every displayed payment as already streak-adjusted")
@@ -102,6 +103,18 @@ func run_smoke_test() -> void:
 	post_claim_field_test.pressed.emit()
 	await process_frame
 	check(scene.view_mode == "arsenal" and scene.find_child("FieldReadiness", true, false) != null, "post-claim shortcut opens the newly equipped build beside its field odds")
+	var tested_route_action := scene.find_child("FieldReadinessAction", true, false) as Button
+	check(tested_route_action != null, "post-claim field test offers the focused warrant handoff")
+	if tested_route_action != null:
+		tested_route_action.pressed.emit()
+		await process_frame
+		var tested_context := scene.find_child("BriefingFieldTestContext", true, false) as Label
+		check(state.phase == state.Phase.BRIEFING and tested_context != null and tested_context.text.contains("RECOMENDAÇÃO CONFIRMADA"), "field-test briefing visibly acknowledges the tested build and recommendation")
+		var briefing_cancel := scene.find_child("BriefingCancel", true, false) as Button
+		if briefing_cancel != null:
+			briefing_cancel.pressed.emit()
+			await process_frame
+		check(scene.briefing_context.is_empty(), "leaving the tested briefing clears its transient context")
 	scene.view_mode = "board"
 	state.last_notice = "Contrato pago: Peça de Reserva guardado"
 	scene.render()

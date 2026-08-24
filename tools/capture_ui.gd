@@ -178,6 +178,28 @@ func capture() -> void:
 	if save_frame("ui_paid_receipt_workshop.png") != OK:
 		quit(1)
 		return
+	var tested_route_action := scene.find_child("FieldReadinessAction", true, false) as Button
+	if tested_route_action == null:
+		printerr("Failed to locate tested route action for briefing capture")
+		quit(1)
+		return
+	tested_route_action.pressed.emit()
+	await process_frame
+	await process_frame
+	await create_timer(0.2).timeout
+	if save_frame("ui_tested_briefing.png") != OK:
+		quit(1)
+		return
+	var tested_briefing_cancel := scene.find_child("BriefingCancel", true, false) as Button
+	if tested_briefing_cancel == null:
+		printerr("Failed to leave tested briefing capture")
+		quit(1)
+		return
+	tested_briefing_cancel.pressed.emit()
+	await process_frame
+	scene.view_mode = "arsenal"
+	scene.render()
+	await process_frame
 	state.player.scrap = 18
 	state.player.inventory.append({"id": "capture_spare", "name": "Colete Fiscal Vencido", "description": "A proteção expirou no trimestre passado.", "slot": "armor", "origin_planet_id": "dustball_prime", "power": 5, "rarity": "Comum", "color": "#b9c2d9"})
 	state.player.inventory.append({"id": "capture_old_weapon", "name": "Zapper de Gaveta", "description": "Dispara melhor quando a gaveta está aberta.", "slot": "weapon", "power": 1, "rarity": "Comum", "color": "#b9c2d9"})
