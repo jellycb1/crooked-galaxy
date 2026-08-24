@@ -938,7 +938,7 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 		if (expected is int or expected is float) and (incoming is int or incoming is float):
 			compatible = true
 		if compatible:
-			sanitized[key] = incoming
+			sanitized[key] = int(incoming) if expected is int else (float(incoming) if expected is float else incoming)
 		else:
 			repaired = true
 	for slot in ["weapon", "armor"]:
@@ -953,6 +953,7 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 				sanitized[slot] = fallback
 				repaired = true
 			else:
+				repaired = sanitize_loaded_equipment_numbers(item) or repaired
 				sanitized[slot] = item
 		else:
 			sanitized[slot] = fallback
@@ -962,7 +963,9 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	if loaded_inventory is Array:
 		for entry in loaded_inventory:
 			if entry is Dictionary and loaded_equipment_is_safe(entry, str(entry.get("slot", ""))):
-				clean_inventory.append(entry)
+				var clean_entry: Dictionary = entry.duplicate(true)
+				repaired = sanitize_loaded_equipment_numbers(clean_entry) or repaired
+				clean_inventory.append(clean_entry)
 			else:
 				repaired = true
 	else:
@@ -984,6 +987,28 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	else:
 		repaired = true
 	sanitized.equipment_loadouts = clean_loadouts
+	for key in ["xp", "credits", "scrap", "scrap_recycled_total", "afk_credits_earned", "afk_scrap_earned", "career_credits_claimed", "career_scrap_claimed", "capture_streak", "best_capture_streak", "reputation", "wins"]:
+		if int(sanitized[key]) < 0:
+			sanitized[key] = 0
+			repaired = true
+	for key in ["level", "base_power"]:
+		if int(sanitized[key]) < 1:
+			sanitized[key] = 1
+			repaired = true
+	if int(sanitized.best_capture_streak) < int(sanitized.capture_streak):
+		sanitized.best_capture_streak = int(sanitized.capture_streak)
+		repaired = true
+	for key in ["captures_by_target", "captures_by_planet"]:
+		var clean_counts := {}
+		for record_id in sanitized[key]:
+			var value = sanitized[key][record_id]
+			if not (value is int or value is float) or str(record_id).is_empty():
+				repaired = true
+				continue
+			clean_counts[str(record_id)] = maxi(0, int(value))
+			if int(value) < 0:
+				repaired = true
+		sanitized[key] = clean_counts
 	return {"player": sanitized, "repaired": repaired}
 
 
@@ -997,6 +1022,24 @@ func loaded_equipment_is_safe(item: Dictionary, expected_slot: String) -> bool:
 	if str(item.get("rarity", "")).is_empty() or str(item.get("color", "")).is_empty():
 		return false
 	return not item.has("trait") or item.trait is Dictionary
+
+
+func sanitize_loaded_equipment_numbers(item: Dictionary) -> bool:
+	var repaired := false
+	if int(item.power) < 0:
+		item.power = 0
+		repaired = true
+	for key in ["power_upgrades", "integrity_upgrades"]:
+		if item.has(key) and not (item[key] is int or item[key] is float):
+			item[key] = 0
+			repaired = true
+		elif int(item.get(key, 0)) < 0:
+			item[key] = 0
+			repaired = true
+	if int(item.get("integrity_upgrades", 0)) > CoreRules.MAX_INTEGRITY_UPGRADES:
+		item.integrity_upgrades = CoreRules.MAX_INTEGRITY_UPGRADES
+		repaired = true
+	return repaired
 
 
 func reconcile_loaded_phase() -> bool:

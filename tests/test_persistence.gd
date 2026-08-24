@@ -162,6 +162,11 @@ func _init() -> void:
 		"version": StateScript.SAVE_VERSION,
 		"player": {
 			"credits": 88,
+			"scrap": -5,
+			"level": 0,
+			"base_power": -20,
+			"capture_streak": 4,
+			"best_capture_streak": 1,
 			"wins": 2,
 			"weapon": ["not an item"],
 			"armor": {"id": "", "name": "", "slot": "armor", "power": "broken"},
@@ -184,6 +189,8 @@ func _init() -> void:
 	check(repaired.player.weapon is Dictionary and not str(repaired.player.weapon.id).is_empty() and repaired.player.armor is Dictionary, "damaged equipment falls back to usable starter items")
 	check(repaired.player.inventory is Array and repaired.player.inventory.is_empty() and repaired.player.captures_by_target is Dictionary, "damaged compound player fields return to safe defaults")
 	check(repaired.player.equipment_loadouts.size() == 2 and repaired.player.equipment_loadouts.all(func(loadout): return loadout is Dictionary), "damaged loadouts normalize to two usable slots")
+	check(int(repaired.player.scrap) == 0 and int(repaired.player.level) == 1 and int(repaired.player.base_power) == 1, "impossible negative progression values are clamped to canonical lower bounds")
+	check(int(repaired.player.capture_streak) == 4 and int(repaired.player.best_capture_streak) == 4, "best streak remains coherent with the active streak after repair")
 	check(repaired.last_notice_context == "system_recovery" and repaired.last_notice.contains("progresso válido preservado"), "damaged save repair explains the recovery without exposing implementation details")
 	var repaired_file := FileAccess.open(damaged_save, FileAccess.READ)
 	var repaired_payload = JSON.parse_string(repaired_file.get_as_text())
