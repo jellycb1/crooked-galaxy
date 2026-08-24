@@ -1,6 +1,7 @@
 extends Control
 
 var character_id := "hunter"
+var equipment_profile: Dictionary = {}
 
 
 func _ready() -> void:
@@ -108,9 +109,17 @@ func draw_hunter() -> void:
 	var ink := Color("#091127")
 	var cyan := Color("#55e5ff")
 	var gold := Color("#ffc857")
-	draw_frame(Color("#13284a"), cyan)
+	var weapon: Dictionary = equipment_profile.get("weapon", {})
+	var armor: Dictionary = equipment_profile.get("armor", {})
+	var weapon_color := equipment_color(weapon, cyan)
+	var armor_color := equipment_color(armor, Color("#273357"))
+	var weapon_origin := str(weapon.get("origin_planet_id", ""))
+	var armor_origin := str(armor.get("origin_planet_id", ""))
+	var kit_active := not weapon_origin.is_empty() and weapon_origin == armor_origin
+	var origin_color := planet_loadout_color(weapon_origin if kit_active else armor_origin)
+	draw_frame(Color("#13284a"), gold if kit_active else origin_color)
 	# Shoulders and helmet.
-	filled_polygon([Vector2(0.12, 0.94), Vector2(0.20, 0.72), Vector2(0.38, 0.64), Vector2(0.62, 0.64), Vector2(0.80, 0.72), Vector2(0.88, 0.94)], Color("#273357"), ink)
+	filled_polygon([Vector2(0.12, 0.94), Vector2(0.20, 0.72), Vector2(0.38, 0.64), Vector2(0.62, 0.64), Vector2(0.80, 0.72), Vector2(0.88, 0.94)], armor_color.darkened(0.35), ink)
 	outlined_circle(Vector2(0.50, 0.50), 0.31, Color("#d7d6c9"), ink, 0.032)
 	# Crooked space-western hat.
 	filled_polygon([Vector2(0.20, 0.30), Vector2(0.81, 0.25), Vector2(0.75, 0.36), Vector2(0.23, 0.38)], Color("#9a552b"), ink)
@@ -118,13 +127,40 @@ func draw_hunter() -> void:
 	draw_line(Vector2(0.38, 0.25), Vector2(0.69, 0.23), gold, 0.035, true)
 	# Visor and face read at tiny sizes.
 	filled_polygon([Vector2(0.24, 0.43), Vector2(0.76, 0.39), Vector2(0.70, 0.62), Vector2(0.30, 0.64)], Color("#173952"), ink)
-	draw_line(Vector2(0.31, 0.47), Vector2(0.64, 0.44), Color(0.70, 0.97, 1.0, 0.75), 0.035, true)
-	draw_circle(Vector2(0.37, 0.54), 0.035, cyan)
-	draw_circle(Vector2(0.62, 0.52), 0.035, cyan)
+	draw_line(Vector2(0.31, 0.47), Vector2(0.64, 0.44), Color(weapon_color, 0.85), 0.035, true)
+	draw_circle(Vector2(0.37, 0.54), 0.035, weapon_color)
+	draw_circle(Vector2(0.62, 0.52), 0.035, weapon_color)
 	draw_line(Vector2(0.43, 0.70), Vector2(0.61, 0.68), ink, 0.025, true)
 	# Antenna keeps the silhouette distinctive.
 	draw_line(Vector2(0.72, 0.17), Vector2(0.84, 0.08), ink, 0.025, true)
-	outlined_circle(Vector2(0.86, 0.065), 0.035, Color("#ff6f7d"), ink, 0.018)
+	outlined_circle(Vector2(0.86, 0.065), 0.035, weapon_color, ink, 0.018)
+	# Workshop investment and a matching planetary kit remain readable at combat size.
+	var upgrade_count := mini(5, int(weapon.get("power_upgrades", 0)) + int(armor.get("integrity_upgrades", 0)))
+	for pip in upgrade_count:
+		draw_circle(Vector2(0.29 + float(pip) * 0.105, 0.87), 0.026, origin_color)
+	if kit_active:
+		draw_line(Vector2(0.25, 0.77), Vector2(0.75, 0.77), gold, 0.025, true)
+
+
+func equipment_color(item: Dictionary, fallback: Color) -> Color:
+	var raw_color := str(item.get("color", ""))
+	return Color(raw_color) if Color.html_is_valid(raw_color) else fallback
+
+
+func planet_loadout_color(planet_id: String) -> Color:
+	match planet_id:
+		"dustball_prime":
+			return Color("#ffc857")
+		"congelaria_sa":
+			return Color("#72f1dd")
+		"micelia_404":
+			return Color("#c7f464")
+		"ferro_velho_omega":
+			return Color("#ff9f43")
+		"cassino_quasar":
+			return Color("#ff75d8")
+		_:
+			return Color("#55e5ff")
 
 
 func draw_gloop() -> void:

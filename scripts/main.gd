@@ -1100,11 +1100,14 @@ func fighter(title: String, character_id: String, hp: int, maximum: int, color: 
 	var fighter_box := VBoxContainer.new()
 	fighter_box.custom_minimum_size = Vector2(242, 245)
 	fighter_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	fighter_box.add_child(character_portrait(character_id, 118))
+	fighter_box.add_child(character_portrait(character_id, 118, GameState.player if character_id == "hunter" else {}))
 	var name_label := center_label(title.to_upper(), 16, color)
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	fighter_box.add_child(name_label)
 	if character_id == "hunter":
+		var loadout := center_label("LOADOUT · +%d ARMA · +%d ARMADURA" % [int(GameState.player.weapon.power), int(GameState.player.armor.power)], 10, CYAN)
+		loadout.name = "CombatLoadoutSummary"
+		fighter_box.add_child(loadout)
 		var kit_origin := CoreRules.equipment_set_origin(GameState.player)
 		if not kit_origin.is_empty():
 			fighter_box.add_child(center_label("KIT %s · +%d PODER · +%d VIDA" % [str(ContentDB.get_planet(kit_origin).name).to_upper(), CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS], 10, GOLD))

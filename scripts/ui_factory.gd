@@ -95,9 +95,10 @@ func action_button(text_value: String, color: Color, outline := false) -> Button
 	return button
 
 
-func character_portrait(character_id: String, dimension: float) -> Control:
+func character_portrait(character_id: String, dimension: float, equipment_profile: Dictionary = {}) -> Control:
 	var result: Control = PortraitScript.new()
 	result.character_id = character_id
+	result.equipment_profile = equipment_profile.duplicate(true)
 	result.custom_minimum_size = Vector2(dimension, dimension)
 	result.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	result.size_flags_vertical = Control.SIZE_SHRINK_CENTER

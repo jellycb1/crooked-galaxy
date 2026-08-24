@@ -84,6 +84,8 @@ func run_smoke_test() -> void:
 	state.begin_combat()
 	await process_frame
 	check(state.player_hp > 0 and state.enemy_hp > 0, "combat screen initializes")
+	var combat_loadout := scene.find_child("CombatLoadoutSummary", true, false) as Label
+	check(combat_loadout != null and combat_loadout.text.contains("ARMA") and combat_loadout.text.contains("ARMADURA"), "combat portrait names the equipment values driving its visual loadout")
 	var combat_incident := scene.find_child("CombatIncidentSummary", true, false) as Label
 	check(combat_incident != null and combat_incident.text.contains("PAGAMENTO") and combat_incident.text.contains("EMBALO"), "combat carries the chosen incident consequence and adjusted payout")
 	state.combat_step()
