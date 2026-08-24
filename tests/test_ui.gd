@@ -55,12 +55,14 @@ func run_smoke_test() -> void:
 	check(scene.find_child("BriefingFieldTestContext", true, false) == null, "ordinary board briefings do not claim a prior field test")
 	check(scene.find_child("BriefingMastery", true, false) != null, "briefing explains mastery loot bonuses")
 	check(scene.find_children("RecommendedApproach_*", "Label", true, false).size() == 1, "briefing renders exactly one dynamic recommendation")
-	check(scene.find_children("ApproachStreak_*", "Label", true, false).size() == 3, "briefing marks every displayed payment as already streak-adjusted")
+	check(scene.find_children("ApproachBonusSummary_*", "Label", true, false).size() == 3, "briefing keeps streak-adjusted payment concise on every route")
 	var recommendation_hint := scene.find_child("BriefingRecommendationHint", true, false) as Label
-	check(recommendation_hint != null and recommendation_hint.text.contains("chance") and recommendation_hint.text.contains("pagamento") and recommendation_hint.text.contains("experiência"), "briefing explains the recommendation's risk-return basis")
+	check(recommendation_hint != null and recommendation_hint.text.contains("BUILD") and recommendation_hint.text.contains("risco") and recommendation_hint.text.contains("retorno") and recommendation_hint.text.contains("tempo"), "briefing explains the recommendation's build, risk, return, and time basis")
 	var route_buttons := scene.find_children("ChooseApproach_*", "Button", true, false)
 	check(route_buttons.size() == 3 and route_buttons.all(func(button): return str(button.text).contains("ESCOLHER · ") and not str(button.text).ends_with("SEGURO")), "each briefing action names the route it will confirm instead of repeating a shared risk tier")
-	check(scene.find_child("ApproachScrapReward_premium_warrant", true, false) != null, "briefing exposes the corporate workshop reward before commitment")
+	var corporate_bonus := scene.find_child("ApproachBonusSummary_premium_warrant", true, false) as Label
+	check(corporate_bonus != null and corporate_bonus.text.contains("SUCATA NA VITÓRIA"), "briefing exposes the corporate workshop reward before commitment")
+	check(scene.find_children("ApproachBuildRisk_*", "Label", true, false).size() == 3 and scene.find_children("ApproachBuild_*", "PanelContainer", true, false).size() == 3, "every route exposes explicit build odds and a risk reading in the same scan order")
 	state.choose_approach("quiet_net")
 	await process_frame
 	check(scene.find_child("HuntProgress", true, false) != null, "hunt screen renders")

@@ -115,6 +115,9 @@ func run_mobile_audit() -> void:
 	await process_frame
 	check_touch_targets(scene, "contract briefing")
 	check(scene.find_child("BriefingTransportIcon", true, false) != null, "contract briefing carries the active transport silhouette")
+	var briefing_scroll := scene.find_child("BriefingScroll", true, false) as ScrollContainer
+	var final_route_action := scene.find_child("ChooseApproach_premium_warrant", true, false) as Button
+	check(briefing_scroll != null and final_route_action != null and final_route_action.global_position.y + final_route_action.size.y <= briefing_scroll.global_position.y + briefing_scroll.size.y + 0.5, "all three route decisions fit in the initial mobile briefing viewport")
 	check(scene.android_back_action() == "cancel_briefing", "Android Back maps an uncommitted briefing to its safe cancel action")
 	scene.handle_android_back_request()
 	await process_frame

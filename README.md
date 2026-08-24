@@ -62,7 +62,7 @@ The combined third-capture reward keeps two intentional destinations—spend the
 
 On ordinary rewards, the repeat route previews the next streak multiplier and approach-invariant percentage. Exact credits remain attached to the selected approach and incident outcome. Threshold rewards suppress the repeat prompt and prioritize the newly opened warrant.
 
-Contract briefings explain that the recommendation balances chance, payment, and experience. Each action names the exact approach it confirms, while risk tier and win chance remain visible in the card metrics instead of producing three indistinguishable `ESCOLHER · SEGURO` buttons.
+Contract briefings present all three routes and their actions inside the initial 450×800 decision viewport. Every compact card follows the same scan order: strategy and explicit risk, short route fiction, included streak/scrap bonuses, time, current-build win chance, credits, XP, and the exact named action. A bordered `MELHOR EQUILÍBRIO` state explains that the dynamic recommendation balances risk, return, and time without hiding the alternatives.
 
 Repeated-contract briefings mark each route's displayed payment as already streak-adjusted and show its exact included bonus, preventing the same percentage from being counted twice.
 

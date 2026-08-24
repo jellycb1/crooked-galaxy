@@ -847,14 +847,14 @@ func build_briefing() -> void:
 	var target_row := HBoxContainer.new()
 	target_row.add_theme_constant_override("separation", 18)
 	content.add_child(target_row)
-	target_row.add_child(character_portrait(str(bounty.id), 104))
+	target_row.add_child(character_portrait(str(bounty.id), 82))
 	var target_copy := VBoxContainer.new()
 	target_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	target_copy.add_theme_constant_override("separation", 4)
 	target_row.add_child(target_copy)
 	var active_transport := TransportRulesScript.active_transport(GameState.player)
 	if not active_transport.is_empty():
-		var briefing_transport := transport_icon(active_transport, 58)
+		var briefing_transport := transport_icon(active_transport, 46)
 		briefing_transport.name = "BriefingTransportIcon"
 		target_row.add_child(briefing_transport)
 	target_copy.add_child(label("BRIEFING DO CONTRATO", 15, CYAN))
@@ -876,9 +876,10 @@ func build_briefing() -> void:
 	flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	target_copy.add_child(flavor)
 
-	content.add_child(label("ESCOLHA UMA ABORDAGEM", 17, GOLD))
-	var recommendation_hint := label("RECOMENDADO equilibra chance, pagamento e experiência.", 11, MUTED)
+	content.add_child(label("COMPARE E ESCOLHA A ROTA", 17, GOLD))
+	var recommendation_hint := label("BUILD mostra sua chance atual; RECOMENDADO equilibra risco, retorno e tempo.", 11, MUTED)
 	recommendation_hint.name = "BriefingRecommendationHint"
+	recommendation_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content.add_child(recommendation_hint)
 	var scroller := ScrollContainer.new()
 	scroller.name = "BriefingScroll"
@@ -903,43 +904,63 @@ func build_briefing() -> void:
 func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id: String) -> PanelContainer:
 	var preview: Dictionary = evaluation.preview
 	var color := Color(str(approach.color))
-	var card := panel(VBoxContainer.new(), PANEL, 16, 16)
+	var is_recommended := str(approach.id) == recommended_id
+	var card := panel(VBoxContainer.new(), Color("#172744") if is_recommended else PANEL, 13, 10)
+	card.name = "ApproachCard_%s" % str(approach.id)
+	if is_recommended:
+		var recommended_style := box_style(Color("#172744"), 13)
+		recommended_style.content_margin_left = 10
+		recommended_style.content_margin_right = 10
+		recommended_style.content_margin_top = 10
+		recommended_style.content_margin_bottom = 10
+		recommended_style.border_width_left = 2
+		recommended_style.border_width_top = 2
+		recommended_style.border_width_right = 2
+		recommended_style.border_width_bottom = 2
+		recommended_style.border_color = LIME
+		card.add_theme_stylebox_override("panel", recommended_style)
 	var box := card.get_child(0) as VBoxContainer
-	box.add_theme_constant_override("separation", 8)
+	box.add_theme_constant_override("separation", 5)
 	var heading := HBoxContainer.new()
 	box.add_child(heading)
-	var heading_copy := VBoxContainer.new()
-	heading_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	heading.add_child(heading_copy)
-	heading_copy.add_child(label(str(approach.name).to_upper(), 18, color))
-	heading_copy.add_child(label(str(approach.tag), 12, MUTED))
-	if str(approach.id) == recommended_id:
-		var recommendation := label("RECOMENDADO", 12, LIME, HORIZONTAL_ALIGNMENT_RIGHT)
+	var route_name := label(str(approach.name).to_upper(), 16, color)
+	route_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	heading.add_child(route_name)
+	if is_recommended:
+		var recommendation := label("MELHOR EQUILÍBRIO", 9, LIME, HORIZONTAL_ALIGNMENT_RIGHT)
 		recommendation.name = "RecommendedApproach_%s" % str(approach.id)
 		heading.add_child(recommendation)
-	var description := label(str(approach.description), 14, INK)
+	var odds := float(evaluation.odds)
+	var risk_text := "SEGURO" if odds >= 0.72 else ("ARRISCADO" if odds >= 0.42 else "BRUTAL")
+	var risk_color := LIME if odds >= 0.72 else (GOLD if odds >= 0.42 else CORAL)
+	var route_summary := label("%s · RISCO %s" % [str(approach.tag), risk_text], 11, risk_color)
+	route_summary.name = "ApproachBuildRisk_%s" % str(approach.id)
+	box.add_child(route_summary)
+	var description := label(str(approach.description), 11, INK)
+	description.name = "ApproachDescription_%s" % str(approach.id)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(description)
+	var benefits: Array[String] = []
+	if int(evaluation.get("streak_bonus", 0)) > 0:
+		benefits.append("EMBALO +%d%% INCLUÍDO" % int(evaluation.streak_bonus_percent))
 	var scrap_reward := int(preview.get("scrap_reward", 0))
 	if scrap_reward > 0:
-		var scrap_bonus := label("BÔNUS DE VITÓRIA · +%d SUCATA PARA A OFICINA" % scrap_reward, 12, GOLD)
-		scrap_bonus.name = "ApproachScrapReward_%s" % str(approach.id)
-		box.add_child(scrap_bonus)
-	if int(evaluation.get("streak_bonus", 0)) > 0:
-		var streak_total := label("PAGAMENTO JÁ INCLUI EMBALO ×%d · +%d%% (+%d CRÉDITOS)" % [int(evaluation.streak), int(evaluation.streak_bonus_percent), int(evaluation.streak_bonus)], 11, CYAN)
-		streak_total.name = "ApproachStreak_%s" % str(approach.id)
-		box.add_child(streak_total)
-	var odds := float(evaluation.odds)
-	var risk_color := LIME if odds >= 0.72 else (GOLD if odds >= 0.42 else CORAL)
+		benefits.append("+%d SUCATA NA VITÓRIA" % scrap_reward)
+	if not benefits.is_empty():
+		var bonus_summary := label(" · ".join(benefits), 10, GOLD if scrap_reward > 0 else CYAN)
+		bonus_summary.name = "ApproachBonusSummary_%s" % str(approach.id)
+		box.add_child(bonus_summary)
 	var metrics := HBoxContainer.new()
 	metrics.add_theme_constant_override("separation", 8)
 	box.add_child(metrics)
 	var hunt_duration := TransportRulesScript.effective_hunt_duration(GameState.player, float(preview.duration))
-	metrics.add_child(metric_chip("TEMPO", "%ds" % ceili(hunt_duration), MUTED))
-	metrics.add_child(metric_chip("CHANCE", "%d%%" % roundi(odds * 100.0), risk_color))
-	metrics.add_child(metric_chip("PAGAMENTO", "◈ %d" % int(evaluation.credits), GOLD))
-	metrics.add_child(metric_chip("EXPERIÊNCIA", "%d XP" % int(preview.xp), CYAN))
+	metrics.add_child(briefing_metric_chip("TEMPO", "%ds" % ceili(hunt_duration), MUTED, "ApproachTime_%s" % str(approach.id)))
+	metrics.add_child(briefing_metric_chip("BUILD", "%d%%" % roundi(odds * 100.0), risk_color, "ApproachBuild_%s" % str(approach.id)))
+	metrics.add_child(briefing_metric_chip("CRÉDITOS", "◈ %d" % int(evaluation.credits), GOLD, "ApproachCredits_%s" % str(approach.id)))
+	metrics.add_child(briefing_metric_chip("XP", str(int(preview.xp)), CYAN, "ApproachXp_%s" % str(approach.id)))
 	var choose := action_button("ESCOLHER · %s" % str(approach.name).to_upper(), color)
+	choose.custom_minimum_size = Vector2(0, 48)
+	choose.add_theme_font_size_override("font_size", 13)
 	var approach_id := str(approach.id)
 	choose.name = "ChooseApproach_%s" % approach_id
 	choose.pressed.connect(func():
@@ -949,6 +970,18 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 	)
 	box.add_child(choose)
 	return card
+
+
+func briefing_metric_chip(title: String, value: String, color: Color, node_name: String) -> PanelContainer:
+	var chip := panel(VBoxContainer.new(), Color("#0a1025"), 7, 4)
+	chip.name = node_name
+	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	chip.custom_minimum_size = Vector2(0, 32)
+	var box := chip.get_child(0) as VBoxContainer
+	box.add_theme_constant_override("separation", 0)
+	box.add_child(label(title, 9, MUTED, HORIZONTAL_ALIGNMENT_CENTER))
+	box.add_child(label(value, 12, color, HORIZONTAL_ALIGNMENT_CENTER))
+	return chip
 
 
 func field_test_record_label(node_name: String) -> Label:
