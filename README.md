@@ -56,6 +56,8 @@ Long-career navigation keeps progress legible: galaxy cards distinguish complete
 
 Every revealed and currently available wanted record in that archive has a 48-unit `ABRIR` action that travels across unlocked planets and opens its briefing; revealed-but-sequentially-locked records remain read-only.
 
+The archive keeps all twenty records but orders the active planet's four warrants first, making late-career contract access immediate without erasing chronological history.
+
 ## Run
 
 Open `project.godot` in Godot 4, or run from a console where Godot is available:

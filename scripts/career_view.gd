@@ -64,10 +64,10 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	list.add_child(host.label("MARCOS DA CARREIRA", 13, host.MUTED))
 	for milestone in state.career_milestones():
 		list.add_child(milestone_card(host, state, milestone))
-	var archive_heading := host.label("ARQUIVO DE PROCURADOS", 13, host.MUTED)
+	var archive_heading := host.label("ARQUIVO DE PROCURADOS · PLANETA ATUAL PRIMEIRO", 13, host.MUTED)
 	archive_heading.name = "WantedArchiveHeading"
 	list.add_child(archive_heading)
-	for target in Content.TARGETS:
+	for target in ordered_archive_targets(state):
 		list.add_child(target_card(host, state, target))
 	progress_jump.pressed.connect(func(): scroll_to_section(scroller, progress_heading))
 	archive_jump.pressed.connect(func(): scroll_to_section(scroller, archive_heading))
@@ -75,6 +75,18 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 
 static func scroll_to_section(scroller: ScrollContainer, heading: Control) -> void:
 	scroller.scroll_vertical = maxi(0, roundi(heading.position.y))
+
+
+static func ordered_archive_targets(state: StateScript) -> Array[Dictionary]:
+	var current_planet_id := str(state.player.get("current_planet_id", Content.PLANET.id))
+	var ordered: Array[Dictionary] = []
+	for target in Content.TARGETS:
+		if str(target.get("planet_id", Content.PLANET.id)) == current_planet_id:
+			ordered.append(target)
+	for target in Content.TARGETS:
+		if str(target.get("planet_id", Content.PLANET.id)) != current_planet_id:
+			ordered.append(target)
+	return ordered
 
 
 static func summary_card(host: CrookedUIFactory, state: StateScript) -> PanelContainer:

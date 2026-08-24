@@ -3,6 +3,7 @@ extends SceneTree
 const FactoryScript = preload("res://scripts/ui_factory.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const CareerViewScript = preload("res://scripts/career_view.gd")
+const Content = preload("res://scripts/content_db.gd")
 
 var failures := 0
 
@@ -27,6 +28,13 @@ func _init() -> void:
 	check(host.find_child("MasteryDirective", true, false) != null, "isolated career turns archive data into a repeat objective")
 	check(host.find_child("MasteryDirectiveAction", true, false) != null, "mastery objective links back to its warrant board")
 	check(host.find_child("CareerTarget_gloop", true, false) != null, "isolated career preserves wanted records")
+	var dustball_archive := CareerViewScript.ordered_archive_targets(state)
+	check(dustball_archive.size() == Content.TARGETS.size(), "active-first archive preserves all wanted records")
+	check(str(dustball_archive[0].id) == "gloop", "career archive starts with the active planet")
+	var archived_ids := {}
+	for target in dustball_archive:
+		archived_ids[str(target.id)] = true
+	check(archived_ids.size() == Content.TARGETS.size(), "active-first archive does not duplicate wanted records")
 	var archive_target_action := host.find_child("CareerTargetAction_gloop", true, false) as Button
 	check(archive_target_action != null and archive_target_action.text == "ABRIR", "available archive records link back to their contract")
 	check(host.find_child("CareerTargetAction_baron_boom", true, false) == null, "captured but currently locked archive records do not bypass sequential progression")
@@ -40,9 +48,11 @@ func _init() -> void:
 	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "gloop", "mastery directive opens the recommended target briefing directly")
 	state.cancel_briefing()
 	state.player.completed_planets = ["dustball_prime"]
+	state.player.current_planet_id = "congelaria_sa"
 	for child in content.get_children():
 		child.free()
 	CareerViewScript.build(host, content, state)
+	check(str(CareerViewScript.ordered_archive_targets(state)[0].id) == "auditor_frost", "changing planets moves that chapter's warrants to the front without filtering history")
 	var cross_planet_action := host.find_child("CareerTargetAction_auditor_frost", true, false) as Button
 	check(cross_planet_action != null, "archive exposes targets on unlocked completed routes")
 	cross_planet_action.pressed.emit()
