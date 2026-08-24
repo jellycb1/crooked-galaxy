@@ -517,6 +517,9 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		notice_parts.append("%s guardado" % str(summary.loot_name))
 	if int(summary.streak_bonus) > 0:
 		notice_parts.append("Embalo ×%d: +%d" % [new_streak, int(summary.streak_bonus)])
+	elif new_streak == 1:
+		var next_streak := CoreRules.bounty_streak_reward(int(completed_bounty.credits), 2)
+		notice_parts.append("Embalo ×1 iniciado: próxima captura +%d%%" % int(next_streak.bonus_percent))
 	if int(summary.levels) > 0:
 		notice_parts.append("Nível +%d" % int(summary.levels))
 	if bool(summary.rank_up):

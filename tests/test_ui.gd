@@ -171,6 +171,16 @@ func run_smoke_test() -> void:
 	scene.render()
 	await process_frame
 	check(scene.find_child("ArsenalAction", true, false) != null and scene.find_child("PostClaimFieldTestAction", true, false) == null, "stored reward receipts keep the ordinary arsenal action")
+	state.player.capture_streak = 1
+	state.last_notice = "Contrato pago: +34 créditos · +53 XP · Peça de Reserva guardada · Embalo ×1 iniciado: próxima captura +5%"
+	state.last_notice_context = "reward_stored"
+	scene.render()
+	await process_frame
+	check(scene.find_child("StreakNotice", true, false) == null, "sequence-opening reward receipt prevents a duplicate streak tutorial on the board")
+	state.player.capture_streak = 2
+	scene.render()
+	await process_frame
+	check(scene.find_child("StreakNotice", true, false) != null, "an established streak keeps its forward-looking board reminder")
 	state.last_notice = "Contrato pago: Recibo antigo equipado"
 	state.last_notice_context = "career"
 	scene.render()

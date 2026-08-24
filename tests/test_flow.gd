@@ -50,6 +50,7 @@ func _init() -> void:
 	check(str(state.player[str(claimed_item.slot)].id) == str(claimed_item.id), "claimed upgrade is equipped")
 	check(str(summary.loot_action) == "equipped" and str(summary.loot_name) == str(claimed_item.name), "reward summary records the applied loot decision")
 	check(state.last_notice.contains("%s equipado" % str(claimed_item.name)) and state.last_notice_context == "reward_equipped", "equipped loot decision survives with explicit receipt provenance")
+	check(state.last_notice.contains("Embalo ×1 iniciado") and state.last_notice.contains("próxima captura +5%"), "sequence-opening receipt teaches the next streak outcome without a second transaction")
 	var receipt_expiry_state = StateScript.new()
 	receipt_expiry_state.persistence_enabled = false
 	receipt_expiry_state.player = receipt_expiry_state.default_player()

@@ -14,7 +14,7 @@ Threshold captures explicitly preview and reveal the next warrant, keeping early
 
 Reward screens also count the pending capture toward target mastery and preview its rare/epic loot bonus plus one-time workshop scrap funding before the player commits the loot decision.
 
-The first reward in any sequence explicitly marks embalo ×1 and explains that its credit bonus begins on the next consecutive capture; later rewards show the exact active bonus.
+The first reward in any sequence explicitly marks embalo ×1 and explains that its credit bonus begins on the next consecutive capture; later rewards show the exact active bonus. On the return board, that ×1 lesson is embedded in the exact contract/equipment receipt instead of repeated as a second tutorial banner. Established streaks retain their forward-looking reminder.
 
 On ordinary rewards, the repeat route previews the next streak multiplier and approach-invariant percentage. Exact credits remain attached to the selected approach and incident outcome. Threshold rewards suppress the repeat prompt and prioritize the newly opened warrant.
 

@@ -244,9 +244,12 @@ func build_board() -> void:
 	if not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true)):
 		content.add_child(combat_summary_panel(false))
 	var streak := int(GameState.player.get("capture_streak", 0))
-	if streak > 0:
+	var streak_started_inside_receipt := streak == 1 and GameState.last_notice_context.begins_with("reward_")
+	if streak > 0 and not streak_started_inside_receipt:
 		var next_reward := CoreRules.bounty_streak_reward(100, streak + 1)
-		content.add_child(notice_banner("EMBALO ×%d · próximo contrato recebe +%d%% de créditos · derrota ou abandono encerra a sequência" % [streak, int(next_reward.bonus_percent)], GOLD))
+		var streak_notice := notice_banner("EMBALO ×%d · próximo contrato recebe +%d%% de créditos · derrota ou abandono encerra a sequência" % [streak, int(next_reward.bonus_percent)], GOLD)
+		streak_notice.name = "StreakNotice"
+		content.add_child(streak_notice)
 	content.add_child(rank_progress_panel())
 
 	var scroller := ScrollContainer.new()

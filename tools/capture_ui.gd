@@ -59,6 +59,32 @@ func capture() -> void:
 	scene.render()
 	await process_frame
 	await process_frame
+	state.phase = state.Phase.REWARD
+	state.current_bounty = ContentDB.apply_approach(ContentDB.TARGETS[0], ContentDB.CONTRACT_APPROACHES[0])
+	state.pending_loot = {"id": "first_capture_zapper", "name": "Zapper de Recibo Térmico", "description": "Ainda quente da impressora do contrato.", "slot": "weapon", "power": 3, "rarity": "Comum", "color": "#b9c2d9", "origin_planet_id": "dustball_prime"}
+	scene.render()
+	await process_frame
+	await process_frame
+	await create_timer(0.42).timeout
+	if save_frame("ui_first_reward.png") != OK:
+		quit(1)
+		return
+	state.claim_reward(true)
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_first_claim_board.png") != OK:
+		quit(1)
+		return
+	state.player = state.default_player()
+	state.phase = state.Phase.BOARD
+	state.current_bounty = {}
+	state.pending_loot = {}
+	state.last_notice = ""
+	state.last_notice_context = ""
+	scene.render()
+	await process_frame
+	await process_frame
 
 	var bounty: Dictionary = ContentDB.TARGETS[0].duplicate(true)
 	state.player.weapon.origin_planet_id = "dustball_prime"
@@ -637,7 +663,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, first-session reward handoff, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 
