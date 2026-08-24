@@ -181,6 +181,12 @@ func run_smoke_test() -> void:
 	scene.render()
 	await process_frame
 	check(scene.find_child("StreakNotice", true, false) != null, "an established streak keeps its forward-looking board reminder")
+	state.player.scrap = 0
+	state.last_notice = "Contrato pago: +34 créditos · +53 XP · Primeira Melhoria equipada"
+	state.last_notice_context = "reward_equipped"
+	scene.render()
+	await process_frame
+	check(scene.find_child("ArsenalAction", true, false) != null and scene.find_child("PostClaimFieldTestAction", true, false) == null, "equipped receipt without a funded calibration keeps the ordinary arsenal route")
 	state.last_notice = "Contrato pago: Recibo antigo equipado"
 	state.last_notice_context = "career"
 	scene.render()

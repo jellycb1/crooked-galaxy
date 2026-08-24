@@ -198,8 +198,11 @@ func build_board() -> void:
 	var xp_text := "XP %d/%d" % [int(GameState.player.xp), xp_needed]
 	actions.add_child(label(xp_text, 14, MUTED, HORIZONTAL_ALIGNMENT_RIGHT))
 	var equipped_receipt := GameState.last_notice_context == "reward_equipped"
-	var arsenal := action_button("TESTAR BUILD" if equipped_receipt else "ARSENAL · %d" % GameState.player.inventory.size(), LIME if equipped_receipt else GOLD, true)
-	arsenal.name = "PostClaimFieldTestAction" if equipped_receipt else "ArsenalAction"
+	var scrap := int(GameState.player.get("scrap", 0))
+	var cheapest_calibration := mini(CoreRules.equipment_upgrade_cost(GameState.player.weapon), CoreRules.equipment_upgrade_cost(GameState.player.armor))
+	var funded_field_test := equipped_receipt and scrap >= cheapest_calibration
+	var arsenal := action_button("TESTAR BUILD" if funded_field_test else "ARSENAL · %d" % GameState.player.inventory.size(), LIME if funded_field_test else GOLD, true)
+	arsenal.name = "PostClaimFieldTestAction" if funded_field_test else "ArsenalAction"
 	arsenal.custom_minimum_size = Vector2(160, 48)
 	arsenal.add_theme_font_size_override("font_size", 13)
 	arsenal.pressed.connect(func():

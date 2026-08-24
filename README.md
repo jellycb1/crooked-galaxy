@@ -30,7 +30,7 @@ The reward receipt retains paid incident cost and reconciles gross payout with t
 
 Claim summaries and the persistent board/workshop record name whether the captured item was equipped, stored, or recycled, including the exact item name.
 
-After an equipped claim, the board's arsenal shortcut becomes a contextual `TESTAR BUILD` action that opens the field-test odds beside the new loadout.
+After an equipped claim with enough scrap for at least one calibration, the board's arsenal shortcut becomes a contextual `TESTAR BUILD` action that opens the field-test odds beside the new loadout. Unfunded early loot keeps the ordinary arsenal link, leaving the repeat contract as the clear first-session action.
 
 When that field test focuses an available warrant, its `ESCOLHER ROTA` action opens the briefing and preserves the same recommendation instead of implying that combat begins immediately.
 
