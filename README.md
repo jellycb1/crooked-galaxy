@@ -24,6 +24,8 @@ The combined third-capture reward keeps two intentional destinations—spend the
 
 On ordinary rewards, the repeat route previews the next streak multiplier and approach-invariant percentage. Exact credits remain attached to the selected approach and incident outcome. Threshold rewards suppress the repeat prompt and prioritize the newly opened warrant.
 
+Contract briefings explain that the recommendation balances chance, payment, and experience. Each action names the exact approach it confirms, while risk tier and win chance remain visible in the card metrics instead of producing three indistinguishable `ESCOLHER · SEGURO` buttons.
+
 Repeated-contract briefings mark each route's displayed payment as already streak-adjusted and show its exact included bonus, preventing the same percentage from being counted twice.
 
 Hunt incidents recompute and display the final victory payment for every choice, including any streak amount already embedded after that consequence.

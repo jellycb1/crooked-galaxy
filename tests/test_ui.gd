@@ -42,6 +42,10 @@ func run_smoke_test() -> void:
 	check(scene.find_child("BriefingMastery", true, false) != null, "briefing explains mastery loot bonuses")
 	check(scene.find_children("RecommendedApproach_*", "Label", true, false).size() == 1, "briefing renders exactly one dynamic recommendation")
 	check(scene.find_children("ApproachStreak_*", "Label", true, false).size() == 3, "briefing marks every displayed payment as already streak-adjusted")
+	var recommendation_hint := scene.find_child("BriefingRecommendationHint", true, false) as Label
+	check(recommendation_hint != null and recommendation_hint.text.contains("chance") and recommendation_hint.text.contains("pagamento") and recommendation_hint.text.contains("experiência"), "briefing explains the recommendation's risk-return basis")
+	var route_buttons := scene.find_children("ChooseApproach_*", "Button", true, false)
+	check(route_buttons.size() == 3 and route_buttons.all(func(button): return str(button.text).contains("ESCOLHER · ") and not str(button.text).ends_with("SEGURO")), "each briefing action names the route it will confirm instead of repeating a shared risk tier")
 	check(scene.find_child("ApproachScrapReward_premium_warrant", true, false) != null, "briefing exposes the corporate workshop reward before commitment")
 	state.choose_approach("quiet_net")
 	await process_frame

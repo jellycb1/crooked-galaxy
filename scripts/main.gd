@@ -600,6 +600,9 @@ func build_briefing() -> void:
 	target_copy.add_child(flavor)
 
 	content.add_child(label("ESCOLHA UMA ABORDAGEM", 17, GOLD))
+	var recommendation_hint := label("RECOMENDADO equilibra chance, pagamento e experiência.", 11, MUTED)
+	recommendation_hint.name = "BriefingRecommendationHint"
+	content.add_child(recommendation_hint)
 	var scroller := ScrollContainer.new()
 	scroller.name = "BriefingScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -650,7 +653,6 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 		streak_total.name = "ApproachStreak_%s" % str(approach.id)
 		box.add_child(streak_total)
 	var odds := float(evaluation.odds)
-	var risk_text := "SEGURO" if odds >= 0.72 else ("ARRISCADO" if odds >= 0.42 else "BRUTAL")
 	var risk_color := LIME if odds >= 0.72 else (GOLD if odds >= 0.42 else CORAL)
 	var metrics := HBoxContainer.new()
 	metrics.add_theme_constant_override("separation", 8)
@@ -659,7 +661,7 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 	metrics.add_child(metric_chip("CHANCE", "%d%%" % roundi(odds * 100.0), risk_color))
 	metrics.add_child(metric_chip("PAGAMENTO", "◈ %d" % int(evaluation.credits), GOLD))
 	metrics.add_child(metric_chip("EXPERIÊNCIA", "%d XP" % int(preview.xp), CYAN))
-	var choose := action_button("ESCOLHER · %s" % risk_text, color)
+	var choose := action_button("ESCOLHER · %s" % str(approach.name).to_upper(), color)
 	var approach_id := str(approach.id)
 	choose.name = "ChooseApproach_%s" % approach_id
 	choose.pressed.connect(func():

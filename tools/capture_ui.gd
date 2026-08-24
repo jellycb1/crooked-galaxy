@@ -26,6 +26,16 @@ func capture() -> void:
 	if save_frame("ui_board.png") != OK:
 		quit(1)
 		return
+	state.select_bounty(ContentDB.TARGETS[0])
+	await process_frame
+	await process_frame
+	if save_frame("ui_first_briefing.png") != OK:
+		quit(1)
+		return
+	state.cancel_briefing()
+	scene.render()
+	await process_frame
+	await process_frame
 	var board_credits := int(state.player.credits)
 	var board_scrap := int(state.player.scrap)
 	state.player.wins = 1
@@ -688,7 +698,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, first/second-session reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, first briefing and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 
