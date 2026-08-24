@@ -76,10 +76,16 @@ func run_smoke_test() -> void:
 	scene.render()
 	await process_frame
 	check(state.combat_events.size() == 2, "combat action cards render")
+	var combat_speed := scene.find_child("CombatSpeedAction", true, false) as Button
+	check(combat_speed != null and combat_speed.text.contains("1×"), "combat exposes its current automatic pace")
+	combat_speed.pressed.emit()
+	await process_frame
+	check(scene.combat_fast and is_equal_approx(scene.combat_timer.wait_time, 0.34), "combat speed switches to a persistent session 2× pace")
 
 	state.finish_combat(true)
 	await process_frame
 	check(state.phase == state.Phase.VICTORY, "victory screen renders before loot")
+	check(scene.combat_timer.is_stopped() and scene.combat_fast, "victory stops automatic turns without resetting the chosen combat pace")
 	check(not state.pending_loot.is_empty(), "reward screen receives an item")
 	check(scene.find_child("CombatSummaryVictory", true, false) != null, "victory explains aggregate combat performance")
 	var victory_payment := scene.find_child("VictoryPayment", true, false) as Label

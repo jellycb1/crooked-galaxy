@@ -855,6 +855,7 @@ func build_combat() -> void:
 	log_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	log_box.add_child(log_label)
 	var speed := action_button("VELOCIDADE · %s" % ("2×" if combat_fast else "1×"), CYAN, true)
+	speed.name = "CombatSpeedAction"
 	speed.custom_minimum_size = Vector2(0, 46)
 	speed.pressed.connect(func():
 		combat_fast = not combat_fast
