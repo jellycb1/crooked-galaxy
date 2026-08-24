@@ -19,12 +19,15 @@ if (-not (Test-Path -LiteralPath $ReferenceIgnore)) {
 $PresetText = Get-Content -LiteralPath (Join-Path $ProjectRoot "export_presets.cfg") -Raw
 $ExcludedPresetCount = [regex]::Matches($PresetText, 'exclude_filter="[^"]*References/\*[^"]*"').Count
 if ($ExcludedPresetCount -lt 2) {
-    throw "Public Windows and Android export presets must exclude References/*."
+    throw "Windows and Android export presets must exclude raw References/*."
 }
-if (-not $PresetText.Contains('name="Android Internal References"') -or
+if ($PresetText.Contains('name="Android Internal References"')) {
+    throw "The obsolete second Android reference profile must not return."
+}
+if (-not $PresetText.Contains('name="Android APK"') -or
     -not $PresetText.Contains('custom_features="reference_placeholders"') -or
     -not $PresetText.Contains('include_filter="internal_reference_assets/*.png.bin"')) {
-    throw "The internal Android reference profile must remain explicitly feature-gated and staged."
+    throw "The single Android APK must remain explicitly feature-gated and include staged placeholders."
 }
 
 $ApprovedReferencePathFiles = @(
@@ -42,4 +45,4 @@ foreach ($RelativePath in $TrackedRuntimeFiles) {
     }
 }
 
-Write-Host "PASS: reference placeholders remain Git-local, public-export-excluded, and explicitly gated in the internal Android profile."
+Write-Host "PASS: raw references remain Git-local while the single Android APK explicitly stages its documented placeholders."

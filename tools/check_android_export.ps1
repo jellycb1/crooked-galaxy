@@ -21,6 +21,21 @@ $LogRoot = Join-Path $ProjectRoot ".godot\export-logs"
 $ContentPack = Join-Path $LogRoot "android_content_check.pck"
 $DebugKey = Join-Path $ProjectRoot "android\crooked-galaxy-debug.keystore"
 $ExpectedCertificatePath = Join-Path $ProjectRoot "android\test-signing-cert.sha256"
+$StageRoot = Join-Path $ProjectRoot "internal_reference_assets"
+$ReferenceRoot = Join-Path $ProjectRoot "References\Shakes and Fidget Assets\StreamingAssets"
+$StageMap = @{
+    "contracts.png.bin" = Join-Path $ReferenceRoot "tavern\tavern_back.png"
+    "world.png.bin" = Join-Path $ReferenceRoot "town\bg_town_day.png"
+    "workshop.png.bin" = Join-Path $ReferenceRoot "locations\bg_fort_0.png"
+    "combat.png.bin" = Join-Path $ReferenceRoot "locations\location_battle_0.png"
+    "class_ui.png.bin" = Join-Path $ReferenceRoot "ui\sf_4k_UI-BG-navi.png"
+    "class_breaker.png.bin" = Join-Path $ReferenceRoot "registration\icon_warrior_active.png"
+    "class_gunslinger.png.bin" = Join-Path $ReferenceRoot "registration\icon_hunter_active.png"
+    "class_hacker.png.bin" = Join-Path $ReferenceRoot "registration\icon_mage_active.png"
+    "career_ui.png.bin" = Join-Path $ReferenceRoot "ui\sf_4k_UI-BG-navi-login.png"
+    "portrait_frame.png.bin" = Join-Path $ReferenceRoot "z_shared\portrait_glow_border_300.png"
+    "hub_divider.png.bin" = Join-Path $ReferenceRoot "ui\frame_top.png"
+}
 $ProjectText = Get-Content -LiteralPath (Join-Path $ProjectRoot "project.godot") -Raw
 $PresetText = Get-Content -LiteralPath (Join-Path $ProjectRoot "export_presets.cfg") -Raw
 
@@ -44,6 +59,8 @@ Require-ConfigMatch $PresetText '^architectures/arm64-v8a=true$' "64-bit ARM mus
 Require-ConfigMatch $PresetText '^architectures/x86=false$' "x86 must remain excluded from the device APK"
 Require-ConfigMatch $PresetText '^architectures/x86_64=false$' "x86-64 must remain excluded from the device APK"
 Require-ConfigMatch $PresetText '^screen/immersive_mode=true$' "immersive mode must remain enabled"
+Require-ConfigMatch $PresetText '^custom_features="reference_placeholders"$' "the single Android APK must enable documented placeholders"
+Require-ConfigMatch $PresetText '^include_filter="internal_reference_assets/\*\.png\.bin"$' "the single Android APK must include the staged placeholder allowlist"
 
 $ProjectVersion = [regex]::Match($ProjectText, 'config/version="([^"]+)"').Groups[1].Value
 $AndroidVersion = [regex]::Match($PresetText, 'version/name="([^"]+)"').Groups[1].Value
@@ -53,6 +70,14 @@ if ([string]::IsNullOrWhiteSpace($ProjectVersion) -or $ProjectVersion -ne $Andro
 }
 New-Item -ItemType Directory -Path $BuildRoot -Force | Out-Null
 New-Item -ItemType Directory -Path $LogRoot -Force | Out-Null
+New-Item -ItemType Directory -Path $StageRoot -Force | Out-Null
+foreach ($StageName in $StageMap.Keys) {
+    $SourcePath = $StageMap[$StageName]
+    if (-not (Test-Path -LiteralPath $SourcePath)) {
+        throw "Missing local reference placeholder: $SourcePath"
+    }
+    Copy-Item -LiteralPath $SourcePath -Destination (Join-Path $StageRoot $StageName) -Force
+}
 
 if (-not (Test-Path -LiteralPath $DebugKey)) {
     $Keytool = Join-Path $env:JAVA_HOME "bin\keytool.exe"
@@ -135,13 +160,13 @@ if ($ApkSignerExitCode -ne 0 -or -not $CertificateMatch.Success -or $Certificate
 if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $ContentPack)) {
     throw "Could not produce the Android content-verification pack."
 }
-& $GodotCandidates[0] --headless --path (Join-Path $ProjectRoot "tools\export_pack_inspector") --log-file (Join-Path $LogRoot "android_pack_inspector.log") --script res://inspect_pack.gd -- $ContentPack
+& $GodotCandidates[0] --headless --path (Join-Path $ProjectRoot "tools\export_pack_inspector") --log-file (Join-Path $LogRoot "android_pack_inspector.log") --script res://inspect_pack.gd -- $ContentPack references
 if ($LASTEXITCODE -ne 0) {
-    throw "Android export contains forbidden reference placeholders."
+    throw "Android export is missing or cannot decode its documented reference placeholders."
 }
 
 $ApkSizeMb = (Get-Item -LiteralPath $OutputApk).Length / 1MB
-if ($ApkSizeMb -gt 40.0) {
-    throw ("Android APK exceeds the 40 MB direct-test budget ({0:N2} MB)." -f $ApkSizeMb)
+if ($ApkSizeMb -gt 55.0) {
+    throw ("Android APK exceeds the 55 MB direct-test budget ({0:N2} MB)." -f $ApkSizeMb)
 }
-Write-Host ("PASS: installable Android APK exported ({0:N2} MB, {1} v{2} code {3}, API 24+, ARM64, stable test signature)." -f $ApkSizeMb, $ExpectedPackage, $ExpectedVersionName, $ExpectedVersionCode)
+Write-Host ("PASS: installable Android APK exported with all documented placeholders ({0:N2} MB, {1} v{2} code {3}, API 24+, ARM64, stable test signature)." -f $ApkSizeMb, $ExpectedPackage, $ExpectedVersionName, $ExpectedVersionCode)

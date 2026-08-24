@@ -201,13 +201,13 @@ Create the installable Android test APK locally:
 powershell -ExecutionPolicy Bypass -File .\tools\check_android_export.ps1
 ```
 
-Publish a newly verified APK to the permanent public download address without exposing this source repository:
+Publish a newly verified APK to the permanent team-test download address without exposing this source repository:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\tools\publish_android_latest.ps1
 ```
 
-The command exports an ARM64 debug-signed APK and replaces only the asset on the public `latest` release. The dedicated ignored local test key keeps successive APKs update-compatible; it must never be reused for store distribution. The stable download address is:
+The command exports an ARM64 debug-signed APK and replaces only the asset on the `latest` release used by the team. The dedicated ignored local test key keeps successive APKs update-compatible; it must never be reused for store distribution. The stable download address is:
 
 ```text
 https://github.com/jellycb1/crooked-galaxy/releases/download/latest/CrookedGalaxy.apk
@@ -215,7 +215,7 @@ https://github.com/jellycb1/crooked-galaxy/releases/download/latest/CrookedGalax
 
 The matching checksum is always available at `https://github.com/jellycb1/crooked-galaxy/releases/download/latest/CrookedGalaxy.apk.sha256`. Publishing requires a clean tracked worktree, uploads both assets, records the SHA-256 in the release notes, and verifies the remote APK size and digest when GitHub exposes it.
 
-This channel is intended for direct testing. The public repository contains the release/download page rather than the game's source. Preserve the ignored local test key to keep direct installs update-compatible; its non-secret public certificate fingerprint is tracked and verified on every export. A store release must use a separate private release keystore and signing workflow.
+This channel is intended only for our direct testing. The open repository contains the release/download page rather than the game's source. Preserve the ignored local test key to keep direct installs update-compatible; its non-secret public certificate fingerprint is tracked and verified on every export. A store release must use a separate private release keystore and signing workflow.
 
 Run deterministic core tests:
 
@@ -264,14 +264,14 @@ Capture the bounty boards, market, transport hangar, defeat recovery and post-up
 godot --path . --script res://tools/capture_ui.gd
 ```
 
-The proprietary study art in `References/` remains local, Git-ignored, and documented. Public builds use independently generated original production environments and reject leaked reference files. A separate `Android Internal References` profile can stage exactly eleven registered images into a watermarked APK for composition testing on our own device: four environmental studies, two long-form interface surfaces, three provisional class emblems, one portrait frame, and one board divider. Every use and intended replacement is tracked in `Notes/REFERENCE_PLACEHOLDERS.md`.
+The proprietary study art in `References/` remains local, Git-ignored, and documented. The single Android test APK stages exactly eleven registered images for composition testing on our own device: four environmental studies, two long-form interface surfaces, three provisional class emblems, one portrait frame, and one board divider. Raw source files never enter Git or the package; only the explicit staged allowlist is exported, and every use and intended replacement is tracked in `Notes/REFERENCE_PLACEHOLDERS.md`.
 
 The internal adapter decodes only the visible 2000×1400 placeholder and releases it on context changes. It also unloads the corresponding production backdrop, bounding reference-image residency near 10.7 MB instead of accumulating roughly 42.7 MB across a complete navigation session.
 
-Build and inspect that internal-only APK:
+Build and inspect the single Android test APK:
 
 ```powershell
-.\tools\check_android_internal_export.ps1
+.\tools\check_android_export.ps1
 ```
 
 Capture the procedural character lineup:
@@ -312,6 +312,6 @@ The campaign simulator now selects each prototype class and automatically spends
 - `scripts/` — gameplay state, deterministic rules, content, and interface.
 - `tests/` — headless deterministic tests.
 - `Notes/` — product vision and development rules.
-- `References/` — external study material, excluded from Godot imports by `.gdignore`; eleven registered placeholders can be staged only by the internal Android checker.
+- `References/` — external study material, excluded from Godot imports by `.gdignore`; the Android checker stages only the eleven registered placeholders into the single test APK.
 
-Content in `References/` is temporary internal test material, not Crooked Galaxy production content. Code, names, formulas, UI, and public distributable assets remain independently created.
+Content in `References/` is temporary test material, not Crooked Galaxy production content. Code, names, formulas, and original assets remain independently created.

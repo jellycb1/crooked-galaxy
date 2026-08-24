@@ -35,7 +35,7 @@ if (-not $VersionMatch.Success) {
 $Version = $VersionMatch.Groups[1].Value
 $ApkHash = (Get-FileHash -LiteralPath $OutputApk -Algorithm SHA256).Hash.ToLowerInvariant()
 Set-Content -LiteralPath $ChecksumPath -Value "$ApkHash  CrookedGalaxy.apk" -Encoding ascii
-$Notes = "Crooked Galaxy $Version Android test build from commit $Commit. ARM64, update-compatible debug signature for direct testing.`n`nSHA-256: ``$ApkHash``"
+$Notes = "Crooked Galaxy $Version Android team-test build from commit $Commit. Includes documented temporary reference placeholders. ARM64, update-compatible debug signature for direct testing.`n`nSHA-256: ``$ApkHash``"
 
 & gh release view latest --repo $Repository *> $null
 if ($LASTEXITCODE -eq 0) {
