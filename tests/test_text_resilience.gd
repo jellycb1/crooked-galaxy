@@ -89,7 +89,7 @@ func audit_scaled_screen(scene: Control, context: String) -> void:
 		check(button.global_position.x >= -0.5 and button.global_position.x + button.size.x <= viewport_size.x + 0.5, "%s expanded action stays horizontally visible: %s (x %.1f + w %.1f / %.1f)" % [context, button.name, button.global_position.x, button.size.x, viewport_size.x])
 		check(button.size.y >= 40.0, "%s expanded action keeps its touch target: %s" % [context, button.name])
 		if not has_scroll_ancestor(button):
-			check(button.global_position.y >= -0.5 and button.global_position.y + button.size.y <= viewport_size.y + 0.5, "%s fixed action stays vertically visible: %s" % [context, button.name])
+			check(button.global_position.y >= -0.5 and button.global_position.y + button.size.y <= viewport_size.y + 0.5, "%s fixed action stays vertically visible: %s '%s' (y %.1f + h %.1f / %.1f)" % [context, button.name, button.text, button.global_position.y, button.size.y, viewport_size.y])
 
 
 func has_scroll_ancestor(control: Control) -> bool:

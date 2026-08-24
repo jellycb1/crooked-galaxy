@@ -9,6 +9,7 @@ const ContractRules = preload("res://scripts/contract_rules.gd")
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
+	content.add_theme_constant_override("separation", 14)
 	var readiness := field_readiness(state)
 	var title_row := HBoxContainer.new()
 	title_row.add_theme_constant_override("separation", 12)

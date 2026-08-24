@@ -209,6 +209,7 @@ func render() -> void:
 	for child in content.get_children():
 		content.remove_child(child)
 		child.queue_free()
+	content.add_theme_constant_override("separation", 16)
 	build_header()
 	if not GameState.save_warning.is_empty():
 		content.add_child(save_warning_banner())
