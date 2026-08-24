@@ -34,16 +34,22 @@ func run_mobile_audit() -> void:
 	var header_character := scene.find_child("HeaderCharacterAction", true, false) as Button
 	check(header_character != null and header_character.size.y >= 48.0, "header character card remains a mobile touch target")
 	check(scene.find_child("BountyScroll", true, false) != null and scene.find_child("BoardHubGrid", true, false) == null, "bounty board opens directly on contracts without competing destination actions")
-	var destination_tab := scene.find_child("BoardTab_destinations", true, false) as Button
-	check(destination_tab != null and destination_tab.size.y >= 40.0, "destination tab remains a mobile touch target")
-	if destination_tab != null:
-		destination_tab.pressed.emit()
+	check(scene.find_children("PrimaryNav_*", "Button", true, false).size() == 5, "board exposes a stable five-destination game navigation dock")
+	check(["contracts", "arsenal", "hunter", "galaxy", "menu"].all(func(destination):
+		var icon := scene.find_child("PrimaryNavIcon_%s" % destination, true, false) as Control
+		return icon != null and icon.is_visible_in_tree() and icon.size.x >= 40.0
+	), "all five primary destinations retain visible icon identity")
+	var menu_action := scene.find_child("PrimaryNav_menu", true, false) as Button
+	check(menu_action != null and menu_action.size.y >= 48.0, "primary menu remains a mobile touch target")
+	if menu_action != null:
+		menu_action.pressed.emit()
 		await process_frame
 	var board_hub_grid := scene.find_child("BoardHubGrid", true, false) as GridContainer
-	check(board_hub_grid != null and board_hub_grid.columns == 2 and board_hub_grid.get_child_count() == 6, "destinations use a readable 2 by 3 mobile grid")
-	check(scene.find_children("BoardHubIcon_*", "Control", true, false).size() == 6, "every board destination has a distinct scalable navigation icon")
-	check_touch_targets(scene, "board destinations")
-	check(scene.android_back_action() == "board_bounties", "Android Back returns destinations to the primary contract view")
+	check(board_hub_grid != null and board_hub_grid.columns == 2 and board_hub_grid.get_child_count() == 4, "secondary menu uses a readable 2 by 2 mobile grid")
+	check(scene.find_children("BoardHubIcon_*", "Control", true, false).size() == 4, "every secondary service has a distinct scalable navigation icon")
+	check(scene.find_child("BoardSettingsAction", true, false) != null, "settings are promoted from the arsenal inventory into the secondary menu")
+	check_touch_targets(scene, "frontier menu")
+	check(scene.android_back_action() == "board_bounties", "Android Back returns the menu to the primary contract view")
 	scene.handle_android_back_request()
 	await process_frame
 	var build_version := scene.find_child("BuildVersion", true, false) as Label
@@ -69,7 +75,7 @@ func run_mobile_audit() -> void:
 	check(scene.find_child("MarketScroll", true, false) != null and scene.find_children("MarketOffer_*", "PanelContainer", true, false).size() == 3, "all three market offers remain reachable in the portrait scroller")
 	var market_hangar_action := scene.find_child("MarketHangarAction", true, false) as Button
 	check(market_hangar_action != null, "market keeps the transport alternative one touch away")
-	check(scene.android_back_action() == "board", "Android Back routes the market safely to the bounty board")
+	check(scene.android_back_action() == "menu", "Android Back routes the market to its secondary menu parent")
 	if market_hangar_action != null:
 		market_hangar_action.pressed.emit()
 	await process_frame
@@ -80,7 +86,7 @@ func run_mobile_audit() -> void:
 	check(scene.find_children("HangarTransportIcon_*", "Control", true, false).size() == 4, "hangar silhouettes remain visible at the mobile card size")
 	var hangar_market_action := scene.find_child("HangarMarketAction", true, false) as Button
 	check(hangar_market_action != null, "hangar keeps the combat alternative one touch away")
-	check(scene.android_back_action() == "board", "Android Back routes the hangar safely to the bounty board")
+	check(scene.android_back_action() == "menu", "Android Back routes the hangar to its secondary menu parent")
 	if hangar_market_action != null:
 		hangar_market_action.pressed.emit()
 	await process_frame
@@ -128,6 +134,7 @@ func run_mobile_audit() -> void:
 
 	state.select_bounty(ContentDB.TARGETS[0])
 	await process_frame
+	check(scene.find_children("PrimaryNav_*", "Button", true, false).is_empty(), "contract-owned phases hide the free-navigation dock")
 	check_touch_targets(scene, "contract briefing")
 	check(scene.find_child("BriefingTransportIcon", true, false) != null, "contract briefing carries the active transport silhouette")
 	var briefing_scroll := scene.find_child("BriefingScroll", true, false) as ScrollContainer
@@ -141,6 +148,7 @@ func run_mobile_audit() -> void:
 	await process_frame
 	state.choose_approach("quiet_net")
 	await process_frame
+	check(scene.find_children("PrimaryNav_*", "Button", true, false).is_empty(), "active hunt keeps the navigation dock unavailable")
 	check(scene.find_child("HuntTransportIcon", true, false) != null, "active hunt carries the transport silhouette and timing identity")
 	check(not scene.hunt_timer.is_stopped(), "hunt refresh wakes only for the timed hunt phase")
 	check(scene.android_back_action() == "guard_contract", "Android Back cannot accidentally abandon an active timed contract")

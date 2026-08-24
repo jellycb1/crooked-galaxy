@@ -22,6 +22,13 @@ func _draw() -> void:
 	draw_circle(center, 20.0, Color("#071126e8"))
 	draw_arc(center, 19.0, 0.0, TAU, 32, accent, 2.0, true)
 	match destination:
+		"contracts":
+			var warrant := Rect2(center + Vector2(-11, -14), Vector2(22, 28))
+			draw_rect(warrant, accent.darkened(0.52), true)
+			draw_rect(warrant, accent, false, 2.0)
+			draw_line(center + Vector2(-6, -7), center + Vector2(6, -7), accent.lightened(0.3), 2.0, true)
+			draw_line(center + Vector2(-6, -1), center + Vector2(3, -1), accent.lightened(0.3), 2.0, true)
+			draw_circle(center + Vector2(6, 8), 3.5, accent)
 		"arsenal":
 			draw_line(center + Vector2(-11, 10), center + Vector2(10, -11), accent, 4.0, true)
 			draw_line(center + Vector2(-8, -9), center + Vector2(11, 10), accent.lightened(0.28), 3.0, true)
@@ -63,3 +70,13 @@ func _draw() -> void:
 			draw_line(center + Vector2(-9, -2), center + Vector2(9, -2), accent, 2.0, true)
 			draw_circle(center + Vector2(-3, -7), 1.2, Color("#f4f2ff"))
 			draw_circle(center + Vector2(3, -7), 1.2, Color("#f4f2ff"))
+		"menu":
+			for offset in [Vector2(-8, -8), Vector2(8, -8), Vector2(-8, 8), Vector2(8, 8)]:
+				draw_rect(Rect2(center + offset - Vector2(4, 4), Vector2(8, 8)), accent.darkened(0.3), true)
+				draw_rect(Rect2(center + offset - Vector2(4, 4), Vector2(8, 8)), accent, false, 1.5)
+		"settings":
+			draw_arc(center, 9.0, 0.0, TAU, 20, accent, 3.0, true)
+			draw_circle(center, 3.0, accent.lightened(0.35))
+			for angle in range(0, 360, 45):
+				var direction := Vector2.RIGHT.rotated(deg_to_rad(float(angle)))
+				draw_line(center + direction * 11.0, center + direction * 16.0, accent, 3.0, true)

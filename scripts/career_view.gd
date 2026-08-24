@@ -19,8 +19,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var back := host.action_button("VOLTAR", host.CYAN, true)
 	back.custom_minimum_size = Vector2(120, 48)
 	back.pressed.connect(func():
-		host.view_mode = "board"
-		host.call("render")
+		host.call("open_frontier_menu")
 	)
 	title_row.add_child(back)
 

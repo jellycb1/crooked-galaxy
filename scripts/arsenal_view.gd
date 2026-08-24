@@ -48,8 +48,12 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var back := host.action_button("VOLTAR", host.CYAN, true)
 	back.custom_minimum_size = Vector2(96, 48)
 	back.pressed.connect(func():
-		host.view_mode = "board"
-		host.call("render")
+		if host.arsenal_section == "settings":
+			host.call("open_frontier_menu")
+		else:
+			host.view_mode = "board"
+			host.board_section = "bounties"
+			host.call("render")
 	)
 	title_row.add_child(back)
 	content.add_child(section_tabs(host))

@@ -53,7 +53,7 @@ func run_attributes_test() -> void:
 	scene.board_section = "destinations"
 	scene.render()
 	await process_frame
-	check(scene.find_child("BoardAttributesAction", true, false) != null, "the bounty board exposes the attribute hub")
+	check(scene.find_child("PrimaryNav_hunter", true, false) != null, "the persistent game navigation exposes the attribute hub")
 	scene.view_mode = "attributes"
 	scene.render()
 	await process_frame

@@ -174,8 +174,8 @@ func run_smoke_test() -> void:
 	scene.board_section = "destinations"
 	scene.render()
 	await process_frame
-	var post_claim_field_test := scene.find_child("PostClaimFieldTestAction", true, false) as Button
-	check(post_claim_field_test != null and post_claim_field_test.text.contains("TESTAR BUILD"), "equipped reward receipt turns the board arsenal shortcut into a field-test continuation")
+	var post_claim_field_test := scene.find_child("PrimaryNav_arsenal", true, false) as Button
+	check(post_claim_field_test != null and post_claim_field_test.text == "TESTAR" and scene.find_child("PrimaryNavBadge_arsenal", true, false) != null, "equipped reward receipt turns the persistent arsenal destination into a field-test continuation")
 	post_claim_field_test.pressed.emit()
 	await process_frame
 	check(scene.view_mode == "arsenal" and scene.find_child("FieldReadiness", true, false) != null, "post-claim shortcut opens the newly equipped build beside its field odds")
@@ -244,7 +244,8 @@ func run_smoke_test() -> void:
 	state.last_notice_context = "reward_stored"
 	scene.render()
 	await process_frame
-	check(scene.find_child("ArsenalAction", true, false) != null and scene.find_child("PostClaimFieldTestAction", true, false) == null, "stored reward receipts keep the ordinary arsenal action")
+	var stored_arsenal_action := scene.find_child("PrimaryNav_arsenal", true, false) as Button
+	check(stored_arsenal_action != null and stored_arsenal_action.text == "ARSENAL" and scene.find_child("PrimaryNavBadge_arsenal", true, false) == null, "stored reward receipts keep the ordinary arsenal destination")
 	scene.board_section = "bounties"
 	state.player.capture_streak = 1
 	state.last_notice = "Contrato pago: +34 créditos · +53 XP · Peça de Reserva guardada · Embalo ×1 iniciado: próxima captura +5%"
@@ -263,12 +264,14 @@ func run_smoke_test() -> void:
 	state.last_notice_context = "reward_equipped"
 	scene.render()
 	await process_frame
-	check(scene.find_child("ArsenalAction", true, false) != null and scene.find_child("PostClaimFieldTestAction", true, false) == null, "equipped receipt without a funded calibration keeps the ordinary arsenal route")
+	var unfunded_arsenal_action := scene.find_child("PrimaryNav_arsenal", true, false) as Button
+	check(unfunded_arsenal_action != null and unfunded_arsenal_action.text == "ARSENAL" and scene.find_child("PrimaryNavBadge_arsenal", true, false) == null, "equipped receipt without a funded calibration keeps the ordinary arsenal route")
 	state.last_notice = "Contrato pago: Recibo antigo equipado"
 	state.last_notice_context = "career"
 	scene.render()
 	await process_frame
-	check(scene.find_child("ArsenalAction", true, false) != null and scene.find_child("PostClaimFieldTestAction", true, false) == null, "equipped-looking stale text cannot forge a contextual field-test action")
+	var stale_arsenal_action := scene.find_child("PrimaryNav_arsenal", true, false) as Button
+	check(stale_arsenal_action != null and stale_arsenal_action.text == "ARSENAL" and scene.find_child("PrimaryNavBadge_arsenal", true, false) == null, "equipped-looking stale text cannot forge a contextual field-test action")
 	state.phase = state.Phase.REWARD
 	state.current_bounty = bounty.duplicate(true)
 	state.pending_loot = {"id": "ui_instant_scrap", "name": "Zapper Cansado", "slot": "weapon", "power": 0, "rarity": "Comum", "color": "#b9c2d9"}
