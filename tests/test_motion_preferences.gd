@@ -38,19 +38,15 @@ func run_motion_audit() -> void:
 	check(scene.victory_timer.wait_time >= 2.5 and scene.find_child("OpenRewardAction", true, false) != null, "reduced motion preserves the readable victory pause and immediate advance action")
 
 	state.phase = state.Phase.BOARD
-	scene.view_mode = "arsenal"
-	scene.arsenal_section = "equipped"
+	scene.view_mode = "settings"
 	scene.render()
 	await process_frame
-	var settings_tab := scene.find_child("ArsenalTab_settings", true, false) as Button
-	check(settings_tab != null, "arsenal exposes a dedicated section for device preferences")
-	if settings_tab != null:
-		settings_tab.pressed.emit()
-		await process_frame
+	check(scene.find_child("SettingsPanel", true, false) != null and scene.find_child("ArsenalSectionTabs", true, false) == null, "menu settings expose device preferences outside equipment management")
 	var motion_action := scene.find_child("MotionPreferenceAction", true, false) as Button
-	check(motion_action != null and motion_action.text.contains("REDUZIDO"), "arsenal exposes the active motion preference")
-	motion_action.pressed.emit()
-	await process_frame
+	check(motion_action != null and motion_action.text.contains("REDUZIDO"), "settings expose the active motion preference")
+	if motion_action != null:
+		motion_action.pressed.emit()
+		await process_frame
 	var updated_action := scene.find_child("MotionPreferenceAction", true, false) as Button
 	check(not bool(state.player.reduced_motion) and updated_action != null and updated_action.text.contains("COMPLETO"), "motion preference toggles and rerenders its exact state")
 

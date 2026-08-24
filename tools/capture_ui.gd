@@ -375,11 +375,11 @@ func capture() -> void:
 	if save_frame("ui_arsenal_inventory.png") != OK:
 		quit(1)
 		return
-	scene.arsenal_section = "settings"
+	scene.view_mode = "settings"
 	scene.render()
 	await process_frame
 	await process_frame
-	if save_frame("ui_arsenal_settings.png") != OK:
+	if save_frame("ui_settings.png") != OK:
 		quit(1)
 		return
 	state.player.credits = 2500

@@ -76,13 +76,35 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		host.career_scroll_position = roundi(value)
 	)
 	if host.career_scroll_position > 0:
-		scroller.set_deferred("scroll_vertical", host.career_scroll_position)
+		restore_scroll_position(host, scroller, host.career_scroll_position)
 	progress_jump.pressed.connect(func(): scroll_to_section(host, scroller, progress_heading))
 	archive_jump.pressed.connect(func(): scroll_to_section(host, scroller, archive_heading))
 
 
+static func restore_scroll_position(host: CrookedUIFactory, scroller: ScrollContainer, position: int) -> void:
+	var scroll_bar := scroller.get_v_scroll_bar()
+	scroll_bar.set_block_signals(true)
+	scroller.get_tree().process_frame.connect(func():
+		if not is_instance_valid(scroller):
+			return
+		scroller.scroll_vertical = position
+		scroller.get_tree().process_frame.connect(func():
+			if not is_instance_valid(scroller):
+				return
+			scroller.scroll_vertical = position
+			scroll_bar.set_block_signals(false)
+			host.career_scroll_position = scroller.scroll_vertical
+		, CONNECT_ONE_SHOT)
+	, CONNECT_ONE_SHOT)
+
+
 static func scroll_to_section(host: CrookedUIFactory, scroller: ScrollContainer, heading: Control) -> void:
-	var position := maxi(0, roundi(heading.position.y))
+	var scroll_bar := scroller.get_v_scroll_bar()
+	# The scrollbar page can briefly report zero during a responsive relayout.
+	# The visible container height is already authoritative at button-press time.
+	var visible_page := maxf(scroll_bar.page, scroller.size.y)
+	var maximum := maxi(0, roundi(scroll_bar.max_value - visible_page))
+	var position := clampi(roundi(heading.position.y), 0, maximum)
 	host.career_scroll_position = position
 	scroller.scroll_vertical = position
 

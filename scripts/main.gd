@@ -14,6 +14,7 @@ const AttributesViewScript = preload("res://scripts/attributes_view.gd")
 const ClassesViewScript = preload("res://scripts/classes_view.gd")
 const MarketViewScript = preload("res://scripts/market_view.gd")
 const HangarViewScript = preload("res://scripts/hangar_view.gd")
+const SettingsViewScript = preload("res://scripts/settings_view.gd")
 const PlanetIconScript = preload("res://scripts/planet_icon.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const HuntChoiceIconScript = preload("res://scripts/hunt_choice_icon.gd")
@@ -70,7 +71,7 @@ func _notification(what: int) -> void:
 
 func android_back_action() -> String:
 	if GameState.phase == GameState.Phase.BOARD:
-		if view_mode == "market" or view_mode == "hangar" or view_mode == "career" or (view_mode == "arsenal" and arsenal_section == "settings"):
+		if view_mode == "market" or view_mode == "hangar" or view_mode == "career" or view_mode == "settings":
 			return "menu"
 		if view_mode != "board":
 			return "board"
@@ -232,6 +233,14 @@ func render() -> void:
 			GameState.Phase.CHAPTER_COMPLETE:
 				sound_fx.play_victory()
 	previous_phase = GameState.phase
+	# Preserve the career position before removing earlier siblings changes the
+	# old scroll viewport and emits a misleading clamped value during teardown.
+	var old_career_scroll := content.find_child("CareerScroll", false, false) as ScrollContainer
+	if old_career_scroll != null:
+		career_scroll_position = old_career_scroll.scroll_vertical
+		old_career_scroll.get_v_scroll_bar().set_block_signals(true)
+		content.remove_child(old_career_scroll)
+		old_career_scroll.queue_free()
 	for child in content.get_children():
 		content.remove_child(child)
 		child.queue_free()
@@ -261,6 +270,8 @@ func render() -> void:
 				build_market()
 			elif view_mode == "hangar":
 				build_hangar()
+			elif view_mode == "settings":
+				SettingsViewScript.build(self, content, GameState)
 			else:
 				build_board()
 		GameState.Phase.HUNT:
@@ -329,13 +340,13 @@ func update_primary_navigation() -> void:
 		navigation_dock.hide_and_clear()
 		return
 	var active_id := "contracts"
-	if view_mode == "arsenal" and arsenal_section != "settings":
+	if view_mode == "arsenal":
 		active_id = "arsenal"
 	elif view_mode == "attributes" or view_mode == "classes":
 		active_id = "hunter"
 	elif view_mode == "galaxy":
 		active_id = "galaxy"
-	elif view_mode == "market" or view_mode == "hangar" or view_mode == "career" or (view_mode == "arsenal" and arsenal_section == "settings") or board_section == "destinations":
+	elif view_mode == "market" or view_mode == "hangar" or view_mode == "career" or view_mode == "settings" or board_section == "destinations":
 		active_id = "menu"
 	var labels := {}
 	var badges := {}
@@ -366,6 +377,8 @@ func environment_context() -> String:
 			return "market" if reference_backdrop != null and reference_backdrop.local_placeholders_allowed() else "workshop"
 		if view_mode == "hangar":
 			return "hangar" if reference_backdrop != null and reference_backdrop.local_placeholders_allowed() else "workshop"
+		if view_mode == "settings":
+			return "world"
 		if view_mode == "career" and reference_backdrop != null and reference_backdrop.local_placeholders_allowed():
 			return "career_ui"
 		if (view_mode == "attributes" or view_mode == "classes") and reference_backdrop != null and reference_backdrop.local_placeholders_allowed():
@@ -573,8 +586,7 @@ func build_frontier_menu() -> void:
 		render()
 	))
 	hub_grid.add_child(board_hub_action("AJUSTES\nSOM E MOVIMENTO", MUTED, "settings", "BoardSettingsAction", func():
-		arsenal_section = "settings"
-		view_mode = "arsenal"
+		view_mode = "settings"
 		render()
 	))
 	var hub_divider := reference_ui_decoration("hub_divider", 12.0)

@@ -22,8 +22,6 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var subtitle_text := "BUILD E MELHORIAS"
 	if host.arsenal_section == "inventory":
 		subtitle_text = "MOCHILA · %d ITENS" % state.player.inventory.size()
-	elif host.arsenal_section == "settings":
-		subtitle_text = "PREFERÊNCIAS E DADOS"
 	var subtitle := host.label(subtitle_text, 11, host.MUTED)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	titles.add_child(subtitle)
@@ -48,20 +46,15 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var back := host.action_button("VOLTAR", host.CYAN, true)
 	back.custom_minimum_size = Vector2(96, 48)
 	back.pressed.connect(func():
-		if host.arsenal_section == "settings":
-			host.call("open_frontier_menu")
-		else:
-			host.view_mode = "board"
-			host.board_section = "bounties"
-			host.call("render")
+		host.view_mode = "board"
+		host.board_section = "bounties"
+		host.call("render")
 	)
 	title_row.add_child(back)
 	content.add_child(section_tabs(host))
 	match host.arsenal_section:
 		"inventory":
 			build_inventory_section(host, content, state)
-		"settings":
-			build_settings_section(host, content, state)
 		_:
 			build_equipped_section(host, content, state, readiness)
 
@@ -73,7 +66,6 @@ static func section_tabs(host: CrookedUIFactory) -> HBoxContainer:
 	for definition in [
 		{"id": "equipped", "text": "EQUIPADO", "color": host.GOLD},
 		{"id": "inventory", "text": "MOCHILA", "color": host.CYAN},
-		{"id": "settings", "text": "AJUSTES", "color": host.LIME},
 	]:
 		var section := str(definition.id)
 		var selected := host.arsenal_section == section
@@ -145,69 +137,6 @@ static func build_inventory_section(host: CrookedUIFactory, content: VBoxContain
 	else:
 		for item in visible_items:
 			list.add_child(inventory_item_card(host, state, item))
-
-
-static func build_settings_section(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
-	var intro := host.panel(VBoxContainer.new(), host.PANEL_LIGHT, 14, 13)
-	intro.name = "ArsenalSettingsIntro"
-	var copy := intro.get_child(0) as VBoxContainer
-	copy.add_child(host.label("AJUSTES DO CAÇADOR", 15, host.LIME))
-	var description := host.label("Preferências locais e ferramentas deste aparelho. Não alteram recompensas, chances ou progressão.", 12, host.INK)
-	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	copy.add_child(description)
-	content.add_child(intro)
-	content.add_child(preferences_panel(host, state))
-	var spacer := Control.new()
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	content.add_child(spacer)
-
-
-static func preferences_panel(host: CrookedUIFactory, state: StateScript) -> VBoxContainer:
-	var result := VBoxContainer.new()
-	result.name = "ArsenalSettingsPanel"
-	result.add_theme_constant_override("separation", 8)
-	var preferences := VBoxContainer.new()
-	preferences.name = "AccessibilityPreferences"
-	preferences.add_theme_constant_override("separation", 8)
-	result.add_child(preferences)
-	preferences.add_child(preference_row(host, "ÁUDIO", "Efeitos de interface e combate", "LIGADO" if bool(state.player.get("sound_enabled", true)) else "DESLIGADO", "SoundPreferenceAction", state.toggle_sound))
-	preferences.add_child(preference_row(host, "MOVIMENTO", "Remove apenas transições decorativas", "REDUZIDO" if bool(state.player.get("reduced_motion", false)) else "COMPLETO", "MotionPreferenceAction", state.toggle_reduced_motion))
-	if OS.is_debug_build():
-		var danger := host.panel(VBoxContainer.new(), Color("#2b1425"), 12, 12)
-		var danger_copy := danger.get_child(0) as VBoxContainer
-		danger_copy.add_child(host.label("ÁREA DE TESTE", 11, host.CORAL))
-		var warning := host.label("Apaga o progresso local deste aparelho e reinicia o protótipo.", 11, host.MUTED)
-		warning.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		danger_copy.add_child(warning)
-		var reset := host.action_button("REINICIAR PROGRESSO LOCAL", host.CORAL, true)
-		reset.name = "ResetProgressAction"
-		reset.custom_minimum_size = Vector2(0, 48)
-		reset.pressed.connect(func():
-			host.reset_transient_navigation()
-			state.reset_progress()
-		)
-		danger_copy.add_child(reset)
-		result.add_child(danger)
-	return result
-
-
-static func preference_row(host: CrookedUIFactory, title: String, description: String, value: String, action_name: String, callback: Callable) -> PanelContainer:
-	var card := host.panel(HBoxContainer.new(), Color("#101d39"), 12, 11)
-	var row := card.get_child(0) as HBoxContainer
-	row.add_theme_constant_override("separation", 10)
-	var copy := VBoxContainer.new()
-	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(copy)
-	copy.add_child(host.label(title, 13, host.INK))
-	copy.add_child(host.label(description, 10, host.MUTED))
-	var action := host.action_button(value, host.CYAN, true)
-	action.name = action_name
-	action.custom_minimum_size = Vector2(118, 48)
-	action.add_theme_font_size_override("font_size", 11)
-	action.tooltip_text = description
-	action.pressed.connect(callback)
-	row.add_child(action)
-	return card
 
 
 static func filtered_inventory(host: CrookedUIFactory, state: StateScript) -> Array:

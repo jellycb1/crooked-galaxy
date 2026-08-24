@@ -47,7 +47,16 @@ func run_mobile_audit() -> void:
 	var board_hub_grid := scene.find_child("BoardHubGrid", true, false) as GridContainer
 	check(board_hub_grid != null and board_hub_grid.columns == 2 and board_hub_grid.get_child_count() == 4, "secondary menu uses a readable 2 by 2 mobile grid")
 	check(scene.find_children("BoardHubIcon_*", "Control", true, false).size() == 4, "every secondary service has a distinct scalable navigation icon")
-	check(scene.find_child("BoardSettingsAction", true, false) != null, "settings are promoted from the arsenal inventory into the secondary menu")
+	var settings_action := scene.find_child("BoardSettingsAction", true, false) as Button
+	check(settings_action != null, "settings live in the secondary menu instead of the equipment inventory")
+	if settings_action != null:
+		settings_action.pressed.emit()
+		await process_frame
+	check(scene.view_mode == "settings" and scene.find_child("SettingsPanel", true, false) != null, "settings open as a dedicated game surface")
+	check(scene.find_child("ArsenalSectionTabs", true, false) == null, "dedicated settings do not inherit arsenal navigation")
+	check(scene.android_back_action() == "menu", "Android Back returns dedicated settings to the service menu")
+	scene.open_frontier_menu()
+	await process_frame
 	check_touch_targets(scene, "frontier menu")
 	check(scene.android_back_action() == "board_bounties", "Android Back returns the menu to the primary contract view")
 	scene.handle_android_back_request()
