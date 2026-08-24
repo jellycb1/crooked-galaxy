@@ -91,6 +91,8 @@ func _init() -> void:
 	restored_after_reward.load_game()
 	check(restored_after_reward.phase == restored_after_reward.Phase.BOARD and int(restored_after_reward.player.credits) == int(restored.player.credits) and int(restored_after_reward.player.scrap) == int(restored.player.scrap), "reload after claim preserves the single credit and scrap transaction")
 	check(int(restored_after_reward.player.captures_by_target.gloop) == 3 and restored_after_reward.pending_loot.is_empty(), "reload after claim preserves progression without resurrecting pending loot")
+	check(restored_after_reward.last_notice.is_empty() and restored_after_reward.last_notice_context.is_empty(), "clean reload keeps transaction receipts session-only while persistent rewards remain applied")
+	check(restored_after_reward.combat_summary.is_empty() and restored_after_reward.combat_events.is_empty(), "claimed reward drops consumed victory evidence before clean reload")
 	var claimed_credits := int(restored_after_reward.player.credits)
 	var claimed_scrap := int(restored_after_reward.player.scrap)
 	var claimed_inventory: int = restored_after_reward.player.inventory.size()

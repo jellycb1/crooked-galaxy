@@ -40,6 +40,8 @@ Incident resolution is persisted atomically with its cost and applied choice: re
 
 Reward claiming has the same transaction guarantee across credits, XP/captures, contract and mastery scrap, equipment/inventory changes, and pending-loot cleanup; reload cannot execute the receipt twice.
 
+Claiming also consumes the completed victory log before saving. The evidence remains visible through combat, victory, and reward, but cannot be misinterpreted as damaged state after its approach-modified contract has been cleared.
+
 Immediate repeat saves only after replacing the completed modified contract with a canonical target and three fresh approaches, so reload cannot retain the old route or skip the next route decision.
 
 The reward receipt retains paid incident cost and reconciles gross payout with the exact net wallet gain from before the choice.

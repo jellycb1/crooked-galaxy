@@ -547,6 +547,8 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	phase = Phase.CHAPTER_COMPLETE if first_boss_capture else (Phase.BRIEFING if repeat_contract else Phase.BOARD)
 	current_bounty = ContentDB.get_target(target_id) if repeat_contract and not first_boss_capture else {}
 	pending_loot = {}
+	combat_events.clear()
+	combat_summary = {}
 	offered_approaches.clear()
 	if repeat_contract and not first_boss_capture:
 		offered_approaches.assign(ContentDB.contract_approaches())
