@@ -67,6 +67,9 @@ static func class_card(host: CrookedUIFactory, definition: Dictionary, player: D
 	card.name = "Class_%s" % class_id
 	var row := card.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 12)
+	var reference_icon := class_reference_icon(host, class_id)
+	if reference_icon != null:
+		row.add_child(reference_icon)
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
@@ -96,6 +99,25 @@ static func class_card(host: CrookedUIFactory, definition: Dictionary, player: D
 	)
 	row.add_child(choose)
 	return card
+
+
+static func class_reference_icon(host: CrookedUIFactory, class_id: String) -> TextureRect:
+	var reference_layer = host.get("reference_backdrop")
+	if reference_layer == null or not reference_layer.has_method("ui_texture"):
+		return null
+	var texture: Texture2D = reference_layer.ui_texture(class_id)
+	if texture == null:
+		return null
+	var icon := TextureRect.new()
+	icon.name = "ClassReferenceIcon_%s" % class_id
+	icon.custom_minimum_size = Vector2(76, 76)
+	icon.texture = texture
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.tooltip_text = "PLACEHOLDER INTERNO · identidade visual provisória"
+	return icon
 
 
 static func current_impact_text(definition: Dictionary, player: Dictionary) -> String:

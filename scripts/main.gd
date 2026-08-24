@@ -280,6 +280,8 @@ func environment_context() -> String:
 	if GameState.phase == GameState.Phase.BOARD:
 		if view_mode == "arsenal" or view_mode == "market" or view_mode == "hangar":
 			return "workshop"
+		if view_mode == "classes" and reference_backdrop != null and reference_backdrop.local_placeholders_allowed():
+			return "class_ui"
 		if view_mode == "galaxy" or view_mode == "career" or view_mode == "attributes" or view_mode == "classes":
 			return "world"
 	if GameState.phase == GameState.Phase.COMBAT or GameState.phase == GameState.Phase.VICTORY:

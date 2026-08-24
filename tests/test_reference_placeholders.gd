@@ -19,11 +19,14 @@ func run() -> void:
 	var backdrop := ReferenceBackdrop.new()
 	root.add_child(backdrop)
 	await process_frame
-	check(backdrop.CONTEXT_PATHS.size() == 4, "all documented composition placeholders keep an explicit context mapping")
-	for context in ["contracts", "world", "workshop", "combat"]:
+	check(backdrop.CONTEXT_PATHS.size() == 5, "all documented composition placeholders keep an explicit context mapping")
+	for context in ["contracts", "world", "workshop", "combat", "class_ui"]:
 		check(FileAccess.file_exists(str(backdrop.CONTEXT_PATHS[context])), "documented local placeholder exists for '%s'" % context)
+	check(backdrop.UI_PATHS.size() == 3, "the provisional class trio has three explicit internal icon mappings")
+	for class_id in backdrop.UI_PATHS:
+		check(FileAccess.file_exists(str(backdrop.UI_PATHS[class_id])), "documented local class icon exists for '%s'" % class_id)
 	check(not backdrop.local_placeholders_allowed(), "headless validation never decodes visual placeholders")
-	for context in ["contracts", "world", "workshop", "combat", "unknown"]:
+	for context in ["contracts", "world", "workshop", "combat", "class_ui", "unknown"]:
 		backdrop.show_context(context)
 		check(not backdrop.visible, "headless context '%s' keeps the placeholder hidden" % context)
 	check(backdrop.loaded_source_path.is_empty() and backdrop.texture_rect.texture == null, "headless validation does not retain a decoded reference image")

@@ -420,6 +420,15 @@ func capture() -> void:
 		quit(1)
 		return
 	scene.class_draft = ""
+	state.player.class_id = "orbit_gunslinger"
+	scene.view_mode = "attributes"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_attributes_classed.png") != OK:
+		quit(1)
+		return
+	state.player.class_id = ""
 	scene.view_mode = "arsenal"
 	scene.inventory_filter = "weapon"
 	scene.inventory_sort = "rarity"

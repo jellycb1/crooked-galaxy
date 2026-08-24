@@ -13,7 +13,11 @@ $StageMap = @{
     "contracts.png.bin" = Join-Path $ReferenceRoot "tavern\tavern_back.png"
     "world.png.bin" = Join-Path $ReferenceRoot "town\bg_town_day.png"
     "workshop.png.bin" = Join-Path $ReferenceRoot "locations\bg_fort_0.png"
-    "combat.png.bin" = Join-Path $ReferenceRoot "locations\location_battle_0.png"
+	"combat.png.bin" = Join-Path $ReferenceRoot "locations\location_battle_0.png"
+	"class_ui.png.bin" = Join-Path $ReferenceRoot "ui\sf_4k_UI-BG-navi.png"
+	"class_breaker.png.bin" = Join-Path $ReferenceRoot "registration\icon_warrior_active.png"
+	"class_gunslinger.png.bin" = Join-Path $ReferenceRoot "registration\icon_hunter_active.png"
+	"class_hacker.png.bin" = Join-Path $ReferenceRoot "registration\icon_mage_active.png"
 }
 
 New-Item -ItemType Directory -Path $StageRoot -Force | Out-Null

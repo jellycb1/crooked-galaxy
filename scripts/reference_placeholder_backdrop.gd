@@ -7,12 +7,24 @@ const CONTEXT_PATHS := {
 	"world": SOURCE_ROOT + "town/bg_town_day.png",
 	"workshop": SOURCE_ROOT + "locations/bg_fort_0.png",
 	"combat": SOURCE_ROOT + "locations/location_battle_0.png",
+	"class_ui": SOURCE_ROOT + "ui/sf_4k_UI-BG-navi.png",
 }
 const INTERNAL_CONTEXT_PATHS := {
 	"contracts": "res://internal_reference_assets/contracts.png.bin",
 	"world": "res://internal_reference_assets/world.png.bin",
 	"workshop": "res://internal_reference_assets/workshop.png.bin",
 	"combat": "res://internal_reference_assets/combat.png.bin",
+	"class_ui": "res://internal_reference_assets/class_ui.png.bin",
+}
+const UI_PATHS := {
+	"warrant_breaker": SOURCE_ROOT + "registration/icon_warrior_active.png",
+	"orbit_gunslinger": SOURCE_ROOT + "registration/icon_hunter_active.png",
+	"contract_hacker": SOURCE_ROOT + "registration/icon_mage_active.png",
+}
+const INTERNAL_UI_PATHS := {
+	"warrant_breaker": "res://internal_reference_assets/class_breaker.png.bin",
+	"orbit_gunslinger": "res://internal_reference_assets/class_gunslinger.png.bin",
+	"contract_hacker": "res://internal_reference_assets/class_hacker.png.bin",
 }
 
 var texture_rect: TextureRect
@@ -69,8 +81,15 @@ func show_context(context: String) -> void:
 		return
 	texture_rect.texture = texture
 	loaded_source_path = source_path
-	scrim.color = Color(0.015, 0.025, 0.075, 0.76 if context == "world" or context == "workshop" else (0.58 if context == "combat" else 0.66))
+	scrim.color = Color(0.015, 0.025, 0.075, 0.38 if context == "class_ui" else (0.76 if context == "world" or context == "workshop" else (0.58 if context == "combat" else 0.66)))
 	visible = true
+
+
+func ui_texture(key: String) -> Texture2D:
+	if not local_placeholders_allowed() or not UI_PATHS.has(key):
+		return null
+	var source_path := str(INTERNAL_UI_PATHS[key] if OS.has_feature("reference_placeholders") else UI_PATHS[key])
+	return load_local_texture(source_path)
 
 
 func local_placeholders_allowed() -> bool:

@@ -41,6 +41,9 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	content.add_child(class_panel)
 	var class_row := class_panel.get_child(0) as HBoxContainer
 	class_row.add_theme_constant_override("separation", 12)
+	var reference_icon := class_reference_icon(host, class_id)
+	if reference_icon != null:
+		class_row.add_child(reference_icon)
 	var class_copy := VBoxContainer.new()
 	class_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	class_row.add_child(class_copy)
@@ -111,6 +114,27 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		state.allocate_attribute_points(allocations)
 	)
 	actions.add_child(confirm)
+
+
+static func class_reference_icon(host: CrookedUIFactory, class_id: String) -> TextureRect:
+	if class_id.is_empty():
+		return null
+	var reference_layer = host.get("reference_backdrop")
+	if reference_layer == null or not reference_layer.has_method("ui_texture"):
+		return null
+	var texture: Texture2D = reference_layer.ui_texture(class_id)
+	if texture == null:
+		return null
+	var icon := TextureRect.new()
+	icon.name = "AttributeClassReferenceIcon"
+	icon.custom_minimum_size = Vector2(62, 62)
+	icon.texture = texture
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.tooltip_text = "PLACEHOLDER INTERNO · identidade visual provisória"
+	return icon
 
 
 static func attribute_card(host: CrookedUIFactory, state: StateScript, definition: Dictionary, available: int) -> PanelContainer:
