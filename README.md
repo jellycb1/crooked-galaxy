@@ -108,6 +108,8 @@ Representative early, mid-campaign, and final-boss targets also round-trip all t
 
 Equipment round-trips cover every canonical modification, rarity, planetary origin, and legal reinforcement level, crossed with no, early, and mature calibration histories. Equipped and reserve copies retain their complete payloads, protection flags, and loadout references without false recovery.
 
+Career claims are transaction-tested individually for every milestone and in bulk for early, mid-campaign, and completed profiles. Reloads retain each wallet and lifetime total exactly once, consume only eligible stable IDs, and reject duplicate claims without side effects.
+
 Loaded player data is shape-checked against canonical defaults: scalar progress is preserved when compatible, invalid equipment falls back safely, malformed inventory entries are discarded, and loadouts always normalize to two usable slots before any renderer sees them.
 
 When loading performs a migration or repair, the next board visit receives a concise session-only `SAVE ATUALIZADO` or `SAVE RECUPERADO` notice that emphasizes preserved progress without exposing storage internals.
