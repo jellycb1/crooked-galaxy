@@ -1,5 +1,6 @@
 param(
-    [string]$GodotPath = ""
+    [string]$GodotPath = "",
+    [switch]$Fast
 )
 
 $ErrorActionPreference = "Stop"
@@ -40,6 +41,7 @@ $Tests = @(
     "test_corrupt_save_recovery.gd",
     "test_afk_persistence.gd",
     "test_clean_roundtrip.gd",
+    "test_persistence_matrix.gd",
     "test_save_migrations.gd",
     "test_equipment_presentation.gd",
     "test_career_rules.gd",
@@ -50,14 +52,23 @@ $Tests = @(
     "test_mobile.gd"
 )
 
-Write-Host "Crooked Galaxy checks using $GodotExe"
+if ($Fast) {
+    $Tests = @($Tests | Where-Object { $_ -ne "test_persistence_matrix.gd" })
+}
+
+$SuiteStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+$Profile = if ($Fast) { "fast" } else { "full" }
+Write-Host "Crooked Galaxy $Profile checks using $GodotExe"
 foreach ($TestFile in $Tests) {
     Write-Host "`n[$TestFile]"
     $LogFile = Join-Path $LogRoot "$TestFile.log"
+    $TestStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
     & $GodotExe --headless --path $ProjectRoot --log-file $LogFile --script "res://tests/$TestFile"
+    $TestStopwatch.Stop()
     if ($LASTEXITCODE -ne 0) {
         throw "$TestFile failed with exit code $LASTEXITCODE."
     }
+    Write-Host ("[{0:N2}s]" -f $TestStopwatch.Elapsed.TotalSeconds)
 }
 
 Write-Host "`n[project boot]"
@@ -67,4 +78,5 @@ if ($LASTEXITCODE -ne 0) {
     throw "Project boot failed with exit code $LASTEXITCODE."
 }
 
-Write-Host "`nPASS: all Crooked Galaxy checks completed."
+$SuiteStopwatch.Stop()
+Write-Host ("`nPASS: all Crooked Galaxy {0} checks completed in {1:N2}s." -f $Profile, $SuiteStopwatch.Elapsed.TotalSeconds)

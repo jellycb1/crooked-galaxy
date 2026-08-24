@@ -165,6 +165,14 @@ Run deterministic core tests:
 powershell -ExecutionPolicy Bypass -File .\tools\check_project.ps1
 ```
 
+For the normal edit loop, run the same functional, UI, lifecycle, migration, and phase-round-trip coverage without the 1,659-case exhaustive persistence matrix:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\check_fast.ps1
+```
+
+The full checker remains the release/commit authority and reports per-suite timing. The exhaustive matrix can also run independently with `res://tests/test_persistence_matrix.gd`.
+
 Or run an individual suite:
 
 ```powershell
@@ -177,6 +185,8 @@ godot --headless --path . --script res://tests/test_arsenal_view.gd
 godot --headless --path . --script res://tests/test_reward_view.gd
 godot --headless --path . --script res://tests/test_career_view.gd
 godot --headless --path . --script res://tests/test_persistence.gd
+godot --headless --path . --script res://tests/test_clean_roundtrip.gd
+godot --headless --path . --script res://tests/test_persistence_matrix.gd
 godot --headless --path . --script res://tests/test_save_migrations.gd
 godot --headless --path . --script res://tests/test_equipment_presentation.gd
 godot --headless --path . --script res://tests/test_career_rules.gd
