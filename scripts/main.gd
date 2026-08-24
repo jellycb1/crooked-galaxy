@@ -317,6 +317,9 @@ func restore_action_focus(previous_focus_name: String, expected_generation: int)
 
 
 func build_header() -> void:
+	if GameState.phase == GameState.Phase.BOARD and view_mode == "attributes":
+		build_character_header()
+		return
 	var planet := active_planet()
 	var top := HBoxContainer.new()
 	top.add_theme_constant_override("separation", 12)
@@ -379,6 +382,23 @@ func build_header() -> void:
 	stats.add_child(stat_chip("SUCATA", str(GameState.player.get("scrap", 0)), CORAL))
 	stats.add_child(stat_chip("REPUTAÇÃO", "RANK %d" % (int(GameState.player.reputation) + 1), LIME))
 	stats.add_child(stat_chip("VITÓRIAS", str(GameState.player.wins), CYAN))
+
+
+func build_character_header() -> void:
+	var planet := active_planet()
+	var top := HBoxContainer.new()
+	top.name = "CharacterCompactHeader"
+	top.add_theme_constant_override("separation", 10)
+	content.add_child(top)
+	var identity := VBoxContainer.new()
+	identity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.add_child(identity)
+	identity.add_child(label("CROOKED GALAXY", 22, CYAN))
+	identity.add_child(label(str(planet.name).to_upper(), 11, Color(str(planet.accent))))
+	var build_version := label("v%s" % str(ProjectSettings.get_setting("application/config/version", "dev")), 10, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
+	build_version.name = "BuildVersion"
+	build_version.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	top.add_child(build_version)
 
 
 func bordered_box_style(fill: Color, radius: int, border: Color, width: int) -> StyleBoxFlat:
