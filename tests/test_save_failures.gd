@@ -29,6 +29,8 @@ func run_save_failure_audit() -> void:
 	var warning := scene.find_child("SaveWarningBanner", true, false) as PanelContainer
 	var retry := scene.find_child("RetrySaveAction", true, false) as Button
 	check(warning != null and retry != null, "save failure is visible with an explicit retry action")
+	check(not scene.try_save_before_quit(), "window close and Android Back refuse to exit while progress cannot be saved")
+	check(scene.find_child("SaveWarningBanner", true, false) != null, "refused exit keeps the recovery action visible")
 	state.phase = state.Phase.VICTORY
 	state.current_bounty = ContentDB.TARGETS[0].duplicate(true)
 	state.pending_loot = {"id": "unsaved_loot", "name": "Peça em Memória", "slot": "weapon", "power": 2, "rarity": "Comum", "color": "#b9c2d9"}
@@ -44,6 +46,7 @@ func run_save_failure_audit() -> void:
 	await process_frame
 	check(state.save_warning.is_empty() and scene.find_child("SaveWarningBanner", true, false) == null, "confirmed retry clears the warning")
 	check(FileAccess.file_exists(test_save), "successful retry creates the save")
+	check(scene.try_save_before_quit(), "safe exit becomes available after storage recovers")
 	var file := FileAccess.open(test_save, FileAccess.READ)
 	var payload = JSON.parse_string(file.get_as_text())
 	check(payload is Dictionary and int(payload.player.credits) == 777, "successful retry persists the exact in-memory progress")

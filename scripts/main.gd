@@ -38,8 +38,8 @@ func _ready() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		GameState.save_game()
-		get_tree().quit()
+		if try_save_before_quit():
+			get_tree().quit()
 	elif what == NOTIFICATION_WM_GO_BACK_REQUEST:
 		handle_android_back_request()
 	elif what == NOTIFICATION_RESIZED and is_node_ready():
@@ -71,13 +71,22 @@ func handle_android_back_request() -> void:
 		"cancel_briefing":
 			GameState.cancel_briefing()
 		"quit":
-			GameState.save_game()
-			get_tree().quit()
+			if try_save_before_quit():
+				get_tree().quit()
 		# Timed hunts, incidents, combat, victory, rewards, and finales all have
 		# explicit safe actions. Consume Back rather than turning it into an
 		# accidental abandon/claim while the contract owns the screen.
 		"guard_contract":
 			pass
+
+
+func try_save_before_quit() -> bool:
+	if GameState.save_game():
+		return true
+	# A failed local write explicitly promises that progress remains in memory.
+	# Keep that promise for desktop close and Android Back alike.
+	render()
+	return false
 
 
 func set_lifecycle_suspension(reason: String, suspended: bool) -> void:
