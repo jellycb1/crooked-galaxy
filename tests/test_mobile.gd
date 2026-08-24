@@ -27,6 +27,8 @@ func run_mobile_audit() -> void:
 	root.add_child(scene)
 	await process_frame
 	check_touch_targets(scene, "bounty board")
+	var build_version := scene.find_child("BuildVersion", true, false) as Label
+	check(build_version != null and build_version.text == "v%s" % str(ProjectSettings.get_setting("application/config/version")), "installed build version remains visible in the compact header")
 	check(scene.android_back_action() == "quit", "Android Back exits only from the root bounty board")
 
 	scene.view_mode = "arsenal"

@@ -289,7 +289,15 @@ func build_header() -> void:
 	identity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(identity)
 	identity.add_child(label("CROOKED GALAXY", 30, CYAN))
-	identity.add_child(label(str(planet.name).to_upper(), 15, Color(str(planet.accent))))
+	var location_row := HBoxContainer.new()
+	location_row.add_theme_constant_override("separation", 10)
+	identity.add_child(location_row)
+	var location := label(str(planet.name).to_upper(), 15, Color(str(planet.accent)))
+	location.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	location_row.add_child(location)
+	var build_version := label("v%s" % str(ProjectSettings.get_setting("application/config/version", "dev")), 11, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
+	build_version.name = "BuildVersion"
+	location_row.add_child(build_version)
 
 	var level_badge := panel(VBoxContainer.new(), PANEL_LIGHT, 14, 14)
 	level_badge.custom_minimum_size = Vector2(122, 72)
