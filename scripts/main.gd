@@ -351,81 +351,62 @@ func active_planet() -> Dictionary:
 func build_board() -> void:
 	var planet := active_planet()
 	var title_row := HBoxContainer.new()
+	title_row.add_theme_constant_override("separation", 10)
 	content.add_child(title_row)
 	var title_box := VBoxContainer.new()
 	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title_box)
 	title_box.add_child(label("QUADRO DE PROCURADOS", 24, INK))
-	title_box.add_child(label(str(planet.subtitle), 15, MUTED))
-
-	var actions := VBoxContainer.new()
-	actions.add_theme_constant_override("separation", 5)
-	title_row.add_child(actions)
+	var subtitle := label(str(planet.subtitle), 15, MUTED)
+	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title_box.add_child(subtitle)
 	var xp_needed := CoreRules.xp_needed(int(GameState.player.level))
 	var xp_text := "XP %d/%d" % [int(GameState.player.xp), xp_needed]
-	actions.add_child(label(xp_text, 14, MUTED, HORIZONTAL_ALIGNMENT_RIGHT))
+	var xp_label := label(xp_text, 13, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
+	xp_label.name = "BoardXpStatus"
+	xp_label.custom_minimum_size = Vector2(88, 0)
+	title_row.add_child(xp_label)
+
+	var hub_grid := GridContainer.new()
+	hub_grid.name = "BoardHubGrid"
+	hub_grid.columns = 3
+	hub_grid.add_theme_constant_override("h_separation", 7)
+	hub_grid.add_theme_constant_override("v_separation", 7)
+	content.add_child(hub_grid)
 	var equipped_receipt := GameState.last_notice_context == "reward_equipped"
 	var scrap := int(GameState.player.get("scrap", 0))
 	var cheapest_calibration := mini(CoreRules.equipment_upgrade_cost(GameState.player.weapon), CoreRules.equipment_upgrade_cost(GameState.player.armor))
 	var funded_field_test := equipped_receipt and scrap >= cheapest_calibration
-	var arsenal := action_button("TESTAR BUILD" if funded_field_test else "ARSENAL · %d" % GameState.player.inventory.size(), LIME if funded_field_test else GOLD, true)
-	arsenal.name = "PostClaimFieldTestAction" if funded_field_test else "ArsenalAction"
-	arsenal.custom_minimum_size = Vector2(160, 48)
-	arsenal.add_theme_font_size_override("font_size", 13)
-	arsenal.pressed.connect(func():
+	hub_grid.add_child(board_hub_action("TESTAR BUILD" if funded_field_test else "ARSENAL · %d" % GameState.player.inventory.size(), LIME if funded_field_test else GOLD, "PostClaimFieldTestAction" if funded_field_test else "ArsenalAction", func():
 		view_mode = "arsenal"
 		render()
-	)
-	actions.add_child(arsenal)
-	var market := action_button("MERCADO TORTO", GOLD, true)
-	market.name = "BoardMarketAction"
-	market.custom_minimum_size = Vector2(160, 48)
-	market.add_theme_font_size_override("font_size", 12)
-	market.pressed.connect(func():
+	))
+	hub_grid.add_child(board_hub_action("MERCADO", GOLD, "BoardMarketAction", func():
 		view_mode = "market"
 		render()
-	)
-	actions.add_child(market)
-	var hangar := action_button("HANGAR DUVIDOSO", CYAN, true)
-	hangar.name = "BoardHangarAction"
-	hangar.custom_minimum_size = Vector2(160, 48)
-	hangar.add_theme_font_size_override("font_size", 11)
-	hangar.pressed.connect(func():
+	))
+	hub_grid.add_child(board_hub_action("HANGAR", CYAN, "BoardHangarAction", func():
 		view_mode = "hangar"
 		render()
-	)
-	actions.add_child(hangar)
-	var galaxy := action_button("MAPA GALÁCTICO", CYAN, true)
-	galaxy.custom_minimum_size = Vector2(160, 48)
-	galaxy.add_theme_font_size_override("font_size", 12)
-	galaxy.pressed.connect(func():
+	))
+	hub_grid.add_child(board_hub_action("MAPA", CYAN, "BoardGalaxyAction", func():
 		view_mode = "galaxy"
 		render()
-	)
-	actions.add_child(galaxy)
+	))
 	var ready_rewards := GameState.career_rewards_ready()
 	var career_text := "CARREIRA · %d" % ready_rewards if ready_rewards > 0 else "CARREIRA"
-	var career := action_button(career_text, LIME, true)
-	career.name = "BoardCareerAction"
-	career.custom_minimum_size = Vector2(160, 48)
-	career.add_theme_font_size_override("font_size", 12)
-	career.pressed.connect(func():
+	hub_grid.add_child(board_hub_action(career_text, LIME, "BoardCareerAction", func():
 		view_mode = "career"
 		render()
-	)
-	actions.add_child(career)
+	))
 	var available_points := int(GameState.player.get("stat_points", 0))
-	var attributes_text := "ESCOLHER CLASSE" if str(GameState.player.get("class_id", "")).is_empty() else ("ATRIBUTOS · %d" % available_points if available_points > 0 else "ATRIBUTOS")
-	var attributes := action_button(attributes_text, CORAL if available_points > 0 else CYAN, true)
-	attributes.name = "BoardAttributesAction"
-	attributes.custom_minimum_size = Vector2(160, 48)
-	attributes.add_theme_font_size_override("font_size", 12)
-	attributes.pressed.connect(func():
+	var class_unassigned := str(GameState.player.get("class_id", "")).is_empty()
+	var attributes_text := "CLASSE" if class_unassigned else ("ATRIBUTOS · %d" % available_points if available_points > 0 else "ATRIBUTOS")
+	hub_grid.add_child(board_hub_action(attributes_text, CORAL if class_unassigned or available_points > 0 else CYAN, "BoardAttributesAction", func():
 		attribute_draft = {}
 		view_mode = "attributes"
 		render()
-	)
-	actions.add_child(attributes)
+	))
 
 	var recovery_inside_afk := not GameState.afk_report.is_empty() and GameState.last_notice_context == "system_recovery"
 	var defeat_report_visible := GameState.last_notice_context == "defeat" and not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true))
@@ -481,6 +462,16 @@ func build_board() -> void:
 	content.add_child(equipment)
 	equipment.add_child(equipment_chip(GameState.player.weapon))
 	equipment.add_child(equipment_chip(GameState.player.armor))
+
+
+func board_hub_action(text_value: String, color: Color, node_name: String, callback: Callable) -> Button:
+	var button := action_button(text_value, color, true)
+	button.name = node_name
+	button.custom_minimum_size = Vector2(0, 48)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.add_theme_font_size_override("font_size", 13)
+	button.pressed.connect(callback)
+	return button
 
 
 func rank_progress_panel() -> PanelContainer:

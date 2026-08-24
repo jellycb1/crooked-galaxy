@@ -76,7 +76,8 @@ func run_classes_test() -> void:
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
-	check((scene.find_child("BoardAttributesAction", true, false) as Button).text == "ESCOLHER CLASSE", "the board makes an unassigned class discoverable")
+	var board_class_action := scene.find_child("BoardAttributesAction", true, false) as Button
+	check(board_class_action.text == "CLASSE" and board_class_action.get_theme_color("font_color") == scene.CORAL, "the board makes an unassigned class a concise pending action")
 	scene.view_mode = "attributes"
 	scene.render()
 	await process_frame

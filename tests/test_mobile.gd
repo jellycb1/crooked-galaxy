@@ -31,6 +31,8 @@ func run_mobile_audit() -> void:
 	root.add_child(scene)
 	await process_frame
 	check_touch_targets(scene, "bounty board")
+	var board_hub_grid := scene.find_child("BoardHubGrid", true, false) as GridContainer
+	check(board_hub_grid != null and board_hub_grid.columns == 3 and board_hub_grid.get_child_count() == 6, "bounty board compacts six secondary destinations into a 3 by 2 mobile grid")
 	var build_version := scene.find_child("BuildVersion", true, false) as Label
 	check(build_version != null and build_version.text == "v%s" % str(ProjectSettings.get_setting("application/config/version")), "installed build version remains visible in the compact header")
 	check(scene.hunt_timer.is_stopped(), "high-frequency hunt refresh stays asleep on the bounty board")

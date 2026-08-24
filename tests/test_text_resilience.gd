@@ -24,6 +24,7 @@ func run_text_audit() -> void:
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
+	await audit_scaled_screen(scene, "bounty board hub")
 
 	state.phase = state.Phase.BRIEFING
 	state.current_bounty = ContentDB.TARGETS[19].duplicate(true)
