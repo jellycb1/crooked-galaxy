@@ -192,6 +192,11 @@ func run_smoke_test() -> void:
 	state.finish_combat(false)
 	await process_frame
 	check(scene.find_child("CombatSummaryDefeat", true, false) != null, "board keeps a concise defeat diagnosis before the next contract")
+	var defeat_workshop := scene.find_child("DefeatWorkshopAction", true, false) as Button
+	check(defeat_workshop != null, "defeat diagnosis offers an immediate workshop recovery route")
+	defeat_workshop.pressed.emit()
+	await process_frame
+	check(scene.view_mode == "arsenal", "defeat recovery route opens the field-test workshop")
 
 	scene.free()
 	await process_frame

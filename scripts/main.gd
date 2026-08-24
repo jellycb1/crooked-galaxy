@@ -432,6 +432,14 @@ func combat_summary_panel(won: bool) -> PanelContainer:
 		var diagnosis := label("O alvo conservou %d HP. Compare as odds, ative um kit ou invista na oficina antes da revanche." % remaining, 12, INK)
 		diagnosis.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		box.add_child(diagnosis)
+		var workshop := action_button("ABRIR OFICINA E TESTAR BUILD", CYAN, true)
+		workshop.name = "DefeatWorkshopAction"
+		workshop.custom_minimum_size = Vector2(0, 44)
+		workshop.pressed.connect(func():
+			view_mode = "arsenal"
+			render()
+		)
+		box.add_child(workshop)
 	return card
 
 
