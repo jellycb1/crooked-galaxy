@@ -424,26 +424,28 @@ const CONTRACT_APPROACHES := [
 	{
 		"id": "hot_hatch",
 		"name": "Entrada pela Escotilha",
-		"tag": "RÁPIDO · +CRÉDITOS",
+		"tag": "RÁPIDO · +45% CRÉDITOS",
 		"description": "Chegue antes do plano, chute a porta errada e cobre taxa de urgência.",
 		"duration_mult": 0.55,
-		"power_mult": 1.12,
-		"defense_mult": 1.0,
-		"health_mult": 1.08,
-		"credits_mult": 1.35,
+		"power_mult": 1.18,
+		"defense_mult": 1.08,
+		"health_mult": 1.28,
+		"planet_health_step": 0.03,
+		"credits_mult": 1.45,
 		"xp_mult": 1.0,
 		"color": "#ff6f7d",
 	},
 	{
 		"id": "premium_warrant",
 		"name": "Mandado Corporativo",
-		"tag": "LUCRO · +SUCATA · ALTO RISCO",
+		"tag": "LUCRO · +85% CR · +2 SUCATA",
 		"description": "A corporação paga muito mais e libera peças da oficina, desde que o alvo possa revidar muito mais.",
 		"duration_mult": 1.0,
-		"power_mult": 1.18,
-		"defense_mult": 1.12,
-		"health_mult": 1.12,
-		"credits_mult": 1.65,
+		"power_mult": 1.22,
+		"defense_mult": 1.14,
+		"health_mult": 1.32,
+		"planet_health_step": 0.02,
+		"credits_mult": 1.85,
 		"xp_mult": 0.85,
 		"scrap_reward": 2,
 		"color": "#ffc857",
@@ -955,14 +957,23 @@ static func apply_approach(bounty: Dictionary, approach: Dictionary) -> Dictiona
 	# Contract danger affects the encounter, not the equipment tier that drops.
 	# Otherwise the fastest recommended route compounds its own power advantage.
 	result["loot_power"] = int(bounty.get("loot_power", bounty.power))
+	var planet_index := planet_index_for(str(bounty.get("planet_id", PLANET.id)))
+	var health_mult := float(approach.health_mult) + float(approach.get("planet_health_step", 0.0)) * planet_index
 	result["duration"] = maxi(1, ceili(float(bounty.duration) * float(approach.duration_mult)))
 	result["power"] = maxi(1, roundi(float(bounty.power) * float(approach.power_mult)))
 	result["defense"] = maxi(0, roundi(float(bounty.defense) * float(approach.defense_mult)))
-	result["health"] = maxi(1, roundi(float(bounty.health) * float(approach.health_mult)))
+	result["health"] = maxi(1, roundi(float(bounty.health) * health_mult))
 	result["credits"] = maxi(1, roundi(float(bounty.credits) * float(approach.credits_mult)))
 	result["xp"] = maxi(1, roundi(float(bounty.xp) * float(approach.xp_mult)))
 	result["scrap_reward"] = maxi(0, int(approach.get("scrap_reward", 0)))
 	return result
+
+
+static func planet_index_for(planet_id: String) -> int:
+	for index in PLANETS.size():
+		if str(PLANETS[index].id) == planet_id:
+			return index
+	return 0
 
 
 static func random_hunt_event(rng: RandomNumberGenerator, planet_id := "dustball_prime") -> Dictionary:

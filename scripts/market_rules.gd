@@ -20,7 +20,7 @@ static func offers(player: Dictionary) -> Array[Dictionary]:
 	if target.is_empty():
 		target = Content.target_for_planet_tier(planet_id, 0)
 	var cycle := maxi(0, int(player.get("market_cycle", 0)))
-	var planet_index := planet_index_for(planet_id)
+	var planet_index := Content.planet_index_for(planet_id)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 98173 + planet_index * 1301 + stock_tier * 101 + cycle * 7919
 	var result: Array[Dictionary] = []
@@ -55,14 +55,7 @@ static func refresh_cost(player: Dictionary) -> int:
 	var tier := Content.planet_tier_from_target_captures(planet_id, player.get("captures_by_target", {}))
 	if player.get("completed_planets", []).has(planet_id):
 		tier = 3
-	return 75 + planet_index_for(planet_id) * 180 + tier * 90 + mini(10, maxi(0, int(player.get("market_cycle", 0)))) * 25
-
-
-static func planet_index_for(planet_id: String) -> int:
-	for index in Content.PLANETS.size():
-		if str(Content.PLANETS[index].id) == planet_id:
-			return index
-	return 0
+	return 75 + Content.planet_index_for(planet_id) * 180 + tier * 90 + mini(10, maxi(0, int(player.get("market_cycle", 0)))) * 25
 
 
 static func purchase_records_are_safe(records) -> bool:

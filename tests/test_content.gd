@@ -72,8 +72,10 @@ func _init() -> void:
 	var dustball_premium := ContentDB.apply_approach(ContentDB.TARGETS[1], ContentDB.CONTRACT_APPROACHES[2])
 	var omega_premium := ContentDB.apply_approach(ContentDB.TARGETS[13], ContentDB.CONTRACT_APPROACHES[2])
 	check(int(omega_premium.scrap_reward) == 2, "corporate scrap reward survives contract application")
-	check(int(dustball_premium.power) == roundi(float(ContentDB.TARGETS[1].power) * 1.18), "first-chapter risk calibration remains stable")
-	check(int(omega_premium.power) == roundi(float(ContentDB.TARGETS[13].power) * 1.18), "contract danger remains consistent across frontiers")
+	check(int(omega_premium.health) > roundi(float(ContentDB.TARGETS[13].health) * float(ContentDB.CONTRACT_APPROACHES[2].health_mult)), "aggressive contract resistance grows across later planets")
+	check(int(omega_premium.loot_power) == int(ContentDB.TARGETS[13].power), "late route pressure never inflates its equipment tier")
+	check(int(dustball_premium.power) == roundi(float(ContentDB.TARGETS[1].power) * float(ContentDB.CONTRACT_APPROACHES[2].power_mult)), "first-chapter risk calibration remains stable")
+	check(int(omega_premium.power) == roundi(float(ContentDB.TARGETS[13].power) * float(ContentDB.CONTRACT_APPROACHES[2].power_mult)), "contract attack pressure remains consistent across frontiers")
 	var base_loot_rng := RandomNumberGenerator.new()
 	var premium_loot_rng := RandomNumberGenerator.new()
 	base_loot_rng.seed = 4417

@@ -148,6 +148,9 @@ func print_results(results: Dictionary) -> void:
 func print_decision_summary(results: Dictionary) -> void:
 	var option_total := 0
 	var saturated_options := 0
+	var decision_snapshots := 0
+	var multi_viable_snapshots := 0
+	var meaningful_snapshots := 0
 	var chosen_arrivals: Array = []
 	var all_routes: Array = []
 	for planet in Content.PLANETS:
@@ -156,13 +159,28 @@ func print_decision_summary(results: Dictionary) -> void:
 			chosen_arrivals.append_array(planet_results.odds[tier])
 			all_routes.append_array(planet_results.attempt_approach[tier])
 			for sample in planet_results.option_odds[tier]:
+				decision_snapshots += 1
+				var viable_count := 0
+				var lowest := 1.0
+				var highest := 0.0
 				for odds in sample.values():
 					option_total += 1
-					if float(odds) >= 0.99:
+					var chance := float(odds)
+					lowest = minf(lowest, chance)
+					highest = maxf(highest, chance)
+					if chance >= ContractRulesScript.MIN_RECOMMENDED_ODDS:
+						viable_count += 1
+					if chance >= 0.99:
 						saturated_options += 1
+				if viable_count >= 2:
+					multi_viable_snapshots += 1
+					if highest - lowest >= 0.15:
+						meaningful_snapshots += 1
 	var saturated_percent := roundi(float(saturated_options) / float(maxi(1, option_total)) * 100.0)
 	var arrival_percent := roundi(fraction_at_least(chosen_arrivals, 0.99) * 100.0)
-	print("DECISÕES · opções em 99%%=%d%% · chegadas em 99%%=%d%% · rotas escolhidas=%s" % [saturated_percent, arrival_percent, approach_summary(all_routes)])
+	var multi_viable_percent := roundi(float(multi_viable_snapshots) / float(maxi(1, decision_snapshots)) * 100.0)
+	var meaningful_percent := roundi(float(meaningful_snapshots) / float(maxi(1, decision_snapshots)) * 100.0)
+	print("DECISÕES · opções em 99%%=%d%% · chegadas em 99%%=%d%% · ≥2 viáveis=%d%% · escolha separada=%d%% · rotas escolhidas=%s" % [saturated_percent, arrival_percent, multi_viable_percent, meaningful_percent, approach_summary(all_routes)])
 
 
 func strategy_contract(player: Dictionary, target: Dictionary, strategy: String) -> Dictionary:
