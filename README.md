@@ -16,6 +16,8 @@ Reward screens also count the pending capture toward target mastery and preview 
 
 The first reward in any sequence explicitly marks embalo ×1 and explains that its credit bonus begins on the next consecutive capture; later rewards show the exact active bonus. On the return board, that ×1 lesson is embedded in the exact contract/equipment receipt instead of repeated as a second tutorial banner. Established streaks retain their forward-looking reminder.
 
+The initial reward prioritizes the equipment upgrade and next-warrant `1/3` progress. Target-mastery vocabulary begins on the second capture at `2/3`, immediately before its first tangible loot-quality and workshop reward, avoiding two unrelated `1/3` counters on the first decision screen.
+
 On ordinary rewards, the repeat route previews the next streak multiplier and approach-invariant percentage. Exact credits remain attached to the selected approach and incident outcome. Threshold rewards suppress the repeat prompt and prioritize the newly opened warrant.
 
 Repeated-contract briefings mark each route's displayed payment as already streak-adjusted and show its exact included bonus, preventing the same percentage from being counted twice.
