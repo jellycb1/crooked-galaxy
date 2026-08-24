@@ -915,6 +915,12 @@ func load_game() -> void:
 		# Combat resumes safely from its saved health values.
 		player_hp = maxi(1, player_hp)
 		enemy_hp = maxi(1, enemy_hp)
+	if requires_migration_save:
+		last_notice = "SAVE ATUALIZADO: progresso legado preservado e registros ausentes reconstruídos."
+		last_notice_context = "system_recovery"
+	elif repaired_phase:
+		last_notice = "SAVE RECUPERADO: progresso válido preservado; registros inconsistentes foram isolados."
+		last_notice_context = "system_recovery"
 	if requires_migration_save or repaired_phase:
 		save_game()
 
