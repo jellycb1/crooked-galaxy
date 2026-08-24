@@ -50,6 +50,14 @@ func _init() -> void:
 	check(str(state.player[str(claimed_item.slot)].id) == str(claimed_item.id), "claimed upgrade is equipped")
 	check(str(summary.loot_action) == "equipped" and str(summary.loot_name) == str(claimed_item.name), "reward summary records the applied loot decision")
 	check(state.last_notice.contains("%s equipado" % str(claimed_item.name)) and state.last_notice_context == "reward_equipped", "equipped loot decision survives with explicit receipt provenance")
+	var receipt_expiry_state = StateScript.new()
+	receipt_expiry_state.persistence_enabled = false
+	receipt_expiry_state.player = receipt_expiry_state.default_player()
+	receipt_expiry_state.last_notice = "Contrato pago: Peça Teste equipada."
+	receipt_expiry_state.last_notice_context = "reward_equipped"
+	receipt_expiry_state.select_bounty(Content.TARGETS[0])
+	check(receipt_expiry_state.last_notice.is_empty() and receipt_expiry_state.last_notice_context.is_empty(), "gameplay receipts expire when the player commits to the next contract")
+	receipt_expiry_state.free()
 	check(int(state.player.reputation) == 0, "rank requires three captures")
 	var projection_state = StateScript.new()
 	projection_state.persistence_enabled = false

@@ -72,6 +72,8 @@ Loaded player data is shape-checked against canonical defaults: scalar progress 
 
 When loading performs a migration or repair, the next board visit receives a concise session-only `SAVE ATUALIZADO` or `SAVE RECUPERADO` notice that emphasizes preserved progress without exposing storage internals.
 
+When shown by itself, that system notice has an explicit acknowledgement. Gameplay receipts instead remain available for review until the player commits to the next contract, at which point target selection clears the stale transaction context.
+
 If that recovery coincides with an AFK patrol return, both outcomes share one compact return card and one acknowledgement. This avoids competing board banners while preserving the exact patrol payout and recovery explanation.
 
 Defeat uses the same one-outcome hierarchy: the escaped target, combat evidence, lost streak, route diagnosis, and workshop recovery action live in one persistent panel. Claimable career rewards remain counted in the header instead of inserting another competing board card.

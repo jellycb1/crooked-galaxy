@@ -43,6 +43,12 @@ func capture() -> void:
 		quit(1)
 		return
 	state.afk_report = {}
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_save_recovery.png") != OK:
+		quit(1)
+		return
 	state.last_notice = ""
 	state.last_notice_context = ""
 	state.player.wins = 0
@@ -631,7 +637,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

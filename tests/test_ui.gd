@@ -264,6 +264,15 @@ func run_smoke_test() -> void:
 	afk_dismiss.pressed.emit()
 	await process_frame
 	check(state.afk_report.is_empty() and state.last_notice.is_empty(), "acknowledging the combined return card clears both transient reports")
+	state.last_notice = "SAVE ATUALIZADO: progresso legado preservado e registros ausentes reconstruídos."
+	state.last_notice_context = "system_recovery"
+	scene.render()
+	await process_frame
+	var recovery_dismiss := scene.find_child("BoardNoticeDismiss", true, false) as Button
+	check(recovery_dismiss != null, "standalone save recovery offers an explicit acknowledgement")
+	recovery_dismiss.pressed.emit()
+	await process_frame
+	check(state.last_notice.is_empty() and state.last_notice_context.is_empty(), "acknowledging standalone save recovery clears its transient notice")
 	state.player.wins = 1
 	state.player.captures_by_target = {"gloop": 1}
 	scene.view_mode = "career"

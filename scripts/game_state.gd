@@ -140,6 +140,14 @@ func dismiss_afk_report(clear_system_recovery := false) -> void:
 	changed.emit()
 
 
+func dismiss_notice(expected_context := "") -> void:
+	if last_notice.is_empty() or (not expected_context.is_empty() and last_notice_context != expected_context):
+		return
+	last_notice = ""
+	last_notice_context = ""
+	changed.emit()
+
+
 func career_milestones() -> Array[Dictionary]:
 	return CareerRules.milestones(player)
 

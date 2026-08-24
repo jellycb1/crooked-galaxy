@@ -233,7 +233,10 @@ func build_board() -> void:
 		content.add_child(afk_return_banner(recovery_inside_afk))
 	if not GameState.last_notice.is_empty() and not recovery_inside_afk and not defeat_report_visible:
 		var notice_color := CORAL if not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true)) else LIME
-		var board_notice := notice_banner(GameState.last_notice, notice_color)
+		var dismiss_callback := Callable()
+		if GameState.last_notice_context == "system_recovery":
+			dismiss_callback = func(): GameState.dismiss_notice("system_recovery")
+		var board_notice := notice_banner(GameState.last_notice, notice_color, dismiss_callback)
 		board_notice.name = "BoardNotice"
 		content.add_child(board_notice)
 	elif int(GameState.player.wins) == 0:
@@ -398,7 +401,7 @@ func onboarding_banner() -> PanelContainer:
 	return banner
 
 
-func notice_banner(message: String, color: Color) -> PanelContainer:
+func notice_banner(message: String, color: Color, dismiss_callback := Callable()) -> PanelContainer:
 	var banner := panel(HBoxContainer.new(), Color("#16363b"), 14, 13)
 	var row := banner.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 12)
@@ -407,6 +410,12 @@ func notice_banner(message: String, color: Color) -> PanelContainer:
 	message_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	row.add_child(message_label)
+	if dismiss_callback.is_valid():
+		var dismiss := action_button("OK", color, true)
+		dismiss.name = "BoardNoticeDismiss"
+		dismiss.custom_minimum_size = Vector2(62, 44)
+		dismiss.pressed.connect(dismiss_callback)
+		row.add_child(dismiss)
 	return banner
 
 
