@@ -4,6 +4,7 @@ extends RefCounted
 const Rules = preload("res://scripts/core_rules.gd")
 const ClassRulesScript = preload("res://scripts/class_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
+const AttributeIconScript = preload("res://scripts/attribute_icon.gd")
 
 const DEFINITIONS := [
 	{"id": "strength", "name": "FORÇA", "description": "Potência muscular, impacto e armas pesadas."},
@@ -145,9 +146,18 @@ static func attribute_card(host: CrookedUIFactory, state: StateScript, definitio
 	card.name = "Attribute_%s" % attribute_id
 	var row := card.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 12)
-	var value_label := host.center_label(str(value), 24, host.GOLD if draft_amount > 0 else host.INK)
-	value_label.custom_minimum_size = Vector2(54, 0)
-	row.add_child(value_label)
+	var value_stack := VBoxContainer.new()
+	value_stack.custom_minimum_size = Vector2(54, 0)
+	value_stack.alignment = BoxContainer.ALIGNMENT_CENTER
+	value_stack.add_theme_constant_override("separation", 0)
+	row.add_child(value_stack)
+	var glyph := AttributeIconScript.new()
+	glyph.name = "AttributeGlyph_%s" % attribute_id
+	glyph.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	glyph.configure(attribute_id)
+	value_stack.add_child(glyph)
+	var value_label := host.center_label(str(value), 18, host.GOLD if draft_amount > 0 else host.INK)
+	value_stack.add_child(value_label)
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)

@@ -56,6 +56,7 @@ func run_attributes_test() -> void:
 	await process_frame
 	await process_frame
 	check(scene.find_children("Attribute_*", "PanelContainer", true, false).size() == 5, "the attribute hub renders all five agreed attributes")
+	check(scene.find_children("AttributeGlyph_*", "Control", true, false).size() == 5, "every attribute has a distinct compact visual glyph")
 	var add_strength := scene.find_child("AttributeAdd_strength", true, false) as Button
 	check(add_strength != null and not add_strength.disabled, "an available point enables the mobile strength action")
 	if add_strength != null:
