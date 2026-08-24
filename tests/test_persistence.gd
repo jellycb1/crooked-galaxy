@@ -97,6 +97,25 @@ func _init() -> void:
 	check(restored_after_reward.claim_reward(true).is_empty(), "claimed reward cannot execute again outside the reward phase")
 	check(int(restored_after_reward.player.credits) == claimed_credits and int(restored_after_reward.player.scrap) == claimed_scrap and restored_after_reward.player.inventory.size() == claimed_inventory, "rejected duplicate claim leaves every reward total unchanged")
 	restored_after_reward.free()
+	var repeat_source = StateScript.new()
+	repeat_source.save_path = test_save
+	repeat_source.player = repeat_source.default_player()
+	repeat_source.player.capture_streak = 1
+	repeat_source.phase = repeat_source.Phase.REWARD
+	repeat_source.current_bounty = ContentDB.apply_approach(ContentDB.TARGETS[0], ContentDB.CONTRACT_APPROACHES[2])
+	repeat_source.pending_loot = {"id": "repeat_atomic_loot", "name": "Recibo de Retorno", "slot": "armor", "power": 2, "rarity": "Comum", "color": "#b9c2d9", "origin_planet_id": "dustball_prime"}
+	var repeat_summary := repeat_source.claim_reward(false, true)
+	check(repeat_source.phase == repeat_source.Phase.BRIEFING and int(repeat_summary.streak) == 2, "immediate repeat atomically enters a fresh briefing after claiming")
+	check(not repeat_source.current_bounty.has("approach") and repeat_source.offered_approaches.size() == 3 and repeat_source.pending_loot.is_empty(), "immediate repeat discards the completed route and pending loot before saving")
+	var restored_repeat = StateScript.new()
+	restored_repeat.save_path = test_save
+	restored_repeat.load_game()
+	check(restored_repeat.phase == restored_repeat.Phase.BRIEFING and restored_repeat.offered_approaches.size() == 3, "reload after immediate repeat restores all new route choices")
+	check(str(restored_repeat.current_bounty.id) == "gloop" and not restored_repeat.current_bounty.has("approach") and restored_repeat.pending_loot.is_empty(), "reload after immediate repeat keeps the canonical unmodified target and no old loot")
+	restored_repeat.choose_approach("quiet_net")
+	check(restored_repeat.phase == restored_repeat.Phase.HUNT and str(restored_repeat.current_bounty.approach.id) == "quiet_net", "restored repeat briefing accepts a new route independently of the completed contract")
+	restored_repeat.free()
+	repeat_source.free()
 
 	source.phase = source.Phase.BOARD
 	source.current_bounty = {}
