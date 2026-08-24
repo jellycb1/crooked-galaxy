@@ -54,6 +54,8 @@ Reward screens also count the pending capture toward target mastery and preview 
 
 The first reward in any sequence explicitly marks embalo ×1 and explains that its credit bonus begins on the next consecutive capture; later rewards show the exact active bonus. On the return board, that ×1 lesson is embedded in the exact contract/equipment receipt instead of repeated as a second tutorial banner. Established streaks retain their forward-looking reminder.
 
+Reward decisions use three distinct visual layers: loot identity, a `NOVO / EQUIPADO / RESULTADO` comparison, and grouped contract/progression evidence. Repeat remains the solid primary action for ordinary captures; when a new warrant opens, the named warrant destination becomes solid while workshop preparation stays secondary. Recycling remains explicit and destructive-looking without competing with a genuine upgrade.
+
 The initial reward prioritizes the equipment upgrade and next-warrant `1/3` progress. Target-mastery vocabulary begins on the second capture at `2/3`, immediately before its first tangible loot-quality and workshop reward, avoiding two unrelated `1/3` counters on the first decision screen.
 
 On that second capture, the two systems converge into one explicit promise: the next repeat grants mastery 1/3 and opens the named warrant. The duplicate warrant-progress/odds line is omitted for this one handoff, keeping `EQUIPAR E REPETIR` as the dominant decision.

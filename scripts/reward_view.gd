@@ -11,8 +11,11 @@ const StateScript = preload("res://scripts/game_state.gd")
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
 	var item := state.pending_loot
 	var reward_preview := Rules.bounty_streak_reward(int(state.current_bounty.credits), int(state.player.get("capture_streak", 0)) + 1)
+	var equipped: Dictionary = state.player[str(item.slot)]
+	var comparison := int(item.power) - int(equipped.power)
+	var effective_upgrade := Rules.is_upgrade_for_player(state.player, item)
 	content.add_child(host.center_label("CONTRATO CONCLUÍDO · %s" % str(state.current_bounty.name).to_upper(), 16, host.LIME))
-	content.add_child(host.center_label("RECOMPENSA CAPTURADA", 32, host.INK))
+	content.add_child(host.center_label("RECOMPENSA CAPTURADA", 28, host.INK))
 	var reward_panel := host.panel(VBoxContainer.new(), host.PANEL_LIGHT, 20, 12)
 	reward_panel.name = "RewardPanel"
 	content.add_child(reward_panel)
@@ -22,51 +25,72 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		reward_panel.modulate = Color(1, 1, 1, 0)
 		reward_panel.create_tween().tween_property(reward_panel, "modulate", Color.WHITE, 0.32)
 	var box := reward_panel.get_child(0) as VBoxContainer
-	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_theme_constant_override("separation", 3)
-	var loot_icon := host.equipment_icon(item, 76)
+	box.add_theme_constant_override("separation", 7)
+	var loot_header := HBoxContainer.new()
+	loot_header.name = "RewardLootHeader"
+	loot_header.add_theme_constant_override("separation", 12)
+	box.add_child(loot_header)
+	var loot_icon := host.equipment_icon(item, 68)
 	loot_icon.name = "RewardEquipmentIcon"
-	box.add_child(loot_icon)
-	box.add_child(host.center_label(str(item.rarity).to_upper(), 15, Color(str(item.color))))
-	var item_name := host.center_label(str(item.name), 25, host.INK)
+	loot_header.add_child(loot_icon)
+	var loot_copy := VBoxContainer.new()
+	loot_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	loot_copy.add_theme_constant_override("separation", 1)
+	loot_header.add_child(loot_copy)
+	loot_copy.add_child(host.label("%s · %s" % [str(item.rarity).to_upper(), host.slot_name(str(item.slot)).to_upper()], 12, Color(str(item.color))))
+	var item_name := host.label(str(item.name), 21, host.INK)
 	item_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	box.add_child(item_name)
+	loot_copy.add_child(item_name)
 	var origin_id := str(item.get("origin_planet_id", ""))
 	if not origin_id.is_empty():
-		box.add_child(host.center_label("ORIGEM · %s" % str(Content.get_planet(origin_id).name).to_upper(), 12, host.CYAN))
-	var description := host.center_label(str(item.get("description", "Procedência criativamente desconhecida.")), 15, host.MUTED)
+		loot_copy.add_child(host.label("ORIGEM · %s" % str(Content.get_planet(origin_id).name).to_upper(), 10, host.CYAN))
+	var description := host.label(str(item.get("description", "Procedência criativamente desconhecida.")), 12, host.MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	box.add_child(description)
-	box.add_child(host.center_label("+%d PODER · %s" % [int(item.power), host.slot_name(str(item.slot))], 18, host.GOLD))
-	var equipped: Dictionary = state.player[str(item.slot)]
-	var comparison := int(item.power) - int(equipped.power)
-	if comparison > 0:
-		box.add_child(host.center_label("▲ UPGRADE ENCONTRADO", 15, host.LIME))
-	var effective_upgrade := Rules.is_upgrade_for_player(state.player, item)
+	loot_copy.add_child(description)
+	var comparison_row := HBoxContainer.new()
+	comparison_row.name = "RewardEquipmentComparison"
+	comparison_row.add_theme_constant_override("separation", 7)
+	box.add_child(comparison_row)
+	comparison_row.add_child(reward_metric_chip(host, "NOVO", "+%d" % int(item.power), host.GOLD, "RewardNewPower"))
+	comparison_row.add_child(reward_metric_chip(host, "EQUIPADO", "+%d" % int(equipped.power), host.MUTED, "RewardEquippedPower"))
+	var result_text := "UPGRADE" if effective_upgrade else "GUARDAR"
 	if effective_upgrade and comparison <= 0:
-		box.add_child(host.center_label("▲ MODIFICAÇÃO SUPERIOR", 15, host.LIME))
+		result_text = "MOD MELHOR"
+	comparison_row.add_child(reward_metric_chip(host, "RESULTADO", result_text, host.LIME if effective_upgrade else host.MUTED, "RewardEquipmentResult"))
 	if item.has("trait"):
-		box.add_child(host.center_label("◆ %s · %s" % [str(item.trait.name), str(item.trait.description)], 13, host.GOLD))
-	box.add_child(host.center_label(EquipmentPresentation.equipment_delta_text(state.player, item), 15, host.LIME if effective_upgrade else host.MUTED))
-	box.add_child(host.center_label("EQUIPADO: %s +%d · RECICLAGEM: %d SUCATA" % [str(equipped.name), int(equipped.power), Rules.salvage_value(item)], 12, host.MUTED))
+		var trait_label := host.center_label("◆ %s · %s" % [str(item.trait.name), str(item.trait.description)], 11, host.GOLD)
+		trait_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		box.add_child(trait_label)
+	var equipment_delta := host.center_label(EquipmentPresentation.equipment_delta_text(state.player, item), 12, host.LIME if effective_upgrade else host.MUTED)
+	equipment_delta.name = "RewardEquipmentDelta"
+	box.add_child(equipment_delta)
+	box.add_child(host.center_label("RECICLAGEM · %d SUCATA" % Rules.salvage_value(item), 10, host.MUTED))
+	var receipt_panel := host.panel(VBoxContainer.new(), Color("#0d1530"), 10, 8)
+	receipt_panel.name = "RewardContractReceipt"
+	box.add_child(receipt_panel)
+	var receipt_box := receipt_panel.get_child(0) as VBoxContainer
+	receipt_box.add_theme_constant_override("separation", 3)
 	var contract_scrap := int(state.current_bounty.get("scrap_reward", 0))
-	var reward_line := "◈ %d créditos   ✦ %d XP" % [int(reward_preview.credits), int(state.current_bounty.xp)]
+	var reward_line := "RECIBO · ◈ %d CRÉDITOS · %d XP" % [int(reward_preview.credits), int(state.current_bounty.xp)]
 	if contract_scrap > 0:
-		reward_line += "   ⚙ %d sucata" % contract_scrap
-	var reward_totals := host.center_label(reward_line, 17, host.GOLD)
+		reward_line += " · %d sucata" % contract_scrap
+	var reward_totals := host.center_label(reward_line, 13, host.GOLD)
 	reward_totals.name = "RewardContractTotals"
-	box.add_child(reward_totals)
+	receipt_box.add_child(reward_totals)
 	var incident_cost := maxi(0, int(state.current_bounty.get("hunt_event_credit_cost", 0)))
 	if incident_cost > 0:
-		var incident_net := host.center_label("INCIDENTE JÁ PAGO · -%d CRÉDITOS · SALDO DO CONTRATO +%d" % [incident_cost, int(reward_preview.credits) - incident_cost], 12, host.CYAN)
+		var incident_net := host.center_label("INCIDENTE JÁ PAGO · -%d CRÉDITOS · SALDO DO CONTRATO +%d" % [incident_cost, int(reward_preview.credits) - incident_cost], 10, host.CYAN)
 		incident_net.name = "RewardIncidentNet"
-		box.add_child(incident_net)
+		receipt_box.add_child(incident_net)
+	var progress_box := VBoxContainer.new()
+	progress_box.name = "RewardProgressSummary"
+	progress_box.add_theme_constant_override("separation", 2)
 	var previous_captures := int(state.player.get("captures_by_target", {}).get(str(state.current_bounty.id), 0))
 	var reward_mastery := Rules.target_mastery_level(previous_captures)
 	if reward_mastery > 0:
 		var mastery_label := host.center_label("PERÍCIA COM ALVO %d/3 · QUALIDADE DE LOOT AMPLIADA" % reward_mastery, 13, host.LIME)
 		mastery_label.name = "RewardMastery"
-		box.add_child(mastery_label)
+		progress_box.add_child(mastery_label)
 	var captures_after_reward := previous_captures + 1
 	var mastery_after_reward := Rules.target_mastery_level(captures_after_reward)
 	var planet_id := str(state.current_bounty.get("planet_id", Content.PLANET.id))
@@ -83,10 +107,10 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	if mastery_after_reward > reward_mastery:
 		var mastery_unlock := host.center_label("NOVA PERÍCIA AO RECEBER · NÍVEL %d/3" % mastery_after_reward, 13, host.GOLD)
 		mastery_unlock.name = "RewardMasteryUnlock"
-		box.add_child(mastery_unlock)
+		progress_box.add_child(mastery_unlock)
 		var mastery_bonus := host.center_label("+%d%% RARO · +%d%% ÉPICO · OFICINA +%d SUCATA" % [mastery_after_reward * 5, mastery_after_reward * 2, Rules.target_mastery_scrap_reward(mastery_after_reward)], 12, host.LIME)
 		mastery_bonus.name = "RewardMasteryUnlockBonus"
-		box.add_child(mastery_bonus)
+		progress_box.add_child(mastery_bonus)
 	elif captures_after_reward > 1:
 		var next_mastery_requirement := Rules.target_mastery_next_requirement(reward_mastery)
 		if next_mastery_requirement > 0:
@@ -95,25 +119,29 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 				mastery_progress_text = "PRÓXIMA CAPTURA · PERÍCIA 1/3 + MANDADO %s" % str(next_target.name).to_upper()
 			var mastery_progress := host.center_label(mastery_progress_text, 12, host.CYAN)
 			mastery_progress.name = "RewardMasteryProgress"
-			box.add_child(mastery_progress)
+			progress_box.add_child(mastery_progress)
 	if int(reward_preview.bonus_credits) > 0:
 		var streak_bonus := host.center_label("EMBALO ×%d · +%d créditos (+%d%%)" % [int(reward_preview.streak), int(reward_preview.bonus_credits), int(reward_preview.bonus_percent)], 14, host.LIME)
 		streak_bonus.name = "RewardStreakBonus"
-		box.add_child(streak_bonus)
+		progress_box.add_child(streak_bonus)
 	elif int(reward_preview.streak) == 1:
 		var streak_start := host.center_label("EMBALO REINICIADO ×1 · BÔNUS COMEÇA NA PRÓXIMA CAPTURA", 12, host.CYAN)
 		streak_start.name = "RewardStreakStart"
-		box.add_child(streak_start)
+		progress_box.add_child(streak_start)
 	if unlocks_new_warrant:
 		var unlock_label := host.center_label("NOVO MANDADO AO RECEBER · %s" % str(next_target.name).to_upper(), 14, host.LIME)
 		unlock_label.name = "RewardWarrantUnlock"
-		box.add_child(unlock_label)
-		box.add_child(warrant_impact_label(host, state.player, item, next_target, effective_upgrade, int(state.current_bounty.xp), "RewardWarrantOdds"))
+		progress_box.add_child(unlock_label)
+		progress_box.add_child(warrant_impact_label(host, state.player, item, next_target, effective_upgrade, int(state.current_bounty.xp), "RewardWarrantOdds"))
 	elif not next_target.is_empty() and not combined_next_capture:
 		var progress_label := host.center_label("RUMO A %s · %d/%d CAPTURAS DE %s" % [str(next_target.name).to_upper(), int(progress_after.progress), int(progress_after.requirement), str(progress_after.prerequisite.name).to_upper()], 13, host.CYAN)
 		progress_label.name = "RewardWarrantProgress"
-		box.add_child(progress_label)
-		box.add_child(warrant_impact_label(host, state.player, item, next_target, effective_upgrade, int(state.current_bounty.xp), "RewardNextHuntImpact"))
+		progress_box.add_child(progress_label)
+		progress_box.add_child(warrant_impact_label(host, state.player, item, next_target, effective_upgrade, int(state.current_bounty.xp), "RewardNextHuntImpact"))
+	if progress_box.get_child_count() > 0:
+		var progress_panel := host.panel(progress_box, Color("#10233b"), 10, 7)
+		progress_panel.name = "RewardProgressPanel"
+		box.add_child(progress_panel)
 	content.add_spacer(false)
 	var completes_chapter: bool = bool(state.current_bounty.get("boss", false)) and not bool(state.player.get("completed_planets", []).has(planet_id))
 	var safe_to_recycle := state.can_recycle_reward(item)
@@ -158,11 +186,22 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		claim_text = "EQUIPAR E VER NOVO MANDADO" if effective_upgrade else "GUARDAR E VER NOVO MANDADO"
 	else:
 		claim_text = "EQUIPAR E VOLTAR AO QUADRO" if effective_upgrade else "GUARDAR E VOLTAR AO QUADRO"
-	var claim := host.action_button(claim_text, host.LIME if completes_chapter or unlocks_new_warrant else host.GOLD, true)
+	var claim := host.action_button(claim_text, host.LIME if completes_chapter or unlocks_new_warrant else host.GOLD, not (completes_chapter or unlocks_new_warrant))
 	claim.name = "ClaimAndUnlock" if unlocks_new_warrant else "ClaimAndBoard"
 	claim.custom_minimum_size = Vector2(0, 48)
 	claim.pressed.connect(func(): state.claim_reward(effective_upgrade))
 	content.add_child(claim)
+
+
+static func reward_metric_chip(host: CrookedUIFactory, title: String, value: String, color: Color, node_name: String) -> PanelContainer:
+	var chip := host.panel(VBoxContainer.new(), Color("#0a1025"), 8, 5)
+	chip.name = node_name
+	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var chip_box := chip.get_child(0) as VBoxContainer
+	chip_box.add_theme_constant_override("separation", 0)
+	chip_box.add_child(host.label(title, 9, host.MUTED, HORIZONTAL_ALIGNMENT_CENTER))
+	chip_box.add_child(host.label(value, 13, color, HORIZONTAL_ALIGNMENT_CENTER))
+	return chip
 
 
 static func warrant_impact(player: Dictionary, item: Dictionary, target: Dictionary, equip_item: bool, reward_xp: int) -> Dictionary:

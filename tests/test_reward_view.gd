@@ -20,6 +20,9 @@ func _init() -> void:
 	host.add_child(content)
 
 	RewardScript.build(host, content, state)
+	check(host.find_child("RewardLootHeader", true, false) != null and host.find_child("RewardEquipmentComparison", true, false) != null, "isolated reward separates loot identity from equipment comparison")
+	check(host.find_child("RewardContractReceipt", true, false) != null and host.find_child("RewardProgressPanel", true, false) != null, "isolated reward groups the contract receipt and progression evidence")
+	check(host.find_child("RewardNewPower", true, false) != null and host.find_child("RewardEquippedPower", true, false) != null and host.find_child("RewardEquipmentResult", true, false) != null, "equipment decision exposes new, equipped, and result metrics in one row")
 	check(host.find_child("RewardWarrantProgress", true, false) != null, "isolated reward renders next-warrant progress")
 	var next_hunt_impact := host.find_child("RewardNextHuntImpact", true, false) as Label
 	check(next_hunt_impact != null and next_hunt_impact.text.contains("IMPACTO AO EQUIPAR") and next_hunt_impact.text.contains("→"), "ordinary reward translates its upgrade into next-hunt odds")
@@ -76,7 +79,9 @@ func _init() -> void:
 	check(host.find_child("RewardRepeatValue", true, false) == null, "new-warrant threshold does not distract with obsolete repeat value")
 	var warrant_odds := host.find_child("RewardWarrantOdds", true, false) as Label
 	check(warrant_odds != null and warrant_odds.text.contains("APÓS RECEBER + EQUIPAR") and warrant_odds.text.contains("→"), "threshold reward includes its pending level gain in the same-route comparison")
-	check(host.find_child("ClaimAndRepeat", true, false) == null and host.find_child("ClaimAndUnlock", true, false) != null, "threshold unlock prioritizes the expanded board")
+	var unlock_action := host.find_child("ClaimAndUnlock", true, false) as Button
+	var unlock_style := unlock_action.get_theme_stylebox("normal") as StyleBoxFlat if unlock_action != null else null
+	check(host.find_child("ClaimAndRepeat", true, false) == null and unlock_action != null and unlock_style != null and unlock_style.bg_color.a > 0.9, "threshold unlock gives the expanded-board destination the solid primary action")
 
 	clear_content(content)
 	state.player.captures_by_target = {"gloop": 2}
