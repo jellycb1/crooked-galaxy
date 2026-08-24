@@ -28,6 +28,7 @@ func run_smoke_test() -> void:
 
 	var bounty: Dictionary = ContentDB.TARGETS[0].duplicate(true)
 	state.player.captures_by_target = {"gloop": 3}
+	state.player.capture_streak = 2
 	scene.render()
 	await process_frame
 	check(scene.find_child("BountyMastery_gloop", true, false) != null, "bounty cards expose target mastery progress")
@@ -37,6 +38,7 @@ func run_smoke_test() -> void:
 	check(scene.find_child("BriefingScroll", true, false) != null, "contract briefing renders")
 	check(scene.find_child("BriefingMastery", true, false) != null, "briefing explains mastery loot bonuses")
 	check(scene.find_children("RecommendedApproach_*", "Label", true, false).size() == 1, "briefing renders exactly one dynamic recommendation")
+	check(scene.find_children("ApproachStreak_*", "Label", true, false).size() == 3, "briefing marks every displayed payment as already streak-adjusted")
 	check(scene.find_child("ApproachScrapReward_premium_warrant", true, false) != null, "briefing exposes the corporate workshop reward before commitment")
 	state.choose_approach("quiet_net")
 	await process_frame

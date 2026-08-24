@@ -1,6 +1,7 @@
 extends SceneTree
 
 const ContractRules = preload("res://scripts/contract_rules.gd")
+const Content = preload("res://scripts/content_db.gd")
 
 var failures := 0
 
@@ -27,6 +28,11 @@ func _init() -> void:
 	]
 	check(ContractRules.recommended_approach_id(desperate) == "safer", "fallback selects the safest option when none is viable")
 	check(ContractRules.recommended_approach_id([]).is_empty(), "empty evaluations have no recommendation")
+
+	var streak_player := {"level": 1, "base_power": 10, "weapon": {"power": 1}, "armor": {"power": 1}, "capture_streak": 2}
+	var streak_evaluations := ContractRules.evaluate_approaches(streak_player, Content.TARGETS[0], Content.contract_approaches())
+	check(streak_evaluations.all(func(evaluation): return int(evaluation.streak) == 3 and int(evaluation.streak_bonus_percent) == 10 and int(evaluation.streak_bonus) > 0), "approach evaluation exposes the shared streak and each route's exact included bonus")
+	check(int(streak_evaluations[0].streak_bonus) != int(streak_evaluations[2].streak_bonus), "approach evaluation keeps percentage invariant while absolute bonuses follow route payment")
 
 	if failures == 0:
 		print("PASS: contract recommendations balance risk and return")

@@ -53,6 +53,7 @@ func capture() -> void:
 	state.player.weapon.origin_planet_id = "dustball_prime"
 	state.player.armor.origin_planet_id = "dustball_prime"
 	state.player.captures_by_target = {"gloop": 6}
+	state.player.capture_streak = 4
 	state.select_bounty(bounty)
 	await process_frame
 	await process_frame

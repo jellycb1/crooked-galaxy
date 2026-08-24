@@ -18,6 +18,8 @@ The first reward in any sequence explicitly marks embalo ×1 and explains that i
 
 On ordinary rewards, the repeat route previews the next streak multiplier and approach-invariant percentage. Exact credits remain attached to the selected approach and incident outcome. Threshold rewards suppress the repeat prompt and prioritize the newly opened warrant.
 
+Repeated-contract briefings mark each route's displayed payment as already streak-adjusted and show its exact included bonus, preventing the same percentage from being counted twice.
+
 When a capture reveals a new warrant, the reward also projects the best approach and win chance after equipping the pending item, so the direct-contract and workshop routes have visible context.
 
 Post-combat reports summarize turns, damage and the contribution of tactical traits or planetary kits; defeats name any lost capture streak, explain its ×1 restart, retain a compact diagnosis on the board, and link directly to a field-test workshop that keeps the failed warrant focused through the next attempt.

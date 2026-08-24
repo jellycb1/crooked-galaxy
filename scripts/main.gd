@@ -596,6 +596,10 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 		var scrap_bonus := label("BÔNUS DE VITÓRIA · +%d SUCATA PARA A OFICINA" % scrap_reward, 12, GOLD)
 		scrap_bonus.name = "ApproachScrapReward_%s" % str(approach.id)
 		box.add_child(scrap_bonus)
+	if int(evaluation.get("streak_bonus", 0)) > 0:
+		var streak_total := label("PAGAMENTO JÁ INCLUI EMBALO ×%d · +%d%% (+%d CRÉDITOS)" % [int(evaluation.streak), int(evaluation.streak_bonus_percent), int(evaluation.streak_bonus)], 11, CYAN)
+		streak_total.name = "ApproachStreak_%s" % str(approach.id)
+		box.add_child(streak_total)
 	var odds := float(evaluation.odds)
 	var risk_text := "SEGURO" if odds >= 0.72 else ("ARRISCADO" if odds >= 0.42 else "BRUTAL")
 	var risk_color := LIME if odds >= 0.72 else (GOLD if odds >= 0.42 else CORAL)
