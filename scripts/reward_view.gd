@@ -13,14 +13,14 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var reward_preview := Rules.bounty_streak_reward(int(state.current_bounty.credits), int(state.player.get("capture_streak", 0)) + 1)
 	content.add_child(host.center_label("CONTRATO CONCLUÍDO · %s" % str(state.current_bounty.name).to_upper(), 16, host.LIME))
 	content.add_child(host.center_label("RECOMPENSA CAPTURADA", 32, host.INK))
-	var reward_panel := host.panel(VBoxContainer.new(), host.PANEL_LIGHT, 20, 20)
+	var reward_panel := host.panel(VBoxContainer.new(), host.PANEL_LIGHT, 20, 12)
 	reward_panel.modulate = Color(1, 1, 1, 0)
 	content.add_child(reward_panel)
 	reward_panel.create_tween().tween_property(reward_panel, "modulate", Color.WHITE, 0.32)
 	var box := reward_panel.get_child(0) as VBoxContainer
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_theme_constant_override("separation", 7)
-	box.add_child(host.center_label("⚙", 58, Color(str(item.color))))
+	box.add_theme_constant_override("separation", 3)
+	box.add_child(host.center_label("⚙", 46, Color(str(item.color))))
 	box.add_child(host.center_label(str(item.rarity).to_upper(), 15, Color(str(item.color))))
 	box.add_child(host.center_label(str(item.name), 25, host.INK))
 	var origin_id := str(item.get("origin_planet_id", ""))
@@ -96,24 +96,12 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		var unlock_label := host.center_label("NOVO MANDADO AO RECEBER · %s" % str(next_target.name).to_upper(), 14, host.LIME)
 		unlock_label.name = "RewardWarrantUnlock"
 		box.add_child(unlock_label)
-		var projected_player: Dictionary = state.player.duplicate(true)
-		if effective_upgrade:
-			projected_player[str(item.slot)] = item.duplicate(true)
-		var evaluations := ContractRules.evaluate_approaches(projected_player, next_target, Content.contract_approaches())
-		var recommended_id := ContractRules.recommended_approach_id(evaluations)
-		for evaluation in evaluations:
-			if str(evaluation.id) != recommended_id:
-				continue
-			var route_name := str(evaluation.preview.get("approach", {}).get("name", "ROTA SEGURA"))
-			var projection_prefix := "APÓS EQUIPAR" if effective_upgrade else "COM BUILD ATUAL"
-			var projection := host.center_label("MELHOR ROTA %s · %s · %d%%" % [projection_prefix, route_name.to_upper(), roundi(float(evaluation.odds) * 100.0)], 12, host.GOLD)
-			projection.name = "RewardWarrantOdds"
-			box.add_child(projection)
-			break
+		box.add_child(warrant_impact_label(host, state.player, item, next_target, effective_upgrade, "RewardWarrantOdds"))
 	elif not next_target.is_empty():
 		var progress_label := host.center_label("RUMO A %s · %d/%d CAPTURAS DE %s" % [str(next_target.name).to_upper(), int(progress_after.progress), int(progress_after.requirement), str(progress_after.prerequisite.name).to_upper()], 13, host.CYAN)
 		progress_label.name = "RewardWarrantProgress"
 		box.add_child(progress_label)
+		box.add_child(warrant_impact_label(host, state.player, item, next_target, effective_upgrade, "RewardNextHuntImpact"))
 	content.add_spacer(false)
 	var completes_chapter: bool = bool(state.current_bounty.get("boss", false)) and not bool(state.player.get("completed_planets", []).has(planet_id))
 	var safe_to_recycle := state.can_recycle_reward(item)
@@ -163,3 +151,30 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	claim.custom_minimum_size = Vector2(0, 48)
 	claim.pressed.connect(func(): state.claim_reward(effective_upgrade))
 	content.add_child(claim)
+
+
+static func warrant_impact_label(host: CrookedUIFactory, player: Dictionary, item: Dictionary, target: Dictionary, equip_item: bool, node_name: String) -> Label:
+	var projected_player := player.duplicate(true)
+	if equip_item:
+		projected_player[str(item.slot)] = item.duplicate(true)
+	var projected_evaluations := ContractRules.evaluate_approaches(projected_player, target, Content.contract_approaches())
+	var recommended_id := ContractRules.recommended_approach_id(projected_evaluations)
+	var current_evaluations := ContractRules.evaluate_approaches(player, target, Content.contract_approaches())
+	var route_name := "ROTA SEGURA"
+	var current_odds := 0.0
+	var projected_odds := 0.0
+	for evaluation in projected_evaluations:
+		if str(evaluation.id) == recommended_id:
+			route_name = str(evaluation.preview.get("approach", {}).get("name", route_name))
+			projected_odds = float(evaluation.odds)
+			break
+	for evaluation in current_evaluations:
+		if str(evaluation.id) == recommended_id:
+			current_odds = float(evaluation.odds)
+			break
+	var text := "MELHOR ROTA COM BUILD ATUAL · %s · %d%%" % [route_name.to_upper(), roundi(current_odds * 100.0)]
+	if equip_item:
+		text = "IMPACTO AO EQUIPAR · %s · %d%% → %d%%" % [route_name.to_upper(), roundi(current_odds * 100.0), roundi(projected_odds * 100.0)]
+	var result := host.center_label(text, 12, host.GOLD)
+	result.name = node_name
+	return result

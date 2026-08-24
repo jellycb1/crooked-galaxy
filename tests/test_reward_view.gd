@@ -21,6 +21,8 @@ func _init() -> void:
 
 	RewardScript.build(host, content, state)
 	check(host.find_child("RewardWarrantProgress", true, false) != null, "isolated reward renders next-warrant progress")
+	var next_hunt_impact := host.find_child("RewardNextHuntImpact", true, false) as Label
+	check(next_hunt_impact != null and next_hunt_impact.text.contains("IMPACTO AO EQUIPAR") and next_hunt_impact.text.contains("→"), "ordinary reward translates its upgrade into next-hunt odds")
 	var streak_start := host.find_child("RewardStreakStart", true, false) as Label
 	check(streak_start != null and streak_start.text.contains("×1") and streak_start.text.contains("PRÓXIMA CAPTURA"), "first reward explains streak restart and when its bonus begins")
 	check(host.find_child("RewardMasteryProgress", true, false) != null, "isolated reward previews progress from the pending capture")
@@ -58,14 +60,14 @@ func _init() -> void:
 	clear_content(content)
 	state.phase = state.Phase.REWARD
 	state.current_bounty = ContentDB.TARGETS[0].duplicate(true)
-	state.pending_loot = reward_item(6)
+	state.pending_loot = reward_item(12)
 	state.player.captures_by_target = {"gloop": 2}
 	state.player.captures_by_planet = {ContentDB.PLANET.id: 2}
 	RewardScript.build(host, content, state)
 	check(host.find_child("RewardWarrantUnlock", true, false) != null, "isolated reward previews a threshold unlock")
 	check(host.find_child("RewardRepeatValue", true, false) == null, "new-warrant threshold does not distract with obsolete repeat value")
 	var warrant_odds := host.find_child("RewardWarrantOdds", true, false) as Label
-	check(warrant_odds != null and warrant_odds.text.contains("BARÃO BOOM") == false and warrant_odds.text.contains("%"), "threshold reward previews the best post-loot route and its odds")
+	check(warrant_odds != null and warrant_odds.text.contains("IMPACTO AO EQUIPAR") and warrant_odds.text.contains("→"), "threshold reward compares the same best route before and after equipping")
 	check(host.find_child("ClaimAndRepeat", true, false) == null and host.find_child("ClaimAndUnlock", true, false) != null, "threshold unlock prioritizes the expanded board")
 
 	clear_content(content)
@@ -80,6 +82,8 @@ func _init() -> void:
 	state.pending_loot = reward_item(0)
 	RewardScript.build(host, content, state)
 	check(host.find_child("RecycleAndRepeat", true, false) != null, "isolated reward exposes safe instant recycling")
+	var weak_loot_impact := host.find_child("RewardNextHuntImpact", true, false) as Label
+	check(weak_loot_impact != null and weak_loot_impact.text.contains("COM BUILD ATUAL") and not weak_loot_impact.text.contains("→"), "non-upgrade loot keeps next-hunt odds tied to the current build")
 
 	host.free()
 	state.free()

@@ -135,7 +135,8 @@ func capture() -> void:
 	scene.render()
 	await process_frame
 	await process_frame
-	await create_timer(0.12).timeout
+	await create_timer(0.3).timeout
+	await process_frame
 	if save_frame("ui_reward_mastery_unlock.png") != OK:
 		quit(1)
 		return
