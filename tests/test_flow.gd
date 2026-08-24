@@ -2,6 +2,8 @@ extends SceneTree
 
 const StateScript = preload("res://scripts/game_state.gd")
 const Content = preload("res://scripts/content_db.gd")
+const RewardScript = preload("res://scripts/reward_view.gd")
+const ArsenalScript = preload("res://scripts/arsenal_view.gd")
 
 var failures := 0
 
@@ -48,6 +50,24 @@ func _init() -> void:
 	check(str(summary.loot_action) == "equipped" and str(summary.loot_name) == str(claimed_item.name), "reward summary records the applied loot decision")
 	check(state.last_notice.contains("%s equipado" % str(claimed_item.name)), "equipped loot decision survives the screen transition")
 	check(int(state.player.reputation) == 0, "rank requires three captures")
+	var projection_state = StateScript.new()
+	projection_state.persistence_enabled = false
+	projection_state.player = projection_state.default_player()
+	projection_state.player.wins = 2
+	projection_state.player.xp = CoreRules.xp_needed(1) - int(Content.TARGETS[0].xp) + 1
+	projection_state.player.captures_by_target = {"gloop": 2}
+	projection_state.player.captures_by_planet = {"dustball_prime": 2}
+	projection_state.phase = projection_state.Phase.REWARD
+	projection_state.current_bounty = Content.TARGETS[0].duplicate(true)
+	projection_state.pending_loot = {"id": "projected_upgrade", "name": "Prova de Continuidade", "slot": "weapon", "power": 8, "rarity": "Raro", "color": "#58d9ff"}
+	var projected_target := Content.target_for_planet_tier("dustball_prime", 1)
+	var reward_impact := RewardScript.warrant_impact(projection_state.player, projection_state.pending_loot, projected_target, true, int(projection_state.current_bounty.xp))
+	check(int(reward_impact.levels_gained) == 1, "reward projection includes a level crossed by the pending XP")
+	projection_state.claim_reward(true)
+	var claimed_readiness := ArsenalScript.field_readiness(projection_state)
+	check(str(claimed_readiness.target.id) == str(projected_target.id) and str(claimed_readiness.approach.id) == str(reward_impact.approach_id), "post-claim field test keeps the reward's projected target and fixed route")
+	check(is_equal_approx(float(claimed_readiness.current_odds), float(reward_impact.projected_odds)), "post-claim field test exactly confirms the reward's projected odds after XP and equipment")
+	projection_state.free()
 	var streak_state = StateScript.new()
 	streak_state.persistence_enabled = false
 	streak_state.player = streak_state.default_player()

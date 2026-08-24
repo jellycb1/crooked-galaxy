@@ -118,6 +118,7 @@ func capture() -> void:
 	await process_frame
 	await process_frame
 	await create_timer(0.42).timeout
+	await process_frame
 	if save_frame("ui_reward.png") != OK:
 		quit(1)
 		return
@@ -131,6 +132,7 @@ func capture() -> void:
 		quit(1)
 		return
 	state.current_bounty = regular_reward_bounty
+	state.player.xp = CoreRules.xp_needed(int(state.player.level)) - int(state.current_bounty.xp) + 1
 	state.player.captures_by_target = {"gloop": 2}
 	scene.render()
 	await process_frame

@@ -96,12 +96,12 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		var unlock_label := host.center_label("NOVO MANDADO AO RECEBER · %s" % str(next_target.name).to_upper(), 14, host.LIME)
 		unlock_label.name = "RewardWarrantUnlock"
 		box.add_child(unlock_label)
-		box.add_child(warrant_impact_label(host, state.player, item, next_target, effective_upgrade, "RewardWarrantOdds"))
+		box.add_child(warrant_impact_label(host, state.player, item, next_target, effective_upgrade, int(state.current_bounty.xp), "RewardWarrantOdds"))
 	elif not next_target.is_empty():
 		var progress_label := host.center_label("RUMO A %s · %d/%d CAPTURAS DE %s" % [str(next_target.name).to_upper(), int(progress_after.progress), int(progress_after.requirement), str(progress_after.prerequisite.name).to_upper()], 13, host.CYAN)
 		progress_label.name = "RewardWarrantProgress"
 		box.add_child(progress_label)
-		box.add_child(warrant_impact_label(host, state.player, item, next_target, effective_upgrade, "RewardNextHuntImpact"))
+		box.add_child(warrant_impact_label(host, state.player, item, next_target, effective_upgrade, int(state.current_bounty.xp), "RewardNextHuntImpact"))
 	content.add_spacer(false)
 	var completes_chapter: bool = bool(state.current_bounty.get("boss", false)) and not bool(state.player.get("completed_planets", []).has(planet_id))
 	var safe_to_recycle := state.can_recycle_reward(item)
@@ -153,8 +153,9 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	content.add_child(claim)
 
 
-static func warrant_impact_label(host: CrookedUIFactory, player: Dictionary, item: Dictionary, target: Dictionary, equip_item: bool, node_name: String) -> Label:
+static func warrant_impact(player: Dictionary, item: Dictionary, target: Dictionary, equip_item: bool, reward_xp: int) -> Dictionary:
 	var projected_player := player.duplicate(true)
+	var levels_gained := Rules.apply_xp(projected_player, reward_xp)
 	if equip_item:
 		projected_player[str(item.slot)] = item.duplicate(true)
 	var projected_evaluations := ContractRules.evaluate_approaches(projected_player, target, Content.contract_approaches())
@@ -172,8 +173,25 @@ static func warrant_impact_label(host: CrookedUIFactory, player: Dictionary, ite
 		if str(evaluation.id) == recommended_id:
 			current_odds = float(evaluation.odds)
 			break
+	return {
+		"approach_id": recommended_id,
+		"route_name": route_name,
+		"current_odds": current_odds,
+		"projected_odds": projected_odds,
+		"levels_gained": levels_gained,
+	}
+
+
+static func warrant_impact_label(host: CrookedUIFactory, player: Dictionary, item: Dictionary, target: Dictionary, equip_item: bool, reward_xp: int, node_name: String) -> Label:
+	var impact := warrant_impact(player, item, target, equip_item, reward_xp)
+	var route_name := str(impact.route_name)
+	var current_odds := float(impact.current_odds)
+	var projected_odds := float(impact.projected_odds)
 	var text := "MELHOR ROTA COM BUILD ATUAL · %s · %d%%" % [route_name.to_upper(), roundi(current_odds * 100.0)]
-	if equip_item:
+	if int(impact.levels_gained) > 0:
+		var receipt_action := "RECEBER + EQUIPAR" if equip_item else "RECEBER SEM EQUIPAR"
+		text = "APÓS %s · %s · %d%% → %d%%" % [receipt_action, route_name.to_upper(), roundi(current_odds * 100.0), roundi(projected_odds * 100.0)]
+	elif equip_item:
 		text = "IMPACTO AO EQUIPAR · %s · %d%% → %d%%" % [route_name.to_upper(), roundi(current_odds * 100.0), roundi(projected_odds * 100.0)]
 	var result := host.center_label(text, 12, host.GOLD)
 	result.name = node_name

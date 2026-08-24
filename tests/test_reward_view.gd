@@ -67,7 +67,7 @@ func _init() -> void:
 	check(host.find_child("RewardWarrantUnlock", true, false) != null, "isolated reward previews a threshold unlock")
 	check(host.find_child("RewardRepeatValue", true, false) == null, "new-warrant threshold does not distract with obsolete repeat value")
 	var warrant_odds := host.find_child("RewardWarrantOdds", true, false) as Label
-	check(warrant_odds != null and warrant_odds.text.contains("IMPACTO AO EQUIPAR") and warrant_odds.text.contains("→"), "threshold reward compares the same best route before and after equipping")
+	check(warrant_odds != null and warrant_odds.text.contains("APÓS RECEBER + EQUIPAR") and warrant_odds.text.contains("→"), "threshold reward includes its pending level gain in the same-route comparison")
 	check(host.find_child("ClaimAndRepeat", true, false) == null and host.find_child("ClaimAndUnlock", true, false) != null, "threshold unlock prioritizes the expanded board")
 
 	clear_content(content)
@@ -83,7 +83,7 @@ func _init() -> void:
 	RewardScript.build(host, content, state)
 	check(host.find_child("RecycleAndRepeat", true, false) != null, "isolated reward exposes safe instant recycling")
 	var weak_loot_impact := host.find_child("RewardNextHuntImpact", true, false) as Label
-	check(weak_loot_impact != null and weak_loot_impact.text.contains("COM BUILD ATUAL") and not weak_loot_impact.text.contains("→"), "non-upgrade loot keeps next-hunt odds tied to the current build")
+	check(weak_loot_impact != null and weak_loot_impact.text.contains("RECEBER SEM EQUIPAR") and weak_loot_impact.text.contains("→"), "non-upgrade loot attributes a projected gain to pending XP instead of the unequipped item")
 
 	host.free()
 	state.free()
