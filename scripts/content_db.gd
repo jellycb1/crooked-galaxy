@@ -856,6 +856,53 @@ static func available_bounties(reputation: int, planet_id := "dustball_prime", c
 	return result
 
 
+static func board_bounties(reputation: int, planet_id: String, chapter_tier: int, captures_by_target: Dictionary, limit := 3) -> Array[Dictionary]:
+	var unlocked := available_bounties(reputation, planet_id, chapter_tier)
+	if unlocked.is_empty() or limit <= 0:
+		return []
+	var primary_index := 0
+	for index in unlocked.size():
+		if int(unlocked[index].get("chapter_tier", 0)) > int(unlocked[primary_index].get("chapter_tier", 0)):
+			primary_index = index
+	var primary: Dictionary = unlocked[primary_index]
+	var primary_captures := int(captures_by_target.get(str(primary.id), 0))
+	var chapter_complete := bool(primary.get("boss", false)) and primary_captures > 0
+	var repeats: Array[Dictionary] = []
+	for index in unlocked.size():
+		if index == primary_index and not chapter_complete:
+			continue
+		var candidate: Dictionary = unlocked[index].duplicate(true)
+		var captures := int(captures_by_target.get(str(candidate.id), 0))
+		var mastery_level := CoreRulesScript.target_mastery_level(captures)
+		var next_requirement := CoreRulesScript.target_mastery_next_requirement(mastery_level)
+		candidate["board_mastery_remaining"] = 999 if next_requirement < 0 else next_requirement - captures
+		repeats.append(candidate)
+	repeats.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var remaining_a := int(a.get("board_mastery_remaining", 999))
+		var remaining_b := int(b.get("board_mastery_remaining", 999))
+		if remaining_a != remaining_b:
+			return remaining_a < remaining_b
+		return int(a.get("chapter_tier", 0)) > int(b.get("chapter_tier", 0))
+	)
+	var result: Array[Dictionary] = []
+	if not chapter_complete:
+		primary = primary.duplicate(true)
+		primary["board_role"] = "primary"
+		primary["board_reason"] = "MANDADO FINAL" if bool(primary.get("boss", false)) else "MANDADO PRINCIPAL"
+		result.append(primary)
+	for candidate in repeats:
+		if result.size() >= limit:
+			break
+		var captures := int(captures_by_target.get(str(candidate.id), 0))
+		var mastery_level := CoreRulesScript.target_mastery_level(captures)
+		var next_requirement := CoreRulesScript.target_mastery_next_requirement(mastery_level)
+		candidate["board_role"] = "repeat"
+		candidate["board_reason"] = "CONTRATO RECORRENTE · PERÍCIA MÁX." if next_requirement < 0 else "ROTA DE PERÍCIA · FALTAM %d" % (next_requirement - captures)
+		candidate.erase("board_mastery_remaining")
+		result.append(candidate)
+	return result
+
+
 static func contract_approaches() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	for approach in CONTRACT_APPROACHES:

@@ -352,7 +352,20 @@ func build_board() -> void:
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", 14)
 	scroller.add_child(list)
-	for bounty in ContentDB.available_bounties(int(GameState.player.reputation), str(planet.id), GameState.planet_tier(str(planet.id))):
+	var board_bounties := ContentDB.board_bounties(
+		int(GameState.player.reputation),
+		str(planet.id),
+		GameState.planet_tier(str(planet.id)),
+		GameState.player.get("captures_by_target", {})
+	)
+	if board_bounties.size() > 1:
+		var has_primary := board_bounties.any(func(bounty): return str(bounty.get("board_role", "")) == "primary")
+		var hint_text := "MANDADO PRINCIPAL EM DESTAQUE · ROTAS DE PERÍCIA CONTINUAM DISPONÍVEIS" if has_primary else "SETOR PACIFICADO · ESCOLHA UMA ROTA DE PERÍCIA"
+		var choice_hint := label(hint_text, 11, MUTED)
+		choice_hint.name = "BoardChoiceHint"
+		choice_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		list.add_child(choice_hint)
+	for bounty in board_bounties:
 		list.add_child(bounty_card(bounty))
 
 	var equipment := HBoxContainer.new()
@@ -634,7 +647,13 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 	var details := VBoxContainer.new()
 	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(details)
-	if bool(bounty.get("boss", false)):
+	var board_reason := str(bounty.get("board_reason", ""))
+	if not board_reason.is_empty():
+		var role_color := CORAL if str(bounty.get("board_role", "")) == "primary" else CYAN
+		var role := label(board_reason, 12, role_color)
+		role.name = "BountyRole_%s" % str(bounty.id)
+		details.add_child(role)
+	elif bool(bounty.get("boss", false)):
 		details.add_child(label("CHEFE DO CAPÍTULO", 12, GOLD))
 	details.add_child(label(str(bounty.name), 21, GOLD if bool(bounty.get("boss", false)) else INK))
 	details.add_child(label(str(bounty.title), 14, CORAL))
@@ -667,7 +686,9 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 	var risk := label("%s · %d%%" % [risk_text, roundi(odds * 100.0)], 14, risk_color, HORIZONTAL_ALIGNMENT_RIGHT)
 	risk.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.add_child(risk)
-	var hunt := action_button("ANALISAR ABORDAGENS", CYAN)
+	var is_repeat := str(bounty.get("board_role", "")) == "repeat"
+	var hunt := action_button("REPETIR CAÇADA" if is_repeat else "ANALISAR ABORDAGENS", GOLD if is_repeat else CYAN)
+	hunt.name = "BountyAction_%s" % str(bounty.id)
 	hunt.pressed.connect(func():
 		briefing_context = {}
 		GameState.select_bounty(bounty)

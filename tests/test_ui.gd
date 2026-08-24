@@ -30,13 +30,17 @@ func run_smoke_test() -> void:
 
 	var bounty: Dictionary = ContentDB.TARGETS[0].duplicate(true)
 	state.player.captures_by_target = {"gloop": 3}
+	state.player.reputation = 1
 	state.player.capture_streak = 2
 	scene.render()
 	await process_frame
+	check(scene.find_child("BoardChoiceHint", true, false) != null, "expanded board explains the primary-versus-repeat choice")
+	check(scene.find_child("BountyRole_gloop", true, false) != null and scene.find_child("BountyAction_gloop", true, false).text == "REPETIR CAÇADA", "prior warrant is clearly presented as a repeat hunt")
 	check(scene.find_child("BountyMastery_gloop", true, false) != null, "bounty cards expose target mastery progress")
 	check(scene.find_child("MasteryRoute_gloop", true, false) != null, "bounty board preserves the career mastery recommendation")
-	state.select_bounty(bounty)
+	(scene.find_child("BountyAction_gloop", true, false) as Button).pressed.emit()
 	await process_frame
+	check(str(state.current_bounty.id) == "gloop" and int(state.player.captures_by_target.gloop) == 3, "repeat action opens the prior target without mutating campaign progress")
 	check(scene.find_child("BriefingScroll", true, false) != null, "contract briefing renders")
 	check(scene.find_child("BriefingFieldTestContext", true, false) == null, "ordinary board briefings do not claim a prior field test")
 	check(scene.find_child("BriefingMastery", true, false) != null, "briefing explains mastery loot bonuses")
