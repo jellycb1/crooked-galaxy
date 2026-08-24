@@ -37,6 +37,7 @@ $Tests = @(
     "test_persistence.gd",
     "test_save_failures.gd",
     "test_save_backups.gd",
+    "test_corrupt_save_recovery.gd",
     "test_afk_persistence.gd",
     "test_clean_roundtrip.gd",
     "test_save_migrations.gd",

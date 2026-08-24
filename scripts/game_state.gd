@@ -37,6 +37,7 @@ var last_notice_context := ""
 var chapter_completion: Dictionary = {}
 var afk_report: Dictionary = {}
 var save_warning := ""
+var save_recovery_required := false
 
 
 func _ready() -> void:
@@ -841,6 +842,7 @@ func abandon_bounty() -> void:
 
 
 func reset_progress() -> void:
+	save_recovery_required = false
 	player = default_player()
 	phase = Phase.BOARD
 	current_bounty = {}
@@ -859,6 +861,8 @@ func reset_progress() -> void:
 func save_game() -> bool:
 	if not persistence_enabled:
 		return true
+	if save_recovery_required:
+		return false
 	player.last_seen_unix = maxf(float(player.get("last_seen_unix", 0.0)), Time.get_unix_time_from_system())
 	var payload := {
 		"version": SAVE_VERSION,
@@ -921,12 +925,44 @@ func retry_save() -> bool:
 	return saved
 
 
+func start_fresh_after_corruption() -> bool:
+	if not save_recovery_required:
+		return false
+	var source_paths: Array[String] = []
+	for path in [save_path, "%s.tmp" % save_path, "%s.bak" % save_path]:
+		if FileAccess.file_exists(path):
+			source_paths.append(path)
+	var suffix := ".corrupt"
+	if source_paths.any(func(path): return FileAccess.file_exists("%s%s" % [path, suffix])):
+		suffix = ".corrupt.%d" % int(Time.get_unix_time_from_system())
+	for path in source_paths:
+		var copy_error := DirAccess.copy_absolute(ProjectSettings.globalize_path(path), ProjectSettings.globalize_path("%s%s" % [path, suffix]))
+		if copy_error != OK:
+			save_warning = "SAVE DANIFICADO PRESERVADO · não foi possível criar a cópia de segurança para iniciar novamente."
+			changed.emit()
+			return false
+	for path in source_paths:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	reset_progress()
+	return save_warning.is_empty()
+
+
 func load_game() -> void:
 	last_notice = ""
 	last_notice_context = ""
 	afk_report = {}
 	save_warning = ""
+	save_recovery_required = false
 	player = default_player()
+	phase = Phase.BOARD
+	current_bounty = {}
+	offered_approaches = []
+	pending_loot = {}
+	hunt_event = {}
+	chapter_completion = {}
+	combat_events = []
+	combat_summary = {}
+	var save_family_exists := FileAccess.file_exists(save_path) or FileAccess.file_exists("%s.tmp" % save_path) or FileAccess.file_exists("%s.bak" % save_path)
 	# A fully flushed staging file means promotion was interrupted or blocked; it
 	# is newer than both committed copies and must win recovery precedence.
 	var parsed: Dictionary = read_save_dictionary("%s.tmp" % save_path)
@@ -937,6 +973,9 @@ func load_game() -> void:
 		parsed = read_save_dictionary("%s.bak" % save_path)
 		recovered_from_copy = not parsed.is_empty()
 	if parsed.is_empty():
+		if save_family_exists:
+			save_recovery_required = true
+			save_warning = "SAVE LOCAL DANIFICADO · nenhuma cópia íntegra foi encontrada. O arquivo original será preservado antes de iniciar um novo progresso."
 		return
 	if recovered_from_copy and FileAccess.file_exists(save_path):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(save_path))

@@ -22,6 +22,8 @@ Local write failures no longer fail silently. A phase-independent warning explai
 
 Save replacement is crash-resilient: a fully flushed staging payload is promoted before a latest-state backup is refreshed. Loading prefers a valid interrupted staging write, then primary, then backup; copy recovery is visible and rewrites the primary without rolling reward or incident transactions backward.
 
+If primary, staging, and backup are all unreadable, normal gameplay and writes remain blocked instead of silently replacing evidence with defaults. `INICIAR NOVO SAVE` is an explicit recovery decision that first preserves every damaged artifact under a `.corrupt` suffix, then creates a canonical primary/backup pair.
+
 Threshold captures explicitly preview and reveal the next warrant, keeping early progression visible without a modal tutorial.
 
 Reward screens also count the pending capture toward target mastery and preview its rare/epic loot bonus plus one-time workshop scrap funding before the player commits the loot decision.

@@ -158,6 +158,11 @@ func render() -> void:
 	build_header()
 	if not GameState.save_warning.is_empty():
 		content.add_child(save_warning_banner())
+	if GameState.save_recovery_required:
+		combat_timer.stop()
+		victory_timer.stop()
+		call_deferred("restore_action_focus", previous_focus_name, current_generation)
+		return
 	match GameState.phase:
 		GameState.Phase.BOARD:
 			if view_mode == "arsenal":
@@ -501,11 +506,12 @@ func save_warning_banner() -> PanelContainer:
 	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	message.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(message)
-	var retry := action_button("TENTAR\nNOVAMENTE", CORAL, true)
-	retry.name = "RetrySaveAction"
+	var recovery_required := GameState.save_recovery_required
+	var retry := action_button("INICIAR\nNOVO SAVE" if recovery_required else "TENTAR\nNOVAMENTE", CORAL, true)
+	retry.name = "StartFreshSaveAction" if recovery_required else "RetrySaveAction"
 	retry.custom_minimum_size = Vector2(112, 48)
 	retry.add_theme_font_size_override("font_size", 10)
-	retry.pressed.connect(GameState.retry_save)
+	retry.pressed.connect(GameState.start_fresh_after_corruption if recovery_required else GameState.retry_save)
 	row.add_child(retry)
 	return banner
 
