@@ -320,7 +320,12 @@ func run_smoke_test() -> void:
 	scene.render()
 	await process_frame
 	check(scene.find_child("GalaxyRoutes", true, false) != null, "galaxy map renders unlocked routes")
-	check(scene.find_children("GalaxyPlanetIcon_*", "Control", true, false).size() == ContentDB.PLANETS.size(), "every galaxy destination has a stable visual identity")
+	var planet_icons := scene.find_children("GalaxyPlanetIcon_*", "Control", true, false)
+	check(planet_icons.size() == ContentDB.PLANETS.size(), "every galaxy destination has a stable visual identity")
+	var planet_motifs := {}
+	for icon in planet_icons:
+		planet_motifs[icon.motif_id()] = true
+	check(not planet_motifs.has("unknown") and planet_motifs.size() == ContentDB.PLANETS.size(), "every canonical planet resolves a distinct visual motif")
 	scene.view_mode = "board"
 	scene.board_section = "bounties"
 	check(state.travel_to_planet("congelaria_sa"), "UI state can travel to an unlocked planet")

@@ -22,6 +22,21 @@ func configure(data: Dictionary, is_unlocked: bool, is_current: bool) -> void:
 	queue_redraw()
 
 
+func motif_id() -> String:
+	match planet_id:
+		"dustball_prime":
+			return "dustball"
+		"congelaria_sa":
+			return "ice"
+		"micelia_404":
+			return "fungus"
+		"ferro_velho_omega":
+			return "scrapyard"
+		"cassino_quasar":
+			return "quasar"
+	return "unknown"
+
+
 func _draw() -> void:
 	var center := size * 0.5
 	var radius := minf(size.x, size.y) * 0.34
@@ -32,20 +47,20 @@ func _draw() -> void:
 	draw_circle(center + Vector2(2, 3), radius + 1.0, Color(0.01, 0.02, 0.06, 0.72))
 	draw_circle(center, radius, color.darkened(0.34))
 	draw_arc(center, radius, 0.0, TAU, 32, color, 2.0, true)
-	match planet_id:
+	match motif_id():
 		"dustball":
 			draw_circle(center - Vector2(6, 4), 4.0, color.darkened(0.52))
 			draw_circle(center + Vector2(7, 5), 2.6, color.lightened(0.18))
 			draw_arc(center + Vector2(-2, 1), radius * 0.7, 0.18, 2.75, 16, color.lightened(0.12), 2.0, true)
-		"congelaria":
+		"ice":
 			draw_line(center - Vector2(radius - 3, 3), center + Vector2(radius - 3, -5), color.lightened(0.3), 2.0, true)
 			draw_line(center - Vector2(9, -9), center + Vector2(5, 11), Color("#d8ffff"), 2.0, true)
 			draw_line(center - Vector2(7, 7), center + Vector2(8, -8), Color("#d8ffff"), 1.5, true)
-		"micelia":
+		"fungus":
 			for offset in [Vector2(-8, -4), Vector2(4, -8), Vector2(8, 6)]:
 				draw_circle(center + offset, 4.2, color.lightened(0.22))
 				draw_line(center + offset + Vector2(0, 3), center + offset + Vector2(0, 8), color.darkened(0.22), 2.0, true)
-		"omega":
+		"scrapyard":
 			draw_arc(center, radius * 0.58, 0.0, TAU, 10, color.lightened(0.2), 3.0, true)
 			draw_circle(center, 4.0, Color("#081126"))
 			for angle in range(0, 360, 45):

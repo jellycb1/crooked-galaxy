@@ -740,10 +740,20 @@ func planet_card(planet: Dictionary) -> PanelContainer:
 	var unlocked := ContentDB.is_planet_unlocked(planet_id, GameState.player.get("completed_planets", []))
 	var completed: bool = GameState.player.get("completed_planets", []).has(planet_id)
 	var accent := Color(str(planet.accent))
-	var card := panel(VBoxContainer.new(), PANEL_LIGHT if unlocked else Color("#0b1228"), 18, 18)
+	var card_fill := Color("#173356") if current else (Color("#121d3d") if completed else (PANEL_LIGHT if unlocked else Color("#0b1228")))
+	var card := panel(VBoxContainer.new(), card_fill, 18, 12)
+	card.name = "GalaxyPlanet_%s" % planet_id
+	if current:
+		var current_style := card.get_theme_stylebox("panel") as StyleBoxFlat
+		current_style.border_color = accent
+		current_style.border_width_left = 2
+		current_style.border_width_top = 2
+		current_style.border_width_right = 2
+		current_style.border_width_bottom = 2
 	var box := card.get_child(0) as VBoxContainer
-	box.add_theme_constant_override("separation", 9)
+	box.add_theme_constant_override("separation", 5)
 	var heading := HBoxContainer.new()
+	heading.add_theme_constant_override("separation", 8)
 	box.add_child(heading)
 	var destination_icon := PlanetIconScript.new()
 	destination_icon.name = "GalaxyPlanetIcon_%s" % planet_id
@@ -752,13 +762,9 @@ func planet_card(planet: Dictionary) -> PanelContainer:
 	var names := VBoxContainer.new()
 	names.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_child(names)
-	names.add_child(label(str(planet.name).to_upper(), 22, accent if unlocked else MUTED))
-	names.add_child(label(str(planet.subtitle), 14, MUTED))
-	var route_status := "EM ÓRBITA" if current else ("CONCLUÍDO" if completed else ("ROTA ABERTA" if unlocked else "BLOQUEADO"))
-	heading.add_child(label(route_status, 12, LIME if current or completed else (accent if unlocked else CORAL), HORIZONTAL_ALIGNMENT_RIGHT))
-	var description := label(str(planet.get("description", "Fronteira empoeirada, contratos duvidosos e estacionamento abundante.")), 14, INK if unlocked else MUTED)
-	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	box.add_child(description)
+	names.add_child(label(str(planet.name).to_upper(), 19, accent if unlocked else MUTED))
+	var context_text := str(planet.subtitle)
+	var context_color := MUTED
 	if unlocked:
 		var progress_text := "CAPÍTULO CONCLUÍDO · %d CAPTURAS" % GameState.planet_capture_count(planet_id)
 		if not completed:
@@ -767,19 +773,34 @@ func planet_card(planet: Dictionary) -> PanelContainer:
 			var required := 1 if tier == 3 else 3
 			var target_captures := int(GameState.player.get("captures_by_target", {}).get(str(target.id), 0))
 			progress_text = "MANDADO ATUAL: %s · %d/%d" % [str(target.name).to_upper(), target_captures, required]
-		var progress := label(progress_text, 12, LIME if completed else GOLD)
+		context_text = progress_text
+		context_color = LIME if completed else GOLD
+		var progress := label(context_text, 11, context_color)
 		progress.name = "GalaxyPlanetProgress_%s" % planet_id
-		box.add_child(progress)
+		progress.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		names.add_child(progress)
+	else:
+		var requirement := ContentDB.get_planet(str(planet.get("unlock_after", ContentDB.PLANET.id)))
+		context_text = "CONCLUA %s PARA ABRIR A ROTA" % str(requirement.name).to_upper()
+		var requirement_label := label(context_text, 11, MUTED)
+		requirement_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		names.add_child(requirement_label)
 	if unlocked and not current:
-		var travel := action_button("VIAJAR PARA %s" % str(planet.name).to_upper(), accent)
+		var travel := action_button("VIAJAR", accent)
+		travel.name = "GalaxyTravel_%s" % planet_id
+		travel.custom_minimum_size = Vector2(94, 48)
+		travel.add_theme_font_size_override("font_size", 11)
 		travel.pressed.connect(func():
 			view_mode = "board"
 			GameState.travel_to_planet(planet_id)
 		)
-		box.add_child(travel)
-	elif not unlocked:
-		var requirement := ContentDB.get_planet(str(planet.get("unlock_after", ContentDB.PLANET.id)))
-		box.add_child(center_label("CONCLUA %s PARA TRAÇAR ESTA ROTA" % str(requirement.name).to_upper(), 12, MUTED))
+		heading.add_child(travel)
+	else:
+		var route_status := "EM ÓRBITA" if current else "BLOQUEADO"
+		var status := label(route_status, 11, LIME if current else CORAL, HORIZONTAL_ALIGNMENT_RIGHT)
+		status.custom_minimum_size = Vector2(82, 0)
+		status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		heading.add_child(status)
 	return card
 
 
