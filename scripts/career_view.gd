@@ -209,5 +209,20 @@ static func target_card(host: CrookedUIFactory, state: StateScript, target: Dict
 	var record := "CAPTURAS %d" % captures if captures > 0 else ("DISPONÍVEL" if revealed else "BLOQUEADO")
 	if captures > 0:
 		record += " · PERÍCIA %d/3" % Rules.target_mastery_level(captures)
-	row.add_child(host.label(record, 11, host.LIME if captures > 0 else (host.GOLD if revealed else host.MUTED), HORIZONTAL_ALIGNMENT_RIGHT))
+	var record_box := VBoxContainer.new()
+	record_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_child(record_box)
+	record_box.add_child(host.label(record, 11, host.LIME if captures > 0 else (host.GOLD if revealed else host.MUTED), HORIZONTAL_ALIGNMENT_RIGHT))
+	if planet_unlocked and tier_available:
+		var open_target := host.action_button("ABRIR", Color(str(planet.accent)), true)
+		open_target.name = "CareerTargetAction_%s" % target_id
+		open_target.custom_minimum_size = Vector2(88, 48)
+		open_target.add_theme_font_size_override("font_size", 11)
+		open_target.pressed.connect(func():
+			host.view_mode = "board"
+			host.briefing_context = {}
+			if state.travel_to_planet(planet_id):
+				state.select_bounty(Content.get_target(target_id))
+		)
+		record_box.add_child(open_target)
 	return card

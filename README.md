@@ -54,6 +54,8 @@ Post-combat reports summarize turns, damage and the contribution of tactical tra
 
 Long-career navigation keeps progress legible: galaxy cards distinguish completed chapters and name each open planet's current warrant, while career shortcuts jump directly between planetary progress and the twenty-target archive.
 
+Every revealed and currently available wanted record in that archive has a 48-unit `ABRIR` action that travels across unlocked planets and opens its briefing; revealed-but-sequentially-locked records remain read-only.
+
 ## Run
 
 Open `project.godot` in Godot 4, or run from a console where Godot is available:

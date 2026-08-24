@@ -27,11 +27,26 @@ func _init() -> void:
 	check(host.find_child("MasteryDirective", true, false) != null, "isolated career turns archive data into a repeat objective")
 	check(host.find_child("MasteryDirectiveAction", true, false) != null, "mastery objective links back to its warrant board")
 	check(host.find_child("CareerTarget_gloop", true, false) != null, "isolated career preserves wanted records")
+	var archive_target_action := host.find_child("CareerTargetAction_gloop", true, false) as Button
+	check(archive_target_action != null and archive_target_action.text == "ABRIR", "available archive records link back to their contract")
+	check(host.find_child("CareerTargetAction_baron_boom", true, false) == null, "captured but currently locked archive records do not bypass sequential progression")
 	var archive_jump := host.find_child("CareerArchiveJump", true, false) as Button
 	check(not archive_jump.pressed.get_connections().is_empty(), "wanted archive shortcut is wired to skip the long career ledger")
+	archive_target_action.pressed.emit()
+	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "gloop", "archive record opens its available target briefing directly")
+	state.cancel_briefing()
 	var action := host.find_child("MasteryDirectiveAction", true, false) as Button
 	action.pressed.emit()
 	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "gloop", "mastery directive opens the recommended target briefing directly")
+	state.cancel_briefing()
+	state.player.completed_planets = ["dustball_prime"]
+	for child in content.get_children():
+		child.free()
+	CareerViewScript.build(host, content, state)
+	var cross_planet_action := host.find_child("CareerTargetAction_auditor_frost", true, false) as Button
+	check(cross_planet_action != null, "archive exposes targets on unlocked completed routes")
+	cross_planet_action.pressed.emit()
+	check(str(state.player.current_planet_id) == "congelaria_sa" and state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "auditor_frost", "archive action travels to another planet and opens the selected briefing")
 
 	host.free()
 	state.free()
