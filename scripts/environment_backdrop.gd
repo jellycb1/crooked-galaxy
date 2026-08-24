@@ -1,15 +1,16 @@
 class_name EnvironmentBackdrop
 extends Control
 
-const CONTEXT_TEXTURES := {
-	"contracts": preload("res://assets/backgrounds/bounty_office.png"),
-	"world": preload("res://assets/backgrounds/frontier_spaceport.png"),
-	"workshop": preload("res://assets/backgrounds/arsenal_workshop.png"),
-	"combat": preload("res://assets/backgrounds/frontier_arena.png"),
+const CONTEXT_PATHS := {
+	"contracts": "res://assets/backgrounds/bounty_office.png",
+	"world": "res://assets/backgrounds/frontier_spaceport.png",
+	"workshop": "res://assets/backgrounds/arsenal_workshop.png",
+	"combat": "res://assets/backgrounds/frontier_arena.png",
 }
 
 var texture_rect: TextureRect
 var scrim: ColorRect
+var loaded_context := ""
 
 
 func _ready() -> void:
@@ -33,9 +34,19 @@ func _ready() -> void:
 
 
 func show_context(context: String) -> void:
-	if not CONTEXT_TEXTURES.has(context):
+	if not CONTEXT_PATHS.has(context):
+		texture_rect.texture = null
+		loaded_context = ""
 		visible = false
 		return
-	texture_rect.texture = CONTEXT_TEXTURES[context]
+	if context != loaded_context:
+		var texture := ResourceLoader.load(str(CONTEXT_PATHS[context]), "", ResourceLoader.CACHE_MODE_IGNORE) as Texture2D
+		if texture == null:
+			texture_rect.texture = null
+			loaded_context = ""
+			visible = false
+			return
+		texture_rect.texture = texture
+		loaded_context = context
 	scrim.color = Color(0.015, 0.025, 0.075, 0.72 if context == "world" or context == "workshop" else (0.52 if context == "combat" else 0.60))
 	visible = true

@@ -26,6 +26,12 @@ func run_smoke_test() -> void:
 	root.add_child(scene)
 	await process_frame
 	check(scene.content.get_child_count() >= 4, "bounty board renders")
+	check(scene.environment_context() == "contracts", "board resolves the original bounty-office environment")
+	scene.view_mode = "arsenal"
+	check(scene.environment_context() == "workshop", "arsenal resolves the original workshop environment")
+	scene.view_mode = "career"
+	check(scene.environment_context() == "world", "career resolves the original frontier-world environment")
+	scene.view_mode = "board"
 	check(scene.find_child("NextWarrantProgress", true, false) != null, "board keeps the next-warrant objective above the contract list")
 
 	var bounty: Dictionary = ContentDB.TARGETS[0].duplicate(true)
@@ -84,6 +90,7 @@ func run_smoke_test() -> void:
 	state.begin_combat()
 	await process_frame
 	check(state.player_hp > 0 and state.enemy_hp > 0, "combat screen initializes")
+	check(scene.environment_context() == "combat", "combat resolves the original frontier-arena environment")
 	var combat_loadout := scene.find_child("CombatLoadoutSummary", true, false) as Label
 	check(combat_loadout != null and combat_loadout.text.contains("ARMA") and combat_loadout.text.contains("ARMADURA"), "combat portrait names the equipment values driving its visual loadout")
 	var combat_incident := scene.find_child("CombatIncidentSummary", true, false) as Label

@@ -15,6 +15,7 @@ func run() -> void:
 	await process_frame
 	backdrop.show_context("contracts")
 	check(backdrop.visible, "original contract environment is available in exported and headless builds")
+	check(backdrop.loaded_context == "contracts", "environment loads only the requested contract context")
 	check(backdrop.texture_rect.texture != null, "contract environment resolves its imported texture")
 	check(maxi(backdrop.texture_rect.texture.get_width(), backdrop.texture_rect.texture.get_height()) <= 1280, "contract environment stays within the Android-first texture budget")
 	backdrop.show_context("world")
@@ -27,7 +28,7 @@ func run() -> void:
 	check(backdrop.visible and backdrop.texture_rect.texture != null, "original combat environment is runtime-ready")
 	check(maxi(backdrop.texture_rect.texture.get_width(), backdrop.texture_rect.texture.get_height()) <= 1280, "combat environment stays within the Android-first texture budget")
 	backdrop.show_context("unknown")
-	check(not backdrop.visible, "unknown environment contexts fall back without leaking a wrong location")
+	check(not backdrop.visible and backdrop.texture_rect.texture == null and backdrop.loaded_context.is_empty(), "unknown contexts release the prior texture and fail closed")
 	backdrop.queue_free()
 	if failures == 0:
 		print("PASS: original environment backgrounds are runtime-ready")
