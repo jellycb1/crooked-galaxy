@@ -31,6 +31,8 @@ func run_mobile_audit() -> void:
 	root.add_child(scene)
 	await process_frame
 	check_touch_targets(scene, "bounty board")
+	var header_character := scene.find_child("HeaderCharacterAction", true, false) as Button
+	check(header_character != null and header_character.size.y >= 48.0, "header character card remains a mobile touch target")
 	var board_hub_grid := scene.find_child("BoardHubGrid", true, false) as GridContainer
 	check(board_hub_grid != null and board_hub_grid.columns == 3 and board_hub_grid.get_child_count() == 6, "bounty board compacts six secondary destinations into a 3 by 2 mobile grid")
 	var build_version := scene.find_child("BuildVersion", true, false) as Label

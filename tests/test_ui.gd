@@ -26,6 +26,15 @@ func run_smoke_test() -> void:
 	root.add_child(scene)
 	await process_frame
 	check(scene.content.get_child_count() >= 4, "bounty board renders")
+	var header_character := scene.find_child("HeaderCharacterAction", true, false) as Button
+	check(header_character != null and scene.find_child("HeaderHunterPortrait", true, false) != null, "primary header keeps hunter identity and character navigation visible")
+	if header_character != null:
+		header_character.pressed.emit()
+		await process_frame
+		check(scene.view_mode == "attributes" and scene.find_child("AttributeScroll", true, false) != null, "header portrait opens the character build directly")
+		scene.view_mode = "board"
+		scene.render()
+		await process_frame
 	check(scene.environment_context() == "contracts", "board resolves the original bounty-office environment")
 	scene.view_mode = "arsenal"
 	check(scene.environment_context() == "workshop", "arsenal resolves the original workshop environment")

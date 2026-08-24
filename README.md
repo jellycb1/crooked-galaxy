@@ -20,6 +20,8 @@ The bounty board now links to a deterministic three-offer planet market. Credits
 
 The bounty board keeps its next contract visually dominant through a compact 3×2 hunter-hub grid. Arsenal, market, hangar, galaxy, career, and class/attribute destinations retain 48-unit touch targets without consuming a full six-button column; pending class choice, attribute points, career claims, and funded build testing remain visible through concise labels and color.
 
+The persistent header keeps the equipped hunter visible beside level and power. Its framed portrait is also a 48-unit character shortcut, taking the player directly to class and attribute decisions without adding another board row.
+
 The `HANGAR DUVIDOSO` adds four permanent transports unlocked across chapter completion. Bought models can be equipped freely and reduce only the approach's base hunt time by 10–40%; incident delays remain fully additive, while combat odds, rewards, loot power, and AFK patrols remain unchanged. Prices compete directly with market spending, turning the fastest models into campaign and post-campaign credit goals rather than compulsory combat upgrades. Ownership and the active model persist atomically through save schema 9, while malformed or prematurely unlocked records are repaired safely.
 
 Market and hangar now expose each other as neutral spending alternatives. The market names the nearest unowned permanent transport and its exact speed/price, while the hangar reports how many current stock offers are genuine complete-build combat upgrades and the cheapest entry price. One-tap cross-navigation keeps the comparison actionable without reserving currency, recommending a compulsory purchase, or changing either economy.

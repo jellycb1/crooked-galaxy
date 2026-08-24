@@ -336,13 +336,41 @@ func build_header() -> void:
 	build_version.name = "BuildVersion"
 	location_row.add_child(build_version)
 
-	var level_badge := panel(VBoxContainer.new(), PANEL_LIGHT, 14, 14)
-	level_badge.custom_minimum_size = Vector2(122, 72)
-	top.add_child(level_badge)
-	var badge_box := level_badge.get_child(0) as VBoxContainer
-	badge_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	badge_box.add_child(label("NÍVEL %d" % int(GameState.player.level), 16, GOLD, HORIZONTAL_ALIGNMENT_CENTER))
-	badge_box.add_child(label("PODER %d" % CoreRules.player_power(GameState.player), 18, INK, HORIZONTAL_ALIGNMENT_CENTER))
+	var character_badge := Button.new()
+	character_badge.name = "HeaderCharacterAction"
+	character_badge.custom_minimum_size = Vector2(132, 72)
+	character_badge.focus_mode = Control.FOCUS_ALL
+	character_badge.tooltip_text = "Abrir classe e atributos"
+	character_badge.add_theme_stylebox_override("normal", box_style(PANEL_LIGHT, 14))
+	character_badge.add_theme_stylebox_override("hover", bordered_box_style(Color("#213660"), 14, CYAN, 2))
+	character_badge.add_theme_stylebox_override("pressed", bordered_box_style(Color("#0c1835"), 14, CYAN, 2))
+	character_badge.add_theme_stylebox_override("focus", bordered_box_style(Color("#16284d"), 14, GOLD, 3))
+	character_badge.pressed.connect(func():
+		attribute_draft = {}
+		view_mode = "attributes"
+		render()
+	)
+	top.add_child(character_badge)
+	var badge_margin := MarginContainer.new()
+	badge_margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	for side in ["left", "top", "right", "bottom"]:
+		badge_margin.add_theme_constant_override("margin_%s" % side, 7)
+	badge_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	character_badge.add_child(badge_margin)
+	var badge_row := HBoxContainer.new()
+	badge_row.add_theme_constant_override("separation", 5)
+	badge_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge_margin.add_child(badge_row)
+	var header_portrait := framed_hunter_portrait(50)
+	header_portrait.name = "HeaderHunterPortrait"
+	badge_row.add_child(header_portrait)
+	var badge_copy := VBoxContainer.new()
+	badge_copy.alignment = BoxContainer.ALIGNMENT_CENTER
+	badge_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	badge_copy.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge_row.add_child(badge_copy)
+	badge_copy.add_child(label("NÍVEL %d" % int(GameState.player.level), 12, GOLD, HORIZONTAL_ALIGNMENT_CENTER))
+	badge_copy.add_child(label("PODER %d" % CoreRules.player_power(GameState.player), 13, INK, HORIZONTAL_ALIGNMENT_CENTER))
 
 	var stats := HBoxContainer.new()
 	stats.add_theme_constant_override("separation", 10)
@@ -351,6 +379,16 @@ func build_header() -> void:
 	stats.add_child(stat_chip("SUCATA", str(GameState.player.get("scrap", 0)), CORAL))
 	stats.add_child(stat_chip("REPUTAÇÃO", "RANK %d" % (int(GameState.player.reputation) + 1), LIME))
 	stats.add_child(stat_chip("VITÓRIAS", str(GameState.player.wins), CYAN))
+
+
+func bordered_box_style(fill: Color, radius: int, border: Color, width: int) -> StyleBoxFlat:
+	var style := box_style(fill, radius)
+	style.border_color = border
+	style.border_width_left = width
+	style.border_width_top = width
+	style.border_width_right = width
+	style.border_width_bottom = width
+	return style
 
 
 func active_planet() -> Dictionary:
@@ -502,6 +540,31 @@ func reference_ui_decoration(key: String, height: float) -> TextureRect:
 	decoration.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	decoration.tooltip_text = "PLACEHOLDER INTERNO · ornamento provisório"
 	return decoration
+
+
+func framed_hunter_portrait(dimension: float) -> Control:
+	var frame_texture: Texture2D = reference_backdrop.ui_texture("portrait_frame") if reference_backdrop != null and reference_backdrop.has_method("ui_texture") else null
+	if frame_texture == null:
+		return character_portrait("hunter", dimension, GameState.player)
+	var stack := Control.new()
+	stack.custom_minimum_size = Vector2(dimension, dimension)
+	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var portrait := character_portrait("hunter", dimension - 6.0, GameState.player)
+	portrait.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	portrait.offset_left = 3.0
+	portrait.offset_top = 3.0
+	portrait.offset_right = -3.0
+	portrait.offset_bottom = -3.0
+	stack.add_child(portrait)
+	var frame := TextureRect.new()
+	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	frame.texture = frame_texture
+	frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	frame.stretch_mode = TextureRect.STRETCH_SCALE
+	frame.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_child(frame)
+	return stack
 
 
 func rank_progress_panel() -> PanelContainer:
