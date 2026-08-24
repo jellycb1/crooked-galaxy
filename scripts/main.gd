@@ -16,6 +16,7 @@ const MarketViewScript = preload("res://scripts/market_view.gd")
 const HangarViewScript = preload("res://scripts/hangar_view.gd")
 const PlanetIconScript = preload("res://scripts/planet_icon.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
+const HuntChoiceIconScript = preload("res://scripts/hunt_choice_icon.gd")
 
 var body: VBoxContainer
 var content: VBoxContainer
@@ -1282,38 +1283,54 @@ func abandon_contract_text() -> String:
 
 
 func hunt_choice_card(choice: Dictionary, accent: Color) -> PanelContainer:
-	var card := panel(HBoxContainer.new(), PANEL, 13, 12)
+	var kind := hunt_choice_kind(choice)
+	var choice_color := GOLD if kind == "tactical" else (CYAN if kind == "detour" else CORAL)
+	var card_fill := Color("#181d38") if kind == "tactical" else (Color("#10213d") if kind == "detour" else Color("#25162f"))
+	var card := panel(HBoxContainer.new(), card_fill, 13, 11)
 	var row := card.get_child(0) as HBoxContainer
-	row.add_theme_constant_override("separation", 12)
+	row.add_theme_constant_override("separation", 10)
+	var decision_icon: Control = HuntChoiceIconScript.new()
+	decision_icon.name = "HuntChoiceIcon_%s" % str(choice.id)
+	decision_icon.configure(kind, choice_color)
+	row.add_child(decision_icon)
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	copy.add_child(label(str(choice.name), 15, accent))
+	copy.add_child(label(str(choice.name), 15, choice_color))
 	var effect := label(str(choice.effect_text), 13, MUTED)
 	effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(effect)
 	var projected_contract := ContentDB.apply_hunt_choice(GameState.current_bounty, choice)
 	var projected_payment := CoreRules.bounty_streak_reward(int(projected_contract.credits), int(GameState.player.get("capture_streak", 0)) + 1)
-	var payment_text := "PAGAMENTO SE VENCER · ◈ %d" % int(projected_payment.credits)
+	var payment_text := "VITÓRIA ◈ %d" % int(projected_payment.credits)
 	if int(projected_payment.bonus_credits) > 0:
 		payment_text += " · EMBALO +%d INCLUÍDO" % int(projected_payment.bonus_credits)
 	var choice_cost := int(choice.get("credit_cost", 0))
 	if choice_cost > 0:
-		payment_text += " · LÍQUIDO APÓS CUSTO ◈ %d" % (int(projected_payment.credits) - choice_cost)
-	var payment := label(payment_text, 11, GOLD)
+		payment_text += " · LÍQUIDO ◈ %d" % (int(projected_payment.credits) - choice_cost)
+	var payment := label(payment_text, 11, choice_color)
 	payment.name = "HuntChoicePayment_%s" % str(choice.id)
 	copy.add_child(payment)
 	var affordable := GameState.can_afford_hunt_choice(choice)
 	var missing_credits := maxi(0, choice_cost - int(GameState.player.credits))
 	var choice_text := "ESCOLHER" if affordable else "FALTAM %d CR" % missing_credits
-	var choose := action_button(choice_text, accent, true)
-	choose.custom_minimum_size = Vector2(142, 48)
+	var choose := action_button(choice_text, choice_color, true)
+	choose.custom_minimum_size = Vector2(122, 48)
+	choose.add_theme_font_size_override("font_size", 13)
 	choose.disabled = not affordable
 	var choice_id := str(choice.id)
 	choose.name = "HuntChoice_%s" % choice_id
 	choose.pressed.connect(func(): GameState.resolve_hunt_event(choice_id))
 	row.add_child(choose)
 	return card
+
+
+func hunt_choice_kind(choice: Dictionary) -> String:
+	if int(choice.get("credit_cost", 0)) > 0:
+		return "tactical"
+	if float(choice.get("duration_add", 0.0)) > 0.0:
+		return "detour"
+	return "risk"
 
 
 func build_combat() -> void:

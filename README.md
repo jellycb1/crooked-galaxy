@@ -82,6 +82,8 @@ Repeated-contract briefings mark each route's displayed payment as already strea
 
 Hunt incidents recompute and display the final victory payment for every choice, including any streak amount already embedded after that consequence.
 
+Every incident uses the same visual decision grammar: a shield marks paid tactical advantage, a branching route and clock mark the slower experience path, and a lightning bolt marks the higher-risk credit option. Distinct card colors and compact `VITÓRIA / LÍQUIDO` receipts keep all three consequences comparable without turning the encounter into a financial form.
+
 Their interruption panel also names the exact paused hunt percentage and remaining seconds, making it clear that the idle timer resumes after the choice rather than having stalled.
 
 Paid incident options additionally show the net contract gain after their immediate credit cost.

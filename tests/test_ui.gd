@@ -86,6 +86,11 @@ func run_smoke_test() -> void:
 	scene.render()
 	await process_frame
 	check(scene.find_child("HuntEventChoices", true, false) != null, "mid-hunt incident renders")
+	var incident_icons := scene.find_children("HuntChoiceIcon_*", "Control", true, false)
+	var incident_kinds := {}
+	for icon in incident_icons:
+		incident_kinds[icon.kind] = true
+	check(incident_icons.size() == 3 and incident_kinds.size() == 3 and ["tactical", "detour", "risk"].all(func(kind): return incident_kinds.has(kind)), "incident choices carry the reusable tactical, detour, and risk visual grammar")
 	var incident_abandon := scene.find_child("HuntAbandonAction", true, false) as Button
 	check(incident_abandon != null and incident_abandon.text.contains("PERDER EMBALO ×2"), "paused incident preserves the same explicit abandonment consequence")
 	var pause_status := scene.find_child("HuntEventPauseStatus", true, false) as Label
@@ -93,7 +98,7 @@ func run_smoke_test() -> void:
 	var incident_payments := scene.find_children("HuntChoicePayment_*", "Label", true, false)
 	check(incident_payments.size() == 3 and incident_payments.all(func(payment): return str(payment.text).contains("EMBALO") and str(payment.text).contains("INCLUÍDO")), "incident choices project streak-adjusted victory payments")
 	var paid_incident := scene.find_child("HuntChoicePayment_bribe", true, false) as Label
-	check(paid_incident != null and paid_incident.text.contains("LÍQUIDO APÓS CUSTO"), "paid incident choice exposes its net contract gain")
+	check(paid_incident != null and paid_incident.text.contains("LÍQUIDO"), "paid incident choice exposes its net contract gain")
 	var unavailable_paid_choice := scene.find_child("HuntChoice_bribe", true, false) as Button
 	var free_choice := scene.find_child("HuntChoice_detour", true, false) as Button
 	check(unavailable_paid_choice != null and unavailable_paid_choice.disabled and unavailable_paid_choice.text == "FALTAM 8 CR", "unaffordable incident choice names the exact credit shortfall")
