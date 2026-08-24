@@ -67,6 +67,7 @@ func center_label(text_value: String, size: int, color: Color) -> Label:
 func action_button(text_value: String, color: Color, outline := false) -> Button:
 	var button := Button.new()
 	button.text = text_value
+	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	button.focus_mode = Control.FOCUS_ALL
 	button.custom_minimum_size = Vector2(0, 62)
 	button.add_theme_font_size_override("font_size", 17)

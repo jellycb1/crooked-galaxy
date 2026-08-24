@@ -26,7 +26,9 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	box.add_theme_constant_override("separation", 3)
 	box.add_child(host.center_label("⚙", 46, Color(str(item.color))))
 	box.add_child(host.center_label(str(item.rarity).to_upper(), 15, Color(str(item.color))))
-	box.add_child(host.center_label(str(item.name), 25, host.INK))
+	var item_name := host.center_label(str(item.name), 25, host.INK)
+	item_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(item_name)
 	var origin_id := str(item.get("origin_planet_id", ""))
 	if not origin_id.is_empty():
 		box.add_child(host.center_label("ORIGEM · %s" % str(Content.get_planet(origin_id).name).to_upper(), 12, host.CYAN))

@@ -14,6 +14,8 @@ Every primary screen also exposes a visible keyboard/controller focus ring. Rebu
 
 The arsenal includes a persistent reduced-motion preference. It removes the decorative loot fade while preserving automatic combat, its deliberate 1× default, the readable victory receipt pause, and the explicit skip action.
 
+Dense decision layouts are regression-tested with 125% expanded typography. Shared actions and long loot names wrap by words so briefing, incident, threshold reward, career, and arsenal controls remain reachable at the mobile viewport.
+
 Threshold captures explicitly preview and reveal the next warrant, keeping early progression visible without a modal tutorial.
 
 Reward screens also count the pending capture toward target mastery and preview its rare/epic loot bonus plus one-time workshop scrap funding before the player commits the loot decision.
