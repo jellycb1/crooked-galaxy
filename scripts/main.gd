@@ -17,6 +17,7 @@ const HangarViewScript = preload("res://scripts/hangar_view.gd")
 const PlanetIconScript = preload("res://scripts/planet_icon.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const HuntChoiceIconScript = preload("res://scripts/hunt_choice_icon.gd")
+const HubDestinationIconScript = preload("res://scripts/hub_destination_icon.gd")
 
 var body: VBoxContainer
 var content: VBoxContainer
@@ -501,34 +502,34 @@ func build_board_destinations() -> void:
 	var scrap := int(GameState.player.get("scrap", 0))
 	var cheapest_calibration := mini(CoreRules.equipment_upgrade_cost(GameState.player.weapon), CoreRules.equipment_upgrade_cost(GameState.player.armor))
 	var funded_field_test := equipped_receipt and scrap >= cheapest_calibration
-	hub_grid.add_child(board_hub_action("TESTAR BUILD\nOFICINA" if funded_field_test else "ARSENAL\n%d PEÇAS" % GameState.player.inventory.size(), LIME if funded_field_test else GOLD, "PostClaimFieldTestAction" if funded_field_test else "ArsenalAction", func():
+	hub_grid.add_child(board_hub_action("TESTAR BUILD\nOFICINA" if funded_field_test else "ARSENAL\n%d PEÇAS" % GameState.player.inventory.size(), LIME if funded_field_test else GOLD, "arsenal", "PostClaimFieldTestAction" if funded_field_test else "ArsenalAction", func():
 		if funded_field_test:
 			arsenal_section = "equipped"
 		view_mode = "arsenal"
 		render()
 	))
-	hub_grid.add_child(board_hub_action("MERCADO\nEQUIPAMENTO", GOLD, "BoardMarketAction", func():
+	hub_grid.add_child(board_hub_action("MERCADO\nEQUIPAMENTO", GOLD, "market", "BoardMarketAction", func():
 		view_mode = "market"
 		render()
 	))
-	hub_grid.add_child(board_hub_action("HANGAR\nTRANSPORTE", CYAN, "BoardHangarAction", func():
+	hub_grid.add_child(board_hub_action("HANGAR\nTRANSPORTE", CYAN, "hangar", "BoardHangarAction", func():
 		view_mode = "hangar"
 		render()
 	))
-	hub_grid.add_child(board_hub_action("MAPA\nPLANETAS", CYAN, "BoardGalaxyAction", func():
+	hub_grid.add_child(board_hub_action("MAPA\nPLANETAS", CYAN, "galaxy", "BoardGalaxyAction", func():
 		view_mode = "galaxy"
 		render()
 	))
 	var ready_rewards := GameState.career_rewards_ready()
 	var career_text := "CARREIRA\n%d PRÊMIOS" % ready_rewards if ready_rewards > 0 else "CARREIRA\nPROGRESSO"
-	hub_grid.add_child(board_hub_action(career_text, LIME, "BoardCareerAction", func():
+	hub_grid.add_child(board_hub_action(career_text, LIME, "career", "BoardCareerAction", func():
 		view_mode = "career"
 		render()
 	))
 	var available_points := int(GameState.player.get("stat_points", 0))
 	var class_unassigned := str(GameState.player.get("class_id", "")).is_empty()
 	var attributes_text := "CAÇADOR\nESCOLHER CLASSE" if class_unassigned else ("CAÇADOR\n%d PONTOS" % available_points if available_points > 0 else "CAÇADOR\nEQUIPAMENTO E STATUS")
-	hub_grid.add_child(board_hub_action(attributes_text, CORAL if class_unassigned or available_points > 0 else CYAN, "BoardAttributesAction", func():
+	hub_grid.add_child(board_hub_action(attributes_text, CORAL if class_unassigned or available_points > 0 else CYAN, "hunter", "BoardAttributesAction", func():
 		attribute_draft = {}
 		view_mode = "attributes"
 		render()
@@ -599,12 +600,22 @@ func build_board_bounties() -> void:
 		list.add_child(bounty_card(bounty))
 
 
-func board_hub_action(text_value: String, color: Color, node_name: String, callback: Callable) -> Button:
+func board_hub_action(text_value: String, color: Color, icon_kind: String, node_name: String, callback: Callable) -> Button:
 	var button := action_button(text_value, color, true)
 	button.name = node_name
 	button.custom_minimum_size = Vector2(0, 78)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.add_theme_font_size_override("font_size", 12)
+	button.add_theme_font_size_override("font_size", 11)
+	var icon: Control = HubDestinationIconScript.new()
+	icon.name = "BoardHubIcon_%s" % icon_kind
+	icon.configure(icon_kind, color)
+	icon.anchor_top = 0.5
+	icon.anchor_bottom = 0.5
+	icon.offset_left = 8.0
+	icon.offset_top = -24.0
+	icon.offset_right = 56.0
+	icon.offset_bottom = 24.0
+	button.add_child(icon)
 	button.pressed.connect(callback)
 	return button
 

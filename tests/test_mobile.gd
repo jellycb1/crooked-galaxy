@@ -41,6 +41,7 @@ func run_mobile_audit() -> void:
 		await process_frame
 	var board_hub_grid := scene.find_child("BoardHubGrid", true, false) as GridContainer
 	check(board_hub_grid != null and board_hub_grid.columns == 2 and board_hub_grid.get_child_count() == 6, "destinations use a readable 2 by 3 mobile grid")
+	check(scene.find_children("BoardHubIcon_*", "Control", true, false).size() == 6, "every board destination has a distinct scalable navigation icon")
 	check_touch_targets(scene, "board destinations")
 	check(scene.android_back_action() == "board_bounties", "Android Back returns destinations to the primary contract view")
 	scene.handle_android_back_request()
