@@ -3,6 +3,7 @@ extends SceneTree
 const FactoryScript = preload("res://scripts/ui_factory.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const ArsenalScript = preload("res://scripts/arsenal_view.gd")
+const ContractRules = preload("res://scripts/contract_rules.gd")
 
 var failures := 0
 
@@ -51,7 +52,7 @@ func _init() -> void:
 	var readiness_approach := host.find_child("FieldReadinessApproach", true, false) as Label
 	check(readiness_approach != null and readiness_approach.text.contains("REDE SILENCIOSA"), "field test names the fixed approach behind its projections")
 	var field_action := host.find_child("FieldReadinessAction", true, false) as Button
-	check(field_action != null and field_action.text == "CAÇAR AGORA", "field test links an available uncaptured warrant directly")
+	check(field_action != null and field_action.text == "ESCOLHER ROTA", "field test truthfully links an available warrant to route selection")
 	state.player.captures_by_target.baron_boom = 1
 	state.player.captures_by_planet.dustball_prime = 4
 	check(str(ArsenalScript.field_readiness(state).target.id) == "madame_vacuum", "field test advances after the new warrant's first capture")
@@ -61,7 +62,8 @@ func _init() -> void:
 	check(str(recovery_readiness.target.id) == "baron_boom" and bool(recovery_readiness.recovery_focus), "field test keeps the defeated warrant in focus instead of projecting a locked tier")
 	var power_before_recovery_upgrade := int(state.player.weapon.power)
 	check(state.upgrade_equipped("weapon") and int(state.player.weapon.power) == power_before_recovery_upgrade + 1, "recovery workshop accepts a real upgrade transaction")
-	check(str(ArsenalScript.field_readiness(state).target.id) == "baron_boom", "upgrade transaction preserves revenge focus")
+	var recovery_after_upgrade := ArsenalScript.field_readiness(state)
+	check(str(recovery_after_upgrade.target.id) == "baron_boom", "upgrade transaction preserves revenge focus")
 	clear_children(content)
 	ArsenalScript.build(host, content, state)
 	var recovery_notice := host.find_child("WorkshopNotice", true, false) as Label
@@ -73,6 +75,8 @@ func _init() -> void:
 	state.player.captures_by_planet.dustball_prime = 3
 	field_action.pressed.emit()
 	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "baron_boom", "field-test action opens the focused warrant briefing")
+	var briefing_evaluations := ContractRules.evaluate_approaches(state.player, state.current_bounty, state.offered_approaches)
+	check(ContractRules.recommended_approach_id(briefing_evaluations) == str(recovery_after_upgrade.approach.id), "briefing preserves the same recommended approach shown by the field test")
 	var late_state = StateScript.new()
 	late_state.persistence_enabled = false
 	late_state.player = late_state.default_player()

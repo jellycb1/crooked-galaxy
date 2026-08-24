@@ -22,10 +22,10 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	titles.add_child(subtitle)
 	if not readiness.is_empty() and bool(readiness.target_available):
 		var focused_target: Dictionary = readiness.target
-		var analyze := host.action_button("CAÇAR AGORA", host.LIME, true)
+		var analyze := host.action_button("ESCOLHER ROTA", host.LIME, true)
 		analyze.name = "FieldReadinessAction"
-		analyze.custom_minimum_size = Vector2(112, 48)
-		analyze.add_theme_font_size_override("font_size", 11)
+		analyze.custom_minimum_size = Vector2(150, 48)
+		analyze.add_theme_font_size_override("font_size", 12)
 		var target_id := str(focused_target.id)
 		analyze.pressed.connect(func():
 			host.view_mode = "board"
