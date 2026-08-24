@@ -211,18 +211,29 @@ func _init() -> void:
 	var repaired_file := FileAccess.open(damaged_save, FileAccess.READ)
 	var repaired_payload = JSON.parse_string(repaired_file.get_as_text())
 	check(int(repaired_payload.phase) == repaired.Phase.BOARD and repaired_payload.current_bounty is Dictionary, "phase repair is persisted so the same damaged save cannot recur")
+	var forged_contract := ContentDB.apply_approach(ContentDB.TARGETS[0], ContentDB.CONTRACT_APPROACHES[0])
+	forged_contract = ContentDB.apply_hunt_choice(forged_contract, ContentDB.HUNT_EVENTS[0].choices[0])
+	forged_contract.power = 999
+	forged_contract.credits = 9999
+	forged_contract.approach.power_mult = 99.0
+	var forged_event: Dictionary = ContentDB.HUNT_EVENTS[0].duplicate(true)
+	forged_event.choices[0].credit_mult = 99.0
 	repaired_file = FileAccess.open(damaged_save, FileAccess.WRITE)
 	repaired_file.store_string(JSON.stringify({
 		"version": StateScript.SAVE_VERSION,
 		"player": source.default_player(),
 		"phase": source.Phase.REWARD,
-		"current_bounty": ContentDB.TARGETS[0],
+		"current_bounty": forged_contract,
 		"pending_loot": {"id": "pending_forged", "name": "Loot Adulterado", "slot": "weapon", "power": 6, "rarity": "Épico", "color": "#d789ff", "origin_planet_id": "invented_planet", "trait": {"id": "ambush_capacitor", "name": "FORJADO", "description": "+999", "opening_damage_bonus": 999}},
+		"hunt_event": forged_event,
 	}))
 	repaired_file = null
 	repaired.load_game()
 	check(repaired.phase == repaired.Phase.REWARD and str(repaired.pending_loot.id) == "pending_forged", "usable pending loot preserves the interrupted reward decision during nested repair")
 	check(int(repaired.pending_loot.trait.opening_damage_bonus) == 5 and not repaired.pending_loot.has("origin_planet_id"), "pending loot receives the same canonical trait and origin repair as owned equipment")
+	var expected_contract := ContentDB.apply_hunt_choice(ContentDB.apply_approach(ContentDB.TARGETS[0], ContentDB.CONTRACT_APPROACHES[0]), ContentDB.HUNT_EVENTS[0].choices[0])
+	check(int(repaired.current_bounty.power) == int(expected_contract.power) and int(repaired.current_bounty.credits) == int(expected_contract.credits), "loaded contract economics are rebuilt from canonical target, approach, and incident choice")
+	check(float(repaired.current_bounty.approach.power_mult) == float(ContentDB.CONTRACT_APPROACHES[0].power_mult) and repaired.payloads_equivalent(repaired.hunt_event, ContentDB.HUNT_EVENTS[0]), "nested approach and incident catalogs cannot retain forged multipliers")
 	repaired_file = FileAccess.open(damaged_save, FileAccess.WRITE)
 	repaired_file.store_string(JSON.stringify({
 		"version": StateScript.SAVE_VERSION,

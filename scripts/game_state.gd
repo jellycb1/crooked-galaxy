@@ -883,11 +883,21 @@ func load_game() -> void:
 	var phase_payload_repaired := false
 	phase = int(parsed.get("phase", Phase.BOARD))
 	var loaded_bounty = parsed.get("current_bounty", {})
-	current_bounty = loaded_bounty if loaded_bounty is Dictionary else {}
-	if not loaded_bounty is Dictionary:
+	current_bounty = {}
+	if loaded_bounty is Dictionary:
+		var bounty_result := canonicalize_loaded_bounty(loaded_bounty)
+		current_bounty = bounty_result.bounty
+		phase_payload_repaired = bool(bounty_result.repaired)
+	else:
 		phase_payload_repaired = true
 	var loaded_approaches = parsed.get("offered_approaches", [])
-	offered_approaches.assign(loaded_approaches if loaded_approaches is Array else [])
+	offered_approaches.clear()
+	if loaded_approaches is Array and not loaded_approaches.is_empty():
+		offered_approaches.assign(ContentDB.contract_approaches())
+		if not payloads_equivalent(loaded_approaches, offered_approaches):
+			phase_payload_repaired = true
+	elif not loaded_approaches is Array:
+		phase_payload_repaired = true
 	var loaded_loot = parsed.get("pending_loot", {})
 	pending_loot = loaded_loot.duplicate(true) if loaded_loot is Dictionary else {}
 	if not loaded_loot is Dictionary:
@@ -901,7 +911,16 @@ func load_game() -> void:
 	hunt_started_at = float(parsed.get("hunt_started_at", 0.0))
 	hunt_ends_at = float(parsed.get("hunt_ends_at", 0.0))
 	var loaded_hunt_event = parsed.get("hunt_event", {})
-	hunt_event = loaded_hunt_event if loaded_hunt_event is Dictionary else {}
+	hunt_event = {}
+	if loaded_hunt_event is Dictionary and not loaded_hunt_event.is_empty():
+		for definition in ContentDB.HUNT_EVENTS:
+			if str(definition.id) == str(loaded_hunt_event.get("id", "")):
+				hunt_event = definition.duplicate(true)
+				break
+		if hunt_event.is_empty() or not payloads_equivalent(hunt_event, loaded_hunt_event):
+			phase_payload_repaired = true
+	elif not loaded_hunt_event is Dictionary:
+		phase_payload_repaired = true
 	hunt_event_triggered = bool(parsed.get("hunt_event_triggered", false))
 	hunt_elapsed_before_event = float(parsed.get("hunt_elapsed_before_event", 0.0))
 	hunt_remaining_after_event = float(parsed.get("hunt_remaining_after_event", 0.0))
@@ -1071,6 +1090,50 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	return {"player": sanitized, "repaired": repaired}
 
 
+func canonicalize_loaded_bounty(loaded: Dictionary) -> Dictionary:
+	if loaded.is_empty():
+		return {"bounty": {}, "repaired": false}
+	var canonical_target := {}
+	for target in ContentDB.TARGETS:
+		if str(target.id) == str(loaded.get("id", "")):
+			canonical_target = target.duplicate(true)
+			break
+	if canonical_target.is_empty():
+		return {"bounty": {}, "repaired": true}
+	var bounty: Dictionary = canonical_target
+	var loaded_approach = loaded.get("approach", {})
+	if loaded_approach is Dictionary and not loaded_approach.is_empty():
+		for approach in ContentDB.contract_approaches():
+			if str(approach.id) == str(loaded_approach.get("id", "")):
+				bounty = ContentDB.apply_approach(bounty, approach)
+				break
+	var choice_id := str(loaded.get("hunt_event_choice_id", ""))
+	var result_text := str(loaded.get("hunt_event_result", ""))
+	if not choice_id.is_empty() or not result_text.is_empty():
+		for event in ContentDB.HUNT_EVENTS:
+			for choice in event.choices:
+				if (not choice_id.is_empty() and str(choice.id) == choice_id) or (choice_id.is_empty() and str(choice.result) == result_text):
+					bounty = ContentDB.apply_hunt_choice(bounty, choice)
+					choice_id = str(choice.id)
+					break
+			if str(bounty.get("hunt_event_choice_id", "")) == choice_id and not choice_id.is_empty():
+				break
+	var loaded_field_context = loaded.get("field_test_context", {})
+	if loaded_field_context is Dictionary and not loaded_field_context.is_empty():
+		var tested_approach := ContentDB.contract_approaches().filter(func(approach): return str(approach.id) == str(loaded_field_context.get("tested_approach_id", "")))
+		var chosen_approach := ContentDB.contract_approaches().filter(func(approach): return str(approach.id) == str(loaded_field_context.get("chosen_approach_id", "")))
+		if not tested_approach.is_empty() and not chosen_approach.is_empty():
+			bounty.field_test_context = {
+				"tested_approach_id": str(tested_approach[0].id),
+				"tested_approach_name": str(tested_approach[0].name),
+				"tested_odds": clampf(float(loaded_field_context.get("tested_odds", 0.0)), 0.0, 1.0),
+				"chosen_approach_id": str(chosen_approach[0].id),
+				"chosen_approach_name": str(chosen_approach[0].name),
+				"overridden": str(tested_approach[0].id) != str(chosen_approach[0].id),
+			}
+	return {"bounty": bounty, "repaired": not payloads_equivalent(bounty, loaded)}
+
+
 func loaded_equipment_is_safe(item: Dictionary, expected_slot: String) -> bool:
 	if expected_slot != "weapon" and expected_slot != "armor":
 		return false
@@ -1122,10 +1185,30 @@ func sanitize_loaded_equipment(item: Dictionary) -> bool:
 		if canonical_trait.is_empty():
 			item.erase("trait")
 			repaired = true
-		elif item.trait != canonical_trait:
+		elif not payloads_equivalent(item.trait, canonical_trait):
 			item.trait = canonical_trait
 			repaired = true
 	return repaired
+
+
+func payloads_equivalent(left, right) -> bool:
+	if (left is int or left is float) and (right is int or right is float):
+		return is_equal_approx(float(left), float(right))
+	if left is Dictionary and right is Dictionary:
+		if left.size() != right.size():
+			return false
+		for key in left:
+			if not right.has(key) or not payloads_equivalent(left[key], right[key]):
+				return false
+		return true
+	if left is Array and right is Array:
+		if left.size() != right.size():
+			return false
+		for index in left.size():
+			if not payloads_equivalent(left[index], right[index]):
+				return false
+		return true
+	return left == right
 
 
 func reconcile_loaded_phase() -> bool:

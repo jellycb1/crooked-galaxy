@@ -78,6 +78,8 @@ Identifier repair accepts only canonical targets, planets, and milestones, remov
 
 Equipment repair canonicalizes rarity colors and known modification payloads, removes unknown planetary origins or traits, and applies the same rules to pending reward loot so an interrupted decision survives whenever the base item remains usable.
 
+Interrupted contracts are rebuilt from canonical target, approach, and incident-choice IDs; forged nested multipliers or payouts are discarded while the selected route, incident outcome, tested-route evidence, and pending reward phase remain intact.
+
 ## Run
 
 Open `project.godot` in Godot 4, or run from a console where Godot is available:
