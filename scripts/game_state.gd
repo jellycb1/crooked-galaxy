@@ -130,10 +130,13 @@ func apply_offline_progress(now_unix: float) -> Dictionary:
 	return rewards
 
 
-func dismiss_afk_report() -> void:
+func dismiss_afk_report(clear_system_recovery := false) -> void:
 	if afk_report.is_empty():
 		return
 	afk_report = {}
+	if clear_system_recovery and last_notice_context == "system_recovery":
+		last_notice = ""
+		last_notice_context = ""
 	changed.emit()
 
 

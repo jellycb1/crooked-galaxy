@@ -253,11 +253,17 @@ func run_smoke_test() -> void:
 	await process_frame
 	check(scene.find_child("GalaxyPlanetProgress_cassino_quasar", true, false) != null, "galaxy map names the active fifth-chapter objective")
 	state.afk_report = {"minutes": 95, "credits": 380, "scrap": 6, "capped": false}
+	state.last_notice = "SAVE RECUPERADO: progresso válido preservado; registros inconsistentes foram isolados."
+	state.last_notice_context = "system_recovery"
 	scene.view_mode = "board"
 	scene.render()
 	await process_frame
 	check(scene.find_child("AfkReturnBanner", true, false) != null, "AFK return report renders on the bounty board")
-	state.afk_report = {}
+	check(scene.find_child("AfkRecoveryNotice", true, false) != null, "save recovery shares the AFK report instead of stacking another board banner")
+	var afk_dismiss := scene.find_child("AfkDismiss", true, false) as Button
+	afk_dismiss.pressed.emit()
+	await process_frame
+	check(state.afk_report.is_empty() and state.last_notice.is_empty(), "acknowledging the combined return card clears both transient reports")
 	state.player.wins = 1
 	state.player.captures_by_target = {"gloop": 1}
 	scene.view_mode = "career"

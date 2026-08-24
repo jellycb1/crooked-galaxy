@@ -72,6 +72,8 @@ Loaded player data is shape-checked against canonical defaults: scalar progress 
 
 When loading performs a migration or repair, the next board visit receives a concise session-only `SAVE ATUALIZADO` or `SAVE RECUPERADO` notice that emphasizes preserved progress without exposing storage internals.
 
+If that recovery coincides with an AFK patrol return, both outcomes share one compact return card and one acknowledgement. This avoids competing board banners while preserving the exact patrol payout and recovery explanation.
+
 Numerical repair enforces only canonical lower bounds and existing reinforcement caps: currencies and counters cannot be negative, level/base power stay at least one, and best streak cannot trail the active streak, while legitimately high long-career power and level remain untouched.
 
 Identifier repair accepts only canonical targets, planets, and milestones, removes duplicates, routes an invalid current planet to the furthest legitimately unlocked chapter, and clears protection/loadout references to items the player no longer owns.

@@ -226,9 +226,10 @@ func build_board() -> void:
 	)
 	actions.add_child(career)
 
+	var recovery_inside_afk := not GameState.afk_report.is_empty() and GameState.last_notice_context == "system_recovery"
 	if not GameState.afk_report.is_empty():
-		content.add_child(afk_return_banner())
-	if not GameState.last_notice.is_empty():
+		content.add_child(afk_return_banner(recovery_inside_afk))
+	if not GameState.last_notice.is_empty() and not recovery_inside_afk:
 		var notice_color := CORAL if not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true)) else LIME
 		content.add_child(notice_banner(GameState.last_notice, notice_color))
 	elif int(GameState.player.wins) == 0:
@@ -458,7 +459,7 @@ func combat_summary_panel(won: bool) -> PanelContainer:
 	return card
 
 
-func afk_return_banner() -> PanelContainer:
+func afk_return_banner(include_recovery := false) -> PanelContainer:
 	var report := GameState.afk_report
 	var banner := panel(HBoxContainer.new(), Color("#263653"), 15, 14)
 	banner.name = "AfkReturnBanner"
@@ -470,9 +471,15 @@ func afk_return_banner() -> PanelContainer:
 	row.add_child(copy)
 	copy.add_child(label("PATRULHA CONCLUÍDA · %s" % format_duration(int(report.minutes)), 13, CYAN))
 	copy.add_child(label("+%d créditos · +%d sucata%s" % [int(report.credits), int(report.scrap), " · LIMITE 8H" if bool(report.capped) else ""], 14, INK))
+	if include_recovery:
+		var recovery := label(GameState.last_notice, 10, LIME)
+		recovery.name = "AfkRecoveryNotice"
+		recovery.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		copy.add_child(recovery)
 	var dismiss := action_button("OK", CYAN, true)
+	dismiss.name = "AfkDismiss"
 	dismiss.custom_minimum_size = Vector2(62, 44)
-	dismiss.pressed.connect(GameState.dismiss_afk_report)
+	dismiss.pressed.connect(func(): GameState.dismiss_afk_report(include_recovery))
 	row.add_child(dismiss)
 	return banner
 

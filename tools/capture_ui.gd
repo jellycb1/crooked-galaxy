@@ -34,6 +34,8 @@ func capture() -> void:
 	state.player.credits = board_credits + 380
 	state.player.scrap = board_scrap + 6
 	state.afk_report = {"minutes": 95, "credits": 380, "scrap": 6, "capped": false}
+	state.last_notice = "SAVE RECUPERADO: progresso válido preservado; registros inconsistentes foram isolados."
+	state.last_notice_context = "system_recovery"
 	scene.render()
 	await process_frame
 	await process_frame
@@ -41,6 +43,8 @@ func capture() -> void:
 		quit(1)
 		return
 	state.afk_report = {}
+	state.last_notice = ""
+	state.last_notice_context = ""
 	state.player.wins = 0
 	state.player.captures_by_target = {}
 	state.player.captures_by_planet = {}
