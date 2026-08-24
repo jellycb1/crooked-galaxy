@@ -691,6 +691,14 @@ func hunt_choice_card(choice: Dictionary, accent: Color) -> PanelContainer:
 	var effect := label(str(choice.effect_text), 13, MUTED)
 	effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(effect)
+	var projected_contract := ContentDB.apply_hunt_choice(GameState.current_bounty, choice)
+	var projected_payment := CoreRules.bounty_streak_reward(int(projected_contract.credits), int(GameState.player.get("capture_streak", 0)) + 1)
+	var payment_text := "PAGAMENTO SE VENCER · ◈ %d" % int(projected_payment.credits)
+	if int(projected_payment.bonus_credits) > 0:
+		payment_text += " · EMBALO +%d INCLUÍDO" % int(projected_payment.bonus_credits)
+	var payment := label(payment_text, 11, GOLD)
+	payment.name = "HuntChoicePayment_%s" % str(choice.id)
+	copy.add_child(payment)
 	var affordable := GameState.can_afford_hunt_choice(choice)
 	var choose := action_button("ESCOLHER" if affordable else "SEM CRÉDITOS", accent, true)
 	choose.custom_minimum_size = Vector2(142, 48)

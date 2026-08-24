@@ -51,6 +51,8 @@ func run_smoke_test() -> void:
 	scene.render()
 	await process_frame
 	check(scene.find_child("HuntEventChoices", true, false) != null, "mid-hunt incident renders")
+	var incident_payments := scene.find_children("HuntChoicePayment_*", "Label", true, false)
+	check(incident_payments.size() == 3 and incident_payments.all(func(payment): return str(payment.text).contains("EMBALO") and str(payment.text).contains("INCLUÍDO")), "incident choices project streak-adjusted victory payments")
 	state.resolve_hunt_event("detour")
 	await process_frame
 
