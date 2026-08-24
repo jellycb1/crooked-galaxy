@@ -5,6 +5,7 @@ const CareerRulesScript = preload("res://scripts/career_rules.gd")
 const Rules = preload("res://scripts/core_rules.gd")
 const Content = preload("res://scripts/content_db.gd")
 const StateScript = preload("res://scripts/game_state.gd")
+const PlanetIconScript = preload("res://scripts/planet_icon.gd")
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
@@ -131,9 +132,24 @@ static func summary_card(host: CrookedUIFactory, state: StateScript) -> PanelCon
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
 	copy.add_child(host.label("CAÇADOR NÍVEL %d" % int(state.player.level), 18, host.GOLD))
-	copy.add_child(host.label("%d capturas · %d planetas concluídos" % [int(state.player.wins), state.player.get("completed_planets", []).size()], 14, host.INK))
-	copy.add_child(host.label("Patrulhas AFK: ◈ %d · %d sucata" % [int(state.player.get("afk_credits_earned", 0)), int(state.player.get("afk_scrap_earned", 0))], 12, host.MUTED))
-	copy.add_child(host.label("Prêmios: ◈ %d · %d sucata" % [int(state.player.get("career_credits_claimed", 0)), int(state.player.get("career_scrap_claimed", 0))], 12, host.MUTED))
+	copy.add_child(host.label("%d CAPTURAS · %d/%d SETORES" % [int(state.player.wins), state.player.get("completed_planets", []).size(), Content.PLANETS.size()], 12, host.INK))
+	var xp_needed := Rules.xp_needed(int(state.player.level))
+	var xp_row := HBoxContainer.new()
+	copy.add_child(xp_row)
+	var xp_caption := host.label("PRÓXIMO NÍVEL", 10, host.MUTED)
+	xp_caption.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	xp_row.add_child(xp_caption)
+	xp_row.add_child(host.label("%d / %d XP" % [int(state.player.xp), xp_needed], 10, host.CYAN, HORIZONTAL_ALIGNMENT_RIGHT))
+	var xp_bar := ProgressBar.new()
+	xp_bar.name = "CareerXpProgress"
+	xp_bar.max_value = xp_needed
+	xp_bar.value = int(state.player.xp)
+	xp_bar.show_percentage = false
+	xp_bar.custom_minimum_size = Vector2(0, 8)
+	xp_bar.add_theme_stylebox_override("background", host.box_style(Color("#091126"), 4))
+	xp_bar.add_theme_stylebox_override("fill", host.box_style(host.CYAN, 4))
+	copy.add_child(xp_bar)
+	copy.add_child(host.label("AFK ◈ %d / %d sucata · PRÊMIOS ◈ %d / %d sucata" % [int(state.player.get("afk_credits_earned", 0)), int(state.player.get("afk_scrap_earned", 0)), int(state.player.get("career_credits_claimed", 0)), int(state.player.get("career_scrap_claimed", 0))], 10, host.MUTED))
 	var complete_count := 0
 	var milestones := state.career_milestones()
 	for milestone in milestones:
@@ -216,14 +232,39 @@ static func planet_card(host: CrookedUIFactory, state: StateScript, planet: Dict
 	var captures: int = state.planet_capture_count(planet_id)
 	var accent := Color(str(planet.accent))
 	var card := host.panel(HBoxContainer.new(), Color("#0d1530"), 12, 11)
+	card.name = "CareerPlanet_%s" % planet_id
 	var row := card.get_child(0) as HBoxContainer
+	row.add_theme_constant_override("separation", 9)
+	var icon: Control = PlanetIconScript.new()
+	icon.name = "CareerPlanetIcon_%s" % planet_id
+	icon.custom_minimum_size = Vector2(48, 48)
+	icon.configure(planet, unlocked, planet_id == str(state.player.get("current_planet_id", Content.PLANET.id)))
+	row.add_child(icon)
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	copy.add_child(host.label(str(planet.name).to_upper(), 15, accent if unlocked else host.MUTED))
-	copy.add_child(host.label("%d capturas · Tier %d/3" % [captures, state.planet_tier(planet_id)], 12, host.MUTED))
+	copy.add_child(host.label(str(planet.name).to_upper(), 14, accent if unlocked else host.MUTED))
+	var planet_targets := 0
+	for target in Content.TARGETS:
+		if str(target.get("planet_id", "")) == planet_id:
+			planet_targets += 1
+	var target_captures := maxi(1, planet_targets * 3)
+	var progress := ProgressBar.new()
+	progress.name = "CareerPlanetProgress_%s" % planet_id
+	progress.max_value = target_captures
+	progress.value = mini(captures, target_captures)
+	progress.show_percentage = false
+	progress.custom_minimum_size = Vector2(0, 7)
+	progress.add_theme_stylebox_override("background", host.box_style(Color("#071025"), 4))
+	progress.add_theme_stylebox_override("fill", host.box_style(accent if unlocked else host.MUTED.darkened(0.35), 4))
+	copy.add_child(progress)
+	copy.add_child(host.label("%d CAPTURAS · TIER %d/3" % [captures, state.planet_tier(planet_id)], 10, host.MUTED))
 	var status: String = "CONCLUÍDO" if completed else ("EM ANDAMENTO" if unlocked else "BLOQUEADO")
-	row.add_child(host.label(status, 12, host.LIME if completed else (host.GOLD if unlocked else host.MUTED), HORIZONTAL_ALIGNMENT_RIGHT))
+	var status_copy := VBoxContainer.new()
+	status_copy.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_child(status_copy)
+	status_copy.add_child(host.label("✓" if completed else ("→" if unlocked else "×"), 20, host.LIME if completed else (host.GOLD if unlocked else host.MUTED), HORIZONTAL_ALIGNMENT_CENTER))
+	status_copy.add_child(host.label(status, 9, host.LIME if completed else (host.GOLD if unlocked else host.MUTED), HORIZONTAL_ALIGNMENT_RIGHT))
 	return card
 
 

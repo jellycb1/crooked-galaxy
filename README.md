@@ -146,6 +146,10 @@ Every revealed and currently available wanted record in that archive has a 48-un
 
 The archive keeps all twenty records but orders the active planet's four warrants first, making late-career contract access immediate without erasing chronological history.
 
+Class selection uses three compact archetype selectors and one focused sheet, so only the marked class expands its fiction, specialization formula, and exact current-build bonus. The provisional trio and explicit confirmation remain unchanged.
+
+The career summary now exposes next-level XP as a real progress bar. Its five destination rows reuse the galaxy's original planet motifs, colored capture bars, and explicit completed/current/locked states, keeping the complete sector overview visible before milestones while the twenty-record archive remains one shortcut away.
+
 Career scroll position is session-persistent: claiming a milestone, rerendering the ledger, or briefly visiting another hub returns to the same section instead of the top.
 
 Milestone claims leave an exact in-career receipt for individual or bulk rewards, including both credits and scrap, while the shared renderer cleanly replaces the previous UI tree before rebuilding transactional views.

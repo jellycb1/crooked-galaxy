@@ -123,7 +123,7 @@ func run_mobile_audit() -> void:
 	await process_frame
 	await process_frame
 	check_touch_targets(scene, "class selection")
-	check(scene.find_child("ClassScroll", true, false) != null and scene.find_children("ClassSelect_*", "Button", true, false).size() == 3, "all initial classes remain reachable in the portrait scroller")
+	check(scene.find_child("ClassSelectorList", true, false) != null and scene.find_children("ClassSelect_*", "Button", true, false).size() == 3, "all initial classes remain directly reachable in the portrait layout")
 
 	state.select_bounty(ContentDB.TARGETS[0])
 	await process_frame

@@ -90,8 +90,14 @@ func run_classes_test() -> void:
 	await process_frame
 	check(scene.find_children("Class_*", "PanelContainer", true, false).size() == 3, "the class screen renders every initial archetype")
 	check(find_label_with_text(scene, "ARQUÉTIPOS PROVISÓRIOS") != null, "the selector clearly identifies the current roster as provisional")
+	check(scene.find_child("ClassDetail", true, false) != null, "the selector presents one focused class sheet instead of repeating all detail in every row")
+	var first_class := scene.find_child("ClassSelect_warrant_breaker", true, false) as Button
+	check(first_class != null and not first_class.disabled and first_class.text == "ESCOLHER", "the default preview can still be explicitly drafted by an unassigned hunter")
+	var hacker_select := scene.find_child("ClassSelect_contract_hacker", true, false) as Button
+	hacker_select.pressed.emit()
+	await process_frame
 	var hacker_impact := scene.find_child("ClassImpact_contract_hacker", true, false) as Label
-	check(hacker_impact != null and hacker_impact.text.contains("+1 PODER") and hacker_impact.text.contains("+4 ABERTURA"), "each card previews its exact effect on the hunter's current build")
+	check(hacker_impact != null and hacker_impact.text.contains("+1 PODER") and hacker_impact.text.contains("+4 ABERTURA"), "the focused sheet previews its exact effect on the hunter's current build")
 	var select := scene.find_child("ClassSelect_orbit_gunslinger", true, false) as Button
 	check(select != null and not select.disabled, "an archetype can be drafted from its mobile action")
 	if select != null:

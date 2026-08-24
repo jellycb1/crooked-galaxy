@@ -22,6 +22,8 @@ func _init() -> void:
 	CareerViewScript.build(host, content, state)
 
 	check(host.find_child("CareerSummary", true, false) != null, "isolated career builds its summary")
+	check(host.find_child("CareerXpProgress", true, false) != null, "career summary makes next-level progress visual")
+	check(host.find_children("CareerPlanetIcon_*", "Control", true, false).size() == Content.PLANETS.size(), "career gives every destination a stable visual identity")
 	check(host.find_child("CareerClaimReceipt", true, false) == null, "career does not mislabel unrelated state as a milestone receipt")
 	check(host.find_child("CareerScroll", true, false) != null, "isolated career builds its archive scroller")
 	check(host.find_child("CareerProgressJump", true, false) != null, "career provides a direct route back to progression")
