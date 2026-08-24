@@ -58,6 +58,8 @@ func run_smoke_test() -> void:
 	scene.render()
 	await process_frame
 	check(scene.find_child("HuntEventChoices", true, false) != null, "mid-hunt incident renders")
+	var pause_status := scene.find_child("HuntEventPauseStatus", true, false) as Label
+	check(pause_status != null and pause_status.text.contains("PAUSADA EM") and pause_status.text.contains("RESTANTES"), "incident explains the paused hunt position and remaining time")
 	var incident_payments := scene.find_children("HuntChoicePayment_*", "Label", true, false)
 	check(incident_payments.size() == 3 and incident_payments.all(func(payment): return str(payment.text).contains("EMBALO") and str(payment.text).contains("INCLUÍDO")), "incident choices project streak-adjusted victory payments")
 	var paid_incident := scene.find_child("HuntChoicePayment_bribe", true, false) as Label

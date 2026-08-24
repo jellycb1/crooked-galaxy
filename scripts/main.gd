@@ -742,7 +742,11 @@ func build_hunt_event() -> void:
 	var description := center_label(str(event.get("description", "A perseguição ficou mais complicada.")), 15, MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	incident_box.add_child(description)
-	incident_box.add_child(center_label("A CAÇA ESTÁ PAUSADA", 12, GOLD))
+	var paused_duration := maxf(0.1, GameState.hunt_elapsed_before_event + GameState.hunt_remaining_after_event)
+	var paused_percent := roundi(100.0 * GameState.hunt_elapsed_before_event / paused_duration)
+	var pause_status := center_label("CAÇA PAUSADA EM %d%% · %ds RESTANTES APÓS A ESCOLHA" % [paused_percent, ceili(GameState.hunt_remaining_after_event)], 12, GOLD)
+	pause_status.name = "HuntEventPauseStatus"
+	incident_box.add_child(pause_status)
 
 	var choices := VBoxContainer.new()
 	choices.name = "HuntEventChoices"

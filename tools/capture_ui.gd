@@ -32,7 +32,20 @@ func capture() -> void:
 	if save_frame("ui_first_briefing.png") != OK:
 		quit(1)
 		return
-	state.cancel_briefing()
+	state.choose_approach("hot_hatch")
+	var first_incident_now := Time.get_unix_time_from_system()
+	state.hunt_started_at = first_incident_now - 1.5
+	state.hunt_ends_at = first_incident_now + 1.5
+	state.update_hunt()
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_first_incident.png") != OK:
+		quit(1)
+		return
+	state.abandon_bounty()
+	state.last_notice = ""
+	state.last_notice_context = ""
 	scene.render()
 	await process_frame
 	await process_frame
@@ -698,7 +711,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, first briefing and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

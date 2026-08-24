@@ -30,6 +30,8 @@ Repeated-contract briefings mark each route's displayed payment as already strea
 
 Hunt incidents recompute and display the final victory payment for every choice, including any streak amount already embedded after that consequence.
 
+Their interruption panel also names the exact paused hunt percentage and remaining seconds, making it clear that the idle timer resumes after the choice rather than having stalled.
+
 Paid incident options additionally show the net contract gain after their immediate credit cost.
 
 The reward receipt retains paid incident cost and reconciles gross payout with the exact net wallet gain from before the choice.
