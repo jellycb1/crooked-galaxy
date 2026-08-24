@@ -14,9 +14,13 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	content.add_child(host.center_label("CONTRATO CONCLUÍDO · %s" % str(state.current_bounty.name).to_upper(), 16, host.LIME))
 	content.add_child(host.center_label("RECOMPENSA CAPTURADA", 32, host.INK))
 	var reward_panel := host.panel(VBoxContainer.new(), host.PANEL_LIGHT, 20, 12)
-	reward_panel.modulate = Color(1, 1, 1, 0)
+	reward_panel.name = "RewardPanel"
 	content.add_child(reward_panel)
-	reward_panel.create_tween().tween_property(reward_panel, "modulate", Color.WHITE, 0.32)
+	if bool(state.player.get("reduced_motion", false)):
+		reward_panel.modulate = Color.WHITE
+	else:
+		reward_panel.modulate = Color(1, 1, 1, 0)
+		reward_panel.create_tween().tween_property(reward_panel, "modulate", Color.WHITE, 0.32)
 	var box := reward_panel.get_child(0) as VBoxContainer
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation", 3)

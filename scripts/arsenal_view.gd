@@ -94,10 +94,22 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		for item in visible_items:
 			list.add_child(inventory_item_card(host, state, item))
 
+	var preferences := HBoxContainer.new()
+	preferences.name = "AccessibilityPreferences"
+	preferences.add_theme_constant_override("separation", 8)
+	content.add_child(preferences)
 	var audio := host.action_button("SOM · %s" % ("LIGADO" if bool(state.player.get("sound_enabled", true)) else "DESLIGADO"), host.CYAN, true)
+	audio.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	audio.custom_minimum_size = Vector2(0, 48)
 	audio.pressed.connect(state.toggle_sound)
-	content.add_child(audio)
+	preferences.add_child(audio)
+	var motion := host.action_button("MOVIMENTO · %s" % ("REDUZIDO" if bool(state.player.get("reduced_motion", false)) else "COMPLETO"), host.CYAN, true)
+	motion.name = "MotionPreferenceAction"
+	motion.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	motion.custom_minimum_size = Vector2(0, 48)
+	motion.tooltip_text = "Remove transições decorativas; não altera o combate automático nem as pausas de leitura."
+	motion.pressed.connect(state.toggle_reduced_motion)
+	preferences.add_child(motion)
 	if OS.is_debug_build():
 		var reset := host.action_button("DEV · REINICIAR PROGRESSO", host.CORAL, true)
 		reset.custom_minimum_size = Vector2(0, 48)

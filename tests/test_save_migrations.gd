@@ -23,6 +23,7 @@ func _init() -> void:
 	check(str(migrated.player.weapon.id) == "migrated_weapon", "legacy weapons receive stable ids")
 	check(str(migrated.player.armor.id) == "migrated_armor", "legacy armor receives stable ids")
 	check(int(migrated.player.capture_streak) == 0 and int(migrated.player.best_capture_streak) == 0, "streak fields are initialized")
+	check(not bool(migrated.player.reduced_motion), "motion preference defaults to full during migration")
 	check(not version_one.player.has("claimed_milestones"), "migration does not mutate its source payload")
 
 	var existing_ids := {

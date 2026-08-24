@@ -64,6 +64,7 @@ func default_player() -> Dictionary:
 		"wins": 0,
 		"base_power": 10,
 		"sound_enabled": true,
+		"reduced_motion": false,
 		"captures_by_target": {},
 		"captures_by_planet": {},
 		"completed_planets": [],
@@ -814,6 +815,12 @@ func sync_item_to_inventory(item: Dictionary) -> void:
 
 func toggle_sound() -> void:
 	player.sound_enabled = not bool(player.get("sound_enabled", true))
+	save_game()
+	changed.emit()
+
+
+func toggle_reduced_motion() -> void:
+	player.reduced_motion = not bool(player.get("reduced_motion", false))
 	save_game()
 	changed.emit()
 

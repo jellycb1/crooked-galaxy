@@ -12,6 +12,8 @@ It currently includes five complete four-target chapters: Dustball Prime, the fr
 
 Every primary screen also exposes a visible keyboard/controller focus ring. Rebuilt layouts restore the equivalent focused action when possible and otherwise select the first enabled action, including automatic combat redraws.
 
+The arsenal includes a persistent reduced-motion preference. It removes the decorative loot fade while preserving automatic combat, its deliberate 1× default, the readable victory receipt pause, and the explicit skip action.
+
 Threshold captures explicitly preview and reveal the next warrant, keeping early progression visible without a modal tutorial.
 
 Reward screens also count the pending capture toward target mastery and preview its rare/epic loot bonus plus one-time workshop scrap funding before the player commits the loot decision.
