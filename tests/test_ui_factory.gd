@@ -20,6 +20,14 @@ func _init() -> void:
 	check(equipment is PanelContainer and equipment.get_child_count() == 1, "factory builds reinforced equipment chips")
 	var card := factory.panel(VBoxContainer.new(), factory.PANEL, 12, 10)
 	check(card.get_theme_stylebox("panel") is StyleBoxFlat, "factory panels retain reusable styling")
+	factory.view_mode = "career"
+	factory.inventory_filter = "armor"
+	factory.inventory_sort = "rarity"
+	factory.briefing_context = {"target_id": "gloop"}
+	factory.career_scroll_position = 900
+	factory.reset_transient_navigation()
+	check(factory.view_mode == "board" and factory.inventory_filter == "all" and factory.inventory_sort == "power", "factory reset restores default hub navigation")
+	check(factory.briefing_context.is_empty() and factory.career_scroll_position == 0, "factory reset clears stale briefing and career positions")
 
 	for control in [title, button, outlined, portrait, equipment, card]:
 		control.free()

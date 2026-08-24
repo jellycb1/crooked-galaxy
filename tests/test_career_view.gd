@@ -27,7 +27,8 @@ func _init() -> void:
 	check(host.find_child("CareerProgressJump", true, false) != null, "career provides a direct route back to progression")
 	check(host.find_child("CareerArchiveJump", true, false) != null, "career provides a direct route to the wanted archive")
 	check(host.find_child("MasteryDirective", true, false) != null, "isolated career turns archive data into a repeat objective")
-	check(host.find_child("MasteryDirectiveAction", true, false) != null, "mastery objective links back to its warrant board")
+	var mastery_action := host.find_child("MasteryDirectiveAction", true, false) as Button
+	check(mastery_action != null and mastery_action.text == "ESCOLHER\nROTA", "mastery objective truthfully links to route selection")
 	check(host.find_child("CareerTarget_gloop", true, false) != null, "isolated career preserves wanted records")
 	var dustball_archive := CareerViewScript.ordered_archive_targets(state)
 	check(dustball_archive.size() == Content.TARGETS.size(), "active-first archive preserves all wanted records")
@@ -44,8 +45,7 @@ func _init() -> void:
 	archive_target_action.pressed.emit()
 	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "gloop", "archive record opens its available target briefing directly")
 	state.cancel_briefing()
-	var action := host.find_child("MasteryDirectiveAction", true, false) as Button
-	action.pressed.emit()
+	mastery_action.pressed.emit()
 	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "gloop", "mastery directive opens the recommended target briefing directly")
 	state.cancel_briefing()
 	state.player.completed_planets = ["dustball_prime"]

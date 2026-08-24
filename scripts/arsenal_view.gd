@@ -102,7 +102,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		var reset := host.action_button("DEV · REINICIAR PROGRESSO", host.CORAL, true)
 		reset.custom_minimum_size = Vector2(0, 48)
 		reset.pressed.connect(func():
-			host.view_mode = "board"
+			host.reset_transient_navigation()
 			state.reset_progress()
 		)
 		content.add_child(reset)

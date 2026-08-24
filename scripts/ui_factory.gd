@@ -19,6 +19,14 @@ var briefing_context: Dictionary = {}
 var career_scroll_position := 0
 
 
+func reset_transient_navigation() -> void:
+	view_mode = "board"
+	inventory_filter = "all"
+	inventory_sort = "power"
+	briefing_context = {}
+	career_scroll_position = 0
+
+
 func panel(child: Control, color: Color, radius: int, margin: int) -> PanelContainer:
 	var container := PanelContainer.new()
 	var style := box_style(color, radius)

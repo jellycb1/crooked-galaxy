@@ -64,6 +64,8 @@ Milestone claims leave an exact in-career receipt for individual or bulk rewards
 
 Transient notices carry explicit provenance: reward-equipped receipts alone activate `TESTAR BUILD`, career receipts stay in career, and the arsenal distinguishes contract receipts from its own workshop records while ignoring unrelated travel or system messages.
 
+All warrant handoffs that open a briefing now say `ESCOLHER ROTA`; a full development reset also clears hub filters, tested-briefing context, and retained career position along with gameplay progress.
+
 ## Run
 
 Open `project.godot` in Godot 4, or run from a console where Godot is available:
