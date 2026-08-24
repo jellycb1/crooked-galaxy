@@ -154,6 +154,8 @@ The arsenal is divided into three explicit surfaces. `EQUIPADO` presents weapon 
 
 Reward progression uses an original three-symbol receipt grammar: a crosshair identifies target mastery, forward chevrons identify capture streak, and a document identifies warrant progression. Exact bonuses, requirements, projected route odds, and destination actions remain textual beside those markers, but dense mastery-and-unlock states no longer collapse into an undifferentiated centered paragraph.
 
+Automatic combat uses a full-width cyan/coral pressure strip derived only from both fighters' remaining-health ratios. Larger portraits and unchanged exact HP bars make the arena the visual focus. Victory then groups the captured target, final blow, combat metrics, active build evidence, and payment into one dossier; defeat uses the same immediate verdict grammar before its recovery guidance.
+
 Career scroll position is session-persistent: claiming a milestone, rerendering the ledger, or briefly visiting another hub returns to the same section instead of the top.
 
 Milestone claims leave an exact in-career receipt for individual or bulk rewards, including both credits and scrap, while the shared renderer cleanly replaces the previous UI tree before rebuilding transactional views.

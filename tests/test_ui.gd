@@ -117,6 +117,7 @@ func run_smoke_test() -> void:
 	check(combat_incident != null and combat_incident.text.contains("PAGAMENTO") and combat_incident.text.contains("EMBALO"), "combat carries the chosen incident consequence and adjusted payout")
 	var opening_advantage := scene.find_child("CombatAdvantage", true, false) as Label
 	check(opening_advantage != null and opening_advantage.text.contains("VOCÊ 100%") and opening_advantage.text.contains("ALVO 100%") and opening_advantage.text.contains("EQUILIBRADA"), "combat opens with an explicit relative-health reading")
+	check(scene.find_child("CombatPressureTrack", true, false) != null and scene.find_child("CombatPressurePlayer", true, false) != null and scene.find_child("CombatPressureEnemy", true, false) != null, "combat turns relative health into a persistent two-sided pressure strip")
 	state.combat_step()
 	scene.render()
 	await process_frame
@@ -139,6 +140,7 @@ func run_smoke_test() -> void:
 	check(scene.combat_timer.is_stopped() and scene.combat_fast, "victory stops automatic turns without resetting the chosen combat pace")
 	check(not state.pending_loot.is_empty(), "reward screen receives an item")
 	check(scene.find_child("CombatSummaryVictory", true, false) != null, "victory explains aggregate combat performance")
+	check(scene.find_child("VictoryDossier", true, false) != null and scene.find_child("VictoryPaymentCard", true, false) != null, "victory groups target, verdict, report, and payment into a coherent dossier")
 	var victory_payment := scene.find_child("VictoryPayment", true, false) as Label
 	check(victory_payment != null and victory_payment.text.contains("EMBALO") and victory_payment.text.contains("SALDO"), "victory preserves the paid-incident payout receipt")
 	var open_reward_action := scene.find_child("OpenRewardAction", true, false) as Button
@@ -434,6 +436,8 @@ func run_smoke_test() -> void:
 	state.finish_combat(false)
 	await process_frame
 	check(scene.find_child("CombatSummaryDefeat", true, false) != null, "board keeps a concise defeat diagnosis before the next contract")
+	var defeat_verdict := scene.find_child("CombatReportVerdict", true, false) as Label
+	check(defeat_verdict != null and defeat_verdict.text == "×", "defeat report exposes an immediate visual verdict")
 	check(scene.find_child("BoardNotice", true, false) == null, "complete defeat diagnosis replaces the redundant escape receipt")
 	var defeat_heading := scene.find_child("CombatReportTitle", true, false) as Label
 	check(defeat_heading != null and defeat_heading.text.contains("BARÃO BOOM"), "defeat diagnosis retains the escaped target identity after the redundant receipt is removed")

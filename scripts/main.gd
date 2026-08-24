@@ -886,9 +886,18 @@ func combat_summary_panel(won: bool) -> PanelContainer:
 	var box := card.get_child(0) as VBoxContainer
 	box.add_theme_constant_override("separation", 7)
 	var report_title := "RELATÓRIO DO MANDADO" if won else "FUGA: %s" % str(summary.get("target_name", "ALVO DESCONHECIDO")).to_upper()
+	var report_header := HBoxContainer.new()
+	report_header.add_theme_constant_override("separation", 8)
+	box.add_child(report_header)
+	var verdict := center_label("✓" if won else "×", 18, LIME if won else CORAL)
+	verdict.name = "CombatReportVerdict"
+	verdict.custom_minimum_size = Vector2(28, 28)
+	report_header.add_child(verdict)
 	var report_heading := label(report_title, 13, LIME if won else CORAL)
 	report_heading.name = "CombatReportTitle"
-	box.add_child(report_heading)
+	report_heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	report_heading.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	report_header.add_child(report_heading)
 	var metrics := HBoxContainer.new()
 	metrics.add_theme_constant_override("separation", 7)
 	box.add_child(metrics)
@@ -1351,7 +1360,7 @@ func build_combat() -> void:
 		content.add_child(incident_summary)
 	var stage := PanelContainer.new()
 	stage.clip_contents = true
-	stage.custom_minimum_size = Vector2(0, 390)
+	stage.custom_minimum_size = Vector2(0, 450)
 	stage.add_theme_stylebox_override("panel", box_style(PANEL, 18))
 	content.add_child(stage)
 	var backdrop: Control = CombatBackdropScript.new()
@@ -1381,6 +1390,25 @@ func build_combat() -> void:
 	var advantage := center_label("VIDA RELATIVA · VOCÊ %d%% · ALVO %d%% · PRESSÃO %s" % [roundi(player_health_ratio * 100.0), roundi(enemy_health_ratio * 100.0), pressure_text], 12, pressure_color)
 	advantage.name = "CombatAdvantage"
 	stage_box.add_child(advantage)
+	var pressure_track := HBoxContainer.new()
+	pressure_track.name = "CombatPressureTrack"
+	pressure_track.custom_minimum_size = Vector2(0, 9)
+	pressure_track.add_theme_constant_override("separation", 3)
+	stage_box.add_child(pressure_track)
+	var pressure_total := player_health_ratio + enemy_health_ratio
+	var player_share := 0.5 if pressure_total <= 0.0 else player_health_ratio / pressure_total
+	var player_pressure := ColorRect.new()
+	player_pressure.name = "CombatPressurePlayer"
+	player_pressure.color = CYAN
+	player_pressure.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	player_pressure.size_flags_stretch_ratio = maxf(0.05, player_share)
+	pressure_track.add_child(player_pressure)
+	var enemy_pressure := ColorRect.new()
+	enemy_pressure.name = "CombatPressureEnemy"
+	enemy_pressure.color = CORAL
+	enemy_pressure.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	enemy_pressure.size_flags_stretch_ratio = maxf(0.05, 1.0 - player_share)
+	pressure_track.add_child(enemy_pressure)
 	var event_row := HBoxContainer.new()
 	event_row.name = "CombatEventRow"
 	event_row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -1456,16 +1484,24 @@ func combat_event_chip(event: Dictionary) -> PanelContainer:
 
 func build_victory() -> void:
 	content.add_spacer(false)
-	content.add_child(center_label("MANDADO EXECUTADO", 16, MUTED))
-	content.add_child(character_portrait(str(GameState.current_bounty.id), 132))
-	var stamp := panel(VBoxContainer.new(), Color("#173f3c"), 18, 22)
+	var stamp := panel(HBoxContainer.new(), Color("#173f3c"), 18, 18)
+	stamp.name = "VictoryDossier"
 	content.add_child(stamp)
-	var stamp_box := stamp.get_child(0) as VBoxContainer
-	stamp_box.add_child(center_label("ALVO CAPTURADO", 34, LIME))
-	stamp_box.add_child(center_label(str(GameState.current_bounty.name), 21, INK))
+	var dossier := stamp.get_child(0) as HBoxContainer
+	dossier.add_theme_constant_override("separation", 16)
+	dossier.add_child(character_portrait(str(GameState.current_bounty.id), 142))
+	var stamp_box := VBoxContainer.new()
+	stamp_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stamp_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	dossier.add_child(stamp_box)
+	stamp_box.add_child(label("MANDADO EXECUTADO", 12, MUTED))
+	stamp_box.add_child(label("ALVO CAPTURADO", 28, LIME))
+	stamp_box.add_child(label(str(GameState.current_bounty.name), 20, INK))
 	if not GameState.combat_events.is_empty():
 		var final_event: Dictionary = GameState.combat_events[0]
-		stamp_box.add_child(center_label("Finalizado com %s · %d de dano" % [str(final_event.action), int(final_event.damage)], 14, GOLD))
+		var final_blow := label("GOLPE FINAL · %s · %d DANO" % [str(final_event.action).to_upper(), int(final_event.damage)], 11, GOLD)
+		final_blow.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		stamp_box.add_child(final_blow)
 	var field_test_record := field_test_record_label("VictoryFieldTestContext")
 	if field_test_record != null:
 		stamp_box.add_child(field_test_record)
@@ -1478,10 +1514,22 @@ func build_victory() -> void:
 	var incident_cost := maxi(0, int(GameState.current_bounty.get("hunt_event_credit_cost", 0)))
 	if incident_cost > 0:
 		payment_text += " · SALDO +%d APÓS CUSTO" % (int(victory_payment.credits) - incident_cost)
-	var payment := center_label(payment_text, 12, GOLD)
+	var payment_card := panel(HBoxContainer.new(), Color("#19263d"), 12, 10)
+	payment_card.name = "VictoryPaymentCard"
+	var payment_row := payment_card.get_child(0) as HBoxContainer
+	payment_row.add_theme_constant_override("separation", 10)
+	var payment_stamp := center_label("◈", 22, GOLD)
+	payment_stamp.custom_minimum_size = Vector2(32, 32)
+	payment_row.add_child(payment_stamp)
+	var payment_copy := VBoxContainer.new()
+	payment_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	payment_row.add_child(payment_copy)
+	var payment := label(payment_text, 12, GOLD)
 	payment.name = "VictoryPayment"
-	content.add_child(payment)
-	content.add_child(center_label("Autenticando pagamento e sacudindo os bolsos do alvo...", 15, MUTED))
+	payment.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	payment_copy.add_child(payment)
+	payment_copy.add_child(label("Autenticando pagamento e sacudindo os bolsos do alvo...", 11, MUTED))
+	content.add_child(payment_card)
 	content.add_spacer(false)
 	var open_reward := action_button("ABRIR RECOMPENSA", LIME)
 	open_reward.name = "OpenRewardAction"
@@ -1528,9 +1576,9 @@ func build_chapter_complete() -> void:
 func fighter(title: String, character_id: String, hp: int, maximum: int, color: Color) -> VBoxContainer:
 	var fighter_box := VBoxContainer.new()
 	fighter_box.name = "CombatFighter_%s" % character_id
-	fighter_box.custom_minimum_size = Vector2(242, 245)
+	fighter_box.custom_minimum_size = Vector2(242, 290)
 	fighter_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	fighter_box.add_child(character_portrait(character_id, 118, GameState.player if character_id == "hunter" else {}))
+	fighter_box.add_child(character_portrait(character_id, 152, GameState.player if character_id == "hunter" else {}))
 	var name_label := center_label(title.to_upper(), 16, color)
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	fighter_box.add_child(name_label)
