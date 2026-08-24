@@ -43,6 +43,37 @@ if (-not (Test-Path -LiteralPath $OutputApk)) {
     throw "Android export did not produce CrookedGalaxy.apk."
 }
 
+$PresetText = Get-Content -LiteralPath (Join-Path $ProjectRoot "export_presets.cfg") -Raw
+$ExpectedPackage = [regex]::Match($PresetText, 'package/unique_name="([^"]+)"').Groups[1].Value
+$ExpectedVersionCode = [regex]::Match($PresetText, 'version/code=([0-9]+)').Groups[1].Value
+$ExpectedVersionName = [regex]::Match($PresetText, 'version/name="([^"]+)"').Groups[1].Value
+if ([string]::IsNullOrWhiteSpace($ExpectedPackage) -or [string]::IsNullOrWhiteSpace($ExpectedVersionCode) -or [string]::IsNullOrWhiteSpace($ExpectedVersionName)) {
+    throw "Android package/version metadata is incomplete in export_presets.cfg."
+}
+$BuildToolsRoot = Join-Path $env:LOCALAPPDATA "Android\Sdk\build-tools"
+$Aapt2Candidates = @()
+if (Test-Path -LiteralPath $BuildToolsRoot) {
+    $Aapt2Candidates = @(Get-ChildItem -LiteralPath $BuildToolsRoot -Directory | Sort-Object Name -Descending | ForEach-Object { Join-Path $_.FullName "aapt2.exe" } | Where-Object { Test-Path -LiteralPath $_ })
+}
+if ($Aapt2Candidates.Count -eq 0) {
+    throw "aapt2 was not found under the installed Android SDK build-tools."
+}
+$StrictErrorPreference = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+$Badging = (& $Aapt2Candidates[0] dump badging $OutputApk 2>&1) -join "`n"
+$Aapt2ExitCode = $LASTEXITCODE
+$ErrorActionPreference = $StrictErrorPreference
+if ($Aapt2ExitCode -ne 0) {
+    throw "Could not inspect the exported Android manifest."
+}
+$PackageMatch = [regex]::Match($Badging, "package: name='([^']+)' versionCode='([^']+)' versionName='([^']+)'")
+if (-not $PackageMatch.Success) {
+    throw "Could not parse package identity/version from the exported APK."
+}
+if ($PackageMatch.Groups[1].Value -ne $ExpectedPackage -or $PackageMatch.Groups[2].Value -ne $ExpectedVersionCode -or $PackageMatch.Groups[3].Value -ne $ExpectedVersionName) {
+    throw "Exported APK metadata does not match export_presets.cfg."
+}
+
 & $GodotCandidates[0] --headless --path $ProjectRoot --export-pack "Android APK" $ContentPack --log-file (Join-Path $LogRoot "android_content_export.log")
 if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $ContentPack)) {
     throw "Could not produce the Android content-verification pack."
@@ -53,4 +84,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $ApkSizeMb = (Get-Item -LiteralPath $OutputApk).Length / 1MB
-Write-Host ("PASS: installable Android APK exported ({0:N2} MB)." -f $ApkSizeMb)
+if ($ApkSizeMb -gt 40.0) {
+    throw ("Android APK exceeds the 40 MB direct-test budget ({0:N2} MB)." -f $ApkSizeMb)
+}
+Write-Host ("PASS: installable Android APK exported ({0:N2} MB, {1} v{2} code {3})." -f $ApkSizeMb, $ExpectedPackage, $ExpectedVersionName, $ExpectedVersionCode)
