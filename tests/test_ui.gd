@@ -148,9 +148,21 @@ func run_smoke_test() -> void:
 				await process_frame
 				var combat_test_record := scene.find_child("CombatFieldTestContext", true, false) as Label
 				check(combat_test_record != null and combat_test_record.text == override_text, "combat preserves the exact tested-route override record beside the selected approach")
-				state.finish_combat(false)
+				state.enemy_hp = 0
+				state.finish_combat(true)
 				await process_frame
+				var victory_test_record := scene.find_child("VictoryFieldTestContext", true, false) as Label
+				check(victory_test_record != null and victory_test_record.text == override_text, "victory closes the encounter with the exact tested-route override record")
+				scene.victory_timer.stop()
+				state.open_reward()
+				await process_frame
+				check(scene.find_child("VictoryFieldTestContext", true, false) == null and scene.find_child("RewardNextHuntImpact", true, false) != null, "reward cleanly replaces route provenance with the next-hunt loot projection")
+				state.phase = state.Phase.BOARD
+				state.current_bounty = {}
+				state.pending_loot = {}
 				state.combat_summary = {}
+				scene.render()
+				await process_frame
 	scene.view_mode = "board"
 	state.last_notice = "Contrato pago: Peça de Reserva guardado"
 	scene.render()

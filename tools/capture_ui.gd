@@ -226,8 +226,19 @@ func capture() -> void:
 	if save_frame("ui_tested_route_override_combat.png") != OK:
 		quit(1)
 		return
-	state.finish_combat(false)
+	state.enemy_hp = 0
+	state.finish_combat(true)
 	await process_frame
+	await process_frame
+	await create_timer(0.42).timeout
+	await process_frame
+	if save_frame("ui_tested_route_override_victory.png") != OK:
+		quit(1)
+		return
+	scene.victory_timer.stop()
+	state.phase = state.Phase.BOARD
+	state.current_bounty = {}
+	state.pending_loot = {}
 	state.last_notice = receipt_notice
 	state.player.capture_streak = receipt_streak
 	state.combat_summary = {}

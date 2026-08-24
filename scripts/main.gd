@@ -849,6 +849,9 @@ func build_victory() -> void:
 	if not GameState.combat_events.is_empty():
 		var final_event: Dictionary = GameState.combat_events[0]
 		stamp_box.add_child(center_label("Finalizado com %s · %d de dano" % [str(final_event.action), int(final_event.damage)], 14, GOLD))
+	var field_test_record := field_test_record_label("VictoryFieldTestContext")
+	if field_test_record != null:
+		stamp_box.add_child(field_test_record)
 	if not GameState.combat_summary.is_empty():
 		content.add_child(combat_summary_panel(true))
 	var victory_payment := CoreRules.bounty_streak_reward(int(GameState.current_bounty.credits), int(GameState.player.get("capture_streak", 0)) + 1)
