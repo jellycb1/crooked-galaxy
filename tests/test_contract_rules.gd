@@ -33,6 +33,11 @@ func _init() -> void:
 	var streak_evaluations := ContractRules.evaluate_approaches(streak_player, Content.TARGETS[0], Content.contract_approaches())
 	check(streak_evaluations.all(func(evaluation): return int(evaluation.streak) == 3 and int(evaluation.streak_bonus_percent) == 10 and int(evaluation.streak_bonus) > 0), "approach evaluation exposes the shared streak and each route's exact included bonus")
 	check(int(streak_evaluations[0].streak_bonus) != int(streak_evaluations[2].streak_bonus), "approach evaluation keeps percentage invariant while absolute bonuses follow route payment")
+	var confirmed_defeat := ContractRules.field_test_defeat_text({"tested_approach_name": "Rede Silenciosa", "tested_odds": 0.74, "chosen_approach_name": "Rede Silenciosa", "overridden": false})
+	check(confirmed_defeat.contains("ROTA TESTADA TAMBÉM FALHOU") and confirmed_defeat.contains("REFORCE A BUILD"), "confirmed-route defeat points recovery toward build or incident")
+	var override_defeat := ContractRules.field_test_defeat_text({"tested_approach_name": "Rede Silenciosa", "tested_odds": 0.74, "chosen_approach_name": "Mandado Corporativo", "overridden": true})
+	check(override_defeat.contains("OVERRIDE DERROTADO") and override_defeat.contains("REAVALIE A ROTA"), "override defeat points recovery back toward route choice")
+	check(ContractRules.field_test_defeat_text({}).is_empty(), "ordinary defeats do not invent tested-route advice")
 
 	if failures == 0:
 		print("PASS: contract recommendations balance risk and return")

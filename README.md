@@ -40,6 +40,8 @@ That compact tested-versus-chosen record is reused on the paused incident and au
 
 Victory closes that provenance trail beside the capture report; the reward screen then replaces it with loot, receipt, mastery, streak, and next-hunt projection evidence.
 
+On defeat, the combat summary preserves that provenance after the live contract is cleared: overridden tests recommend reconsidering the route, while a failed confirmed route redirects recovery toward build or incident choices. The revenge workshop repeats the same diagnosis beside fresh odds.
+
 Every reward with a next warrant translates the full pending receipt—XP level gains plus the chosen equipment state—into same-route win odds before and after claiming, directly connecting loot to the next hunt and the workshop field test.
 
 Automatic combat retains the selected incident result and adjusted payment above the encounter, preserving economic context through resolution.

@@ -57,7 +57,12 @@ func _init() -> void:
 	state.player.captures_by_planet.dustball_prime = 4
 	check(str(ArsenalScript.field_readiness(state).target.id) == "madame_vacuum", "field test advances after the new warrant's first capture")
 	state.current_bounty = {}
-	state.combat_summary = {"won": false, "enemy_hp_remaining": 12, "target_id": "baron_boom"}
+	state.combat_summary = {
+		"won": false,
+		"enemy_hp_remaining": 12,
+		"target_id": "baron_boom",
+		"field_test_context": {"tested_approach_name": "Rede Silenciosa", "tested_odds": 0.74, "chosen_approach_name": "Mandado Corporativo", "overridden": true},
+	}
 	var recovery_readiness := ArsenalScript.field_readiness(state)
 	check(str(recovery_readiness.target.id) == "baron_boom" and bool(recovery_readiness.recovery_focus), "field test keeps the defeated warrant in focus instead of projecting a locked tier")
 	var power_before_recovery_upgrade := int(state.player.weapon.power)
@@ -68,7 +73,9 @@ func _init() -> void:
 	ArsenalScript.build(host, content, state)
 	var recovery_notice := host.find_child("WorkshopNotice", true, false) as Label
 	var recovery_label := host.find_child("FieldReadinessTarget", true, false) as Label
+	var recovery_route := host.find_child("FieldReadinessRecoveryRoute", true, false) as Label
 	check(recovery_notice != null and recovery_notice.text.contains("calibrado") and recovery_label != null and recovery_label.text.contains("REVANCHE: BARÃO BOOM"), "workshop shows the upgrade record beside the preserved revenge projection")
+	check(recovery_route != null and recovery_route.text.contains("OVERRIDE DERROTADO") and recovery_route.text.contains("REAVALIE A ROTA"), "recovery workshop retains the defeated tested-route override diagnosis")
 	field_action = host.find_child("FieldReadinessAction", true, false) as Button
 	state.combat_summary = {}
 	state.player.captures_by_target.erase("baron_boom")

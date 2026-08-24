@@ -433,7 +433,7 @@ func capture() -> void:
 		quit(1)
 		return
 	state.select_bounty(ContentDB.TARGETS[12])
-	state.choose_approach("quiet_net")
+	state.choose_approach("premium_warrant", {"target_id": str(ContentDB.TARGETS[12].id), "approach_id": "quiet_net", "approach_name": "Rede Silenciosa", "odds": 0.74})
 	state.hunt_event = ContentDB.HUNT_EVENTS[6].duplicate(true)
 	state.hunt_event_triggered = true
 	state.hunt_elapsed_before_event = 4.0

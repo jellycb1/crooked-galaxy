@@ -54,3 +54,12 @@ static func expected_return_score(evaluation: Dictionary) -> float:
 	var duration := maxf(1.0, float(evaluation.get("duration", 1.0)))
 	var value := float(evaluation.get("credits", 0)) + float(evaluation.get("xp", 0)) * 0.35 + float(evaluation.get("scrap", 0)) * SCRAP_VALUE
 	return float(evaluation.get("odds", 0.0)) * value / duration
+
+
+static func field_test_defeat_text(context: Dictionary) -> String:
+	if context.is_empty():
+		return ""
+	var tested := "%s %d%%" % [str(context.get("tested_approach_name", "CONTRATO BASE")).to_upper(), roundi(float(context.get("tested_odds", 0.0)) * 100.0)]
+	if bool(context.get("overridden", false)):
+		return "OVERRIDE DERROTADO · TESTADA %s → ESCOLHIDA %s · REAVALIE A ROTA" % [tested, str(context.get("chosen_approach_name", "CONTRATO BASE")).to_upper()]
+	return "ROTA TESTADA TAMBÉM FALHOU · %s · REFORCE A BUILD OU REVEJA O INCIDENTE" % tested

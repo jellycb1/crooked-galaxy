@@ -266,7 +266,8 @@ func run_smoke_test() -> void:
 	scene.view_mode = "board"
 	state.phase = state.Phase.BOARD
 	state.player.current_planet_id = ContentDB.PLANET.id
-	state.current_bounty = ContentDB.TARGETS[1].duplicate(true)
+	state.current_bounty = ContentDB.apply_approach(ContentDB.TARGETS[1], ContentDB.CONTRACT_APPROACHES[2])
+	state.current_bounty.field_test_context = {"tested_approach_name": "Rede Silenciosa", "tested_odds": 0.74, "chosen_approach_name": "Mandado Corporativo", "overridden": true}
 	state.player.capture_streak = 4
 	state.begin_combat()
 	state.combat_summary.rounds = 6
@@ -277,6 +278,9 @@ func run_smoke_test() -> void:
 	state.finish_combat(false)
 	await process_frame
 	check(scene.find_child("CombatSummaryDefeat", true, false) != null, "board keeps a concise defeat diagnosis before the next contract")
+	var defeat_route := scene.find_child("DefeatFieldTestDiagnosis", true, false) as Label
+	check(defeat_route != null and defeat_route.text.contains("OVERRIDE DERROTADO") and defeat_route.text.contains("REAVALIE A ROTA"), "defeat board turns the tested-route override into actionable diagnosis")
+	var defeat_route_text := defeat_route.text if defeat_route != null else ""
 	var streak_loss := scene.find_child("DefeatStreakLoss", true, false) as Label
 	check(streak_loss != null and streak_loss.text.contains("×4") and streak_loss.text.contains("×1"), "defeat diagnosis explains the streak reset and restart")
 	var defeat_workshop := scene.find_child("DefeatWorkshopAction", true, false) as Button
@@ -286,6 +290,8 @@ func run_smoke_test() -> void:
 	check(scene.view_mode == "arsenal", "defeat recovery route opens the field-test workshop")
 	var revenge_target := scene.find_child("FieldReadinessTarget", true, false) as Label
 	check(revenge_target != null and revenge_target.text.contains("REVANCHE: BARÃO BOOM"), "real defeat state preserves the failed warrant through its persisted combat report")
+	var revenge_route := scene.find_child("FieldReadinessRecoveryRoute", true, false) as Label
+	check(revenge_route != null and revenge_route.text == defeat_route_text, "revenge workshop carries the exact tested-route defeat diagnosis")
 
 	scene.free()
 	await process_frame

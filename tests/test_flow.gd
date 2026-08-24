@@ -4,6 +4,7 @@ const StateScript = preload("res://scripts/game_state.gd")
 const Content = preload("res://scripts/content_db.gd")
 const RewardScript = preload("res://scripts/reward_view.gd")
 const ArsenalScript = preload("res://scripts/arsenal_view.gd")
+const ContractRules = preload("res://scripts/contract_rules.gd")
 
 var failures := 0
 
@@ -305,12 +306,13 @@ func _init() -> void:
 	recovery_state.player.captures_by_planet = {Content.PLANET.id: 2}
 	recovery_state.player.capture_streak = 4
 	recovery_state.select_bounty(Content.TARGETS[0])
-	recovery_state.choose_approach("quiet_net")
+	recovery_state.choose_approach("premium_warrant", {"target_id": "gloop", "approach_id": "quiet_net", "approach_name": "Rede Silenciosa", "odds": 0.74})
 	recovery_state.begin_combat()
 	recovery_state.enemy_hp = 12
 	recovery_state.player_hp = 0
 	recovery_state.finish_combat(false)
 	check(int(recovery_state.player.capture_streak) == 0 and int(recovery_state.combat_summary.lost_streak) == 4, "recovery scenario begins from a persisted streak loss")
+	check(bool(recovery_state.combat_summary.field_test_context.overridden) and ContractRules.field_test_defeat_text(recovery_state.combat_summary.field_test_context).contains("OVERRIDE DERROTADO"), "defeat preserves the tested-route override as actionable recovery evidence")
 	recovery_state.select_bounty(Content.TARGETS[0])
 	recovery_state.choose_approach("quiet_net")
 	recovery_state.begin_combat()

@@ -430,6 +430,12 @@ func combat_summary_panel(won: bool) -> PanelContainer:
 	evidence.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(evidence)
 	if not won:
+		var route_diagnosis_text := ContractRules.field_test_defeat_text(summary.get("field_test_context", {}))
+		if not route_diagnosis_text.is_empty():
+			var route_diagnosis := label(route_diagnosis_text, 11, GOLD)
+			route_diagnosis.name = "DefeatFieldTestDiagnosis"
+			route_diagnosis.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			box.add_child(route_diagnosis)
 		var remaining := int(summary.get("enemy_hp_remaining", 0))
 		var diagnosis := label("O alvo conservou %d HP. Compare as odds, ative um kit ou invista na oficina antes da revanche." % remaining, 12, INK)
 		diagnosis.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

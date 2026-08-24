@@ -180,6 +180,13 @@ static func field_readiness_card(host: CrookedUIFactory, state: StateScript, rea
 	var target_label := host.label("TESTE DE CAMPO · %s: %s" % [target_context, str(target.name).to_upper()], 11, host.GOLD)
 	target_label.name = "FieldReadinessTarget"
 	box.add_child(target_label)
+	if bool(readiness.get("recovery_focus", false)):
+		var route_diagnosis_text := ContractRules.field_test_defeat_text(state.combat_summary.get("field_test_context", {}))
+		if not route_diagnosis_text.is_empty():
+			var route_diagnosis := host.label(route_diagnosis_text, 10, host.GOLD)
+			route_diagnosis.name = "FieldReadinessRecoveryRoute"
+			route_diagnosis.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			box.add_child(route_diagnosis)
 	var metrics := HBoxContainer.new()
 	metrics.add_theme_constant_override("separation", 7)
 	box.add_child(metrics)

@@ -302,6 +302,7 @@ func begin_combat() -> void:
 		"opening_bonus": CoreRules.player_opening_damage(player),
 		"kit_origin": CoreRules.equipment_set_origin(player),
 		"target_max_health": int(current_bounty.health),
+		"field_test_context": current_bounty.get("field_test_context", {}).duplicate(true),
 	}
 	last_combat_won = false
 	save_game()
