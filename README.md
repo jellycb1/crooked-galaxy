@@ -82,6 +82,8 @@ Interrupted contracts are rebuilt from canonical target, approach, and incident-
 
 Restored combat and chapter evidence also validates canonical target/planet identity, known kit and route context, nonnegative metrics, bounded remaining health, and a real boss-to-planet pairing before defeat recovery or finale UI can consume it.
 
+Combat-event rows accept only catalog attacks and known quality labels; impossible hunt clocks restart with canonical duration, expired hunts still resolve normally, and resumed combat clamps HP and round counters to the active build/contract.
+
 ## Run
 
 Open `project.godot` in Godot 4, or run from a console where Godot is available:

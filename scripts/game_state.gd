@@ -80,6 +80,7 @@ func select_bounty(bounty: Dictionary) -> void:
 	last_notice = ""
 	last_notice_context = ""
 	combat_summary = {}
+	combat_events = []
 	current_bounty = bounty.duplicate(true)
 	offered_approaches = ContentDB.contract_approaches()
 	phase = Phase.BRIEFING
@@ -213,6 +214,8 @@ func start_bounty(bounty: Dictionary) -> void:
 		return
 	last_notice = ""
 	last_notice_context = ""
+	combat_summary = {}
+	combat_events = []
 	current_bounty = bounty.duplicate(true)
 	offered_approaches = []
 	start_hunt()
@@ -928,7 +931,9 @@ func load_game() -> void:
 	enemy_hp = int(parsed.get("enemy_hp", 0))
 	combat_round = int(parsed.get("combat_round", 0))
 	var loaded_events = parsed.get("combat_events", [])
-	combat_events.assign(loaded_events if loaded_events is Array else [])
+	var event_result := sanitize_loaded_combat_events(loaded_events)
+	combat_events.assign(event_result.events)
+	phase_payload_repaired = bool(event_result.repaired) or phase_payload_repaired
 	var loaded_summary = parsed.get("combat_summary", {})
 	combat_summary = {}
 	if loaded_summary is Dictionary and not loaded_summary.is_empty():
@@ -1206,6 +1211,46 @@ func canonicalize_loaded_chapter(loaded: Dictionary) -> Dictionary:
 	return {"chapter": chapter, "repaired": not payloads_equivalent(chapter, loaded)}
 
 
+func sanitize_loaded_combat_events(loaded) -> Dictionary:
+	if not loaded is Array:
+		return {"events": [], "repaired": true}
+	var player_actions := {}
+	for action in ContentDB.PLAYER_ATTACKS:
+		player_actions[str(action)] = true
+	var enemy_actions := {}
+	for target in ContentDB.TARGETS:
+		for action in target.attacks:
+			enemy_actions[str(action)] = true
+	var events: Array[Dictionary] = []
+	var repaired := false
+	for loaded_event in loaded:
+		if not loaded_event is Dictionary:
+			repaired = true
+			continue
+		var actor := str(loaded_event.get("actor", ""))
+		var action := str(loaded_event.get("action", ""))
+		var action_is_known := (actor == "player" and player_actions.has(action)) or (actor == "enemy" and enemy_actions.has(action))
+		if not action_is_known:
+			repaired = true
+			continue
+		var quality := str(loaded_event.get("quality", "ACERTO"))
+		if quality != "CRÍTICO" and quality != "DE RASPÃO" and quality != "ACERTO":
+			quality = "ACERTO"
+			repaired = true
+		var event := {"actor": actor, "action": action, "damage": maxi(0, int(loaded_event.get("damage", 0))), "quality": quality}
+		if int(loaded_event.get("damage", 0)) < 0:
+			repaired = true
+		var effect := str(loaded_event.get("effect", ""))
+		if effect.begins_with("EMBOSCADA +") or effect.begins_with("AMORTECEDOR -"):
+			event.effect = effect
+		elif not effect.is_empty():
+			repaired = true
+		events.append(event)
+		if not payloads_equivalent(event, loaded_event):
+			repaired = true
+	return {"events": events, "repaired": repaired}
+
+
 func loaded_equipment_is_safe(item: Dictionary, expected_slot: String) -> bool:
 	if expected_slot != "weapon" and expected_slot != "armor":
 		return false
@@ -1302,6 +1347,31 @@ func reconcile_loaded_phase() -> bool:
 		Phase.CHAPTER_COMPLETE:
 			phase_has_required_state = not chapter_completion.is_empty()
 	if phase_has_required_state:
+		if phase == Phase.HUNT:
+			var now := Time.get_unix_time_from_system()
+			if hunt_started_at <= 0.0 or hunt_ends_at <= hunt_started_at:
+				hunt_started_at = now
+				hunt_ends_at = now + float(current_bounty.duration)
+				repaired = true
+			elif hunt_started_at > now:
+				var saved_duration := maxf(0.1, hunt_ends_at - hunt_started_at)
+				hunt_started_at = now
+				hunt_ends_at = now + saved_duration
+				repaired = true
+		if phase == Phase.HUNT_EVENT:
+			if hunt_elapsed_before_event < 0.0 or hunt_remaining_after_event < 0.0:
+				hunt_elapsed_before_event = maxf(0.0, hunt_elapsed_before_event)
+				hunt_remaining_after_event = maxf(0.0, hunt_remaining_after_event)
+				repaired = true
+		if phase == Phase.COMBAT:
+			var clean_player_hp := clampi(player_hp, 1, CoreRules.max_health(player))
+			var clean_enemy_hp := clampi(enemy_hp, 1, int(current_bounty.health))
+			var clean_round := maxi(0, combat_round)
+			if clean_player_hp != player_hp or clean_enemy_hp != enemy_hp or clean_round != combat_round:
+				player_hp = clean_player_hp
+				enemy_hp = clean_enemy_hp
+				combat_round = clean_round
+				repaired = true
 		return repaired
 	phase = Phase.BOARD
 	current_bounty = {}

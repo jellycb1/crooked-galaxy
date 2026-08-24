@@ -40,7 +40,8 @@ func _init() -> void:
 		"color": "#58d9ff",
 	}
 	source.combat_events.assign([
-		{"actor": "player", "action": "Teste de Impacto", "damage": 17, "quality": "CRÍTICO"},
+		{"actor": "player", "action": ContentDB.PLAYER_ATTACKS[0], "damage": 17, "quality": "CRÍTICO"},
+		{"actor": "enemy", "action": "Ataque Inventado", "damage": 9999, "quality": "IMPOSSÍVEL"},
 	])
 	source.combat_summary = {"won": true, "rounds": 4, "damage_dealt": 70, "damage_taken": 22, "damage_prevented": 8, "target_id": "gloop", "target_name": "Alvo Forjado", "enemy_hp_remaining": 9999, "kit_origin": "invented_planet"}
 	source.save_game()
@@ -67,8 +68,8 @@ func _init() -> void:
 	check(int(restored.current_bounty.get("scrap_reward", 0)) == 2 and int(restored.current_bounty.get("loot_power", 0)) == int(ContentDB.TARGETS[0].power), "corporate reward and canonical loot tier survive an interrupted capture")
 	check(str(restored.pending_loot.id) == "test_loot", "pending reward survives save and load")
 	check(str(restored.pending_loot.origin_planet_id) == "dustball_prime", "pending reward preserves its planet of origin")
-	check(restored.combat_events.size() == 1, "finishing action survives save and load")
-	check(str(restored.combat_events[0].action) == "Teste de Impacto", "action data is restored")
+	check(restored.combat_events.size() == 1, "canonical finishing action survives while invented combat rows are discarded")
+	check(str(restored.combat_events[0].action) == str(ContentDB.PLAYER_ATTACKS[0]), "canonical action data is restored")
 	check(int(restored.combat_summary.rounds) == 4 and int(restored.combat_summary.damage_prevented) == 8, "aggregate combat evidence survives save and load")
 	check(str(restored.combat_summary.target_name) == str(ContentDB.TARGETS[0].name) and int(restored.combat_summary.enemy_hp_remaining) <= int(restored.combat_summary.target_max_health), "combat evidence restores canonical target identity and bounded remaining health")
 	check(not restored.combat_summary.has("kit_origin"), "combat evidence cannot retain an unknown planetary kit")
@@ -89,6 +90,14 @@ func _init() -> void:
 	check(int(restored_briefing.afk_report.get("credits", 0)) != 999, "loading replaces stale AFK feedback instead of merging it into the save")
 
 	source.choose_approach("quiet_net", {"target_id": "gloop", "approach_id": "quiet_net", "approach_name": "Rede Silenciosa", "odds": 0.74})
+	source.hunt_started_at = -10.0
+	source.hunt_ends_at = -20.0
+	source.save_game()
+	var restored_hunt = StateScript.new()
+	restored_hunt.save_path = test_save
+	restored_hunt.load_game()
+	check(restored_hunt.phase == restored_hunt.Phase.HUNT and restored_hunt.hunt_ends_at > restored_hunt.hunt_started_at, "invalid hunt timestamps restart a coherent interrupted hunt")
+	check(is_equal_approx(restored_hunt.hunt_ends_at - restored_hunt.hunt_started_at, float(restored_hunt.current_bounty.duration)), "restarted hunt uses the canonical applied-contract duration")
 	source.hunt_event = ContentDB.HUNT_EVENTS[1].duplicate(true)
 	source.hunt_event_triggered = true
 	source.hunt_elapsed_before_event = 4.0
@@ -102,6 +111,19 @@ func _init() -> void:
 	check(str(restored_event.hunt_event.id) == "bounty_streamer", "incident content is restored")
 	check(is_equal_approx(restored_event.hunt_remaining_after_event, 5.0), "paused hunt time is restored")
 	check(not bool(restored_event.current_bounty.field_test_context.overridden) and str(restored_event.current_bounty.field_test_context.tested_approach_id) == "quiet_net", "confirmed field-test route survives an interrupted hunt")
+	source.phase = source.Phase.COMBAT
+	source.player_hp = 99999
+	source.enemy_hp = 99999
+	source.combat_round = -8
+	source.combat_events.assign([{"actor": "player", "action": ContentDB.PLAYER_ATTACKS[0], "damage": -7, "quality": "IMPOSSÍVEL"}])
+	source.combat_summary = {"target_id": "gloop", "rounds": -8, "damage_dealt": -1, "damage_taken": -1}
+	source.save_game()
+	var restored_combat = StateScript.new()
+	restored_combat.save_path = test_save
+	restored_combat.load_game()
+	check(restored_combat.phase == restored_combat.Phase.COMBAT and restored_combat.player_hp == CoreRules.max_health(restored_combat.player), "restored combat clamps player HP to the current build maximum")
+	check(restored_combat.enemy_hp == int(restored_combat.current_bounty.health) and restored_combat.combat_round == 0, "restored combat clamps enemy HP and negative round state to the canonical contract")
+	check(restored_combat.combat_events.size() == 1 and int(restored_combat.combat_events[0].damage) == 0 and str(restored_combat.combat_events[0].quality) == "ACERTO", "restored combat rows normalize negative damage and unknown quality")
 
 	source.player.completed_planets = [ContentDB.PLANET.id]
 	source.player.current_planet_id = "congelaria_sa"
@@ -257,7 +279,9 @@ func _init() -> void:
 	source.free()
 	restored.free()
 	restored_briefing.free()
+	restored_hunt.free()
 	restored_event.free()
+	restored_combat.free()
 	restored_chapter.free()
 	offline.free()
 	migrated.free()
