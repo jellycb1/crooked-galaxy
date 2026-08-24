@@ -50,6 +50,23 @@ func run_mobile_audit() -> void:
 	await process_frame
 	check_touch_targets(scene, "hunt incident")
 
+	state.player = state.default_player()
+	state.phase = state.Phase.REWARD
+	state.current_bounty = ContentDB.TARGETS[0].duplicate(true)
+	state.pending_loot = {"id": "mobile_first_reward", "name": "Zapper de Bolso", "slot": "weapon", "power": 3, "rarity": "Comum", "color": "#b9c2d9", "origin_planet_id": "dustball_prime"}
+	scene.render()
+	await process_frame
+	check_reward_action_in_viewport(scene, "ClaimAndRepeat", "first reward repeat")
+	check_reward_action_in_viewport(scene, "ClaimAndBoard", "first reward board route")
+
+	state.player.captures_by_target = {"gloop": 2}
+	state.player.captures_by_planet = {"dustball_prime": 2}
+	state.pending_loot = {"id": "mobile_threshold_reward", "name": "Colete de Limiar", "slot": "armor", "power": 5, "rarity": "Raro", "color": "#58d9ff", "origin_planet_id": "dustball_prime"}
+	scene.render()
+	await process_frame
+	check_reward_action_in_viewport(scene, "ClaimAndWorkshop", "combined reward workshop route")
+	check_reward_action_in_viewport(scene, "ClaimAndUnlock", "combined reward warrant route")
+
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
@@ -64,6 +81,15 @@ func check_touch_targets(node: Node, context: String) -> void:
 			continue
 		check(button.size.y >= 40.0, "%s button keeps a 40-unit touch target: %s" % [context, button.name])
 		check(button.global_position.x >= -0.5 and button.global_position.x + button.size.x <= viewport_width + 0.5, "%s button stays inside the horizontal viewport: %s" % [context, button.name])
+
+
+func check_reward_action_in_viewport(scene: Control, node_name: String, context: String) -> void:
+	var button := scene.find_child(node_name, true, false) as Button
+	check(button != null, "%s exists" % context)
+	if button == null:
+		return
+	check(button.size.y >= 40.0, "%s keeps a 40-unit touch target" % context)
+	check(button.global_position.y >= -0.5 and button.global_position.y + button.size.y <= scene.size.y + 0.5, "%s stays inside the vertical viewport" % context)
 
 
 func finish() -> void:

@@ -20,6 +20,8 @@ The initial reward prioritizes the equipment upgrade and next-warrant `1/3` prog
 
 On that second capture, the two systems converge into one explicit promise: the next repeat grants mastery 1/3 and opens the named warrant. The duplicate warrant-progress/odds line is omitted for this one handoff, keeping `EQUIPAR E REPETIR` as the dominant decision.
 
+The combined third-capture reward keeps two intentional destinations—spend the new mastery scrap before hunting, or inspect the newly opened warrant immediately. Mobile guards verify both that threshold choice and the first reward's repeat/board actions remain fully inside the viewport.
+
 On ordinary rewards, the repeat route previews the next streak multiplier and approach-invariant percentage. Exact credits remain attached to the selected approach and incident outcome. Threshold rewards suppress the repeat prompt and prioritize the newly opened warrant.
 
 Repeated-contract briefings mark each route's displayed payment as already streak-adjusted and show its exact included bonus, preventing the same percentage from being counted twice.
