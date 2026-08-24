@@ -213,13 +213,13 @@ Create the installable Android test APK locally:
 powershell -ExecutionPolicy Bypass -File .\tools\check_android_export.ps1
 ```
 
-Publish a newly verified APK to the permanent team-test download address without exposing this source repository:
+Publish a newly verified APK to the permanent team-test download address only after the destination repository is access-controlled and private:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\tools\publish_android_latest.ps1
 ```
 
-The command exports an ARM64 debug-signed APK and replaces only the asset on the `latest` release used by the team. The dedicated ignored local test key keeps successive APKs update-compatible; it must never be reused for store distribution. The stable download address is:
+The command verifies that the GitHub repository is private, exports an ARM64 debug-signed APK, and replaces only the asset on the `latest` release used by the team. It refuses to upload reference placeholders to a public repository. The dedicated ignored local test key keeps successive APKs update-compatible; it must never be reused for store distribution. Once the repository is private, the stable download address remains:
 
 ```text
 https://github.com/jellycb1/crooked-galaxy/releases/download/latest/CrookedGalaxy.apk
@@ -227,7 +227,7 @@ https://github.com/jellycb1/crooked-galaxy/releases/download/latest/CrookedGalax
 
 The matching checksum is always available at `https://github.com/jellycb1/crooked-galaxy/releases/download/latest/CrookedGalaxy.apk.sha256`. Publishing requires a clean tracked worktree, uploads both assets, records the SHA-256 in the release notes, and verifies the remote APK size and digest when GitHub exposes it.
 
-This channel is intended only for our direct testing. The open repository contains the release/download page rather than the game's source. Preserve the ignored local test key to keep direct installs update-compatible; its non-secret public certificate fingerprint is tracked and verified on every export. A store release must use a separate private release keystore and signing workflow.
+This channel is intended only for our direct testing and must not be publicly accessible. Preserve the ignored local test key to keep direct installs update-compatible; its non-secret public certificate fingerprint is tracked and verified on every export. A store release must use a separate private release keystore and signing workflow.
 
 Run deterministic core tests:
 

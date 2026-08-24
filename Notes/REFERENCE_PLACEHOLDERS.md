@@ -1,5 +1,11 @@
 # Reference placeholder register
 
+## Internal development authorization — 2026-08-24
+
+The project owner explicitly permits the development team to inspect any asset or source-code section under `References/` to understand behavior, flows, and interface organization. Any reference asset may be packaged as a visibly marked placeholder in the team-only Android test APK when its source, purpose, and intended replacement are documented here. This authorization does not make the material production-owned: final implementation code remains independently written, and every shipped placeholder remains scheduled for replacement.
+
+An APK containing reference material must be distributed only through an access-controlled private destination. A repository described as team-only but technically configured as public does not satisfy this rule. On 2026-08-24, `jellycb1/crooked-galaxy` was verified as public, so further uploads are blocked until its GitHub visibility is changed to private or another private destination is configured.
+
 ## Prototype class content
 
 The current Quebra-Mandados, Pistoleiro Orbital, and Hacker de Contratos trio is mechanical prototype content. Names, descriptions, themes, and eventual visual identities are not final. Each definition carries `prototype: true`, while its effect values remain data-driven test scaffolding; replacing the roster must preserve save-ID migration explicitly rather than silently reassigning existing hunters.

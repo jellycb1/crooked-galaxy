@@ -26,6 +26,15 @@ if ($LASTEXITCODE -ne 0) {
     throw "GitHub CLI is not authenticated. Run gh auth login first."
 }
 
+$RepositoryJson = (& gh repo view $Repository --json visibility,isPrivate,url) -join "`n"
+if ($LASTEXITCODE -ne 0) {
+    throw "Could not verify the GitHub repository visibility."
+}
+$RepositoryInfo = $RepositoryJson | ConvertFrom-Json
+if (-not [bool]$RepositoryInfo.isPrivate -or [string]$RepositoryInfo.visibility -ne "PRIVATE") {
+    throw "Refusing to publish reference placeholders: $($RepositoryInfo.url) is not private."
+}
+
 $Commit = (& git -C $ProjectRoot rev-parse --short HEAD).Trim()
 $ProjectText = Get-Content -LiteralPath (Join-Path $ProjectRoot "project.godot") -Raw
 $VersionMatch = [regex]::Match($ProjectText, 'config/version="([^"]+)"')
