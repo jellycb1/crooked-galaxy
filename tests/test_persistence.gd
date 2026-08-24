@@ -42,7 +42,7 @@ func _init() -> void:
 	source.combat_events.assign([
 		{"actor": "player", "action": "Teste de Impacto", "damage": 17, "quality": "CRÍTICO"},
 	])
-	source.combat_summary = {"won": true, "rounds": 4, "damage_dealt": 70, "damage_taken": 22, "damage_prevented": 8, "target_id": "gloop"}
+	source.combat_summary = {"won": true, "rounds": 4, "damage_dealt": 70, "damage_taken": 22, "damage_prevented": 8, "target_id": "gloop", "target_name": "Alvo Forjado", "enemy_hp_remaining": 9999, "kit_origin": "invented_planet"}
 	source.save_game()
 	var saved_file := FileAccess.open(test_save, FileAccess.READ)
 	var saved_payload = JSON.parse_string(saved_file.get_as_text())
@@ -70,6 +70,8 @@ func _init() -> void:
 	check(restored.combat_events.size() == 1, "finishing action survives save and load")
 	check(str(restored.combat_events[0].action) == "Teste de Impacto", "action data is restored")
 	check(int(restored.combat_summary.rounds) == 4 and int(restored.combat_summary.damage_prevented) == 8, "aggregate combat evidence survives save and load")
+	check(str(restored.combat_summary.target_name) == str(ContentDB.TARGETS[0].name) and int(restored.combat_summary.enemy_hp_remaining) <= int(restored.combat_summary.target_max_health), "combat evidence restores canonical target identity and bounded remaining health")
+	check(not restored.combat_summary.has("kit_origin"), "combat evidence cannot retain an unknown planetary kit")
 
 	source.phase = source.Phase.BOARD
 	source.current_bounty = {}
@@ -105,7 +107,11 @@ func _init() -> void:
 	source.player.current_planet_id = "congelaria_sa"
 	source.player.captures_by_target = {"mayor_gold_dust": 1}
 	source.player.captures_by_planet = {ContentDB.PLANET.id: 10, "congelaria_sa": 4}
-	source.chapter_completion = {"planet": ContentDB.PLANET.duplicate(true), "target": ContentDB.TARGETS[3].duplicate(true)}
+	var forged_chapter_planet: Dictionary = ContentDB.PLANET.duplicate(true)
+	forged_chapter_planet.name = "Planeta Forjado"
+	var forged_chapter_target: Dictionary = ContentDB.TARGETS[3].duplicate(true)
+	forged_chapter_target.name = "Chefe Forjado"
+	source.chapter_completion = {"planet": forged_chapter_planet, "target": forged_chapter_target, "total_captures": -12, "credits": -100, "xp": -20}
 	source.phase = source.Phase.CHAPTER_COMPLETE
 	source.save_game()
 	var restored_chapter = StateScript.new()
@@ -117,6 +123,8 @@ func _init() -> void:
 	check(int(restored_chapter.player.captures_by_target.mayor_gold_dust) == 1, "per-target captures survive save and load")
 	check(int(restored_chapter.player.captures_by_planet.congelaria_sa) == 4, "per-planet chapter progress survives save and load")
 	check(str(restored_chapter.chapter_completion.target.id) == "mayor_gold_dust", "chapter summary survives save and load")
+	check(str(restored_chapter.chapter_completion.planet.name) == str(ContentDB.PLANET.name) and str(restored_chapter.chapter_completion.target.name) == str(ContentDB.TARGETS[3].name), "chapter evidence restores canonical planet and boss identity")
+	check(int(restored_chapter.chapter_completion.total_captures) == 0 and int(restored_chapter.chapter_completion.credits) == 0, "chapter evidence clamps impossible negative totals")
 
 	var offline = StateScript.new()
 	offline.persistence_enabled = false

@@ -930,9 +930,21 @@ func load_game() -> void:
 	var loaded_events = parsed.get("combat_events", [])
 	combat_events.assign(loaded_events if loaded_events is Array else [])
 	var loaded_summary = parsed.get("combat_summary", {})
-	combat_summary = loaded_summary if loaded_summary is Dictionary else {}
+	combat_summary = {}
+	if loaded_summary is Dictionary and not loaded_summary.is_empty():
+		var summary_result := canonicalize_loaded_combat_summary(loaded_summary)
+		combat_summary = summary_result.summary
+		phase_payload_repaired = bool(summary_result.repaired) or phase_payload_repaired
+	elif not loaded_summary is Dictionary:
+		phase_payload_repaired = true
 	var loaded_chapter = parsed.get("chapter_completion", {})
-	chapter_completion = loaded_chapter if loaded_chapter is Dictionary else {}
+	chapter_completion = {}
+	if loaded_chapter is Dictionary and not loaded_chapter.is_empty():
+		var chapter_result := canonicalize_loaded_chapter(loaded_chapter)
+		chapter_completion = chapter_result.chapter
+		phase_payload_repaired = bool(chapter_result.repaired) or phase_payload_repaired
+	elif not loaded_chapter is Dictionary:
+		phase_payload_repaired = true
 	var repaired_phase_state := reconcile_loaded_phase()
 	var repaired_phase := player_repaired or phase_payload_repaired or repaired_phase_state
 	var offline_rewards := apply_offline_progress(Time.get_unix_time_from_system())
@@ -1120,18 +1132,78 @@ func canonicalize_loaded_bounty(loaded: Dictionary) -> Dictionary:
 				break
 	var loaded_field_context = loaded.get("field_test_context", {})
 	if loaded_field_context is Dictionary and not loaded_field_context.is_empty():
-		var tested_approach := ContentDB.contract_approaches().filter(func(approach): return str(approach.id) == str(loaded_field_context.get("tested_approach_id", "")))
-		var chosen_approach := ContentDB.contract_approaches().filter(func(approach): return str(approach.id) == str(loaded_field_context.get("chosen_approach_id", "")))
-		if not tested_approach.is_empty() and not chosen_approach.is_empty():
-			bounty.field_test_context = {
-				"tested_approach_id": str(tested_approach[0].id),
-				"tested_approach_name": str(tested_approach[0].name),
-				"tested_odds": clampf(float(loaded_field_context.get("tested_odds", 0.0)), 0.0, 1.0),
-				"chosen_approach_id": str(chosen_approach[0].id),
-				"chosen_approach_name": str(chosen_approach[0].name),
-				"overridden": str(tested_approach[0].id) != str(chosen_approach[0].id),
-			}
+		var clean_field_context := canonicalize_loaded_field_context(loaded_field_context)
+		if not clean_field_context.is_empty():
+			bounty.field_test_context = clean_field_context
 	return {"bounty": bounty, "repaired": not payloads_equivalent(bounty, loaded)}
+
+
+func canonicalize_loaded_field_context(loaded: Dictionary) -> Dictionary:
+	var tested_approach := ContentDB.contract_approaches().filter(func(approach): return str(approach.id) == str(loaded.get("tested_approach_id", "")))
+	var chosen_approach := ContentDB.contract_approaches().filter(func(approach): return str(approach.id) == str(loaded.get("chosen_approach_id", "")))
+	if tested_approach.is_empty() or chosen_approach.is_empty():
+		return {}
+	return {
+		"tested_approach_id": str(tested_approach[0].id),
+		"tested_approach_name": str(tested_approach[0].name),
+		"tested_odds": clampf(float(loaded.get("tested_odds", 0.0)), 0.0, 1.0),
+		"chosen_approach_id": str(chosen_approach[0].id),
+		"chosen_approach_name": str(chosen_approach[0].name),
+		"overridden": str(tested_approach[0].id) != str(chosen_approach[0].id),
+	}
+
+
+func canonicalize_loaded_combat_summary(loaded: Dictionary) -> Dictionary:
+	var target := ContentDB.TARGETS.filter(func(definition): return str(definition.id) == str(loaded.get("target_id", "")))
+	if target.is_empty():
+		return {"summary": {}, "repaired": true}
+	var definition: Dictionary = target[0]
+	var target_max := int(current_bounty.get("health", definition.health)) if str(current_bounty.get("id", "")) == str(definition.id) else int(definition.health)
+	var summary := {
+		"target_id": str(definition.id),
+		"target_name": str(definition.name),
+		"rounds": maxi(0, int(loaded.get("rounds", 0))),
+		"damage_dealt": maxi(0, int(loaded.get("damage_dealt", 0))),
+		"damage_taken": maxi(0, int(loaded.get("damage_taken", 0))),
+		"damage_prevented": maxi(0, int(loaded.get("damage_prevented", 0))),
+		"critical_hits": maxi(0, int(loaded.get("critical_hits", 0))),
+		"opening_bonus": maxi(0, int(loaded.get("opening_bonus", 0))),
+		"target_max_health": target_max,
+	}
+	var kit_origin := str(loaded.get("kit_origin", ""))
+	if ContentDB.PLANETS.any(func(planet): return str(planet.id) == kit_origin):
+		summary.kit_origin = kit_origin
+	if loaded.has("won"):
+		summary.won = bool(loaded.won)
+		summary.player_hp_remaining = clampi(int(loaded.get("player_hp_remaining", 0)), 0, CoreRules.max_health(player))
+		summary.enemy_hp_remaining = clampi(int(loaded.get("enemy_hp_remaining", 0)), 0, target_max)
+	if int(loaded.get("lost_streak", 0)) > 0:
+		summary.lost_streak = maxi(0, int(loaded.lost_streak))
+	var field_context = loaded.get("field_test_context", {})
+	if field_context is Dictionary and not field_context.is_empty():
+		var clean_field_context := canonicalize_loaded_field_context(field_context)
+		if not clean_field_context.is_empty():
+			summary.field_test_context = clean_field_context
+	return {"summary": summary, "repaired": not payloads_equivalent(summary, loaded)}
+
+
+func canonicalize_loaded_chapter(loaded: Dictionary) -> Dictionary:
+	var loaded_planet = loaded.get("planet", {})
+	var loaded_target = loaded.get("target", {})
+	if not loaded_planet is Dictionary or not loaded_target is Dictionary:
+		return {"chapter": {}, "repaired": true}
+	var planet := ContentDB.PLANETS.filter(func(definition): return str(definition.id) == str(loaded_planet.get("id", "")))
+	var target := ContentDB.TARGETS.filter(func(definition): return str(definition.id) == str(loaded_target.get("id", "")) and bool(definition.get("boss", false)))
+	if planet.is_empty() or target.is_empty() or str(target[0].planet_id) != str(planet[0].id):
+		return {"chapter": {}, "repaired": true}
+	var chapter := {
+		"planet": planet[0].duplicate(true),
+		"target": target[0].duplicate(true),
+		"total_captures": maxi(0, int(loaded.get("total_captures", player.get("wins", 0)))),
+		"credits": maxi(0, int(loaded.get("credits", 0))),
+		"xp": maxi(0, int(loaded.get("xp", 0))),
+	}
+	return {"chapter": chapter, "repaired": not payloads_equivalent(chapter, loaded)}
 
 
 func loaded_equipment_is_safe(item: Dictionary, expected_slot: String) -> bool:

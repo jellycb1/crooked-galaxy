@@ -80,6 +80,8 @@ Equipment repair canonicalizes rarity colors and known modification payloads, re
 
 Interrupted contracts are rebuilt from canonical target, approach, and incident-choice IDs; forged nested multipliers or payouts are discarded while the selected route, incident outcome, tested-route evidence, and pending reward phase remain intact.
 
+Restored combat and chapter evidence also validates canonical target/planet identity, known kit and route context, nonnegative metrics, bounded remaining health, and a real boss-to-planet pairing before defeat recovery or finale UI can consume it.
+
 ## Run
 
 Open `project.godot` in Godot 4, or run from a console where Godot is available:
