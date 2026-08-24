@@ -1,6 +1,7 @@
 extends "res://scripts/ui_factory.gd"
 
 const SpaceBackdropScript = preload("res://scripts/space_backdrop.gd")
+const ReferencePlaceholderBackdropScript = preload("res://scripts/reference_placeholder_backdrop.gd")
 const CombatBackdropScript = preload("res://scripts/combat_backdrop.gd")
 const SoundFXScript = preload("res://scripts/sound_fx.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
@@ -18,6 +19,7 @@ var combat_fast := false
 var sound_fx: Node
 var previous_phase := -1
 var space_backdrop: Control
+var reference_backdrop: Control
 var safe_container: MarginContainer
 var render_generation := 0
 var lifecycle_suspensions: Dictionary = {}
@@ -78,6 +80,8 @@ func build_shell() -> void:
 	space_backdrop = SpaceBackdropScript.new()
 	space_backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(space_backdrop)
+	reference_backdrop = ReferencePlaceholderBackdropScript.new()
+	add_child(reference_backdrop)
 	sound_fx = SoundFXScript.new()
 	add_child(sound_fx)
 
@@ -134,6 +138,8 @@ func render() -> void:
 	var current_generation := render_generation
 	if space_backdrop:
 		space_backdrop.planet_id = str(GameState.player.get("current_planet_id", ContentDB.PLANET.id))
+	if reference_backdrop:
+		reference_backdrop.show_context(reference_placeholder_context())
 	if sound_fx:
 		sound_fx.enabled = bool(GameState.player.get("sound_enabled", true))
 	var phase_changed := previous_phase >= 0 and previous_phase != GameState.phase
@@ -198,6 +204,17 @@ func render() -> void:
 	else:
 		victory_timer.stop()
 	call_deferred("restore_action_focus", previous_focus_name, current_generation)
+
+
+func reference_placeholder_context() -> String:
+	if GameState.phase == GameState.Phase.BOARD:
+		if view_mode == "arsenal":
+			return "workshop"
+		if view_mode == "galaxy" or view_mode == "career":
+			return "world"
+	if GameState.phase == GameState.Phase.COMBAT or GameState.phase == GameState.Phase.VICTORY:
+		return "combat"
+	return "contracts"
 
 
 func restore_action_focus(previous_focus_name: String, expected_generation: int) -> void:

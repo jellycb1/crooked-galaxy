@@ -30,6 +30,7 @@ $Tests = @(
     "test_flow.gd",
     "test_ui.gd",
     "test_ui_factory.gd",
+    "test_reference_placeholders.gd",
     "test_focus_navigation.gd",
     "test_motion_preferences.gd",
     "test_text_resilience.gd",
@@ -61,6 +62,8 @@ if ($Fast) {
 $SuiteStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 $Profile = if ($Fast) { "fast" } else { "full" }
 Write-Host "Crooked Galaxy $Profile checks using $GodotExe"
+Write-Host "`n[reference boundaries]"
+& (Join-Path $PSScriptRoot "check_reference_boundaries.ps1")
 foreach ($TestFile in $Tests) {
     Write-Host "`n[$TestFile]"
     $LogFile = Join-Path $LogRoot "$TestFile.log"

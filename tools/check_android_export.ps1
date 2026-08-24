@@ -18,6 +18,7 @@ if ($GodotCandidates.Count -eq 0) {
 $BuildRoot = Join-Path $ProjectRoot "builds\android"
 $OutputApk = Join-Path $BuildRoot "CrookedGalaxy.apk"
 $LogRoot = Join-Path $ProjectRoot ".godot\export-logs"
+$ContentPack = Join-Path $LogRoot "android_content_check.pck"
 $DebugKey = Join-Path $ProjectRoot "android\crooked-galaxy-debug.keystore"
 New-Item -ItemType Directory -Path $BuildRoot -Force | Out-Null
 New-Item -ItemType Directory -Path $LogRoot -Force | Out-Null
@@ -40,6 +41,15 @@ if ($LASTEXITCODE -ne 0) {
 }
 if (-not (Test-Path -LiteralPath $OutputApk)) {
     throw "Android export did not produce CrookedGalaxy.apk."
+}
+
+& $GodotCandidates[0] --headless --path $ProjectRoot --export-pack "Android APK" $ContentPack --log-file (Join-Path $LogRoot "android_content_export.log")
+if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $ContentPack)) {
+    throw "Could not produce the Android content-verification pack."
+}
+& $GodotCandidates[0] --headless --path (Join-Path $ProjectRoot "tools\export_pack_inspector") --log-file (Join-Path $LogRoot "android_pack_inspector.log") --script res://inspect_pack.gd -- $ContentPack
+if ($LASTEXITCODE -ne 0) {
+    throw "Android export contains forbidden reference placeholders."
 }
 
 $ApkSizeMb = (Get-Item -LiteralPath $OutputApk).Length / 1MB

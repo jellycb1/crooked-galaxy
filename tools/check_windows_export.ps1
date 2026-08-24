@@ -31,6 +31,11 @@ if (-not (Test-Path -LiteralPath $OutputExe) -or -not (Test-Path -LiteralPath $O
     throw "Windows export did not produce both CrookedGalaxy.exe and CrookedGalaxy.pck."
 }
 
+& $GodotExe --headless --path (Join-Path $ProjectRoot "tools\export_pack_inspector") --log-file (Join-Path $LogRoot "windows_pack_inspector.log") --script res://inspect_pack.gd -- $OutputPck
+if ($LASTEXITCODE -ne 0) {
+    throw "Windows export contains forbidden reference placeholders."
+}
+
 & $OutputExe --headless --quit-after 2 --log-file (Join-Path $LogRoot "windows_smoke.log") -- --smoke-test
 if ($LASTEXITCODE -ne 0) {
     throw "Exported Windows build failed its isolated smoke boot with exit code $LASTEXITCODE."
