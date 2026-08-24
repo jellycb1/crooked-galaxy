@@ -96,6 +96,17 @@ func run_smoke_test() -> void:
 	scene.render()
 	await process_frame
 	state.claim_reward(true)
+	await process_frame
+	var post_claim_field_test := scene.find_child("PostClaimFieldTestAction", true, false) as Button
+	check(post_claim_field_test != null and post_claim_field_test.text == "TESTAR BUILD", "equipped reward receipt turns the board arsenal shortcut into a field-test continuation")
+	post_claim_field_test.pressed.emit()
+	await process_frame
+	check(scene.view_mode == "arsenal" and scene.find_child("FieldReadiness", true, false) != null, "post-claim shortcut opens the newly equipped build beside its field odds")
+	scene.view_mode = "board"
+	state.last_notice = "Contrato pago: Peça de Reserva guardado"
+	scene.render()
+	await process_frame
+	check(scene.find_child("ArsenalAction", true, false) != null and scene.find_child("PostClaimFieldTestAction", true, false) == null, "stored reward receipts keep the ordinary arsenal action")
 	state.phase = state.Phase.REWARD
 	state.current_bounty = bounty.duplicate(true)
 	state.pending_loot = {"id": "ui_instant_scrap", "name": "Zapper Cansado", "slot": "weapon", "power": 0, "rarity": "Comum", "color": "#b9c2d9"}

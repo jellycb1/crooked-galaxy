@@ -28,6 +28,8 @@ The reward receipt retains paid incident cost and reconciles gross payout with t
 
 Claim summaries and the persistent board/workshop record name whether the captured item was equipped, stored, or recycled, including the exact item name.
 
+After an equipped claim, the board's arsenal shortcut becomes a contextual `TESTAR BUILD` action that opens the field-test odds beside the new loadout.
+
 Every reward with a next warrant translates the full pending receipt—XP level gains plus the chosen equipment state—into same-route win odds before and after claiming, directly connecting loot to the next hunt and the workshop field test.
 
 Automatic combat retains the selected incident result and adjusted payment above the encounter, preserving economic context through resolution.
