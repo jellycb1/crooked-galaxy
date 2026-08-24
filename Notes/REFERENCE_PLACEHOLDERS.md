@@ -17,6 +17,7 @@ These files are proprietary study material used as temporary composition placeho
 
 - `ReferencePlaceholderBackdrop` is the only runtime file allowed to name `res://References/` paths and maps exactly the four registered contexts.
 - Raw image loading is limited to interactive editor runs or builds carrying the explicit `reference_placeholders` feature.
+- The adapter retains only the current decoded placeholder. Changing or leaving a context drops the previous texture, and the production backdrop is unloaded while a placeholder is visible.
 - `References/.gdignore` remains mandatory, so Godot never imports these assets.
 - Public export presets must exclude `References/*`; the internal Android profile stages only the four registered PNGs as Git-ignored raw bytes.
 - Exported public packs reject reference content, while the internal pack inspector requires and decodes all four staged placeholders.

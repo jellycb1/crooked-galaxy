@@ -26,7 +26,13 @@ func run() -> void:
 	for context in ["contracts", "world", "workshop", "combat", "unknown"]:
 		backdrop.show_context(context)
 		check(not backdrop.visible, "headless context '%s' keeps the placeholder hidden" % context)
-	check(backdrop.texture_cache.is_empty(), "headless validation does not read local reference images")
+	check(backdrop.loaded_source_path.is_empty() and backdrop.texture_rect.texture == null, "headless validation does not retain a decoded reference image")
+	var decoded := backdrop.load_local_texture(str(backdrop.CONTEXT_PATHS.contracts))
+	check(decoded != null, "registered local PNG can be decoded by the same runtime path used in the editor")
+	backdrop.texture_rect.texture = decoded
+	backdrop.loaded_source_path = str(backdrop.CONTEXT_PATHS.contracts)
+	backdrop.release_texture()
+	check(backdrop.texture_rect.texture == null and backdrop.loaded_source_path.is_empty(), "placeholder release drops the only decoded texture reference")
 	backdrop.queue_free()
 	if failures == 0:
 		print("PASS: reference placeholders are mapped, documented, and headless-safe")

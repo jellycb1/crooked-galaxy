@@ -189,10 +189,13 @@ func render() -> void:
 	var current_generation := render_generation
 	if space_backdrop:
 		space_backdrop.planet_id = str(GameState.player.get("current_planet_id", ContentDB.PLANET.id))
-	if environment_backdrop:
-		environment_backdrop.show_context(environment_context(), str(GameState.player.get("current_planet_id", ContentDB.PLANET.id)))
 	if reference_backdrop:
 		reference_backdrop.show_context(environment_context())
+	if environment_backdrop:
+		if reference_backdrop != null and reference_backdrop.visible:
+			environment_backdrop.show_context("")
+		else:
+			environment_backdrop.show_context(environment_context(), str(GameState.player.get("current_planet_id", ContentDB.PLANET.id)))
 	if sound_fx:
 		sound_fx.enabled = bool(GameState.player.get("sound_enabled", true))
 	var phase_changed := previous_phase >= 0 and previous_phase != GameState.phase

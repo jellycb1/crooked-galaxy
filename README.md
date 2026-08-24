@@ -258,6 +258,8 @@ godot --path . --script res://tools/capture_ui.gd
 
 The proprietary study art in `References/` remains local, Git-ignored, and documented. Public builds use independently generated original production environments and reject leaked reference files. A separate `Android Internal References` profile can stage exactly four registered images into a watermarked APK for composition testing on our own device; every use and intended replacement is tracked in `Notes/REFERENCE_PLACEHOLDERS.md`.
 
+The internal adapter decodes only the visible 2000×1400 placeholder and releases it on context changes. It also unloads the corresponding production backdrop, bounding reference-image residency near 10.7 MB instead of accumulating roughly 42.7 MB across a complete navigation session.
+
 Build and inspect that internal-only APK:
 
 ```powershell

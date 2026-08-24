@@ -18,7 +18,7 @@ const INTERNAL_CONTEXT_PATHS := {
 var texture_rect: TextureRect
 var scrim: ColorRect
 var notice: Label
-var texture_cache: Dictionary = {}
+var loaded_source_path := ""
 
 
 func _ready() -> void:
@@ -57,14 +57,18 @@ func _ready() -> void:
 
 func show_context(context: String) -> void:
 	if not local_placeholders_allowed() or not CONTEXT_PATHS.has(context):
-		visible = false
+		release_texture()
 		return
 	var source_path := str(INTERNAL_CONTEXT_PATHS[context] if OS.has_feature("reference_placeholders") else CONTEXT_PATHS[context])
+	if source_path == loaded_source_path and texture_rect.texture != null:
+		visible = true
+		return
 	var texture := load_local_texture(source_path)
 	if texture == null:
-		visible = false
+		release_texture()
 		return
 	texture_rect.texture = texture
+	loaded_source_path = source_path
 	scrim.color = Color(0.015, 0.025, 0.075, 0.76 if context == "world" or context == "workshop" else (0.58 if context == "combat" else 0.66))
 	visible = true
 
@@ -74,8 +78,6 @@ func local_placeholders_allowed() -> bool:
 
 
 func load_local_texture(source_path: String) -> Texture2D:
-	if texture_cache.has(source_path):
-		return texture_cache[source_path] as Texture2D
 	var absolute_path := ProjectSettings.globalize_path(source_path)
 	if not FileAccess.file_exists(absolute_path):
 		return null
@@ -85,6 +87,11 @@ func load_local_texture(source_path: String) -> Texture2D:
 			return null
 	elif image.load(absolute_path) != OK:
 		return null
-	var texture := ImageTexture.create_from_image(image)
-	texture_cache[source_path] = texture
-	return texture
+	return ImageTexture.create_from_image(image)
+
+
+func release_texture() -> void:
+	if texture_rect != null:
+		texture_rect.texture = null
+	loaded_source_path = ""
+	visible = false
