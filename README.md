@@ -16,6 +16,8 @@ The arsenal includes a persistent reduced-motion preference. It removes the deco
 
 Dense decision layouts are regression-tested with 125% expanded typography. Shared actions and long loot names wrap by words so briefing, incident, threshold reward, career, and arsenal controls remain reachable at the mobile viewport.
 
+Window focus and mobile suspension explicitly freeze automatic combat and preserve the unread portion of the victory receipt. Overlapping lifecycle notifications are idempotent; idle hunts still reconcile wall-clock progress on the final resume, and mobile suspension saves immediately.
+
 Threshold captures explicitly preview and reveal the next warrant, keeping early progression visible without a modal tutorial.
 
 Reward screens also count the pending capture toward target mastery and preview its rare/epic loot bonus plus one-time workshop scrap funding before the player commits the loot decision.

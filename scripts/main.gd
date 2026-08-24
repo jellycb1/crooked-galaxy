@@ -20,6 +20,9 @@ var previous_phase := -1
 var space_backdrop: Control
 var safe_container: MarginContainer
 var render_generation := 0
+var lifecycle_suspensions: Dictionary = {}
+var timed_actions_suspended := false
+var suspended_victory_time_left := 0.0
 
 
 func _ready() -> void:
@@ -35,6 +38,40 @@ func _notification(what: int) -> void:
 		get_tree().quit()
 	elif what == NOTIFICATION_RESIZED and is_node_ready():
 		call_deferred("apply_safe_area")
+	elif what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		set_lifecycle_suspension("focus", true)
+	elif what == NOTIFICATION_APPLICATION_FOCUS_IN:
+		set_lifecycle_suspension("focus", false)
+	elif what == NOTIFICATION_APPLICATION_PAUSED:
+		GameState.save_game()
+		set_lifecycle_suspension("application", true)
+	elif what == NOTIFICATION_APPLICATION_RESUMED:
+		set_lifecycle_suspension("application", false)
+
+
+func set_lifecycle_suspension(reason: String, suspended: bool) -> void:
+	if suspended:
+		lifecycle_suspensions[reason] = true
+	else:
+		lifecycle_suspensions.erase(reason)
+	var should_suspend := not lifecycle_suspensions.is_empty()
+	if should_suspend == timed_actions_suspended:
+		return
+	timed_actions_suspended = should_suspend
+	if timed_actions_suspended:
+		if combat_timer != null:
+			combat_timer.stop()
+		if victory_timer != null and not victory_timer.is_stopped():
+			suspended_victory_time_left = maxf(0.05, victory_timer.time_left)
+			victory_timer.stop()
+		return
+	if GameState.phase == GameState.Phase.HUNT:
+		on_hunt_timer()
+	if GameState.phase == GameState.Phase.COMBAT and combat_timer != null:
+		combat_timer.start()
+	elif GameState.phase == GameState.Phase.VICTORY and victory_timer != null:
+		victory_timer.start(suspended_victory_time_left if suspended_victory_time_left > 0.0 else victory_timer.wait_time)
+		suspended_victory_time_left = 0.0
 
 
 func build_shell() -> void:
@@ -143,12 +180,12 @@ func render() -> void:
 			build_hunt_event()
 		GameState.Phase.CHAPTER_COMPLETE:
 			build_chapter_complete()
-	if GameState.phase == GameState.Phase.COMBAT:
+	if GameState.phase == GameState.Phase.COMBAT and not timed_actions_suspended:
 		if combat_timer.is_stopped():
 			combat_timer.start()
 	else:
 		combat_timer.stop()
-	if GameState.phase == GameState.Phase.VICTORY:
+	if GameState.phase == GameState.Phase.VICTORY and not timed_actions_suspended:
 		if victory_timer.is_stopped():
 			victory_timer.start()
 	else:
