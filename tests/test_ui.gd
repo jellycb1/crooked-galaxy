@@ -31,6 +31,8 @@ func run_smoke_test() -> void:
 	check(scene.environment_context() == "workshop", "arsenal resolves the original workshop environment")
 	scene.view_mode = "career"
 	check(scene.environment_context() == "world", "career resolves the original frontier-world environment")
+	scene.view_mode = "attributes"
+	check(scene.environment_context() == "world", "attributes resolve the original frontier-world environment")
 	scene.view_mode = "board"
 	check(scene.find_child("NextWarrantProgress", true, false) != null, "board keeps the next-warrant objective above the contract list")
 

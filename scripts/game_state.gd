@@ -69,6 +69,8 @@ func default_player() -> Dictionary:
 		"reputation": 0,
 		"wins": 0,
 		"base_power": 10,
+		"attributes": CoreRules.default_attributes(),
+		"stat_points": 0,
 		"sound_enabled": true,
 		"reduced_motion": false,
 		"captures_by_target": {},
@@ -353,7 +355,7 @@ func combat_step() -> Dictionary:
 		"actor": "player",
 		"action": ContentDB.player_attack(rng),
 		"damage": player_damage,
-		"quality": combat_quality(player_roll),
+		"quality": combat_quality(CoreRules.player_attack_roll(player, player_roll)),
 	}
 	var opening_bonus := CoreRules.player_opening_damage(player) if combat_round == 1 else 0
 	if opening_bonus > 0:
@@ -535,6 +537,7 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		notice_parts.append("Embalo ×1 iniciado: próxima captura +%d%%" % int(next_streak.bonus_percent))
 	if int(summary.levels) > 0:
 		notice_parts.append("Nível +%d" % int(summary.levels))
+		notice_parts.append("+%d pontos de atributo" % (int(summary.levels) * CoreRules.ATTRIBUTE_POINTS_PER_LEVEL))
 	if bool(summary.rank_up):
 		notice_parts.append("Novo contrato liberado")
 	elif bool(summary.chapter_tier_up):
@@ -829,6 +832,31 @@ func toggle_reduced_motion() -> void:
 	player.reduced_motion = not bool(player.get("reduced_motion", false))
 	save_game()
 	changed.emit()
+
+
+func allocate_attribute_points(allocations: Dictionary) -> bool:
+	if phase != Phase.BOARD or allocations.is_empty():
+		return false
+	var total := 0
+	for attribute_id in allocations:
+		if not CoreRules.ATTRIBUTE_KEYS.has(str(attribute_id)):
+			return false
+		var amount = allocations[attribute_id]
+		if not (amount is int or amount is float) or int(amount) <= 0 or float(amount) != float(int(amount)):
+			return false
+		total += int(amount)
+	if total <= 0 or total > int(player.get("stat_points", 0)):
+		return false
+	var attributes: Dictionary = player.get("attributes", CoreRules.default_attributes()).duplicate(true)
+	for attribute_id in allocations:
+		attributes[str(attribute_id)] = int(attributes.get(str(attribute_id), CoreRules.BASE_ATTRIBUTE_VALUE)) + int(allocations[attribute_id])
+	player.attributes = attributes
+	player.stat_points = int(player.get("stat_points", 0)) - total
+	last_notice = "%d ponto%s de atributo confirmado%s." % [total, "s" if total != 1 else "", "s" if total != 1 else ""]
+	last_notice_context = "attributes"
+	save_game()
+	changed.emit()
+	return true
 
 
 func abandon_bounty() -> void:
@@ -1188,7 +1216,7 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	else:
 		repaired = true
 	sanitized.equipment_loadouts = clean_loadouts
-	for key in ["xp", "credits", "scrap", "scrap_recycled_total", "afk_credits_earned", "afk_scrap_earned", "career_credits_claimed", "career_scrap_claimed", "capture_streak", "best_capture_streak", "reputation", "wins"]:
+	for key in ["xp", "credits", "scrap", "scrap_recycled_total", "afk_credits_earned", "afk_scrap_earned", "career_credits_claimed", "career_scrap_claimed", "capture_streak", "best_capture_streak", "reputation", "wins", "stat_points"]:
 		if int(sanitized[key]) < 0:
 			sanitized[key] = 0
 			repaired = true
@@ -1196,6 +1224,23 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 		if int(sanitized[key]) < 1:
 			sanitized[key] = 1
 			repaired = true
+	var clean_attributes := CoreRules.default_attributes()
+	var loaded_attributes = loaded.get("attributes", {})
+	if loaded_attributes is Dictionary:
+		for attribute_id in CoreRules.ATTRIBUTE_KEYS:
+			if not loaded_attributes.has(attribute_id):
+				repaired = true
+				continue
+			var value = loaded_attributes.get(attribute_id, CoreRules.BASE_ATTRIBUTE_VALUE)
+			if not (value is int or value is float) or float(value) != float(int(value)) or int(value) < CoreRules.BASE_ATTRIBUTE_VALUE:
+				repaired = true
+				continue
+			clean_attributes[attribute_id] = int(value)
+		if loaded_attributes.size() != CoreRules.ATTRIBUTE_KEYS.size():
+			repaired = true
+	else:
+		repaired = true
+	sanitized.attributes = clean_attributes
 	if int(sanitized.best_capture_streak) < int(sanitized.capture_streak):
 		sanitized.best_capture_streak = int(sanitized.capture_streak)
 		repaired = true

@@ -24,6 +24,8 @@ func _init() -> void:
 	check(str(migrated.player.armor.id) == "migrated_armor", "legacy armor receives stable ids")
 	check(int(migrated.player.capture_streak) == 0 and int(migrated.player.best_capture_streak) == 0, "streak fields are initialized")
 	check(not bool(migrated.player.reduced_motion), "motion preference defaults to full during migration")
+	check(migrated.player.attributes.size() == 5 and int(migrated.player.attributes.cunning) == 10, "legacy saves receive all five neutral attributes")
+	check(int(migrated.player.stat_points) == 0, "a level-one legacy hunter receives no unearned retroactive points")
 	check(not version_one.player.has("claimed_milestones"), "migration does not mutate its source payload")
 
 	var existing_ids := {
@@ -36,6 +38,11 @@ func _init() -> void:
 	var migrated_ids := SaveMigrations.migrate(existing_ids)
 	check(str(migrated_ids.player.weapon.id) == "kept_weapon", "migration preserves existing weapon ids")
 	check(str(migrated_ids.player.armor.id) == "kept_armor", "migration preserves existing armor ids")
+
+	var established_v5 := {"version": 5, "player": {"level": 4, "credits": 91}}
+	var established_v6 := SaveMigrations.migrate(established_v5)
+	check(int(established_v6.player.stat_points) == 6, "established hunters receive two retroactive points for every completed level")
+	check(int(established_v6.player.attributes.strength) == 10, "retroactive migration preserves neutral unspent attributes")
 
 	var current := {"version": SaveMigrations.CURRENT_VERSION, "player": {"credits": 5}}
 	var current_copy := SaveMigrations.migrate(current)

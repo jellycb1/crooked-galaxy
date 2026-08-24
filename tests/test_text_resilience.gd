@@ -68,6 +68,11 @@ func run_text_audit() -> void:
 	scene.render()
 	await audit_scaled_screen(scene, "verbose arsenal")
 
+	state.player.stat_points = 8
+	scene.view_mode = "attributes"
+	scene.render()
+	await audit_scaled_screen(scene, "attribute allocation")
+
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout

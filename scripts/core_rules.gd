@@ -6,6 +6,9 @@ const MAX_INTEGRITY_UPGRADES := 5
 const PLANETARY_KIT_POWER_BONUS := 1
 const PLANETARY_KIT_HEALTH_BONUS := 6
 const BOUNTY_ODDS_CACHE_LIMIT := 512
+const BASE_ATTRIBUTE_VALUE := 10
+const ATTRIBUTE_POINTS_PER_LEVEL := 2
+const ATTRIBUTE_KEYS := ["strength", "vitality", "dexterity", "intelligence", "cunning"]
 
 static var bounty_odds_cache: Dictionary = {}
 
@@ -13,13 +16,39 @@ static var bounty_odds_cache: Dictionary = {}
 static func player_power(player: Dictionary) -> int:
 	var weapon_power := item_combat_power(player.get("weapon", {}))
 	var armor_power := item_combat_power(player.get("armor", {}))
-	return int(player.get("base_power", 10)) + weapon_power + armor_power + equipment_set_bonus_power(player)
+	return int(player.get("base_power", 10)) + weapon_power + armor_power + equipment_set_bonus_power(player) + floori(float(attribute_investment(player, "strength")) / 2.0)
 
 
 static func max_health(player: Dictionary) -> int:
 	var weapon: Dictionary = player.get("weapon", {})
 	var armor: Dictionary = player.get("armor", {})
-	return 72 + int(player.get("level", 1)) * 8 + int(armor.get("power", 0)) * 3 + item_health_bonus(weapon) + item_health_bonus(armor) + equipment_set_bonus_health(player)
+	return 72 + int(player.get("level", 1)) * 8 + int(armor.get("power", 0)) * 3 + item_health_bonus(weapon) + item_health_bonus(armor) + equipment_set_bonus_health(player) + attribute_investment(player, "vitality") * 4
+
+
+static func default_attributes() -> Dictionary:
+	return {
+		"strength": BASE_ATTRIBUTE_VALUE,
+		"vitality": BASE_ATTRIBUTE_VALUE,
+		"dexterity": BASE_ATTRIBUTE_VALUE,
+		"intelligence": BASE_ATTRIBUTE_VALUE,
+		"cunning": BASE_ATTRIBUTE_VALUE,
+	}
+
+
+static func attribute_value(player: Dictionary, attribute_id: String) -> int:
+	return int(player.get("attributes", {}).get(attribute_id, BASE_ATTRIBUTE_VALUE))
+
+
+static func attribute_investment(player: Dictionary, attribute_id: String) -> int:
+	return maxi(0, attribute_value(player, attribute_id) - BASE_ATTRIBUTE_VALUE)
+
+
+static func cunning_roll_bonus(player: Dictionary) -> float:
+	return minf(0.15, float(attribute_investment(player, "cunning")) * 0.005)
+
+
+static func player_attack_roll(player: Dictionary, roll: float) -> float:
+	return clampf(roll + cunning_roll_bonus(player), 0.0, 1.0)
 
 
 static func item_combat_power(item: Dictionary) -> int:
@@ -39,11 +68,11 @@ static func item_damage_reduction(item: Dictionary) -> int:
 
 
 static func player_opening_damage(player: Dictionary) -> int:
-	return item_opening_damage(player.get("weapon", {})) + item_opening_damage(player.get("armor", {}))
+	return item_opening_damage(player.get("weapon", {})) + item_opening_damage(player.get("armor", {})) + floori(float(attribute_investment(player, "intelligence")) / 2.0)
 
 
 static func player_damage_reduction(player: Dictionary) -> int:
-	return item_damage_reduction(player.get("weapon", {})) + item_damage_reduction(player.get("armor", {}))
+	return item_damage_reduction(player.get("weapon", {})) + item_damage_reduction(player.get("armor", {})) + floori(float(attribute_investment(player, "dexterity")) / 3.0)
 
 
 static func equipment_set_origin(player: Dictionary) -> String:
@@ -74,7 +103,7 @@ static func damage_roll(power: int, defense: int, roll: float) -> int:
 
 
 static func player_attack_damage(player: Dictionary, target_defense: int, roll: float, round_number: int) -> int:
-	var damage := damage_roll(player_power(player), target_defense, roll)
+	var damage := damage_roll(player_power(player), target_defense, player_attack_roll(player, roll))
 	if round_number == 1:
 		damage += player_opening_damage(player)
 	return damage
@@ -106,6 +135,7 @@ static func apply_xp(player: Dictionary, amount: int) -> int:
 		player["xp"] = int(player["xp"]) - xp_needed(int(player["level"]))
 		player["level"] = int(player["level"]) + 1
 		player["base_power"] = int(player["base_power"]) + 2
+		player["stat_points"] = int(player.get("stat_points", 0)) + ATTRIBUTE_POINTS_PER_LEVEL
 		levels_gained += 1
 	return levels_gained
 
@@ -119,10 +149,11 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 	var armor_power := int(player.get("armor", {}).get("power", 0))
 	var opening_damage := player_opening_damage(player)
 	var damage_reduction := player_damage_reduction(player)
+	var cunning_bonus := roundi(cunning_roll_bonus(player) * 1000.0)
 	var target_power := int(target.get("power", 1))
 	var target_defense := int(target.get("defense", 0))
 	var target_health := int(target.get("health", 1))
-	var cache_key := "%d:%d:%d:%d:%d:%d:%d:%d" % [hunter_health, hunter_power, armor_power, opening_damage, damage_reduction, target_power, target_defense, target_health]
+	var cache_key := "%d:%d:%d:%d:%d:%d:%d:%d:%d" % [hunter_health, hunter_power, armor_power, opening_damage, damage_reduction, cunning_bonus, target_power, target_defense, target_health]
 	if bounty_odds_cache.has(cache_key):
 		return float(bounty_odds_cache[cache_key])
 	var rng := RandomNumberGenerator.new()

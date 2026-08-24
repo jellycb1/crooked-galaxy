@@ -1,7 +1,9 @@
 class_name SaveMigrations
 extends RefCounted
 
-const CURRENT_VERSION := 5
+const CURRENT_VERSION := 6
+const BASE_ATTRIBUTE_VALUE := 10
+const ATTRIBUTE_POINTS_PER_LEVEL := 2
 
 
 static func migrate(payload: Dictionary) -> Dictionary:
@@ -23,6 +25,9 @@ static func migrate(payload: Dictionary) -> Dictionary:
 			4:
 				migrated = migrate_v4_to_v5(migrated)
 				version = 5
+			5:
+				migrated = migrate_v5_to_v6(migrated)
+				version = 6
 			_:
 				return {}
 		migrated.version = version
@@ -74,5 +79,22 @@ static func migrate_v4_to_v5(payload: Dictionary) -> Dictionary:
 	var player: Dictionary = migrated.get("player", {})
 	if not player.has("reduced_motion"):
 		player.reduced_motion = false
+	migrated.player = player
+	return migrated
+
+
+static func migrate_v5_to_v6(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	var player: Dictionary = migrated.get("player", {})
+	if not player.has("attributes"):
+		player.attributes = {
+			"strength": BASE_ATTRIBUTE_VALUE,
+			"vitality": BASE_ATTRIBUTE_VALUE,
+			"dexterity": BASE_ATTRIBUTE_VALUE,
+			"intelligence": BASE_ATTRIBUTE_VALUE,
+			"cunning": BASE_ATTRIBUTE_VALUE,
+		}
+	if not player.has("stat_points"):
+		player.stat_points = maxi(0, int(player.get("level", 1)) - 1) * ATTRIBUTE_POINTS_PER_LEVEL
 	migrated.player = player
 	return migrated

@@ -10,6 +10,7 @@ const CareerRulesScript = preload("res://scripts/career_rules.gd")
 const ArsenalView = preload("res://scripts/arsenal_view.gd")
 const RewardViewScript = preload("res://scripts/reward_view.gd")
 const CareerViewScript = preload("res://scripts/career_view.gd")
+const AttributesViewScript = preload("res://scripts/attributes_view.gd")
 
 var body: VBoxContainer
 var content: VBoxContainer
@@ -226,6 +227,8 @@ func render() -> void:
 				build_galaxy_map()
 			elif view_mode == "career":
 				build_career()
+			elif view_mode == "attributes":
+				build_attributes()
 			else:
 				build_board()
 		GameState.Phase.HUNT:
@@ -264,7 +267,7 @@ func environment_context() -> String:
 	if GameState.phase == GameState.Phase.BOARD:
 		if view_mode == "arsenal":
 			return "workshop"
-		if view_mode == "galaxy" or view_mode == "career":
+		if view_mode == "galaxy" or view_mode == "career" or view_mode == "attributes":
 			return "world"
 	if GameState.phase == GameState.Phase.COMBAT or GameState.phase == GameState.Phase.VICTORY:
 		return "combat"
@@ -380,6 +383,18 @@ func build_board() -> void:
 		render()
 	)
 	actions.add_child(career)
+	var available_points := int(GameState.player.get("stat_points", 0))
+	var attributes_text := "ATRIBUTOS · %d" % available_points if available_points > 0 else "ATRIBUTOS"
+	var attributes := action_button(attributes_text, CORAL if available_points > 0 else CYAN, true)
+	attributes.name = "BoardAttributesAction"
+	attributes.custom_minimum_size = Vector2(160, 48)
+	attributes.add_theme_font_size_override("font_size", 12)
+	attributes.pressed.connect(func():
+		attribute_draft = {}
+		view_mode = "attributes"
+		render()
+	)
+	actions.add_child(attributes)
 
 	var recovery_inside_afk := not GameState.afk_report.is_empty() and GameState.last_notice_context == "system_recovery"
 	var defeat_report_visible := GameState.last_notice_context == "defeat" and not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true))
@@ -556,6 +571,10 @@ func build_career() -> void:
 
 func build_arsenal() -> void:
 	ArsenalView.build(self, content, GameState)
+
+
+func build_attributes() -> void:
+	AttributesViewScript.build(self, content, GameState)
 
 
 func onboarding_banner() -> PanelContainer:

@@ -26,6 +26,7 @@ $LogRoot = Join-Path $ProjectRoot ".godot\test-logs\$RunId"
 New-Item -ItemType Directory -Path $LogRoot -Force | Out-Null
 $Tests = @(
     "test_core.gd",
+    "test_attributes.gd",
     "test_balance_guards.gd",
     "test_flow.gd",
     "test_ui.gd",

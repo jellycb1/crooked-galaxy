@@ -358,6 +358,17 @@ func capture() -> void:
 	if save_frame("ui_arsenal.png") != OK:
 		quit(1)
 		return
+	state.player.stat_points = 6
+	scene.attribute_draft = {"vitality": 1, "cunning": 1}
+	scene.view_mode = "attributes"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_attributes.png") != OK:
+		quit(1)
+		return
+	scene.attribute_draft = {}
+	scene.view_mode = "arsenal"
 	scene.inventory_filter = "weapon"
 	scene.inventory_sort = "rarity"
 	scene.render()
@@ -711,7 +722,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

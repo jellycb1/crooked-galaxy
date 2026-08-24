@@ -85,6 +85,7 @@ func test_level_progression() -> void:
 	check(player.level == 3, "level is incremented")
 	check(player.xp == 5, "overflow XP is retained")
 	check(player.base_power == 14, "level raises base power")
+	check(int(player.stat_points) == 4, "each gained level also grants two distributable attribute points")
 	var no_patrol := Rules.offline_patrol_rewards(299.0, 3, 10)
 	check(int(no_patrol.credits) == 0, "AFK patrol ignores returns shorter than five minutes")
 

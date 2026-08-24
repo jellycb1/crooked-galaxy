@@ -18,6 +18,7 @@ var inventory_filter := "all"
 var inventory_sort := "power"
 var briefing_context: Dictionary = {}
 var career_scroll_position := 0
+var attribute_draft: Dictionary = {}
 
 
 func reset_transient_navigation() -> void:
@@ -26,6 +27,7 @@ func reset_transient_navigation() -> void:
 	inventory_sort = "power"
 	briefing_context = {}
 	career_scroll_position = 0
+	attribute_draft = {}
 
 
 func panel(child: Control, color: Color, radius: int, margin: int) -> PanelContainer:

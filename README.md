@@ -10,6 +10,8 @@ The prototype implements the product's central test:
 
 It currently includes five complete four-target chapters: Dustball Prime, the frozen corporate world Congelária S.A., the fungal network planet Micélia 404, the mechanical scrapyard Ferro-Velho Ômega, and the neon probability trap Cassino Quasar. Each destination has an original visual theme, escalating targets, boss, hunt incidents, and equipment family. Finishing chapters unlocks persistent galaxy-map travel, while three captures of each active warrant reveal the next target sequentially. A capped eight-hour AFK patrol grants credits and scrap on return, while consecutive captures build a capped credit-paying streak that is lost on defeat or abandonment. Repeated captures also build three target-mastery tiers that improve future rare and epic loot odds. A career screen summarizes planets, lifetime patrol earnings, claimable milestones, and a persistent twenty-target wanted archive; it also recommends the closest unfinished mastery tier and links back to that warrant. Rare equipment can carry power, integrity, opening-shot, or incoming-damage-reduction modifications. Every new item also records its planet of origin; matching weapon and armor activates a visible planetary kit bonus that participates in combat odds and complete-build comparison. The workshop filters, sorts, protects valuable pieces, manages two persistent loadouts, safely bulk-recycles, and spends scrap on either power calibration or capped integrity reinforcement. The slice also includes three risk/reward approaches per contract; the dangerous corporate warrant explicitly trades lower odds for credits and a small workshop-scrap reward without inflating loot tier. AFK-safe hunt resolution, scalable procedural portraits, runtime-synthesized sound effects, planet-themed automatic combat, XP and level progression, simulation-backed risk estimates, content validation, versioned save migration, and local persistence complete the slice.
 
+Level progression now awards two persistent attribute points per level across Strength, Vitality, Dexterity, Intelligence, and Cunning. The portrait hub keeps taps in a reversible draft until explicit confirmation, and legacy hunters receive the points earned by their existing level. Each attribute already contributes a restrained universal bonus; future classes can amplify their primary attribute without replacing this save-compatible foundation.
+
 Four original portrait environment paintings now ground the primary mobile contexts: bounty office, frontier spaceport, arsenal workshop, and encounter arena. They are production assets included in desktop and Android exports; proprietary study references have no active runtime mapping and remain export-excluded.
 
 Every primary screen also exposes a visible keyboard/controller focus ring. Rebuilt layouts restore the equivalent focused action when possible and otherwise select the first enabled action, including automatic combat redraws.
@@ -211,6 +213,7 @@ Or run an individual suite:
 
 ```powershell
 godot --headless --path . --script res://tests/test_core.gd
+godot --headless --path . --script res://tests/test_attributes.gd
 godot --headless --path . --script res://tests/test_balance_guards.gd
 godot --headless --path . --script res://tests/test_flow.gd
 godot --headless --path . --script res://tests/test_ui.gd
