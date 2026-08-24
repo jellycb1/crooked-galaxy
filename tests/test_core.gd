@@ -246,7 +246,7 @@ func test_loot_generation() -> void:
 	check(rammed.power == 12 and rammed.credits == 45, "risky hunt choice raises danger and reward")
 	var heat_event: Dictionary = Content.HUNT_EVENTS[2]
 	var heated := Content.apply_hunt_choice(Content.TARGETS[4], heat_event.choices[2])
-	check(heated.power == 31 and heated.credits == 175, "frozen incident applies its local risk and reward")
+	check(heated.power == roundi(float(Content.TARGETS[4].power) * float(heat_event.choices[2].power_mult)) and heated.credits == roundi(float(Content.TARGETS[4].credits) * float(heat_event.choices[2].credits_mult)), "frozen incident applies its local risk and reward")
 
 
 func check(condition: bool, description: String) -> void:

@@ -181,6 +181,37 @@ func print_decision_summary(results: Dictionary) -> void:
 	var multi_viable_percent := roundi(float(multi_viable_snapshots) / float(maxi(1, decision_snapshots)) * 100.0)
 	var meaningful_percent := roundi(float(meaningful_snapshots) / float(maxi(1, decision_snapshots)) * 100.0)
 	print("DECISÕES · opções em 99%%=%d%% · chegadas em 99%%=%d%% · ≥2 viáveis=%d%% · escolha separada=%d%% · rotas escolhidas=%s" % [saturated_percent, arrival_percent, multi_viable_percent, meaningful_percent, approach_summary(all_routes)])
+	for planet in Content.PLANETS:
+		print_planet_decision_summary(results, str(planet.id), str(planet.name))
+
+
+func print_planet_decision_summary(results: Dictionary, planet_id: String, planet_name: String) -> void:
+	var option_total := 0
+	var saturated_options := 0
+	var decision_snapshots := 0
+	var multi_viable_snapshots := 0
+	var meaningful_snapshots := 0
+	var planet_results: Dictionary = results[planet_id]
+	for tier in 4:
+		for sample in planet_results.option_odds[tier]:
+			decision_snapshots += 1
+			var viable_count := 0
+			var lowest := 1.0
+			var highest := 0.0
+			for odds in sample.values():
+				option_total += 1
+				var chance := float(odds)
+				lowest = minf(lowest, chance)
+				highest = maxf(highest, chance)
+				if chance >= ContractRulesScript.MIN_RECOMMENDED_ODDS:
+					viable_count += 1
+				if chance >= 0.99:
+					saturated_options += 1
+			if viable_count >= 2:
+				multi_viable_snapshots += 1
+				if highest - lowest >= 0.15:
+					meaningful_snapshots += 1
+	print("  %-20s opções 99%%=%d%% · ≥2 viáveis=%d%% · separadas=%d%%" % [planet_name, roundi(float(saturated_options) / float(maxi(1, option_total)) * 100.0), roundi(float(multi_viable_snapshots) / float(maxi(1, decision_snapshots)) * 100.0), roundi(float(meaningful_snapshots) / float(maxi(1, decision_snapshots)) * 100.0)])
 
 
 func strategy_contract(player: Dictionary, target: Dictionary, strategy: String) -> Dictionary:

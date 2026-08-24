@@ -20,6 +20,8 @@ The bounty board now links to a deterministic three-offer planet market. Credits
 
 Aggressive contract routes now preserve their identity as equipment grows. The fast route grants 45% more credits but adds substantially more target resistance; the corporate route grants 85% more credits and two workshop scrap at still higher combat pressure. Resistance pressure rises gently by planet while attack pressure remains fixed, avoiding hidden player-scaled enemies and preserving the safe route as recovery. Equipment drops remain anchored to the canonical target, so extra danger cannot inflate the loot tier.
 
+Congelária and Micélia use a smoother mid-campaign combat curve instead of repeating the previous chapter's endpoint. Their explicit loot-power anchors preserve the established equipment economy while stronger combat profiles keep safe, fast, and corporate routes meaningfully distinct. Campaign reports include per-planet saturation and viable-choice metrics so future content cannot hide a local plateau behind a healthy global average.
+
 Four original portrait environment paintings now ground the primary mobile contexts: bounty office, frontier spaceport, arsenal workshop, and encounter arena. They are production assets included in desktop and Android exports; proprietary study references have no active runtime mapping and remain export-excluded.
 
 Every primary screen also exposes a visible keyboard/controller focus ring. Rebuilt layouts restore the equivalent focused action when possible and otherwise select the first enabled action, including automatic combat redraws.

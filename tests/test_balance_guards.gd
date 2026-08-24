@@ -63,8 +63,38 @@ func _init() -> void:
 	check(float(omega_options[2].odds) >= 0.10 and float(omega_options[2].odds) <= 0.75, "fourth-planet corporate route remains viable but risky (actual %d%%)" % roundi(float(omega_options[2].odds) * 100.0))
 	check(float(omega_options[0].odds) > float(omega_options[1].odds) and float(omega_options[1].odds) > float(omega_options[2].odds), "fourth-planet contract risks remain strictly ordered")
 
+	var frozen_arrival := {
+		"level": 8,
+		"base_power": 24,
+		"class_id": "orbit_gunslinger",
+		"attributes": {"strength": 10, "vitality": 14, "dexterity": 18, "intelligence": 10, "cunning": 10},
+		"weapon": {"power": 14, "origin_planet_id": "dustball_prime"},
+		"armor": {"power": 10, "origin_planet_id": "dustball_prime"},
+	}
+	var frozen_options := Contracts.evaluate_approaches(frozen_arrival, Content.TARGETS[4], Content.contract_approaches())
+	check(float(frozen_options[0].odds) >= 0.95, "second-planet arrival retains a dependable recovery route")
+	check(float(frozen_options[1].odds) >= 0.45 and float(frozen_options[1].odds) <= 0.90, "second-planet fast route is a meaningful choice (actual %d%%)" % roundi(float(frozen_options[1].odds) * 100.0))
+	check(float(frozen_options[2].odds) >= 0.10 and float(frozen_options[2].odds) <= 0.65, "second-planet corporate route preserves visible risk (actual %d%%)" % roundi(float(frozen_options[2].odds) * 100.0))
+
+	var mycelial_boss_ready := {
+		"level": 15,
+		"base_power": 40,
+		"class_id": "orbit_gunslinger",
+		"attributes": {"strength": 10, "vitality": 18, "dexterity": 32, "intelligence": 10, "cunning": 10},
+		"weapon": {"power": 38, "origin_planet_id": "micelia_404"},
+		"armor": {"power": 30, "integrity_upgrades": 3, "origin_planet_id": "micelia_404"},
+	}
+	var mycelial_options := Contracts.evaluate_approaches(mycelial_boss_ready, Content.TARGETS[11], Content.contract_approaches())
+	check(float(mycelial_options[0].odds) >= 0.95, "third boss retains a dependable recovery route")
+	check(float(mycelial_options[1].odds) >= 0.45 and float(mycelial_options[1].odds) <= 0.90, "third-boss fast route escapes saturation (actual %d%%)" % roundi(float(mycelial_options[1].odds) * 100.0))
+	check(float(mycelial_options[2].odds) >= 0.15 and float(mycelial_options[2].odds) <= 0.65, "third-boss corporate route remains viable but risky (actual %d%%)" % roundi(float(mycelial_options[2].odds) * 100.0))
+	check(float(mycelial_options[0].odds) > float(mycelial_options[1].odds) and float(mycelial_options[1].odds) > float(mycelial_options[2].odds), "third-boss contract risks remain strictly ordered")
+
+	for target_index in range(4, 12):
+		check(Content.TARGETS[target_index].has("loot_power"), "rebalanced mid-campaign target %d separates combat and loot power" % target_index)
+
 	if failures == 0:
-		print("PASS: early and fifth-chapter balance guard rails are intact")
+		print("PASS: early, mid-campaign, and late balance guard rails are intact")
 		quit(0)
 	else:
 		printerr("FAIL: %d balance guard(s) failed" % failures)

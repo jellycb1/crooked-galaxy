@@ -90,7 +90,7 @@ func audit_contract_approach_roundtrips() -> void:
 			check(restored.last_notice_context != "system_recovery", "contract %s does not emit false recovery" % context)
 			check(restored.phase == restored.Phase.HUNT and str(restored.current_bounty.approach.id) == str(approach.id), "contract %s restores its applied approach" % context)
 			check(int(restored.current_bounty.get("scrap_reward", 0)) == expected_scrap, "contract %s preserves corporate scrap metadata" % context)
-			check(int(restored.current_bounty.loot_power) == expected_loot_power and expected_loot_power == int(target.power), "contract %s preserves canonical loot tier" % context)
+			check(int(restored.current_bounty.loot_power) == expected_loot_power and expected_loot_power == int(target.get("loot_power", target.power)), "contract %s preserves canonical loot tier" % context)
 			restored.free()
 			source.free()
 
