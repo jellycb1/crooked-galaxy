@@ -853,6 +853,9 @@ func save_game() -> void:
 
 
 func load_game() -> void:
+	last_notice = ""
+	last_notice_context = ""
+	afk_report = {}
 	player = default_player()
 	if not FileAccess.file_exists(save_path):
 		return
@@ -875,13 +878,16 @@ func load_game() -> void:
 		if not loaded_player.has("captures_by_planet") and int(player.wins) > 0:
 			player.captures_by_planet = {ContentDB.PLANET.id: int(player.wins)}
 	phase = int(parsed.get("phase", Phase.BOARD))
-	current_bounty = parsed.get("current_bounty", {})
+	var loaded_bounty = parsed.get("current_bounty", {})
+	current_bounty = loaded_bounty if loaded_bounty is Dictionary else {}
 	var loaded_approaches = parsed.get("offered_approaches", [])
 	offered_approaches.assign(loaded_approaches if loaded_approaches is Array else [])
-	pending_loot = parsed.get("pending_loot", {})
+	var loaded_loot = parsed.get("pending_loot", {})
+	pending_loot = loaded_loot if loaded_loot is Dictionary else {}
 	hunt_started_at = float(parsed.get("hunt_started_at", 0.0))
 	hunt_ends_at = float(parsed.get("hunt_ends_at", 0.0))
-	hunt_event = parsed.get("hunt_event", {})
+	var loaded_hunt_event = parsed.get("hunt_event", {})
+	hunt_event = loaded_hunt_event if loaded_hunt_event is Dictionary else {}
 	hunt_event_triggered = bool(parsed.get("hunt_event_triggered", false))
 	hunt_elapsed_before_event = float(parsed.get("hunt_elapsed_before_event", 0.0))
 	hunt_remaining_after_event = float(parsed.get("hunt_remaining_after_event", 0.0))
@@ -892,7 +898,9 @@ func load_game() -> void:
 	combat_events.assign(loaded_events if loaded_events is Array else [])
 	var loaded_summary = parsed.get("combat_summary", {})
 	combat_summary = loaded_summary if loaded_summary is Dictionary else {}
-	chapter_completion = parsed.get("chapter_completion", {})
+	var loaded_chapter = parsed.get("chapter_completion", {})
+	chapter_completion = loaded_chapter if loaded_chapter is Dictionary else {}
+	var repaired_phase := reconcile_loaded_phase()
 	var offline_rewards := apply_offline_progress(Time.get_unix_time_from_system())
 	if int(offline_rewards.credits) > 0 or int(offline_rewards.scrap) > 0:
 		# Persist immediately so an abrupt close cannot claim the same patrol twice.
@@ -903,8 +911,42 @@ func load_game() -> void:
 		# Combat resumes safely from its saved health values.
 		player_hp = maxi(1, player_hp)
 		enemy_hp = maxi(1, enemy_hp)
-	if requires_migration_save:
+	if requires_migration_save or repaired_phase:
 		save_game()
+
+
+func reconcile_loaded_phase() -> bool:
+	var repaired := false
+	if phase < Phase.BOARD or phase > Phase.CHAPTER_COMPLETE:
+		phase = Phase.BOARD
+		repaired = true
+	if phase == Phase.BRIEFING and not current_bounty.is_empty() and offered_approaches.is_empty():
+		offered_approaches.assign(ContentDB.contract_approaches())
+		repaired = true
+	var phase_has_required_state := true
+	match phase:
+		Phase.BRIEFING, Phase.HUNT, Phase.COMBAT:
+			phase_has_required_state = not current_bounty.is_empty()
+		Phase.HUNT_EVENT:
+			phase_has_required_state = not current_bounty.is_empty() and not hunt_event.is_empty()
+		Phase.VICTORY, Phase.REWARD:
+			phase_has_required_state = not current_bounty.is_empty() and not pending_loot.is_empty()
+		Phase.CHAPTER_COMPLETE:
+			phase_has_required_state = not chapter_completion.is_empty()
+	if phase_has_required_state:
+		return repaired
+	phase = Phase.BOARD
+	current_bounty = {}
+	offered_approaches.clear()
+	pending_loot = {}
+	hunt_event = {}
+	chapter_completion = {}
+	combat_events.clear()
+	combat_summary = {}
+	player_hp = 0
+	enemy_hp = 0
+	combat_round = 0
+	return true
 
 
 func migrate_save_payload(payload: Dictionary) -> Dictionary:

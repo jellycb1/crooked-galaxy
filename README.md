@@ -66,6 +66,8 @@ Transient notices carry explicit provenance: reward-equipped receipts alone acti
 
 All warrant handoffs that open a briefing now say `ESCOLHER ROTA`; a full development reset also clears hub filters, tested-briefing context, and retained career position along with gameplay progress.
 
+Save loading clears runtime-only receipts before restoration, type-checks interrupted-phase objects, reconstructs missing briefing routes when the contract is valid, and repairs incoherent phases back to the board without discarding valid player progression.
+
 ## Run
 
 Open `project.godot` in Godot 4, or run from a console where Godot is available:

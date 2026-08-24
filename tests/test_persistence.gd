@@ -3,6 +3,7 @@ extends SceneTree
 const StateScript = preload("res://scripts/game_state.gd")
 var test_save := "res://.godot/crooked_galaxy_test_save_%s.json" % OS.get_process_id()
 var legacy_save := "res://.godot/crooked_galaxy_legacy_save_%s.json" % OS.get_process_id()
+var damaged_save := "res://.godot/crooked_galaxy_damaged_save_%s.json" % OS.get_process_id()
 
 var failures := 0
 
@@ -76,9 +77,14 @@ func _init() -> void:
 	source.select_bounty(ContentDB.TARGETS[0])
 	var restored_briefing = StateScript.new()
 	restored_briefing.save_path = test_save
+	restored_briefing.last_notice = "Contrato pago: recibo antigo equipado"
+	restored_briefing.last_notice_context = "reward_equipped"
+	restored_briefing.afk_report = {"credits": 999, "scrap": 999}
 	restored_briefing.load_game()
 	check(restored_briefing.phase == restored_briefing.Phase.BRIEFING, "briefing phase survives save and load")
 	check(restored_briefing.offered_approaches.size() == 3, "approach choices survive save and load")
+	check(restored_briefing.last_notice.is_empty() and restored_briefing.last_notice_context.is_empty(), "loading cannot inherit a transient receipt from the previous runtime")
+	check(int(restored_briefing.afk_report.get("credits", 0)) != 999, "loading replaces stale AFK feedback instead of merging it into the save")
 
 	source.choose_approach("quiet_net", {"target_id": "gloop", "approach_id": "quiet_net", "approach_name": "Rede Silenciosa", "odds": 0.74})
 	source.hunt_event = ContentDB.HUNT_EVENTS[1].duplicate(true)
@@ -150,6 +156,37 @@ func _init() -> void:
 	check(int(migrated_payload.get("version", 0)) == StateScript.SAVE_VERSION, "successful migration is persisted immediately")
 	check(migrated.migrate_save_payload({"version": StateScript.SAVE_VERSION + 1}).is_empty(), "future save versions are rejected safely")
 
+	var damaged_file := FileAccess.open(damaged_save, FileAccess.WRITE)
+	damaged_file.store_string(JSON.stringify({
+		"version": StateScript.SAVE_VERSION,
+		"player": {"credits": 88, "wins": 2},
+		"phase": source.Phase.REWARD,
+		"current_bounty": "missing contract object",
+		"pending_loot": ["missing loot object"],
+		"hunt_event": "missing incident object",
+		"chapter_completion": 17,
+	}))
+	damaged_file = null
+	var repaired = StateScript.new()
+	repaired.save_path = damaged_save
+	repaired.load_game()
+	check(repaired.phase == repaired.Phase.BOARD and repaired.current_bounty.is_empty() and repaired.pending_loot.is_empty(), "damaged interrupted phase falls back safely to the board")
+	check(int(repaired.player.credits) == 88 and int(repaired.player.wins) == 2, "phase repair preserves valid player progression")
+	var repaired_file := FileAccess.open(damaged_save, FileAccess.READ)
+	var repaired_payload = JSON.parse_string(repaired_file.get_as_text())
+	check(int(repaired_payload.phase) == repaired.Phase.BOARD and repaired_payload.current_bounty is Dictionary, "phase repair is persisted so the same damaged save cannot recur")
+	repaired_file = FileAccess.open(damaged_save, FileAccess.WRITE)
+	repaired_file.store_string(JSON.stringify({
+		"version": StateScript.SAVE_VERSION,
+		"player": source.default_player(),
+		"phase": source.Phase.BRIEFING,
+		"current_bounty": ContentDB.TARGETS[0],
+		"offered_approaches": [],
+	}))
+	repaired_file = null
+	repaired.load_game()
+	check(repaired.phase == repaired.Phase.BRIEFING and repaired.offered_approaches.size() == 3, "valid interrupted briefing reconstructs missing route choices instead of discarding the contract")
+
 	source.free()
 	restored.free()
 	restored_briefing.free()
@@ -157,10 +194,13 @@ func _init() -> void:
 	restored_chapter.free()
 	offline.free()
 	migrated.free()
+	repaired.free()
 	if FileAccess.file_exists(test_save):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(test_save))
 	if FileAccess.file_exists(legacy_save):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(legacy_save))
+	if FileAccess.file_exists(damaged_save):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(damaged_save))
 	if failures == 0:
 		print("PASS: save and load preserve an interrupted reward flow")
 		quit(0)
