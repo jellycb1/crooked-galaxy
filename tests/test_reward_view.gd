@@ -21,17 +21,22 @@ func _init() -> void:
 
 	RewardScript.build(host, content, state)
 	check(host.find_child("RewardWarrantProgress", true, false) != null, "isolated reward renders next-warrant progress")
+	var streak_start := host.find_child("RewardStreakStart", true, false) as Label
+	check(streak_start != null and streak_start.text.contains("×1") and streak_start.text.contains("PRÓXIMA CAPTURA"), "first reward explains streak restart and when its bonus begins")
 	check(host.find_child("RewardMasteryProgress", true, false) != null, "isolated reward previews progress from the pending capture")
 	check(host.find_child("ClaimAndRepeat", true, false) != null and host.find_child("ClaimAndBoard", true, false) != null, "isolated reward preserves repeat and board decisions")
 
 	clear_content(content)
 	state.current_bounty = ContentDB.apply_approach(ContentDB.TARGETS[0], ContentDB.CONTRACT_APPROACHES[2])
+	state.player.capture_streak = 1
 	RewardScript.build(host, content, state)
 	var corporate_totals := host.find_child("RewardContractTotals", true, false) as Label
 	check(corporate_totals != null and corporate_totals.text.contains("2 sucata"), "isolated reward previews corporate workshop funding")
+	check(host.find_child("RewardStreakBonus", true, false) != null, "continued reward distinguishes an active streak bonus from its ×1 baseline")
 
 	clear_content(content)
 	state.current_bounty = ContentDB.TARGETS[0].duplicate(true)
+	state.player.capture_streak = 0
 	state.player.captures_by_target = {"gloop": 2}
 	RewardScript.build(host, content, state)
 	var mastery_unlock := host.find_child("RewardMasteryUnlock", true, false) as Label

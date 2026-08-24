@@ -338,6 +338,8 @@ func capture() -> void:
 	state.player.weapon = {"name": "Carabina de Rebite Quântico", "slot": "weapon", "power": 45, "rarity": "Épico", "color": "#d789ff", "trait": {"id": "crooked_coil", "name": "BOBINA TORTA", "description": "+2 poder de combate.", "power_bonus": 2, "health_bonus": 0}}
 	state.player.armor = {"name": "Armadura de Para-Choques", "slot": "armor", "power": 38, "rarity": "Raro", "color": "#58d9ff", "trait": {"id": "reactive_lining", "name": "FORRO REATIVO", "description": "+14 de integridade máxima.", "power_bonus": 0, "health_bonus": 14}}
 	state.travel_to_planet("ferro_velho_omega")
+	state.player.captures_by_target = {"bolt_collector": 2}
+	state.player.captures_by_planet = {"ferro_velho_omega": 2}
 	await process_frame
 	await process_frame
 	await create_timer(0.15).timeout
@@ -372,6 +374,7 @@ func capture() -> void:
 	state.combat_summary.damage_dealt = 128
 	state.combat_summary.damage_taken = CoreRules.max_health(state.player)
 	state.combat_summary.damage_prevented = 10
+	state.player.capture_streak = 4
 	state.player_hp = 0
 	state.enemy_hp = 37
 	state.finish_combat(false)
@@ -412,6 +415,24 @@ func capture() -> void:
 		quit(1)
 		return
 	if save_frame("ui_defeat_workshop_upgraded.png") != OK:
+		quit(1)
+		return
+	var revenge_action := scene.find_child("FieldReadinessAction", true, false) as Button
+	if revenge_action:
+		revenge_action.pressed.emit()
+		state.choose_approach("quiet_net")
+		state.begin_combat()
+		state.enemy_hp = 0
+		state.finish_combat(true)
+		state.open_reward()
+		await process_frame
+		await process_frame
+		await create_timer(0.2).timeout
+	else:
+		printerr("Failed to locate revenge action for mastery capture")
+		quit(1)
+		return
+	if save_frame("ui_revenge_mastery_reward.png") != OK:
 		quit(1)
 		return
 	scene.view_mode = "board"

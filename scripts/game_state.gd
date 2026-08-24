@@ -364,9 +364,11 @@ func finish_combat(won: bool) -> void:
 		pending_loot = ContentDB.generate_loot(current_bounty, rng, CoreRules.target_mastery_level(target_captures))
 		phase = Phase.VICTORY
 	else:
+		var lost_streak := int(player.get("capture_streak", 0))
+		combat_summary.lost_streak = lost_streak
 		player.capture_streak = 0
 		phase = Phase.BOARD
-		last_notice = "%s escapou. Seu equipamento precisa de argumentos melhores." % str(current_bounty.name)
+		last_notice = "%s escapou. Seu equipamento precisa de argumentos melhores.%s" % [str(current_bounty.name), " Embalo ×%d perdido." % lost_streak if lost_streak > 0 else ""]
 		current_bounty = {}
 		pending_loot = {}
 		offered_approaches = []

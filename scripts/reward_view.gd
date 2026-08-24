@@ -70,7 +70,13 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 			mastery_progress.name = "RewardMasteryProgress"
 			box.add_child(mastery_progress)
 	if int(reward_preview.bonus_credits) > 0:
-		box.add_child(host.center_label("EMBALO ×%d · +%d créditos (+%d%%)" % [int(reward_preview.streak), int(reward_preview.bonus_credits), int(reward_preview.bonus_percent)], 14, host.LIME))
+		var streak_bonus := host.center_label("EMBALO ×%d · +%d créditos (+%d%%)" % [int(reward_preview.streak), int(reward_preview.bonus_credits), int(reward_preview.bonus_percent)], 14, host.LIME)
+		streak_bonus.name = "RewardStreakBonus"
+		box.add_child(streak_bonus)
+	elif int(reward_preview.streak) == 1:
+		var streak_start := host.center_label("EMBALO REINICIADO ×1 · BÔNUS COMEÇA NA PRÓXIMA CAPTURA", 12, host.CYAN)
+		streak_start.name = "RewardStreakStart"
+		box.add_child(streak_start)
 	var planet_id := str(state.current_bounty.get("planet_id", Content.PLANET.id))
 	var captures_before: Dictionary = state.player.get("captures_by_target", {})
 	var captures_after := captures_before.duplicate(true)

@@ -184,6 +184,7 @@ func run_smoke_test() -> void:
 	state.phase = state.Phase.BOARD
 	state.player.current_planet_id = ContentDB.PLANET.id
 	state.current_bounty = ContentDB.TARGETS[1].duplicate(true)
+	state.player.capture_streak = 4
 	state.begin_combat()
 	state.combat_summary.rounds = 6
 	state.combat_summary.damage_dealt = 84
@@ -193,6 +194,8 @@ func run_smoke_test() -> void:
 	state.finish_combat(false)
 	await process_frame
 	check(scene.find_child("CombatSummaryDefeat", true, false) != null, "board keeps a concise defeat diagnosis before the next contract")
+	var streak_loss := scene.find_child("DefeatStreakLoss", true, false) as Label
+	check(streak_loss != null and streak_loss.text.contains("×4") and streak_loss.text.contains("×1"), "defeat diagnosis explains the streak reset and restart")
 	var defeat_workshop := scene.find_child("DefeatWorkshopAction", true, false) as Button
 	check(defeat_workshop != null, "defeat diagnosis offers an immediate workshop recovery route")
 	defeat_workshop.pressed.emit()

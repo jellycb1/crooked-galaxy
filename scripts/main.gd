@@ -432,6 +432,12 @@ func combat_summary_panel(won: bool) -> PanelContainer:
 		var diagnosis := label("O alvo conservou %d HP. Compare as odds, ative um kit ou invista na oficina antes da revanche." % remaining, 12, INK)
 		diagnosis.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		box.add_child(diagnosis)
+		var lost_streak := int(summary.get("lost_streak", 0))
+		if lost_streak > 0:
+			var streak_loss := label("EMBALO ×%d ENCERRADO · a próxima captura recomeça em ×1" % lost_streak, 11, CORAL)
+			streak_loss.name = "DefeatStreakLoss"
+			streak_loss.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			box.add_child(streak_loss)
 		var workshop := action_button("ABRIR OFICINA E TESTAR BUILD", CYAN, true)
 		workshop.name = "DefeatWorkshopAction"
 		workshop.custom_minimum_size = Vector2(0, 44)

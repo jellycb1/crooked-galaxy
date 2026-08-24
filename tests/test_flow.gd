@@ -226,6 +226,7 @@ func _init() -> void:
 
 	state.start_bounty(Content.TARGETS[0].duplicate(true))
 	state.hunt_event = Content.HUNT_EVENTS[0].duplicate(true)
+	state.player.capture_streak = 4
 	var event_time := Time.get_unix_time_from_system()
 	state.hunt_started_at = event_time - 3.0
 	state.hunt_ends_at = event_time + 3.0
@@ -248,9 +249,35 @@ func _init() -> void:
 	check(state.phase == state.Phase.BOARD, "defeat returns to the bounty board")
 	check(not state.last_notice.is_empty(), "defeat explains what happened")
 	check(int(state.player.capture_streak) == 0, "defeat resets the capture streak")
+	check(int(state.combat_summary.get("lost_streak", 0)) == 4 and state.last_notice.contains("Embalo ×4 perdido"), "defeat persists and names the exact lost streak")
 	state.select_bounty(Content.TARGETS[0])
 	state.cancel_briefing()
 	check(state.phase == state.Phase.BOARD and state.current_bounty.is_empty(), "briefing can be cancelled safely")
+
+	var recovery_state = StateScript.new()
+	recovery_state.persistence_enabled = false
+	recovery_state.player = recovery_state.default_player()
+	recovery_state.player.captures_by_target = {"gloop": 2}
+	recovery_state.player.captures_by_planet = {Content.PLANET.id: 2}
+	recovery_state.player.capture_streak = 4
+	recovery_state.select_bounty(Content.TARGETS[0])
+	recovery_state.choose_approach("quiet_net")
+	recovery_state.begin_combat()
+	recovery_state.enemy_hp = 12
+	recovery_state.player_hp = 0
+	recovery_state.finish_combat(false)
+	check(int(recovery_state.player.capture_streak) == 0 and int(recovery_state.combat_summary.lost_streak) == 4, "recovery scenario begins from a persisted streak loss")
+	recovery_state.select_bounty(Content.TARGETS[0])
+	recovery_state.choose_approach("quiet_net")
+	recovery_state.begin_combat()
+	recovery_state.enemy_hp = 0
+	recovery_state.finish_combat(true)
+	recovery_state.open_reward()
+	var recovery_summary := recovery_state.claim_reward(false)
+	check(int(recovery_summary.streak) == 1 and int(recovery_summary.streak_bonus) == 0, "first recovered capture restarts streak at one without phantom bonus")
+	check(bool(recovery_summary.target_mastery_up) and int(recovery_summary.target_mastery) == 1 and int(recovery_summary.mastery_scrap) == 6, "recovered third capture still grants the exact mastery threshold funding")
+	check(int(recovery_state.player.captures_by_target.gloop) == 3 and recovery_state.planet_tier(Content.PLANET.id) == 1, "recovered threshold capture advances the sequential warrant")
+	recovery_state.free()
 	state.toggle_sound()
 	check(not bool(state.player.sound_enabled), "audio preference can be disabled")
 	check(not state.travel_to_planet("congelaria_sa"), "travel rejects locked planets")
