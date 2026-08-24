@@ -244,6 +244,12 @@ Capture the procedural character lineup:
 godot --path . --script res://tools/capture_portraits.gd
 ```
 
+Regenerate the tracked PNG boot splash from its SVG illustration and Godot-composed title:
+
+```powershell
+godot --path . --script res://tools/generate_boot_splash.gd
+```
+
 Run the deterministic combat balance simulation:
 
 ```powershell

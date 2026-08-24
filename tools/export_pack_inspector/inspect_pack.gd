@@ -6,6 +6,14 @@ const FORBIDDEN_PATHS := [
 	"res://References/Shakes and Fidget Assets/StreamingAssets/locations/bg_fort_0.png",
 	"res://References/Shakes and Fidget Assets/StreamingAssets/locations/location_battle_0.png",
 ]
+const REQUIRED_PRODUCTION_ASSETS := [
+	"res://assets/boot_splash.png",
+	"res://assets/icon.svg",
+	"res://assets/backgrounds/bounty_office.png",
+	"res://assets/backgrounds/frontier_spaceport.png",
+	"res://assets/backgrounds/arsenal_workshop.png",
+	"res://assets/backgrounds/frontier_arena.png",
+]
 
 
 func _init() -> void:
@@ -28,5 +36,10 @@ func _init() -> void:
 			printerr("FAIL: exported pack contains proprietary placeholder: %s" % forbidden_path)
 			quit(1)
 			return
-	print("PASS: exported pack contains no proprietary reference placeholders")
+	for required_path in REQUIRED_PRODUCTION_ASSETS:
+		if not ResourceLoader.exists(required_path):
+			printerr("FAIL: exported pack is missing original production asset: %s" % required_path)
+			quit(1)
+			return
+	print("PASS: exported pack contains required original art and no proprietary reference placeholders")
 	quit()

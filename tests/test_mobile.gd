@@ -95,6 +95,9 @@ func run_mobile_audit() -> void:
 
 
 func check_android_first_project_profile() -> void:
+	check(str(ProjectSettings.get_setting("application/boot_splash/image", "")) == "res://assets/boot_splash.png", "startup uses the original Crooked Galaxy boot splash")
+	var splash := Image.load_from_file("res://assets/boot_splash.png")
+	check(splash != null and splash.get_width() == 720 and splash.get_height() == 1280, "boot splash matches the portrait design canvas")
 	check(not bool(ProjectSettings.get_setting("application/config/quit_on_go_back", true)), "Godot delegates Android Back to the safe in-game router")
 	check(int(ProjectSettings.get_setting("display/window/size/viewport_width", 0)) == 720, "project keeps the 720-unit portrait design width")
 	check(int(ProjectSettings.get_setting("display/window/size/viewport_height", 0)) == 1280, "project keeps the 1280-unit portrait design height")
