@@ -79,6 +79,8 @@ func _init() -> void:
 	finale.phase = finale.Phase.CHAPTER_COMPLETE
 	assert_clean_roundtrip(finale, finale.Phase.CHAPTER_COMPLETE, "chapter complete")
 
+	audit_hunt_choice_roundtrips()
+
 	if FileAccess.file_exists(test_save):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(test_save))
 	if failures == 0:
@@ -105,6 +107,42 @@ func assert_clean_roundtrip(source: StateScript, expected_phase: int, context: S
 	check(restored.last_notice_context != "system_recovery", "%s does not emit a false recovery notice" % context)
 	restored.free()
 	source.free()
+
+
+func audit_hunt_choice_roundtrips() -> void:
+	for event in ContentDB.HUNT_EVENTS:
+		var matching_targets := ContentDB.TARGETS.filter(func(target): return str(target.planet_id) == str(event.planet_id))
+		check(not matching_targets.is_empty(), "event %s has a canonical planet target" % str(event.id))
+		if matching_targets.is_empty():
+			continue
+		for choice in event.choices:
+			var source := clean_state()
+			source.player.credits = 1000
+			var completed_planets: Array = []
+			for planet in ContentDB.PLANETS:
+				if str(planet.id) == str(event.planet_id):
+					break
+				completed_planets.append(str(planet.id))
+			source.player.completed_planets = completed_planets
+			source.player.current_planet_id = str(event.planet_id)
+			source.select_bounty(matching_targets[0])
+			source.choose_approach("quiet_net")
+			source.hunt_event = event.duplicate(true)
+			source.hunt_event_triggered = true
+			source.hunt_elapsed_before_event = 3.0
+			source.hunt_remaining_after_event = 4.0
+			source.phase = source.Phase.HUNT_EVENT
+			var credits_before := int(source.player.credits)
+			check(source.resolve_hunt_event(str(choice.id)), "choice %s resolves before round-trip" % str(choice.id))
+			var expected_credits := credits_before - int(choice.get("credit_cost", 0))
+			var restored = StateScript.new()
+			restored.save_path = test_save
+			restored.load_game()
+			check(restored.last_notice_context != "system_recovery", "choice %s does not emit false recovery" % str(choice.id))
+			check(restored.phase == restored.Phase.HUNT and str(restored.current_bounty.get("hunt_event_choice_id", "")) == str(choice.id), "choice %s restores its applied hunt outcome" % str(choice.id))
+			check(int(restored.player.credits) == expected_credits, "choice %s preserves its exact charged wallet" % str(choice.id))
+			restored.free()
+			source.free()
 
 
 func check(condition: bool, description: String) -> void:

@@ -102,6 +102,8 @@ A dedicated current-schema matrix round-trips board, briefing, hunt, incident, c
 
 Its combat variant also proves optional active-kit and confirmed tested-route evidence survives when present, while empty optional fields remain omitted.
 
+The same matrix applies and reloads all thirty canonical hunt-event choices across the five unlocked planet chains, covering paid/free costs, added duration, and combat/economic multipliers.
+
 Loaded player data is shape-checked against canonical defaults: scalar progress is preserved when compatible, invalid equipment falls back safely, malformed inventory entries are discarded, and loadouts always normalize to two usable slots before any renderer sees them.
 
 When loading performs a migration or repair, the next board visit receives a concise session-only `SAVE ATUALIZADO` or `SAVE RECUPERADO` notice that emphasizes preserved progress without exposing storage internals.
