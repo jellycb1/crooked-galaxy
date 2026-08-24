@@ -4,7 +4,7 @@
 
 The project owner explicitly permits the development team to inspect any asset or source-code section under `References/` to understand behavior, flows, and interface organization. Any reference asset may be packaged as a visibly marked placeholder in the team-only Android test APK when its source, purpose, and intended replacement are documented here. This authorization does not make the material production-owned: final implementation code remains independently written, and every shipped placeholder remains scheduled for replacement.
 
-An APK containing reference material must be distributed only through an access-controlled private destination. A repository described as team-only but technically configured as public does not satisfy this rule. On 2026-08-24, `jellycb1/crooked-galaxy` was verified as public, so further uploads are blocked until its GitHub visibility is changed to private or another private destination is configured.
+The project owner explicitly permits the Android team-test APK containing documented reference placeholders to remain on the public `latest` release of `jellycb1/crooked-galaxy`. Public accessibility is accepted for this internal testing workflow. The publisher still requires the deliberate `-AllowPublicReferenceBuild` switch so a different operator or destination cannot inherit that exception silently.
 
 ## Prototype class content
 

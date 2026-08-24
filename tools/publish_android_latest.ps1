@@ -1,6 +1,7 @@
 param(
     [string]$GodotPath = "",
-    [string]$Repository = "jellycb1/crooked-galaxy"
+    [string]$Repository = "jellycb1/crooked-galaxy",
+    [switch]$AllowPublicReferenceBuild
 )
 
 $ErrorActionPreference = "Stop"
@@ -31,8 +32,11 @@ if ($LASTEXITCODE -ne 0) {
     throw "Could not verify the GitHub repository visibility."
 }
 $RepositoryInfo = $RepositoryJson | ConvertFrom-Json
-if (-not [bool]$RepositoryInfo.isPrivate -or [string]$RepositoryInfo.visibility -ne "PRIVATE") {
+if ((-not [bool]$RepositoryInfo.isPrivate -or [string]$RepositoryInfo.visibility -ne "PRIVATE") -and -not $AllowPublicReferenceBuild) {
     throw "Refusing to publish reference placeholders: $($RepositoryInfo.url) is not private."
+}
+if (-not [bool]$RepositoryInfo.isPrivate) {
+    Write-Warning "Publishing the internal reference-placeholder APK to the explicitly authorized public repository $Repository."
 }
 
 $Commit = (& git -C $ProjectRoot rev-parse --short HEAD).Trim()
