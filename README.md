@@ -24,6 +24,8 @@ Save replacement is crash-resilient: a fully flushed staging payload is promoted
 
 If primary, staging, and backup are all unreadable, normal gameplay and writes remain blocked instead of silently replacing evidence with defaults. `INICIAR NOVO SAVE` is an explicit recovery decision that first preserves every damaged artifact under a `.corrupt` suffix, then creates a canonical primary/backup pair.
 
+Corrupt-artifact retention is bounded to the two newest generations for each member of the save family. Cleanup runs only after a replacement save succeeds, retaining the most useful recent evidence without unbounded storage growth.
+
 Threshold captures explicitly preview and reveal the next warrant, keeping early progression visible without a modal tutorial.
 
 Reward screens also count the pending capture toward target mastery and preview its rare/epic loot bonus plus one-time workshop scrap funding before the player commits the loot decision.

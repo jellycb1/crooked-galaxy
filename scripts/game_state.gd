@@ -932,9 +932,11 @@ func start_fresh_after_corruption() -> bool:
 	for path in [save_path, "%s.tmp" % save_path, "%s.bak" % save_path]:
 		if FileAccess.file_exists(path):
 			source_paths.append(path)
-	var suffix := ".corrupt"
-	if source_paths.any(func(path): return FileAccess.file_exists("%s%s" % [path, suffix])):
-		suffix = ".corrupt.%d" % int(Time.get_unix_time_from_system())
+	var quarantine_id := int(Time.get_unix_time_from_system() * 1000.0)
+	var suffix := ".corrupt.%d" % quarantine_id
+	while source_paths.any(func(path): return FileAccess.file_exists("%s%s" % [path, suffix])):
+		quarantine_id += 1
+		suffix = ".corrupt.%d" % quarantine_id
 	for path in source_paths:
 		var copy_error := DirAccess.copy_absolute(ProjectSettings.globalize_path(path), ProjectSettings.globalize_path("%s%s" % [path, suffix]))
 		if copy_error != OK:
@@ -944,7 +946,26 @@ func start_fresh_after_corruption() -> bool:
 	for path in source_paths:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 	reset_progress()
+	if save_warning.is_empty():
+		prune_corrupt_artifacts(2)
 	return save_warning.is_empty()
+
+
+func prune_corrupt_artifacts(keep_per_source: int) -> void:
+	for source_path in [save_path, "%s.tmp" % save_path, "%s.bak" % save_path]:
+		var absolute_source := ProjectSettings.globalize_path(source_path)
+		var directory_path := absolute_source.get_base_dir()
+		var prefix := "%s.corrupt." % absolute_source.get_file()
+		var directory := DirAccess.open(directory_path)
+		if directory == null:
+			continue
+		var matches: Array[String] = []
+		for filename in directory.get_files():
+			if filename.begins_with(prefix):
+				matches.append(filename)
+		matches.sort()
+		while matches.size() > maxi(0, keep_per_source):
+			DirAccess.remove_absolute(directory_path.path_join(matches.pop_front()))
 
 
 func load_game() -> void:
