@@ -161,6 +161,20 @@ func capture() -> void:
 		return
 	state.pending_loot = featured_loot
 	state.claim_reward(true)
+	await process_frame
+	await process_frame
+	await create_timer(0.2).timeout
+	if save_frame("ui_paid_receipt_board.png") != OK:
+		quit(1)
+		return
+	scene.view_mode = "arsenal"
+	scene.render()
+	await process_frame
+	await process_frame
+	await create_timer(0.2).timeout
+	if save_frame("ui_paid_receipt_workshop.png") != OK:
+		quit(1)
+		return
 	state.player.scrap = 18
 	state.player.inventory.append({"id": "capture_spare", "name": "Colete Fiscal Vencido", "description": "A proteção expirou no trimestre passado.", "slot": "armor", "origin_planet_id": "dustball_prime", "power": 5, "rarity": "Comum", "color": "#b9c2d9"})
 	state.player.inventory.append({"id": "capture_old_weapon", "name": "Zapper de Gaveta", "description": "Dispara melhor quando a gaveta está aberta.", "slot": "weapon", "power": 1, "rarity": "Comum", "color": "#b9c2d9"})
@@ -521,7 +535,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, reward/mastery/warrant-unlock decisions, defeat recovery and upgrade, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, reward/mastery/warrant-unlock decisions, post-claim receipts, defeat recovery and upgrade, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

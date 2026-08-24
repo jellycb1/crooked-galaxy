@@ -26,6 +26,8 @@ Paid incident options additionally show the net contract gain after their immedi
 
 The reward receipt retains paid incident cost and reconciles gross payout with the exact net wallet gain from before the choice.
 
+Claim summaries and the persistent board/workshop record name whether the captured item was equipped, stored, or recycled, including the exact item name.
+
 Automatic combat retains the selected incident result and adjusted payment above the encounter, preserving economic context through resolution.
 
 The victory beat confirms that same gross payment, embedded streak bonus, and net balance before revealing loot.

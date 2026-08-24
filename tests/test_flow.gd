@@ -45,7 +45,8 @@ func _init() -> void:
 	check(state.player.inventory.size() == 2, "loot and replaced starter gear are retained in inventory")
 	check(int(state.player.wins) == 1, "victory progression is retained")
 	check(str(state.player[str(claimed_item.slot)].id) == str(claimed_item.id), "claimed upgrade is equipped")
-	check(not state.last_notice.is_empty(), "reward feedback survives the screen transition")
+	check(str(summary.loot_action) == "equipped" and str(summary.loot_name) == str(claimed_item.name), "reward summary records the applied loot decision")
+	check(state.last_notice.contains("%s equipado" % str(claimed_item.name)), "equipped loot decision survives the screen transition")
 	check(int(state.player.reputation) == 0, "rank requires three captures")
 	var streak_state = StateScript.new()
 	streak_state.persistence_enabled = false
@@ -57,6 +58,7 @@ func _init() -> void:
 	var streak_credits_before := int(streak_state.player.credits)
 	var streak_summary := streak_state.claim_reward(false)
 	check(int(streak_summary.streak) == 2 and int(streak_state.player.capture_streak) == 2, "consecutive reward advances the capture streak")
+	check(str(streak_summary.loot_action) == "stored" and streak_state.last_notice.contains("Troféu de Embalo guardado"), "stored loot decision survives in the contract record")
 	check(int(streak_summary.streak_bonus) > 0 and int(streak_state.player.credits) == streak_credits_before + int(streak_summary.credits), "consecutive reward pays the visible streak bonus")
 	streak_state.phase = streak_state.Phase.REWARD
 	streak_state.current_bounty = Content.apply_approach(Content.TARGETS[0], Content.contract_approaches()[2])
@@ -82,6 +84,7 @@ func _init() -> void:
 	var instant_scrap_value := CoreRules.salvage_value(recycle_reward_state.pending_loot)
 	var instant_result := recycle_reward_state.claim_reward(false, true, true)
 	check(bool(instant_result.recycled) and int(instant_result.scrap) == instant_scrap_value, "reward can report immediate recycling")
+	check(str(instant_result.loot_action) == "recycled" and recycle_reward_state.last_notice.contains("Zapper Pior reciclado"), "recycled loot decision names the item in the persistent record")
 	check(recycle_reward_state.phase == recycle_reward_state.Phase.BRIEFING, "recycled reward can continue directly to the next briefing")
 	check(not recycle_reward_state.player.inventory.any(func(item): return str(item.get("id", "")) == "instant_scrap"), "immediately recycled loot never enters inventory")
 	check(int(recycle_reward_state.player.scrap) == instant_scrap_value and int(recycle_reward_state.player.scrap_recycled_total) == instant_scrap_value, "immediate recycling funds the workshop and career total")

@@ -427,6 +427,8 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		"chapter_complete": false,
 		"target_mastery_up": false,
 		"target_mastery": 0,
+		"loot_name": str(pending_loot.get("name", "Loot sem etiqueta")),
+		"loot_action": "recycled" if recycle_item else ("equipped" if equip_item else "stored"),
 	}
 	var completed_bounty := current_bounty.duplicate(true)
 	var completed_planet_id := str(completed_bounty.get("planet_id", ContentDB.PLANET.id))
@@ -477,7 +479,11 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	if int(summary.contract_scrap) > 0:
 		notice_parts.append("Mandado corporativo: +%d sucata" % int(summary.contract_scrap))
 	if int(summary.recycled_scrap) > 0:
-		notice_parts.append("Loot reciclado: +%d sucata" % int(summary.recycled_scrap))
+		notice_parts.append("%s reciclado: +%d sucata" % [str(summary.loot_name), int(summary.recycled_scrap)])
+	elif str(summary.loot_action) == "equipped":
+		notice_parts.append("%s equipado" % str(summary.loot_name))
+	else:
+		notice_parts.append("%s guardado" % str(summary.loot_name))
 	if int(summary.streak_bonus) > 0:
 		notice_parts.append("Embalo ×%d: +%d" % [new_streak, int(summary.streak_bonus)])
 	if int(summary.levels) > 0:
