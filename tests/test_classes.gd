@@ -20,11 +20,13 @@ func run_classes_test() -> void:
 	state.player = state.default_player()
 	state.phase = state.Phase.BOARD
 	check(Classes.DEFINITIONS.size() == 3, "the first class roster has three focused archetypes")
+	check(Classes.DEFINITIONS.all(func(definition): return bool(definition.get("prototype", false))), "the complete initial trio is explicitly marked as replaceable prototype content")
 	var primaries := Classes.DEFINITIONS.map(func(definition): return str(definition.primary_attribute))
 	check(primaries == ["strength", "dexterity", "intelligence"], "the roster specializes the three offensive attributes without consuming vitality or cunning")
 	check(str(state.player.class_id).is_empty() and Classes.specialization_power(state.player, Rules.BASE_ATTRIBUTE_VALUE) == 0, "new hunters remain safely unassigned until the player chooses")
 
 	for definition in Classes.DEFINITIONS:
+		check(definition.get("effects", {}) is Dictionary and not Classes.specialization_text(definition).is_empty(), "%s owns data-driven effects and a derived player-facing description" % str(definition.name))
 		var unassigned: Dictionary = state.default_player()
 		var specialized: Dictionary = unassigned.duplicate(true)
 		var primary := str(definition.primary_attribute)
@@ -38,6 +40,7 @@ func run_classes_test() -> void:
 	var hacker: Dictionary = neutral_intelligence.duplicate(true)
 	hacker.class_id = "contract_hacker"
 	check(Rules.player_opening_damage(hacker) == Rules.player_opening_damage(neutral_intelligence) + 4, "contract hacker converts each invested intelligence point into two additional opening damage")
+	check(int(Classes.DEFINITIONS[2].effects.opening_damage_per_primary_point) == 2 and not Classes.specialization_opening_damage(hacker, Rules.BASE_ATTRIBUTE_VALUE) == 0, "opening damage comes from the class effect definition instead of an ID-specific combat branch")
 	var breaker: Dictionary = state.default_player()
 	breaker.attributes.strength = 12
 	breaker.class_id = "warrant_breaker"
@@ -76,6 +79,7 @@ func run_classes_test() -> void:
 	scene.render()
 	await process_frame
 	check(scene.find_children("Class_*", "PanelContainer", true, false).size() == 3, "the class screen renders every initial archetype")
+	check(find_label_with_text(scene, "ARQUÉTIPOS PROVISÓRIOS") != null, "the selector clearly identifies the current roster as provisional")
 	var select := scene.find_child("ClassSelect_orbit_gunslinger", true, false) as Button
 	check(select != null and not select.disabled, "an archetype can be drafted from its mobile action")
 	if select != null:
@@ -108,3 +112,10 @@ func check(condition: bool, description: String) -> void:
 	if not condition:
 		failures += 1
 		printerr("  FAIL: %s" % description)
+
+
+func find_label_with_text(node: Node, fragment: String) -> Label:
+	for candidate in node.find_children("*", "Label", true, false):
+		if fragment in str((candidate as Label).text):
+			return candidate as Label
+	return null

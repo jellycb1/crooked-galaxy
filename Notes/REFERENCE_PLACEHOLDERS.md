@@ -1,5 +1,9 @@
 # Reference placeholder register
 
+## Prototype class content
+
+The current Quebra-Mandados, Pistoleiro Orbital, and Hacker de Contratos trio is mechanical prototype content. Names, descriptions, themes, and eventual visual identities are not final. Each definition carries `prototype: true`, while its effect values remain data-driven test scaffolding; replacing the roster must preserve save-ID migration explicitly rather than silently reassigning existing hunters.
+
 These files are proprietary study material that was used only to prototype composition in local interactive editor runs. They are not tracked, imported by Godot, or permitted in Windows/Android exports. All four studied contexts now use independently generated original production art, so the placeholder adapter has no active mappings.
 
 | Context | Local source under `References/` | Prototype purpose | Original replacement |

@@ -30,7 +30,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var info := host.panel(VBoxContainer.new(), host.PANEL_LIGHT, 16, 12)
 	content.add_child(info)
 	var info_copy := info.get_child(0) as VBoxContainer
-	info_copy.add_child(host.label("TROCA GRATUITA DURANTE O ACESSO INICIAL", 12, host.LIME))
+	info_copy.add_child(host.label("ARQUÉTIPOS PROVISÓRIOS · TROCA GRATUITA", 12, host.LIME))
 	var explanation := host.label("A classe concede +1 Poder a cada 2 pontos investidos no atributo principal. Seus demais atributos continuam ativos.", 12, host.INK)
 	explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info_copy.add_child(explanation)
@@ -78,7 +78,7 @@ static func class_card(host: CrookedUIFactory, definition: Dictionary, pending_i
 	var flavor := host.label(str(definition.flavor), 11, host.MUTED)
 	flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(flavor)
-	var specialization := host.label("ESPECIALIZAÇÃO · %s" % str(definition.specialization), 10, host.GOLD)
+	var specialization := host.label("ESPECIALIZAÇÃO · %s" % ClassRulesScript.specialization_text(definition), 10, host.GOLD)
 	specialization.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(specialization)
 	var choose := host.action_button("MARCADO" if selected else "ESCOLHER", host.GOLD if selected else host.CYAN, true)
