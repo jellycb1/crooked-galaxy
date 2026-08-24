@@ -59,6 +59,15 @@ func _init() -> void:
 	state.combat_summary = {"won": false, "enemy_hp_remaining": 12, "target_id": "baron_boom"}
 	var recovery_readiness := ArsenalScript.field_readiness(state)
 	check(str(recovery_readiness.target.id) == "baron_boom" and bool(recovery_readiness.recovery_focus), "field test keeps the defeated warrant in focus instead of projecting a locked tier")
+	var power_before_recovery_upgrade := int(state.player.weapon.power)
+	check(state.upgrade_equipped("weapon") and int(state.player.weapon.power) == power_before_recovery_upgrade + 1, "recovery workshop accepts a real upgrade transaction")
+	check(str(ArsenalScript.field_readiness(state).target.id) == "baron_boom", "upgrade transaction preserves revenge focus")
+	clear_children(content)
+	ArsenalScript.build(host, content, state)
+	var recovery_notice := host.find_child("WorkshopNotice", true, false) as Label
+	var recovery_label := host.find_child("FieldReadinessTarget", true, false) as Label
+	check(recovery_notice != null and recovery_notice.text.contains("calibrado") and recovery_label != null and recovery_label.text.contains("REVANCHE: BARÃO BOOM"), "workshop shows the upgrade record beside the preserved revenge projection")
+	field_action = host.find_child("FieldReadinessAction", true, false) as Button
 	state.combat_summary = {}
 	state.player.captures_by_target.erase("baron_boom")
 	state.player.captures_by_planet.dustball_prime = 3

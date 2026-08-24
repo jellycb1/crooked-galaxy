@@ -396,6 +396,24 @@ func capture() -> void:
 	if save_frame("ui_defeat_workshop.png") != OK:
 		quit(1)
 		return
+	var recommended_upgrade: Button = null
+	for candidate in scene.find_children("*", "Button", true, false):
+		var candidate_button := candidate as Button
+		if str(candidate_button.text).begins_with("★"):
+			recommended_upgrade = candidate_button
+			break
+	if recommended_upgrade:
+		recommended_upgrade.pressed.emit()
+		await process_frame
+		await process_frame
+		await create_timer(0.12).timeout
+	else:
+		printerr("Failed to locate recommended revenge upgrade for capture")
+		quit(1)
+		return
+	if save_frame("ui_defeat_workshop_upgraded.png") != OK:
+		quit(1)
+		return
 	scene.view_mode = "board"
 	state.player.wins = 39
 	state.player.captures_by_planet.ferro_velho_omega = 9
@@ -480,7 +498,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI, reward/mastery/warrant-unlock decisions, defeat recovery, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI, reward/mastery/warrant-unlock decisions, defeat recovery and upgrade, AFK return, career, wanted archive, arsenal filters, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 
