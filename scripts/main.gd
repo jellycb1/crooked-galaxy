@@ -14,6 +14,7 @@ const AttributesViewScript = preload("res://scripts/attributes_view.gd")
 const ClassesViewScript = preload("res://scripts/classes_view.gd")
 const MarketViewScript = preload("res://scripts/market_view.gd")
 const HangarViewScript = preload("res://scripts/hangar_view.gd")
+const PlanetIconScript = preload("res://scripts/planet_icon.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 
 var body: VBoxContainer
@@ -609,6 +610,10 @@ func planet_card(planet: Dictionary) -> PanelContainer:
 	box.add_theme_constant_override("separation", 9)
 	var heading := HBoxContainer.new()
 	box.add_child(heading)
+	var destination_icon := PlanetIconScript.new()
+	destination_icon.name = "GalaxyPlanetIcon_%s" % planet_id
+	destination_icon.configure(planet, unlocked, current)
+	heading.add_child(destination_icon)
 	var names := VBoxContainer.new()
 	names.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_child(names)

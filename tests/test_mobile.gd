@@ -76,6 +76,7 @@ func run_mobile_audit() -> void:
 	await process_frame
 	check_touch_targets(scene, "transport galaxy status")
 	check(scene.find_child("GalaxyTransportIcon", true, false) != null and scene.find_child("GalaxyHangarAction", true, false) != null, "galaxy map carries the active transport identity and hangar route")
+	check(scene.find_children("GalaxyPlanetIcon_*", "Control", true, false).size() == ContentDB.PLANETS.size(), "galaxy route icons remain present on the mobile map")
 	scene.view_mode = "arsenal"
 	scene.render()
 	await process_frame
