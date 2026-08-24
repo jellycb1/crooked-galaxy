@@ -20,6 +20,7 @@ $OutputApk = Join-Path $BuildRoot "CrookedGalaxy.apk"
 $LogRoot = Join-Path $ProjectRoot ".godot\export-logs"
 $ContentPack = Join-Path $LogRoot "android_content_check.pck"
 $DebugKey = Join-Path $ProjectRoot "android\crooked-galaxy-debug.keystore"
+$ExpectedCertificatePath = Join-Path $ProjectRoot "android\test-signing-cert.sha256"
 $ProjectText = Get-Content -LiteralPath (Join-Path $ProjectRoot "project.godot") -Raw
 $PresetText = Get-Content -LiteralPath (Join-Path $ProjectRoot "export_presets.cfg") -Raw
 
@@ -84,6 +85,10 @@ if (Test-Path -LiteralPath $BuildToolsRoot) {
 if ($Aapt2Candidates.Count -eq 0) {
     throw "aapt2 was not found under the installed Android SDK build-tools."
 }
+$ApkSigner = Join-Path (Split-Path -Parent $Aapt2Candidates[0]) "apksigner.bat"
+if (-not (Test-Path -LiteralPath $ApkSigner) -or -not (Test-Path -LiteralPath $ExpectedCertificatePath)) {
+    throw "Android signature verifier or expected test-certificate fingerprint is missing."
+}
 $StrictErrorPreference = $ErrorActionPreference
 $ErrorActionPreference = "Continue"
 $Badging = (& $Aapt2Candidates[0] dump badging $OutputApk 2>&1) -join "`n"
@@ -99,6 +104,29 @@ if (-not $PackageMatch.Success) {
 if ($PackageMatch.Groups[1].Value -ne $ExpectedPackage -or $PackageMatch.Groups[2].Value -ne $ExpectedVersionCode -or $PackageMatch.Groups[3].Value -ne $ExpectedVersionName) {
     throw "Exported APK metadata does not match export_presets.cfg."
 }
+$MinimumSdk = [regex]::Match($Badging, "(?:minSdkVersion|sdkVersion):'([0-9]+)'")
+$TargetSdk = [regex]::Match($Badging, "targetSdkVersion:'([0-9]+)'")
+$NativeCode = [regex]::Match($Badging, "native-code: ([^\r\n]+)")
+if (-not $MinimumSdk.Success -or $MinimumSdk.Groups[1].Value -ne "24") {
+    throw "Exported APK must retain Android 7.0 / API 24 compatibility."
+}
+if (-not $TargetSdk.Success -or [int]$TargetSdk.Groups[1].Value -lt 35) {
+    throw "Exported APK target SDK unexpectedly regressed."
+}
+if (-not $NativeCode.Success -or $NativeCode.Groups[1].Value.Trim() -ne "'arm64-v8a'") {
+    throw "Exported APK native code is not ARM64-only."
+}
+
+$StrictErrorPreference = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+$CertificateOutput = (& $ApkSigner verify --print-certs $OutputApk 2>&1) -join "`n"
+$ApkSignerExitCode = $LASTEXITCODE
+$ErrorActionPreference = $StrictErrorPreference
+$CertificateMatch = [regex]::Match($CertificateOutput, 'Signer #1 certificate SHA-256 digest: ([0-9a-fA-F]{64})')
+$ExpectedCertificate = (Get-Content -LiteralPath $ExpectedCertificatePath -Raw).Trim().ToLowerInvariant()
+if ($ApkSignerExitCode -ne 0 -or -not $CertificateMatch.Success -or $CertificateMatch.Groups[1].Value.ToLowerInvariant() -ne $ExpectedCertificate) {
+    throw "Exported APK signature does not match the update-compatible direct-test certificate."
+}
 
 & $GodotCandidates[0] --headless --path $ProjectRoot --export-pack "Android APK" $ContentPack --log-file (Join-Path $LogRoot "android_content_export.log")
 if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $ContentPack)) {
@@ -113,4 +141,4 @@ $ApkSizeMb = (Get-Item -LiteralPath $OutputApk).Length / 1MB
 if ($ApkSizeMb -gt 40.0) {
     throw ("Android APK exceeds the 40 MB direct-test budget ({0:N2} MB)." -f $ApkSizeMb)
 }
-Write-Host ("PASS: installable Android APK exported ({0:N2} MB, {1} v{2} code {3})." -f $ApkSizeMb, $ExpectedPackage, $ExpectedVersionName, $ExpectedVersionCode)
+Write-Host ("PASS: installable Android APK exported ({0:N2} MB, {1} v{2} code {3}, API 24+, ARM64, stable test signature)." -f $ApkSizeMb, $ExpectedPackage, $ExpectedVersionName, $ExpectedVersionCode)

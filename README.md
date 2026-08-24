@@ -189,7 +189,7 @@ https://github.com/jellycb1/crooked-galaxy/releases/download/latest/CrookedGalax
 
 The matching checksum is always available at `https://github.com/jellycb1/crooked-galaxy/releases/download/latest/CrookedGalaxy.apk.sha256`. Publishing requires a clean tracked worktree, uploads both assets, records the SHA-256 in the release notes, and verifies the remote APK size and digest when GitHub exposes it.
 
-This channel is intended for direct testing. The public repository contains the release/download page rather than the game's source. Preserve the ignored local test key to keep direct installs update-compatible. A store release must use a separate private release keystore and signing workflow.
+This channel is intended for direct testing. The public repository contains the release/download page rather than the game's source. Preserve the ignored local test key to keep direct installs update-compatible; its non-secret public certificate fingerprint is tracked and verified on every export. A store release must use a separate private release keystore and signing workflow.
 
 Run deterministic core tests:
 
