@@ -36,6 +36,7 @@ var last_notice := ""
 var last_notice_context := ""
 var chapter_completion: Dictionary = {}
 var afk_report: Dictionary = {}
+var save_warning := ""
 
 
 func _ready() -> void:
@@ -855,9 +856,9 @@ func reset_progress() -> void:
 	changed.emit()
 
 
-func save_game() -> void:
+func save_game() -> bool:
 	if not persistence_enabled:
-		return
+		return true
 	player.last_seen_unix = maxf(float(player.get("last_seen_unix", 0.0)), Time.get_unix_time_from_system())
 	var payload := {
 		"version": SAVE_VERSION,
@@ -880,14 +881,29 @@ func save_game() -> void:
 		"chapter_completion": chapter_completion,
 	}
 	var file := FileAccess.open(save_path, FileAccess.WRITE)
-	if file:
-		file.store_string(JSON.stringify(payload))
+	if file == null:
+		save_warning = "PROGRESSO AINDA NÃO SALVO · armazenamento local indisponível. Mantenha o jogo aberto e tente novamente."
+		return false
+	file.store_string(JSON.stringify(payload))
+	file.flush()
+	if file.get_error() != OK:
+		save_warning = "PROGRESSO AINDA NÃO SALVO · falha ao gravar no armazenamento local. Mantenha o jogo aberto e tente novamente."
+		return false
+	save_warning = ""
+	return true
+
+
+func retry_save() -> bool:
+	var saved := save_game()
+	changed.emit()
+	return saved
 
 
 func load_game() -> void:
 	last_notice = ""
 	last_notice_context = ""
 	afk_report = {}
+	save_warning = ""
 	player = default_player()
 	if not FileAccess.file_exists(save_path):
 		return

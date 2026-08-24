@@ -18,6 +18,8 @@ Dense decision layouts are regression-tested with 125% expanded typography. Shar
 
 Window focus and mobile suspension explicitly freeze automatic combat and preserve the unread portion of the victory receipt. Overlapping lifecycle notifications are idempotent; idle hunts still reconcile wall-clock progress on the final resume, and mobile suspension saves immediately.
 
+Local write failures no longer fail silently. A phase-independent warning explains that progress remains only in memory and offers a retry; it clears only after the complete current payload is flushed successfully, without hiding the mobile victory action.
+
 Threshold captures explicitly preview and reveal the next warrant, keeping early progression visible without a modal tutorial.
 
 Reward screens also count the pending capture toward target mastery and preview its rare/epic loot bonus plus one-time workshop scrap funding before the player commits the loot decision.

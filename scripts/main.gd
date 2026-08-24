@@ -156,6 +156,8 @@ func render() -> void:
 		content.remove_child(child)
 		child.queue_free()
 	build_header()
+	if not GameState.save_warning.is_empty():
+		content.add_child(save_warning_banner())
 	match GameState.phase:
 		GameState.Phase.BOARD:
 			if view_mode == "arsenal":
@@ -487,6 +489,24 @@ func notice_banner(message: String, color: Color, dismiss_callback := Callable()
 		dismiss.custom_minimum_size = Vector2(62, 44)
 		dismiss.pressed.connect(dismiss_callback)
 		row.add_child(dismiss)
+	return banner
+
+
+func save_warning_banner() -> PanelContainer:
+	var banner := panel(HBoxContainer.new(), Color("#3b1824"), 14, 12)
+	banner.name = "SaveWarningBanner"
+	var row := banner.get_child(0) as HBoxContainer
+	row.add_theme_constant_override("separation", 10)
+	var message := label(GameState.save_warning, 12, INK)
+	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	message.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(message)
+	var retry := action_button("TENTAR\nNOVAMENTE", CORAL, true)
+	retry.name = "RetrySaveAction"
+	retry.custom_minimum_size = Vector2(112, 48)
+	retry.add_theme_font_size_override("font_size", 10)
+	retry.pressed.connect(GameState.retry_save)
+	row.add_child(retry)
 	return banner
 
 
