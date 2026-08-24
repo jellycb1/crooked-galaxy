@@ -57,6 +57,7 @@ func run_smoke_test() -> void:
 	state.hunt_elapsed_before_event = 3.0
 	state.hunt_remaining_after_event = 3.0
 	state.phase = state.Phase.HUNT_EVENT
+	state.player.credits = 0
 	scene.render()
 	await process_frame
 	check(scene.find_child("HuntEventChoices", true, false) != null, "mid-hunt incident renders")
@@ -68,6 +69,11 @@ func run_smoke_test() -> void:
 	check(incident_payments.size() == 3 and incident_payments.all(func(payment): return str(payment.text).contains("EMBALO") and str(payment.text).contains("INCLUÍDO")), "incident choices project streak-adjusted victory payments")
 	var paid_incident := scene.find_child("HuntChoicePayment_bribe", true, false) as Label
 	check(paid_incident != null and paid_incident.text.contains("LÍQUIDO APÓS CUSTO"), "paid incident choice exposes its net contract gain")
+	var unavailable_paid_choice := scene.find_child("HuntChoice_bribe", true, false) as Button
+	var free_choice := scene.find_child("HuntChoice_detour", true, false) as Button
+	check(unavailable_paid_choice != null and unavailable_paid_choice.disabled and unavailable_paid_choice.text == "FALTAM 8 CR", "unaffordable incident choice names the exact credit shortfall")
+	check(free_choice != null and not free_choice.disabled and free_choice.text == "ESCOLHER", "no-cost incident alternatives remain actionable without credits")
+	state.player.credits = 25
 	state.resolve_hunt_event("bribe")
 	await process_frame
 

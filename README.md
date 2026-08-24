@@ -34,6 +34,8 @@ Their interruption panel also names the exact paused hunt percentage and remaini
 
 Paid incident options additionally show the net contract gain after their immediate credit cost.
 
+If a paid choice is unaffordable, its disabled action states the exact missing credits; zero-cost alternatives remain enabled in the same incident.
+
 The reward receipt retains paid incident cost and reconciles gross payout with the exact net wallet gain from before the choice.
 
 Claim summaries and the persistent board/workshop record name whether the captured item was equipped, stored, or recycled, including the exact item name.

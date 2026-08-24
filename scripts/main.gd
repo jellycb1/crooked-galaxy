@@ -791,10 +791,13 @@ func hunt_choice_card(choice: Dictionary, accent: Color) -> PanelContainer:
 	payment.name = "HuntChoicePayment_%s" % str(choice.id)
 	copy.add_child(payment)
 	var affordable := GameState.can_afford_hunt_choice(choice)
-	var choose := action_button("ESCOLHER" if affordable else "SEM CRÉDITOS", accent, true)
+	var missing_credits := maxi(0, choice_cost - int(GameState.player.credits))
+	var choice_text := "ESCOLHER" if affordable else "FALTAM %d CR" % missing_credits
+	var choose := action_button(choice_text, accent, true)
 	choose.custom_minimum_size = Vector2(142, 48)
 	choose.disabled = not affordable
 	var choice_id := str(choice.id)
+	choose.name = "HuntChoice_%s" % choice_id
 	choose.pressed.connect(func(): GameState.resolve_hunt_event(choice_id))
 	row.add_child(choose)
 	return card
