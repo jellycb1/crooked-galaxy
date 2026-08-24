@@ -1,6 +1,7 @@
 extends "res://scripts/ui_factory.gd"
 
 const SpaceBackdropScript = preload("res://scripts/space_backdrop.gd")
+const EnvironmentBackdropScript = preload("res://scripts/environment_backdrop.gd")
 const ReferencePlaceholderBackdropScript = preload("res://scripts/reference_placeholder_backdrop.gd")
 const CombatBackdropScript = preload("res://scripts/combat_backdrop.gd")
 const SoundFXScript = preload("res://scripts/sound_fx.gd")
@@ -19,6 +20,7 @@ var combat_fast := false
 var sound_fx: Node
 var previous_phase := -1
 var space_backdrop: Control
+var environment_backdrop: Control
 var reference_backdrop: Control
 var safe_container: MarginContainer
 var render_generation := 0
@@ -80,6 +82,8 @@ func build_shell() -> void:
 	space_backdrop = SpaceBackdropScript.new()
 	space_backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(space_backdrop)
+	environment_backdrop = EnvironmentBackdropScript.new()
+	add_child(environment_backdrop)
 	reference_backdrop = ReferencePlaceholderBackdropScript.new()
 	add_child(reference_backdrop)
 	sound_fx = SoundFXScript.new()
@@ -138,6 +142,8 @@ func render() -> void:
 	var current_generation := render_generation
 	if space_backdrop:
 		space_backdrop.planet_id = str(GameState.player.get("current_planet_id", ContentDB.PLANET.id))
+	if environment_backdrop:
+		environment_backdrop.show_context(reference_placeholder_context())
 	if reference_backdrop:
 		reference_backdrop.show_context(reference_placeholder_context())
 	if sound_fx:

@@ -2,12 +2,7 @@ class_name ReferencePlaceholderBackdrop
 extends Control
 
 const SOURCE_ROOT := "res://References/Shakes and Fidget Assets/StreamingAssets/"
-const CONTEXT_PATHS := {
-	"contracts": SOURCE_ROOT + "tavern/tavern_back.png",
-	"world": SOURCE_ROOT + "town/bg_town_day.png",
-	"workshop": SOURCE_ROOT + "locations/bg_fort_0.png",
-	"combat": SOURCE_ROOT + "locations/location_battle_0.png",
-}
+const CONTEXT_PATHS := {}
 
 var texture_rect: TextureRect
 var scrim: ColorRect

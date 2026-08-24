@@ -1,17 +1,17 @@
 # Reference placeholder register
 
-These files are proprietary study material used only to prototype composition in local interactive editor runs. They are not tracked, imported by Godot, or permitted in Windows/Android exports. Every public build uses the original procedural backdrop when these files are unavailable.
+These files are proprietary study material that was used only to prototype composition in local interactive editor runs. They are not tracked, imported by Godot, or permitted in Windows/Android exports. All four studied contexts now use independently generated original production art, so the placeholder adapter has no active mappings.
 
-| Context | Local source under `References/` | Prototype purpose | Replacement requirement |
+| Context | Local source under `References/` | Prototype purpose | Original replacement |
 | --- | --- | --- | --- |
-| Contract board, briefing, hunt, incident, reward | `Shakes and Fidget Assets/StreamingAssets/tavern/tavern_back.png` | Test a character-rich illustrated mission hub behind the card hierarchy | Original orbital bounty-office/station illustration |
-| Galaxy map and career | `Shakes and Fidget Assets/StreamingAssets/town/bg_town_day.png` | Test a navigable illustrated world overview rather than an abstract list | Original crooked-galaxy route/spaceport tableau |
-| Arsenal and workshop | `Shakes and Fidget Assets/StreamingAssets/locations/bg_fort_0.png` | Test a visually grounded upgrade location | Original ship workshop/scrapyard interior |
-| Combat and victory | `Shakes and Fidget Assets/StreamingAssets/locations/location_battle_0.png` | Test illustrated arena depth behind automatic combat | Original planet-specific bounty encounter scenes |
+| Contract board, briefing, hunt, incident, reward | `Shakes and Fidget Assets/StreamingAssets/tavern/tavern_back.png` | Test a character-rich illustrated mission hub behind the card hierarchy | `assets/backgrounds/bounty_office.png` |
+| Galaxy map and career | `Shakes and Fidget Assets/StreamingAssets/town/bg_town_day.png` | Test a navigable illustrated world overview rather than an abstract list | `assets/backgrounds/frontier_spaceport.png` |
+| Arsenal and workshop | `Shakes and Fidget Assets/StreamingAssets/locations/bg_fort_0.png` | Test a visually grounded upgrade location | `assets/backgrounds/arsenal_workshop.png` |
+| Combat and victory | `Shakes and Fidget Assets/StreamingAssets/locations/location_battle_0.png` | Test illustrated arena depth behind automatic combat | `assets/backgrounds/frontier_arena.png` |
 
 ## Boundary rules
 
-- `ReferencePlaceholderBackdrop` is the only runtime file allowed to name `res://References/` paths.
+- `ReferencePlaceholderBackdrop` is retained as the only runtime file allowed to name `res://References/` paths, but currently exposes no contexts.
 - Raw image loading is limited to editor-feature binaries with a non-headless display.
 - `References/.gdignore` remains mandatory, so Godot never imports these assets.
 - All export presets must exclude `References/*`.
