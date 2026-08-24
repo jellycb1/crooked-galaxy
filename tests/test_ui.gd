@@ -101,10 +101,18 @@ func run_smoke_test() -> void:
 	check(combat_loadout != null and combat_loadout.text.contains("ARMA") and combat_loadout.text.contains("ARMADURA"), "combat portrait names the equipment values driving its visual loadout")
 	var combat_incident := scene.find_child("CombatIncidentSummary", true, false) as Label
 	check(combat_incident != null and combat_incident.text.contains("PAGAMENTO") and combat_incident.text.contains("EMBALO"), "combat carries the chosen incident consequence and adjusted payout")
+	var opening_advantage := scene.find_child("CombatAdvantage", true, false) as Label
+	check(opening_advantage != null and opening_advantage.text.contains("VOCÊ 100%") and opening_advantage.text.contains("ALVO 100%") and opening_advantage.text.contains("EQUILIBRADA"), "combat opens with an explicit relative-health reading")
 	state.combat_step()
 	scene.render()
 	await process_frame
 	check(state.combat_events.size() == 2, "combat action cards render")
+	var turn_balance := scene.find_child("CombatTurnBalance", true, false) as Label
+	var hunter_health := scene.find_child("CombatHealth_hunter", true, false) as Label
+	var enemy_health := scene.find_child("CombatHealth_%s" % str(state.current_bounty.id), true, false) as Label
+	check(turn_balance != null and turn_balance.text.contains("VOCÊ") and turn_balance.text.contains("ALVO") and turn_balance.text.contains("DANO"), "combat summarizes both sides of the latest automatic turn")
+	check(hunter_health != null and enemy_health != null and hunter_health.text.contains("%") and enemy_health.text.contains("%"), "both fighters expose raw and percentage health")
+	check(scene.find_child("CombatEventPlayer", true, false) != null and scene.find_child("CombatEventEnemy", true, false) != null, "latest player and enemy events remain visually distinct")
 	var combat_speed := scene.find_child("CombatSpeedAction", true, false) as Button
 	check(combat_speed != null and combat_speed.text.contains("1×"), "combat exposes its current automatic pace")
 	combat_speed.pressed.emit()

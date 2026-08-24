@@ -1157,9 +1157,24 @@ func build_combat() -> void:
 	stage_margin.add_theme_constant_override("margin_bottom", 14)
 	stage.add_child(stage_margin)
 	var stage_box := VBoxContainer.new()
-	stage_box.add_theme_constant_override("separation", 8)
+	stage_box.add_theme_constant_override("separation", 6)
 	stage_margin.add_child(stage_box)
+	var player_health_ratio := clampf(float(GameState.player_hp) / float(maxi(1, CoreRules.max_health(GameState.player))), 0.0, 1.0)
+	var enemy_health_ratio := clampf(float(GameState.enemy_hp) / float(maxi(1, int(GameState.current_bounty.health))), 0.0, 1.0)
+	var health_gap := player_health_ratio - enemy_health_ratio
+	var pressure_text := "EQUILIBRADA"
+	var pressure_color := GOLD
+	if health_gap >= 0.08:
+		pressure_text = "SUA"
+		pressure_color = LIME
+	elif health_gap <= -0.08:
+		pressure_text = "DO ALVO"
+		pressure_color = CORAL
+	var advantage := center_label("VIDA RELATIVA · VOCÊ %d%% · ALVO %d%% · PRESSÃO %s" % [roundi(player_health_ratio * 100.0), roundi(enemy_health_ratio * 100.0), pressure_text], 12, pressure_color)
+	advantage.name = "CombatAdvantage"
+	stage_box.add_child(advantage)
 	var event_row := HBoxContainer.new()
+	event_row.name = "CombatEventRow"
 	event_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	event_row.add_theme_constant_override("separation", 8)
 	stage_box.add_child(event_row)
@@ -1177,13 +1192,31 @@ func build_combat() -> void:
 	arena.add_child(center_label("VS", 28, GOLD))
 	arena.add_child(fighter(str(GameState.current_bounty.name), str(GameState.current_bounty.id), GameState.enemy_hp, int(GameState.current_bounty.health), CORAL))
 
-	var log_panel := panel(VBoxContainer.new(), PANEL, 18, 18)
+	var log_panel := panel(VBoxContainer.new(), PANEL, 18, 14)
+	log_panel.name = "CombatTurnReport"
 	log_panel.custom_minimum_size = Vector2(0, 105)
 	content.add_child(log_panel)
 	var log_box := log_panel.get_child(0) as VBoxContainer
-	log_box.add_child(label("RELATÓRIO DE CAMPO", 14, MUTED))
+	log_box.add_theme_constant_override("separation", 4)
+	var player_turn_damage := 0
+	var enemy_turn_damage := 0
+	for event in GameState.combat_events:
+		if str(event.get("actor", "")) == "player":
+			player_turn_damage += int(event.get("damage", 0))
+		else:
+			enemy_turn_damage += int(event.get("damage", 0))
+	var turn_balance := player_turn_damage - enemy_turn_damage
+	var turn_heading_text := "PRÓXIMO TURNO · ARMAS PRONTAS"
+	var turn_heading_color := MUTED
+	if not GameState.combat_events.is_empty():
+		turn_heading_text = "ÚLTIMO TURNO · VOCÊ %d DANO · ALVO %d DANO" % [player_turn_damage, enemy_turn_damage]
+		turn_heading_color = LIME if turn_balance > 0 else (CORAL if turn_balance < 0 else GOLD)
+	var turn_heading := label(turn_heading_text, 13, turn_heading_color)
+	turn_heading.name = "CombatTurnBalance"
+	log_box.add_child(turn_heading)
 	var message := last_combat_message if not last_combat_message.is_empty() else "Os dois lados avaliam suas escolhas de vida..."
-	var log_label := label(message, 17, INK)
+	var log_label := label(message, 16, INK)
+	log_label.name = "CombatTurnNarrative"
 	log_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	log_box.add_child(log_label)
 	var speed := action_button("VELOCIDADE · %s" % ("2×" if combat_fast else "1×"), CYAN, true)
@@ -1201,12 +1234,13 @@ func combat_event_chip(event: Dictionary) -> PanelContainer:
 	var player_action := str(event.get("actor", "")) == "player"
 	var color := CYAN if player_action else CORAL
 	var chip := panel(VBoxContainer.new(), Color("#0a1025cc"), 10, 8)
+	chip.name = "CombatEventPlayer" if player_action else "CombatEventEnemy"
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var box := chip.get_child(0) as VBoxContainer
-	box.add_child(label(str(event.get("action", "GOLPE")).to_upper(), 11, color, HORIZONTAL_ALIGNMENT_CENTER))
+	box.add_child(label(str(event.get("action", "GOLPE")).to_upper(), 12, color, HORIZONTAL_ALIGNMENT_CENTER))
 	var quality := str(event.get("quality", "ACERTO"))
 	var quality_color := GOLD if quality == "CRÍTICO" else (MUTED if quality == "DE RASPÃO" else INK)
-	box.add_child(label("%d DANO · %s" % [int(event.get("damage", 0)), quality], 12, quality_color, HORIZONTAL_ALIGNMENT_CENTER))
+	box.add_child(label("%d DANO · %s" % [int(event.get("damage", 0)), quality], 13, quality_color, HORIZONTAL_ALIGNMENT_CENTER))
 	if event.has("effect"):
 		box.add_child(label(str(event.effect), 10, LIME if player_action else CYAN, HORIZONTAL_ALIGNMENT_CENTER))
 	return chip
@@ -1285,6 +1319,7 @@ func build_chapter_complete() -> void:
 
 func fighter(title: String, character_id: String, hp: int, maximum: int, color: Color) -> VBoxContainer:
 	var fighter_box := VBoxContainer.new()
+	fighter_box.name = "CombatFighter_%s" % character_id
 	fighter_box.custom_minimum_size = Vector2(242, 245)
 	fighter_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	fighter_box.add_child(character_portrait(character_id, 118, GameState.player if character_id == "hunter" else {}))
@@ -1292,13 +1327,14 @@ func fighter(title: String, character_id: String, hp: int, maximum: int, color: 
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	fighter_box.add_child(name_label)
 	if character_id == "hunter":
-		var loadout := center_label("LOADOUT · +%d ARMA · +%d ARMADURA" % [int(GameState.player.weapon.power), int(GameState.player.armor.power)], 10, CYAN)
+		var loadout := center_label("BUILD · +%d ARMA · +%d ARMADURA" % [int(GameState.player.weapon.power), int(GameState.player.armor.power)], 11, CYAN)
 		loadout.name = "CombatLoadoutSummary"
 		fighter_box.add_child(loadout)
 		var kit_origin := CoreRules.equipment_set_origin(GameState.player)
 		if not kit_origin.is_empty():
 			fighter_box.add_child(center_label("KIT %s · +%d PODER · +%d VIDA" % [str(ContentDB.get_planet(kit_origin).name).to_upper(), CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS], 10, GOLD))
 	var health := ProgressBar.new()
+	health.name = "CombatHealthBar_%s" % character_id
 	health.max_value = maximum
 	health.value = hp
 	health.show_percentage = false
@@ -1306,7 +1342,10 @@ func fighter(title: String, character_id: String, hp: int, maximum: int, color: 
 	health.add_theme_stylebox_override("background", box_style(PANEL_LIGHT, 10))
 	health.add_theme_stylebox_override("fill", box_style(color, 10))
 	fighter_box.add_child(health)
-	fighter_box.add_child(center_label("%d / %d HP" % [hp, maximum], 14, MUTED))
+	var health_percent := roundi(clampf(float(hp) / float(maxi(1, maximum)), 0.0, 1.0) * 100.0)
+	var health_label := center_label("%d / %d HP · %d%%" % [hp, maximum, health_percent], 15, color)
+	health_label.name = "CombatHealth_%s" % character_id
+	fighter_box.add_child(health_label)
 	return fighter_box
 
 

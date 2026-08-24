@@ -174,6 +174,8 @@ Restored combat and chapter evidence also validates canonical target/planet iden
 
 Combat-event rows accept only catalog attacks and known quality labels; impossible hunt clocks restart with canonical duration, expired hunts still resolve normally, and resumed combat clamps HP and round counters to the active build/contract.
 
+Automatic combat exposes a concise mobile readout above the arena: both relative-health percentages and an explicitly health-based pressure state. Fighter cards retain raw HP, add percentages, and identify the active weapon/armor build, while the latest event pair and turn report separate damage caused, damage received, quality, tactical effects, and the existing narrative. This presentation derives only from authoritative combat state and does not predict or alter the result.
+
 ## Run
 
 Open `project.godot` in Godot 4, or run from a console where Godot is available:
