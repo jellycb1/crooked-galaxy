@@ -287,7 +287,7 @@ func environment_context() -> String:
 			return "hangar" if reference_backdrop != null and reference_backdrop.local_placeholders_allowed() else "workshop"
 		if view_mode == "career" and reference_backdrop != null and reference_backdrop.local_placeholders_allowed():
 			return "career_ui"
-		if view_mode == "classes" and reference_backdrop != null and reference_backdrop.local_placeholders_allowed():
+		if (view_mode == "attributes" or view_mode == "classes") and reference_backdrop != null and reference_backdrop.local_placeholders_allowed():
 			return "class_ui"
 		if view_mode == "galaxy" or view_mode == "career" or view_mode == "attributes" or view_mode == "classes":
 			return "world"
