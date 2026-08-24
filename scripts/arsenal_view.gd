@@ -112,8 +112,9 @@ static func field_readiness(state: StateScript) -> Dictionary:
 	var target_is_available := not current_target.is_empty() and current_captures == 0
 	var target := current_target if target_is_available else Content.target_for_planet_tier(planet_id, mini(3, tier + 1))
 	var recovery_focus := false
-	if not state.combat_summary.is_empty() and not bool(state.combat_summary.get("won", true)) and not state.current_bounty.is_empty():
-		var defeated_target := Content.get_target(str(state.current_bounty.get("id", "")))
+	if not state.combat_summary.is_empty() and not bool(state.combat_summary.get("won", true)):
+		var defeated_id := str(state.combat_summary.get("target_id", state.current_bounty.get("id", "")))
+		var defeated_target := Content.get_target(defeated_id)
 		if not defeated_target.is_empty() and str(defeated_target.get("planet_id", "")) == planet_id and int(defeated_target.get("chapter_tier", defeated_target.rank)) <= tier:
 			target = defeated_target
 			target_is_available = true
@@ -168,7 +169,7 @@ static func field_readiness_card(host: CrookedUIFactory, state: StateScript, rea
 		return card
 	var target: Dictionary = readiness.target
 	var target_context := "REVANCHE" if bool(readiness.get("recovery_focus", false)) else ("MANDADO ATUAL" if bool(readiness.target_available) else "PRÓXIMO MANDADO")
-	if int(readiness.planet_tier) >= 3:
+	if int(readiness.planet_tier) >= 3 and not bool(readiness.get("recovery_focus", false)):
 		target_context = "CHEFE DO CAPÍTULO"
 	var target_label := host.label("TESTE DE CAMPO · %s: %s" % [target_context, str(target.name).to_upper()], 11, host.GOLD)
 	target_label.name = "FieldReadinessTarget"

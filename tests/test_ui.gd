@@ -182,6 +182,7 @@ func run_smoke_test() -> void:
 
 	scene.view_mode = "board"
 	state.phase = state.Phase.BOARD
+	state.player.current_planet_id = ContentDB.PLANET.id
 	state.current_bounty = ContentDB.TARGETS[1].duplicate(true)
 	state.begin_combat()
 	state.combat_summary.rounds = 6
@@ -197,6 +198,8 @@ func run_smoke_test() -> void:
 	defeat_workshop.pressed.emit()
 	await process_frame
 	check(scene.view_mode == "arsenal", "defeat recovery route opens the field-test workshop")
+	var revenge_target := scene.find_child("FieldReadinessTarget", true, false) as Label
+	check(revenge_target != null and revenge_target.text.contains("REVANCHE: BARÃO BOOM"), "real defeat state preserves the failed warrant through its persisted combat report")
 
 	scene.free()
 	await process_frame
