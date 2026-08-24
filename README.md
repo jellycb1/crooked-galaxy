@@ -173,13 +173,19 @@ Create the installable Android test APK locally:
 powershell -ExecutionPolicy Bypass -File .\tools\check_android_export.ps1
 ```
 
-Pushes to `master` run the `Publish latest Android APK` workflow. It exports an ARM64 debug-signed APK, verifies its signature, and replaces the asset on the permanent `latest` release. A dedicated test key in the `ANDROID_DEBUG_KEYSTORE_BASE64` Actions secret keeps successive APKs update-compatible; it must never be reused for store distribution. Once the public repository is connected, the stable download address is:
+Publish a newly verified APK to the permanent public download address without exposing this source repository:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\publish_android_latest.ps1
+```
+
+The command exports an ARM64 debug-signed APK and replaces only the asset on the public `latest` release. The dedicated ignored local test key keeps successive APKs update-compatible; it must never be reused for store distribution. The stable download address is:
 
 ```text
 https://github.com/jellycb1/crooked-galaxy/releases/download/latest/CrookedGalaxy.apk
 ```
 
-This channel is intended for direct testing. Local builds create an ignored developer key when necessary; CI restores its stable key without writing it to the repository. A store release must use a separate private release keystore and signing workflow.
+This channel is intended for direct testing. The public repository contains the release/download page rather than the game's source. Preserve the ignored local test key to keep direct installs update-compatible. A store release must use a separate private release keystore and signing workflow.
 
 Run deterministic core tests:
 
