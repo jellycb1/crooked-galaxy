@@ -324,6 +324,11 @@ func run_smoke_test() -> void:
 	state.finish_combat(false)
 	await process_frame
 	check(scene.find_child("CombatSummaryDefeat", true, false) != null, "board keeps a concise defeat diagnosis before the next contract")
+	check(scene.find_child("BoardNotice", true, false) == null, "complete defeat diagnosis replaces the redundant escape receipt")
+	var defeat_heading := scene.find_child("CombatReportTitle", true, false) as Label
+	check(defeat_heading != null and defeat_heading.text.contains("BARÃO BOOM"), "defeat diagnosis retains the escaped target identity after the redundant receipt is removed")
+	var career_action := scene.find_child("BoardCareerAction", true, false) as Button
+	check(career_action != null and (state.career_rewards_ready() == 0 or career_action.text.contains("· %d" % state.career_rewards_ready())), "claimable career rewards remain a counted secondary header action beside defeat recovery")
 	var defeat_route := scene.find_child("DefeatFieldTestDiagnosis", true, false) as Label
 	check(defeat_route != null and defeat_route.text.contains("OVERRIDE DERROTADO") and defeat_route.text.contains("REAVALIE A ROTA"), "defeat board turns the tested-route override into actionable diagnosis")
 	var defeat_route_text := defeat_route.text if defeat_route != null else ""

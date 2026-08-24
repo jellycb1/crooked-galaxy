@@ -218,6 +218,7 @@ func build_board() -> void:
 	var ready_rewards := GameState.career_rewards_ready()
 	var career_text := "CARREIRA · %d" % ready_rewards if ready_rewards > 0 else "CARREIRA"
 	var career := action_button(career_text, LIME, true)
+	career.name = "BoardCareerAction"
 	career.custom_minimum_size = Vector2(160, 48)
 	career.add_theme_font_size_override("font_size", 12)
 	career.pressed.connect(func():
@@ -227,11 +228,14 @@ func build_board() -> void:
 	actions.add_child(career)
 
 	var recovery_inside_afk := not GameState.afk_report.is_empty() and GameState.last_notice_context == "system_recovery"
+	var defeat_report_visible := GameState.last_notice_context == "defeat" and not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true))
 	if not GameState.afk_report.is_empty():
 		content.add_child(afk_return_banner(recovery_inside_afk))
-	if not GameState.last_notice.is_empty() and not recovery_inside_afk:
+	if not GameState.last_notice.is_empty() and not recovery_inside_afk and not defeat_report_visible:
 		var notice_color := CORAL if not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true)) else LIME
-		content.add_child(notice_banner(GameState.last_notice, notice_color))
+		var board_notice := notice_banner(GameState.last_notice, notice_color)
+		board_notice.name = "BoardNotice"
+		content.add_child(board_notice)
 	elif int(GameState.player.wins) == 0:
 		content.add_child(onboarding_banner())
 	if not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true)):
@@ -412,7 +416,10 @@ func combat_summary_panel(won: bool) -> PanelContainer:
 	card.name = "CombatSummaryVictory" if won else "CombatSummaryDefeat"
 	var box := card.get_child(0) as VBoxContainer
 	box.add_theme_constant_override("separation", 7)
-	box.add_child(label("RELATÓRIO DO MANDADO" if won else "DIAGNÓSTICO DA FUGA", 13, LIME if won else CORAL))
+	var report_title := "RELATÓRIO DO MANDADO" if won else "FUGA: %s" % str(summary.get("target_name", "ALVO DESCONHECIDO")).to_upper()
+	var report_heading := label(report_title, 13, LIME if won else CORAL)
+	report_heading.name = "CombatReportTitle"
+	box.add_child(report_heading)
 	var metrics := HBoxContainer.new()
 	metrics.add_theme_constant_override("separation", 7)
 	box.add_child(metrics)

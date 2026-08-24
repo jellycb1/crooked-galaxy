@@ -74,6 +74,8 @@ When loading performs a migration or repair, the next board visit receives a con
 
 If that recovery coincides with an AFK patrol return, both outcomes share one compact return card and one acknowledgement. This avoids competing board banners while preserving the exact patrol payout and recovery explanation.
 
+Defeat uses the same one-outcome hierarchy: the escaped target, combat evidence, lost streak, route diagnosis, and workshop recovery action live in one persistent panel. Claimable career rewards remain counted in the header instead of inserting another competing board card.
+
 Numerical repair enforces only canonical lower bounds and existing reinforcement caps: currencies and counters cannot be negative, level/base power stay at least one, and best streak cannot trail the active streak, while legitimately high long-career power and level remain untouched.
 
 Identifier repair accepts only canonical targets, planets, and milestones, removes duplicates, routes an invalid current planet to the furthest legitimately unlocked chapter, and clears protection/loadout references to items the player no longer owns.

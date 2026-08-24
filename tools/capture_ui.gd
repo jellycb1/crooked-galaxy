@@ -468,6 +468,7 @@ func capture() -> void:
 	state.combat_summary.damage_taken = CoreRules.max_health(state.player)
 	state.combat_summary.damage_prevented = 10
 	state.player.capture_streak = 4
+	state.player.claimed_milestones = []
 	state.player_hp = 0
 	state.enemy_hp = 37
 	state.finish_combat(false)
