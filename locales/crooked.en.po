@@ -301,3 +301,177 @@ msgstr "HYBRID · BIOENGINEERED"
 
 msgid "SPECIES_CATALOG_CHIMERA_TAGLINE"
 msgstr "Ordered in parts, assembled without a manual, and proudly outside factory specifications."
+
+msgid "NAV_CONTRACTS"
+msgstr "WARRANTS"
+
+msgid "NAV_ARSENAL"
+msgstr "ARSENAL"
+
+msgid "NAV_HUNTER"
+msgstr "HUNTER"
+
+msgid "NAV_GALAXY"
+msgstr "GALAXY"
+
+msgid "NAV_MENU"
+msgstr "MENU"
+
+msgid "NAV_CLASS"
+msgstr "CLASS"
+
+msgid "NAV_STATUS"
+msgstr "STATS"
+
+msgid "NAV_TEST"
+msgstr "TEST"
+
+msgid "HEADER_HUNTER_TOOLTIP"
+msgstr "Open class and attributes"
+
+msgid "HEADER_LEVEL"
+msgstr "LEVEL %d"
+
+msgid "HEADER_POWER"
+msgstr "POWER %d"
+
+msgid "RESOURCE_CREDITS"
+msgstr "CREDITS"
+
+msgid "RESOURCE_SCRAP"
+msgstr "SCRAP"
+
+msgid "RESOURCE_RANK"
+msgstr "RANK"
+
+msgid "RESOURCE_WINS"
+msgstr "WINS"
+
+msgid "MENU_TITLE"
+msgstr "FRONTIER MENU"
+
+msgid "MENU_SUBTITLE"
+msgstr "Hunter services, career, and preferences."
+
+msgid "MENU_SECTION"
+msgstr "SERVICES AND PROGRESS"
+
+msgid "MENU_MARKET"
+msgstr "MARKET"
+
+msgid "MENU_MARKET_DETAIL"
+msgstr "WEAPONS AND SUITS"
+
+msgid "MENU_NO_TRANSPORT"
+msgstr "NO ACTIVE TRANSPORT"
+
+msgid "MENU_HANGAR"
+msgstr "HANGAR"
+
+msgid "MENU_REWARDS_AVAILABLE"
+msgstr "%d REWARDS AVAILABLE"
+
+msgid "MENU_CAREER_DETAIL"
+msgstr "MILESTONES AND ARCHIVE"
+
+msgid "MENU_CAREER"
+msgstr "CAREER"
+
+msgid "MENU_RIFT_LOCKED"
+msgstr "COMPLETE DUSTBALL"
+
+msgid "MENU_RIFT_COMPLETE"
+msgstr "ARCHIVE COMPLETE"
+
+msgid "MENU_RIFT_FLOOR"
+msgstr "FLOOR %d OF %d"
+
+msgid "MENU_RIFT"
+msgstr "RIFT"
+
+msgid "MENU_SETTINGS_DETAIL"
+msgstr "AUDIO AND MOTION"
+
+msgid "MENU_CURRENT_POSITION"
+msgstr "CURRENT POSITION"
+
+msgid "MENU_IN_TRANSIT"
+msgstr "IN TRANSIT · %s"
+
+msgid "COMMON_PLACEHOLDER_DECORATION"
+msgstr "INTERNAL PLACEHOLDER · provisional ornament"
+
+msgid "COMMON_BACK"
+msgstr "BACK"
+
+msgid "COMMON_ON"
+msgstr "ON"
+
+msgid "COMMON_OFF"
+msgstr "OFF"
+
+msgid "SETTINGS_TITLE"
+msgstr "SETTINGS"
+
+msgid "SETTINGS_SUBTITLE"
+msgstr "PREFERENCES FOR THIS DEVICE"
+
+msgid "SETTINGS_EXPERIENCE"
+msgstr "GAME EXPERIENCE"
+
+msgid "SETTINGS_DESCRIPTION"
+msgstr "Local preferences and tools for this device. They never change rewards, odds, or progression."
+
+msgid "SETTINGS_AUDIO"
+msgstr "AUDIO"
+
+msgid "SETTINGS_AUDIO_DESCRIPTION"
+msgstr "Interface and combat effects"
+
+msgid "SETTINGS_MOTION"
+msgstr "MOTION"
+
+msgid "SETTINGS_MOTION_DESCRIPTION"
+msgstr "Removes decorative transitions only"
+
+msgid "SETTINGS_REDUCED"
+msgstr "REDUCED"
+
+msgid "SETTINGS_FULL"
+msgstr "FULL"
+
+msgid "SETTINGS_TEST_AREA"
+msgstr "TEST AREA"
+
+msgid "SETTINGS_RESET_WARNING"
+msgstr "Deletes local progress from this device and restarts the game here."
+
+msgid "SETTINGS_RESET"
+msgstr "RESET LOCAL PROGRESS"
+
+msgid "PLANET_DUSTBALL_PRIME_NAME"
+msgstr "Dustball Prime"
+
+msgid "PLANET_CONGELARIA_SA_NAME"
+msgstr "Freezeria Inc."
+
+msgid "PLANET_MICELIA_404_NAME"
+msgstr "Mycelia 404"
+
+msgid "PLANET_FERRO_VELHO_OMEGA_NAME"
+msgstr "Scrapyard Omega"
+
+msgid "PLANET_CASSINO_QUASAR_NAME"
+msgstr "Casino Quasar"
+
+msgid "TRANSPORT_LICENSED_JUNKBOX_NAME"
+msgstr "LICENSED FLYING JUNKBOX"
+
+msgid "TRANSPORT_CLONED_WARP_TAXI_NAME"
+msgstr "CLONED WARP TAXI"
+
+msgid "TRANSPORT_REPO_INTERCEPTOR_NAME"
+msgstr "REPOSSESSION INTERCEPTOR"
+
+msgid "TRANSPORT_EXECUTIVE_ESCAPE_YACHT_NAME"
+msgstr "EXECUTIVE ESCAPE YACHT"

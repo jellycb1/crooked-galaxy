@@ -2,6 +2,7 @@ class_name SettingsView
 extends RefCounted
 
 const StateScript = preload("res://scripts/game_state.gd")
+const LocaleRulesScript = preload("res://scripts/locale_rules.gd")
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
@@ -12,11 +13,11 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var titles := VBoxContainer.new()
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(titles)
-	titles.add_child(host.label("AJUSTES", 26, host.INK))
-	var subtitle := host.label("PREFERÊNCIAS DESTE APARELHO", 11, host.MUTED)
+	titles.add_child(host.label(t("SETTINGS_TITLE", "AJUSTES"), 26, host.INK))
+	var subtitle := host.label(t("SETTINGS_SUBTITLE", "PREFERÊNCIAS DESTE APARELHO"), 11, host.MUTED)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	titles.add_child(subtitle)
-	var back := host.action_button("VOLTAR", host.CYAN, true)
+	var back := host.action_button(t("COMMON_BACK", "VOLTAR"), host.CYAN, true)
 	back.custom_minimum_size = Vector2(96, 48)
 	back.pressed.connect(func(): host.call("open_frontier_menu"))
 	title_row.add_child(back)
@@ -24,8 +25,8 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var intro := host.panel(VBoxContainer.new(), host.PANEL_LIGHT, 14, 13)
 	intro.name = "SettingsIntro"
 	var copy := intro.get_child(0) as VBoxContainer
-	copy.add_child(host.label("EXPERIÊNCIA DE JOGO", 15, host.LIME))
-	var description := host.label("Preferências locais e ferramentas deste aparelho. Não alteram recompensas, chances ou progressão.", 12, host.INK)
+	copy.add_child(host.label(t("SETTINGS_EXPERIENCE", "EXPERIÊNCIA DE JOGO"), 15, host.LIME))
+	var description := host.label(t("SETTINGS_DESCRIPTION", "Preferências locais e ferramentas deste aparelho. Não alteram recompensas, chances ou progressão."), 12, host.INK)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(description)
 	content.add_child(intro)
@@ -43,16 +44,16 @@ static func preferences_panel(host: CrookedUIFactory, state: StateScript) -> VBo
 	preferences.name = "AccessibilityPreferences"
 	preferences.add_theme_constant_override("separation", 8)
 	result.add_child(preferences)
-	preferences.add_child(preference_row(host, "ÁUDIO", "Efeitos de interface e combate", "LIGADO" if bool(state.player.get("sound_enabled", true)) else "DESLIGADO", "SoundPreferenceAction", state.toggle_sound))
-	preferences.add_child(preference_row(host, "MOVIMENTO", "Remove apenas transições decorativas", "REDUZIDO" if bool(state.player.get("reduced_motion", false)) else "COMPLETO", "MotionPreferenceAction", state.toggle_reduced_motion))
+	preferences.add_child(preference_row(host, t("SETTINGS_AUDIO", "ÁUDIO"), t("SETTINGS_AUDIO_DESCRIPTION", "Efeitos de interface e combate"), t("COMMON_ON", "LIGADO") if bool(state.player.get("sound_enabled", true)) else t("COMMON_OFF", "DESLIGADO"), "SoundPreferenceAction", state.toggle_sound))
+	preferences.add_child(preference_row(host, t("SETTINGS_MOTION", "MOVIMENTO"), t("SETTINGS_MOTION_DESCRIPTION", "Remove apenas transições decorativas"), t("SETTINGS_REDUCED", "REDUZIDO") if bool(state.player.get("reduced_motion", false)) else t("SETTINGS_FULL", "COMPLETO"), "MotionPreferenceAction", state.toggle_reduced_motion))
 	if OS.is_debug_build():
 		var danger := host.panel(VBoxContainer.new(), Color("#2b1425"), 12, 12)
 		var danger_copy := danger.get_child(0) as VBoxContainer
-		danger_copy.add_child(host.label("ÁREA DE TESTE", 11, host.CORAL))
-		var warning := host.label("Apaga o progresso local deste aparelho e reinicia o jogo neste dispositivo.", 11, host.MUTED)
+		danger_copy.add_child(host.label(t("SETTINGS_TEST_AREA", "ÁREA DE TESTE"), 11, host.CORAL))
+		var warning := host.label(t("SETTINGS_RESET_WARNING", "Apaga o progresso local deste aparelho e reinicia o jogo neste dispositivo."), 11, host.MUTED)
 		warning.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		danger_copy.add_child(warning)
-		var reset := host.action_button("REINICIAR PROGRESSO LOCAL", host.CORAL, true)
+		var reset := host.action_button(t("SETTINGS_RESET", "REINICIAR PROGRESSO LOCAL"), host.CORAL, true)
 		reset.name = "ResetProgressAction"
 		reset.custom_minimum_size = Vector2(0, 48)
 		reset.pressed.connect(func():
@@ -81,3 +82,7 @@ static func preference_row(host: CrookedUIFactory, title: String, description: S
 	action.pressed.connect(callback)
 	row.add_child(action)
 	return card
+
+
+static func t(key: String, fallback: String = "", values: Array = []) -> String:
+	return LocaleRulesScript.text(key, fallback, values)

@@ -30,6 +30,21 @@ func run_mobile_audit() -> void:
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
+	TranslationServer.set_locale("en")
+	scene.render()
+	await process_frame
+	check((scene.find_child("PrimaryNav_contracts", true, false) as Button).text == "WARRANTS" and (scene.find_child("PrimaryNav_hunter", true, false) as Button).text == "CLASS" and find_label_with_text(scene, "LEVEL 1") != null and find_label_with_text(scene, "CREDITS") != null and find_label_with_text(scene, "WINS") != null, "English catalog covers persistent header resources and context-sensitive primary navigation")
+	(scene.find_child("PrimaryNav_menu", true, false) as Button).pressed.emit()
+	await process_frame
+	check(find_label_with_text(scene, "FRONTIER MENU") != null and find_label_with_text(scene, "MARKET") != null and find_label_with_text(scene, "LICENSED FLYING JUNKBOX") != null and find_label_with_text(scene, "CURRENT POSITION") != null, "English catalog covers the complete Frontier Menu and localized current transport")
+	(scene.find_child("BoardSettingsAction", true, false) as Button).pressed.emit()
+	await process_frame
+	check(find_label_with_text(scene, "SETTINGS") != null and find_label_with_text(scene, "GAME EXPERIENCE") != null and find_label_with_text(scene, "AUDIO") != null and (scene.find_child("SoundPreferenceAction", true, false) as Button).text == "ON" and (scene.find_child("ResetProgressAction", true, false) as Button).text == "RESET LOCAL PROGRESS", "English catalog covers device preferences and the explicit local-test reset")
+	TranslationServer.set_locale("pt")
+	scene.view_mode = "board"
+	scene.board_section = "bounties"
+	scene.render()
+	await process_frame
 	check_touch_targets(scene, "bounty board")
 	var header_character := scene.find_child("HeaderCharacterAction", true, false) as Button
 	check(header_character != null and header_character.size.y >= 48.0, "header character card remains a mobile touch target")
@@ -252,3 +267,11 @@ func check(condition: bool, description: String) -> void:
 	if not condition:
 		failures += 1
 		printerr("  FAIL: %s" % description)
+
+
+func find_label_with_text(scene: Node, expected: String) -> Label:
+	for candidate in scene.find_children("*", "Label", true, false):
+		var label := candidate as Label
+		if label.text.contains(expected):
+			return label
+	return null

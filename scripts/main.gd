@@ -20,6 +20,7 @@ const ChallengeViewScript = preload("res://scripts/challenge_view.gd")
 const ChallengeRulesScript = preload("res://scripts/challenge_rules.gd")
 const OnboardingViewScript = preload("res://scripts/onboarding_view.gd")
 const ServerRulesScript = preload("res://scripts/server_rules.gd")
+const LocaleRulesScript = preload("res://scripts/locale_rules.gd")
 const PlanetIconScript = preload("res://scripts/planet_icon.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const HuntChoiceIconScript = preload("res://scripts/hunt_choice_icon.gd")
@@ -406,16 +407,16 @@ func update_primary_navigation() -> void:
 	var badges := {}
 	var available_points := int(GameState.player.get("stat_points", 0))
 	if str(GameState.player.get("class_id", "")).is_empty():
-		labels.hunter = "CLASSE"
+		labels.hunter = t("NAV_CLASS", "CLASSE")
 		badges.hunter = 1
 	elif available_points > 0:
-		labels.hunter = "STATUS"
+		labels.hunter = t("NAV_STATUS", "STATUS")
 		badges.hunter = available_points
 	var equipped_receipt := GameState.last_notice_context == "reward_equipped"
 	var scrap := int(GameState.player.get("scrap", 0))
 	var cheapest_calibration := mini(CoreRules.equipment_upgrade_cost(GameState.player.weapon), CoreRules.equipment_upgrade_cost(GameState.player.armor))
 	if equipped_receipt and scrap >= cheapest_calibration:
-		labels.arsenal = "TESTAR"
+		labels.arsenal = t("NAV_TEST", "TESTAR")
 		badges.arsenal = 1
 	var ready_rewards := GameState.career_rewards_ready()
 	if ready_rewards > 0:
@@ -484,7 +485,7 @@ func build_header() -> void:
 	var location_row := HBoxContainer.new()
 	location_row.add_theme_constant_override("separation", 10)
 	identity.add_child(location_row)
-	var location := label(str(planet.name).to_upper(), 13, Color(str(planet.accent)))
+	var location := label(localized_content_field("planet", planet, "name").to_upper(), 13, Color(str(planet.accent)))
 	location.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	location_row.add_child(location)
 	var server_short := ServerRulesScript.short_name_for(str(GameState.account.get("server_id", "")))
@@ -496,7 +497,7 @@ func build_header() -> void:
 	character_badge.name = "HeaderCharacterAction"
 	character_badge.custom_minimum_size = Vector2(124, 60)
 	character_badge.focus_mode = Control.FOCUS_ALL
-	character_badge.tooltip_text = "Abrir classe e atributos"
+	character_badge.tooltip_text = t("HEADER_HUNTER_TOOLTIP", "Abrir classe e atributos")
 	character_badge.add_theme_stylebox_override("normal", box_style(PANEL_LIGHT, 14))
 	character_badge.add_theme_stylebox_override("hover", bordered_box_style(Color("#213660"), 14, CYAN, 2))
 	character_badge.add_theme_stylebox_override("pressed", bordered_box_style(Color("#0c1835"), 14, CYAN, 2))
@@ -528,17 +529,17 @@ func build_header() -> void:
 	var hunter_name := str(GameState.player.get("hunter_name", ""))
 	if not hunter_name.is_empty():
 		badge_copy.add_child(label(hunter_name.to_upper(), 9, CYAN, HORIZONTAL_ALIGNMENT_CENTER))
-	badge_copy.add_child(label("NÍVEL %d" % int(GameState.player.level), 10, GOLD, HORIZONTAL_ALIGNMENT_CENTER))
-	badge_copy.add_child(label("PODER %d" % CoreRules.player_power(GameState.player), 11, INK, HORIZONTAL_ALIGNMENT_CENTER))
+	badge_copy.add_child(label(t("HEADER_LEVEL", "NÍVEL %d", [int(GameState.player.level)]), 10, GOLD, HORIZONTAL_ALIGNMENT_CENTER))
+	badge_copy.add_child(label(t("HEADER_POWER", "PODER %d", [CoreRules.player_power(GameState.player)]), 11, INK, HORIZONTAL_ALIGNMENT_CENTER))
 
 	var ledger := panel(HBoxContainer.new(), Color("#09132a"), 9, 6)
 	ledger.name = "HeaderResourceStrip"
 	var stats := ledger.get_child(0) as HBoxContainer
 	stats.add_theme_constant_override("separation", 4)
-	stats.add_child(header_resource_cell("HeaderCredits", "CRÉDITOS", str(GameState.player.credits), GOLD))
-	stats.add_child(header_resource_cell("HeaderScrap", "SUCATA", str(GameState.player.get("scrap", 0)), CORAL))
-	stats.add_child(header_resource_cell("HeaderReputation", "RANK", str(int(GameState.player.reputation) + 1), LIME))
-	stats.add_child(header_resource_cell("HeaderWins", "VITÓRIAS", str(GameState.player.wins), CYAN))
+	stats.add_child(header_resource_cell("HeaderCredits", t("RESOURCE_CREDITS", "CRÉDITOS"), str(GameState.player.credits), GOLD))
+	stats.add_child(header_resource_cell("HeaderScrap", t("RESOURCE_SCRAP", "SUCATA"), str(GameState.player.get("scrap", 0)), CORAL))
+	stats.add_child(header_resource_cell("HeaderReputation", t("RESOURCE_RANK", "RANK"), str(int(GameState.player.reputation) + 1), LIME))
+	stats.add_child(header_resource_cell("HeaderWins", t("RESOURCE_WINS", "VITÓRIAS"), str(GameState.player.wins), CYAN))
 	content.add_child(ledger)
 
 
@@ -562,8 +563,9 @@ func build_character_header() -> void:
 	identity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(identity)
 	identity.add_child(label("CROOKED GALAXY", 22, CYAN))
-	identity.add_child(label(str(planet.name).to_upper(), 11, Color(str(planet.accent))))
-	var build_version := label("v%s" % str(ProjectSettings.get_setting("application/config/version", "dev")), 10, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
+	identity.add_child(label(localized_content_field("planet", planet, "name").to_upper(), 11, Color(str(planet.accent))))
+	var server_short := ServerRulesScript.short_name_for(str(GameState.account.get("server_id", "")))
+	var build_version := label("%s · v%s" % [server_short, str(ProjectSettings.get_setting("application/config/version", "dev"))], 10, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
 	build_version.name = "BuildVersion"
 	build_version.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	top.add_child(build_version)
@@ -581,6 +583,17 @@ func bordered_box_style(fill: Color, radius: int, border: Color, width: int) -> 
 
 func active_planet() -> Dictionary:
 	return ContentDB.get_planet(str(GameState.player.get("current_planet_id", ContentDB.PLANET.id)))
+
+
+func t(key: String, fallback: String = "", values: Array = []) -> String:
+	return LocaleRulesScript.text(key, fallback, values)
+
+
+func localized_content_field(prefix: String, definition: Dictionary, field: String) -> String:
+	if definition.is_empty():
+		return ""
+	var raw := str(definition.get(field, ""))
+	return t(LocaleRulesScript.content_key(prefix, str(definition.get("id", "")), field), raw)
 
 
 func build_board() -> void:
@@ -614,8 +627,8 @@ func build_frontier_menu() -> void:
 	var title_box := VBoxContainer.new()
 	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title_box)
-	title_box.add_child(label("MENU DA FRONTEIRA", 24, INK))
-	var subtitle := label("Serviços, carreira e preferências do caçador.", 13, MUTED)
+	title_box.add_child(label(t("MENU_TITLE", "MENU DA FRONTEIRA"), 24, INK))
+	var subtitle := label(t("MENU_SUBTITLE", "Serviços, carreira e preferências do caçador."), 13, MUTED)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title_box.add_child(subtitle)
 	var menu_marker: Control = HubDestinationIconScript.new()
@@ -623,7 +636,7 @@ func build_frontier_menu() -> void:
 	menu_marker.configure("menu", CYAN)
 	title_row.add_child(menu_marker)
 
-	var section_label := label("SERVIÇOS E PROGRESSO", 12, CYAN)
+	var section_label := label(t("MENU_SECTION", "SERVIÇOS E PROGRESSO"), 12, CYAN)
 	section_label.name = "FrontierMenuSection"
 	content.add_child(section_label)
 
@@ -634,28 +647,28 @@ func build_frontier_menu() -> void:
 	hub_grid.add_theme_constant_override("v_separation", 10)
 	content.add_child(hub_grid)
 	var active_transport := TransportRulesScript.active_transport(GameState.player)
-	hub_grid.add_child(board_hub_action("MERCADO", "ARMAS E ARMADURAS", GOLD, "market", "BoardMarketAction", func():
+	hub_grid.add_child(board_hub_action(t("MENU_MARKET", "MERCADO"), t("MENU_MARKET_DETAIL", "ARMAS E ARMADURAS"), GOLD, "market", "BoardMarketAction", func():
 		view_mode = "market"
 		render()
 	))
-	var hangar_detail := "SEM TRANSPORTE ATIVO" if active_transport.is_empty() else str(active_transport.name).to_upper()
-	hub_grid.add_child(board_hub_action("HANGAR", hangar_detail, CYAN, "hangar", "BoardHangarAction", func():
+	var hangar_detail := t("MENU_NO_TRANSPORT", "SEM TRANSPORTE ATIVO") if active_transport.is_empty() else localized_content_field("transport", active_transport, "name").to_upper()
+	hub_grid.add_child(board_hub_action(t("MENU_HANGAR", "HANGAR"), hangar_detail, CYAN, "hangar", "BoardHangarAction", func():
 		view_mode = "hangar"
 		render()
 	))
 	var ready_rewards := GameState.career_rewards_ready()
-	var career_detail := "%d PRÊMIOS DISPONÍVEIS" % ready_rewards if ready_rewards > 0 else "MARCOS E ARQUIVO"
-	hub_grid.add_child(board_hub_action("CARREIRA", career_detail, LIME, "career", "BoardCareerAction", func():
+	var career_detail := t("MENU_REWARDS_AVAILABLE", "%d PRÊMIOS DISPONÍVEIS", [ready_rewards]) if ready_rewards > 0 else t("MENU_CAREER_DETAIL", "MARCOS E ARQUIVO")
+	hub_grid.add_child(board_hub_action(t("MENU_CAREER", "CARREIRA"), career_detail, LIME, "career", "BoardCareerAction", func():
 		view_mode = "career"
 		render()
 	))
 	var challenge_floor := ChallengeRulesScript.progress(GameState.player)
-	var challenge_detail := "CONCLUA DUSTBALL" if not ChallengeRulesScript.is_unlocked(GameState.player) else ("ARQUIVO CONCLUÍDO" if challenge_floor >= ChallengeRulesScript.STAGES.size() else "ANDAR %d DE %d" % [challenge_floor + 1, ChallengeRulesScript.STAGES.size()])
-	hub_grid.add_child(board_hub_action("FENDA", challenge_detail, CORAL, "contracts", "BoardChallengeAction", func():
+	var challenge_detail := t("MENU_RIFT_LOCKED", "CONCLUA DUSTBALL") if not ChallengeRulesScript.is_unlocked(GameState.player) else (t("MENU_RIFT_COMPLETE", "ARQUIVO CONCLUÍDO") if challenge_floor >= ChallengeRulesScript.STAGES.size() else t("MENU_RIFT_FLOOR", "ANDAR %d DE %d", [challenge_floor + 1, ChallengeRulesScript.STAGES.size()]))
+	hub_grid.add_child(board_hub_action(t("MENU_RIFT", "FENDA"), challenge_detail, CORAL, "contracts", "BoardChallengeAction", func():
 		view_mode = "challenges"
 		render()
 	))
-	hub_grid.add_child(board_hub_action("AJUSTES", "ÁUDIO E MOVIMENTO", MUTED, "settings", "BoardSettingsAction", func():
+	hub_grid.add_child(board_hub_action(t("SETTINGS_TITLE", "AJUSTES"), t("MENU_SETTINGS_DETAIL", "ÁUDIO E MOVIMENTO"), MUTED, "settings", "BoardSettingsAction", func():
 		view_mode = "settings"
 		render()
 	))
@@ -674,9 +687,9 @@ func build_frontier_menu() -> void:
 	var status_box := VBoxContainer.new()
 	status_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	status_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	status_box.add_child(label("POSIÇÃO ATUAL", 10, MUTED))
-	status_box.add_child(label(str(active_planet().name).to_upper(), 14, GOLD))
-	var transport_text := "SEM TRANSPORTE ATIVO" if active_transport.is_empty() else "EM TRÂNSITO · %s" % str(active_transport.name).to_upper()
+	status_box.add_child(label(t("MENU_CURRENT_POSITION", "POSIÇÃO ATUAL"), 10, MUTED))
+	status_box.add_child(label(localized_content_field("planet", active_planet(), "name").to_upper(), 14, GOLD))
+	var transport_text := t("MENU_NO_TRANSPORT", "SEM TRANSPORTE ATIVO") if active_transport.is_empty() else t("MENU_IN_TRANSIT", "EM TRÂNSITO · %s", [localized_content_field("transport", active_transport, "name").to_upper()])
 	status_box.add_child(label(transport_text, 10, MUTED))
 	status_row.add_child(status_box)
 	if not active_transport.is_empty():
@@ -795,7 +808,7 @@ func reference_ui_decoration(key: String, height: float) -> TextureRect:
 	decoration.stretch_mode = TextureRect.STRETCH_SCALE
 	decoration.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	decoration.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	decoration.tooltip_text = "PLACEHOLDER INTERNO · ornamento provisório"
+	decoration.tooltip_text = t("COMMON_PLACEHOLDER_DECORATION", "PLACEHOLDER INTERNO · ornamento provisório")
 	return decoration
 
 

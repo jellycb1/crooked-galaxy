@@ -92,7 +92,7 @@ func capture() -> void:
 		return
 	TranslationServer.set_locale("pt")
 	state.persistence_enabled = false
-	state.account = {}
+	state.account = {"mode": "local_test", "session_id": "capture", "locale_id": "pt", "server_id": "international_1"}
 	state.player = state.default_player()
 	scene.render()
 	await process_frame
@@ -107,6 +107,22 @@ func capture() -> void:
 	if save_frame("ui_board_destinations.png") != OK:
 		quit(1)
 		return
+	TranslationServer.set_locale("en")
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_frontier_menu_en.png") != OK:
+		quit(1)
+		return
+	scene.view_mode = "settings"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_settings_en.png") != OK:
+		quit(1)
+		return
+	TranslationServer.set_locale("pt")
+	scene.view_mode = "board"
 	scene.board_section = "bounties"
 	scene.render()
 	await process_frame

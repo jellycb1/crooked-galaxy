@@ -4,6 +4,7 @@ extends PanelContainer
 signal destination_selected(destination_id: String)
 
 const HubDestinationIconScript = preload("res://scripts/hub_destination_icon.gd")
+const LocaleRulesScript = preload("res://scripts/locale_rules.gd")
 
 const INK := Color("#f4f2ff")
 const MUTED := Color("#9da8c8")
@@ -36,11 +37,11 @@ func configure(active_id: String, labels: Dictionary = {}, badges: Dictionary = 
 	frame.content_margin_bottom = 5
 	add_theme_stylebox_override("panel", frame)
 	var definitions := [
-		{"id": "contracts", "label": "MANDADOS", "icon": "contracts", "color": CORAL},
-		{"id": "arsenal", "label": "ARSENAL", "icon": "arsenal", "color": GOLD},
-		{"id": "hunter", "label": "CAÇADOR", "icon": "hunter", "color": CYAN},
-		{"id": "galaxy", "label": "GALÁXIA", "icon": "galaxy", "color": LIME},
-		{"id": "menu", "label": "MENU", "icon": "menu", "color": CYAN},
+		{"id": "contracts", "label": LocaleRulesScript.text("NAV_CONTRACTS", "MANDADOS"), "icon": "contracts", "color": CORAL},
+		{"id": "arsenal", "label": LocaleRulesScript.text("NAV_ARSENAL", "ARSENAL"), "icon": "arsenal", "color": GOLD},
+		{"id": "hunter", "label": LocaleRulesScript.text("NAV_HUNTER", "CAÇADOR"), "icon": "hunter", "color": CYAN},
+		{"id": "galaxy", "label": LocaleRulesScript.text("NAV_GALAXY", "GALÁXIA"), "icon": "galaxy", "color": LIME},
+		{"id": "menu", "label": LocaleRulesScript.text("NAV_MENU", "MENU"), "icon": "menu", "color": CYAN},
 	]
 	var row := get_node_or_null("PrimaryNavigationRow") as HBoxContainer
 	if row == null or row.get_child_count() != definitions.size():

@@ -301,3 +301,177 @@ msgstr "HÍBRIDO · BIOENGENHADO"
 
 msgid "SPECIES_CATALOG_CHIMERA_TAGLINE"
 msgstr "Encomendada por peças, montada sem manual e orgulhosamente fora do padrão de fábrica."
+
+msgid "NAV_CONTRACTS"
+msgstr "MANDADOS"
+
+msgid "NAV_ARSENAL"
+msgstr "ARSENAL"
+
+msgid "NAV_HUNTER"
+msgstr "CAÇADOR"
+
+msgid "NAV_GALAXY"
+msgstr "GALÁXIA"
+
+msgid "NAV_MENU"
+msgstr "MENU"
+
+msgid "NAV_CLASS"
+msgstr "CLASSE"
+
+msgid "NAV_STATUS"
+msgstr "STATUS"
+
+msgid "NAV_TEST"
+msgstr "TESTAR"
+
+msgid "HEADER_HUNTER_TOOLTIP"
+msgstr "Abrir classe e atributos"
+
+msgid "HEADER_LEVEL"
+msgstr "NÍVEL %d"
+
+msgid "HEADER_POWER"
+msgstr "PODER %d"
+
+msgid "RESOURCE_CREDITS"
+msgstr "CRÉDITOS"
+
+msgid "RESOURCE_SCRAP"
+msgstr "SUCATA"
+
+msgid "RESOURCE_RANK"
+msgstr "RANK"
+
+msgid "RESOURCE_WINS"
+msgstr "VITÓRIAS"
+
+msgid "MENU_TITLE"
+msgstr "MENU DA FRONTEIRA"
+
+msgid "MENU_SUBTITLE"
+msgstr "Serviços, carreira e preferências do caçador."
+
+msgid "MENU_SECTION"
+msgstr "SERVIÇOS E PROGRESSO"
+
+msgid "MENU_MARKET"
+msgstr "MERCADO"
+
+msgid "MENU_MARKET_DETAIL"
+msgstr "ARMAS E ARMADURAS"
+
+msgid "MENU_NO_TRANSPORT"
+msgstr "SEM TRANSPORTE ATIVO"
+
+msgid "MENU_HANGAR"
+msgstr "HANGAR"
+
+msgid "MENU_REWARDS_AVAILABLE"
+msgstr "%d PRÊMIOS DISPONÍVEIS"
+
+msgid "MENU_CAREER_DETAIL"
+msgstr "MARCOS E ARQUIVO"
+
+msgid "MENU_CAREER"
+msgstr "CARREIRA"
+
+msgid "MENU_RIFT_LOCKED"
+msgstr "CONCLUA DUSTBALL"
+
+msgid "MENU_RIFT_COMPLETE"
+msgstr "ARQUIVO CONCLUÍDO"
+
+msgid "MENU_RIFT_FLOOR"
+msgstr "ANDAR %d DE %d"
+
+msgid "MENU_RIFT"
+msgstr "FENDA"
+
+msgid "MENU_SETTINGS_DETAIL"
+msgstr "ÁUDIO E MOVIMENTO"
+
+msgid "MENU_CURRENT_POSITION"
+msgstr "POSIÇÃO ATUAL"
+
+msgid "MENU_IN_TRANSIT"
+msgstr "EM TRÂNSITO · %s"
+
+msgid "COMMON_PLACEHOLDER_DECORATION"
+msgstr "PLACEHOLDER INTERNO · ornamento provisório"
+
+msgid "COMMON_BACK"
+msgstr "VOLTAR"
+
+msgid "COMMON_ON"
+msgstr "LIGADO"
+
+msgid "COMMON_OFF"
+msgstr "DESLIGADO"
+
+msgid "SETTINGS_TITLE"
+msgstr "AJUSTES"
+
+msgid "SETTINGS_SUBTITLE"
+msgstr "PREFERÊNCIAS DESTE APARELHO"
+
+msgid "SETTINGS_EXPERIENCE"
+msgstr "EXPERIÊNCIA DE JOGO"
+
+msgid "SETTINGS_DESCRIPTION"
+msgstr "Preferências locais e ferramentas deste aparelho. Não alteram recompensas, chances ou progressão."
+
+msgid "SETTINGS_AUDIO"
+msgstr "ÁUDIO"
+
+msgid "SETTINGS_AUDIO_DESCRIPTION"
+msgstr "Efeitos de interface e combate"
+
+msgid "SETTINGS_MOTION"
+msgstr "MOVIMENTO"
+
+msgid "SETTINGS_MOTION_DESCRIPTION"
+msgstr "Remove apenas transições decorativas"
+
+msgid "SETTINGS_REDUCED"
+msgstr "REDUZIDO"
+
+msgid "SETTINGS_FULL"
+msgstr "COMPLETO"
+
+msgid "SETTINGS_TEST_AREA"
+msgstr "ÁREA DE TESTE"
+
+msgid "SETTINGS_RESET_WARNING"
+msgstr "Apaga o progresso local deste aparelho e reinicia o jogo neste dispositivo."
+
+msgid "SETTINGS_RESET"
+msgstr "REINICIAR PROGRESSO LOCAL"
+
+msgid "PLANET_DUSTBALL_PRIME_NAME"
+msgstr "Dustball Prime"
+
+msgid "PLANET_CONGELARIA_SA_NAME"
+msgstr "Congelária S.A."
+
+msgid "PLANET_MICELIA_404_NAME"
+msgstr "Micélia 404"
+
+msgid "PLANET_FERRO_VELHO_OMEGA_NAME"
+msgstr "Ferro-Velho Ômega"
+
+msgid "PLANET_CASSINO_QUASAR_NAME"
+msgstr "Cassino Quasar"
+
+msgid "TRANSPORT_LICENSED_JUNKBOX_NAME"
+msgstr "LATA VOADORA HOMOLOGADA"
+
+msgid "TRANSPORT_CLONED_WARP_TAXI_NAME"
+msgstr "TÁXI WARP CLONADO"
+
+msgid "TRANSPORT_REPO_INTERCEPTOR_NAME"
+msgstr "INTERCEPTOR DE PENHORA"
+
+msgid "TRANSPORT_EXECUTIVE_ESCAPE_YACHT_NAME"
+msgstr "IATE DE FUGA EXECUTIVA"
