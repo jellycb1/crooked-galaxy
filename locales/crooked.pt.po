@@ -2896,3 +2896,120 @@ msgstr "BLOQUEADO"
 
 msgid "TRAVEL_NOTICE_ROUTE_CONFIRMED"
 msgstr "Rota confirmada: %s — o combustível será explicado na fatura."
+
+msgid "MARKET_TITLE"
+msgstr "MERCADO TORTO"
+
+msgid "MARKET_SUBTITLE"
+msgstr "Equipamento planetário. Procedência opcional."
+
+msgid "MARKET_BALANCE"
+msgstr "SALDO · ◈ %d CRÉDITOS"
+
+msgid "MARKET_PURCHASE_RULE"
+msgstr "Compras equipam melhorias automaticamente; alternativas vão para o inventário."
+
+msgid "MARKET_REFRESH"
+msgstr "RENOVAR · ◈ %d"
+
+msgid "MARKET_TRANSPORT_COMPLETE"
+msgstr "MOBILIDADE PERMANENTE · COLEÇÃO COMPLETA"
+
+msgid "MARKET_OPTIONAL"
+msgstr "O mercado continua opcional para equipamento e coleção."
+
+msgid "MARKET_TRANSPORT_ALTERNATIVE"
+msgstr "ALTERNATIVA PERMANENTE · %s"
+
+msgid "MARKET_TRANSPORT_DETAIL"
+msgstr "-%d%% tempo de caça · ◈ %d"
+
+msgid "MARKET_TRANSPORT_LOCK"
+msgstr " · após %d capítulos"
+
+msgid "MARKET_VIEW_HANGAR"
+msgstr "VER HANGAR"
+
+msgid "MARKET_ITEM_POWER"
+msgstr "%s · %s · +%d PODER"
+
+msgid "MARKET_SOLD"
+msgstr "VENDIDO"
+
+msgid "MARKET_BUY"
+msgstr "COMPRAR · ◈ %d"
+
+msgid "MARKET_MISSING_CREDITS"
+msgstr "FALTAM ◈ %d"
+
+msgid "MARKET_NOTICE_EQUIPPED"
+msgstr "Mercado: %s comprado por %d créditos e equipado."
+
+msgid "MARKET_NOTICE_STORED"
+msgstr "Mercado: %s comprado por %d créditos e guardado."
+
+msgid "MARKET_NOTICE_REFRESHED"
+msgstr "Mercado renovado por %d créditos. A procedência continua confidencial."
+
+msgid "HANGAR_TITLE"
+msgstr "HANGAR DUVIDOSO"
+
+msgid "HANGAR_SUBTITLE"
+msgstr "Transportes permanentes para chegar antes da desculpa."
+
+msgid "HANGAR_FULL_DURATION"
+msgstr "As caçadas usam a duração completa da abordagem."
+
+msgid "HANGAR_ACTIVE"
+msgstr "ATIVO · %s"
+
+msgid "HANGAR_ACTIVE_BONUS"
+msgstr "CAÇADAS %d%% MAIS RÁPIDAS · atrasos de incidentes não recebem desconto"
+
+msgid "HANGAR_COMBAT_ALTERNATIVE"
+msgstr "ALTERNATIVA DE COMBATE · %d MELHORIAS"
+
+msgid "HANGAR_MARKET_PRICE"
+msgstr "Stock atual desde ◈ %d · equipamento imediato"
+
+msgid "HANGAR_NO_COMBAT_UPGRADE"
+msgstr "ALTERNATIVA DE COMBATE · SEM MELHORIA DIRETA"
+
+msgid "HANGAR_COLLECTION_ONLY"
+msgstr "O stock atual serve apenas coleção; renovar é opcional."
+
+msgid "HANGAR_VIEW_MARKET"
+msgstr "VER MERCADO"
+
+msgid "HANGAR_PERMANENT_BONUS"
+msgstr "-%d%% TEMPO DE CAÇA · PERMANENTE"
+
+msgid "HANGAR_UNLOCK_AFTER"
+msgstr "DESBLOQUEIA APÓS %d CAPÍTULOS"
+
+msgid "HANGAR_ACTION_ACTIVE"
+msgstr "ATIVO"
+
+msgid "HANGAR_ACTION_EQUIP"
+msgstr "EQUIPAR"
+
+msgid "HANGAR_ACTION_BUY"
+msgstr "COMPRAR · ◈ %d"
+
+msgid "HANGAR_NOTICE_PURCHASED"
+msgstr "Hangar: %s comprado por %d créditos e definido como transporte ativo."
+
+msgid "HANGAR_NOTICE_EQUIPPED"
+msgstr "Hangar: %s agora responde pelos seus atrasos."
+
+msgid "TRANSPORT_LICENSED_JUNKBOX_TAGLINE"
+msgstr "A porta fecha quando a gravidade colabora."
+
+msgid "TRANSPORT_CLONED_WARP_TAXI_TAGLINE"
+msgstr "O taxímetro cobra antes da dobra."
+
+msgid "TRANSPORT_REPO_INTERCEPTOR_TAGLINE"
+msgstr "Mais rápido que a contestação judicial."
+
+msgid "TRANSPORT_EXECUTIVE_ESCAPE_YACHT_TAGLINE"
+msgstr "Quarenta por cento menos tempo para negar tudo."

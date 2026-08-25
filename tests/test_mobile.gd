@@ -42,6 +42,30 @@ func run_mobile_audit() -> void:
 	(scene.find_child("BoardSettingsAction", true, false) as Button).pressed.emit()
 	await process_frame
 	check(find_label_with_text(scene, "SETTINGS") != null and find_label_with_text(scene, "GAME EXPERIENCE") != null and find_label_with_text(scene, "AUDIO") != null and (scene.find_child("SoundPreferenceAction", true, false) as Button).text == "ON" and (scene.find_child("ResetProgressAction", true, false) as Button).text == "RESET LOCAL PROGRESS", "English catalog covers device preferences and the explicit local-test reset")
+	var player_before_english_commerce: Dictionary = state.player.duplicate(true)
+	state.player.credits = 20000
+	state.player.completed_planets = ["dustball_prime"]
+	scene.view_mode = "market"
+	scene.render()
+	await process_frame
+	check(find_label_with_text(scene, "CROOKED MARKET") != null and find_label_with_text(scene, "BALANCE · ◈ 20000 CREDITS") != null and (scene.find_child("MarketRefresh", true, false) as Button).text.begins_with("REFRESH") and (scene.find_child("MarketHangarAction", true, false) as Button).text == "VIEW HANGAR", "English market covers balance, refresh, permanent spending alternative, and navigation")
+	var first_market_offer: Dictionary = state.market_offers()[0]
+	state.buy_market_offer(str(first_market_offer.id))
+	await process_frame
+	check(state.last_notice.begins_with("Market:") and state.last_notice.contains("credits and") and find_label_with_text(scene, state.last_notice) != null, "English market purchase localizes item identity and keeps its receipt visible")
+	scene.view_mode = "hangar"
+	scene.render()
+	await process_frame
+	check(find_label_with_text(scene, "QUESTIONABLE HANGAR") != null and find_label_with_text(scene, "LICENSED FLYING JUNKBOX") != null and find_label_with_text(scene, "The door closes when gravity cooperates.") != null and (scene.find_child("HangarMarketAction", true, false) as Button).text == "VIEW MARKET", "English hangar covers permanent transport identity, tagline, timing, and commerce route")
+	var cloned_taxi_action := scene.find_child("HangarAction_cloned_warp_taxi", true, false) as Button
+	check(cloned_taxi_action != null and cloned_taxi_action.text.begins_with("BUY"), "English hangar exposes an unlocked transport purchase")
+	if cloned_taxi_action != null:
+		cloned_taxi_action.pressed.emit()
+	await process_frame
+	check(state.last_notice.begins_with("Hangar: CLONED WARP TAXI bought") and find_label_with_text(scene, state.last_notice) != null, "English hangar purchase keeps the active-transport receipt visible")
+	state.player = player_before_english_commerce
+	state.last_notice = ""
+	state.last_notice_context = ""
 	var player_before_english_galaxy: Dictionary = state.player.duplicate(true)
 	state.player.completed_planets = ["dustball_prime"]
 	state.player.captures_by_planet = {"dustball_prime": 7}

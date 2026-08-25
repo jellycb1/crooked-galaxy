@@ -121,6 +121,24 @@ func capture() -> void:
 	if save_frame("ui_settings_en.png") != OK:
 		quit(1)
 		return
+	state.player.credits = 9000
+	state.player.completed_planets = ["dustball_prime"]
+	scene.view_mode = "market"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_market_en.png") != OK:
+		quit(1)
+		return
+	state.player.owned_transport_ids = ["licensed_junkbox"]
+	state.player.active_transport_id = "licensed_junkbox"
+	scene.view_mode = "hangar"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_hangar_en.png") != OK:
+		quit(1)
+		return
 	state.player.completed_planets = ["dustball_prime"]
 	state.player.captures_by_planet = {"dustball_prime": 7}
 	state.player.captures_by_target = {"mirage_moxie": 1}

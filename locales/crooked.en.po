@@ -2896,3 +2896,120 @@ msgstr "LOCKED"
 
 msgid "TRAVEL_NOTICE_ROUTE_CONFIRMED"
 msgstr "Route confirmed: %s — fuel will be explained on the invoice."
+
+msgid "MARKET_TITLE"
+msgstr "CROOKED MARKET"
+
+msgid "MARKET_SUBTITLE"
+msgstr "Planetary equipment. Provenance optional."
+
+msgid "MARKET_BALANCE"
+msgstr "BALANCE · ◈ %d CREDITS"
+
+msgid "MARKET_PURCHASE_RULE"
+msgstr "Upgrades equip automatically; alternatives go to the backpack."
+
+msgid "MARKET_REFRESH"
+msgstr "REFRESH · ◈ %d"
+
+msgid "MARKET_TRANSPORT_COMPLETE"
+msgstr "PERMANENT MOBILITY · COLLECTION COMPLETE"
+
+msgid "MARKET_OPTIONAL"
+msgstr "The market remains optional for equipment and collection."
+
+msgid "MARKET_TRANSPORT_ALTERNATIVE"
+msgstr "PERMANENT ALTERNATIVE · %s"
+
+msgid "MARKET_TRANSPORT_DETAIL"
+msgstr "-%d%% hunt time · ◈ %d"
+
+msgid "MARKET_TRANSPORT_LOCK"
+msgstr " · after %d chapters"
+
+msgid "MARKET_VIEW_HANGAR"
+msgstr "VIEW HANGAR"
+
+msgid "MARKET_ITEM_POWER"
+msgstr "%s · %s · +%d POWER"
+
+msgid "MARKET_SOLD"
+msgstr "SOLD"
+
+msgid "MARKET_BUY"
+msgstr "BUY · ◈ %d"
+
+msgid "MARKET_MISSING_CREDITS"
+msgstr "NEED ◈ %d"
+
+msgid "MARKET_NOTICE_EQUIPPED"
+msgstr "Market: %s bought for %d credits and equipped."
+
+msgid "MARKET_NOTICE_STORED"
+msgstr "Market: %s bought for %d credits and stored."
+
+msgid "MARKET_NOTICE_REFRESHED"
+msgstr "Market refreshed for %d credits. Provenance remains confidential."
+
+msgid "HANGAR_TITLE"
+msgstr "QUESTIONABLE HANGAR"
+
+msgid "HANGAR_SUBTITLE"
+msgstr "Permanent transports for arriving before the excuse."
+
+msgid "HANGAR_FULL_DURATION"
+msgstr "Hunts use the full duration of the selected approach."
+
+msgid "HANGAR_ACTIVE"
+msgstr "ACTIVE · %s"
+
+msgid "HANGAR_ACTIVE_BONUS"
+msgstr "HUNTS %d%% FASTER · incident delays receive no discount"
+
+msgid "HANGAR_COMBAT_ALTERNATIVE"
+msgstr "COMBAT ALTERNATIVE · %d UPGRADES"
+
+msgid "HANGAR_MARKET_PRICE"
+msgstr "Current stock from ◈ %d · immediate equipment"
+
+msgid "HANGAR_NO_COMBAT_UPGRADE"
+msgstr "COMBAT ALTERNATIVE · NO DIRECT UPGRADE"
+
+msgid "HANGAR_COLLECTION_ONLY"
+msgstr "Current stock serves collection only; refreshing is optional."
+
+msgid "HANGAR_VIEW_MARKET"
+msgstr "VIEW MARKET"
+
+msgid "HANGAR_PERMANENT_BONUS"
+msgstr "-%d%% HUNT TIME · PERMANENT"
+
+msgid "HANGAR_UNLOCK_AFTER"
+msgstr "UNLOCKS AFTER %d CHAPTERS"
+
+msgid "HANGAR_ACTION_ACTIVE"
+msgstr "ACTIVE"
+
+msgid "HANGAR_ACTION_EQUIP"
+msgstr "EQUIP"
+
+msgid "HANGAR_ACTION_BUY"
+msgstr "BUY · ◈ %d"
+
+msgid "HANGAR_NOTICE_PURCHASED"
+msgstr "Hangar: %s bought for %d credits and set as active transport."
+
+msgid "HANGAR_NOTICE_EQUIPPED"
+msgstr "Hangar: %s now answers for your delays."
+
+msgid "TRANSPORT_LICENSED_JUNKBOX_TAGLINE"
+msgstr "The door closes when gravity cooperates."
+
+msgid "TRANSPORT_CLONED_WARP_TAXI_TAGLINE"
+msgstr "The meter charges before the jump."
+
+msgid "TRANSPORT_REPO_INTERCEPTOR_TAGLINE"
+msgstr "Faster than a legal appeal."
+
+msgid "TRANSPORT_EXECUTIVE_ESCAPE_YACHT_TAGLINE"
+msgstr "Forty percent less time to deny everything."

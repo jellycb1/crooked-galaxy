@@ -7,6 +7,7 @@ const EquipmentPresentation = preload("res://scripts/equipment_presentation.gd")
 const SpendingGuidanceScript = preload("res://scripts/spending_guidance.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
+const LocaleRules = preload("res://scripts/locale_rules.gd")
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
@@ -16,11 +17,11 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var titles := VBoxContainer.new()
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(titles)
-	titles.add_child(host.label("MERCADO TORTO", 25, host.INK))
-	var subtitle := host.label("Equipamento planetário. Procedência opcional.", 13, host.MUTED)
+	titles.add_child(host.label(t("MARKET_TITLE", "MERCADO TORTO"), 25, host.INK))
+	var subtitle := host.label(t("MARKET_SUBTITLE", "Equipamento planetário. Procedência opcional."), 13, host.MUTED)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	titles.add_child(subtitle)
-	var back := host.action_button("VOLTAR", host.CYAN, true)
+	var back := host.action_button(t("ACTION_BACK", "VOLTAR"), host.CYAN, true)
 	back.custom_minimum_size = Vector2(112, 48)
 	back.pressed.connect(func():
 		host.call("open_frontier_menu")
@@ -35,11 +36,11 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var info_copy := VBoxContainer.new()
 	info_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info_row.add_child(info_copy)
-	info_copy.add_child(host.label("SALDO · ◈ %d CRÉDITOS" % int(state.player.credits), 14, host.GOLD))
-	var explanation := host.label("Compras equipam melhorias automaticamente; alternativas vão para o inventário.", 11, host.MUTED)
+	info_copy.add_child(host.label(t("MARKET_BALANCE", "SALDO · ◈ %d CRÉDITOS", [int(state.player.credits)]), 14, host.GOLD))
+	var explanation := host.label(t("MARKET_PURCHASE_RULE", "Compras equipam melhorias automaticamente; alternativas vão para o inventário."), 11, host.MUTED)
 	explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info_copy.add_child(explanation)
-	var refresh := host.action_button("RENOVAR · ◈ %d" % refresh_cost, host.CYAN if int(state.player.credits) >= refresh_cost else host.MUTED, true)
+	var refresh := host.action_button(t("MARKET_REFRESH", "RENOVAR · ◈ %d", [refresh_cost]), host.CYAN if int(state.player.credits) >= refresh_cost else host.MUTED, true)
 	refresh.name = "MarketRefresh"
 	refresh.custom_minimum_size = Vector2(128, 48)
 	refresh.add_theme_font_size_override("font_size", 11)
@@ -56,24 +57,24 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	alternative_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	alternative_row.add_child(alternative_copy)
 	if transport_goal.is_empty():
-		var complete_label := host.label("MOBILIDADE PERMANENTE · COLEÇÃO COMPLETA", 11, host.CYAN)
+		var complete_label := host.label(t("MARKET_TRANSPORT_COMPLETE", "MOBILIDADE PERMANENTE · COLEÇÃO COMPLETA"), 11, host.CYAN)
 		complete_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		alternative_copy.add_child(complete_label)
-		var optional_label := host.label("O mercado continua opcional para equipamento e coleção.", 10, host.MUTED)
+		var optional_label := host.label(t("MARKET_OPTIONAL", "O mercado continua opcional para equipamento e coleção."), 10, host.MUTED)
 		optional_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		alternative_copy.add_child(optional_label)
 	else:
 		var unlocked := TransportRulesScript.is_unlocked(state.player, transport_goal)
-		var goal_label := host.label("ALTERNATIVA PERMANENTE · %s" % str(transport_goal.name), 11, host.CYAN if unlocked else host.MUTED)
+		var goal_label := host.label(t("MARKET_TRANSPORT_ALTERNATIVE", "ALTERNATIVA PERMANENTE · %s", [localized_transport_field(transport_goal, "name")]), 11, host.CYAN if unlocked else host.MUTED)
 		goal_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		alternative_copy.add_child(goal_label)
-		var transport_copy := "-%d%% tempo de caça · ◈ %d" % [roundi(float(transport_goal.speed_bonus) * 100.0), int(transport_goal.price)]
+		var transport_copy := t("MARKET_TRANSPORT_DETAIL", "-%d%% tempo de caça · ◈ %d", [roundi(float(transport_goal.speed_bonus) * 100.0), int(transport_goal.price)])
 		if not unlocked:
-			transport_copy += " · após %d capítulos" % int(transport_goal.required_completed_planets)
+			transport_copy += t("MARKET_TRANSPORT_LOCK", " · após %d capítulos", [int(transport_goal.required_completed_planets)])
 		var detail_label := host.label(transport_copy, 10, host.MUTED)
 		detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		alternative_copy.add_child(detail_label)
-	var hangar_action := host.action_button("VER HANGAR", host.CYAN, true)
+	var hangar_action := host.action_button(t("MARKET_VIEW_HANGAR", "VER HANGAR"), host.CYAN, true)
 	hangar_action.name = "MarketHangarAction"
 	hangar_action.custom_minimum_size = Vector2(112, 48)
 	hangar_action.add_theme_font_size_override("font_size", 10)
@@ -117,21 +118,21 @@ static func offer_card(host: CrookedUIFactory, state: StateScript, offer: Dictio
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	var item_name := host.label(str(item.name), 15, host.MUTED if purchased else host.INK)
+	var item_name := host.label(EquipmentPresentation.localized_item_field(item, "name"), 15, host.MUTED if purchased else host.INK)
 	item_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(item_name)
-	copy.add_child(host.label("%s · %s · +%d PODER" % [str(item.rarity).to_upper(), host.slot_name(str(item.slot)).to_upper(), int(item.power)], 11, Color(str(item.color))))
-	var description := host.label(str(item.description), 10, host.MUTED)
+	copy.add_child(host.label(t("MARKET_ITEM_POWER", "%s · %s · +%d PODER", [EquipmentPresentation.localized_rarity(str(item.rarity)), EquipmentPresentation.localized_slot(str(item.slot)).to_upper(), int(item.power)]), 11, Color(str(item.color))))
+	var description := host.label(EquipmentPresentation.localized_item_field(item, "description"), 10, host.MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(description)
 	if item.has("trait"):
-		var trait_label := host.label("◆ %s · %s" % [str(item.trait.name), str(item.trait.description)], 10, host.GOLD)
+		var trait_label := host.label("◆ %s · %s" % [EquipmentPresentation.localized_trait_field(item.trait, "name"), EquipmentPresentation.localized_trait_field(item.trait, "description")], 10, host.GOLD)
 		trait_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		copy.add_child(trait_label)
 	var comparison := EquipmentPresentation.equipment_delta_text(state.player, item)
 	copy.add_child(host.label(comparison, 10, host.LIME if Rules.is_upgrade_for_player(state.player, item) else host.MUTED))
 
-	var buy_text := "VENDIDO" if purchased else ("COMPRAR · ◈ %d" % int(offer.price) if affordable else "FALTAM ◈ %d" % (int(offer.price) - int(state.player.credits)))
+	var buy_text := t("MARKET_SOLD", "VENDIDO") if purchased else (t("MARKET_BUY", "COMPRAR · ◈ %d", [int(offer.price)]) if affordable else t("MARKET_MISSING_CREDITS", "FALTAM ◈ %d", [int(offer.price) - int(state.player.credits)]))
 	var buy := host.action_button(buy_text, host.MUTED if purchased or not affordable else host.GOLD, true)
 	buy.name = "MarketBuy_%s" % str(offer.id)
 	buy.custom_minimum_size = Vector2(116, 48)
@@ -141,3 +142,11 @@ static func offer_card(host: CrookedUIFactory, state: StateScript, offer: Dictio
 	buy.pressed.connect(func(): state.buy_market_offer(offer_id))
 	row.add_child(buy)
 	return card
+
+
+static func t(key: String, fallback: String = "", values: Array = []) -> String:
+	return LocaleRules.text(key, fallback, values)
+
+
+static func localized_transport_field(transport: Dictionary, field: String) -> String:
+	return t(LocaleRules.content_key("transport", str(transport.get("id", "")), field), str(transport.get(field, "")))

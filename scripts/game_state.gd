@@ -296,7 +296,8 @@ func buy_market_offer(offer_id: String) -> bool:
 		equip(item)
 	else:
 		player.inventory.append(item)
-	last_notice = "Mercado: %s comprado por %d créditos e %s." % [str(item.name), price, "equipado" if equipped else "guardado"]
+	var item_name := localized_item_field(item, "name")
+	last_notice = LocaleRulesScript.text("MARKET_NOTICE_EQUIPPED", "Mercado: %s comprado por %d créditos e equipado.", [item_name, price]) if equipped else LocaleRulesScript.text("MARKET_NOTICE_STORED", "Mercado: %s comprado por %d créditos e guardado.", [item_name, price])
 	last_notice_context = "market"
 	CoreRules.clear_bounty_odds_cache()
 	save_game()
@@ -313,7 +314,7 @@ func refresh_market() -> bool:
 	player.credits = int(player.credits) - cost
 	player.market_cycle = int(player.get("market_cycle", 0)) + 1
 	player.market_purchased_offer_ids = []
-	last_notice = "Mercado renovado por %d créditos. A procedência continua confidencial." % cost
+	last_notice = LocaleRulesScript.text("MARKET_NOTICE_REFRESHED", "Mercado renovado por %d créditos. A procedência continua confidencial.", [cost])
 	last_notice_context = "market"
 	save_game()
 	changed.emit()
@@ -334,9 +335,11 @@ func acquire_or_equip_transport(transport_id: String) -> bool:
 		player.credits = int(player.credits) - price
 		owned.append(transport_id)
 		player.owned_transport_ids = owned
-		last_notice = "Hangar: %s comprado por %d créditos e definido como transporte ativo." % [str(transport.name), price]
+		var transport_name := LocaleRulesScript.text(LocaleRulesScript.content_key("transport", transport_id, "name"), str(transport.name))
+		last_notice = LocaleRulesScript.text("HANGAR_NOTICE_PURCHASED", "Hangar: %s comprado por %d créditos e definido como transporte ativo.", [transport_name, price])
 	else:
-		last_notice = "Hangar: %s agora responde pelos seus atrasos." % str(transport.name)
+		var transport_name := LocaleRulesScript.text(LocaleRulesScript.content_key("transport", transport_id, "name"), str(transport.name))
+		last_notice = LocaleRulesScript.text("HANGAR_NOTICE_EQUIPPED", "Hangar: %s agora responde pelos seus atrasos.", [transport_name])
 	player.active_transport_id = transport_id
 	last_notice_context = "hangar"
 	save_game()

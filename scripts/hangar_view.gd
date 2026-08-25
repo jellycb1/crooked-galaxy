@@ -4,6 +4,7 @@ extends RefCounted
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const SpendingGuidanceScript = preload("res://scripts/spending_guidance.gd")
 const StateScript = preload("res://scripts/game_state.gd")
+const LocaleRules = preload("res://scripts/locale_rules.gd")
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
@@ -13,11 +14,11 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var titles := VBoxContainer.new()
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(titles)
-	titles.add_child(host.label("HANGAR DUVIDOSO", 25, host.INK))
-	var subtitle := host.label("Transportes permanentes para chegar antes da desculpa.", 13, host.MUTED)
+	titles.add_child(host.label(t("HANGAR_TITLE", "HANGAR DUVIDOSO"), 25, host.INK))
+	var subtitle := host.label(t("HANGAR_SUBTITLE", "Transportes permanentes para chegar antes da desculpa."), 13, host.MUTED)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	titles.add_child(subtitle)
-	var back := host.action_button("VOLTAR", host.CYAN, true)
+	var back := host.action_button(t("ACTION_BACK", "VOLTAR"), host.CYAN, true)
 	back.name = "HangarBack"
 	back.custom_minimum_size = Vector2(112, 48)
 	back.pressed.connect(func():
@@ -30,11 +31,11 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	status.name = "HangarStatus"
 	var status_box := status.get_child(0) as VBoxContainer
 	if active.is_empty():
-		status_box.add_child(host.label("SEM TRANSPORTE ATIVO", 14, host.GOLD))
-		status_box.add_child(host.label("As caçadas usam a duração completa da abordagem.", 11, host.MUTED))
+		status_box.add_child(host.label(t("MENU_NO_TRANSPORT", "SEM TRANSPORTE ATIVO"), 14, host.GOLD))
+		status_box.add_child(host.label(t("HANGAR_FULL_DURATION", "As caçadas usam a duração completa da abordagem."), 11, host.MUTED))
 	else:
-		status_box.add_child(host.label("ATIVO · %s" % str(active.name), 14, Color(str(active.color))))
-		status_box.add_child(host.label("CAÇADAS %d%% MAIS RÁPIDAS · atrasos de incidentes não recebem desconto" % roundi(float(active.speed_bonus) * 100.0), 11, host.LIME))
+		status_box.add_child(host.label(t("HANGAR_ACTIVE", "ATIVO · %s", [localized_transport_field(active, "name")]), 14, Color(str(active.color))))
+		status_box.add_child(host.label(t("HANGAR_ACTIVE_BONUS", "CAÇADAS %d%% MAIS RÁPIDAS · atrasos de incidentes não recebem desconto", [roundi(float(active.speed_bonus) * 100.0)]), 11, host.LIME))
 	content.add_child(status)
 
 	var market_summary := SpendingGuidanceScript.market_upgrade_summary(state.player, state.market_offers())
@@ -46,20 +47,20 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	alternative_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	alternative_row.add_child(alternative_copy)
 	if int(market_summary.count) > 0:
-		var upgrade_label := host.label("ALTERNATIVA DE COMBATE · %d MELHORIA%s" % [int(market_summary.count), "S" if int(market_summary.count) != 1 else ""], 11, host.GOLD)
+		var upgrade_label := host.label(t("HANGAR_COMBAT_ALTERNATIVE", "ALTERNATIVA DE COMBATE · %d MELHORIAS", [int(market_summary.count)]), 11, host.GOLD)
 		upgrade_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		alternative_copy.add_child(upgrade_label)
-		var price_label := host.label("Stock atual desde ◈ %d · equipamento imediato" % int(market_summary.cheapest_price), 10, host.MUTED)
+		var price_label := host.label(t("HANGAR_MARKET_PRICE", "Stock atual desde ◈ %d · equipamento imediato", [int(market_summary.cheapest_price)]), 10, host.MUTED)
 		price_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		alternative_copy.add_child(price_label)
 	else:
-		var no_upgrade_label := host.label("ALTERNATIVA DE COMBATE · SEM MELHORIA DIRETA", 11, host.MUTED)
+		var no_upgrade_label := host.label(t("HANGAR_NO_COMBAT_UPGRADE", "ALTERNATIVA DE COMBATE · SEM MELHORIA DIRETA"), 11, host.MUTED)
 		no_upgrade_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		alternative_copy.add_child(no_upgrade_label)
-		var collection_label := host.label("O stock atual serve apenas coleção; renovar é opcional.", 10, host.MUTED)
+		var collection_label := host.label(t("HANGAR_COLLECTION_ONLY", "O stock atual serve apenas coleção; renovar é opcional."), 10, host.MUTED)
 		collection_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		alternative_copy.add_child(collection_label)
-	var market_action := host.action_button("VER MERCADO", host.GOLD, true)
+	var market_action := host.action_button(t("HANGAR_VIEW_MARKET", "VER MERCADO"), host.GOLD, true)
 	market_action.name = "HangarMarketAction"
 	market_action.custom_minimum_size = Vector2(112, 48)
 	market_action.add_theme_font_size_override("font_size", 10)
@@ -107,19 +108,19 @@ static func transport_card(host: CrookedUIFactory, state: StateScript, transport
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	var name_label := host.label(str(transport.name), 14, Color(str(transport.color)) if unlocked else host.MUTED)
+	var name_label := host.label(localized_transport_field(transport, "name"), 14, Color(str(transport.color)) if unlocked else host.MUTED)
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(name_label)
-	copy.add_child(host.label("-%d%% TEMPO DE CAÇA · PERMANENTE" % roundi(float(transport.speed_bonus) * 100.0), 11, host.GOLD if unlocked else host.MUTED))
-	var tagline := host.label(str(transport.tagline), 10, host.INK if unlocked else host.MUTED)
+	copy.add_child(host.label(t("HANGAR_PERMANENT_BONUS", "-%d%% TEMPO DE CAÇA · PERMANENTE", [roundi(float(transport.speed_bonus) * 100.0)]), 11, host.GOLD if unlocked else host.MUTED))
+	var tagline := host.label(localized_transport_field(transport, "tagline"), 10, host.INK if unlocked else host.MUTED)
 	tagline.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(tagline)
 	if not unlocked:
-		copy.add_child(host.label("DESBLOQUEIA APÓS %d CAPÍTULO%s" % [int(transport.required_completed_planets), "S" if int(transport.required_completed_planets) != 1 else ""], 10, host.MUTED))
+		copy.add_child(host.label(t("HANGAR_UNLOCK_AFTER", "DESBLOQUEIA APÓS %d CAPÍTULOS", [int(transport.required_completed_planets)]), 10, host.MUTED))
 
-	var action_text := "ATIVO" if active else ("EQUIPAR" if owned else ("COMPRAR · ◈ %d" % int(transport.price) if affordable else "FALTAM ◈ %d" % (int(transport.price) - int(state.player.credits))))
+	var action_text := t("HANGAR_ACTION_ACTIVE", "ATIVO") if active else (t("HANGAR_ACTION_EQUIP", "EQUIPAR") if owned else (t("HANGAR_ACTION_BUY", "COMPRAR · ◈ %d", [int(transport.price)]) if affordable else t("MARKET_MISSING_CREDITS", "FALTAM ◈ %d", [int(transport.price) - int(state.player.credits)])))
 	if not unlocked:
-		action_text = "BLOQUEADO"
+		action_text = t("GALAXY_LOCKED", "BLOQUEADO")
 	var enabled := unlocked and not active and (owned or affordable)
 	var action := host.action_button(action_text, Color(str(transport.color)) if enabled else host.MUTED, true)
 	action.name = "HangarAction_%s" % transport_id
@@ -129,3 +130,11 @@ static func transport_card(host: CrookedUIFactory, state: StateScript, transport
 	action.pressed.connect(func(): state.acquire_or_equip_transport(transport_id))
 	row.add_child(action)
 	return card
+
+
+static func t(key: String, fallback: String = "", values: Array = []) -> String:
+	return LocaleRules.text(key, fallback, values)
+
+
+static func localized_transport_field(transport: Dictionary, field: String) -> String:
+	return t(LocaleRules.content_key("transport", str(transport.get("id", "")), field), str(transport.get(field, "")))
