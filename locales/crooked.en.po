@@ -1621,3 +1621,825 @@ msgstr "Singularity Roulette"
 
 msgid "TARGET_HOUSE_ETERNAL_ATTACK_2"
 msgstr "Final Chip"
+
+msgid "REWARD_CONTRACT_COMPLETE"
+msgstr "CONTRACT COMPLETE · %s"
+
+msgid "REWARD_CAPTURED"
+msgstr "REWARD CAPTURED"
+
+msgid "REWARD_ORIGIN"
+msgstr "ORIGIN · %s"
+
+msgid "REWARD_UNKNOWN_ORIGIN"
+msgstr "Creatively unknown provenance."
+
+msgid "REWARD_NEW"
+msgstr "NEW"
+
+msgid "REWARD_EQUIPPED"
+msgstr "EQUIPPED"
+
+msgid "REWARD_UPGRADE"
+msgstr "UPGRADE"
+
+msgid "REWARD_STORE"
+msgstr "STORE"
+
+msgid "REWARD_BETTER_MOD"
+msgstr "BETTER MOD"
+
+msgid "REWARD_RESULT"
+msgstr "RESULT"
+
+msgid "REWARD_RECYCLE_VALUE"
+msgstr "RECYCLE · %d SCRAP"
+
+msgid "REWARD_RECEIPT"
+msgstr "RECEIPT · ◈ %d CREDITS · %d XP"
+
+msgid "REWARD_SCRAP_SUFFIX"
+msgstr " · %d scrap"
+
+msgid "REWARD_INCIDENT_NET"
+msgstr "INCIDENT ALREADY PAID · -%d CREDITS · CONTRACT NET +%d"
+
+msgid "REWARD_TARGET_MASTERY"
+msgstr "TARGET MASTERY %d/3 · IMPROVED LOOT QUALITY"
+
+msgid "REWARD_NEW_MASTERY"
+msgstr "NEW MASTERY ON CLAIM · LEVEL %d/3"
+
+msgid "REWARD_MASTERY_BONUS"
+msgstr "+%d%% RARE · +%d%% EPIC · WORKSHOP +%d SCRAP"
+
+msgid "REWARD_NEXT_MASTERY"
+msgstr "NEXT MASTERY · %d/%d CAPTURES"
+
+msgid "REWARD_NEXT_CAPTURE_COMBINED"
+msgstr "NEXT CAPTURE · MASTERY 1/3 + %s WARRANT"
+
+msgid "REWARD_MOMENTUM_BONUS"
+msgstr "MOMENTUM ×%d · +%d credits (+%d%%)"
+
+msgid "REWARD_MOMENTUM_START"
+msgstr "MOMENTUM RESTARTED ×1 · BONUS BEGINS NEXT CAPTURE"
+
+msgid "REWARD_NEW_WARRANT"
+msgstr "NEW WARRANT ON CLAIM · %s"
+
+msgid "REWARD_WARRANT_PROGRESS"
+msgstr "TOWARD %s · %d/%d %s CAPTURES"
+
+msgid "REWARD_NEXT_CAPTURE_MOMENTUM"
+msgstr "NEXT CONSECUTIVE CAPTURE · MOMENTUM ×%d · +%d%% PAYMENT"
+
+msgid "REWARD_EQUIP_REPEAT"
+msgstr "EQUIP AND REPEAT"
+
+msgid "REWARD_STORE_REPEAT"
+msgstr "STORE AND REPEAT"
+
+msgid "REWARD_RECYCLE_REPEAT"
+msgstr "RECYCLE +%d SCRAP AND REPEAT"
+
+msgid "REWARD_VIEW_NEW_WARRANT"
+msgstr "VIEW NEW WARRANT"
+
+msgid "REWARD_COMPLETE"
+msgstr "COMPLETE"
+
+msgid "REWARD_RECYCLE_COMPLETE"
+msgstr "RECYCLE +%d SCRAP AND %s"
+
+msgid "REWARD_EQUIP_WORKSHOP"
+msgstr "EQUIP AND GO TO WORKSHOP"
+
+msgid "REWARD_STORE_WORKSHOP"
+msgstr "STORE AND GO TO WORKSHOP"
+
+msgid "REWARD_EQUIP_PREPARE_WARRANT"
+msgstr "EQUIP AND PREPARE NEW WARRANT"
+
+msgid "REWARD_STORE_PREPARE_WARRANT"
+msgstr "STORE AND PREPARE NEW WARRANT"
+
+msgid "REWARD_CLAIM_COMPLETE_CHAPTER"
+msgstr "CLAIM AND COMPLETE CHAPTER"
+
+msgid "REWARD_EQUIP_VIEW_WARRANT"
+msgstr "EQUIP AND VIEW NEW WARRANT"
+
+msgid "REWARD_STORE_VIEW_WARRANT"
+msgstr "STORE AND VIEW NEW WARRANT"
+
+msgid "REWARD_EQUIP_BOARD"
+msgstr "EQUIP AND RETURN TO BOARD"
+
+msgid "REWARD_STORE_BOARD"
+msgstr "STORE AND RETURN TO BOARD"
+
+msgid "REWARD_SAFE_ROUTE"
+msgstr "SAFE ROUTE"
+
+msgid "REWARD_BEST_CURRENT_ROUTE"
+msgstr "BEST ROUTE WITH CURRENT BUILD · %s · %d%%"
+
+msgid "REWARD_RECEIVE_EQUIP"
+msgstr "CLAIM + EQUIP"
+
+msgid "REWARD_RECEIVE_ONLY"
+msgstr "CLAIM WITHOUT EQUIPPING"
+
+msgid "REWARD_AFTER_ACTION"
+msgstr "AFTER %s · %s · %d%% → %d%%"
+
+msgid "REWARD_EQUIP_IMPACT"
+msgstr "EQUIP IMPACT · %s · %d%% → %d%%"
+
+msgid "RARITY_COMMON"
+msgstr "COMMON"
+
+msgid "RARITY_RARE"
+msgstr "RARE"
+
+msgid "RARITY_EPIC"
+msgstr "EPIC"
+
+msgid "SLOT_WEAPON"
+msgstr "WEAPON"
+
+msgid "SLOT_ARMOR"
+msgstr "SUIT"
+
+msgid "SLOT_HELMET"
+msgstr "HELMET"
+
+msgid "SLOT_GLOVES"
+msgstr "GLOVES"
+
+msgid "SLOT_BOOTS"
+msgstr "BOOTS"
+
+msgid "SLOT_RIG"
+msgstr "TECH RIG"
+
+msgid "SLOT_IMPLANT"
+msgstr "IMPLANT"
+
+msgid "SLOT_GADGET"
+msgstr "GADGET"
+
+msgid "SLOT_RELIC"
+msgstr "ALIEN RELIC"
+
+msgid "EQUIPMENT_DELTA_POWER"
+msgstr "%+d POWER"
+
+msgid "EQUIPMENT_DELTA_HEALTH"
+msgstr "%+d HEALTH"
+
+msgid "EQUIPMENT_DELTA_AMBUSH"
+msgstr "%+d AMBUSH"
+
+msgid "EQUIPMENT_DELTA_REDUCTION"
+msgstr "%+d REDUCTION"
+
+msgid "EQUIPMENT_DELTA_ACTIVATE_KIT"
+msgstr "ACTIVATES KIT +%d POWER / +%d HEALTH"
+
+msgid "EQUIPMENT_DELTA_BREAK_KIT"
+msgstr "BREAKS KIT -%d POWER / -%d HEALTH"
+
+msgid "EQUIPMENT_DELTA_SAME"
+msgstr "= SAME EFFECT"
+
+msgid "ITEM_TRAIT_CROOKED_COIL_NAME"
+msgstr "CROOKED COIL"
+
+msgid "ITEM_TRAIT_CROOKED_COIL_DESCRIPTION"
+msgstr "+2 combat power."
+
+msgid "ITEM_DUSTBALL_PRIME_WEAPON_0_NAME"
+msgstr "Pocket Deatomizer"
+
+msgid "ITEM_DUSTBALL_PRIME_WEAPON_0_DESCRIPTION"
+msgstr "Dismantles atoms, warranties, and awkward conversations."
+
+msgid "ITEM_DUSTBALL_PRIME_WEAPON_1_NAME"
+msgstr "Receipt Cannon"
+
+msgid "ITEM_DUSTBALL_PRIME_WEAPON_1_DESCRIPTION"
+msgstr "Proof of purchase arrives before the projectile."
+
+msgid "ITEM_DUSTBALL_PRIME_WEAPON_2_NAME"
+msgstr "Almost Legal Pistol"
+
+msgid "ITEM_DUSTBALL_PRIME_WEAPON_2_DESCRIPTION"
+msgstr "Legal on at least two and a half moons."
+
+msgid "ITEM_DUSTBALL_PRIME_WEAPON_3_NAME"
+msgstr "Crooked Plasma Zapper"
+
+msgid "ITEM_DUSTBALL_PRIME_WEAPON_3_DESCRIPTION"
+msgstr "The shot curves. Sometimes even in the right direction."
+
+msgid "ITEM_DUSTBALL_PRIME_ARMOR_0_NAME"
+msgstr "Used Anti-Laser Coat"
+
+msgid "ITEM_DUSTBALL_PRIME_ARMOR_0_DESCRIPTION"
+msgstr "The burn marks prove it worked once."
+
+msgid "ITEM_DUSTBALL_PRIME_ARMOR_1_NAME"
+msgstr "Cosmic Foam Vest"
+
+msgid "ITEM_DUSTBALL_PRIME_ARMOR_1_DESCRIPTION"
+msgstr "Comfortable, protective, and strangely fizzy."
+
+msgid "ITEM_DUSTBALL_PRIME_ARMOR_2_NAME"
+msgstr "Tax-Deductible Armor"
+
+msgid "ITEM_DUSTBALL_PRIME_ARMOR_2_DESCRIPTION"
+msgstr "Deducts part of the damage next galactic year."
+
+msgid "ITEM_DUSTBALL_PRIME_ARMOR_3_NAME"
+msgstr "Titanium Poncho"
+
+msgid "ITEM_DUSTBALL_PRIME_ARMOR_3_DESCRIPTION"
+msgstr "Frontier elegance with nine kilos per shoulder."
+
+msgid "ITEM_CONGELARIA_SA_WEAPON_0_NAME"
+msgstr "Office Flamethrower"
+
+msgid "ITEM_CONGELARIA_SA_WEAPON_0_DESCRIPTION"
+msgstr "Heats coffee, contracts, and hostile negotiations."
+
+msgid "ITEM_CONGELARIA_SA_WEAPON_1_NAME"
+msgstr "Reverse Cryogenic Carbine"
+
+msgid "ITEM_CONGELARIA_SA_WEAPON_1_DESCRIPTION"
+msgstr "Freezes guilt and thaws the trigger."
+
+msgid "ITEM_CONGELARIA_SA_WEAPON_2_NAME"
+msgstr "Thermal Stapler"
+
+msgid "ITEM_CONGELARIA_SA_WEAPON_2_DESCRIPTION"
+msgstr "Pins paper at three meters and criminals at two."
+
+msgid "ITEM_CONGELARIA_SA_WEAPON_3_NAME"
+msgstr "Pressurized Soup Cannon"
+
+msgid "ITEM_CONGELARIA_SA_WEAPON_3_DESCRIPTION"
+msgstr "The broth is illegal. The croutons are armor-piercing."
+
+msgid "ITEM_CONGELARIA_SA_ARMOR_0_NAME"
+msgstr "Endless Meeting Parka"
+
+msgid "ITEM_CONGELARIA_SA_ARMOR_0_DESCRIPTION"
+msgstr "Keeps the body warm while the agenda freezes the soul."
+
+msgid "ITEM_CONGELARIA_SA_ARMOR_1_NAME"
+msgstr "Anti-Thermostat Vest"
+
+msgid "ITEM_CONGELARIA_SA_ARMOR_1_DESCRIPTION"
+msgstr "Certified to survive three and a half audits."
+
+msgid "ITEM_CONGELARIA_SA_ARMOR_2_NAME"
+msgstr "Glacial Fiber Suit"
+
+msgid "ITEM_CONGELARIA_SA_ARMOR_2_DESCRIPTION"
+msgstr "Elegant, armored, and impossible to iron."
+
+msgid "ITEM_CONGELARIA_SA_ARMOR_3_NAME"
+msgstr "Executive Emergency Blanket"
+
+msgid "ITEM_CONGELARIA_SA_ARMOR_3_DESCRIPTION"
+msgstr "Gold outside, expense form inside."
+
+msgid "ITEM_CONGELARIA_SA_HELMET_0_NAME"
+msgstr "Freezing-Point Helmet"
+
+msgid "ITEM_CONGELARIA_SA_HELMET_0_DESCRIPTION"
+msgstr "Keeps ideas above zero and fines outside."
+
+msgid "ITEM_CONGELARIA_SA_HELMET_1_NAME"
+msgstr "Executive Anti-Fog Visor"
+
+msgid "ITEM_CONGELARIA_SA_HELMET_1_DESCRIPTION"
+msgstr "Reveals targets, spreadsheets, and layoffs through frost."
+
+msgid "ITEM_CONGELARIA_SA_HELMET_2_NAME"
+msgstr "Certified Ballistic Beanie"
+
+msgid "ITEM_CONGELARIA_SA_HELMET_2_DESCRIPTION"
+msgstr "Looks like wool. Legal insists it is armor."
+
+msgid "ITEM_CONGELARIA_SA_HELMET_3_NAME"
+msgstr "Reverse Cryogenic Dome"
+
+msgid "ITEM_CONGELARIA_SA_HELMET_3_DESCRIPTION"
+msgstr "Freezes projectiles and thaws bad decisions."
+
+msgid "ITEM_MICELIA_404_WEAPON_0_NAME"
+msgstr "Compressed Pollen Shotgun"
+
+msgid "ITEM_MICELIA_404_WEAPON_0_DESCRIPTION"
+msgstr "Disperses allergies, suspects, and evidence."
+
+msgid "ITEM_MICELIA_404_WEAPON_1_NAME"
+msgstr "Nervous Mycelium Blade"
+
+msgid "ITEM_MICELIA_404_WEAPON_1_DESCRIPTION"
+msgstr "Trembles near danger and salads."
+
+msgid "ITEM_MICELIA_404_WEAPON_2_NAME"
+msgstr "Photosynthetic Pistol"
+
+msgid "ITEM_MICELIA_404_WEAPON_2_DESCRIPTION"
+msgstr "Recharges in sunlight and complains indoors."
+
+msgid "ITEM_MICELIA_404_WEAPON_3_NAME"
+msgstr "Rapid Compost Cannon"
+
+msgid "ITEM_MICELIA_404_WEAPON_3_DESCRIPTION"
+msgstr "Turns cover into fertilizer before impact."
+
+msgid "ITEM_MICELIA_404_ARMOR_0_NAME"
+msgstr "Offensive Anti-Mold Coat"
+
+msgid "ITEM_MICELIA_404_ARMOR_0_DESCRIPTION"
+msgstr "Mold stays out. It sends representatives."
+
+msgid "ITEM_MICELIA_404_ARMOR_1_NAME"
+msgstr "Reinforced Bark Vest"
+
+msgid "ITEM_MICELIA_404_ARMOR_1_DESCRIPTION"
+msgstr "Organic, ballistic, and slightly crunchy."
+
+msgid "ITEM_MICELIA_404_ARMOR_2_NAME"
+msgstr "Carnivorous Leaf Poncho"
+
+msgid "ITEM_MICELIA_404_ARMOR_2_DESCRIPTION"
+msgstr "Protects its owner and bites strangers without permission."
+
+msgid "ITEM_MICELIA_404_ARMOR_3_NAME"
+msgstr "Orbital Cork Armor"
+
+msgid "ITEM_MICELIA_404_ARMOR_3_DESCRIPTION"
+msgstr "Light, renewable, and terrible near corkscrews."
+
+msgid "ITEM_MICELIA_404_HELMET_0_NAME"
+msgstr "Mycelial Bark Helm"
+
+msgid "ITEM_MICELIA_404_HELMET_0_DESCRIPTION"
+msgstr "Grows a new layer whenever the warranty expires."
+
+msgid "ITEM_MICELIA_404_HELMET_1_NAME"
+msgstr "Accounting Spore Visor"
+
+msgid "ITEM_MICELIA_404_HELMET_1_DESCRIPTION"
+msgstr "Sorts pollen by tax risk and allergy level."
+
+msgid "ITEM_MICELIA_404_HELMET_2_NAME"
+msgstr "Offensive Antifungal Hood"
+
+msgid "ITEM_MICELIA_404_HELMET_2_DESCRIPTION"
+msgstr "Prevents colonies and damp conversations from settling in."
+
+msgid "ITEM_MICELIA_404_HELMET_3_NAME"
+msgstr "Nervous Mushroom Crown"
+
+msgid "ITEM_MICELIA_404_HELMET_3_DESCRIPTION"
+msgstr "Trembles at ambushes and creamy sauces."
+
+msgid "ITEM_MICELIA_404_GLOVES_0_NAME"
+msgstr "Gripping Root Gloves"
+
+msgid "ITEM_MICELIA_404_GLOVES_0_DESCRIPTION"
+msgstr "Grip criminals, walls, and biodegradable receipts."
+
+msgid "ITEM_MICELIA_404_GLOVES_1_NAME"
+msgstr "Crunchy Bark Gauntlets"
+
+msgid "ITEM_MICELIA_404_GLOVES_1_DESCRIPTION"
+msgstr "Organic outside, blunt arguments inside."
+
+msgid "ITEM_MICELIA_404_GLOVES_2_NAME"
+msgstr "Assisted Mycelium Fingers"
+
+msgid "ITEM_MICELIA_404_GLOVES_2_DESCRIPTION"
+msgstr "Type contracts before the hand notices the risk."
+
+msgid "ITEM_MICELIA_404_GLOVES_3_NAME"
+msgstr "Adhesive Pollen Gloves"
+
+msgid "ITEM_MICELIA_404_GLOVES_3_DESCRIPTION"
+msgstr "Nothing escapes. Cleaning does not either."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_WEAPON_0_NAME"
+msgstr "Loose Parts Cannon"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_WEAPON_0_DESCRIPTION"
+msgstr "Every shot comes with an extra bolt and no explanation."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_WEAPON_1_NAME"
+msgstr "Diplomatic Impact Wrench"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_WEAPON_1_DESCRIPTION"
+msgstr "Tightens deals and loosens jaws in one rotation."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_WEAPON_2_NAME"
+msgstr "Quantum Rivet Carbine"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_WEAPON_2_DESCRIPTION"
+msgstr "Pins the target to two crime scenes at once."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_WEAPON_3_NAME"
+msgstr "Portable Argument Press"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_WEAPON_3_DESCRIPTION"
+msgstr "Compresses objections until they fit a holster."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_ARMOR_0_NAME"
+msgstr "Mismatched Plate Vest"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_ARMOR_0_DESCRIPTION"
+msgstr "No plate matches. All disagree with the projectile."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_ARMOR_1_NAME"
+msgstr "Orbital Mechanic Coveralls"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_ARMOR_1_DESCRIPTION"
+msgstr "Has pockets for tools, snacks, and one small moon."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_ARMOR_2_NAME"
+msgstr "Bumper Armor"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_ARMOR_2_DESCRIPTION"
+msgstr "Absorbs collisions and negative workshop reviews."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_ARMOR_3_NAME"
+msgstr "Expired Warranty Cloak"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_ARMOR_3_DESCRIPTION"
+msgstr "Covers no damage, but intimidates Legal."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_HELMET_0_NAME"
+msgstr "Bumper Helmet"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_HELMET_0_DESCRIPTION"
+msgstr "Survived three ships and one workshop inspection."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_HELMET_1_NAME"
+msgstr "Diplomatic Welding Mask"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_HELMET_1_DESCRIPTION"
+msgstr "Dims flashes and excessively honest negotiations."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_HELMET_2_NAME"
+msgstr "Mismatched Parts Helm"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_HELMET_2_DESCRIPTION"
+msgstr "Each plate disagrees with impact at a different frequency."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_HELMET_3_NAME"
+msgstr "Expired Warranty Visor"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_HELMET_3_DESCRIPTION"
+msgstr "Covers no accidents, but records them in high definition."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_GLOVES_0_NAME"
+msgstr "Pneumatic Wrench Gauntlets"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_GLOVES_0_DESCRIPTION"
+msgstr "Tighten bolts, deals, and suspects at equal pressure."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_GLOVES_1_NAME"
+msgstr "Quantum Rivet Gloves"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_GLOVES_1_DESCRIPTION"
+msgstr "Hold the part here and in a rival workshop."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_GLOVES_2_NAME"
+msgstr "Magnetic Sorting Claws"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_GLOVES_2_DESCRIPTION"
+msgstr "Attract useful metal and repel invoices."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_GLOVES_3_NAME"
+msgstr "Industrial Scrap Thimbles"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_GLOVES_3_DESCRIPTION"
+msgstr "Ten tiny shields of creative provenance."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_BOOTS_0_NAME"
+msgstr "Reconditioned Piston Boots"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_BOOTS_0_DESCRIPTION"
+msgstr "Every step comes with torque and one spare part."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_BOOTS_1_NAME"
+msgstr "Moon-Tread Boots"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_BOOTS_1_DESCRIPTION"
+msgstr "They were tires in a former life and miss it."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_BOOTS_2_NAME"
+msgstr "Used Heel Thrusters"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_BOOTS_2_DESCRIPTION"
+msgstr "They always launch. Direction remains optional."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_BOOTS_3_NAME"
+msgstr "Tax Landing Boots"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_BOOTS_3_DESCRIPTION"
+msgstr "Cushion falls and split impact into twelve payments."
+
+msgid "ITEM_CASSINO_QUASAR_WEAPON_0_NAME"
+msgstr "Marked Chip Carbine"
+
+msgid "ITEM_CASSINO_QUASAR_WEAPON_0_DESCRIPTION"
+msgstr "Each shot buys one entry and three suspicions."
+
+msgid "ITEM_CASSINO_QUASAR_WEAPON_1_NAME"
+msgstr "Orbital Roulette Revolver"
+
+msgid "ITEM_CASSINO_QUASAR_WEAPON_1_DESCRIPTION"
+msgstr "The cylinder spins. So does the entire station."
+
+msgid "ITEM_CASSINO_QUASAR_WEAPON_2_NAME"
+msgstr "Portable Jackpot Cannon"
+
+msgid "ITEM_CASSINO_QUASAR_WEAPON_2_DESCRIPTION"
+msgstr "Hits three matching symbols and one unrelated wall."
+
+msgid "ITEM_CASSINO_QUASAR_WEAPON_3_NAME"
+msgstr "Infinite Credit Blade"
+
+msgid "ITEM_CASSINO_QUASAR_WEAPON_3_DESCRIPTION"
+msgstr "Cuts armor, balances, and relations with management."
+
+msgid "ITEM_CASSINO_QUASAR_ARMOR_0_NAME"
+msgstr "Anti-Bad-Luck Tuxedo"
+
+msgid "ITEM_CASSINO_QUASAR_ARMOR_0_DESCRIPTION"
+msgstr "Elegant against lasers and statistically inconclusive."
+
+msgid "ITEM_CASSINO_QUASAR_ARMOR_1_NAME"
+msgstr "Laminated Chip Vest"
+
+msgid "ITEM_CASSINO_QUASAR_ARMOR_1_DESCRIPTION"
+msgstr "Clinks on impact and demands a tip from the projectile."
+
+msgid "ITEM_CASSINO_QUASAR_ARMOR_2_NAME"
+msgstr "Dubious Probability Cloak"
+
+msgid "ITEM_CASSINO_QUASAR_ARMOR_2_DESCRIPTION"
+msgstr "Might protect. The label guarantees fifty percent of that."
+
+msgid "ITEM_CASSINO_QUASAR_ARMOR_3_NAME"
+msgstr "House Armor"
+
+msgid "ITEM_CASSINO_QUASAR_ARMOR_3_DESCRIPTION"
+msgstr "Absorbs damage and returns only the terms of service."
+
+msgid "ITEM_CASSINO_QUASAR_HELMET_0_NAME"
+msgstr "Armored Probability Top Hat"
+
+msgid "ITEM_CASSINO_QUASAR_HELMET_0_DESCRIPTION"
+msgstr "Protects the head in roughly all paid versions."
+
+msgid "ITEM_CASSINO_QUASAR_HELMET_1_NAME"
+msgstr "Card-Counting Visor"
+
+msgid "ITEM_CASSINO_QUASAR_HELMET_1_DESCRIPTION"
+msgstr "Marks targets, chips, and guards looking the wrong way."
+
+msgid "ITEM_CASSINO_QUASAR_HELMET_2_NAME"
+msgstr "Jackpot Helmet"
+
+msgid "ITEM_CASSINO_QUASAR_HELMET_2_DESCRIPTION"
+msgstr "Three matching hits trigger a flashing light with no prize."
+
+msgid "ITEM_CASSINO_QUASAR_HELMET_3_NAME"
+msgstr "House Mask"
+
+msgid "ITEM_CASSINO_QUASAR_HELMET_3_DESCRIPTION"
+msgstr "The house always sees first and charges for the recording."
+
+msgid "ITEM_CASSINO_QUASAR_GLOVES_0_NAME"
+msgstr "Ballistic Dealer Gloves"
+
+msgid "ITEM_CASSINO_QUASAR_GLOVES_0_DESCRIPTION"
+msgstr "Deal cards, blows, and limited liability."
+
+msgid "ITEM_CASSINO_QUASAR_GLOVES_1_NAME"
+msgstr "Marked Chip Gauntlets"
+
+msgid "ITEM_CASSINO_QUASAR_GLOVES_1_DESCRIPTION"
+msgstr "Each finger is worth one bet and two suspicions."
+
+msgid "ITEM_CASSINO_QUASAR_GLOVES_2_NAME"
+msgstr "Orbital Roulette Grips"
+
+msgid "ITEM_CASSINO_QUASAR_GLOVES_2_DESCRIPTION"
+msgstr "Hold the world while the table keeps spinning."
+
+msgid "ITEM_CASSINO_QUASAR_GLOVES_3_NAME"
+msgstr "Infinite Credit Gloves"
+
+msgid "ITEM_CASSINO_QUASAR_GLOVES_3_DESCRIPTION"
+msgstr "The limit is infinite. So is the bill."
+
+msgid "ITEM_CASSINO_QUASAR_BOOTS_0_NAME"
+msgstr "Statistical Escape Shoes"
+
+msgid "ITEM_CASSINO_QUASAR_BOOTS_0_DESCRIPTION"
+msgstr "Reduce stumble odds according to their own manufacturer."
+
+msgid "ITEM_CASSINO_QUASAR_BOOTS_1_NAME"
+msgstr "Gravity Roulette Boots"
+
+msgid "ITEM_CASSINO_QUASAR_BOOTS_1_DESCRIPTION"
+msgstr "Keep feet grounded when the ground loses the bet."
+
+msgid "ITEM_CASSINO_QUASAR_BOOTS_2_NAME"
+msgstr "VIP Exit Boots"
+
+msgid "ITEM_CASSINO_QUASAR_BOOTS_2_DESCRIPTION"
+msgstr "Pass through lines and some local definitions of wall."
+
+msgid "ITEM_CASSINO_QUASAR_BOOTS_3_NAME"
+msgstr "All-or-Nothing Thrusters"
+
+msgid "ITEM_CASSINO_QUASAR_BOOTS_3_DESCRIPTION"
+msgstr "Either land perfectly or produce an excellent story."
+
+msgid "ITEM_TRAIT_ARGUMENT_AMPLIFIER_NAME"
+msgstr "ARGUMENT AMPLIFIER"
+
+msgid "ITEM_TRAIT_ARGUMENT_AMPLIFIER_DESCRIPTION"
+msgstr "+1 power and +6 integrity."
+
+msgid "ITEM_TRAIT_AMBUSH_CAPACITOR_NAME"
+msgstr "AMBUSH CAPACITOR"
+
+msgid "ITEM_TRAIT_AMBUSH_CAPACITOR_DESCRIPTION"
+msgstr "+5 damage on the opening shot."
+
+msgid "ITEM_TRAIT_REACTIVE_LINING_NAME"
+msgstr "REACTIVE LINING"
+
+msgid "ITEM_TRAIT_REACTIVE_LINING_DESCRIPTION"
+msgstr "+14 maximum integrity."
+
+msgid "ITEM_TRAIT_ILLEGAL_SERVOS_NAME"
+msgstr "UNDECLARED SERVOS"
+
+msgid "ITEM_TRAIT_ILLEGAL_SERVOS_DESCRIPTION"
+msgstr "+1 power and +8 integrity."
+
+msgid "ITEM_TRAIT_BUREAUCRATIC_DAMPENER_NAME"
+msgstr "BUREAUCRATIC DAMPENER"
+
+msgid "ITEM_TRAIT_BUREAUCRATIC_DAMPENER_DESCRIPTION"
+msgstr "-2 damage taken per hit."
+
+msgid "ITEM_TRAIT_CONTRABAND_VISOR_NAME"
+msgstr "CONTRABAND VISOR"
+
+msgid "ITEM_TRAIT_CONTRABAND_VISOR_DESCRIPTION"
+msgstr "+3 opening damage."
+
+msgid "ITEM_TRAIT_CRANIAL_WARRANTY_NAME"
+msgstr "CRANIAL WARRANTY"
+
+msgid "ITEM_TRAIT_CRANIAL_WARRANTY_DESCRIPTION"
+msgstr "+10 maximum integrity."
+
+msgid "ITEM_TRAIT_NEURAL_CALCULATOR_NAME"
+msgstr "NEURAL CALCULATOR"
+
+msgid "ITEM_TRAIT_NEURAL_CALCULATOR_DESCRIPTION"
+msgstr "+1 power and +1 opening damage."
+
+msgid "ITEM_TRAIT_UNLICENSED_SERVOS_NAME"
+msgstr "UNLICENSED SERVOS"
+
+msgid "ITEM_TRAIT_UNLICENSED_SERVOS_DESCRIPTION"
+msgstr "+2 combat power."
+
+msgid "ITEM_TRAIT_REACTIVE_GRIP_NAME"
+msgstr "REACTIVE GRIP"
+
+msgid "ITEM_TRAIT_REACTIVE_GRIP_DESCRIPTION"
+msgstr "+1 power and +6 integrity."
+
+msgid "ITEM_TRAIT_PARRY_MESH_NAME"
+msgstr "PARRY MESH"
+
+msgid "ITEM_TRAIT_PARRY_MESH_DESCRIPTION"
+msgstr "-1 damage taken per hit."
+
+msgid "ITEM_TRAIT_INERTIAL_SOLES_NAME"
+msgstr "INERTIAL SOLES"
+
+msgid "ITEM_TRAIT_INERTIAL_SOLES_DESCRIPTION"
+msgstr "+10 maximum integrity."
+
+msgid "ITEM_TRAIT_EVASION_GYROS_NAME"
+msgstr "EVASION GYROS"
+
+msgid "ITEM_TRAIT_EVASION_GYROS_DESCRIPTION"
+msgstr "-1 damage taken per hit."
+
+msgid "ITEM_TRAIT_ARGUMENT_THRUSTERS_NAME"
+msgstr "ARGUMENT THRUSTERS"
+
+msgid "ITEM_TRAIT_ARGUMENT_THRUSTERS_DESCRIPTION"
+msgstr "+1 power and +2 opening damage."
+
+msgid "ITEM_TRAIT_SMUGGLER_HARNESS_NAME"
+msgstr "SMUGGLER HARNESS"
+
+msgid "ITEM_TRAIT_SMUGGLER_HARNESS_DESCRIPTION"
+msgstr "+10 maximum integrity."
+
+msgid "ITEM_TRAIT_COUNTERWEIGHT_SERVOS_NAME"
+msgstr "COUNTERWEIGHT SERVOS"
+
+msgid "ITEM_TRAIT_COUNTERWEIGHT_SERVOS_DESCRIPTION"
+msgstr "-1 damage taken per hit."
+
+msgid "ITEM_TRAIT_QUICKDRAW_BUS_NAME"
+msgstr "QUICKDRAW BUS"
+
+msgid "ITEM_TRAIT_QUICKDRAW_BUS_DESCRIPTION"
+msgstr "+1 power and +2 opening damage."
+
+msgid "ITEM_TRAIT_REFLEX_ARCHIVE_NAME"
+msgstr "REFLEX ARCHIVE"
+
+msgid "ITEM_TRAIT_REFLEX_ARCHIVE_DESCRIPTION"
+msgstr "+3 opening damage."
+
+msgid "ITEM_TRAIT_ILLEGAL_ADRENALINE_NAME"
+msgstr "ILLEGAL ADRENALINE"
+
+msgid "ITEM_TRAIT_ILLEGAL_ADRENALINE_DESCRIPTION"
+msgstr "+1 power and +6 integrity."
+
+msgid "ITEM_TRAIT_NULL_SYNAPSE_NAME"
+msgstr "NULL SYNAPSE"
+
+msgid "ITEM_TRAIT_NULL_SYNAPSE_DESCRIPTION"
+msgstr "+2 combat power."
+
+msgid "REWARD_NOTICE_CREDITS"
+msgstr "+%d credits"
+
+msgid "REWARD_NOTICE_XP"
+msgstr "+%d XP"
+
+msgid "REWARD_NOTICE_INCIDENT"
+msgstr "Incident already paid: net +%d credits"
+
+msgid "REWARD_NOTICE_WARRANT_SCRAP"
+msgstr "Corporate warrant: +%d scrap"
+
+msgid "REWARD_NOTICE_RECYCLED"
+msgstr "%s recycled: +%d scrap"
+
+msgid "REWARD_NOTICE_EQUIPPED"
+msgstr "%s equipped"
+
+msgid "REWARD_NOTICE_STORED"
+msgstr "%s stored"
+
+msgid "REWARD_NOTICE_MOMENTUM"
+msgstr "Momentum ×%d: +%d"
+
+msgid "REWARD_NOTICE_MOMENTUM_START"
+msgstr "Momentum ×1 started: next capture +%d%%"
+
+msgid "REWARD_NOTICE_LEVEL"
+msgstr "Level +%d"
+
+msgid "REWARD_NOTICE_ATTRIBUTE_POINTS"
+msgstr "+%d attribute points"
+
+msgid "REWARD_NOTICE_CONTRACT_UNLOCKED"
+msgstr "New contract unlocked"
+
+msgid "REWARD_NOTICE_WARRANT_UNLOCKED"
+msgstr "New planetary warrant"
+
+msgid "REWARD_NOTICE_MASTERY"
+msgstr "Target mastery %d: +%d scrap"
+
+msgid "REWARD_NOTICE_PAID"
+msgstr "Contract paid: %s"
+
+msgid "COMMON_REFERENCE_PLACEHOLDER_WATERMARK"
+msgstr "INTERNAL PLACEHOLDER · REPLACE"

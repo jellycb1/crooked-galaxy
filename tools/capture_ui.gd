@@ -173,6 +173,20 @@ func capture() -> void:
 	if save_frame("ui_first_victory_en.png") != OK:
 		quit(1)
 		return
+	state.open_reward()
+	await process_frame
+	await process_frame
+	if save_frame("ui_first_reward_en.png") != OK:
+		quit(1)
+		return
+	var reward_is_upgrade := CoreRules.is_upgrade_for_player(state.player, state.pending_loot)
+	state.claim_reward(reward_is_upgrade)
+	await process_frame
+	await process_frame
+	if save_frame("ui_reward_return_en.png") != OK:
+		quit(1)
+		return
+	state.player = state.default_player()
 	state.phase = state.Phase.BOARD
 	state.current_bounty = {}
 	state.pending_loot = {}

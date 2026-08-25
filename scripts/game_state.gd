@@ -702,6 +702,17 @@ func can_recycle_reward(item: Dictionary) -> bool:
 	return not item.has("trait") and not CoreRules.has_workshop_investment(item) and not CoreRules.is_upgrade_for_player(player, item)
 
 
+func localized_item_field(item: Dictionary, field: String) -> String:
+	var planet_id := str(item.get("origin_planet_id", ContentDB.PLANET.id))
+	var slot := str(item.get("slot", "weapon"))
+	var catalog := ContentDB.item_catalog_for(planet_id, slot)
+	for index in catalog.size():
+		if str(catalog[index].get("name", "")) == str(item.get("name", "")):
+			var key := "ITEM_%s_%s_%d_%s" % [planet_id.to_upper(), slot.to_upper(), index, field.to_upper()]
+			return LocaleRulesScript.text(key, str(item.get(field, "")))
+	return str(item.get(field, ""))
+
+
 func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := false) -> Dictionary:
 	if phase != Phase.REWARD or pending_loot.is_empty():
 		return {}
@@ -731,7 +742,7 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		"chapter_complete": false,
 		"target_mastery_up": false,
 		"target_mastery": 0,
-		"loot_name": str(pending_loot.get("name", "Loot sem etiqueta")),
+		"loot_name": localized_item_field(pending_loot, "name"),
 		"loot_action": "recycled" if recycle_item else ("equipped" if equip_item else "stored"),
 	}
 	var completed_bounty := current_bounty.duplicate(true)
@@ -777,31 +788,34 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		player.inventory.append(pending_loot.duplicate(true))
 		if equip_item:
 			equip(pending_loot)
-	var notice_parts := ["+%d créditos" % int(summary.credits), "+%d XP" % int(summary.xp)]
+	var notice_parts := [
+		LocaleRulesScript.text("REWARD_NOTICE_CREDITS", "+%d créditos", [int(summary.credits)]),
+		LocaleRulesScript.text("REWARD_NOTICE_XP", "+%d XP", [int(summary.xp)]),
+	]
 	if int(summary.incident_cost) > 0:
-		notice_parts.append("Incidente já pago: saldo +%d créditos" % int(summary.net_contract_credits))
+		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_INCIDENT", "Incidente já pago: saldo +%d créditos", [int(summary.net_contract_credits)]))
 	if int(summary.contract_scrap) > 0:
-		notice_parts.append("Mandado corporativo: +%d sucata" % int(summary.contract_scrap))
+		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_WARRANT_SCRAP", "Mandado corporativo: +%d sucata", [int(summary.contract_scrap)]))
 	if int(summary.recycled_scrap) > 0:
-		notice_parts.append("%s reciclado: +%d sucata" % [str(summary.loot_name), int(summary.recycled_scrap)])
+		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_RECYCLED", "%s reciclado: +%d sucata", [str(summary.loot_name), int(summary.recycled_scrap)]))
 	elif str(summary.loot_action) == "equipped":
-		notice_parts.append("%s equipado" % str(summary.loot_name))
+		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_EQUIPPED", "%s equipado", [str(summary.loot_name)]))
 	else:
-		notice_parts.append("%s guardado" % str(summary.loot_name))
+		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_STORED", "%s guardado", [str(summary.loot_name)]))
 	if int(summary.streak_bonus) > 0:
-		notice_parts.append("Embalo ×%d: +%d" % [new_streak, int(summary.streak_bonus)])
+		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_MOMENTUM", "Embalo ×%d: +%d", [new_streak, int(summary.streak_bonus)]))
 	elif new_streak == 1:
 		var next_streak := CoreRules.bounty_streak_reward(int(completed_bounty.credits), 2)
-		notice_parts.append("Embalo ×1 iniciado: próxima captura +%d%%" % int(next_streak.bonus_percent))
+		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_MOMENTUM_START", "Embalo ×1 iniciado: próxima captura +%d%%", [int(next_streak.bonus_percent)]))
 	if int(summary.levels) > 0:
-		notice_parts.append("Nível +%d" % int(summary.levels))
-		notice_parts.append("+%d pontos de atributo" % (int(summary.levels) * CoreRules.ATTRIBUTE_POINTS_PER_LEVEL))
+		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_LEVEL", "Nível +%d", [int(summary.levels)]))
+		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_ATTRIBUTE_POINTS", "+%d pontos de atributo", [int(summary.levels) * CoreRules.ATTRIBUTE_POINTS_PER_LEVEL]))
 	if bool(summary.rank_up):
-		notice_parts.append("Novo contrato liberado")
+		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_CONTRACT_UNLOCKED", "Novo contrato liberado"))
 	elif bool(summary.chapter_tier_up):
-		notice_parts.append("Novo mandado planetário")
+		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_WARRANT_UNLOCKED", "Novo mandado planetário"))
 	if bool(summary.target_mastery_up):
-		notice_parts.append("Perícia com alvo %d: +%d sucata" % [int(summary.target_mastery), int(summary.mastery_scrap)])
+		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_MASTERY", "Perícia com alvo %d: +%d sucata", [int(summary.target_mastery), int(summary.mastery_scrap)]))
 	var completed_planets: Array = player.get("completed_planets", [])
 	var completed_planet := ContentDB.get_planet(completed_planet_id)
 	var first_boss_capture := bool(completed_bounty.get("boss", false)) and not completed_planets.has(completed_planet_id)
@@ -816,7 +830,7 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 			"credits": int(summary.credits),
 			"xp": int(summary.xp),
 		}
-	last_notice = "Contrato pago: " + " · ".join(notice_parts)
+	last_notice = LocaleRulesScript.text("REWARD_NOTICE_PAID", "Contrato pago: %s", [" · ".join(notice_parts)])
 	last_notice_context = "reward_%s" % str(summary.loot_action)
 	phase = Phase.CHAPTER_COMPLETE if first_boss_capture else (Phase.BRIEFING if repeat_contract else Phase.BOARD)
 	current_bounty = ContentDB.get_target(target_id) if repeat_contract and not first_boss_capture else {}

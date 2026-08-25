@@ -7,6 +7,40 @@ const Content = preload("res://scripts/content_db.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const RewardProgressIconScript = preload("res://scripts/reward_progress_icon.gd")
+const LocaleRules = preload("res://scripts/locale_rules.gd")
+
+
+static func local_text(key: String, fallback: String = "", values: Array = []) -> String:
+	return LocaleRules.text(key, fallback, values)
+
+
+static func localized_content(prefix: String, definition: Dictionary, field: String) -> String:
+	return local_text(LocaleRules.content_key(prefix, str(definition.get("id", "")), field), str(definition.get(field, "")))
+
+
+static func localized_item_field(item: Dictionary, field: String) -> String:
+	var planet_id := str(item.get("origin_planet_id", Content.PLANET.id))
+	var slot := str(item.get("slot", "weapon"))
+	var catalog := Content.item_catalog_for(planet_id, slot)
+	for index in catalog.size():
+		if str(catalog[index].get("name", "")) == str(item.get("name", "")):
+			return local_text("ITEM_%s_%s_%d_%s" % [planet_id.to_upper(), slot.to_upper(), index, field.to_upper()], str(item.get(field, "")))
+	return str(item.get(field, ""))
+
+
+static func localized_trait_field(trait_data: Dictionary, field: String) -> String:
+	return local_text("ITEM_TRAIT_%s_%s" % [str(trait_data.get("id", "")).to_upper(), field.to_upper()], str(trait_data.get(field, "")))
+
+
+static func localized_rarity(rarity: String) -> String:
+	match rarity:
+		"Épico": return local_text("RARITY_EPIC", "ÉPICO")
+		"Raro": return local_text("RARITY_RARE", "RARO")
+		_: return local_text("RARITY_COMMON", "COMUM")
+
+
+static func localized_slot(slot: String) -> String:
+	return local_text("SLOT_%s" % slot.to_upper(), Rules.equipment_slot_name(slot))
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
@@ -18,8 +52,8 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var equipped: Dictionary = state.player.get(str(item.get("slot", "")), {})
 	var comparison := int(item.get("power", 0)) - int(equipped.get("power", 0))
 	var effective_upgrade := Rules.is_upgrade_for_player(state.player, item)
-	content.add_child(host.center_label("CONTRATO CONCLUÍDO · %s" % str(state.current_bounty.name).to_upper(), 16, host.LIME))
-	content.add_child(host.center_label("RECOMPENSA CAPTURADA", 28, host.INK))
+	content.add_child(host.center_label(local_text("REWARD_CONTRACT_COMPLETE", "CONTRATO CONCLUÍDO · %s", [localized_content("target", state.current_bounty, "name").to_upper()]), 16, host.LIME))
+	content.add_child(host.center_label(local_text("REWARD_CAPTURED", "RECOMPENSA CAPTURADA"), 28, host.INK))
 	var reward_panel := host.panel(VBoxContainer.new(), host.PANEL_LIGHT, 20, 12)
 	reward_panel.name = "RewardPanel"
 	content.add_child(reward_panel)
@@ -41,49 +75,49 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	loot_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	loot_copy.add_theme_constant_override("separation", 1)
 	loot_header.add_child(loot_copy)
-	loot_copy.add_child(host.label("%s · %s" % [str(item.rarity).to_upper(), host.slot_name(str(item.slot)).to_upper()], 12, Color(str(item.color))))
-	var item_name := host.label(str(item.name), 21, host.INK)
+	loot_copy.add_child(host.label("%s · %s" % [localized_rarity(str(item.rarity)), localized_slot(str(item.slot)).to_upper()], 12, Color(str(item.color))))
+	var item_name := host.label(localized_item_field(item, "name"), 21, host.INK)
 	item_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	loot_copy.add_child(item_name)
 	var origin_id := str(item.get("origin_planet_id", ""))
 	if not origin_id.is_empty():
-		loot_copy.add_child(host.label("ORIGEM · %s" % str(Content.get_planet(origin_id).name).to_upper(), 10, host.CYAN))
-	var description := host.label(str(item.get("description", "Procedência criativamente desconhecida.")), 12, host.MUTED)
+		loot_copy.add_child(host.label(local_text("REWARD_ORIGIN", "ORIGEM · %s", [localized_content("planet", Content.get_planet(origin_id), "name").to_upper()]), 10, host.CYAN))
+	var description := host.label(localized_item_field(item, "description") if item.has("description") else local_text("REWARD_UNKNOWN_ORIGIN", "Procedência criativamente desconhecida."), 12, host.MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	loot_copy.add_child(description)
 	var comparison_row := HBoxContainer.new()
 	comparison_row.name = "RewardEquipmentComparison"
 	comparison_row.add_theme_constant_override("separation", 7)
 	box.add_child(comparison_row)
-	comparison_row.add_child(reward_metric_chip(host, "NOVO", "+%d" % int(item.get("power", 0)), host.GOLD, "RewardNewPower"))
-	comparison_row.add_child(reward_metric_chip(host, "EQUIPADO", "+%d" % int(equipped.get("power", 0)), host.MUTED, "RewardEquippedPower"))
-	var result_text := "UPGRADE" if effective_upgrade else "GUARDAR"
+	comparison_row.add_child(reward_metric_chip(host, local_text("REWARD_NEW", "NOVO"), "+%d" % int(item.get("power", 0)), host.GOLD, "RewardNewPower"))
+	comparison_row.add_child(reward_metric_chip(host, local_text("REWARD_EQUIPPED", "EQUIPADO"), "+%d" % int(equipped.get("power", 0)), host.MUTED, "RewardEquippedPower"))
+	var result_text := local_text("REWARD_UPGRADE", "UPGRADE") if effective_upgrade else local_text("REWARD_STORE", "GUARDAR")
 	if effective_upgrade and comparison <= 0:
-		result_text = "MOD MELHOR"
-	comparison_row.add_child(reward_metric_chip(host, "RESULTADO", result_text, host.LIME if effective_upgrade else host.MUTED, "RewardEquipmentResult"))
+		result_text = local_text("REWARD_BETTER_MOD", "MOD MELHOR")
+	comparison_row.add_child(reward_metric_chip(host, local_text("REWARD_RESULT", "RESULTADO"), result_text, host.LIME if effective_upgrade else host.MUTED, "RewardEquipmentResult"))
 	if item.has("trait"):
-		var trait_label := host.center_label("◆ %s · %s" % [str(item.trait.name), str(item.trait.description)], 11, host.GOLD)
+		var trait_label := host.center_label("◆ %s · %s" % [localized_trait_field(item.trait, "name"), localized_trait_field(item.trait, "description")], 11, host.GOLD)
 		trait_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		box.add_child(trait_label)
 	var equipment_delta := host.center_label(EquipmentPresentation.equipment_delta_text(state.player, item), 12, host.LIME if effective_upgrade else host.MUTED)
 	equipment_delta.name = "RewardEquipmentDelta"
 	box.add_child(equipment_delta)
-	box.add_child(host.center_label("RECICLAGEM · %d SUCATA" % Rules.salvage_value(item), 10, host.MUTED))
+	box.add_child(host.center_label(local_text("REWARD_RECYCLE_VALUE", "RECICLAGEM · %d SUCATA", [Rules.salvage_value(item)]), 10, host.MUTED))
 	var receipt_panel := host.panel(VBoxContainer.new(), Color("#0d1530"), 10, 8)
 	receipt_panel.name = "RewardContractReceipt"
 	box.add_child(receipt_panel)
 	var receipt_box := receipt_panel.get_child(0) as VBoxContainer
 	receipt_box.add_theme_constant_override("separation", 3)
 	var contract_scrap := int(state.current_bounty.get("scrap_reward", 0))
-	var reward_line := "RECIBO · ◈ %d CRÉDITOS · %d XP" % [int(reward_preview.credits), int(state.current_bounty.xp)]
+	var reward_line := local_text("REWARD_RECEIPT", "RECIBO · ◈ %d CRÉDITOS · %d XP", [int(reward_preview.credits), int(state.current_bounty.xp)])
 	if contract_scrap > 0:
-		reward_line += " · %d sucata" % contract_scrap
+		reward_line += local_text("REWARD_SCRAP_SUFFIX", " · %d sucata", [contract_scrap])
 	var reward_totals := host.center_label(reward_line, 13, host.GOLD)
 	reward_totals.name = "RewardContractTotals"
 	receipt_box.add_child(reward_totals)
 	var incident_cost := maxi(0, int(state.current_bounty.get("hunt_event_credit_cost", 0)))
 	if incident_cost > 0:
-		var incident_net := host.center_label("INCIDENTE JÁ PAGO · -%d CRÉDITOS · SALDO DO CONTRATO +%d" % [incident_cost, int(reward_preview.credits) - incident_cost], 10, host.CYAN)
+		var incident_net := host.center_label(local_text("REWARD_INCIDENT_NET", "INCIDENTE JÁ PAGO · -%d CRÉDITOS · SALDO DO CONTRATO +%d", [incident_cost, int(reward_preview.credits) - incident_cost]), 10, host.CYAN)
 		incident_net.name = "RewardIncidentNet"
 		receipt_box.add_child(incident_net)
 	var progress_box := VBoxContainer.new()
@@ -92,7 +126,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var previous_captures := int(state.player.get("captures_by_target", {}).get(str(state.current_bounty.id), 0))
 	var reward_mastery := Rules.target_mastery_level(previous_captures)
 	if reward_mastery > 0:
-		var mastery_label := host.center_label("PERÍCIA COM ALVO %d/3 · QUALIDADE DE LOOT AMPLIADA" % reward_mastery, 13, host.LIME)
+		var mastery_label := host.center_label(local_text("REWARD_TARGET_MASTERY", "PERÍCIA COM ALVO %d/3 · QUALIDADE DE LOOT AMPLIADA", [reward_mastery]), 13, host.LIME)
 		mastery_label.name = "RewardMastery"
 		progress_box.add_child(reward_progress_row(host, "mastery", mastery_label, null, host.LIME))
 	var captures_after_reward := previous_captures + 1
@@ -109,35 +143,35 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var unlocks_new_warrant := tier_after > tier_before and not next_target.is_empty()
 	var combined_next_capture := captures_after_reward == 2 and reward_mastery == 0 and not next_target.is_empty() and int(progress_after.progress) == 2 and int(progress_after.requirement) == 3
 	if mastery_after_reward > reward_mastery:
-		var mastery_unlock := host.center_label("NOVA PERÍCIA AO RECEBER · NÍVEL %d/3" % mastery_after_reward, 13, host.GOLD)
+		var mastery_unlock := host.center_label(local_text("REWARD_NEW_MASTERY", "NOVA PERÍCIA AO RECEBER · NÍVEL %d/3", [mastery_after_reward]), 13, host.GOLD)
 		mastery_unlock.name = "RewardMasteryUnlock"
-		var mastery_bonus := host.center_label("+%d%% RARO · +%d%% ÉPICO · OFICINA +%d SUCATA" % [mastery_after_reward * 5, mastery_after_reward * 2, Rules.target_mastery_scrap_reward(mastery_after_reward)], 12, host.LIME)
+		var mastery_bonus := host.center_label(local_text("REWARD_MASTERY_BONUS", "+%d%% RARO · +%d%% ÉPICO · OFICINA +%d SUCATA", [mastery_after_reward * 5, mastery_after_reward * 2, Rules.target_mastery_scrap_reward(mastery_after_reward)]), 12, host.LIME)
 		mastery_bonus.name = "RewardMasteryUnlockBonus"
 		progress_box.add_child(reward_progress_row(host, "mastery", mastery_unlock, mastery_bonus, host.GOLD))
 	elif captures_after_reward > 1:
 		var next_mastery_requirement := Rules.target_mastery_next_requirement(reward_mastery)
 		if next_mastery_requirement > 0:
-			var mastery_progress_text := "PRÓXIMA PERÍCIA · %d/%d CAPTURAS" % [captures_after_reward, next_mastery_requirement]
+			var mastery_progress_text := local_text("REWARD_NEXT_MASTERY", "PRÓXIMA PERÍCIA · %d/%d CAPTURAS", [captures_after_reward, next_mastery_requirement])
 			if combined_next_capture:
-				mastery_progress_text = "PRÓXIMA CAPTURA · PERÍCIA 1/3 + MANDADO %s" % str(next_target.name).to_upper()
+				mastery_progress_text = local_text("REWARD_NEXT_CAPTURE_COMBINED", "PRÓXIMA CAPTURA · PERÍCIA 1/3 + MANDADO %s", [localized_content("target", next_target, "name").to_upper()])
 			var mastery_progress := host.center_label(mastery_progress_text, 12, host.CYAN)
 			mastery_progress.name = "RewardMasteryProgress"
 			progress_box.add_child(reward_progress_row(host, "mastery", mastery_progress, null, host.CYAN))
 	if int(reward_preview.bonus_credits) > 0:
-		var streak_bonus := host.center_label("EMBALO ×%d · +%d créditos (+%d%%)" % [int(reward_preview.streak), int(reward_preview.bonus_credits), int(reward_preview.bonus_percent)], 14, host.LIME)
+		var streak_bonus := host.center_label(local_text("REWARD_MOMENTUM_BONUS", "EMBALO ×%d · +%d créditos (+%d%%)", [int(reward_preview.streak), int(reward_preview.bonus_credits), int(reward_preview.bonus_percent)]), 14, host.LIME)
 		streak_bonus.name = "RewardStreakBonus"
 		progress_box.add_child(reward_progress_row(host, "streak", streak_bonus, null, host.LIME))
 	elif int(reward_preview.streak) == 1:
-		var streak_start := host.center_label("EMBALO REINICIADO ×1 · BÔNUS COMEÇA NA PRÓXIMA CAPTURA", 12, host.CYAN)
+		var streak_start := host.center_label(local_text("REWARD_MOMENTUM_START", "EMBALO REINICIADO ×1 · BÔNUS COMEÇA NA PRÓXIMA CAPTURA"), 12, host.CYAN)
 		streak_start.name = "RewardStreakStart"
 		progress_box.add_child(reward_progress_row(host, "streak", streak_start, null, host.CYAN))
 	if unlocks_new_warrant:
-		var unlock_label := host.center_label("NOVO MANDADO AO RECEBER · %s" % str(next_target.name).to_upper(), 14, host.LIME)
+		var unlock_label := host.center_label(local_text("REWARD_NEW_WARRANT", "NOVO MANDADO AO RECEBER · %s", [localized_content("target", next_target, "name").to_upper()]), 14, host.LIME)
 		unlock_label.name = "RewardWarrantUnlock"
 		var unlock_impact := warrant_impact_label(host, state.player, item, next_target, effective_upgrade, int(state.current_bounty.xp), "RewardWarrantOdds")
 		progress_box.add_child(reward_progress_row(host, "warrant", unlock_label, unlock_impact, host.LIME))
 	elif not next_target.is_empty() and not combined_next_capture:
-		var progress_label := host.center_label("RUMO A %s · %d/%d CAPTURAS DE %s" % [str(next_target.name).to_upper(), int(progress_after.progress), int(progress_after.requirement), str(progress_after.prerequisite.name).to_upper()], 13, host.CYAN)
+		var progress_label := host.center_label(local_text("REWARD_WARRANT_PROGRESS", "RUMO A %s · %d/%d CAPTURAS DE %s", [localized_content("target", next_target, "name").to_upper(), int(progress_after.progress), int(progress_after.requirement), localized_content("target", progress_after.prerequisite, "name").to_upper()]), 13, host.CYAN)
 		progress_label.name = "RewardWarrantProgress"
 		var next_impact := warrant_impact_label(host, state.player, item, next_target, effective_upgrade, int(state.current_bounty.xp), "RewardNextHuntImpact")
 		progress_box.add_child(reward_progress_row(host, "warrant", progress_label, next_impact, host.CYAN))
@@ -150,30 +184,30 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var safe_to_recycle := state.can_recycle_reward(item)
 	if not completes_chapter and not unlocks_new_warrant:
 		var next_streak_reward := Rules.bounty_streak_reward(int(state.current_bounty.credits), int(reward_preview.streak) + 1)
-		var repeat_value := host.center_label("PRÓXIMA CAPTURA SEGUIDA · EMBALO ×%d · +%d%% SOBRE O PAGAMENTO" % [int(next_streak_reward.streak), int(next_streak_reward.bonus_percent)], 12, host.CYAN)
+		var repeat_value := host.center_label(local_text("REWARD_NEXT_CAPTURE_MOMENTUM", "PRÓXIMA CAPTURA SEGUIDA · EMBALO ×%d · +%d%% SOBRE O PAGAMENTO", [int(next_streak_reward.streak), int(next_streak_reward.bonus_percent)]), 12, host.CYAN)
 		repeat_value.name = "RewardRepeatValue"
 		content.add_child(repeat_value)
-		var repeat := host.action_button("EQUIPAR E REPETIR" if effective_upgrade else "GUARDAR E REPETIR", host.LIME)
+		var repeat := host.action_button(local_text("REWARD_EQUIP_REPEAT", "EQUIPAR E REPETIR") if effective_upgrade else local_text("REWARD_STORE_REPEAT", "GUARDAR E REPETIR"), host.LIME)
 		repeat.name = "ClaimAndRepeat"
 		repeat.pressed.connect(func(): state.claim_reward(effective_upgrade, true))
 		content.add_child(repeat)
 		if safe_to_recycle:
-			var recycle_repeat := host.action_button("RECICLAR +%d SUCATA E REPETIR" % Rules.salvage_value(item), host.CORAL, true)
+			var recycle_repeat := host.action_button(local_text("REWARD_RECYCLE_REPEAT", "RECICLAR +%d SUCATA E REPETIR", [Rules.salvage_value(item)]), host.CORAL, true)
 			recycle_repeat.name = "RecycleAndRepeat"
 			recycle_repeat.custom_minimum_size = Vector2(0, 48)
 			recycle_repeat.pressed.connect(func(): state.claim_reward(false, true, true))
 			content.add_child(recycle_repeat)
 	elif safe_to_recycle:
-		var recycle_destination := "VER NOVO MANDADO" if unlocks_new_warrant else "CONCLUIR"
-		var recycle_complete := host.action_button("RECICLAR +%d SUCATA E %s" % [Rules.salvage_value(item), recycle_destination], host.CORAL, true)
+		var recycle_destination := local_text("REWARD_VIEW_NEW_WARRANT", "VER NOVO MANDADO") if unlocks_new_warrant else local_text("REWARD_COMPLETE", "CONCLUIR")
+		var recycle_complete := host.action_button(local_text("REWARD_RECYCLE_COMPLETE", "RECICLAR +%d SUCATA E %s", [Rules.salvage_value(item), recycle_destination]), host.CORAL, true)
 		recycle_complete.name = "RecycleAndComplete"
 		recycle_complete.custom_minimum_size = Vector2(0, 48)
 		recycle_complete.pressed.connect(func(): state.claim_reward(false, false, true))
 		content.add_child(recycle_complete)
 	if mastery_after_reward > reward_mastery and not completes_chapter:
-		var workshop_text := "EQUIPAR E IR À OFICINA" if effective_upgrade else "GUARDAR E IR À OFICINA"
+		var workshop_text := local_text("REWARD_EQUIP_WORKSHOP", "EQUIPAR E IR À OFICINA") if effective_upgrade else local_text("REWARD_STORE_WORKSHOP", "GUARDAR E IR À OFICINA")
 		if unlocks_new_warrant:
-			workshop_text = "EQUIPAR E PREPARAR NOVO MANDADO" if effective_upgrade else "GUARDAR E PREPARAR NOVO MANDADO"
+			workshop_text = local_text("REWARD_EQUIP_PREPARE_WARRANT", "EQUIPAR E PREPARAR NOVO MANDADO") if effective_upgrade else local_text("REWARD_STORE_PREPARE_WARRANT", "GUARDAR E PREPARAR NOVO MANDADO")
 		var workshop := host.action_button(workshop_text, host.CYAN, true)
 		workshop.name = "ClaimAndWorkshop"
 		workshop.custom_minimum_size = Vector2(0, 48)
@@ -185,11 +219,11 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		content.add_child(workshop)
 	var claim_text := ""
 	if completes_chapter:
-		claim_text = "RECEBER E CONCLUIR CAPÍTULO"
+		claim_text = local_text("REWARD_CLAIM_COMPLETE_CHAPTER", "RECEBER E CONCLUIR CAPÍTULO")
 	elif unlocks_new_warrant:
-		claim_text = "EQUIPAR E VER NOVO MANDADO" if effective_upgrade else "GUARDAR E VER NOVO MANDADO"
+		claim_text = local_text("REWARD_EQUIP_VIEW_WARRANT", "EQUIPAR E VER NOVO MANDADO") if effective_upgrade else local_text("REWARD_STORE_VIEW_WARRANT", "GUARDAR E VER NOVO MANDADO")
 	else:
-		claim_text = "EQUIPAR E VOLTAR AO QUADRO" if effective_upgrade else "GUARDAR E VOLTAR AO QUADRO"
+		claim_text = local_text("REWARD_EQUIP_BOARD", "EQUIPAR E VOLTAR AO QUADRO") if effective_upgrade else local_text("REWARD_STORE_BOARD", "GUARDAR E VOLTAR AO QUADRO")
 	var claim := host.action_button(claim_text, host.LIME if completes_chapter or unlocks_new_warrant else host.GOLD, not (completes_chapter or unlocks_new_warrant))
 	claim.name = "ClaimAndUnlock" if unlocks_new_warrant else "ClaimAndBoard"
 	claim.custom_minimum_size = Vector2(0, 48)
@@ -284,12 +318,12 @@ static func warrant_impact(player: Dictionary, item: Dictionary, target: Diction
 	var projected_evaluations := ContractRules.evaluate_approaches(projected_player, target, Content.contract_approaches())
 	var recommended_id := ContractRules.recommended_approach_id(projected_evaluations, str(projected_player.get("class_id", "")))
 	var current_evaluations := ContractRules.evaluate_approaches(player, target, Content.contract_approaches())
-	var route_name := "ROTA SEGURA"
+	var route_name := local_text("REWARD_SAFE_ROUTE", "ROTA SEGURA")
 	var current_odds := 0.0
 	var projected_odds := 0.0
 	for evaluation in projected_evaluations:
 		if str(evaluation.id) == recommended_id:
-			route_name = str(evaluation.preview.get("approach", {}).get("name", route_name))
+			route_name = localized_content("approach", evaluation.preview.get("approach", {}), "name")
 			projected_odds = float(evaluation.odds)
 			break
 	for evaluation in current_evaluations:
@@ -310,12 +344,12 @@ static func warrant_impact_label(host: CrookedUIFactory, player: Dictionary, ite
 	var route_name := str(impact.route_name)
 	var current_odds := float(impact.current_odds)
 	var projected_odds := float(impact.projected_odds)
-	var text := "MELHOR ROTA COM BUILD ATUAL · %s · %d%%" % [route_name.to_upper(), roundi(current_odds * 100.0)]
+	var text := local_text("REWARD_BEST_CURRENT_ROUTE", "MELHOR ROTA COM BUILD ATUAL · %s · %d%%", [route_name.to_upper(), roundi(current_odds * 100.0)])
 	if int(impact.levels_gained) > 0:
-		var receipt_action := "RECEBER + EQUIPAR" if equip_item else "RECEBER SEM EQUIPAR"
-		text = "APÓS %s · %s · %d%% → %d%%" % [receipt_action, route_name.to_upper(), roundi(current_odds * 100.0), roundi(projected_odds * 100.0)]
+		var receipt_action := local_text("REWARD_RECEIVE_EQUIP", "RECEBER + EQUIPAR") if equip_item else local_text("REWARD_RECEIVE_ONLY", "RECEBER SEM EQUIPAR")
+		text = local_text("REWARD_AFTER_ACTION", "APÓS %s · %s · %d%% → %d%%", [receipt_action, route_name.to_upper(), roundi(current_odds * 100.0), roundi(projected_odds * 100.0)])
 	elif equip_item:
-		text = "IMPACTO AO EQUIPAR · %s · %d%% → %d%%" % [route_name.to_upper(), roundi(current_odds * 100.0), roundi(projected_odds * 100.0)]
+		text = local_text("REWARD_EQUIP_IMPACT", "IMPACTO AO EQUIPAR · %s · %d%% → %d%%", [route_name.to_upper(), roundi(current_odds * 100.0), roundi(projected_odds * 100.0)])
 	var result := host.center_label(text, 12, host.GOLD)
 	result.name = node_name
 	return result

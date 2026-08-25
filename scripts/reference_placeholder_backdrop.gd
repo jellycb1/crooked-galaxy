@@ -1,6 +1,7 @@
 class_name ReferencePlaceholderBackdrop
 extends Control
 
+const LocaleRules = preload("res://scripts/locale_rules.gd")
 const SOURCE_ROOT := "res://References/Shakes and Fidget Assets/StreamingAssets/"
 const CONTEXT_PATHS := {
 	"contracts": SOURCE_ROOT + "tavern/tavern_back.png",
@@ -67,7 +68,7 @@ func _ready() -> void:
 	notice.offset_bottom = -6.0
 	notice.offset_left = 8.0
 	notice.offset_right = -8.0
-	notice.text = "PLACEHOLDER INTERNO · SUBSTITUIR"
+	notice.text = LocaleRules.text("COMMON_REFERENCE_PLACEHOLDER_WATERMARK", "PLACEHOLDER INTERNO · SUBSTITUIR")
 	notice.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	notice.add_theme_font_size_override("font_size", 10)
 	notice.add_theme_color_override("font_color", Color(1.0, 0.78, 0.25, 0.78))
@@ -78,6 +79,7 @@ func _ready() -> void:
 
 
 func show_context(context: String) -> void:
+	notice.text = LocaleRules.text("COMMON_REFERENCE_PLACEHOLDER_WATERMARK", "PLACEHOLDER INTERNO · SUBSTITUIR")
 	if not local_placeholders_allowed() or not CONTEXT_PATHS.has(context):
 		release_texture()
 		return

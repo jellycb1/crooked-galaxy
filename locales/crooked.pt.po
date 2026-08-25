@@ -1621,3 +1621,825 @@ msgstr "Roleta de Singularidade"
 
 msgid "TARGET_HOUSE_ETERNAL_ATTACK_2"
 msgstr "Última Ficha"
+
+msgid "REWARD_CONTRACT_COMPLETE"
+msgstr "CONTRATO CONCLUÍDO · %s"
+
+msgid "REWARD_CAPTURED"
+msgstr "RECOMPENSA CAPTURADA"
+
+msgid "REWARD_ORIGIN"
+msgstr "ORIGEM · %s"
+
+msgid "REWARD_UNKNOWN_ORIGIN"
+msgstr "Procedência criativamente desconhecida."
+
+msgid "REWARD_NEW"
+msgstr "NOVO"
+
+msgid "REWARD_EQUIPPED"
+msgstr "EQUIPADO"
+
+msgid "REWARD_UPGRADE"
+msgstr "UPGRADE"
+
+msgid "REWARD_STORE"
+msgstr "GUARDAR"
+
+msgid "REWARD_BETTER_MOD"
+msgstr "MOD MELHOR"
+
+msgid "REWARD_RESULT"
+msgstr "RESULTADO"
+
+msgid "REWARD_RECYCLE_VALUE"
+msgstr "RECICLAGEM · %d SUCATA"
+
+msgid "REWARD_RECEIPT"
+msgstr "RECIBO · ◈ %d CRÉDITOS · %d XP"
+
+msgid "REWARD_SCRAP_SUFFIX"
+msgstr " · %d sucata"
+
+msgid "REWARD_INCIDENT_NET"
+msgstr "INCIDENTE JÁ PAGO · -%d CRÉDITOS · SALDO DO CONTRATO +%d"
+
+msgid "REWARD_TARGET_MASTERY"
+msgstr "PERÍCIA COM ALVO %d/3 · QUALIDADE DE LOOT AMPLIADA"
+
+msgid "REWARD_NEW_MASTERY"
+msgstr "NOVA PERÍCIA AO RECEBER · NÍVEL %d/3"
+
+msgid "REWARD_MASTERY_BONUS"
+msgstr "+%d%% RARO · +%d%% ÉPICO · OFICINA +%d SUCATA"
+
+msgid "REWARD_NEXT_MASTERY"
+msgstr "PRÓXIMA PERÍCIA · %d/%d CAPTURAS"
+
+msgid "REWARD_NEXT_CAPTURE_COMBINED"
+msgstr "PRÓXIMA CAPTURA · PERÍCIA 1/3 + MANDADO %s"
+
+msgid "REWARD_MOMENTUM_BONUS"
+msgstr "EMBALO ×%d · +%d créditos (+%d%%)"
+
+msgid "REWARD_MOMENTUM_START"
+msgstr "EMBALO REINICIADO ×1 · BÔNUS COMEÇA NA PRÓXIMA CAPTURA"
+
+msgid "REWARD_NEW_WARRANT"
+msgstr "NOVO MANDADO AO RECEBER · %s"
+
+msgid "REWARD_WARRANT_PROGRESS"
+msgstr "RUMO A %s · %d/%d CAPTURAS DE %s"
+
+msgid "REWARD_NEXT_CAPTURE_MOMENTUM"
+msgstr "PRÓXIMA CAPTURA SEGUIDA · EMBALO ×%d · +%d%% SOBRE O PAGAMENTO"
+
+msgid "REWARD_EQUIP_REPEAT"
+msgstr "EQUIPAR E REPETIR"
+
+msgid "REWARD_STORE_REPEAT"
+msgstr "GUARDAR E REPETIR"
+
+msgid "REWARD_RECYCLE_REPEAT"
+msgstr "RECICLAR +%d SUCATA E REPETIR"
+
+msgid "REWARD_VIEW_NEW_WARRANT"
+msgstr "VER NOVO MANDADO"
+
+msgid "REWARD_COMPLETE"
+msgstr "CONCLUIR"
+
+msgid "REWARD_RECYCLE_COMPLETE"
+msgstr "RECICLAR +%d SUCATA E %s"
+
+msgid "REWARD_EQUIP_WORKSHOP"
+msgstr "EQUIPAR E IR À OFICINA"
+
+msgid "REWARD_STORE_WORKSHOP"
+msgstr "GUARDAR E IR À OFICINA"
+
+msgid "REWARD_EQUIP_PREPARE_WARRANT"
+msgstr "EQUIPAR E PREPARAR NOVO MANDADO"
+
+msgid "REWARD_STORE_PREPARE_WARRANT"
+msgstr "GUARDAR E PREPARAR NOVO MANDADO"
+
+msgid "REWARD_CLAIM_COMPLETE_CHAPTER"
+msgstr "RECEBER E CONCLUIR CAPÍTULO"
+
+msgid "REWARD_EQUIP_VIEW_WARRANT"
+msgstr "EQUIPAR E VER NOVO MANDADO"
+
+msgid "REWARD_STORE_VIEW_WARRANT"
+msgstr "GUARDAR E VER NOVO MANDADO"
+
+msgid "REWARD_EQUIP_BOARD"
+msgstr "EQUIPAR E VOLTAR AO QUADRO"
+
+msgid "REWARD_STORE_BOARD"
+msgstr "GUARDAR E VOLTAR AO QUADRO"
+
+msgid "REWARD_SAFE_ROUTE"
+msgstr "ROTA SEGURA"
+
+msgid "REWARD_BEST_CURRENT_ROUTE"
+msgstr "MELHOR ROTA COM BUILD ATUAL · %s · %d%%"
+
+msgid "REWARD_RECEIVE_EQUIP"
+msgstr "RECEBER + EQUIPAR"
+
+msgid "REWARD_RECEIVE_ONLY"
+msgstr "RECEBER SEM EQUIPAR"
+
+msgid "REWARD_AFTER_ACTION"
+msgstr "APÓS %s · %s · %d%% → %d%%"
+
+msgid "REWARD_EQUIP_IMPACT"
+msgstr "IMPACTO AO EQUIPAR · %s · %d%% → %d%%"
+
+msgid "RARITY_COMMON"
+msgstr "COMUM"
+
+msgid "RARITY_RARE"
+msgstr "RARO"
+
+msgid "RARITY_EPIC"
+msgstr "ÉPICO"
+
+msgid "SLOT_WEAPON"
+msgstr "ARMA"
+
+msgid "SLOT_ARMOR"
+msgstr "ARMADURA"
+
+msgid "SLOT_HELMET"
+msgstr "CAPACETE"
+
+msgid "SLOT_GLOVES"
+msgstr "LUVAS"
+
+msgid "SLOT_BOOTS"
+msgstr "BOTAS"
+
+msgid "SLOT_RIG"
+msgstr "RIG TÉCNICO"
+
+msgid "SLOT_IMPLANT"
+msgstr "IMPLANTE"
+
+msgid "SLOT_GADGET"
+msgstr "GADGET"
+
+msgid "SLOT_RELIC"
+msgstr "RELÍQUIA ALIENÍGENA"
+
+msgid "EQUIPMENT_DELTA_POWER"
+msgstr "%+d PODER"
+
+msgid "EQUIPMENT_DELTA_HEALTH"
+msgstr "%+d VIDA"
+
+msgid "EQUIPMENT_DELTA_AMBUSH"
+msgstr "%+d EMBOSCADA"
+
+msgid "EQUIPMENT_DELTA_REDUCTION"
+msgstr "%+d REDUÇÃO"
+
+msgid "EQUIPMENT_DELTA_ACTIVATE_KIT"
+msgstr "ATIVA KIT +%d PODER / +%d VIDA"
+
+msgid "EQUIPMENT_DELTA_BREAK_KIT"
+msgstr "QUEBRA KIT -%d PODER / -%d VIDA"
+
+msgid "EQUIPMENT_DELTA_SAME"
+msgstr "= MESMO EFEITO"
+
+msgid "ITEM_TRAIT_CROOKED_COIL_NAME"
+msgstr "BOBINA TORTA"
+
+msgid "ITEM_TRAIT_CROOKED_COIL_DESCRIPTION"
+msgstr "+2 poder de combate."
+
+msgid "ITEM_DUSTBALL_PRIME_WEAPON_0_NAME"
+msgstr "Desatomizador de Bolso"
+
+msgid "ITEM_DUSTBALL_PRIME_WEAPON_0_DESCRIPTION"
+msgstr "Desmonta átomos, garantias e conversas constrangedoras."
+
+msgid "ITEM_DUSTBALL_PRIME_WEAPON_1_NAME"
+msgstr "Canhão de Recibos"
+
+msgid "ITEM_DUSTBALL_PRIME_WEAPON_1_DESCRIPTION"
+msgstr "A prova de compra chega antes do projétil."
+
+msgid "ITEM_DUSTBALL_PRIME_WEAPON_2_NAME"
+msgstr "Pistola Quase Legal"
+
+msgid "ITEM_DUSTBALL_PRIME_WEAPON_2_DESCRIPTION"
+msgstr "Legal em pelo menos duas luas e meia."
+
+msgid "ITEM_DUSTBALL_PRIME_WEAPON_3_NAME"
+msgstr "Zapper de Plasma Torto"
+
+msgid "ITEM_DUSTBALL_PRIME_WEAPON_3_DESCRIPTION"
+msgstr "O tiro faz curva. Às vezes até na direção certa."
+
+msgid "ITEM_DUSTBALL_PRIME_ARMOR_0_NAME"
+msgstr "Casaco Antilaser Usado"
+
+msgid "ITEM_DUSTBALL_PRIME_ARMOR_0_DESCRIPTION"
+msgstr "As marcas de queimadura comprovam que já funcionou."
+
+msgid "ITEM_DUSTBALL_PRIME_ARMOR_1_NAME"
+msgstr "Colete de Espuma Cósmica"
+
+msgid "ITEM_DUSTBALL_PRIME_ARMOR_1_DESCRIPTION"
+msgstr "Confortável, protetor e estranhamente efervescente."
+
+msgid "ITEM_DUSTBALL_PRIME_ARMOR_2_NAME"
+msgstr "Armadura Fiscal"
+
+msgid "ITEM_DUSTBALL_PRIME_ARMOR_2_DESCRIPTION"
+msgstr "Deduz parte do dano no próximo ano galáctico."
+
+msgid "ITEM_DUSTBALL_PRIME_ARMOR_3_NAME"
+msgstr "Poncho de Titânio"
+
+msgid "ITEM_DUSTBALL_PRIME_ARMOR_3_DESCRIPTION"
+msgstr "Elegância de fronteira com nove quilos por ombro."
+
+msgid "ITEM_CONGELARIA_SA_WEAPON_0_NAME"
+msgstr "Lança-Chamas de Escritório"
+
+msgid "ITEM_CONGELARIA_SA_WEAPON_0_DESCRIPTION"
+msgstr "Aquece café, contratos e negociações hostis."
+
+msgid "ITEM_CONGELARIA_SA_WEAPON_1_NAME"
+msgstr "Carabina Criogênica Reversa"
+
+msgid "ITEM_CONGELARIA_SA_WEAPON_1_DESCRIPTION"
+msgstr "Congela a culpa e descongela o gatilho."
+
+msgid "ITEM_CONGELARIA_SA_WEAPON_2_NAME"
+msgstr "Grampeador Térmico"
+
+msgid "ITEM_CONGELARIA_SA_WEAPON_2_DESCRIPTION"
+msgstr "Prende folhas a três metros e criminosos a dois."
+
+msgid "ITEM_CONGELARIA_SA_WEAPON_3_NAME"
+msgstr "Canhão de Sopa Pressurizada"
+
+msgid "ITEM_CONGELARIA_SA_WEAPON_3_DESCRIPTION"
+msgstr "O caldo é ilegal. Os croutons são perfurantes."
+
+msgid "ITEM_CONGELARIA_SA_ARMOR_0_NAME"
+msgstr "Parka de Reunião Infinita"
+
+msgid "ITEM_CONGELARIA_SA_ARMOR_0_DESCRIPTION"
+msgstr "Mantém o corpo aquecido enquanto a pauta congela a alma."
+
+msgid "ITEM_CONGELARIA_SA_ARMOR_1_NAME"
+msgstr "Colete Antitermostato"
+
+msgid "ITEM_CONGELARIA_SA_ARMOR_1_DESCRIPTION"
+msgstr "Certificado para sobreviver a três auditorias e meia."
+
+msgid "ITEM_CONGELARIA_SA_ARMOR_2_NAME"
+msgstr "Terno de Fibra Glacial"
+
+msgid "ITEM_CONGELARIA_SA_ARMOR_2_DESCRIPTION"
+msgstr "Elegante, blindado e impossível de passar a ferro."
+
+msgid "ITEM_CONGELARIA_SA_ARMOR_3_NAME"
+msgstr "Manta Executiva de Emergência"
+
+msgid "ITEM_CONGELARIA_SA_ARMOR_3_DESCRIPTION"
+msgstr "Dourada por fora, formulário de despesas por dentro."
+
+msgid "ITEM_CONGELARIA_SA_HELMET_0_NAME"
+msgstr "Capacete de Ponto de Congelamento"
+
+msgid "ITEM_CONGELARIA_SA_HELMET_0_DESCRIPTION"
+msgstr "Mantém ideias acima de zero e multas do lado de fora."
+
+msgid "ITEM_CONGELARIA_SA_HELMET_1_NAME"
+msgstr "Viseira Antineblina Executiva"
+
+msgid "ITEM_CONGELARIA_SA_HELMET_1_DESCRIPTION"
+msgstr "Revela alvos, planilhas e demissões através da geada."
+
+msgid "ITEM_CONGELARIA_SA_HELMET_2_NAME"
+msgstr "Touca Balística Homologada"
+
+msgid "ITEM_CONGELARIA_SA_HELMET_2_DESCRIPTION"
+msgstr "Parece lã. O setor jurídico insiste que é blindagem."
+
+msgid "ITEM_CONGELARIA_SA_HELMET_3_NAME"
+msgstr "Cúpula Criogênica Reversa"
+
+msgid "ITEM_CONGELARIA_SA_HELMET_3_DESCRIPTION"
+msgstr "Congela projéteis e descongela decisões ruins."
+
+msgid "ITEM_MICELIA_404_WEAPON_0_NAME"
+msgstr "Escopeta de Pólen Comprimido"
+
+msgid "ITEM_MICELIA_404_WEAPON_0_DESCRIPTION"
+msgstr "Dispersa alergias, suspeitos e evidências."
+
+msgid "ITEM_MICELIA_404_WEAPON_1_NAME"
+msgstr "Lâmina de Micélio Nervoso"
+
+msgid "ITEM_MICELIA_404_WEAPON_1_DESCRIPTION"
+msgstr "Treme perto do perigo e de saladas."
+
+msgid "ITEM_MICELIA_404_WEAPON_2_NAME"
+msgstr "Pistola Fotossintética"
+
+msgid "ITEM_MICELIA_404_WEAPON_2_DESCRIPTION"
+msgstr "Recarrega ao sol e reclama em ambientes fechados."
+
+msgid "ITEM_MICELIA_404_WEAPON_3_NAME"
+msgstr "Canhão de Compostagem Rápida"
+
+msgid "ITEM_MICELIA_404_WEAPON_3_DESCRIPTION"
+msgstr "Transforma cobertura em adubo antes do impacto."
+
+msgid "ITEM_MICELIA_404_ARMOR_0_NAME"
+msgstr "Casaco Antimofo Ofensivo"
+
+msgid "ITEM_MICELIA_404_ARMOR_0_DESCRIPTION"
+msgstr "O mofo não entra. Ele manda representantes."
+
+msgid "ITEM_MICELIA_404_ARMOR_1_NAME"
+msgstr "Colete de Casca Reforçada"
+
+msgid "ITEM_MICELIA_404_ARMOR_1_DESCRIPTION"
+msgstr "Orgânico, balístico e ligeiramente crocante."
+
+msgid "ITEM_MICELIA_404_ARMOR_2_NAME"
+msgstr "Poncho de Folha Carnívora"
+
+msgid "ITEM_MICELIA_404_ARMOR_2_DESCRIPTION"
+msgstr "Protege o dono e belisca estranhos sem autorização."
+
+msgid "ITEM_MICELIA_404_ARMOR_3_NAME"
+msgstr "Armadura de Cortiça Orbital"
+
+msgid "ITEM_MICELIA_404_ARMOR_3_DESCRIPTION"
+msgstr "Leve, renovável e péssima perto de saca-rolhas."
+
+msgid "ITEM_MICELIA_404_HELMET_0_NAME"
+msgstr "Elmo de Casca Micelial"
+
+msgid "ITEM_MICELIA_404_HELMET_0_DESCRIPTION"
+msgstr "Cresce uma camada nova sempre que a garantia expira."
+
+msgid "ITEM_MICELIA_404_HELMET_1_NAME"
+msgstr "Viseira de Esporos Contábeis"
+
+msgid "ITEM_MICELIA_404_HELMET_1_DESCRIPTION"
+msgstr "Classifica pólen por risco fiscal e nível de alergia."
+
+msgid "ITEM_MICELIA_404_HELMET_2_NAME"
+msgstr "Capuz Antifungo Ofensivo"
+
+msgid "ITEM_MICELIA_404_HELMET_2_DESCRIPTION"
+msgstr "Impede colônias e conversas úmidas de se instalarem."
+
+msgid "ITEM_MICELIA_404_HELMET_3_NAME"
+msgstr "Coroa de Cogumelo Nervoso"
+
+msgid "ITEM_MICELIA_404_HELMET_3_DESCRIPTION"
+msgstr "Treme diante de emboscadas e molhos cremosos."
+
+msgid "ITEM_MICELIA_404_GLOVES_0_NAME"
+msgstr "Luvas de Raiz Prensora"
+
+msgid "ITEM_MICELIA_404_GLOVES_0_DESCRIPTION"
+msgstr "Agarram criminosos, paredes e recibos biodegradáveis."
+
+msgid "ITEM_MICELIA_404_GLOVES_1_NAME"
+msgstr "Manoplas de Casca Crocante"
+
+msgid "ITEM_MICELIA_404_GLOVES_1_DESCRIPTION"
+msgstr "Orgânicas por fora, argumentos contundentes por dentro."
+
+msgid "ITEM_MICELIA_404_GLOVES_2_NAME"
+msgstr "Dedos de Micélio Assistido"
+
+msgid "ITEM_MICELIA_404_GLOVES_2_DESCRIPTION"
+msgstr "Digitam contratos antes que a mão perceba o risco."
+
+msgid "ITEM_MICELIA_404_GLOVES_3_NAME"
+msgstr "Luvas de Pólen Aderente"
+
+msgid "ITEM_MICELIA_404_GLOVES_3_DESCRIPTION"
+msgstr "Nada escapa. A limpeza também não."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_WEAPON_0_NAME"
+msgstr "Canhão de Peças Soltas"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_WEAPON_0_DESCRIPTION"
+msgstr "Cada disparo vem com um parafuso extra e nenhuma explicação."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_WEAPON_1_NAME"
+msgstr "Chave de Impacto Diplomática"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_WEAPON_1_DESCRIPTION"
+msgstr "Aperta acordos e afrouxa mandíbulas na mesma rotação."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_WEAPON_2_NAME"
+msgstr "Carabina de Rebite Quântico"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_WEAPON_2_DESCRIPTION"
+msgstr "Fixa o alvo simultaneamente em duas cenas de crime."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_WEAPON_3_NAME"
+msgstr "Prensa Portátil de Argumentos"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_WEAPON_3_DESCRIPTION"
+msgstr "Compacta objeções até caberem no coldre."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_ARMOR_0_NAME"
+msgstr "Colete de Placas Descombinadas"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_ARMOR_0_DESCRIPTION"
+msgstr "Nenhuma placa combina. Todas discordam do projétil."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_ARMOR_1_NAME"
+msgstr "Macacão de Mecânico Orbital"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_ARMOR_1_DESCRIPTION"
+msgstr "Tem bolsos para ferramentas, lanches e uma lua pequena."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_ARMOR_2_NAME"
+msgstr "Armadura de Para-Choques"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_ARMOR_2_DESCRIPTION"
+msgstr "Absorve colisões e avaliações negativas de oficina."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_ARMOR_3_NAME"
+msgstr "Manto de Garantias Vencidas"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_ARMOR_3_DESCRIPTION"
+msgstr "Não cobre dano algum, mas intimida o setor jurídico."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_HELMET_0_NAME"
+msgstr "Capacete de Para-Choque"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_HELMET_0_DESCRIPTION"
+msgstr "Sobreviveu a três naves e a uma inspeção de oficina."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_HELMET_1_NAME"
+msgstr "Máscara de Solda Diplomática"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_HELMET_1_DESCRIPTION"
+msgstr "Escurece clarões e negociações excessivamente honestas."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_HELMET_2_NAME"
+msgstr "Elmo de Peças Descombinadas"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_HELMET_2_DESCRIPTION"
+msgstr "Cada placa discorda do impacto numa frequência diferente."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_HELMET_3_NAME"
+msgstr "Viseira de Garantia Vencida"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_HELMET_3_DESCRIPTION"
+msgstr "Não cobre acidentes, mas registra todos em alta definição."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_GLOVES_0_NAME"
+msgstr "Manoplas de Chave Pneumática"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_GLOVES_0_DESCRIPTION"
+msgstr "Apertam parafusos, acordos e suspeitos na mesma pressão."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_GLOVES_1_NAME"
+msgstr "Luvas de Rebite Quântico"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_GLOVES_1_DESCRIPTION"
+msgstr "Seguram a peça aqui e numa oficina concorrente."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_GLOVES_2_NAME"
+msgstr "Garras de Separação Magnética"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_GLOVES_2_DESCRIPTION"
+msgstr "Atraem metal útil e repelem notas fiscais."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_GLOVES_3_NAME"
+msgstr "Dedais de Sucata Industrial"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_GLOVES_3_DESCRIPTION"
+msgstr "Dez pequenos escudos com procedência criativa."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_BOOTS_0_NAME"
+msgstr "Botas de Pistão Recondicionado"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_BOOTS_0_DESCRIPTION"
+msgstr "Cada passo vem com torque e uma peça sobrando."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_BOOTS_1_NAME"
+msgstr "Coturnos de Esteira Lunar"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_BOOTS_1_DESCRIPTION"
+msgstr "Foram pneus numa vida anterior e ainda sentem saudades."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_BOOTS_2_NAME"
+msgstr "Propulsores de Calcanhar Usados"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_BOOTS_2_DESCRIPTION"
+msgstr "Decolam sempre. A direção continua opcional."
+
+msgid "ITEM_FERRO_VELHO_OMEGA_BOOTS_3_NAME"
+msgstr "Botas de Aterragem Fiscal"
+
+msgid "ITEM_FERRO_VELHO_OMEGA_BOOTS_3_DESCRIPTION"
+msgstr "Amortecem quedas e parcelam o impacto em doze vezes."
+
+msgid "ITEM_CASSINO_QUASAR_WEAPON_0_NAME"
+msgstr "Carabina de Fichas Marcadas"
+
+msgid "ITEM_CASSINO_QUASAR_WEAPON_0_DESCRIPTION"
+msgstr "Cada disparo vale uma entrada e três suspeitas."
+
+msgid "ITEM_CASSINO_QUASAR_WEAPON_1_NAME"
+msgstr "Revólver de Roleta Orbital"
+
+msgid "ITEM_CASSINO_QUASAR_WEAPON_1_DESCRIPTION"
+msgstr "O tambor gira. A estação inteira também."
+
+msgid "ITEM_CASSINO_QUASAR_WEAPON_2_NAME"
+msgstr "Canhão Jackpot Portátil"
+
+msgid "ITEM_CASSINO_QUASAR_WEAPON_2_DESCRIPTION"
+msgstr "Acerta três símbolos iguais e uma parede diferente."
+
+msgid "ITEM_CASSINO_QUASAR_WEAPON_3_NAME"
+msgstr "Lâmina de Crédito Infinito"
+
+msgid "ITEM_CASSINO_QUASAR_WEAPON_3_DESCRIPTION"
+msgstr "Corta armadura, saldo e relações com o gerente."
+
+msgid "ITEM_CASSINO_QUASAR_ARMOR_0_NAME"
+msgstr "Smoking Antiazar"
+
+msgid "ITEM_CASSINO_QUASAR_ARMOR_0_DESCRIPTION"
+msgstr "Elegante contra lasers e estatisticamente inconclusivo."
+
+msgid "ITEM_CASSINO_QUASAR_ARMOR_1_NAME"
+msgstr "Colete de Fichas Laminadas"
+
+msgid "ITEM_CASSINO_QUASAR_ARMOR_1_DESCRIPTION"
+msgstr "Tilinta ao impacto e exige gorjeta do projétil."
+
+msgid "ITEM_CASSINO_QUASAR_ARMOR_2_NAME"
+msgstr "Manto de Probabilidade Duvidosa"
+
+msgid "ITEM_CASSINO_QUASAR_ARMOR_2_DESCRIPTION"
+msgstr "Talvez proteja. A etiqueta garante cinquenta por cento disso."
+
+msgid "ITEM_CASSINO_QUASAR_ARMOR_3_NAME"
+msgstr "Armadura da Casa"
+
+msgid "ITEM_CASSINO_QUASAR_ARMOR_3_DESCRIPTION"
+msgstr "Absorve dano e devolve apenas os termos de uso."
+
+msgid "ITEM_CASSINO_QUASAR_HELMET_0_NAME"
+msgstr "Cartola de Probabilidade Blindada"
+
+msgid "ITEM_CASSINO_QUASAR_HELMET_0_DESCRIPTION"
+msgstr "Protege a cabeça em aproximadamente cem por cento das versões pagas."
+
+msgid "ITEM_CASSINO_QUASAR_HELMET_1_NAME"
+msgstr "Viseira de Contagem de Cartas"
+
+msgid "ITEM_CASSINO_QUASAR_HELMET_1_DESCRIPTION"
+msgstr "Marca alvos, fichas e seguranças olhando na direção errada."
+
+msgid "ITEM_CASSINO_QUASAR_HELMET_2_NAME"
+msgstr "Capacete Jackpot"
+
+msgid "ITEM_CASSINO_QUASAR_HELMET_2_DESCRIPTION"
+msgstr "Três impactos iguais liberam uma luz piscante sem prêmio."
+
+msgid "ITEM_CASSINO_QUASAR_HELMET_3_NAME"
+msgstr "Máscara da Casa"
+
+msgid "ITEM_CASSINO_QUASAR_HELMET_3_DESCRIPTION"
+msgstr "A casa sempre vê primeiro e cobra pela gravação."
+
+msgid "ITEM_CASSINO_QUASAR_GLOVES_0_NAME"
+msgstr "Luvas de Crupiê Balístico"
+
+msgid "ITEM_CASSINO_QUASAR_GLOVES_0_DESCRIPTION"
+msgstr "Distribuem cartas, golpes e responsabilidade limitada."
+
+msgid "ITEM_CASSINO_QUASAR_GLOVES_1_NAME"
+msgstr "Manoplas de Fichas Marcadas"
+
+msgid "ITEM_CASSINO_QUASAR_GLOVES_1_DESCRIPTION"
+msgstr "Cada dedo vale uma aposta e duas suspeitas."
+
+msgid "ITEM_CASSINO_QUASAR_GLOVES_2_NAME"
+msgstr "Pegadores de Roleta Orbital"
+
+msgid "ITEM_CASSINO_QUASAR_GLOVES_2_DESCRIPTION"
+msgstr "Seguram o mundo enquanto a mesa continua girando."
+
+msgid "ITEM_CASSINO_QUASAR_GLOVES_3_NAME"
+msgstr "Luvas de Crédito Infinito"
+
+msgid "ITEM_CASSINO_QUASAR_GLOVES_3_DESCRIPTION"
+msgstr "O limite é infinito. A fatura também."
+
+msgid "ITEM_CASSINO_QUASAR_BOOTS_0_NAME"
+msgstr "Sapatos de Fuga Estatística"
+
+msgid "ITEM_CASSINO_QUASAR_BOOTS_0_DESCRIPTION"
+msgstr "Reduzem a chance de tropeço segundo o próprio fabricante."
+
+msgid "ITEM_CASSINO_QUASAR_BOOTS_1_NAME"
+msgstr "Botas de Roleta Gravitacional"
+
+msgid "ITEM_CASSINO_QUASAR_BOOTS_1_DESCRIPTION"
+msgstr "Mantêm os pés no chão quando o chão perde a aposta."
+
+msgid "ITEM_CASSINO_QUASAR_BOOTS_2_NAME"
+msgstr "Coturnos de Saída VIP"
+
+msgid "ITEM_CASSINO_QUASAR_BOOTS_2_DESCRIPTION"
+msgstr "Atravessam filas e algumas definições locais de parede."
+
+msgid "ITEM_CASSINO_QUASAR_BOOTS_3_NAME"
+msgstr "Propulsores Tudo ou Nada"
+
+msgid "ITEM_CASSINO_QUASAR_BOOTS_3_DESCRIPTION"
+msgstr "Ou pousam perfeitamente ou geram uma história excelente."
+
+msgid "ITEM_TRAIT_ARGUMENT_AMPLIFIER_NAME"
+msgstr "AMPLIFICADOR DE ARGUMENTO"
+
+msgid "ITEM_TRAIT_ARGUMENT_AMPLIFIER_DESCRIPTION"
+msgstr "+1 poder e +6 integridade."
+
+msgid "ITEM_TRAIT_AMBUSH_CAPACITOR_NAME"
+msgstr "CAPACITOR DE EMBOSCADA"
+
+msgid "ITEM_TRAIT_AMBUSH_CAPACITOR_DESCRIPTION"
+msgstr "+5 dano no primeiro disparo."
+
+msgid "ITEM_TRAIT_REACTIVE_LINING_NAME"
+msgstr "FORRO REATIVO"
+
+msgid "ITEM_TRAIT_REACTIVE_LINING_DESCRIPTION"
+msgstr "+14 de integridade máxima."
+
+msgid "ITEM_TRAIT_ILLEGAL_SERVOS_NAME"
+msgstr "SERVOS NÃO DECLARADOS"
+
+msgid "ITEM_TRAIT_ILLEGAL_SERVOS_DESCRIPTION"
+msgstr "+1 poder e +8 integridade."
+
+msgid "ITEM_TRAIT_BUREAUCRATIC_DAMPENER_NAME"
+msgstr "AMORTECEDOR BUROCRÁTICO"
+
+msgid "ITEM_TRAIT_BUREAUCRATIC_DAMPENER_DESCRIPTION"
+msgstr "-2 dano recebido por golpe."
+
+msgid "ITEM_TRAIT_CONTRABAND_VISOR_NAME"
+msgstr "VISEIRA DE CONTRABANDO"
+
+msgid "ITEM_TRAIT_CONTRABAND_VISOR_DESCRIPTION"
+msgstr "+3 dano de abertura."
+
+msgid "ITEM_TRAIT_CRANIAL_WARRANTY_NAME"
+msgstr "GARANTIA CRANIANA"
+
+msgid "ITEM_TRAIT_CRANIAL_WARRANTY_DESCRIPTION"
+msgstr "+10 de integridade máxima."
+
+msgid "ITEM_TRAIT_NEURAL_CALCULATOR_NAME"
+msgstr "CALCULADORA NEURAL"
+
+msgid "ITEM_TRAIT_NEURAL_CALCULATOR_DESCRIPTION"
+msgstr "+1 poder e +1 dano de abertura."
+
+msgid "ITEM_TRAIT_UNLICENSED_SERVOS_NAME"
+msgstr "SERVOS SEM LICENÇA"
+
+msgid "ITEM_TRAIT_UNLICENSED_SERVOS_DESCRIPTION"
+msgstr "+2 poder de combate."
+
+msgid "ITEM_TRAIT_REACTIVE_GRIP_NAME"
+msgstr "PEGA REATIVA"
+
+msgid "ITEM_TRAIT_REACTIVE_GRIP_DESCRIPTION"
+msgstr "+1 poder e +6 integridade."
+
+msgid "ITEM_TRAIT_PARRY_MESH_NAME"
+msgstr "MALHA DE APARO"
+
+msgid "ITEM_TRAIT_PARRY_MESH_DESCRIPTION"
+msgstr "-1 dano recebido por golpe."
+
+msgid "ITEM_TRAIT_INERTIAL_SOLES_NAME"
+msgstr "SOLAS INERCIAIS"
+
+msgid "ITEM_TRAIT_INERTIAL_SOLES_DESCRIPTION"
+msgstr "+10 de integridade máxima."
+
+msgid "ITEM_TRAIT_EVASION_GYROS_NAME"
+msgstr "GIROSCÓPIOS DE FUGA"
+
+msgid "ITEM_TRAIT_EVASION_GYROS_DESCRIPTION"
+msgstr "-1 dano recebido por golpe."
+
+msgid "ITEM_TRAIT_ARGUMENT_THRUSTERS_NAME"
+msgstr "PROPULSORES DE ARGUMENTO"
+
+msgid "ITEM_TRAIT_ARGUMENT_THRUSTERS_DESCRIPTION"
+msgstr "+1 poder e +2 dano de abertura."
+
+msgid "ITEM_TRAIT_SMUGGLER_HARNESS_NAME"
+msgstr "ARNÊS DE CONTRABANDO"
+
+msgid "ITEM_TRAIT_SMUGGLER_HARNESS_DESCRIPTION"
+msgstr "+10 de integridade máxima."
+
+msgid "ITEM_TRAIT_COUNTERWEIGHT_SERVOS_NAME"
+msgstr "SERVOS DE CONTRAPESO"
+
+msgid "ITEM_TRAIT_COUNTERWEIGHT_SERVOS_DESCRIPTION"
+msgstr "-1 dano recebido por golpe."
+
+msgid "ITEM_TRAIT_QUICKDRAW_BUS_NAME"
+msgstr "BARRAMENTO DE SAQUE"
+
+msgid "ITEM_TRAIT_QUICKDRAW_BUS_DESCRIPTION"
+msgstr "+1 poder e +2 dano de abertura."
+
+msgid "ITEM_TRAIT_REFLEX_ARCHIVE_NAME"
+msgstr "ARQUIVO DE REFLEXOS"
+
+msgid "ITEM_TRAIT_REFLEX_ARCHIVE_DESCRIPTION"
+msgstr "+3 dano de abertura."
+
+msgid "ITEM_TRAIT_ILLEGAL_ADRENALINE_NAME"
+msgstr "ADRENALINA ILEGAL"
+
+msgid "ITEM_TRAIT_ILLEGAL_ADRENALINE_DESCRIPTION"
+msgstr "+1 poder e +6 integridade."
+
+msgid "ITEM_TRAIT_NULL_SYNAPSE_NAME"
+msgstr "SINAPSE NULA"
+
+msgid "ITEM_TRAIT_NULL_SYNAPSE_DESCRIPTION"
+msgstr "+2 poder de combate."
+
+msgid "REWARD_NOTICE_CREDITS"
+msgstr "+%d créditos"
+
+msgid "REWARD_NOTICE_XP"
+msgstr "+%d XP"
+
+msgid "REWARD_NOTICE_INCIDENT"
+msgstr "Incidente já pago: saldo +%d créditos"
+
+msgid "REWARD_NOTICE_WARRANT_SCRAP"
+msgstr "Mandado corporativo: +%d sucata"
+
+msgid "REWARD_NOTICE_RECYCLED"
+msgstr "%s reciclado: +%d sucata"
+
+msgid "REWARD_NOTICE_EQUIPPED"
+msgstr "%s equipado"
+
+msgid "REWARD_NOTICE_STORED"
+msgstr "%s guardado"
+
+msgid "REWARD_NOTICE_MOMENTUM"
+msgstr "Embalo ×%d: +%d"
+
+msgid "REWARD_NOTICE_MOMENTUM_START"
+msgstr "Embalo ×1 iniciado: próxima captura +%d%%"
+
+msgid "REWARD_NOTICE_LEVEL"
+msgstr "Nível +%d"
+
+msgid "REWARD_NOTICE_ATTRIBUTE_POINTS"
+msgstr "+%d pontos de atributo"
+
+msgid "REWARD_NOTICE_CONTRACT_UNLOCKED"
+msgstr "Novo contrato liberado"
+
+msgid "REWARD_NOTICE_WARRANT_UNLOCKED"
+msgstr "Novo mandado planetário"
+
+msgid "REWARD_NOTICE_MASTERY"
+msgstr "Perícia com alvo %d: +%d sucata"
+
+msgid "REWARD_NOTICE_PAID"
+msgstr "Contrato pago: %s"
+
+msgid "COMMON_REFERENCE_PLACEHOLDER_WATERMARK"
+msgstr "PLACEHOLDER INTERNO · SUBSTITUIR"

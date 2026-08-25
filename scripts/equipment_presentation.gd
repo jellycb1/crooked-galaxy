@@ -2,6 +2,7 @@ class_name EquipmentPresentation
 extends RefCounted
 
 const CoreRules = preload("res://scripts/core_rules.gd")
+const LocaleRules = preload("res://scripts/locale_rules.gd")
 
 
 static func filtered_inventory(inventory: Array, slot_filter: String, sort_mode: String) -> Array:
@@ -62,17 +63,17 @@ static func equipment_delta_text(player: Dictionary, item: Dictionary) -> String
 	var deltas := equipment_deltas(player, item)
 	var parts: Array[String] = []
 	if int(deltas.power) != 0:
-		parts.append("%+d PODER" % int(deltas.power))
+		parts.append(LocaleRules.text("EQUIPMENT_DELTA_POWER", "%+d PODER", [int(deltas.power)]))
 	if int(deltas.health) != 0:
-		parts.append("%+d VIDA" % int(deltas.health))
+		parts.append(LocaleRules.text("EQUIPMENT_DELTA_HEALTH", "%+d VIDA", [int(deltas.health)]))
 	if int(deltas.opening_damage) != 0:
-		parts.append("%+d EMBOSCADA" % int(deltas.opening_damage))
+		parts.append(LocaleRules.text("EQUIPMENT_DELTA_AMBUSH", "%+d EMBOSCADA", [int(deltas.opening_damage)]))
 	if int(deltas.damage_reduction) != 0:
-		parts.append("%+d REDUÇÃO" % int(deltas.damage_reduction))
+		parts.append(LocaleRules.text("EQUIPMENT_DELTA_REDUCTION", "%+d REDUÇÃO", [int(deltas.damage_reduction)]))
 	if int(deltas.set_bonus) > 0:
-		parts.append("ATIVA KIT +%d PODER / +%d VIDA" % [CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS])
+		parts.append(LocaleRules.text("EQUIPMENT_DELTA_ACTIVATE_KIT", "ATIVA KIT +%d PODER / +%d VIDA", [CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS]))
 	elif int(deltas.set_bonus) < 0:
-		parts.append("QUEBRA KIT -%d PODER / -%d VIDA" % [CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS])
+		parts.append(LocaleRules.text("EQUIPMENT_DELTA_BREAK_KIT", "QUEBRA KIT -%d PODER / -%d VIDA", [CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS]))
 	if parts.is_empty():
-		return "= MESMO EFEITO"
+		return LocaleRules.text("EQUIPMENT_DELTA_SAME", "= MESMO EFEITO")
 	return ("▲ " if bool(deltas.upgrade) else "▼ ") + " · ".join(parts)

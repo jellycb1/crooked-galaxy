@@ -33,7 +33,7 @@ func run_mobile_audit() -> void:
 	TranslationServer.set_locale("en")
 	scene.render()
 	await process_frame
-	check((scene.find_child("PrimaryNav_contracts", true, false) as Button).text == "WARRANTS" and (scene.find_child("PrimaryNav_hunter", true, false) as Button).text == "CLASS" and find_label_with_text(scene, "LEVEL 1") != null and find_label_with_text(scene, "CREDITS") != null and find_label_with_text(scene, "WINS") != null, "English catalog covers persistent header resources and context-sensitive primary navigation")
+	check((scene.find_child("PrimaryNav_contracts", true, false) as Button).text == "WARRANTS" and (scene.find_child("PrimaryNav_hunter", true, false) as Button).text == "CLASS" and find_label_with_text(scene, "LEVEL 1") != null and find_label_with_text(scene, "CREDITS") != null and find_label_with_text(scene, "WINS") != null and find_label_with_text(scene, "INTERNAL PLACEHOLDER · REPLACE") != null, "English catalog covers persistent header resources, reference watermark, and context-sensitive primary navigation")
 	(scene.find_child("PrimaryNav_menu", true, false) as Button).pressed.emit()
 	await process_frame
 	check(find_label_with_text(scene, "FRONTIER MENU") != null and find_label_with_text(scene, "MARKET") != null and find_label_with_text(scene, "LICENSED FLYING JUNKBOX") != null and find_label_with_text(scene, "CURRENT POSITION") != null, "English catalog covers the complete Frontier Menu and localized current transport")
@@ -63,6 +63,18 @@ func run_mobile_audit() -> void:
 		for attack_index in target.get("attacks", []).size():
 			var key := "TARGET_%s_ATTACK_%d" % [str(target.id).to_upper(), attack_index]
 			check(str(TranslationServer.translate(key)) != key, "English catalog resolves %s" % key)
+	for planet in ContentDB.PLANETS:
+		for slot in CoreRules.EQUIPMENT_SLOTS:
+			var catalog := ContentDB.item_catalog_for(str(planet.id), slot)
+			for item_index in catalog.size():
+				for field in ["NAME", "DESCRIPTION"]:
+					var key := "ITEM_%s_%s_%d_%s" % [str(planet.id).to_upper(), slot.to_upper(), item_index, field]
+					check(str(TranslationServer.translate(key)) != key, "English catalog resolves %s" % key)
+	for traits in ContentDB.ITEM_TRAITS.values():
+		for trait_data in traits:
+			for field in ["NAME", "DESCRIPTION"]:
+				var key := "ITEM_TRAIT_%s_%s" % [str(trait_data.id).to_upper(), field]
+				check(str(TranslationServer.translate(key)) != key, "English catalog resolves %s" % key)
 	scene.view_mode = "board"
 	scene.board_section = "bounties"
 	scene.render()
@@ -96,10 +108,31 @@ func run_mobile_audit() -> void:
 	scene.render()
 	await process_frame
 	check(find_label_with_text(scene, "WARRANT EXECUTED") != null and find_label_with_text(scene, "TARGET CAPTURED") != null and find_label_with_text(scene, "WARRANT REPORT") != null and (scene.find_child("OpenRewardAction", true, false) as Button).text == "OPEN REWARD", "English catalog covers the complete victory handoff into reward")
+	var captured_item: Dictionary = state.pending_loot.duplicate(true)
+	var captured_catalog: Array = ContentDB.item_catalog_for(str(captured_item.origin_planet_id), str(captured_item.slot))
+	var captured_item_index := -1
+	for item_index in captured_catalog.size():
+		if str(captured_catalog[item_index].name) == str(captured_item.name):
+			captured_item_index = item_index
+			break
+	var captured_item_key: String = "ITEM_%s_%s_%d_NAME" % [str(captured_item.origin_planet_id).to_upper(), str(captured_item.slot).to_upper(), captured_item_index]
+	var captured_item_name: String = str(TranslationServer.translate(captured_item_key))
+	var captured_upgrade: bool = CoreRules.is_upgrade_for_player(state.player, captured_item)
+	var player_before_reward: Dictionary = state.player.duplicate(true)
+	(scene.find_child("OpenRewardAction", true, false) as Button).pressed.emit()
+	await process_frame
+	check(find_label_with_text(scene, "REWARD CAPTURED") != null and find_label_with_text(scene, captured_item_name) != null and find_label_with_text(scene, "RECEIPT") != null, "English reward identifies the captured catalog item and complete transaction receipt")
+	check((scene.find_child("ClaimAndRepeat", true, false) as Button).text == ("EQUIP AND REPEAT" if captured_upgrade else "STORE AND REPEAT") and (scene.find_child("ClaimAndBoard", true, false) as Button).text == ("EQUIP AND RETURN TO BOARD" if captured_upgrade else "STORE AND RETURN TO BOARD"), "English reward exposes clear equip-or-store continuation decisions")
+	(scene.find_child("ClaimAndBoard", true, false) as Button).pressed.emit()
+	await process_frame
+	check(state.phase == state.Phase.BOARD and state.last_notice.begins_with("Contract paid:") and find_label_with_text(scene, "Contract paid:") != null and find_label_with_text(scene, "Contrato pago:") == null, "English transaction remains localized through the return to the wanted board")
+	state.player = player_before_reward
 	state.phase = state.Phase.BOARD
 	state.current_bounty = {}
 	state.pending_loot = {}
 	state.combat_events.clear()
+	state.last_notice = ""
+	state.last_notice_context = ""
 	scene.render()
 	await process_frame
 	await process_frame
