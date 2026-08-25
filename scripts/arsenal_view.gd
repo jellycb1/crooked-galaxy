@@ -626,6 +626,20 @@ static func universal_equipment_grid(host: CrookedUIFactory, state: StateScript)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_child(title)
 	heading.add_child(host.label("%d / %d EQUIPADOS" % [Rules.equipped_item_count(state.player), Rules.EQUIPMENT_SLOTS.size()], 10, host.GOLD))
+	var active_secondary: Array[String] = []
+	for slot_id in Content.loot_slots_for_planet(str(state.player.get("current_planet_id", "dustball_prime"))):
+		if slot_id != "weapon" and slot_id != "armor" and not active_secondary.has(slot_id):
+			active_secondary.append(slot_id)
+	var drop_status := "PRÓXIMO DROP SECUNDÁRIO · CAPACETE EM CONGELÁRIA S.A."
+	if not active_secondary.is_empty():
+		var active_names: Array[String] = []
+		for slot_id in active_secondary:
+			active_names.append(Rules.equipment_slot_name(slot_id).to_upper())
+		drop_status = "DROPS NESTA FRONTEIRA · %s" % " · ".join(active_names)
+	var progression := host.label(drop_status, 9, host.LIME if not active_secondary.is_empty() else host.MUTED)
+	progression.name = "SecondaryEquipmentProgression"
+	progression.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(progression)
 	var grid := GridContainer.new()
 	grid.name = "UniversalEquipmentGrid"
 	grid.columns = 3

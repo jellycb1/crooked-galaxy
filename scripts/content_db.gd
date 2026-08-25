@@ -768,6 +768,21 @@ const ITEM_TRAITS := {
 		{"id": "illegal_servos", "name": "SERVOS NÃO DECLARADOS", "description": "+1 poder e +8 integridade.", "power_bonus": 1, "health_bonus": 8},
 		{"id": "bureaucratic_dampener", "name": "AMORTECEDOR BUROCRÁTICO", "description": "-2 dano recebido por golpe.", "power_bonus": 0, "health_bonus": 0, "damage_reduction": 2},
 	],
+	"helmet": [
+		{"id": "contraband_visor", "name": "VISEIRA DE CONTRABANDO", "description": "+3 dano de abertura.", "power_bonus": 0, "health_bonus": 0, "opening_damage_bonus": 3},
+		{"id": "cranial_warranty", "name": "GARANTIA CRANIANA", "description": "+10 de integridade máxima.", "power_bonus": 0, "health_bonus": 10},
+		{"id": "neural_calculator", "name": "CALCULADORA NEURAL", "description": "+1 poder e +1 dano de abertura.", "power_bonus": 1, "health_bonus": 0, "opening_damage_bonus": 1},
+	],
+	"gloves": [
+		{"id": "unlicensed_servos", "name": "SERVOS SEM LICENÇA", "description": "+2 poder de combate.", "power_bonus": 2, "health_bonus": 0},
+		{"id": "reactive_grip", "name": "PEGA REATIVA", "description": "+1 poder e +6 integridade.", "power_bonus": 1, "health_bonus": 6},
+		{"id": "parry_mesh", "name": "MALHA DE APARO", "description": "-1 dano recebido por golpe.", "power_bonus": 0, "health_bonus": 0, "damage_reduction": 1},
+	],
+	"boots": [
+		{"id": "inertial_soles", "name": "SOLAS INERCIAIS", "description": "+10 de integridade máxima.", "power_bonus": 0, "health_bonus": 10},
+		{"id": "evasion_gyros", "name": "GIROSCÓPIOS DE FUGA", "description": "-1 dano recebido por golpe.", "power_bonus": 0, "health_bonus": 0, "damage_reduction": 1},
+		{"id": "argument_thrusters", "name": "PROPULSORES DE ARGUMENTO", "description": "+1 poder e +2 dano de abertura.", "power_bonus": 1, "health_bonus": 0, "opening_damage_bonus": 2},
+	],
 }
 
 
@@ -841,6 +856,71 @@ const PLANET_ITEM_CATALOGS := {
 			{"name": "Colete de Fichas Laminadas", "description": "Tilinta ao impacto e exige gorjeta do projétil."},
 			{"name": "Manto de Probabilidade Duvidosa", "description": "Talvez proteja. A etiqueta garante cinquenta por cento disso."},
 			{"name": "Armadura da Casa", "description": "Absorve dano e devolve apenas os termos de uso."},
+		],
+	},
+}
+
+const SECONDARY_ITEM_CATALOGS := {
+	"congelaria_sa": {
+		"helmet": [
+			{"name": "Capacete de Ponto de Congelamento", "description": "Mantém ideias acima de zero e multas do lado de fora."},
+			{"name": "Viseira Antineblina Executiva", "description": "Revela alvos, planilhas e demissões através da geada."},
+			{"name": "Touca Balística Homologada", "description": "Parece lã. O setor jurídico insiste que é blindagem."},
+			{"name": "Cúpula Criogênica Reversa", "description": "Congela projéteis e descongela decisões ruins."},
+		],
+	},
+	"micelia_404": {
+		"helmet": [
+			{"name": "Elmo de Casca Micelial", "description": "Cresce uma camada nova sempre que a garantia expira."},
+			{"name": "Viseira de Esporos Contábeis", "description": "Classifica pólen por risco fiscal e nível de alergia."},
+			{"name": "Capuz Antifungo Ofensivo", "description": "Impede colônias e conversas úmidas de se instalarem."},
+			{"name": "Coroa de Cogumelo Nervoso", "description": "Treme diante de emboscadas e molhos cremosos."},
+		],
+		"gloves": [
+			{"name": "Luvas de Raiz Prensora", "description": "Agarram criminosos, paredes e recibos biodegradáveis."},
+			{"name": "Manoplas de Casca Crocante", "description": "Orgânicas por fora, argumentos contundentes por dentro."},
+			{"name": "Dedos de Micélio Assistido", "description": "Digitam contratos antes que a mão perceba o risco."},
+			{"name": "Luvas de Pólen Aderente", "description": "Nada escapa. A limpeza também não."},
+		],
+	},
+	"ferro_velho_omega": {
+		"helmet": [
+			{"name": "Capacete de Para-Choque", "description": "Sobreviveu a três naves e a uma inspeção de oficina."},
+			{"name": "Máscara de Solda Diplomática", "description": "Escurece clarões e negociações excessivamente honestas."},
+			{"name": "Elmo de Peças Descombinadas", "description": "Cada placa discorda do impacto numa frequência diferente."},
+			{"name": "Viseira de Garantia Vencida", "description": "Não cobre acidentes, mas registra todos em alta definição."},
+		],
+		"gloves": [
+			{"name": "Manoplas de Chave Pneumática", "description": "Apertam parafusos, acordos e suspeitos na mesma pressão."},
+			{"name": "Luvas de Rebite Quântico", "description": "Seguram a peça aqui e numa oficina concorrente."},
+			{"name": "Garras de Separação Magnética", "description": "Atraem metal útil e repelem notas fiscais."},
+			{"name": "Dedais de Sucata Industrial", "description": "Dez pequenos escudos com procedência criativa."},
+		],
+		"boots": [
+			{"name": "Botas de Pistão Recondicionado", "description": "Cada passo vem com torque e uma peça sobrando."},
+			{"name": "Coturnos de Esteira Lunar", "description": "Foram pneus numa vida anterior e ainda sentem saudades."},
+			{"name": "Propulsores de Calcanhar Usados", "description": "Decolam sempre. A direção continua opcional."},
+			{"name": "Botas de Aterragem Fiscal", "description": "Amortecem quedas e parcelam o impacto em doze vezes."},
+		],
+	},
+	"cassino_quasar": {
+		"helmet": [
+			{"name": "Cartola de Probabilidade Blindada", "description": "Protege a cabeça em aproximadamente cem por cento das versões pagas."},
+			{"name": "Viseira de Contagem de Cartas", "description": "Marca alvos, fichas e seguranças olhando na direção errada."},
+			{"name": "Capacete Jackpot", "description": "Três impactos iguais liberam uma luz piscante sem prêmio."},
+			{"name": "Máscara da Casa", "description": "A casa sempre vê primeiro e cobra pela gravação."},
+		],
+		"gloves": [
+			{"name": "Luvas de Crupiê Balístico", "description": "Distribuem cartas, golpes e responsabilidade limitada."},
+			{"name": "Manoplas de Fichas Marcadas", "description": "Cada dedo vale uma aposta e duas suspeitas."},
+			{"name": "Pegadores de Roleta Orbital", "description": "Seguram o mundo enquanto a mesa continua girando."},
+			{"name": "Luvas de Crédito Infinito", "description": "O limite é infinito. A fatura também."},
+		],
+		"boots": [
+			{"name": "Sapatos de Fuga Estatística", "description": "Reduzem a chance de tropeço segundo o próprio fabricante."},
+			{"name": "Botas de Roleta Gravitacional", "description": "Mantêm os pés no chão quando o chão perde a aposta."},
+			{"name": "Coturnos de Saída VIP", "description": "Atravessam filas e algumas definições locais de parede."},
+			{"name": "Propulsores Tudo ou Nada", "description": "Ou pousam perfeitamente ou geram uma história excelente."},
 		],
 	},
 }
@@ -1013,12 +1093,17 @@ static func apply_hunt_choice(bounty: Dictionary, choice: Dictionary) -> Diction
 
 
 static func generate_loot(target: Dictionary, rng: RandomNumberGenerator, mastery_level := 0, forced_slot := "") -> Dictionary:
-	var slot := forced_slot if forced_slot == "weapon" or forced_slot == "armor" else ("weapon" if rng.randf() < 0.58 else "armor")
 	var planet_id := str(target.get("planet_id", "dustball_prime"))
-	var item_family: Dictionary = PLANET_ITEM_CATALOGS.get(planet_id, ITEM_CATALOG)
-	var catalog: Array = item_family[slot]
+	var available_slots := loot_slots_for_planet(planet_id)
+	var slot := forced_slot if available_slots.has(forced_slot) else choose_loot_slot(available_slots, rng.randf())
+	var catalog := item_catalog_for(planet_id, slot)
 	var definition: Dictionary = catalog[rng.randi_range(0, catalog.size() - 1)]
-	var base_power := int(int(target.get("loot_power", target.power)) * rng.randf_range(0.36, 0.68))
+	var secondary_slot := slot != "weapon" and slot != "armor"
+	var base_power := 1 if secondary_slot else int(int(target.get("loot_power", target.power)) * rng.randf_range(0.36, 0.68))
+	# Secondary equipment creates lateral build choices instead of three extra
+	# weapon curves. Its progression lives in rare modifications, not target tier.
+	if secondary_slot:
+		rng.randf()
 	var rarity_roll := rng.randf()
 	var rarity_thresholds := CoreRulesScript.loot_rarity_thresholds(mastery_level)
 	var rarity := "Comum"
@@ -1027,11 +1112,11 @@ static func generate_loot(target: Dictionary, rng: RandomNumberGenerator, master
 	if rarity_roll > float(rarity_thresholds.epic):
 		rarity = "Épico"
 		rarity_color = "#d789ff"
-		bonus = 5
+		bonus = 1 if secondary_slot else 5
 	elif rarity_roll > float(rarity_thresholds.rare):
 		rarity = "Raro"
 		rarity_color = "#58d9ff"
-		bonus = 2
+		bonus = 0 if secondary_slot else 2
 	var item := {
 		"id": "%s_%s_%d" % [target.id, slot, rng.randi()],
 		"name": definition.name,
@@ -1047,6 +1132,33 @@ static func generate_loot(target: Dictionary, rng: RandomNumberGenerator, master
 		var traits: Array = ITEM_TRAITS[slot]
 		item.trait = traits[rng.randi_range(0, traits.size() - 1)].duplicate(true)
 	return item
+
+
+static func loot_slots_for_planet(planet_id: String) -> Array[String]:
+	match planet_id:
+		"congelaria_sa":
+			return ["weapon", "weapon", "weapon", "armor", "armor", "helmet"]
+		"micelia_404":
+			return ["weapon", "weapon", "weapon", "armor", "armor", "helmet", "gloves"]
+		"ferro_velho_omega", "cassino_quasar":
+			return ["weapon", "weapon", "weapon", "armor", "armor", "helmet", "gloves", "boots"]
+		_:
+			return ["weapon", "weapon", "weapon", "armor", "armor"]
+
+
+static func choose_loot_slot(weighted_slots: Array[String], roll: float) -> String:
+	if weighted_slots.is_empty():
+		return "weapon"
+	var index := mini(weighted_slots.size() - 1, floori(clampf(roll, 0.0, 0.999999) * float(weighted_slots.size())))
+	return weighted_slots[index]
+
+
+static func item_catalog_for(planet_id: String, slot: String) -> Array:
+	if slot == "weapon" or slot == "armor":
+		var core_family: Dictionary = PLANET_ITEM_CATALOGS.get(planet_id, ITEM_CATALOG)
+		return core_family.get(slot, ITEM_CATALOG[slot])
+	var secondary_family: Dictionary = SECONDARY_ITEM_CATALOGS.get(planet_id, {})
+	return secondary_family.get(slot, [])
 
 
 static func player_attack(rng: RandomNumberGenerator) -> String:

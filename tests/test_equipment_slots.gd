@@ -28,6 +28,9 @@ func run_test() -> void:
 	check(str(state.player.helmet.id) == "test_helmet" and Rules.player_power(state.player) == baseline_power + 2, "a non-core slot equips through the same transaction and contributes to the universal build")
 	check(state.save_equipment_loadout(0) and str(state.player.equipment_loadouts[0].helmet_id) == "test_helmet", "loadouts snapshot non-core equipment with the same contract")
 	check(state.is_item_protected("test_helmet"), "equipment saved in any universal slot is protected from recycling")
+	var gloves := {"id": "test_gloves", "name": "Luvas de Auditoria", "slot": "gloves", "power": 1, "rarity": "Raro", "color": "#58d9ff", "trait": ContentDB.ITEM_TRAITS.gloves[2].duplicate(true)}
+	state.equip(gloves)
+	check(Rules.player_damage_reduction(state.player) == 1, "secondary equipment traits participate in the same combat aggregation")
 
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
@@ -42,6 +45,13 @@ func run_test() -> void:
 	await process_frame
 	check(scene.find_children("UniversalSlot_*", "PanelContainer", true, false).size() == 9, "arsenal overview renders the same nine-slot contract")
 	check(scene.find_child("UniversalSlot_relic", true, false) != null and scene.find_child("UniversalSlot_weapon", true, false) != null, "filled and future equipment positions remain stable across classes")
+	var dustball_progression := scene.find_child("SecondaryEquipmentProgression", true, false) as Label
+	check(dustball_progression != null and dustball_progression.text.contains("CAPACETE EM CONGELÁRIA"), "the starting arsenal turns its first empty secondary slot into a visible progression goal")
+	state.player.current_planet_id = "micelia_404"
+	scene.render()
+	await process_frame
+	var mycelia_progression := scene.find_child("SecondaryEquipmentProgression", true, false) as Label
+	check(mycelia_progression != null and mycelia_progression.text.contains("CAPACETE") and mycelia_progression.text.contains("LUVAS") and not mycelia_progression.text.contains("BOTAS"), "arsenal progression names exactly the secondary families active on the current frontier")
 	scene.free()
 	await process_frame
 	finish()

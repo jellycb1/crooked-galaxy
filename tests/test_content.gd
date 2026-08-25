@@ -59,7 +59,7 @@ func _init() -> void:
 		check(family.has("armor") and family.get("armor", []).size() >= 4, "planet has an armor family: %s" % str(planet.id))
 
 	var trait_ids := {}
-	for slot in ["weapon", "armor"]:
+	for slot in ["weapon", "armor", "helmet", "gloves", "boots"]:
 		check(ContentDB.ITEM_TRAITS.has(slot) and ContentDB.ITEM_TRAITS[slot].size() >= 3, "equipment slot has modification variety: %s" % slot)
 		for modification in ContentDB.ITEM_TRAITS[slot]:
 			var trait_id := str(modification.get("id", ""))
@@ -103,6 +103,33 @@ func _init() -> void:
 		if rarity_weight(str(mastery_loot.rarity)) > rarity_weight(str(base_loot.rarity)):
 			promoted_loot += 1
 	check(promoted_loot > 0, "maximum mastery promotes deterministic loot rolls")
+	check(ContentDB.loot_slots_for_planet("dustball_prime").all(func(slot): return slot == "weapon" or slot == "armor"), "Dustball keeps the two-slot loot tutorial")
+	check(ContentDB.loot_slots_for_planet("congelaria_sa").has("helmet") and not ContentDB.loot_slots_for_planet("congelaria_sa").has("gloves"), "Congelária introduces helmets without opening later slots early")
+	check(ContentDB.loot_slots_for_planet("micelia_404").has("gloves") and not ContentDB.loot_slots_for_planet("micelia_404").has("boots"), "Micélia introduces gloves after helmets")
+	check(ContentDB.loot_slots_for_planet("ferro_velho_omega").has("boots"), "Ferro-Velho completes the first secondary equipment layer")
+	for secondary_case in [
+		{"target": ContentDB.TARGETS[4], "slot": "helmet"},
+		{"target": ContentDB.TARGETS[8], "slot": "gloves"},
+		{"target": ContentDB.TARGETS[12], "slot": "boots"},
+	]:
+		var secondary_rng := RandomNumberGenerator.new()
+		secondary_rng.seed = 9917
+		var secondary_item := ContentDB.generate_loot(secondary_case.target, secondary_rng, 3, str(secondary_case.slot))
+		check(str(secondary_item.slot) == str(secondary_case.slot) and int(secondary_item.power) <= 2, "%s loot uses its lateral secondary power budget" % str(secondary_case.slot))
+		check(not str(secondary_item.name).is_empty() and ContentDB.ITEM_TRAITS.has(str(secondary_item.slot)), "%s loot owns a themed catalog and modification family" % str(secondary_case.slot))
+	for frontier_case in [
+		{"target": ContentDB.TARGETS[4], "expected": ["weapon", "armor", "helmet"]},
+		{"target": ContentDB.TARGETS[8], "expected": ["weapon", "armor", "helmet", "gloves"]},
+		{"target": ContentDB.TARGETS[12], "expected": ["weapon", "armor", "helmet", "gloves", "boots"]},
+	]:
+		var seen_slots := {}
+		for seed in 240:
+			var frontier_rng := RandomNumberGenerator.new()
+			frontier_rng.seed = 7000 + seed
+			var frontier_item := ContentDB.generate_loot(frontier_case.target, frontier_rng)
+			seen_slots[str(frontier_item.slot)] = true
+		check(frontier_case.expected.all(func(slot): return seen_slots.has(slot)), "%s deterministic drops exercise every unlocked equipment family" % str(frontier_case.target.planet_id))
+		check(seen_slots.keys().all(func(slot): return frontier_case.expected.has(slot)), "%s drops never leak a future equipment family" % str(frontier_case.target.planet_id))
 	if failures == 0:
 		print("PASS: all Crooked Galaxy content is internally consistent")
 		quit(0)
