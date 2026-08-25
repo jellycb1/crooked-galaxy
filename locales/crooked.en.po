@@ -3013,3 +3013,219 @@ msgstr "Faster than a legal appeal."
 
 msgid "TRANSPORT_EXECUTIVE_ESCAPE_YACHT_TAGLINE"
 msgstr "Forty percent less time to deny everything."
+
+msgid "CAREER_TITLE"
+msgstr "HUNTER CAREER"
+
+msgid "CAREER_SUBTITLE"
+msgstr "The galaxy forgets crimes. Your résumé does not."
+
+msgid "CAREER_CLAIM_ALL"
+msgstr "CLAIM ALL · %d"
+
+msgid "CAREER_PROGRESS"
+msgstr "PROGRESS"
+
+msgid "CAREER_WANTED_COUNT"
+msgstr "WANTED · %d"
+
+msgid "CAREER_PLANET_PROGRESS"
+msgstr "PLANETARY PROGRESS"
+
+msgid "CAREER_PARALLEL_PROGRESS"
+msgstr "PARALLEL PROGRESS"
+
+msgid "CAREER_MILESTONES"
+msgstr "CAREER MILESTONES"
+
+msgid "CAREER_WANTED_ARCHIVE"
+msgstr "WANTED ARCHIVE · CURRENT PLANET FIRST"
+
+msgid "CAREER_RECEIPT"
+msgstr "CAREER RECEIPT"
+
+msgid "CAREER_HUNTER_LEVEL"
+msgstr "LEVEL %d HUNTER"
+
+msgid "CAREER_CAPTURE_SECTORS"
+msgstr "%d CAPTURES · %d/%d SECTORS"
+
+msgid "CAREER_NEXT_LEVEL"
+msgstr "NEXT LEVEL"
+
+msgid "CAREER_LIFETIME_EARNINGS"
+msgstr "AFK ◈ %d / %d scrap · REWARDS ◈ %d / %d scrap"
+
+msgid "CAREER_MILESTONE_BADGE"
+msgstr "MILESTONES\n%d / %d"
+
+msgid "CAREER_READY_BADGE"
+msgstr "\n%d READY"
+
+msgid "CAREER_NEXT_MASTERY"
+msgstr "NEXT MASTERY · %s"
+
+msgid "CAREER_MASTERY_REMAINING"
+msgstr "%d captures until mastery %d/3"
+
+msgid "CAREER_MASTERY_BONUS"
+msgstr "Next bonus: +%d%% rare · +%d%% epic · +%d scrap"
+
+msgid "CAREER_CHOOSE_ROUTE"
+msgstr "CHOOSE\nROUTE"
+
+msgid "CAREER_PLANET_CAPTURES"
+msgstr "%d CAPTURES · TIER %d/3"
+
+msgid "CAREER_COMPLETED"
+msgstr "COMPLETE"
+
+msgid "CAREER_IN_PROGRESS"
+msgstr "IN PROGRESS"
+
+msgid "RIFT_TITLE"
+msgstr "CLANDESTINE RIFT"
+
+msgid "CAREER_RIFT_LOCKED"
+msgstr "LOCKED · COMPLETE DUSTBALL PRIME"
+
+msgid "CAREER_RIFT_COMPLETE"
+msgstr "%d/%d FLOORS · ARCHIVE COMPLETE"
+
+msgid "CAREER_RIFT_NEXT"
+msgstr "%d/%d CLEARED · NEXT: %s"
+
+msgid "CAREER_LOCKED_FEMININE"
+msgstr "LOCKED"
+
+msgid "CAREER_COMPLETE_FEMININE"
+msgstr "COMPLETE"
+
+msgid "CAREER_RIGS"
+msgstr "TECHNICAL\nRIGS"
+
+msgid "CAREER_IMPLANTS"
+msgstr "IMPLANTS"
+
+msgid "CAREER_OPEN"
+msgstr "OPEN"
+
+msgid "CAREER_REWARD_SCRAP"
+msgstr " · %d scrap"
+
+msgid "CAREER_CLAIMED"
+msgstr "CLAIMED"
+
+msgid "CAREER_CLAIM"
+msgstr "CLAIM\n%s"
+
+msgid "CAREER_CLASSIFIED_WARRANT"
+msgstr "CLASSIFIED WARRANT"
+
+msgid "CAREER_INSUFFICIENT_CREDENTIALS"
+msgstr "insufficient credentials"
+
+msgid "CAREER_TARGET_CAPTURES"
+msgstr "CAPTURES %d"
+
+msgid "CAREER_AVAILABLE"
+msgstr "AVAILABLE"
+
+msgid "CAREER_TARGET_MASTERY"
+msgstr " · MASTERY %d/3"
+
+msgid "CAREER_NOTICE_SCRAP"
+msgstr " · +%d scrap"
+
+msgid "CAREER_NOTICE_CLAIMED"
+msgstr "Milestone claimed: %s. +%d credits%s"
+
+msgid "CAREER_NOTICE_ALL_CLAIMED"
+msgstr "%d milestones claimed: +%d credits · +%d scrap."
+
+msgid "AFK_PATROL_COMPLETE"
+msgstr "PATROL COMPLETE · %s"
+
+msgid "AFK_PATROL_REWARD"
+msgstr "+%d credits · +%d scrap%s"
+
+msgid "AFK_CAP"
+msgstr " · 8H CAP"
+
+msgid "PROGRESSION_TOAST"
+msgstr "+%d credits · +%d XP"
+
+msgid "PROGRESSION_TOAST_SCRAP"
+msgstr " · +%d SCRAP"
+
+msgid "PROGRESSION_TOAST_LEVEL"
+msgstr " · LEVEL +%d"
+
+msgid "PROGRESSION_TOAST_RANK"
+msgstr " · NEW RANK"
+
+msgid "CAREER_MILESTONE_FIRST_WARRANT_NAME"
+msgstr "FIRST WARRANT"
+
+msgid "CAREER_MILESTONE_FIRST_WARRANT_DESCRIPTION"
+msgstr "Complete your first capture."
+
+msgid "CAREER_MILESTONE_REPEAT_CUSTOMER_NAME"
+msgstr "REPEAT CUSTOMER"
+
+msgid "CAREER_MILESTONE_REPEAT_CUSTOMER_DESCRIPTION"
+msgstr "Capture the same target three times."
+
+msgid "CAREER_MILESTONE_SECTOR_OWNER_NAME"
+msgstr "SECTOR OWNER"
+
+msgid "CAREER_MILESTONE_SECTOR_OWNER_DESCRIPTION"
+msgstr "Complete your first planet."
+
+msgid "CAREER_MILESTONE_TRIPLE_FRONTIER_NAME"
+msgstr "TRIPLE FRONTIER"
+
+msgid "CAREER_MILESTONE_TRIPLE_FRONTIER_DESCRIPTION"
+msgstr "Complete three planets."
+
+msgid "CAREER_MILESTONE_OMEGA_MECHANIC_NAME"
+msgstr "APOCALYPSE MECHANIC"
+
+msgid "CAREER_MILESTONE_OMEGA_MECHANIC_DESCRIPTION"
+msgstr "Complete four planets."
+
+msgid "CAREER_MILESTONE_HOUSE_BREAKER_NAME"
+msgstr "THE HOUSE LOST"
+
+msgid "CAREER_MILESTONE_HOUSE_BREAKER_DESCRIPTION"
+msgstr "Complete five planets."
+
+msgid "CAREER_MILESTONE_NOTHING_WASTED_NAME"
+msgstr "NOTHING WASTED"
+
+msgid "CAREER_MILESTONE_NOTHING_WASTED_DESCRIPTION"
+msgstr "Recycle at least 25 scrap."
+
+msgid "CAREER_MILESTONE_HOT_PURSUIT_NAME"
+msgstr "HOT PURSUIT"
+
+msgid "CAREER_MILESTONE_HOT_PURSUIT_DESCRIPTION"
+msgstr "Maintain a five-capture streak."
+
+msgid "RIFT_STAGE_RIFT_CUSTOMS_DRONE_NAME"
+msgstr "Dead Customs Drone"
+
+msgid "RIFT_STAGE_RIFT_ECHO_COLLECTOR_NAME"
+msgstr "Echo Collector"
+
+msgid "RIFT_STAGE_RIFT_QUARTERMASTER_NAME"
+msgstr "Quartermaster Without a Regiment"
+
+msgid "RIFT_STAGE_RIFT_MEMORY_LEECH_NAME"
+msgstr "Memory Leech"
+
+msgid "RIFT_STAGE_RIFT_PROBABILITY_CLERK_NAME"
+msgstr "Probability Clerk"
+
+msgid "RIFT_STAGE_RIFT_NULL_WARDEN_NAME"
+msgstr "Null Sector Warden"

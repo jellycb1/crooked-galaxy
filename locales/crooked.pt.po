@@ -3013,3 +3013,219 @@ msgstr "Mais rápido que a contestação judicial."
 
 msgid "TRANSPORT_EXECUTIVE_ESCAPE_YACHT_TAGLINE"
 msgstr "Quarenta por cento menos tempo para negar tudo."
+
+msgid "CAREER_TITLE"
+msgstr "CARREIRA DE CAÇADOR"
+
+msgid "CAREER_SUBTITLE"
+msgstr "A galáxia esquece crimes. Seu currículo não."
+
+msgid "CAREER_CLAIM_ALL"
+msgstr "RESGATAR TODOS · %d"
+
+msgid "CAREER_PROGRESS"
+msgstr "PROGRESSO"
+
+msgid "CAREER_WANTED_COUNT"
+msgstr "PROCURADOS · %d"
+
+msgid "CAREER_PLANET_PROGRESS"
+msgstr "PROGRESSO PLANETÁRIO"
+
+msgid "CAREER_PARALLEL_PROGRESS"
+msgstr "PROGRESSO PARALELO"
+
+msgid "CAREER_MILESTONES"
+msgstr "MARCOS DA CARREIRA"
+
+msgid "CAREER_WANTED_ARCHIVE"
+msgstr "ARQUIVO DE PROCURADOS · PLANETA ATUAL PRIMEIRO"
+
+msgid "CAREER_RECEIPT"
+msgstr "RECIBO DA CARREIRA"
+
+msgid "CAREER_HUNTER_LEVEL"
+msgstr "CAÇADOR NÍVEL %d"
+
+msgid "CAREER_CAPTURE_SECTORS"
+msgstr "%d CAPTURAS · %d/%d SETORES"
+
+msgid "CAREER_NEXT_LEVEL"
+msgstr "PRÓXIMO NÍVEL"
+
+msgid "CAREER_LIFETIME_EARNINGS"
+msgstr "AFK ◈ %d / %d sucata · PRÊMIOS ◈ %d / %d sucata"
+
+msgid "CAREER_MILESTONE_BADGE"
+msgstr "MARCOS\n%d / %d"
+
+msgid "CAREER_READY_BADGE"
+msgstr "\n%d A RESGATAR"
+
+msgid "CAREER_NEXT_MASTERY"
+msgstr "PRÓXIMA PERÍCIA · %s"
+
+msgid "CAREER_MASTERY_REMAINING"
+msgstr "Faltam %d capturas para perícia %d/3"
+
+msgid "CAREER_MASTERY_BONUS"
+msgstr "Próximo bônus: +%d%% raro · +%d%% épico · +%d sucata"
+
+msgid "CAREER_CHOOSE_ROUTE"
+msgstr "ESCOLHER\nROTA"
+
+msgid "CAREER_PLANET_CAPTURES"
+msgstr "%d CAPTURAS · TIER %d/3"
+
+msgid "CAREER_COMPLETED"
+msgstr "CONCLUÍDO"
+
+msgid "CAREER_IN_PROGRESS"
+msgstr "EM ANDAMENTO"
+
+msgid "RIFT_TITLE"
+msgstr "FENDA CLANDESTINA"
+
+msgid "CAREER_RIFT_LOCKED"
+msgstr "BLOQUEADA · CONCLUA DUSTBALL PRIME"
+
+msgid "CAREER_RIFT_COMPLETE"
+msgstr "%d/%d ANDARES · ARQUIVO CONCLUÍDO"
+
+msgid "CAREER_RIFT_NEXT"
+msgstr "%d/%d LIMPOS · PRÓXIMO: %s"
+
+msgid "CAREER_LOCKED_FEMININE"
+msgstr "BLOQUEADA"
+
+msgid "CAREER_COMPLETE_FEMININE"
+msgstr "COMPLETA"
+
+msgid "CAREER_RIGS"
+msgstr "CINTOS\nTÉCNICOS"
+
+msgid "CAREER_IMPLANTS"
+msgstr "IMPLANTES"
+
+msgid "CAREER_OPEN"
+msgstr "ABRIR"
+
+msgid "CAREER_REWARD_SCRAP"
+msgstr " · %d sucata"
+
+msgid "CAREER_CLAIMED"
+msgstr "RESGATADO"
+
+msgid "CAREER_CLAIM"
+msgstr "RESGATAR\n%s"
+
+msgid "CAREER_CLASSIFIED_WARRANT"
+msgstr "MANDADO CLASSIFICADO"
+
+msgid "CAREER_INSUFFICIENT_CREDENTIALS"
+msgstr "credenciais insuficientes"
+
+msgid "CAREER_TARGET_CAPTURES"
+msgstr "CAPTURAS %d"
+
+msgid "CAREER_AVAILABLE"
+msgstr "DISPONÍVEL"
+
+msgid "CAREER_TARGET_MASTERY"
+msgstr " · PERÍCIA %d/3"
+
+msgid "CAREER_NOTICE_SCRAP"
+msgstr " · +%d sucata"
+
+msgid "CAREER_NOTICE_CLAIMED"
+msgstr "Marco resgatado: %s. +%d créditos%s"
+
+msgid "CAREER_NOTICE_ALL_CLAIMED"
+msgstr "%d marcos resgatados: +%d créditos · +%d sucata."
+
+msgid "AFK_PATROL_COMPLETE"
+msgstr "PATRULHA CONCLUÍDA · %s"
+
+msgid "AFK_PATROL_REWARD"
+msgstr "+%d créditos · +%d sucata%s"
+
+msgid "AFK_CAP"
+msgstr " · LIMITE 8H"
+
+msgid "PROGRESSION_TOAST"
+msgstr "+%d créditos · +%d XP"
+
+msgid "PROGRESSION_TOAST_SCRAP"
+msgstr " · +%d SUCATA"
+
+msgid "PROGRESSION_TOAST_LEVEL"
+msgstr " · NÍVEL +%d"
+
+msgid "PROGRESSION_TOAST_RANK"
+msgstr " · NOVO RANK"
+
+msgid "CAREER_MILESTONE_FIRST_WARRANT_NAME"
+msgstr "PRIMEIRO MANDADO"
+
+msgid "CAREER_MILESTONE_FIRST_WARRANT_DESCRIPTION"
+msgstr "Execute sua primeira captura."
+
+msgid "CAREER_MILESTONE_REPEAT_CUSTOMER_NAME"
+msgstr "CLIENTE FREQUENTE"
+
+msgid "CAREER_MILESTONE_REPEAT_CUSTOMER_DESCRIPTION"
+msgstr "Capture o mesmo alvo três vezes."
+
+msgid "CAREER_MILESTONE_SECTOR_OWNER_NAME"
+msgstr "DONO DO SETOR"
+
+msgid "CAREER_MILESTONE_SECTOR_OWNER_DESCRIPTION"
+msgstr "Conclua seu primeiro planeta."
+
+msgid "CAREER_MILESTONE_TRIPLE_FRONTIER_NAME"
+msgstr "TRÍPLICE FRONTEIRA"
+
+msgid "CAREER_MILESTONE_TRIPLE_FRONTIER_DESCRIPTION"
+msgstr "Conclua três planetas."
+
+msgid "CAREER_MILESTONE_OMEGA_MECHANIC_NAME"
+msgstr "MECÂNICO DO APOCALIPSE"
+
+msgid "CAREER_MILESTONE_OMEGA_MECHANIC_DESCRIPTION"
+msgstr "Conclua quatro planetas."
+
+msgid "CAREER_MILESTONE_HOUSE_BREAKER_NAME"
+msgstr "A CASA PERDEU"
+
+msgid "CAREER_MILESTONE_HOUSE_BREAKER_DESCRIPTION"
+msgstr "Conclua cinco planetas."
+
+msgid "CAREER_MILESTONE_NOTHING_WASTED_NAME"
+msgstr "NADA SE PERDE"
+
+msgid "CAREER_MILESTONE_NOTHING_WASTED_DESCRIPTION"
+msgstr "Recicle pelo menos 25 pontos de sucata."
+
+msgid "CAREER_MILESTONE_HOT_PURSUIT_NAME"
+msgstr "PERSEGUIÇÃO AQUECIDA"
+
+msgid "CAREER_MILESTONE_HOT_PURSUIT_DESCRIPTION"
+msgstr "Mantenha um embalo de cinco capturas."
+
+msgid "RIFT_STAGE_RIFT_CUSTOMS_DRONE_NAME"
+msgstr "Drone da Alfândega Morta"
+
+msgid "RIFT_STAGE_RIFT_ECHO_COLLECTOR_NAME"
+msgstr "Cobrador de Ecos"
+
+msgid "RIFT_STAGE_RIFT_QUARTERMASTER_NAME"
+msgstr "Intendente Sem Regimento"
+
+msgid "RIFT_STAGE_RIFT_MEMORY_LEECH_NAME"
+msgstr "Sanguessuga de Memória"
+
+msgid "RIFT_STAGE_RIFT_PROBABILITY_CLERK_NAME"
+msgstr "Escrivão de Probabilidades"
+
+msgid "RIFT_STAGE_RIFT_NULL_WARDEN_NAME"
+msgstr "Carcereiro do Setor Nulo"

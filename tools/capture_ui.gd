@@ -139,6 +139,21 @@ func capture() -> void:
 	if save_frame("ui_hangar_en.png") != OK:
 		quit(1)
 		return
+	state.player.wins = 7
+	state.player.level = 4
+	state.player.xp = 55
+	state.player.completed_planets = ["dustball_prime"]
+	state.player.captures_by_planet = {"dustball_prime": 7}
+	state.player.captures_by_target = {"gloop": 3, "mirage_moxie": 2}
+	state.player.afk_credits_earned = 240
+	state.player.afk_scrap_earned = 6
+	scene.view_mode = "career"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_career_en.png") != OK:
+		quit(1)
+		return
 	state.player.completed_planets = ["dustball_prime"]
 	state.player.captures_by_planet = {"dustball_prime": 7}
 	state.player.captures_by_target = {"mirage_moxie": 1}

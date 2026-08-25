@@ -404,7 +404,8 @@ func claim_career_milestone(milestone_id: String) -> bool:
 		player.scrap = int(player.get("scrap", 0)) + scrap
 		player.career_credits_claimed = int(player.get("career_credits_claimed", 0)) + credits
 		player.career_scrap_claimed = int(player.get("career_scrap_claimed", 0)) + scrap
-		last_notice = "Marco resgatado: %s. +%d créditos%s" % [str(milestone.name), credits, " · +%d sucata" % scrap if scrap > 0 else ""]
+		var scrap_text := LocaleRulesScript.text("CAREER_NOTICE_SCRAP", " · +%d sucata", [scrap]) if scrap > 0 else ""
+		last_notice = LocaleRulesScript.text("CAREER_NOTICE_CLAIMED", "Marco resgatado: %s. +%d créditos%s", [str(milestone.name), credits, scrap_text])
 		last_notice_context = "career"
 		save_game()
 		changed.emit()
@@ -428,7 +429,7 @@ func claim_all_career_milestones() -> Dictionary:
 	player.scrap = int(player.get("scrap", 0)) + scrap
 	player.career_credits_claimed = int(player.get("career_credits_claimed", 0)) + credits
 	player.career_scrap_claimed = int(player.get("career_scrap_claimed", 0)) + scrap
-	last_notice = "%d marcos resgatados: +%d créditos · +%d sucata." % [ready.size(), credits, scrap]
+	last_notice = LocaleRulesScript.text("CAREER_NOTICE_ALL_CLAIMED", "%d marcos resgatados: +%d créditos · +%d sucata.", [ready.size(), credits, scrap])
 	last_notice_context = "career"
 	save_game()
 	changed.emit()

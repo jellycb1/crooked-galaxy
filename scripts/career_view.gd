@@ -7,6 +7,7 @@ const Rules = preload("res://scripts/core_rules.gd")
 const Content = preload("res://scripts/content_db.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const PlanetIconScript = preload("res://scripts/planet_icon.gd")
+const LocaleRules = preload("res://scripts/locale_rules.gd")
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
@@ -15,9 +16,9 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var titles := VBoxContainer.new()
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(titles)
-	titles.add_child(host.label("CARREIRA DE CAÇADOR", 25, host.INK))
-	titles.add_child(host.label("A galáxia esquece crimes. Seu currículo não.", 14, host.MUTED))
-	var back := host.action_button("VOLTAR", host.CYAN, true)
+	titles.add_child(host.label(t("CAREER_TITLE", "CARREIRA DE CAÇADOR"), 25, host.INK))
+	titles.add_child(host.label(t("CAREER_SUBTITLE", "A galáxia esquece crimes. Seu currículo não."), 14, host.MUTED))
+	var back := host.action_button(t("ACTION_BACK", "VOLTAR"), host.CYAN, true)
 	back.custom_minimum_size = Vector2(120, 48)
 	back.pressed.connect(func():
 		host.call("open_frontier_menu")
@@ -30,7 +31,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		content.add_child(claim_receipt_card(host, claim_notice))
 	var ready_count := state.career_rewards_ready()
 	if ready_count > 0:
-		var claim_all := host.action_button("RESGATAR TODOS · %d" % ready_count, host.GOLD)
+		var claim_all := host.action_button(t("CAREER_CLAIM_ALL", "RESGATAR TODOS · %d", [ready_count]), host.GOLD)
 		claim_all.name = "ClaimAllMilestones"
 		claim_all.custom_minimum_size = Vector2(0, 48)
 		claim_all.pressed.connect(state.claim_all_career_milestones)
@@ -43,11 +44,11 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	section_nav.name = "CareerSectionNav"
 	section_nav.add_theme_constant_override("separation", 8)
 	content.add_child(section_nav)
-	var progress_jump := host.action_button("PROGRESSO", host.CYAN, true)
+	var progress_jump := host.action_button(t("CAREER_PROGRESS", "PROGRESSO"), host.CYAN, true)
 	progress_jump.name = "CareerProgressJump"
 	progress_jump.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	section_nav.add_child(progress_jump)
-	var archive_jump := host.action_button("PROCURADOS · %d" % Content.TARGETS.size(), host.GOLD, true)
+	var archive_jump := host.action_button(t("CAREER_WANTED_COUNT", "PROCURADOS · %d", [Content.TARGETS.size()]), host.GOLD, true)
 	archive_jump.name = "CareerArchiveJump"
 	archive_jump.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	section_nav.add_child(archive_jump)
@@ -61,16 +62,16 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", 10)
 	scroller.add_child(list)
-	var progress_heading := host.label("PROGRESSO PLANETÁRIO", 13, host.MUTED)
+	var progress_heading := host.label(t("CAREER_PLANET_PROGRESS", "PROGRESSO PLANETÁRIO"), 13, host.MUTED)
 	list.add_child(progress_heading)
 	for planet in Content.PLANETS:
 		list.add_child(planet_card(host, state, planet))
-	list.add_child(host.label("PROGRESSO PARALELO", 13, host.MUTED))
+	list.add_child(host.label(t("CAREER_PARALLEL_PROGRESS", "PROGRESSO PARALELO"), 13, host.MUTED))
 	list.add_child(challenge_progress_card(host, state))
-	list.add_child(host.label("MARCOS DA CARREIRA", 13, host.MUTED))
+	list.add_child(host.label(t("CAREER_MILESTONES", "MARCOS DA CARREIRA"), 13, host.MUTED))
 	for milestone in state.career_milestones():
 		list.add_child(milestone_card(host, state, milestone))
-	var archive_heading := host.label("ARQUIVO DE PROCURADOS · PLANETA ATUAL PRIMEIRO", 13, host.MUTED)
+	var archive_heading := host.label(t("CAREER_WANTED_ARCHIVE", "ARQUIVO DE PROCURADOS · PLANETA ATUAL PRIMEIRO"), 13, host.MUTED)
 	archive_heading.name = "WantedArchiveHeading"
 	list.add_child(archive_heading)
 	for target in ordered_archive_targets(state):
@@ -139,7 +140,7 @@ static func claim_receipt_card(host: CrookedUIFactory, notice: String) -> PanelC
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	copy.add_child(host.label("RECIBO DA CARREIRA", 11, host.LIME))
+	copy.add_child(host.label(t("CAREER_RECEIPT", "RECIBO DA CARREIRA"), 11, host.LIME))
 	var message := host.label(notice, 12, host.INK)
 	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(message)
@@ -155,12 +156,12 @@ static func summary_card(host: CrookedUIFactory, state: StateScript) -> PanelCon
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	copy.add_child(host.label("CAÇADOR NÍVEL %d" % int(state.player.level), 18, host.GOLD))
-	copy.add_child(host.label("%d CAPTURAS · %d/%d SETORES" % [int(state.player.wins), state.player.get("completed_planets", []).size(), Content.PLANETS.size()], 12, host.INK))
+	copy.add_child(host.label(t("CAREER_HUNTER_LEVEL", "CAÇADOR NÍVEL %d", [int(state.player.level)]), 18, host.GOLD))
+	copy.add_child(host.label(t("CAREER_CAPTURE_SECTORS", "%d CAPTURAS · %d/%d SETORES", [int(state.player.wins), state.player.get("completed_planets", []).size(), Content.PLANETS.size()]), 12, host.INK))
 	var xp_needed := Rules.xp_needed(int(state.player.level))
 	var xp_row := HBoxContainer.new()
 	copy.add_child(xp_row)
-	var xp_caption := host.label("PRÓXIMO NÍVEL", 10, host.MUTED)
+	var xp_caption := host.label(t("CAREER_NEXT_LEVEL", "PRÓXIMO NÍVEL"), 10, host.MUTED)
 	xp_caption.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	xp_row.add_child(xp_caption)
 	xp_row.add_child(host.label("%d / %d XP" % [int(state.player.xp), xp_needed], 10, host.CYAN, HORIZONTAL_ALIGNMENT_RIGHT))
@@ -173,16 +174,16 @@ static func summary_card(host: CrookedUIFactory, state: StateScript) -> PanelCon
 	xp_bar.add_theme_stylebox_override("background", host.box_style(Color("#091126"), 4))
 	xp_bar.add_theme_stylebox_override("fill", host.box_style(host.CYAN, 4))
 	copy.add_child(xp_bar)
-	copy.add_child(host.label("AFK ◈ %d / %d sucata · PRÊMIOS ◈ %d / %d sucata" % [int(state.player.get("afk_credits_earned", 0)), int(state.player.get("afk_scrap_earned", 0)), int(state.player.get("career_credits_claimed", 0)), int(state.player.get("career_scrap_claimed", 0))], 10, host.MUTED))
+	copy.add_child(host.label(t("CAREER_LIFETIME_EARNINGS", "AFK ◈ %d / %d sucata · PRÊMIOS ◈ %d / %d sucata", [int(state.player.get("afk_credits_earned", 0)), int(state.player.get("afk_scrap_earned", 0)), int(state.player.get("career_credits_claimed", 0)), int(state.player.get("career_scrap_claimed", 0))]), 10, host.MUTED))
 	var complete_count := 0
 	var milestones := state.career_milestones()
 	for milestone in milestones:
 		if bool(milestone.complete):
 			complete_count += 1
-	var badge_text := "MARCOS\n%d / %d" % [complete_count, milestones.size()]
+	var badge_text := t("CAREER_MILESTONE_BADGE", "MARCOS\n%d / %d", [complete_count, milestones.size()])
 	var ready_count := state.career_rewards_ready()
 	if ready_count > 0:
-		badge_text += "\n%d A RESGATAR" % ready_count
+		badge_text += t("CAREER_READY_BADGE", "\n%d A RESGATAR", [ready_count])
 	var badge := host.center_label(badge_text, 13, host.LIME)
 	badge.custom_minimum_size = Vector2(75, 70)
 	row.add_child(badge)
@@ -200,10 +201,10 @@ static func mastery_directive_card(host: CrookedUIFactory, state: StateScript, o
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	copy.add_child(host.label("PRÓXIMA PERÍCIA · %s" % str(target.name).to_upper(), 13, host.GOLD))
-	copy.add_child(host.label("Faltam %d captura%s para perícia %d/3" % [int(objective.remaining), "s" if int(objective.remaining) != 1 else "", int(objective.next_level)], 12, host.INK))
-	copy.add_child(host.label("Próximo bônus: +%d%% raro · +%d%% épico · +%d sucata" % [int(objective.rare_bonus), int(objective.epic_bonus), int(objective.scrap_bonus)], 11, host.LIME))
-	var action := host.action_button("ESCOLHER\nROTA", Color(str(planet.accent)), true)
+	copy.add_child(host.label(t("CAREER_NEXT_MASTERY", "PRÓXIMA PERÍCIA · %s", [localized_content_field("target", target, "name").to_upper()]), 13, host.GOLD))
+	copy.add_child(host.label(t("CAREER_MASTERY_REMAINING", "Faltam %d capturas para perícia %d/3", [int(objective.remaining), int(objective.next_level)]), 12, host.INK))
+	copy.add_child(host.label(t("CAREER_MASTERY_BONUS", "Próximo bônus: +%d%% raro · +%d%% épico · +%d sucata", [int(objective.rare_bonus), int(objective.epic_bonus), int(objective.scrap_bonus)]), 11, host.LIME))
+	var action := host.action_button(t("CAREER_CHOOSE_ROUTE", "ESCOLHER\nROTA"), Color(str(planet.accent)), true)
 	action.name = "MasteryDirectiveAction"
 	action.custom_minimum_size = Vector2(105, 52)
 	action.add_theme_font_size_override("font_size", 10)
@@ -267,7 +268,7 @@ static func planet_card(host: CrookedUIFactory, state: StateScript, planet: Dict
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	copy.add_child(host.label(str(planet.name).to_upper(), 14, accent if unlocked else host.MUTED))
+	copy.add_child(host.label(localized_content_field("planet", planet, "name").to_upper(), 14, accent if unlocked else host.MUTED))
 	var planet_targets := 0
 	for target in Content.TARGETS:
 		if str(target.get("planet_id", "")) == planet_id:
@@ -282,8 +283,8 @@ static func planet_card(host: CrookedUIFactory, state: StateScript, planet: Dict
 	progress.add_theme_stylebox_override("background", host.box_style(Color("#071025"), 4))
 	progress.add_theme_stylebox_override("fill", host.box_style(accent if unlocked else host.MUTED.darkened(0.35), 4))
 	copy.add_child(progress)
-	copy.add_child(host.label("%d CAPTURAS · TIER %d/3" % [captures, state.planet_tier(planet_id)], 10, host.MUTED))
-	var status: String = "CONCLUÍDO" if completed else ("EM ANDAMENTO" if unlocked else "BLOQUEADO")
+	copy.add_child(host.label(t("CAREER_PLANET_CAPTURES", "%d CAPTURAS · TIER %d/3", [captures, state.planet_tier(planet_id)]), 10, host.MUTED))
+	var status: String = t("CAREER_COMPLETED", "CONCLUÍDO") if completed else (t("CAREER_IN_PROGRESS", "EM ANDAMENTO") if unlocked else t("GALAXY_LOCKED", "BLOQUEADO"))
 	var status_copy := VBoxContainer.new()
 	status_copy.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_child(status_copy)
@@ -308,7 +309,7 @@ static func challenge_progress_card(host: CrookedUIFactory, state: StateScript) 
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	copy.add_child(host.label("FENDA CLANDESTINA", 14, host.LIME if complete else accent))
+	copy.add_child(host.label(t("RIFT_TITLE", "FENDA CLANDESTINA"), 14, host.LIME if complete else accent))
 	var progress := ProgressBar.new()
 	progress.name = "CareerChallengeBar"
 	progress.max_value = total
@@ -318,26 +319,26 @@ static func challenge_progress_card(host: CrookedUIFactory, state: StateScript) 
 	progress.add_theme_stylebox_override("background", host.box_style(Color("#071025"), 4))
 	progress.add_theme_stylebox_override("fill", host.box_style(host.CORAL if unlocked else host.MUTED.darkened(0.35), 4))
 	copy.add_child(progress)
-	var detail := "BLOQUEADA · CONCLUA DUSTBALL PRIME"
+	var detail := t("CAREER_RIFT_LOCKED", "BLOQUEADA · CONCLUA DUSTBALL PRIME")
 	if complete:
-		detail = "%d/%d ANDARES · ARQUIVO CONCLUÍDO" % [floor, total]
+		detail = t("CAREER_RIFT_COMPLETE", "%d/%d ANDARES · ARQUIVO CONCLUÍDO", [floor, total])
 	elif unlocked:
 		var stage := ChallengeRulesScript.current_stage(state.player)
-		detail = "%d/%d LIMPOS · PRÓXIMO: %s" % [floor, total, str(stage.get("name", "Anomalia")).to_upper()]
+		detail = t("CAREER_RIFT_NEXT", "%d/%d LIMPOS · PRÓXIMO: %s", [floor, total, localized_content_field("rift_stage", stage, "name").to_upper()])
 	copy.add_child(host.label(detail, 10, host.MUTED))
-	var status := "BLOQUEADA"
+	var status := t("CAREER_LOCKED_FEMININE", "BLOQUEADA")
 	if complete:
-		status = "COMPLETA"
+		status = t("CAREER_COMPLETE_FEMININE", "COMPLETA")
 	elif floor < 3:
-		status = "CINTOS\nTÉCNICOS"
+		status = t("CAREER_RIGS", "CINTOS\nTÉCNICOS")
 	else:
-		status = "IMPLANTES"
+		status = t("CAREER_IMPLANTS", "IMPLANTES")
 	var action_column := VBoxContainer.new()
 	action_column.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_child(action_column)
 	action_column.add_child(host.label(status, 9, host.LIME if complete else accent, HORIZONTAL_ALIGNMENT_CENTER))
 	if unlocked and not complete:
-		var action := host.action_button("ABRIR", host.CORAL, true)
+		var action := host.action_button(t("CAREER_OPEN", "ABRIR"), host.CORAL, true)
 		action.name = "CareerChallengeAction"
 		action.custom_minimum_size = Vector2(88, 42)
 		action.add_theme_font_size_override("font_size", 10)
@@ -364,11 +365,11 @@ static func milestone_card(host: CrookedUIFactory, state: StateScript, milestone
 	copy.add_child(host.label(str(milestone.description), 12, host.MUTED))
 	var reward_text := "◈ %d" % int(milestone.credits)
 	if int(milestone.scrap) > 0:
-		reward_text += " · %d sucata" % int(milestone.scrap)
+		reward_text += t("CAREER_REWARD_SCRAP", " · %d sucata", [int(milestone.scrap)])
 	if claimed:
-		row.add_child(host.label("RESGATADO", 11, host.LIME, HORIZONTAL_ALIGNMENT_RIGHT))
+		row.add_child(host.label(t("CAREER_CLAIMED", "RESGATADO"), 11, host.LIME, HORIZONTAL_ALIGNMENT_RIGHT))
 	elif complete:
-		var claim := host.action_button("RESGATAR\n%s" % reward_text, host.GOLD)
+		var claim := host.action_button(t("CAREER_CLAIM", "RESGATAR\n%s", [reward_text]), host.GOLD)
 		claim.name = "ClaimMilestone_%s" % str(milestone.id)
 		claim.custom_minimum_size = Vector2(112, 48)
 		claim.add_theme_font_size_override("font_size", 10)
@@ -401,17 +402,17 @@ static func target_card(host: CrookedUIFactory, state: StateScript, target: Dict
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	copy.add_child(host.label(str(target.name) if revealed else "MANDADO CLASSIFICADO", 14, Color(str(planet.accent)) if revealed else host.MUTED))
-	copy.add_child(host.label("%s · %s" % [str(planet.name), str(target.title) if revealed else "credenciais insuficientes"], 11, host.MUTED))
-	var record := "CAPTURAS %d" % captures if captures > 0 else ("DISPONÍVEL" if revealed else "BLOQUEADO")
+	copy.add_child(host.label(localized_content_field("target", target, "name") if revealed else t("CAREER_CLASSIFIED_WARRANT", "MANDADO CLASSIFICADO"), 14, Color(str(planet.accent)) if revealed else host.MUTED))
+	copy.add_child(host.label("%s · %s" % [localized_content_field("planet", planet, "name"), localized_content_field("target", target, "title") if revealed else t("CAREER_INSUFFICIENT_CREDENTIALS", "credenciais insuficientes")], 11, host.MUTED))
+	var record := t("CAREER_TARGET_CAPTURES", "CAPTURAS %d", [captures]) if captures > 0 else (t("CAREER_AVAILABLE", "DISPONÍVEL") if revealed else t("GALAXY_LOCKED", "BLOQUEADO"))
 	if captures > 0:
-		record += " · PERÍCIA %d/3" % Rules.target_mastery_level(captures)
+		record += t("CAREER_TARGET_MASTERY", " · PERÍCIA %d/3", [Rules.target_mastery_level(captures)])
 	var record_box := VBoxContainer.new()
 	record_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_child(record_box)
 	record_box.add_child(host.label(record, 11, host.LIME if captures > 0 else (host.GOLD if revealed else host.MUTED), HORIZONTAL_ALIGNMENT_RIGHT))
 	if planet_unlocked and tier_available:
-		var open_target := host.action_button("ABRIR", Color(str(planet.accent)), true)
+		var open_target := host.action_button(t("CAREER_OPEN", "ABRIR"), Color(str(planet.accent)), true)
 		open_target.name = "CareerTargetAction_%s" % target_id
 		open_target.custom_minimum_size = Vector2(88, 48)
 		open_target.add_theme_font_size_override("font_size", 11)
@@ -423,3 +424,11 @@ static func target_card(host: CrookedUIFactory, state: StateScript, target: Dict
 		)
 		record_box.add_child(open_target)
 	return card
+
+
+static func t(key: String, fallback: String = "", values: Array = []) -> String:
+	return LocaleRules.text(key, fallback, values)
+
+
+static func localized_content_field(prefix: String, definition: Dictionary, field: String) -> String:
+	return t(LocaleRules.content_key(prefix, str(definition.get("id", "")), field), str(definition.get(field, "")))

@@ -66,6 +66,33 @@ func run_mobile_audit() -> void:
 	state.player = player_before_english_commerce
 	state.last_notice = ""
 	state.last_notice_context = ""
+	var player_before_english_career: Dictionary = state.player.duplicate(true)
+	state.player.wins = 7
+	state.player.level = 4
+	state.player.xp = 55
+	state.player.completed_planets = ["dustball_prime"]
+	state.player.captures_by_planet = {"dustball_prime": 7}
+	state.player.captures_by_target = {"gloop": 3, "mirage_moxie": 2}
+	state.player.afk_credits_earned = 240
+	state.player.afk_scrap_earned = 6
+	scene.view_mode = "career"
+	scene.render()
+	await process_frame
+	check(find_label_with_text(scene, "HUNTER CAREER") != null and find_label_with_text(scene, "LEVEL 4 HUNTER") != null and find_label_with_text(scene, "7 CAPTURES · 1/5 SECTORS") != null and find_label_with_text(scene, "NEXT LEVEL") != null and (scene.find_child("CareerProgressJump", true, false) as Button).text == "PROGRESS" and (scene.find_child("CareerArchiveJump", true, false) as Button).text == "WANTED · 20", "English career covers hunter progression, XP, sector summary, and section navigation")
+	check(find_label_with_text(scene, "NEXT MASTERY · GLOOP THE INCONVENIENT") != null and find_label_with_text(scene, "PLANETARY PROGRESS") != null and find_label_with_text(scene, "CLANDESTINE RIFT") != null and find_label_with_text(scene, "FIRST WARRANT") != null, "English career covers mastery direction, planetary ladder, parallel progress, and milestones")
+	state.claim_career_milestone("first_warrant")
+	await process_frame
+	check(state.last_notice.begins_with("Milestone claimed: FIRST WARRANT.") and find_label_with_text(scene, "CAREER RECEIPT") != null and find_label_with_text(scene, state.last_notice) != null, "English career claim uses the localized milestone identity and visible transaction receipt")
+	state.afk_report = {"minutes": 480, "credits": 160, "scrap": 8, "capped": true}
+	state.last_notice = ""
+	state.last_notice_context = ""
+	scene.view_mode = "board"
+	scene.board_section = "bounties"
+	scene.render()
+	await process_frame
+	check(find_label_with_text(scene, "PATROL COMPLETE · 8h 00min") != null and find_label_with_text(scene, "+160 credits · +8 scrap · 8H CAP") != null, "English offline patrol reports duration, rewards, and the settlement cap")
+	state.afk_report = {}
+	state.player = player_before_english_career
 	var player_before_english_galaxy: Dictionary = state.player.duplicate(true)
 	state.player.completed_planets = ["dustball_prime"]
 	state.player.captures_by_planet = {"dustball_prime": 7}

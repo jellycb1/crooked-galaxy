@@ -2,6 +2,7 @@ class_name CareerRules
 extends RefCounted
 
 const CoreRules = preload("res://scripts/core_rules.gd")
+const LocaleRules = preload("res://scripts/locale_rules.gd")
 
 
 static func milestones(player: Dictionary) -> Array[Dictionary]:
@@ -12,7 +13,7 @@ static func milestones(player: Dictionary) -> Array[Dictionary]:
 			has_repeat_target = true
 	var completed_count: int = player.get("completed_planets", []).size()
 	var claimed: Array = player.get("claimed_milestones", [])
-	return [
+	var definitions: Array[Dictionary] = [
 		{"id": "first_warrant", "name": "PRIMEIRO MANDADO", "description": "Execute sua primeira captura.", "complete": int(player.get("wins", 0)) >= 1, "claimed": claimed.has("first_warrant"), "credits": 40, "scrap": 0},
 		{"id": "repeat_customer", "name": "CLIENTE FREQUENTE", "description": "Capture o mesmo alvo três vezes.", "complete": has_repeat_target, "claimed": claimed.has("repeat_customer"), "credits": 70, "scrap": 2},
 		{"id": "sector_owner", "name": "DONO DO SETOR", "description": "Conclua seu primeiro planeta.", "complete": completed_count >= 1, "claimed": claimed.has("sector_owner"), "credits": 120, "scrap": 4},
@@ -22,6 +23,11 @@ static func milestones(player: Dictionary) -> Array[Dictionary]:
 		{"id": "nothing_wasted", "name": "NADA SE PERDE", "description": "Recicle pelo menos 25 pontos de sucata.", "complete": int(player.get("scrap_recycled_total", 0)) >= 25, "claimed": claimed.has("nothing_wasted"), "credits": 90, "scrap": 5},
 		{"id": "hot_pursuit", "name": "PERSEGUIÇÃO AQUECIDA", "description": "Mantenha um embalo de cinco capturas.", "complete": int(player.get("best_capture_streak", 0)) >= 5, "claimed": claimed.has("hot_pursuit"), "credits": 110, "scrap": 4},
 	]
+	for milestone in definitions:
+		var prefix := "CAREER_MILESTONE_%s" % str(milestone.id).to_upper()
+		milestone.name = LocaleRules.text("%s_NAME" % prefix, str(milestone.name))
+		milestone.description = LocaleRules.text("%s_DESCRIPTION" % prefix, str(milestone.description))
+	return definitions
 
 
 static func rewards_ready(player: Dictionary) -> Array[Dictionary]:

@@ -1251,8 +1251,8 @@ func afk_return_banner(include_recovery := false) -> PanelContainer:
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	copy.add_child(label("PATRULHA CONCLUÍDA · %s" % format_duration(int(report.minutes)), 13, CYAN))
-	copy.add_child(label("+%d créditos · +%d sucata%s" % [int(report.credits), int(report.scrap), " · LIMITE 8H" if bool(report.capped) else ""], 14, INK))
+	copy.add_child(label(t("AFK_PATROL_COMPLETE", "PATRULHA CONCLUÍDA · %s", [format_duration(int(report.minutes))]), 13, CYAN))
+	copy.add_child(label(t("AFK_PATROL_REWARD", "+%d créditos · +%d sucata%s", [int(report.credits), int(report.scrap), t("AFK_CAP", " · LIMITE 8H") if bool(report.capped) else ""]), 14, INK))
 	if include_recovery:
 		var recovery := label(GameState.last_notice, 10, LIME)
 		recovery.name = "AfkRecoveryNotice"
@@ -1995,13 +1995,13 @@ func on_combat_timer() -> void:
 func show_toast(summary: Dictionary) -> void:
 	if summary.is_empty():
 		return
-	var message := "+%d créditos · +%d XP" % [int(summary.credits), int(summary.xp)]
+	var message := t("PROGRESSION_TOAST", "+%d créditos · +%d XP", [int(summary.credits), int(summary.xp)])
 	if int(summary.get("scrap", 0)) > 0:
-		message += " · +%d SUCATA" % int(summary.scrap)
+		message += t("PROGRESSION_TOAST_SCRAP", " · +%d SUCATA", [int(summary.scrap)])
 	if int(summary.levels) > 0:
-		message += " · NÍVEL +%d" % int(summary.levels)
+		message += t("PROGRESSION_TOAST_LEVEL", " · NÍVEL +%d", [int(summary.levels)])
 	if bool(summary.rank_up):
-		message += " · NOVO RANK"
+		message += t("PROGRESSION_TOAST_RANK", " · NOVO RANK")
 	last_combat_message = message
 
 
