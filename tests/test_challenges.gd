@@ -26,14 +26,37 @@ func run_audit() -> void:
 	state.player.completed_planets = [Challenge.UNLOCK_PLANET_ID]
 	state.player.capture_streak = 4
 	check(Challenge.is_unlocked(state.player) and Challenge.progress(state.player) == 0, "Dustball completion opens the first floor without inventing progress")
+	var anomaly_counts := {}
 	for index in Challenge.STAGES.size():
 		var stage := Challenge.stage_at(index)
 		var reward := Challenge.reward_for(stage, ContentDB.ITEM_TRAITS)
 		check(bool(stage.challenge) and int(stage.challenge_index) == index, "floor %d has canonical challenge identity" % (index + 1))
 		check(str(reward.slot) == ("rig" if index < 3 else "implant"), "floor %d advances the intended universal equipment family" % (index + 1))
 		check(reward.has("trait") and int(reward.power) <= 2, "floor %d reward remains lateral and mechanically complete" % (index + 1))
+		check(not stage.get("anomaly", {}).is_empty() and Challenge.ANOMALY_PROFILES.has(str(stage.anomaly_id)), "floor %d resolves a canonical combat profile" % (index + 1))
+		anomaly_counts[str(stage.anomaly_id)] = int(anomaly_counts.get(str(stage.anomaly_id), 0)) + 1
 		if index > 0:
 			check(int(stage.power) > int(Challenge.STAGES[index - 1].power) and int(stage.health) > int(Challenge.STAGES[index - 1].health), "floor %d is harder than the previous floor" % (index + 1))
+	check(anomaly_counts.size() == 3, "the ladder teaches three mechanically distinct anomaly families")
+	for anomaly_id in Challenge.ANOMALY_PROFILES:
+		check(int(anomaly_counts.get(anomaly_id, 0)) == 2, "anomaly '%s' returns once at higher pressure" % anomaly_id)
+	var profile_probe := Simulator.checkpoint_player(Simulator.CHECKPOINTS[0], Builds.POLICIES[1])
+	var opening_probe := profile_probe.duplicate(true)
+	opening_probe.rig = {"power": 0, "trait": {"opening_damage_bonus": 5}}
+	var reduction_probe := profile_probe.duplicate(true)
+	reduction_probe.rig = {"power": 0, "trait": {"damage_reduction": 2}}
+	var health_probe := profile_probe.duplicate(true)
+	health_probe.rig = {"power": 0, "trait": {"health_bonus": 14}}
+	var volatile_profile := Challenge.anomaly_profile("volatile_opening")
+	var rupture_profile := Challenge.anomaly_profile("armor_rupture")
+	var anchor_profile := Challenge.anomaly_profile("inertial_anchor")
+	var volatile_opening_damage := CoreRules.player_attack_damage(opening_probe, 15, 0.5, 1, float(volatile_profile.opening_damage_multiplier))
+	var rupture_opening_damage := CoreRules.player_attack_damage(opening_probe, 15, 0.5, 1, float(rupture_profile.opening_damage_multiplier))
+	var rupture_reduction := CoreRules.enemy_attack_breakdown(reduction_probe, 48, 0.5, float(rupture_profile.damage_reduction_piercing))
+	var anchor_reduction := CoreRules.enemy_attack_breakdown(reduction_probe, 48, 0.5, float(anchor_profile.damage_reduction_piercing))
+	check(volatile_opening_damage > rupture_opening_damage, "volatile chambers amplify opening gear more than containment failures")
+	check(int(anchor_reduction.prevented) > int(rupture_reduction.prevented), "inertial anchors preserve more mitigation than containment failures")
+	check(CoreRules.max_health(health_probe) == CoreRules.max_health(profile_probe) + 14, "integrity gear remains fully active when mitigation is mostly pierced")
 	var maximum_campaign_safe_delta := 0.0
 	var maximum_campaign_route_delta := 0.0
 	for stage_index in Challenge.STAGES.size():
@@ -91,7 +114,7 @@ func run_audit() -> void:
 	await process_frame
 	check(scene.find_child("ChallengeProgressTrack", true, false) != null, "unlocked ladder renders persistent floor progress")
 	check(scene.find_child("ChallengeCurrentDossier", true, false) != null and scene.find_child("ChallengeRewardPreview", true, false) != null, "current enemy and unique reward share one readable dossier")
-	check(scene.find_child("ChallengeRuptureRule", true, false) != null, "challenge dossier exposes its class-neutral anomaly rules before entry")
+	check(scene.find_child("ChallengeAnomalyRule", true, false) != null, "challenge dossier exposes its class-neutral anomaly profile before entry")
 	var enter := scene.find_child("ChallengeEnterAction", true, false) as Button
 	check(enter != null and enter.size.y >= 48.0, "challenge entry remains an Android touch target")
 	scene.queue_free()

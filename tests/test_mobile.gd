@@ -131,6 +131,14 @@ func run_mobile_audit() -> void:
 	scene.render()
 	await process_frame
 	check_touch_targets(scene, "career navigation")
+	state.player.completed_planets = ["dustball_prime"]
+	state.player.challenge_floor = 0
+	scene.view_mode = "challenges"
+	scene.render()
+	await process_frame
+	await process_frame
+	check_touch_targets(scene, "Fenda anomaly dossier")
+	check(scene.find_child("ChallengeScroll", true, false) != null and scene.find_child("ChallengeAnomalyRule", true, false) != null, "Fenda anomaly explanation remains reachable in the portrait scroller")
 
 	state.player.stat_points = 2
 	scene.view_mode = "attributes"

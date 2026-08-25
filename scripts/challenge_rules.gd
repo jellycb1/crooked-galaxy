@@ -3,12 +3,37 @@ extends RefCounted
 
 const UNLOCK_PLANET_ID := "dustball_prime"
 
+const ANOMALY_PROFILES := {
+	"volatile_opening": {
+		"name": "CÂMARA VOLÁTIL",
+		"description": "A primeira troca sobrecarrega emboscadas; amortecedores continuam quase íntegros.",
+		"opening_damage_multiplier": 2.5,
+		"damage_reduction_piercing": 0.65,
+		"favored_axis": "ABERTURA",
+	},
+	"armor_rupture": {
+		"name": "FALHA DE CONTENÇÃO",
+		"description": "A ruptura atravessa quase toda mitigação; integridade e poder sustentado ganham valor.",
+		"opening_damage_multiplier": 1.0,
+		"damage_reduction_piercing": 0.9,
+		"favored_axis": "INTEGRIDADE",
+	},
+	"inertial_anchor": {
+		"name": "ÂNCORA INERCIAL",
+		"description": "Metade da mitigação funciona e a abertura retém carga moderada; builds mistas atravessam o combate longo.",
+		"opening_damage_multiplier": 1.5,
+		"damage_reduction_piercing": 0.5,
+		"favored_axis": "BUILD MISTA",
+	},
+}
+
 const STAGES := [
 	{
 		"id": "rift_customs_drone",
 		"name": "Drone da Alfândega Morta",
 		"title": "ANDAR 1 · TRIAGEM ILEGAL",
 		"description": "Ainda fiscaliza uma fronteira apagada dos mapas e cobra juros desde o colapso.",
+		"anomaly_id": "volatile_opening",
 		"power": 37, "defense": 13, "health": 321, "credits": 118, "xp": 145,
 		"attacks": ["Carimbo Cinético", "Taxa Retroativa", "Scanner de Contrabando"],
 		"reward": {"name": "Cinto de Lacres Rompidos", "description": "Redistribui peso, munição e responsabilidade jurídica.", "slot": "rig", "power": 1, "rarity": "Comum", "trait_id": "smuggler_harness"},
@@ -18,6 +43,7 @@ const STAGES := [
 		"name": "Cobrador de Ecos",
 		"title": "ANDAR 2 · ARQUIVO SONORO",
 		"description": "Confisca últimas palavras, revende ameaças e nunca emite recibo em voz baixa.",
+		"anomaly_id": "armor_rupture",
 		"power": 60, "defense": 17, "health": 450, "credits": 146, "xp": 172,
 		"attacks": ["Cobrança Ressonante", "Protesto Sônico", "Juro em Repetição"],
 		"reward": {"name": "Arnês de Frequência Torta", "description": "Transforma ruído de combate em decisões marginalmente úteis.", "slot": "rig", "power": 1, "rarity": "Raro", "trait_id": "counterweight_servos"},
@@ -27,6 +53,7 @@ const STAGES := [
 		"name": "Intendente Sem Regimento",
 		"title": "ANDAR 3 · DEPÓSITO FANTASMA",
 		"description": "Administra munição para um exército inexistente e considera você atraso de inventário.",
+		"anomaly_id": "inertial_anchor",
 		"power": 81, "defense": 32, "health": 630, "credits": 178, "xp": 205,
 		"attacks": ["Baixa de Estoque", "Rajada Patrimonial", "Inventário Hostil"],
 		"reward": {"name": "Plataforma do Intendente", "description": "Tem bolsos para tudo, inclusive para uma desculpa de emergência.", "slot": "rig", "power": 2, "rarity": "Épico", "trait_id": "quickdraw_bus"},
@@ -36,7 +63,8 @@ const STAGES := [
 		"name": "Sanguessuga de Memória",
 		"title": "ANDAR 4 · CLÍNICA REVOGADA",
 		"description": "Remove lembranças embaraçosas e deixa apenas a fatura do procedimento.",
-		"power": 84, "defense": 34, "health": 649, "credits": 216, "xp": 244,
+		"anomaly_id": "volatile_opening",
+		"power": 84, "defense": 34, "health": 680, "credits": 216, "xp": 244,
 		"attacks": ["Débito Craniano", "Amnésia Parcelada", "Sinapse Predatória"],
 		"reward": {"name": "Nódulo de Memória Contrabandeada", "description": "Lembra os erros do inimigo antes que ele consiga repeti-los.", "slot": "implant", "power": 1, "rarity": "Comum", "trait_id": "reflex_archive"},
 	},
@@ -45,8 +73,8 @@ const STAGES := [
 		"name": "Escrivão de Probabilidades",
 		"title": "ANDAR 5 · CARTÓRIO CAUSAL",
 		"description": "Registra futuros possíveis e multa qualquer realidade que saia sem autenticação.",
+		"anomaly_id": "armor_rupture",
 		"power": 125, "defense": 37, "health": 825, "credits": 258, "xp": 292,
-		"opening_damage_multiplier": 1.5,
 		"attacks": ["Firma Reconhecida", "Cláusula Improvável", "Penhora do Futuro"],
 		"reward": {"name": "Córtex de Cálculo Clandestino", "description": "Prevê três resultados e escolhe o menos documentado.", "slot": "implant", "power": 1, "rarity": "Raro", "trait_id": "illegal_adrenaline"},
 	},
@@ -55,7 +83,8 @@ const STAGES := [
 		"name": "Carcereiro do Setor Nulo",
 		"title": "ANDAR 6 · CELA SEM UNIVERSO",
 		"description": "Guarda uma prisão vazia com dedicação suficiente para prender novas leis da física.",
-		"power": 146, "defense": 60, "health": 1260, "credits": 310, "xp": 348,
+		"anomaly_id": "inertial_anchor",
+		"power": 190, "defense": 60, "health": 865, "credits": 310, "xp": 348,
 		"attacks": ["Sentença de Antimatéria", "Confinamento Vetorial", "Apelo Negado"],
 		"reward": {"name": "Interface do Setor Nulo", "description": "Liga o caçador a uma rede que oficialmente nunca existiu.", "slot": "implant", "power": 2, "rarity": "Épico", "trait_id": "null_synapse"},
 	},
@@ -79,14 +108,22 @@ static func stage_at(index: int) -> Dictionary:
 	if index < 0 or index >= STAGES.size():
 		return {}
 	var stage: Dictionary = STAGES[index].duplicate(true)
+	var anomaly := anomaly_profile(str(stage.get("anomaly_id", "")))
+	if anomaly.is_empty():
+		return {}
 	stage["challenge"] = true
 	stage["challenge_index"] = index
-	stage["damage_reduction_piercing"] = float(stage.get("damage_reduction_piercing", 0.75))
-	stage["opening_damage_multiplier"] = float(stage.get("opening_damage_multiplier", 2.0))
+	stage["anomaly"] = anomaly
+	stage["damage_reduction_piercing"] = float(anomaly.damage_reduction_piercing)
+	stage["opening_damage_multiplier"] = float(anomaly.opening_damage_multiplier)
 	stage["duration"] = 0
 	stage["planet_id"] = UNLOCK_PLANET_ID
 	stage["scrap_reward"] = 0
 	return stage
+
+
+static func anomaly_profile(anomaly_id: String) -> Dictionary:
+	return ANOMALY_PROFILES.get(anomaly_id, {}).duplicate(true)
 
 
 static func get_stage(stage_id: String) -> Dictionary:

@@ -784,6 +784,17 @@ func capture() -> void:
 	state.continue_after_chapter()
 	await process_frame
 	await process_frame
+	var anomaly_capture_names := ["volatile", "rupture", "anchor"]
+	for challenge_floor in anomaly_capture_names.size():
+		state.player.challenge_floor = challenge_floor
+		scene.view_mode = "challenges"
+		scene.render()
+		await process_frame
+		await process_frame
+		if save_frame("ui_challenge_%s.png" % anomaly_capture_names[challenge_floor]) != OK:
+			quit(1)
+			return
+	state.player.challenge_floor = 0
 	scene.view_mode = "career"
 	scene.render()
 	await process_frame
@@ -827,13 +838,20 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI and destinations, market, transport hangar/briefing/hunt identity, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, career, wanted archive, arsenal filters/paging, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured primary UI and destinations, market, transport hangar/briefing/hunt identity, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, three Fenda anomaly profiles, career, wanted archive, arsenal filters/paging, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 
 func save_frame(filename: String) -> Error:
-	var image := root.get_texture().get_image()
 	var path := "%s/%s" % [OUTPUT_DIR, filename]
+	var texture := root.get_texture()
+	if texture == null:
+		printerr("Failed to capture %s: the active renderer does not expose a viewport texture." % path)
+		return ERR_UNAVAILABLE
+	var image := texture.get_image()
+	if image == null or image.is_empty():
+		printerr("Failed to capture %s: the viewport returned no image data." % path)
+		return ERR_UNAVAILABLE
 	var error := image.save_png(ProjectSettings.globalize_path(path))
 	if error != OK:
 		printerr("Failed to capture %s: %s" % [path, error_string(error)])

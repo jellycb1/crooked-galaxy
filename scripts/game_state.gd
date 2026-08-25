@@ -481,8 +481,11 @@ func combat_step() -> Dictionary:
 	if class_opening_bonus > 0:
 		player_effects.append("INVASÃO +%d" % class_opening_bonus)
 	var opening_amplified := roundi(float(opening_bonus) * maxf(0.0, opening_multiplier - 1.0)) if combat_round == 1 else 0
+	var opening_dampened := roundi(float(opening_bonus) * maxf(0.0, 1.0 - opening_multiplier)) if combat_round == 1 else 0
 	if opening_amplified > 0:
 		player_effects.append("INSTABILIDADE +%d" % opening_amplified)
+	elif opening_dampened > 0:
+		player_effects.append("INTERFERÊNCIA -%d" % opening_dampened)
 	var class_roll_bonus := ClassRules.specialization_attack_roll_bonus(player, CoreRules.BASE_ATTRIBUTE_VALUE)
 	if class_roll_bonus > 0.0:
 		player_effects.append("MIRA ORBITAL +%.1f%%" % (class_roll_bonus * 100.0))
@@ -1709,7 +1712,7 @@ func sanitize_loaded_combat_events(loaded) -> Dictionary:
 		var effect_parts := effect.split(" · ", false)
 		var effect_is_safe := effect.length() <= 96
 		for part in effect_parts:
-			if not part.begins_with("EMBOSCADA +") and not part.begins_with("AMORTECEDOR -") and not part.begins_with("INVASÃO +") and not part.begins_with("MIRA ORBITAL +") and not part.begins_with("CASCO DURO -") and not part.begins_with("RUPTURA +") and not part.begins_with("INSTABILIDADE +"):
+			if not part.begins_with("EMBOSCADA +") and not part.begins_with("AMORTECEDOR -") and not part.begins_with("INVASÃO +") and not part.begins_with("MIRA ORBITAL +") and not part.begins_with("CASCO DURO -") and not part.begins_with("RUPTURA +") and not part.begins_with("INSTABILIDADE +") and not part.begins_with("INTERFERÊNCIA -"):
 				effect_is_safe = false
 				break
 		if not effect.is_empty() and effect_is_safe:

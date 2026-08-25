@@ -61,6 +61,11 @@ func run_text_audit() -> void:
 	scene.render()
 	await audit_scaled_screen(scene, "complete career")
 
+	state.player.challenge_floor = 2
+	scene.view_mode = "challenges"
+	scene.render()
+	await audit_scaled_screen(scene, "Fenda anomaly dossier")
+
 	state.player.inventory = [
 		{"id": "long_weapon", "name": "Desatomizador Interplanetário de Garantias Vencidas", "slot": "weapon", "power": 44, "rarity": "Épico", "color": "#d789ff", "origin_planet_id": "cassino_quasar", "trait": ContentDB.ITEM_TRAITS.weapon[1].duplicate(true)},
 		{"id": "long_armor", "name": "Colete Executivo de Responsabilidade Criativamente Limitada", "slot": "armor", "power": 42, "rarity": "Raro", "color": "#58d9ff", "origin_planet_id": "cassino_quasar", "trait": ContentDB.ITEM_TRAITS.armor[1].duplicate(true)},
