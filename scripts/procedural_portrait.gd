@@ -111,16 +111,19 @@ func draw_hunter() -> void:
 	var gold := Color("#ffc857")
 	var weapon: Dictionary = equipment_profile.get("weapon", {})
 	var armor: Dictionary = equipment_profile.get("armor", {})
+	var species_id := str(equipment_profile.get("species_id", ""))
+	var species_accent := species_accent_color(species_id)
 	var weapon_color := equipment_color(weapon, cyan)
 	var armor_color := equipment_color(armor, Color("#273357"))
 	var weapon_origin := str(weapon.get("origin_planet_id", ""))
 	var armor_origin := str(armor.get("origin_planet_id", ""))
 	var kit_active := not weapon_origin.is_empty() and weapon_origin == armor_origin
-	var origin_color := planet_loadout_color(weapon_origin if kit_active else armor_origin)
+	var active_origin := weapon_origin if kit_active else armor_origin
+	var origin_color := planet_loadout_color(active_origin) if not active_origin.is_empty() else species_accent
 	draw_frame(Color("#13284a"), gold if kit_active else origin_color)
 	# Shoulders and helmet.
 	filled_polygon([Vector2(0.12, 0.94), Vector2(0.20, 0.72), Vector2(0.38, 0.64), Vector2(0.62, 0.64), Vector2(0.80, 0.72), Vector2(0.88, 0.94)], armor_color.darkened(0.35), ink)
-	outlined_circle(Vector2(0.50, 0.50), 0.31, Color("#d7d6c9"), ink, 0.032)
+	outlined_circle(Vector2(0.50, 0.50), 0.31, species_skin_color(species_id), ink, 0.032)
 	# Crooked space-western hat.
 	filled_polygon([Vector2(0.20, 0.30), Vector2(0.81, 0.25), Vector2(0.75, 0.36), Vector2(0.23, 0.38)], Color("#9a552b"), ink)
 	filled_polygon([Vector2(0.34, 0.29), Vector2(0.38, 0.10), Vector2(0.65, 0.08), Vector2(0.72, 0.28)], Color("#b96a35"), ink)
@@ -131,6 +134,14 @@ func draw_hunter() -> void:
 	draw_circle(Vector2(0.37, 0.54), 0.035, weapon_color)
 	draw_circle(Vector2(0.62, 0.52), 0.035, weapon_color)
 	draw_line(Vector2(0.43, 0.70), Vector2(0.61, 0.68), ink, 0.025, true)
+	if species_id == "discontinued_synthetic":
+		draw_line(Vector2(0.30, 0.65), Vector2(0.39, 0.75), species_accent, 0.022, true)
+		draw_line(Vector2(0.70, 0.63), Vector2(0.61, 0.75), species_accent, 0.022, true)
+		draw_circle(Vector2(0.72, 0.58), 0.025, species_accent)
+	elif species_id == "nebular_nomad":
+		draw_circle(Vector2(0.50, 0.39), 0.025, species_accent)
+		draw_line(Vector2(0.35, 0.28), Vector2(0.29, 0.17), species_accent, 0.025, true)
+		draw_line(Vector2(0.66, 0.27), Vector2(0.73, 0.15), species_accent, 0.025, true)
 	# Antenna keeps the silhouette distinctive.
 	draw_line(Vector2(0.72, 0.17), Vector2(0.84, 0.08), ink, 0.025, true)
 	outlined_circle(Vector2(0.86, 0.065), 0.035, weapon_color, ink, 0.018)
@@ -145,6 +156,28 @@ func draw_hunter() -> void:
 func equipment_color(item: Dictionary, fallback: Color) -> Color:
 	var raw_color := str(item.get("color", ""))
 	return Color(raw_color) if Color.html_is_valid(raw_color) else fallback
+
+
+func species_skin_color(species_id: String) -> Color:
+	match species_id:
+		"discontinued_synthetic":
+			return Color("#7189a8")
+		"nebular_nomad":
+			return Color("#8c74b5")
+		_:
+			return Color("#d7d6c9")
+
+
+func species_accent_color(species_id: String) -> Color:
+	match species_id:
+		"patched_terran":
+			return Color("#ffc857")
+		"discontinued_synthetic":
+			return Color("#55e5ff")
+		"nebular_nomad":
+			return Color("#b8f45d")
+		_:
+			return Color("#55e5ff")
 
 
 func planet_loadout_color(planet_id: String) -> Color:

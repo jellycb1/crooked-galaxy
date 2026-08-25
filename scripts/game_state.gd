@@ -181,6 +181,23 @@ func set_hunter_name(raw_name: String) -> bool:
 	return saved
 
 
+func reopen_onboarding_choice(choice: String) -> bool:
+	if onboarding_step() != "name":
+		return false
+	match choice:
+		"class":
+			player.class_id = ""
+		"species":
+			player.species_id = ""
+		_:
+			return false
+	last_notice = "Registro reaberto para corrigir %s." % ("a classe" if choice == "class" else "a raça")
+	last_notice_context = "onboarding"
+	var saved := save_game()
+	changed.emit()
+	return saved
+
+
 func default_loadout() -> Dictionary:
 	var loadout := {}
 	for slot in CoreRules.EQUIPMENT_SLOTS:

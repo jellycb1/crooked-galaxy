@@ -51,6 +51,7 @@ func run_test() -> void:
 	await process_frame
 	check(state.onboarding_step() == "species" and str(state.player.class_id) == "contract_hacker", "confirmed class advances exactly to species")
 	check(scene.find_children("OnboardingSpecies_*", "PanelContainer", true, false).size() == 3, "species step exposes three replaceable origins")
+	check(scene.find_children("OnboardingSpeciesIcon_*", "Control", true, false).size() == 3, "every provisional species has an original scalable emblem")
 	check_onboarding_touch_targets(scene, "species")
 	var species_action := scene.find_child("OnboardingSpeciesAction_discontinued_synthetic", true, false) as Button
 	species_action.pressed.emit()
@@ -60,6 +61,24 @@ func run_test() -> void:
 	species_confirm.pressed.emit()
 	await process_frame
 	check(state.onboarding_step() == "name" and str(state.player.species_id) == "discontinued_synthetic", "confirmed species advances exactly to hunter naming")
+	check(scene.find_child("OnboardingHunterPortrait", true, false) != null and scene.find_child("OnboardingChangeClass", true, false) != null and scene.find_child("OnboardingChangeSpecies", true, false) != null, "final identity review shows the hunter and both correction routes")
+	var change_class := scene.find_child("OnboardingChangeClass", true, false) as Button
+	change_class.pressed.emit()
+	await process_frame
+	check(state.onboarding_step() == "class" and str(state.player.species_id) == "discontinued_synthetic", "class correction retains the already confirmed species")
+	(scene.find_child("OnboardingClassAction_contract_hacker", true, false) as Button).pressed.emit()
+	await process_frame
+	(scene.find_child("OnboardingClassConfirm", true, false) as Button).pressed.emit()
+	await process_frame
+	var change_species := scene.find_child("OnboardingChangeSpecies", true, false) as Button
+	change_species.pressed.emit()
+	await process_frame
+	check(state.onboarding_step() == "species" and str(state.player.class_id) == "contract_hacker", "species correction retains the already confirmed class")
+	(scene.find_child("OnboardingSpeciesAction_discontinued_synthetic", true, false) as Button).pressed.emit()
+	await process_frame
+	(scene.find_child("OnboardingSpeciesConfirm", true, false) as Button).pressed.emit()
+	await process_frame
+	check(state.onboarding_step() == "name", "corrected class and species return to final naming")
 	var name_input := scene.find_child("OnboardingNameInput", true, false) as LineEdit
 	var name_confirm := scene.find_child("OnboardingNameConfirm", true, false) as Button
 	check(name_input != null and name_confirm != null and name_confirm.disabled, "empty hunter names cannot finish creation")

@@ -3,6 +3,7 @@ extends RefCounted
 
 const ClassRulesScript = preload("res://scripts/class_rules.gd")
 const SpeciesRulesScript = preload("res://scripts/species_rules.gd")
+const SpeciesIconScript = preload("res://scripts/species_icon.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 
 const STEP_INDEX := {"login": 1, "class": 2, "species": 3, "name": 4}
@@ -94,7 +95,7 @@ static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: S
 	for definition in SpeciesRulesScript.DEFINITIONS:
 		var species_id := str(definition.id)
 		var selected := species_id == pending_id
-		var card := choice_card(host, str(definition.name), str(definition.identity), str(definition.tagline), selected, Color(str(definition.color)))
+		var card := choice_card(host, str(definition.name), str(definition.identity), str(definition.tagline), selected, Color(str(definition.color)), species_id)
 		card.name = "OnboardingSpecies_%s" % species_id
 		var choose := card.get_meta("action") as Button
 		choose.name = "OnboardingSpeciesAction_%s" % species_id
@@ -116,12 +117,36 @@ static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: S
 
 static func build_name(host: CrookedUIFactory, stack: VBoxContainer, state: StateScript) -> void:
 	section_intro(host, stack, "NOME DO CAÇADOR", "Este é o nome que aparecerá nos mandados, relatórios e registros da carreira.")
-	var identity := host.panel(VBoxContainer.new(), host.PANEL_LIGHT, 16, 13)
+	var identity := host.panel(HBoxContainer.new(), host.PANEL_LIGHT, 16, 13)
 	identity.name = "OnboardingIdentitySummary"
 	stack.add_child(identity)
-	var copy := identity.get_child(0) as VBoxContainer
+	var identity_row := identity.get_child(0) as HBoxContainer
+	identity_row.add_theme_constant_override("separation", 12)
+	var portrait: Control = host.call("framed_hunter_portrait", 92.0)
+	portrait.name = "OnboardingHunterPortrait"
+	identity_row.add_child(portrait)
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	identity_row.add_child(copy)
 	copy.add_child(host.label("CLASSE · %s" % ClassRulesScript.class_name_for(str(state.player.class_id)), 12, host.GOLD))
 	copy.add_child(host.label("RAÇA · %s" % SpeciesRulesScript.species_name_for(str(state.player.species_id)), 12, host.CYAN))
+	var corrections := HBoxContainer.new()
+	corrections.add_theme_constant_override("separation", 6)
+	copy.add_child(corrections)
+	var change_class := host.action_button("ALTERAR CLASSE", host.GOLD, true)
+	change_class.name = "OnboardingChangeClass"
+	change_class.custom_minimum_size = Vector2(0, 48)
+	change_class.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	change_class.add_theme_font_size_override("font_size", 9)
+	change_class.pressed.connect(func(): state.reopen_onboarding_choice("class"))
+	corrections.add_child(change_class)
+	var change_species := host.action_button("ALTERAR RAÇA", host.CYAN, true)
+	change_species.name = "OnboardingChangeSpecies"
+	change_species.custom_minimum_size = Vector2(0, 48)
+	change_species.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	change_species.add_theme_font_size_override("font_size", 9)
+	change_species.pressed.connect(func(): state.reopen_onboarding_choice("species"))
+	corrections.add_child(change_species)
 	var input := LineEdit.new()
 	input.name = "OnboardingNameInput"
 	input.placeholder_text = "3–20 caracteres"
@@ -153,10 +178,15 @@ static func section_intro(host: CrookedUIFactory, stack: VBoxContainer, title: S
 	stack.add_child(subtitle)
 
 
-static func choice_card(host: CrookedUIFactory, title: String, eyebrow: String, description: String, selected: bool, accent: Color) -> PanelContainer:
+static func choice_card(host: CrookedUIFactory, title: String, eyebrow: String, description: String, selected: bool, accent: Color, species_id: String = "") -> PanelContainer:
 	var card := host.panel(HBoxContainer.new(), Color("#1b3151") if selected else Color("#0d1730"), 14, 12)
 	var row := card.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 10)
+	if not species_id.is_empty():
+		var species_icon: Control = SpeciesIconScript.new()
+		species_icon.name = "OnboardingSpeciesIcon_%s" % species_id
+		species_icon.configure(species_id, accent)
+		row.add_child(species_icon)
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
