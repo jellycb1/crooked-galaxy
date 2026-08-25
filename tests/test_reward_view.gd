@@ -100,6 +100,15 @@ func _init() -> void:
 	var weak_loot_impact := host.find_child("RewardNextHuntImpact", true, false) as Label
 	check(weak_loot_impact != null and weak_loot_impact.text.contains("RECEBER SEM EQUIPAR") and weak_loot_impact.text.contains("→"), "non-upgrade loot attributes a projected gain to pending XP instead of the unequipped item")
 
+	clear_content(content)
+	state.pending_loot = reward_item(2)
+	state.pending_loot.slot = "boots"
+	state.player.boots = {}
+	RewardScript.build(host, content, state)
+	var empty_slot_power := metric_value(host, "RewardEquippedPower")
+	var empty_slot_result := metric_value(host, "RewardEquipmentResult")
+	check(empty_slot_power == "+0" and empty_slot_result == "UPGRADE", "first secondary-slot drop compares safely against an empty universal equipment slot")
+
 	host.free()
 	state.free()
 	if failures == 0:
@@ -126,6 +135,16 @@ func reward_item(power: int) -> Dictionary:
 func clear_content(content: VBoxContainer) -> void:
 	for child in content.get_children():
 		child.free()
+
+
+func metric_value(host: Node, node_name: String) -> String:
+	var chip := host.find_child(node_name, true, false) as PanelContainer
+	if chip == null or chip.get_child_count() == 0:
+		return ""
+	var box := chip.get_child(0) as VBoxContainer
+	if box == null or box.get_child_count() < 2:
+		return ""
+	return str((box.get_child(1) as Label).text)
 
 
 func check(condition: bool, description: String) -> void:

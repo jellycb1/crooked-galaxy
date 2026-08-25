@@ -40,14 +40,20 @@ func run_test() -> void:
 	await process_frame
 	check(state.onboarding_step() == "class" and state.account.keys().all(func(key): return key == "mode" or key == "session_id"), "local login stores session identity without credentials")
 	check(scene.find_children("OnboardingClass_*", "PanelContainer", true, false).size() == 3, "mandatory class step shows the complete prototype trio")
+	check(scene.find_child("OnboardingClassPreview", true, false) != null and scene.find_child("OnboardingClassPreviewName", true, false) != null, "class choice owns a live archetype preview before confirmation")
 	check_onboarding_touch_targets(scene, "class")
 	var class_confirm := scene.find_child("OnboardingClassConfirm", true, false) as Button
+	var class_scroll := scene.find_child("OnboardingScroll", true, false) as ScrollContainer
+	check(class_confirm != null and class_confirm.get_parent() != class_scroll.get_child(0), "class confirmation stays fixed outside its visual roster")
 	check(class_confirm != null and class_confirm.disabled, "class confirmation requires an explicit choice")
 	var class_action := scene.find_child("OnboardingClassAction_contract_hacker", true, false) as Button
 	class_action.pressed.emit()
 	await process_frame
 	class_confirm = scene.find_child("OnboardingClassConfirm", true, false) as Button
-	check(class_confirm != null and not class_confirm.disabled and str(state.player.class_id).is_empty(), "class focus remains a draft until confirmation")
+	var class_preview_name := scene.find_child("OnboardingClassPreviewName", true, false) as Label
+	var class_specialization := scene.find_child("OnboardingClassSpecialization", true, false) as Label
+	check(class_confirm != null and not class_confirm.disabled and str(state.player.class_id).is_empty() and class_preview_name.text == "HACKER DE CONTRATOS", "class focus updates its preview but remains a draft until confirmation")
+	check(class_specialization != null and class_specialization.text.contains("Invasão") and find_label_with_text(scene, "ARQUÉTIPO PROVISÓRIO") != null, "mandatory class choice explains its active mechanic and placeholder status")
 	class_confirm.pressed.emit()
 	await process_frame
 	check(state.onboarding_step() == "species" and str(state.player.class_id) == "contract_hacker", "confirmed class advances exactly to species")
@@ -58,6 +64,8 @@ func run_test() -> void:
 	var fixed_species_confirm := scene.find_child("OnboardingSpeciesConfirm", true, false) as Button
 	check(fixed_species_confirm != null and fixed_species_confirm.get_parent() != species_scroll.get_child(0), "species confirmation stays outside the long scrolling roster")
 	check_onboarding_touch_targets(scene, "species")
+	await process_frame
+	await process_frame
 	# Constrain the harness to exercise the same overflow path used by smaller or
 	# enlarged-text Android layouts; the default 720x1280 test viewport fits it.
 	(species_scroll.get_child(0) as Control).custom_minimum_size.y = 1600
@@ -69,7 +77,8 @@ func run_test() -> void:
 	(species_scroll.get_child(0) as Control).custom_minimum_size.y = 1600
 	await process_frame
 	await process_frame
-	check(str(scene.species_draft) == "catalog_chimera" and species_scroll.scroll_vertical >= 120, "selecting a lower species preserves roster position while updating the preview (draft %s, scroll %d)" % [str(scene.species_draft), species_scroll.scroll_vertical])
+	await process_frame
+	check(str(scene.species_draft) == "catalog_chimera" and species_scroll.scroll_vertical >= 120, "selecting a lower species preserves roster position while updating the preview (draft %s, scroll %d, remembered %d, generation %d)" % [str(scene.species_draft), species_scroll.scroll_vertical, int(scene.onboarding_scroll_position), int(scene.render_generation)])
 	var species_action := scene.find_child("OnboardingSpeciesAction_discontinued_synthetic", true, false) as Button
 	species_action.pressed.emit()
 	await process_frame
@@ -121,6 +130,14 @@ func check(condition: bool, description: String) -> void:
 	if not condition:
 		failures += 1
 		printerr("  FAIL: %s" % description)
+
+
+func find_label_with_text(scene: Node, expected: String) -> Label:
+	for candidate in scene.find_children("*", "Label", true, false):
+		var label := candidate as Label
+		if label.text.contains(expected):
+			return label
+	return null
 
 
 func check_onboarding_touch_targets(scene: Control, step: String) -> void:

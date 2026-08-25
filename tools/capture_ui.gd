@@ -34,6 +34,7 @@ func capture() -> void:
 		quit(1)
 		return
 	state.account = {"mode": "local_test", "session_id": "capture"}
+	scene.class_draft = "orbit_gunslinger"
 	scene.render()
 	await process_frame
 	await process_frame
@@ -41,6 +42,7 @@ func capture() -> void:
 		quit(1)
 		return
 	state.player.class_id = "contract_hacker"
+	scene.class_draft = ""
 	scene.species_draft = "unstable_luminar"
 	scene.render()
 	await process_frame

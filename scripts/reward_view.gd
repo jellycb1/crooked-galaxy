@@ -15,8 +15,8 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		return
 	var item := state.pending_loot
 	var reward_preview := Rules.bounty_streak_reward(int(state.current_bounty.credits), int(state.player.get("capture_streak", 0)) + 1)
-	var equipped: Dictionary = state.player[str(item.slot)]
-	var comparison := int(item.power) - int(equipped.power)
+	var equipped: Dictionary = state.player.get(str(item.get("slot", "")), {})
+	var comparison := int(item.get("power", 0)) - int(equipped.get("power", 0))
 	var effective_upgrade := Rules.is_upgrade_for_player(state.player, item)
 	content.add_child(host.center_label("CONTRATO CONCLUÍDO · %s" % str(state.current_bounty.name).to_upper(), 16, host.LIME))
 	content.add_child(host.center_label("RECOMPENSA CAPTURADA", 28, host.INK))
@@ -55,8 +55,8 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	comparison_row.name = "RewardEquipmentComparison"
 	comparison_row.add_theme_constant_override("separation", 7)
 	box.add_child(comparison_row)
-	comparison_row.add_child(reward_metric_chip(host, "NOVO", "+%d" % int(item.power), host.GOLD, "RewardNewPower"))
-	comparison_row.add_child(reward_metric_chip(host, "EQUIPADO", "+%d" % int(equipped.power), host.MUTED, "RewardEquippedPower"))
+	comparison_row.add_child(reward_metric_chip(host, "NOVO", "+%d" % int(item.get("power", 0)), host.GOLD, "RewardNewPower"))
+	comparison_row.add_child(reward_metric_chip(host, "EQUIPADO", "+%d" % int(equipped.get("power", 0)), host.MUTED, "RewardEquippedPower"))
 	var result_text := "UPGRADE" if effective_upgrade else "GUARDAR"
 	if effective_upgrade and comparison <= 0:
 		result_text = "MOD MELHOR"

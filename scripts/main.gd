@@ -335,20 +335,29 @@ func render() -> void:
 	call_deferred("restore_action_focus", previous_focus_name, current_generation)
 
 
-func restore_onboarding_scroll() -> void:
+func restore_onboarding_scroll(expected_generation: int) -> void:
 	# The factory rebuilds the onboarding tree when a draft changes. Wait for the
-	# new responsive layout and resolve the current node at application time so a
-	# rapid second tap cannot leave a callback holding a freed ScrollContainer.
-	await get_tree().process_frame
+	# new responsive layout with an owned one-shot timer. Because the timer belongs
+	# to this scene, teardown cancels it instead of resuming a freed script instance.
+	if expected_generation != render_generation:
+		return
+	var timer := Timer.new()
+	timer.one_shot = true
+	timer.wait_time = 0.001
+	add_child(timer)
+	timer.timeout.connect(Callable(self, "apply_onboarding_scroll").bind(expected_generation))
+	timer.timeout.connect(timer.queue_free)
+	timer.start()
+
+
+func apply_onboarding_scroll(expected_generation: int) -> void:
+	if expected_generation != render_generation:
+		return
 	var scroll := content.find_child("OnboardingScroll", false, false) as ScrollContainer
-	if scroll == null or not GameState.requires_onboarding() or GameState.onboarding_step() != "species":
+	if scroll == null or not GameState.requires_onboarding() or not GameState.onboarding_step() in ["class", "species"]:
 		return
 	scroll.scroll_vertical = onboarding_scroll_position
-	await get_tree().process_frame
-	scroll = content.find_child("OnboardingScroll", false, false) as ScrollContainer
-	if scroll != null and GameState.requires_onboarding() and GameState.onboarding_step() == "species":
-		scroll.scroll_vertical = onboarding_scroll_position
-		onboarding_scroll_position = scroll.scroll_vertical
+	onboarding_scroll_position = scroll.scroll_vertical
 
 
 func on_primary_navigation(destination_id: String) -> void:

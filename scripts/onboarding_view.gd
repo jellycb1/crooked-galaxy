@@ -38,8 +38,8 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 			build_species(host, stack, state)
 		"name":
 			build_name(host, stack, state)
-	if step == "species" and host.onboarding_scroll_position > 0:
-		host.call_deferred("restore_onboarding_scroll")
+	if step == "class" or step == "species":
+		host.call_deferred("restore_onboarding_scroll", int(host.get("render_generation")))
 
 
 static func build_login(host: CrookedUIFactory, stack: VBoxContainer, state: StateScript) -> void:
@@ -67,28 +67,72 @@ static func build_login(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 static func build_class(host: CrookedUIFactory, stack: VBoxContainer, state: StateScript) -> void:
 	section_intro(host, stack, "ESCOLHA A CLASSE", "A classe define sua especialização inicial de combate e contratos.")
 	var pending_id := host.class_draft
+	var pending_definition := ClassRulesScript.get_definition(pending_id)
+	var preview := host.panel(HBoxContainer.new(), Color("#162947"), 16, 13)
+	preview.name = "OnboardingClassPreview"
+	stack.add_child(preview)
+	var preview_row := preview.get_child(0) as HBoxContainer
+	preview_row.add_theme_constant_override("separation", 13)
+	var preview_icon := class_reference_icon(host, pending_id, 106.0)
+	if preview_icon != null:
+		preview_icon.name = "OnboardingClassPreviewIcon"
+		preview_row.add_child(preview_icon)
+	var preview_copy := VBoxContainer.new()
+	preview_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	preview_copy.alignment = BoxContainer.ALIGNMENT_CENTER
+	preview_copy.add_theme_constant_override("separation", 3)
+	preview_row.add_child(preview_copy)
+	preview_copy.add_child(host.label("PRÉVIA DO ARQUÉTIPO", 10, host.CYAN))
+	var preview_name := host.label(str(pending_definition.get("name", "NENHUMA CLASSE SELECIONADA")), 17, host.GOLD if not pending_definition.is_empty() else host.INK)
+	preview_name.name = "OnboardingClassPreviewName"
+	preview_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	preview_copy.add_child(preview_name)
+	var preview_primary := "ATRIBUTO · %s" % str(pending_definition.get("primary_name", "ESCOLHA UM ARQUÉTIPO ABAIXO"))
+	preview_copy.add_child(host.label(preview_primary, 10, host.LIME if not pending_definition.is_empty() else host.MUTED))
+	if not pending_definition.is_empty():
+		var preview_route := host.label("ESTILO · %s" % str(pending_definition.get("route_style", "CONTRATO FLEXÍVEL")), 10, host.CYAN)
+		preview_route.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		preview_copy.add_child(preview_route)
 	for definition in ClassRulesScript.DEFINITIONS:
 		var class_id := str(definition.id)
 		var selected := class_id == pending_id
 		var class_color := {"warrant_breaker": host.CORAL, "orbit_gunslinger": host.GOLD, "contract_hacker": host.CYAN}.get(class_id, host.CYAN) as Color
-		var card := choice_card(host, str(definition.name), "ATRIBUTO · %s" % str(definition.primary_name), str(definition.tagline), selected, class_color)
+		var card := choice_card(host, str(definition.name), "ATRIBUTO · %s" % str(definition.primary_name), str(definition.tagline), selected, class_color, "", class_id)
 		card.name = "OnboardingClass_%s" % class_id
 		var choose := card.get_meta("action") as Button
 		choose.name = "OnboardingClassAction_%s" % class_id
 		choose.pressed.connect(func():
+			var scroll := stack.get_parent() as ScrollContainer
+			host.onboarding_scroll_position = scroll.scroll_vertical
 			host.class_draft = class_id
 			host.call("render")
 		)
 		stack.add_child(card)
+	if not pending_definition.is_empty():
+		var mechanics := host.panel(VBoxContainer.new(), Color("#111d3a"), 14, 11)
+		mechanics.name = "OnboardingClassMechanics"
+		stack.add_child(mechanics)
+		var mechanics_copy := mechanics.get_child(0) as VBoxContainer
+		mechanics_copy.add_theme_constant_override("separation", 3)
+		mechanics_copy.add_child(host.label("ARQUÉTIPO PROVISÓRIO · MECÂNICA ATIVA", 10, host.LIME))
+		var flavor := host.label(str(pending_definition.get("flavor", "")), 11, host.MUTED)
+		flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		mechanics_copy.add_child(flavor)
+		var specialization := host.label("ESPECIALIZAÇÃO · %s" % ClassRulesScript.specialization_text(pending_definition), 11, host.GOLD)
+		specialization.name = "OnboardingClassSpecialization"
+		specialization.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		mechanics_copy.add_child(specialization)
 	var confirm := host.action_button("CONFIRMAR CLASSE", host.LIME)
 	confirm.name = "OnboardingClassConfirm"
 	confirm.disabled = pending_id.is_empty()
 	confirm.pressed.connect(func():
 		var selected := host.class_draft
 		host.class_draft = ""
+		host.onboarding_scroll_position = 0
 		state.select_class(selected)
 	)
-	stack.add_child(confirm)
+	var content := stack.get_parent().get_parent() as VBoxContainer
+	content.add_child(confirm)
 
 
 static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: StateScript) -> void:
@@ -135,6 +179,7 @@ static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: S
 	confirm.pressed.connect(func():
 		var selected := host.species_draft
 		host.species_draft = ""
+		host.onboarding_scroll_position = 0
 		state.select_species(selected)
 	)
 	var content := stack.get_parent().get_parent() as VBoxContainer
@@ -164,7 +209,10 @@ static func build_name(host: CrookedUIFactory, stack: VBoxContainer, state: Stat
 	change_class.custom_minimum_size = Vector2(0, 48)
 	change_class.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	change_class.add_theme_font_size_override("font_size", 9)
-	change_class.pressed.connect(func(): state.reopen_onboarding_choice("class"))
+	change_class.pressed.connect(func():
+		host.onboarding_scroll_position = 0
+		state.reopen_onboarding_choice("class")
+	)
 	corrections.add_child(change_class)
 	var change_species := host.action_button("ALTERAR RAÇA", host.CYAN, true)
 	change_species.name = "OnboardingChangeSpecies"
@@ -207,7 +255,7 @@ static func section_intro(host: CrookedUIFactory, stack: VBoxContainer, title: S
 	stack.add_child(subtitle)
 
 
-static func choice_card(host: CrookedUIFactory, title: String, eyebrow: String, description: String, selected: bool, accent: Color, species_id: String = "") -> PanelContainer:
+static func choice_card(host: CrookedUIFactory, title: String, eyebrow: String, description: String, selected: bool, accent: Color, species_id: String = "", class_id: String = "") -> PanelContainer:
 	var card := host.panel(HBoxContainer.new(), Color("#1b3151") if selected else Color("#0d1730"), 14, 12)
 	var row := card.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 10)
@@ -216,6 +264,11 @@ static func choice_card(host: CrookedUIFactory, title: String, eyebrow: String, 
 		species_icon.name = "OnboardingSpeciesIcon_%s" % species_id
 		species_icon.configure(species_id, accent)
 		row.add_child(species_icon)
+	elif not class_id.is_empty():
+		var class_icon := class_reference_icon(host, class_id, 58.0)
+		if class_icon != null:
+			class_icon.name = "OnboardingClassIcon_%s" % class_id
+			row.add_child(class_icon)
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
@@ -231,3 +284,23 @@ static func choice_card(host: CrookedUIFactory, title: String, eyebrow: String, 
 	row.add_child(action)
 	card.set_meta("action", action)
 	return card
+
+
+static func class_reference_icon(host: CrookedUIFactory, class_id: String, dimension: float) -> TextureRect:
+	if class_id.is_empty():
+		return null
+	var reference_layer = host.get("reference_backdrop")
+	if reference_layer == null or not reference_layer.has_method("ui_texture"):
+		return null
+	var texture: Texture2D = reference_layer.ui_texture(class_id)
+	if texture == null:
+		return null
+	var icon := TextureRect.new()
+	icon.custom_minimum_size = Vector2(dimension, dimension)
+	icon.texture = texture
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.tooltip_text = "PLACEHOLDER INTERNO · identidade visual provisória"
+	return icon
