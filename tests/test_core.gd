@@ -53,6 +53,9 @@ func test_power_and_health() -> void:
 	check(Rules.enemy_attack_damage(tactical_player, 18, 0.5) == maxi(1, raw_enemy_damage - 2), "armor dampener reduces every incoming strike")
 	var damage_breakdown := Rules.enemy_attack_breakdown(tactical_player, 18, 0.5)
 	check(int(damage_breakdown.raw_damage) == raw_enemy_damage and int(damage_breakdown.prevented) == 2, "enemy damage breakdown exposes mitigation without changing final damage")
+	var anomaly_breakdown := Rules.enemy_attack_breakdown(tactical_player, 18, 0.5, 0.75)
+	check(int(anomaly_breakdown.base_reduction) == 2 and int(anomaly_breakdown.effective_reduction) == 1, "class-neutral rupture can partially pierce mitigation")
+	check(Rules.player_attack_damage(tactical_player, 4, 0.5, 1, 2.0) == raw_player_damage + 10, "class-neutral instability can amplify opening damage")
 	check(Rules.equipment_score({"trait": {"opening_damage_bonus": 5}}) == 10, "opening damage participates in equipment comparison")
 	check(Rules.equipment_score({"trait": {"damage_reduction": 2}}) == 20, "damage reduction participates in equipment comparison")
 	var kit_player := {

@@ -2,6 +2,7 @@ class_name CareerView
 extends RefCounted
 
 const CareerRulesScript = preload("res://scripts/career_rules.gd")
+const ChallengeRulesScript = preload("res://scripts/challenge_rules.gd")
 const Rules = preload("res://scripts/core_rules.gd")
 const Content = preload("res://scripts/content_db.gd")
 const StateScript = preload("res://scripts/game_state.gd")
@@ -64,6 +65,8 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	list.add_child(progress_heading)
 	for planet in Content.PLANETS:
 		list.add_child(planet_card(host, state, planet))
+	list.add_child(host.label("PROGRESSO PARALELO", 13, host.MUTED))
+	list.add_child(challenge_progress_card(host, state))
 	list.add_child(host.label("MARCOS DA CARREIRA", 13, host.MUTED))
 	for milestone in state.career_milestones():
 		list.add_child(milestone_card(host, state, milestone))
@@ -286,6 +289,64 @@ static func planet_card(host: CrookedUIFactory, state: StateScript, planet: Dict
 	row.add_child(status_copy)
 	status_copy.add_child(host.label("✓" if completed else ("→" if unlocked else "×"), 20, host.LIME if completed else (host.GOLD if unlocked else host.MUTED), HORIZONTAL_ALIGNMENT_CENTER))
 	status_copy.add_child(host.label(status, 9, host.LIME if completed else (host.GOLD if unlocked else host.MUTED), HORIZONTAL_ALIGNMENT_RIGHT))
+	return card
+
+
+static func challenge_progress_card(host: CrookedUIFactory, state: StateScript) -> PanelContainer:
+	var unlocked := ChallengeRulesScript.is_unlocked(state.player)
+	var floor := ChallengeRulesScript.progress(state.player)
+	var total := ChallengeRulesScript.STAGES.size()
+	var complete := floor >= total
+	var accent: Color = host.CORAL if unlocked else host.MUTED
+	var card := host.panel(HBoxContainer.new(), Color("#181630") if unlocked else Color("#0a1025"), 12, 11)
+	card.name = "CareerChallengeProgress"
+	var row := card.get_child(0) as HBoxContainer
+	row.add_theme_constant_override("separation", 10)
+	var seal := host.center_label("✓" if complete else ("◇" if unlocked else "×"), 23, host.LIME if complete else accent)
+	seal.custom_minimum_size = Vector2(40, 48)
+	row.add_child(seal)
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(copy)
+	copy.add_child(host.label("FENDA CLANDESTINA", 14, host.LIME if complete else accent))
+	var progress := ProgressBar.new()
+	progress.name = "CareerChallengeBar"
+	progress.max_value = total
+	progress.value = floor
+	progress.show_percentage = false
+	progress.custom_minimum_size = Vector2(0, 7)
+	progress.add_theme_stylebox_override("background", host.box_style(Color("#071025"), 4))
+	progress.add_theme_stylebox_override("fill", host.box_style(host.CORAL if unlocked else host.MUTED.darkened(0.35), 4))
+	copy.add_child(progress)
+	var detail := "BLOQUEADA · CONCLUA DUSTBALL PRIME"
+	if complete:
+		detail = "%d/%d ANDARES · ARQUIVO CONCLUÍDO" % [floor, total]
+	elif unlocked:
+		var stage := ChallengeRulesScript.current_stage(state.player)
+		detail = "%d/%d LIMPOS · PRÓXIMO: %s" % [floor, total, str(stage.get("name", "Anomalia")).to_upper()]
+	copy.add_child(host.label(detail, 10, host.MUTED))
+	var status := "BLOQUEADA"
+	if complete:
+		status = "COMPLETA"
+	elif floor < 3:
+		status = "CINTOS\nTÉCNICOS"
+	else:
+		status = "IMPLANTES"
+	var action_column := VBoxContainer.new()
+	action_column.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_child(action_column)
+	action_column.add_child(host.label(status, 9, host.LIME if complete else accent, HORIZONTAL_ALIGNMENT_CENTER))
+	if unlocked and not complete:
+		var action := host.action_button("ABRIR", host.CORAL, true)
+		action.name = "CareerChallengeAction"
+		action.custom_minimum_size = Vector2(88, 42)
+		action.add_theme_font_size_override("font_size", 10)
+		action.pressed.connect(func():
+			host.view_mode = "challenges"
+			if host.has_method("render"):
+				host.call("render")
+		)
+		action_column.add_child(action)
 	return card
 
 

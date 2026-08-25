@@ -98,6 +98,10 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 	metrics.add_child(host.metric_chip("CHANCE", "%d%%" % roundi(odds * 100.0), readiness_color))
 	metrics.add_child(host.metric_chip("PODER", str(int(stage.power)), host.CORAL))
 	metrics.add_child(host.metric_chip("VIDA", str(int(stage.health)), host.CYAN))
+	var rupture := host.center_label("ANOMALIA · %d%% DA MITIGAÇÃO IGNORADA · ABERTURA ×%.1f" % [roundi(float(stage.damage_reduction_piercing) * 100.0), float(stage.opening_damage_multiplier)], 11, host.CORAL)
+	rupture.name = "ChallengeRuptureRule"
+	rupture.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	stack.add_child(rupture)
 
 	var reward := ChallengeRulesScript.reward_for(stage, ContentDB.ITEM_TRAITS)
 	var reward_panel := host.panel(HBoxContainer.new(), Color("#10233b"), 13, 11)

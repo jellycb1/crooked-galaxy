@@ -2,6 +2,8 @@ extends SceneTree
 
 const Challenge = preload("res://scripts/challenge_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
+const Simulator = preload("res://tools/simulate_challenges.gd")
+const Builds = preload("res://tools/simulation_builds.gd")
 
 var failures := 0
 
@@ -32,15 +34,28 @@ func run_audit() -> void:
 		check(reward.has("trait") and int(reward.power) <= 2, "floor %d reward remains lateral and mechanically complete" % (index + 1))
 		if index > 0:
 			check(int(stage.power) > int(Challenge.STAGES[index - 1].power) and int(stage.health) > int(Challenge.STAGES[index - 1].health), "floor %d is harder than the previous floor" % (index + 1))
-	var progression_builds := [
-		{"stage": 0, "minimum": 0.60, "maximum": 0.85, "player": {"level": 8, "base_power": 24, "class_id": "orbit_gunslinger", "attributes": {"strength": 10, "vitality": 14, "dexterity": 18, "intelligence": 10, "cunning": 10}, "weapon": {"power": 14, "origin_planet_id": "dustball_prime"}, "armor": {"power": 10, "origin_planet_id": "dustball_prime"}}},
-		{"stage": 2, "minimum": 0.60, "maximum": 0.85, "player": {"level": 15, "base_power": 40, "class_id": "orbit_gunslinger", "attributes": {"strength": 10, "vitality": 18, "dexterity": 32, "intelligence": 10, "cunning": 10}, "weapon": {"power": 38, "origin_planet_id": "micelia_404"}, "armor": {"power": 30, "integrity_upgrades": 3, "origin_planet_id": "micelia_404"}}},
-		{"stage": 3, "minimum": 0.60, "maximum": 0.85, "player": {"level": 16, "base_power": 40, "class_id": "orbit_gunslinger", "attributes": {"strength": 10, "vitality": 18, "dexterity": 26, "intelligence": 10, "cunning": 18}, "weapon": {"power": 40, "origin_planet_id": "ferro_velho_omega"}, "armor": {"power": 34, "integrity_upgrades": 2, "origin_planet_id": "ferro_velho_omega"}}},
-		{"stage": 5, "minimum": 0.20, "maximum": 0.45, "player": {"level": 29, "base_power": 66, "class_id": "orbit_gunslinger", "attributes": {"strength": 10, "vitality": 24, "dexterity": 38, "intelligence": 10, "cunning": 24}, "weapon": {"power": 80, "origin_planet_id": "cassino_quasar"}, "armor": {"power": 64, "integrity_upgrades": 3, "origin_planet_id": "cassino_quasar"}}},
-	]
-	for audit in progression_builds:
-		var odds: float = CoreRules.bounty_odds(audit.player, Challenge.stage_at(int(audit.stage)))
-		check(odds >= float(audit.minimum) and odds <= float(audit.maximum), "floor %d lands in its intended campaign power window (actual %d%%)" % [int(audit.stage) + 1, roundi(odds * 100.0)])
+	var maximum_campaign_safe_delta := 0.0
+	var maximum_campaign_route_delta := 0.0
+	for stage_index in Challenge.STAGES.size():
+		var checkpoint: Dictionary = Simulator.CHECKPOINTS[stage_index]
+		var class_odds: Array[float] = []
+		for policy in Builds.POLICIES:
+			var player := Simulator.checkpoint_player(checkpoint, policy)
+			var bare_player := player.duplicate(true)
+			Simulator.apply_prior_rewards(player, stage_index)
+			class_odds.append(CoreRules.bounty_odds(player, Challenge.stage_at(stage_index)))
+			for approach_index in ContentDB.CONTRACT_APPROACHES.size():
+				var contract := ContentDB.apply_approach(ContentDB.TARGETS[int(checkpoint.campaign_target)], ContentDB.CONTRACT_APPROACHES[approach_index])
+				var route_delta := CoreRules.bounty_odds(player, contract) - CoreRules.bounty_odds(bare_player, contract)
+				maximum_campaign_route_delta = maxf(maximum_campaign_route_delta, route_delta)
+				if approach_index == 0:
+					maximum_campaign_safe_delta = maxf(maximum_campaign_safe_delta, route_delta)
+		class_odds.sort()
+		var class_spread := float(class_odds[2]) - float(class_odds[0])
+		check(float(class_odds[0]) >= 0.40 and float(class_odds[2]) <= 0.90, "floor %d stays aspirational but viable across all prototype classes (%d-%d%%)" % [stage_index + 1, roundi(float(class_odds[0]) * 100.0), roundi(float(class_odds[2]) * 100.0)])
+		check(class_spread <= 0.35, "floor %d class spread remains bounded at %d percentage points" % [stage_index + 1, roundi(class_spread * 100.0)])
+	check(maximum_campaign_safe_delta <= 0.05, "Fenda rewards do not become mandatory for campaign recovery routes")
+	check(maximum_campaign_route_delta <= 0.25, "Fenda rewards improve risky campaign routes without erasing their risk")
 	var canonical_stage: Dictionary = state.canonicalize_loaded_bounty(Challenge.stage_at(1))
 	check(not bool(canonical_stage.repaired) and bool(canonical_stage.bounty.challenge), "an interrupted canonical challenge round-trips without false recovery")
 	var tampered_stage: Dictionary = Challenge.stage_at(1)
@@ -76,6 +91,7 @@ func run_audit() -> void:
 	await process_frame
 	check(scene.find_child("ChallengeProgressTrack", true, false) != null, "unlocked ladder renders persistent floor progress")
 	check(scene.find_child("ChallengeCurrentDossier", true, false) != null and scene.find_child("ChallengeRewardPreview", true, false) != null, "current enemy and unique reward share one readable dossier")
+	check(scene.find_child("ChallengeRuptureRule", true, false) != null, "challenge dossier exposes its class-neutral anomaly rules before entry")
 	var enter := scene.find_child("ChallengeEnterAction", true, false) as Button
 	check(enter != null and enter.size.y >= 48.0, "challenge entry remains an Android touch target")
 	scene.queue_free()

@@ -464,7 +464,8 @@ func combat_step() -> Dictionary:
 	combat_round += 1
 	var round_events: Array[Dictionary] = []
 	var player_roll := rng.randf()
-	var player_damage := CoreRules.player_attack_damage(player, int(current_bounty.defense), player_roll, combat_round)
+	var opening_multiplier := float(current_bounty.get("opening_damage_multiplier", 1.0))
+	var player_damage := CoreRules.player_attack_damage(player, int(current_bounty.defense), player_roll, combat_round, opening_multiplier)
 	var player_event := {
 		"actor": "player",
 		"action": ContentDB.player_attack(rng),
@@ -479,6 +480,9 @@ func combat_step() -> Dictionary:
 		player_effects.append("EMBOSCADA +%d" % non_class_opening_bonus)
 	if class_opening_bonus > 0:
 		player_effects.append("INVASÃO +%d" % class_opening_bonus)
+	var opening_amplified := roundi(float(opening_bonus) * maxf(0.0, opening_multiplier - 1.0)) if combat_round == 1 else 0
+	if opening_amplified > 0:
+		player_effects.append("INSTABILIDADE +%d" % opening_amplified)
 	var class_roll_bonus := ClassRules.specialization_attack_roll_bonus(player, CoreRules.BASE_ATTRIBUTE_VALUE)
 	if class_roll_bonus > 0.0:
 		player_effects.append("MIRA ORBITAL +%.1f%%" % (class_roll_bonus * 100.0))
@@ -497,7 +501,7 @@ func combat_step() -> Dictionary:
 		return {"message": message, "finished": true, "won": true}
 
 	var enemy_roll := rng.randf()
-	var enemy_breakdown := CoreRules.enemy_attack_breakdown(player, int(current_bounty.power), enemy_roll)
+	var enemy_breakdown := CoreRules.enemy_attack_breakdown(player, int(current_bounty.power), enemy_roll, float(current_bounty.get("damage_reduction_piercing", 0.0)))
 	var enemy_damage := int(enemy_breakdown.damage)
 	var enemy_event := {
 		"actor": "enemy",
@@ -506,6 +510,7 @@ func combat_step() -> Dictionary:
 		"quality": combat_quality(enemy_roll),
 	}
 	var damage_reduction := CoreRules.player_damage_reduction(player)
+	var reduction_pierced := maxi(0, damage_reduction - int(enemy_breakdown.get("effective_reduction", damage_reduction)))
 	var enemy_effects: Array[String] = []
 	var class_damage_reduction := ClassRules.specialization_damage_reduction(player, CoreRules.BASE_ATTRIBUTE_VALUE)
 	var non_class_damage_reduction := maxi(0, damage_reduction - class_damage_reduction)
@@ -513,6 +518,8 @@ func combat_step() -> Dictionary:
 		enemy_effects.append("AMORTECEDOR -%d" % non_class_damage_reduction)
 	if class_damage_reduction > 0:
 		enemy_effects.append("CASCO DURO -%d" % class_damage_reduction)
+	if reduction_pierced > 0:
+		enemy_effects.append("RUPTURA +%d" % reduction_pierced)
 	if not enemy_effects.is_empty():
 		enemy_event.effect = " · ".join(enemy_effects)
 	round_events.append(enemy_event)
@@ -1702,7 +1709,7 @@ func sanitize_loaded_combat_events(loaded) -> Dictionary:
 		var effect_parts := effect.split(" · ", false)
 		var effect_is_safe := effect.length() <= 96
 		for part in effect_parts:
-			if not part.begins_with("EMBOSCADA +") and not part.begins_with("AMORTECEDOR -") and not part.begins_with("INVASÃO +") and not part.begins_with("MIRA ORBITAL +") and not part.begins_with("CASCO DURO -"):
+			if not part.begins_with("EMBOSCADA +") and not part.begins_with("AMORTECEDOR -") and not part.begins_with("INVASÃO +") and not part.begins_with("MIRA ORBITAL +") and not part.begins_with("CASCO DURO -") and not part.begins_with("RUPTURA +") and not part.begins_with("INSTABILIDADE +"):
 				effect_is_safe = false
 				break
 		if not effect.is_empty() and effect_is_safe:

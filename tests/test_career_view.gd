@@ -28,6 +28,9 @@ func _init() -> void:
 	check(host.find_child("CareerScroll", true, false) != null, "isolated career builds its archive scroller")
 	check(host.find_child("CareerProgressJump", true, false) != null, "career provides a direct route back to progression")
 	check(host.find_child("CareerArchiveJump", true, false) != null, "career provides a direct route to the wanted archive")
+	var locked_challenge := host.find_child("CareerChallengeProgress", true, false) as PanelContainer
+	check(locked_challenge != null and find_text(locked_challenge).contains("CONCLUA DUSTBALL PRIME"), "career introduces the parallel ladder at its truthful unlock condition")
+	check(host.find_child("CareerChallengeAction", true, false) == null, "locked challenge progress does not expose a dead route")
 	check(host.find_child("MasteryDirective", true, false) != null, "isolated career turns archive data into a repeat objective")
 	var mastery_action := host.find_child("MasteryDirectiveAction", true, false) as Button
 	check(mastery_action != null and mastery_action.text == "ESCOLHER\nROTA", "mastery objective truthfully links to route selection")
@@ -55,6 +58,13 @@ func _init() -> void:
 	for child in content.get_children():
 		child.free()
 	CareerViewScript.build(host, content, state)
+	var challenge_card := host.find_child("CareerChallengeProgress", true, false) as PanelContainer
+	check(challenge_card != null and find_text(challenge_card).contains("PRÓXIMO: DRONE DA ALFÂNDEGA MORTA"), "career names the next independent challenge after unlock")
+	check(host.find_child("CareerChallengeBar", true, false) != null, "career makes rift completion readable as a stable progress track")
+	var challenge_action := host.find_child("CareerChallengeAction", true, false) as Button
+	check(challenge_action != null and challenge_action.text == "ABRIR", "career provides a direct route into the unlocked rift")
+	challenge_action.pressed.emit()
+	check(host.view_mode == "challenges", "career challenge route opens the independent ladder")
 	check(str(CareerViewScript.ordered_archive_targets(state)[0].id) == "auditor_frost", "changing planets moves that chapter's warrants to the front without filtering history")
 	var cross_planet_action := host.find_child("CareerTargetAction_auditor_frost", true, false) as Button
 	check(cross_planet_action != null, "archive exposes targets on unlocked completed routes")

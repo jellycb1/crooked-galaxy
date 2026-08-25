@@ -18,7 +18,7 @@ const STAGES := [
 		"name": "Cobrador de Ecos",
 		"title": "ANDAR 2 · ARQUIVO SONORO",
 		"description": "Confisca últimas palavras, revende ameaças e nunca emite recibo em voz baixa.",
-		"power": 41, "defense": 17, "health": 335, "credits": 146, "xp": 172,
+		"power": 60, "defense": 17, "health": 450, "credits": 146, "xp": 172,
 		"attacks": ["Cobrança Ressonante", "Protesto Sônico", "Juro em Repetição"],
 		"reward": {"name": "Arnês de Frequência Torta", "description": "Transforma ruído de combate em decisões marginalmente úteis.", "slot": "rig", "power": 1, "rarity": "Raro", "trait_id": "counterweight_servos"},
 	},
@@ -45,7 +45,8 @@ const STAGES := [
 		"name": "Escrivão de Probabilidades",
 		"title": "ANDAR 5 · CARTÓRIO CAUSAL",
 		"description": "Registra futuros possíveis e multa qualquer realidade que saia sem autenticação.",
-		"power": 88, "defense": 37, "health": 700, "credits": 258, "xp": 292,
+		"power": 125, "defense": 37, "health": 825, "credits": 258, "xp": 292,
+		"opening_damage_multiplier": 1.5,
 		"attacks": ["Firma Reconhecida", "Cláusula Improvável", "Penhora do Futuro"],
 		"reward": {"name": "Córtex de Cálculo Clandestino", "description": "Prevê três resultados e escolhe o menos documentado.", "slot": "implant", "power": 1, "rarity": "Raro", "trait_id": "illegal_adrenaline"},
 	},
@@ -80,6 +81,8 @@ static func stage_at(index: int) -> Dictionary:
 	var stage: Dictionary = STAGES[index].duplicate(true)
 	stage["challenge"] = true
 	stage["challenge_index"] = index
+	stage["damage_reduction_piercing"] = float(stage.get("damage_reduction_piercing", 0.75))
+	stage["opening_damage_multiplier"] = float(stage.get("opening_damage_multiplier", 2.0))
 	stage["duration"] = 0
 	stage["planet_id"] = UNLOCK_PLANET_ID
 	stage["scrap_reward"] = 0

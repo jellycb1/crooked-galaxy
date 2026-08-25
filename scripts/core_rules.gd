@@ -141,25 +141,29 @@ static func damage_roll(power: int, defense: int, roll: float) -> int:
 	return maxi(1, roundi(float(power) * variance - float(defense) * 0.45))
 
 
-static func player_attack_damage(player: Dictionary, target_defense: int, roll: float, round_number: int) -> int:
+static func player_attack_damage(player: Dictionary, target_defense: int, roll: float, round_number: int, opening_damage_multiplier := 1.0) -> int:
 	var damage := damage_roll(player_power(player), target_defense, player_attack_roll(player, roll))
 	if round_number == 1:
-		damage += player_opening_damage(player)
+		damage += roundi(float(player_opening_damage(player)) * maxf(0.0, float(opening_damage_multiplier)))
 	return damage
 
 
-static func enemy_attack_damage(player: Dictionary, target_power: int, roll: float) -> int:
-	return int(enemy_attack_breakdown(player, target_power, roll).damage)
+static func enemy_attack_damage(player: Dictionary, target_power: int, roll: float, damage_reduction_piercing := 0.0) -> int:
+	return int(enemy_attack_breakdown(player, target_power, roll, damage_reduction_piercing).damage)
 
 
-static func enemy_attack_breakdown(player: Dictionary, target_power: int, roll: float) -> Dictionary:
+static func enemy_attack_breakdown(player: Dictionary, target_power: int, roll: float, damage_reduction_piercing := 0.0) -> Dictionary:
 	var defense := int(player.get("armor", {}).get("power", 0)) + 3
 	var raw_damage := damage_roll(target_power, defense, roll)
-	var damage := maxi(1, raw_damage - player_damage_reduction(player))
+	var base_reduction := player_damage_reduction(player)
+	var effective_reduction := roundi(float(base_reduction) * (1.0 - clampf(float(damage_reduction_piercing), 0.0, 1.0)))
+	var damage := maxi(1, raw_damage - effective_reduction)
 	return {
 		"raw_damage": raw_damage,
 		"damage": damage,
 		"prevented": raw_damage - damage,
+		"base_reduction": base_reduction,
+		"effective_reduction": effective_reduction,
 	}
 
 
@@ -192,7 +196,9 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 	var target_power := int(target.get("power", 1))
 	var target_defense := int(target.get("defense", 0))
 	var target_health := int(target.get("health", 1))
-	var cache_key := "%d:%d:%d:%d:%d:%d:%d:%d:%d" % [hunter_health, hunter_power, armor_power, opening_damage, damage_reduction, attack_roll_bonus, target_power, target_defense, target_health]
+	var damage_reduction_piercing := roundi(clampf(float(target.get("damage_reduction_piercing", 0.0)), 0.0, 1.0) * 1000.0)
+	var opening_damage_multiplier := roundi(maxf(0.0, float(target.get("opening_damage_multiplier", 1.0))) * 1000.0)
+	var cache_key := "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d" % [hunter_health, hunter_power, armor_power, opening_damage, damage_reduction, attack_roll_bonus, target_power, target_defense, target_health, damage_reduction_piercing, opening_damage_multiplier]
 	if bounty_odds_cache.has(cache_key):
 		return float(bounty_odds_cache[cache_key])
 	var rng := RandomNumberGenerator.new()
@@ -206,11 +212,11 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 		var rounds := 0
 		while player_hp > 0 and enemy_hp > 0 and rounds < 100:
 			rounds += 1
-			enemy_hp -= player_attack_damage(player, target_defense, rng.randf(), rounds)
+			enemy_hp -= player_attack_damage(player, target_defense, rng.randf(), rounds, float(opening_damage_multiplier) / 1000.0)
 			if enemy_hp <= 0:
 				wins += 1
 				break
-			player_hp -= enemy_attack_damage(player, target_power, rng.randf())
+			player_hp -= enemy_attack_damage(player, target_power, rng.randf(), float(damage_reduction_piercing) / 1000.0)
 	var result := clampf(float(wins) / float(TRIALS), 0.01, 0.99)
 	if bounty_odds_cache.size() >= BOUNTY_ODDS_CACHE_LIMIT:
 		bounty_odds_cache.clear()
