@@ -144,6 +144,22 @@ Important long-term systems may include:
 
 Not all of these belong in the first MVP.
 
+PLAYER ENTRY AND IDENTITY
+
+Opening the game must lead through a mandatory identity flow before the bounty board:
+
+Login
+→ Choose Class
+→ Choose Species
+→ Choose Hunter Name
+→ Enter the Game
+
+Login owns account/session identity. Class, species and hunter name belong to the character profile and must not be silently invented by a default save.
+
+A new player cannot inspect or accept bounties until all four stages are complete. Each choice must be explicitly previewed and confirmed, and an interrupted creation flow must resume at the first incomplete stage rather than skipping ahead or losing earlier choices.
+
+The current class and species rosters are allowed to remain replaceable placeholders while their mechanical contracts are developed. The universal nine-slot inventory remains independent of both class and species.
+
 FIRST PRODUCT GOAL
 
 The first playable version should prove one thing:
