@@ -439,8 +439,18 @@ func combat_step() -> Dictionary:
 		"quality": combat_quality(CoreRules.player_attack_roll(player, player_roll)),
 	}
 	var opening_bonus := CoreRules.player_opening_damage(player) if combat_round == 1 else 0
-	if opening_bonus > 0:
-		player_event.effect = "EMBOSCADA +%d" % opening_bonus
+	var player_effects: Array[String] = []
+	var class_opening_bonus := ClassRules.specialization_opening_damage(player, CoreRules.BASE_ATTRIBUTE_VALUE) if combat_round == 1 else 0
+	var non_class_opening_bonus := maxi(0, opening_bonus - class_opening_bonus)
+	if non_class_opening_bonus > 0:
+		player_effects.append("EMBOSCADA +%d" % non_class_opening_bonus)
+	if class_opening_bonus > 0:
+		player_effects.append("INVASÃO +%d" % class_opening_bonus)
+	var class_roll_bonus := ClassRules.specialization_attack_roll_bonus(player, CoreRules.BASE_ATTRIBUTE_VALUE)
+	if class_roll_bonus > 0.0:
+		player_effects.append("MIRA ORBITAL +%.1f%%" % (class_roll_bonus * 100.0))
+	if not player_effects.is_empty():
+		player_event.effect = " · ".join(player_effects)
 	round_events.append(player_event)
 	combat_summary.rounds = combat_round
 	combat_summary.damage_dealt = int(combat_summary.get("damage_dealt", 0)) + mini(enemy_hp, player_damage)
@@ -463,8 +473,15 @@ func combat_step() -> Dictionary:
 		"quality": combat_quality(enemy_roll),
 	}
 	var damage_reduction := CoreRules.player_damage_reduction(player)
-	if damage_reduction > 0:
-		enemy_event.effect = "AMORTECEDOR -%d" % damage_reduction
+	var enemy_effects: Array[String] = []
+	var class_damage_reduction := ClassRules.specialization_damage_reduction(player, CoreRules.BASE_ATTRIBUTE_VALUE)
+	var non_class_damage_reduction := maxi(0, damage_reduction - class_damage_reduction)
+	if non_class_damage_reduction > 0:
+		enemy_effects.append("AMORTECEDOR -%d" % non_class_damage_reduction)
+	if class_damage_reduction > 0:
+		enemy_effects.append("CASCO DURO -%d" % class_damage_reduction)
+	if not enemy_effects.is_empty():
+		enemy_event.effect = " · ".join(enemy_effects)
 	round_events.append(enemy_event)
 	combat_summary.damage_taken = int(combat_summary.get("damage_taken", 0)) + mini(player_hp, enemy_damage)
 	combat_summary.damage_prevented = int(combat_summary.get("damage_prevented", 0)) + int(enemy_breakdown.prevented)
@@ -1559,7 +1576,13 @@ func sanitize_loaded_combat_events(loaded) -> Dictionary:
 		if int(loaded_event.get("damage", 0)) < 0:
 			repaired = true
 		var effect := str(loaded_event.get("effect", ""))
-		if effect.begins_with("EMBOSCADA +") or effect.begins_with("AMORTECEDOR -"):
+		var effect_parts := effect.split(" · ", false)
+		var effect_is_safe := effect.length() <= 96
+		for part in effect_parts:
+			if not part.begins_with("EMBOSCADA +") and not part.begins_with("AMORTECEDOR -") and not part.begins_with("INVASÃO +") and not part.begins_with("MIRA ORBITAL +") and not part.begins_with("CASCO DURO -"):
+				effect_is_safe = false
+				break
+		if not effect.is_empty() and effect_is_safe:
 			event.effect = effect
 		elif not effect.is_empty():
 			repaired = true

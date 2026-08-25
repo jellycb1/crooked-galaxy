@@ -6,6 +6,7 @@ const ReferencePlaceholderBackdropScript = preload("res://scripts/reference_plac
 const CombatBackdropScript = preload("res://scripts/combat_backdrop.gd")
 const SoundFXScript = preload("res://scripts/sound_fx.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
+const ClassRulesScript = preload("res://scripts/class_rules.gd")
 const CareerRulesScript = preload("res://scripts/career_rules.gd")
 const ArsenalView = preload("res://scripts/arsenal_view.gd")
 const RewardViewScript = preload("res://scripts/reward_view.gd")
@@ -1035,15 +1036,21 @@ func combat_summary_panel(won: bool) -> PanelContainer:
 	metrics.add_child(metric_chip("CAUSADO", str(int(summary.get("damage_dealt", 0))), CYAN))
 	metrics.add_child(metric_chip("RECEBIDO", str(int(summary.get("damage_taken", 0))), CORAL))
 	var effects: Array[String] = []
-	if int(summary.get("opening_bonus", 0)) > 0:
-		effects.append("emboscada +%d" % int(summary.opening_bonus))
+	var class_opening_bonus := ClassRulesScript.specialization_opening_damage(GameState.player, CoreRules.BASE_ATTRIBUTE_VALUE)
+	var non_class_opening_bonus := maxi(0, int(summary.get("opening_bonus", 0)) - class_opening_bonus)
+	if non_class_opening_bonus > 0:
+		effects.append("emboscada +%d" % non_class_opening_bonus)
 	if int(summary.get("damage_prevented", 0)) > 0:
-		effects.append("%d dano amortecido" % int(summary.damage_prevented))
+		effects.append("%d dano total amortecido" % int(summary.damage_prevented))
+	var class_identity := ClassRulesScript.combat_identity_text(GameState.player, CoreRules.BASE_ATTRIBUTE_VALUE)
+	if not class_identity.is_empty():
+		effects.append(class_identity.to_lower())
 	var kit_origin := str(summary.get("kit_origin", ""))
 	if not kit_origin.is_empty():
 		effects.append("kit %s" % str(ContentDB.get_planet(kit_origin).name))
 	var evidence_text := "BUILD ATIVA · %s" % " · ".join(effects) if not effects.is_empty() else "SEM EFEITOS TÁTICOS · modificações e kits podem mudar o próximo confronto"
 	var evidence := label(evidence_text, 11, GOLD if not effects.is_empty() else MUTED)
+	evidence.name = "CombatBuildEvidence"
 	evidence.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(evidence)
 	if not won:

@@ -14,7 +14,7 @@ const DEFINITIONS := [
 		"preferred_approach": "premium_warrant",
 		"route_style": "PRESSÃO CORPORATIVA",
 		"approach_affinity": 1.18,
-		"effects": {"power_per_primary_points": 2},
+		"effects": {"power_per_primary_points": 2, "base_damage_reduction": 1, "damage_reduction_per_primary_points": 2},
 	},
 	{
 		"id": "orbit_gunslinger",
@@ -27,7 +27,7 @@ const DEFINITIONS := [
 		"preferred_approach": "hot_hatch",
 		"route_style": "ENTRADA RÁPIDA",
 		"approach_affinity": 1.18,
-		"effects": {"power_per_primary_points": 2},
+		"effects": {"power_per_primary_points": 2, "base_attack_roll_bonus": 0.005, "attack_roll_bonus_per_primary_point": 0.0025, "attack_roll_bonus_cap": 0.03},
 	},
 	{
 		"id": "contract_hacker",
@@ -40,7 +40,7 @@ const DEFINITIONS := [
 		"preferred_approach": "quiet_net",
 		"route_style": "CONTROLE TÁTICO",
 		"approach_affinity": 2.25,
-		"effects": {"power_per_primary_points": 2, "opening_damage_per_primary_point": 2},
+		"effects": {"power_per_primary_points": 2, "base_opening_damage": 2, "opening_damage_per_primary_point": 1},
 	},
 ]
 
@@ -95,8 +95,18 @@ static func specialization_text(definition: Dictionary) -> String:
 	if power_step > 0:
 		parts.append("+1 Poder a cada %d pontos de %s investidos" % [power_step, str(definition.get("primary_name", "atributo principal")).capitalize()])
 	var opening_multiplier := int(effects.get("opening_damage_per_primary_point", 0))
-	if opening_multiplier > 0:
-		parts.append("+%d abertura por ponto investido" % opening_multiplier)
+	var base_opening := int(effects.get("base_opening_damage", 0))
+	if base_opening > 0 or opening_multiplier > 0:
+		parts.append("Invasão: +%d abertura base e +%d por ponto investido" % [base_opening, opening_multiplier])
+	var reduction_step := int(effects.get("damage_reduction_per_primary_points", 0))
+	var base_reduction := int(effects.get("base_damage_reduction", 0))
+	if base_reduction > 0 or reduction_step > 0:
+		parts.append("Casco Duro: -%d dano base e -1 adicional a cada %d pontos investidos" % [base_reduction, reduction_step])
+	var base_roll_percent := float(effects.get("base_attack_roll_bonus", 0.0)) * 100.0
+	var roll_per_point_percent := float(effects.get("attack_roll_bonus_per_primary_point", 0.0)) * 100.0
+	var roll_cap_percent := float(effects.get("attack_roll_bonus_cap", 0.0)) * 100.0
+	if base_roll_percent > 0 or roll_per_point_percent > 0:
+		parts.append("Mira Orbital: +%.1f%% base e +%.1f%% por ponto investido, até +%.1f%%" % [base_roll_percent, roll_per_point_percent, roll_cap_percent])
 	return ". ".join(parts) + ("." if not parts.is_empty() else "Sem bônus mecânico.")
 
 
@@ -107,10 +117,21 @@ static func specialization_preview(definition: Dictionary, attributes: Dictionar
 	var points_per_power := int(effects.get("power_per_primary_points", 0))
 	var power := floori(float(investment) / float(points_per_power)) if points_per_power > 0 else 0
 	var opening_multiplier := maxi(0, int(effects.get("opening_damage_per_primary_point", 0)))
+	var opening_damage := maxi(0, int(effects.get("base_opening_damage", 0))) + investment * opening_multiplier
+	var reduction_step := int(effects.get("damage_reduction_per_primary_points", 0))
+	var damage_reduction := maxi(0, int(effects.get("base_damage_reduction", 0)))
+	if reduction_step > 0:
+		damage_reduction += floori(float(investment) / float(reduction_step))
+	var attack_roll_bonus := maxf(0.0, float(effects.get("base_attack_roll_bonus", 0.0))) + float(investment) * maxf(0.0, float(effects.get("attack_roll_bonus_per_primary_point", 0.0)))
+	var attack_roll_cap := maxf(0.0, float(effects.get("attack_roll_bonus_cap", attack_roll_bonus)))
+	if attack_roll_cap > 0.0:
+		attack_roll_bonus = minf(attack_roll_bonus, attack_roll_cap)
 	return {
 		"investment": investment,
 		"power": power,
-		"opening_damage": investment * opening_multiplier,
+		"opening_damage": opening_damage,
+		"damage_reduction": damage_reduction,
+		"attack_roll_bonus": attack_roll_bonus,
 	}
 
 
@@ -122,3 +143,28 @@ static func specialization_power(player: Dictionary, base_attribute_value: int) 
 static func specialization_opening_damage(player: Dictionary, base_attribute_value: int) -> int:
 	var definition := get_definition(str(player.get("class_id", UNASSIGNED_ID)))
 	return int(specialization_preview(definition, player.get("attributes", {}), base_attribute_value).opening_damage)
+
+
+static func specialization_damage_reduction(player: Dictionary, base_attribute_value: int) -> int:
+	var definition := get_definition(str(player.get("class_id", UNASSIGNED_ID)))
+	return int(specialization_preview(definition, player.get("attributes", {}), base_attribute_value).damage_reduction)
+
+
+static func specialization_attack_roll_bonus(player: Dictionary, base_attribute_value: int) -> float:
+	var definition := get_definition(str(player.get("class_id", UNASSIGNED_ID)))
+	return float(specialization_preview(definition, player.get("attributes", {}), base_attribute_value).attack_roll_bonus)
+
+
+static func combat_identity_text(player: Dictionary, base_attribute_value: int) -> String:
+	var class_id := str(player.get("class_id", UNASSIGNED_ID))
+	var definition := get_definition(class_id)
+	if definition.is_empty():
+		return ""
+	var preview := specialization_preview(definition, player.get("attributes", {}), base_attribute_value)
+	if int(preview.damage_reduction) > 0:
+		return "CASCO DURO · -%d DANO POR GOLPE" % int(preview.damage_reduction)
+	if float(preview.attack_roll_bonus) > 0.0:
+		return "MIRA ORBITAL · +%.1f%% PRECISÃO" % (float(preview.attack_roll_bonus) * 100.0)
+	if int(preview.opening_damage) > 0:
+		return "INVASÃO · +%d DANO DE ABERTURA" % int(preview.opening_damage)
+	return "ESPECIALIZAÇÃO AINDA INATIVA"

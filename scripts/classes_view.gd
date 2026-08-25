@@ -159,4 +159,8 @@ static func current_impact_text(definition: Dictionary, player: Dictionary) -> S
 		parts.append("+%d PODER" % int(preview.power))
 	if int(preview.opening_damage) > 0:
 		parts.append("+%d ABERTURA" % int(preview.opening_damage))
+	if int(preview.damage_reduction) > 0:
+		parts.append("-%d DANO/GOLPE" % int(preview.damage_reduction))
+	if float(preview.attack_roll_bonus) > 0.0:
+		parts.append("+%.1f%% MIRA" % (float(preview.attack_roll_bonus) * 100.0))
 	return "BÔNUS NA BUILD · %s" % (" · ".join(parts) if not parts.is_empty() else "AINDA INATIVO")

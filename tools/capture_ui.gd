@@ -173,12 +173,14 @@ func capture() -> void:
 	state.resolve_hunt_event("bribe")
 	await process_frame
 	await process_frame
+	state.player.class_id = "contract_hacker"
+	state.player.attributes.intelligence = 12
 	state.begin_combat()
 	state.player_hp -= 21
 	state.enemy_hp -= 34
 	state.combat_round = 4
 	state.combat_events.assign([
-		{"actor": "player", "action": "Ricochete de Plasma", "damage": 14, "quality": "CRÍTICO", "effect": "EMBOSCADA +5"},
+		{"actor": "player", "action": "Ricochete de Plasma", "damage": 14, "quality": "CRÍTICO", "effect": "EMBOSCADA +1 · INVASÃO +4"},
 		{"actor": "enemy", "action": "Tapa Tentacular", "damage": 8, "quality": "ACERTO", "effect": "AMORTECEDOR -2"},
 	])
 	scene.last_combat_message = "Ricochete de Plasma causa 14. Tapa Tentacular responde com 8."
@@ -204,6 +206,8 @@ func capture() -> void:
 		quit(1)
 		return
 
+	state.player.class_id = ""
+	state.player.attributes.intelligence = CoreRules.BASE_ATTRIBUTE_VALUE
 	state.open_reward()
 	state.player.capture_streak = 3
 	state.player.best_capture_streak = 3

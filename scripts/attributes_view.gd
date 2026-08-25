@@ -118,6 +118,12 @@ static func hunter_profile(host: CrookedUIFactory, state: StateScript, class_id:
 	if not class_definition.is_empty():
 		identity_detail += " · PRINCIPAL %s" % str(class_definition.primary_name)
 	identity_copy.add_child(host.label(identity_detail, 10, host.MUTED))
+	var class_mechanic_text := ClassRulesScript.combat_identity_text(state.player, Rules.BASE_ATTRIBUTE_VALUE)
+	if not class_mechanic_text.is_empty():
+		var class_mechanic := host.label(class_mechanic_text, 10, host.CYAN)
+		class_mechanic.name = "HunterClassMechanic"
+		class_mechanic.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		identity_copy.add_child(class_mechanic)
 
 	var showcase := HBoxContainer.new()
 	showcase.alignment = BoxContainer.ALIGNMENT_CENTER

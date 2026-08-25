@@ -50,7 +50,7 @@ static func cunning_roll_bonus(player: Dictionary) -> float:
 
 
 static func player_attack_roll(player: Dictionary, roll: float) -> float:
-	return clampf(roll + cunning_roll_bonus(player), 0.0, 1.0)
+	return clampf(roll + cunning_roll_bonus(player) + ClassRulesScript.specialization_attack_roll_bonus(player, BASE_ATTRIBUTE_VALUE), 0.0, 1.0)
 
 
 static func item_combat_power(item: Dictionary) -> int:
@@ -74,7 +74,7 @@ static func player_opening_damage(player: Dictionary) -> int:
 
 
 static func player_damage_reduction(player: Dictionary) -> int:
-	return item_damage_reduction(player.get("weapon", {})) + item_damage_reduction(player.get("armor", {})) + floori(float(attribute_investment(player, "dexterity")) / 3.0)
+	return item_damage_reduction(player.get("weapon", {})) + item_damage_reduction(player.get("armor", {})) + floori(float(attribute_investment(player, "dexterity")) / 3.0) + ClassRulesScript.specialization_damage_reduction(player, BASE_ATTRIBUTE_VALUE)
 
 
 static func equipment_set_origin(player: Dictionary) -> String:
@@ -151,11 +151,11 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 	var armor_power := int(player.get("armor", {}).get("power", 0))
 	var opening_damage := player_opening_damage(player)
 	var damage_reduction := player_damage_reduction(player)
-	var cunning_bonus := roundi(cunning_roll_bonus(player) * 1000.0)
+	var attack_roll_bonus := roundi((cunning_roll_bonus(player) + ClassRulesScript.specialization_attack_roll_bonus(player, BASE_ATTRIBUTE_VALUE)) * 1000.0)
 	var target_power := int(target.get("power", 1))
 	var target_defense := int(target.get("defense", 0))
 	var target_health := int(target.get("health", 1))
-	var cache_key := "%d:%d:%d:%d:%d:%d:%d:%d:%d" % [hunter_health, hunter_power, armor_power, opening_damage, damage_reduction, cunning_bonus, target_power, target_defense, target_health]
+	var cache_key := "%d:%d:%d:%d:%d:%d:%d:%d:%d" % [hunter_health, hunter_power, armor_power, opening_damage, damage_reduction, attack_roll_bonus, target_power, target_defense, target_health]
 	if bounty_odds_cache.has(cache_key):
 		return float(bounty_odds_cache[cache_key])
 	var rng := RandomNumberGenerator.new()
