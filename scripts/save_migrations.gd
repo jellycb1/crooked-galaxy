@@ -1,7 +1,7 @@
 class_name SaveMigrations
 extends RefCounted
 
-const CURRENT_VERSION := 12
+const CURRENT_VERSION := 13
 const BASE_ATTRIBUTE_VALUE := 10
 const ATTRIBUTE_POINTS_PER_LEVEL := 2
 
@@ -46,6 +46,9 @@ static func migrate(payload: Dictionary) -> Dictionary:
 			11:
 				migrated = migrate_v11_to_v12(migrated)
 				version = 12
+			12:
+				migrated = migrate_v12_to_v13(migrated)
+				version = 13
 			_:
 				return {}
 		migrated.version = version
@@ -191,4 +194,18 @@ static func migrate_v11_to_v12(payload: Dictionary) -> Dictionary:
 	# fact without silently completing any missing character choice.
 	if not migrated.has("account"):
 		migrated.account = {"mode": "legacy_local", "session_id": "legacy_primary"}
+	return migrated
+
+
+static func migrate_v12_to_v13(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	var account = migrated.get("account", {})
+	# Preserve established and interrupted character creation. An empty account
+	# must still visit login; a real returning local session joins the first shard.
+	if account is Dictionary and not account.is_empty():
+		if not account.has("server_id"):
+			account.server_id = "international_1"
+		if not account.has("locale_id"):
+			account.locale_id = "pt"
+		migrated.account = account
 	return migrated

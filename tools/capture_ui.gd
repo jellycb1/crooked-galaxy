@@ -33,7 +33,7 @@ func capture() -> void:
 	if save_frame("ui_onboarding_login.png") != OK:
 		quit(1)
 		return
-	state.account = {"mode": "local_test", "session_id": "capture"}
+	state.account = {"mode": "local_test", "session_id": "capture", "locale_id": "pt", "server_id": "international_1"}
 	scene.class_draft = "orbit_gunslinger"
 	scene.render()
 	await process_frame

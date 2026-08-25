@@ -89,7 +89,7 @@ func run_text_audit() -> void:
 	await audit_scaled_screen(scene, "class selection")
 
 	state.persistence_enabled = true
-	state.account = {"mode": "local_test", "session_id": "text_fixture"}
+	state.account = {"mode": "local_test", "session_id": "text_fixture", "locale_id": "pt", "server_id": "international_1"}
 	state.player = state.default_player()
 	state.player.class_id = "contract_hacker"
 	scene.render()

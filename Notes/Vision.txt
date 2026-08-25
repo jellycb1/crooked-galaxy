@@ -156,6 +156,10 @@ Login
 
 Login owns account/session identity. Class, species and hunter name belong to the character profile and must not be silently invented by a default save.
 
+Crooked Galaxy is an international, multilingual game. User-facing copy must migrate to stable translation keys instead of treating Portuguese literals as the final source architecture. Portuguese and English are the first localization targets; a language may only be advertised as available after the complete playable surface is translated and regression-tested.
+
+Accounts and characters belong to a server shard. The first world is International 1, a global multilingual server. Local test builds must preserve and display that server identity while stating honestly that no online connection or authoritative backend exists yet; local state must never pretend to be live server state.
+
 A new player cannot inspect or accept bounties until all four stages are complete. Each choice must be explicitly previewed and confirmed, and an interrupted creation flow must resume at the first incomplete stage rather than skipping ahead or losing earlier choices.
 
 The current class and species rosters are allowed to remain replaceable placeholders. The eight initial species are visual and narrative identity only: species must never alter attributes, combat formulas, loot, economy or progression. The universal nine-slot inventory remains independent of both class and species.

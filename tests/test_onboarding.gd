@@ -34,11 +34,17 @@ func run_test() -> void:
 	root.add_child(scene)
 	await process_frame
 	check(scene.find_child("OnboardingLoginAction", true, false) != null and scene.find_child("HeaderResourceStrip", true, false) == null, "login replaces the game shell instead of overlaying it")
+	check(not state.begin_local_session("en", "international_1") and state.account.is_empty(), "an advertised translation roadmap cannot start an incomplete English session")
+	check(not state.begin_local_session("pt", "unknown_world") and state.account.is_empty(), "an unknown server cannot create a local account identity")
+	var portuguese := scene.find_child("OnboardingLanguage_pt", true, false) as Button
+	var english := scene.find_child("OnboardingLanguage_en", true, false) as Button
+	check(portuguese != null and portuguese.disabled and english != null and english.disabled and english.text.contains("EM TRADUÇÃO"), "login exposes the localization roadmap without offering an incomplete English surface")
+	check(scene.find_child("OnboardingServer_international_1", true, false) != null and scene.find_child("OnboardingServerSelected", true, false) != null, "login binds the first account world to International 1")
 	check_onboarding_touch_targets(scene, "login")
 	var login := scene.find_child("OnboardingLoginAction", true, false) as Button
 	login.pressed.emit()
 	await process_frame
-	check(state.onboarding_step() == "class" and state.account.keys().all(func(key): return key == "mode" or key == "session_id"), "local login stores session identity without credentials")
+	check(state.onboarding_step() == "class" and str(state.account.server_id) == "international_1" and str(state.account.locale_id) == "pt" and TranslationServer.get_locale().begins_with("pt") and not state.account.has("password"), "local login applies language and stores server identity without credentials")
 	check(scene.find_children("OnboardingClass_*", "PanelContainer", true, false).size() == 3, "mandatory class step shows the complete prototype trio")
 	check(scene.find_child("OnboardingClassPreview", true, false) != null and scene.find_child("OnboardingClassPreviewName", true, false) != null, "class choice owns a live archetype preview before confirmation")
 	check_onboarding_touch_targets(scene, "class")
@@ -120,7 +126,7 @@ func run_test() -> void:
 	check(scene.find_child("OnboardingScroll", true, false) == null, "onboarding is removed after completion")
 
 	var persisted: Dictionary = state.read_save_dictionary(test_save_path)
-	check(str(persisted.account.mode) == "local_test" and str(persisted.player.class_id) == "contract_hacker" and str(persisted.player.species_id) == "discontinued_synthetic" and str(persisted.player.hunter_name) == "Nova Vex", "every confirmed onboarding stage survives interruption")
+	check(str(persisted.account.mode) == "local_test" and str(persisted.account.server_id) == "international_1" and str(persisted.account.locale_id) == "pt" and str(persisted.player.class_id) == "contract_hacker" and str(persisted.player.species_id) == "discontinued_synthetic" and str(persisted.player.hunter_name) == "Nova Vex", "server, locale, and every confirmed character stage survive interruption")
 	scene.queue_free()
 	await process_frame
 	finish()

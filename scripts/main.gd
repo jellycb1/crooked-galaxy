@@ -19,6 +19,7 @@ const SettingsViewScript = preload("res://scripts/settings_view.gd")
 const ChallengeViewScript = preload("res://scripts/challenge_view.gd")
 const ChallengeRulesScript = preload("res://scripts/challenge_rules.gd")
 const OnboardingViewScript = preload("res://scripts/onboarding_view.gd")
+const ServerRulesScript = preload("res://scripts/server_rules.gd")
 const PlanetIconScript = preload("res://scripts/planet_icon.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const HuntChoiceIconScript = preload("res://scripts/hunt_choice_icon.gd")
@@ -486,7 +487,8 @@ func build_header() -> void:
 	var location := label(str(planet.name).to_upper(), 13, Color(str(planet.accent)))
 	location.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	location_row.add_child(location)
-	var build_version := label("v%s" % str(ProjectSettings.get_setting("application/config/version", "dev")), 11, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
+	var server_short := ServerRulesScript.short_name_for(str(GameState.account.get("server_id", "")))
+	var build_version := label("%s · v%s" % [server_short, str(ProjectSettings.get_setting("application/config/version", "dev"))], 11, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
 	build_version.name = "BuildVersion"
 	location_row.add_child(build_version)
 

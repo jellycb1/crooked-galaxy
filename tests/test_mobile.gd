@@ -68,7 +68,7 @@ func run_mobile_audit() -> void:
 	scene.handle_android_back_request()
 	await process_frame
 	var build_version := scene.find_child("BuildVersion", true, false) as Label
-	check(build_version != null and build_version.text == "v%s" % str(ProjectSettings.get_setting("application/config/version")), "installed build version remains visible in the compact header")
+	check(build_version != null and build_version.text.ends_with("v%s" % str(ProjectSettings.get_setting("application/config/version"))) and build_version.text.contains("INT-1"), "installed build version and active server remain visible in the compact header")
 	check(scene.hunt_timer.is_stopped(), "high-frequency hunt refresh stays asleep on the bounty board")
 	check(scene.android_back_action() == "quit" and scene.find_child("BountyScroll", true, false) != null, "Android Back exits only from the root contract view")
 

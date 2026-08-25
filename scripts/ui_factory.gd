@@ -26,6 +26,8 @@ var onboarding_scroll_position := 0
 var attribute_draft: Dictionary = {}
 var class_draft := ""
 var species_draft := ""
+var locale_draft := ""
+var server_draft := ""
 
 
 func reset_transient_navigation() -> void:
@@ -41,6 +43,8 @@ func reset_transient_navigation() -> void:
 	attribute_draft = {}
 	class_draft = ""
 	species_draft = ""
+	locale_draft = ""
+	server_draft = ""
 
 
 func panel(child: Control, color: Color, radius: int, margin: int) -> PanelContainer:

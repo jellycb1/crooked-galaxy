@@ -4,6 +4,8 @@ extends RefCounted
 const ClassRulesScript = preload("res://scripts/class_rules.gd")
 const SpeciesRulesScript = preload("res://scripts/species_rules.gd")
 const SpeciesIconScript = preload("res://scripts/species_icon.gd")
+const ServerRulesScript = preload("res://scripts/server_rules.gd")
+const LocaleRulesScript = preload("res://scripts/locale_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 
 const STEP_INDEX := {"login": 1, "class": 2, "species": 3, "name": 4}
@@ -44,6 +46,51 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 
 static func build_login(host: CrookedUIFactory, stack: VBoxContainer, state: StateScript) -> void:
 	section_intro(host, stack, "ENTRAR", "A sua carreira começa com uma sessão neste dispositivo.")
+	if host.locale_draft.is_empty():
+		host.locale_draft = LocaleRulesScript.DEFAULT_ID
+	if host.server_draft.is_empty():
+		host.server_draft = ServerRulesScript.DEFAULT_ID
+	stack.add_child(host.label("IDIOMA", 12, host.MUTED))
+	var language_row := HBoxContainer.new()
+	language_row.name = "OnboardingLanguageSelector"
+	language_row.add_theme_constant_override("separation", 8)
+	stack.add_child(language_row)
+	for locale in LocaleRulesScript.DEFINITIONS:
+		var locale_id := str(locale.id)
+		var available := bool(locale.selectable)
+		var selected := locale_id == host.locale_draft
+		var language := host.action_button("%s%s" % [str(locale.native_name).to_upper(), " · EM TRADUÇÃO" if not available else ""], host.LIME if selected else host.CYAN, true)
+		language.name = "OnboardingLanguage_%s" % locale_id
+		language.custom_minimum_size = Vector2(0, 52)
+		language.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		language.add_theme_font_size_override("font_size", 11)
+		language.disabled = not available or selected
+		language.tooltip_text = "Disponível" if available else "A tradução integral será ativada quando todas as telas estiverem localizadas."
+		language.pressed.connect(func():
+			host.locale_draft = locale_id
+			host.call("render")
+		)
+		language_row.add_child(language)
+	stack.add_child(host.label("SERVIDOR", 12, host.MUTED))
+	var server_definition := ServerRulesScript.get_definition(host.server_draft)
+	var server := host.panel(HBoxContainer.new(), Color("#162947"), 14, 11)
+	server.name = "OnboardingServer_%s" % host.server_draft
+	stack.add_child(server)
+	var server_row := server.get_child(0) as HBoxContainer
+	var server_copy := VBoxContainer.new()
+	server_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	server_row.add_child(server_copy)
+	server_copy.add_child(host.label(str(server_definition.get("name", "International 1")), 16, host.GOLD))
+	server_copy.add_child(host.label("%s · %s" % [str(server_definition.get("region", "GLOBAL")), str(server_definition.get("language_policy", "MULTILÍNGUE"))], 10, host.CYAN))
+	var server_status := host.label("PRIMEIRO MUNDO · conexão online ainda não ativa neste APK", 11, host.MUTED)
+	server_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	server_copy.add_child(server_status)
+	var selected_server := host.action_button("SELECIONADO", host.GOLD, true)
+	selected_server.name = "OnboardingServerSelected"
+	selected_server.custom_minimum_size = Vector2(112, 48)
+	selected_server.add_theme_font_size_override("font_size", 10)
+	selected_server.disabled = true
+	server_row.add_child(selected_server)
 	var notice := host.panel(VBoxContainer.new(), host.PANEL_LIGHT, 16, 15)
 	notice.name = "LocalSessionNotice"
 	stack.add_child(notice)
@@ -58,9 +105,9 @@ static func build_login(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 	var spacer := Control.new()
 	spacer.custom_minimum_size.y = 8
 	stack.add_child(spacer)
-	var enter := host.action_button("ENTRAR NESTE DISPOSITIVO", host.LIME)
+	var enter := host.action_button("ENTRAR EM INTERNATIONAL 1", host.LIME)
 	enter.name = "OnboardingLoginAction"
-	enter.pressed.connect(state.begin_local_session)
+	enter.pressed.connect(func(): state.begin_local_session(host.locale_draft, host.server_draft))
 	stack.add_child(enter)
 
 

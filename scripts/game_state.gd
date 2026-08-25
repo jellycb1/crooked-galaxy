@@ -5,6 +5,8 @@ const SaveMigrationRules = preload("res://scripts/save_migrations.gd")
 const CareerRules = preload("res://scripts/career_rules.gd")
 const ClassRules = preload("res://scripts/class_rules.gd")
 const SpeciesRulesScript = preload("res://scripts/species_rules.gd")
+const ServerRulesScript = preload("res://scripts/server_rules.gd")
+const LocaleRulesScript = preload("res://scripts/locale_rules.gd")
 const MarketRulesScript = preload("res://scripts/market_rules.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const ChallengeRulesScript = preload("res://scripts/challenge_rules.gd")
@@ -49,6 +51,7 @@ var onboarding_gate_enabled := false
 
 func _ready() -> void:
 	onboarding_gate_enabled = true
+	TranslationServer.set_locale(LocaleRulesScript.DEFAULT_ID)
 	rng.randomize()
 	if OS.get_cmdline_user_args().has("--smoke-test"):
 		persistence_enabled = false
@@ -128,14 +131,19 @@ func requires_onboarding() -> bool:
 func account_session_ready() -> bool:
 	var mode := str(account.get("mode", ""))
 	var session_id := str(account.get("session_id", ""))
-	return (mode == "local_test" or mode == "legacy_local") and not session_id.is_empty()
+	var server_id := str(account.get("server_id", ""))
+	var locale_id := str(account.get("locale_id", ""))
+	return (mode == "local_test" or mode == "legacy_local") and not session_id.is_empty() and ServerRulesScript.is_valid(server_id) and LocaleRulesScript.is_selectable(locale_id)
 
 
-func begin_local_session() -> bool:
+func begin_local_session(locale_id := LocaleRulesScript.DEFAULT_ID, server_id := ServerRulesScript.DEFAULT_ID) -> bool:
 	if account_session_ready():
 		return true
-	account = {"mode": "local_test", "session_id": "local_primary"}
-	last_notice = "Sessão local iniciada. Nenhuma conta online foi simulada."
+	if not LocaleRulesScript.is_selectable(str(locale_id)) or not ServerRulesScript.is_valid(str(server_id)):
+		return false
+	account = {"mode": "local_test", "session_id": "local_primary", "locale_id": str(locale_id), "server_id": str(server_id)}
+	TranslationServer.set_locale(str(locale_id))
+	last_notice = "Sessão local iniciada em %s. Nenhuma conexão online foi simulada." % ServerRulesScript.server_name_for(str(server_id))
 	last_notice_context = "onboarding"
 	var saved := save_game()
 	changed.emit()
@@ -1359,6 +1367,8 @@ func load_game() -> void:
 	if parsed.is_empty():
 		return
 	account = sanitize_loaded_account(parsed.get("account", {}))
+	if account_session_ready():
+		TranslationServer.set_locale(str(account.locale_id))
 	var loaded_player = parsed.get("player", {})
 	var player_repaired := false
 	if loaded_player is Dictionary:
@@ -1681,9 +1691,11 @@ func sanitize_loaded_account(loaded) -> Dictionary:
 		return {}
 	var mode := str(loaded.get("mode", ""))
 	var session_id := str(loaded.get("session_id", ""))
-	if not (mode == "local_test" or mode == "legacy_local") or session_id.is_empty() or session_id.length() > 64:
+	var server_id := str(loaded.get("server_id", ""))
+	var locale_id := str(loaded.get("locale_id", ""))
+	if not (mode == "local_test" or mode == "legacy_local") or session_id.is_empty() or session_id.length() > 64 or not ServerRulesScript.is_valid(server_id) or not LocaleRulesScript.is_selectable(locale_id):
 		return {}
-	return {"mode": mode, "session_id": session_id}
+	return {"mode": mode, "session_id": session_id, "server_id": server_id, "locale_id": locale_id}
 
 
 func canonicalize_loaded_bounty(loaded: Dictionary) -> Dictionary:
