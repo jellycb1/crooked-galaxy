@@ -4,6 +4,7 @@ extends Node
 const SaveMigrationRules = preload("res://scripts/save_migrations.gd")
 const CareerRules = preload("res://scripts/career_rules.gd")
 const ClassRules = preload("res://scripts/class_rules.gd")
+const SpeciesRulesScript = preload("res://scripts/species_rules.gd")
 const MarketRulesScript = preload("res://scripts/market_rules.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const ChallengeRulesScript = preload("res://scripts/challenge_rules.gd")
@@ -17,6 +18,7 @@ const SAVE_PATH := "user://crooked_galaxy_save.json"
 const SAVE_VERSION := SaveMigrationRules.CURRENT_VERSION
 
 var player: Dictionary
+var account: Dictionary = {}
 var phase: int = Phase.BOARD
 var current_bounty: Dictionary = {}
 var offered_approaches: Array[Dictionary] = []
@@ -42,9 +44,11 @@ var chapter_completion: Dictionary = {}
 var afk_report: Dictionary = {}
 var save_warning := ""
 var save_recovery_required := false
+var onboarding_gate_enabled := false
 
 
 func _ready() -> void:
+	onboarding_gate_enabled = true
 	rng.randomize()
 	if OS.get_cmdline_user_args().has("--smoke-test"):
 		persistence_enabled = false
@@ -56,6 +60,8 @@ func _ready() -> void:
 func default_player() -> Dictionary:
 	return {
 		"class_id": "",
+		"species_id": "",
+		"hunter_name": "",
 		"level": 1,
 		"xp": 0,
 		"credits": 25,
@@ -100,6 +106,81 @@ func default_player() -> Dictionary:
 	}
 
 
+func onboarding_step() -> String:
+	if not account_session_ready():
+		return "login"
+	var class_id := str(player.get("class_id", ""))
+	if class_id.is_empty() or not ClassRules.is_valid(class_id):
+		return "class"
+	if not SpeciesRulesScript.is_valid(str(player.get("species_id", ""))):
+		return "species"
+	if normalized_hunter_name(str(player.get("hunter_name", ""))).is_empty():
+		return "name"
+	return "complete"
+
+
+func requires_onboarding() -> bool:
+	# Isolated tests and capture fixtures disable persistence deliberately and
+	# construct partial profiles. Production sessions always keep the gate active.
+	return onboarding_gate_enabled and persistence_enabled and onboarding_step() != "complete"
+
+
+func account_session_ready() -> bool:
+	var mode := str(account.get("mode", ""))
+	var session_id := str(account.get("session_id", ""))
+	return (mode == "local_test" or mode == "legacy_local") and not session_id.is_empty()
+
+
+func begin_local_session() -> bool:
+	if account_session_ready():
+		return true
+	account = {"mode": "local_test", "session_id": "local_primary"}
+	last_notice = "Sessão local iniciada. Nenhuma conta online foi simulada."
+	last_notice_context = "onboarding"
+	var saved := save_game()
+	changed.emit()
+	return saved
+
+
+func select_species(species_id: String) -> bool:
+	var class_id := str(player.get("class_id", ""))
+	if not account_session_ready() or class_id.is_empty() or not ClassRules.is_valid(class_id) or not SpeciesRulesScript.is_valid(species_id):
+		return false
+	player.species_id = species_id
+	last_notice = "Raça confirmada: %s." % SpeciesRulesScript.species_name_for(species_id)
+	last_notice_context = "onboarding"
+	var saved := save_game()
+	changed.emit()
+	return saved
+
+
+func normalized_hunter_name(raw_name: String) -> String:
+	var clean := raw_name.strip_edges()
+	while clean.contains("  "):
+		clean = clean.replace("  ", " ")
+	if clean.length() < 3 or clean.length() > 20:
+		return ""
+	for index in clean.length():
+		var codepoint := clean.unicode_at(index)
+		if codepoint < 32 or clean[index] == "<" or clean[index] == ">":
+			return ""
+	return clean
+
+
+func set_hunter_name(raw_name: String) -> bool:
+	if not SpeciesRulesScript.is_valid(str(player.get("species_id", ""))):
+		return false
+	var clean := normalized_hunter_name(raw_name)
+	if clean.is_empty():
+		return false
+	player.hunter_name = clean
+	last_notice = "Caçador registrado: %s." % clean
+	last_notice_context = "onboarding_complete"
+	var saved := save_game()
+	changed.emit()
+	return saved
+
+
 func default_loadout() -> Dictionary:
 	var loadout := {}
 	for slot in CoreRules.EQUIPMENT_SLOTS:
@@ -108,7 +189,7 @@ func default_loadout() -> Dictionary:
 
 
 func select_bounty(bounty: Dictionary) -> void:
-	if phase != Phase.BOARD:
+	if phase != Phase.BOARD or requires_onboarding():
 		return
 	last_notice = ""
 	last_notice_context = ""
@@ -122,7 +203,7 @@ func select_bounty(bounty: Dictionary) -> void:
 
 
 func start_challenge(stage_id: String) -> bool:
-	if phase != Phase.BOARD or not ChallengeRulesScript.is_unlocked(player):
+	if phase != Phase.BOARD or requires_onboarding() or not ChallengeRulesScript.is_unlocked(player):
 		return false
 	var stage := ChallengeRulesScript.get_stage(stage_id)
 	if stage.is_empty() or int(stage.get("challenge_index", -1)) != ChallengeRulesScript.progress(player):
@@ -1096,6 +1177,7 @@ func abandon_bounty() -> void:
 
 func reset_progress() -> void:
 	save_recovery_required = false
+	account = {}
 	player = default_player()
 	phase = Phase.BOARD
 	current_bounty = {}
@@ -1119,6 +1201,7 @@ func save_game() -> bool:
 	player.last_seen_unix = maxf(float(player.get("last_seen_unix", 0.0)), Time.get_unix_time_from_system())
 	var payload := {
 		"version": SAVE_VERSION,
+		"account": account,
 		"player": player,
 		"phase": int(phase),
 		"current_bounty": current_bounty,
@@ -1228,6 +1311,7 @@ func load_game() -> void:
 	save_warning = ""
 	save_recovery_required = false
 	player = default_player()
+	account = {}
 	phase = Phase.BOARD
 	current_bounty = {}
 	offered_approaches = []
@@ -1257,6 +1341,7 @@ func load_game() -> void:
 	parsed = migrate_save_payload(parsed)
 	if parsed.is_empty():
 		return
+	account = sanitize_loaded_account(parsed.get("account", {}))
 	var loaded_player = parsed.get("player", {})
 	var player_repaired := false
 	if loaded_player is Dictionary:
@@ -1478,6 +1563,14 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	if not ClassRules.is_valid(str(sanitized.get("class_id", ""))):
 		sanitized.class_id = ""
 		repaired = true
+	var species_id := str(sanitized.get("species_id", ""))
+	if not species_id.is_empty() and not SpeciesRulesScript.is_valid(species_id):
+		sanitized.species_id = ""
+		repaired = true
+	var clean_hunter_name := normalized_hunter_name(str(sanitized.get("hunter_name", "")))
+	if clean_hunter_name != str(sanitized.get("hunter_name", "")):
+		sanitized.hunter_name = clean_hunter_name
+		repaired = true
 	if int(sanitized.best_capture_streak) < int(sanitized.capture_streak):
 		sanitized.best_capture_streak = int(sanitized.capture_streak)
 		repaired = true
@@ -1564,6 +1657,16 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 				loadout[id_key] = ""
 				repaired = true
 	return {"player": sanitized, "repaired": repaired}
+
+
+func sanitize_loaded_account(loaded) -> Dictionary:
+	if not loaded is Dictionary:
+		return {}
+	var mode := str(loaded.get("mode", ""))
+	var session_id := str(loaded.get("session_id", ""))
+	if not (mode == "local_test" or mode == "legacy_local") or session_id.is_empty() or session_id.length() > 64:
+		return {}
+	return {"mode": mode, "session_id": session_id}
 
 
 func canonicalize_loaded_bounty(loaded: Dictionary) -> Dictionary:

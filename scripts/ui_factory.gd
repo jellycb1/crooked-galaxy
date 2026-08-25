@@ -24,6 +24,7 @@ var briefing_context: Dictionary = {}
 var career_scroll_position := 0
 var attribute_draft: Dictionary = {}
 var class_draft := ""
+var species_draft := ""
 
 
 func reset_transient_navigation() -> void:
@@ -37,6 +38,7 @@ func reset_transient_navigation() -> void:
 	career_scroll_position = 0
 	attribute_draft = {}
 	class_draft = ""
+	species_draft = ""
 
 
 func panel(child: Control, color: Color, radius: int, margin: int) -> PanelContainer:

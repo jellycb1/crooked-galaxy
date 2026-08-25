@@ -1,7 +1,7 @@
 class_name SaveMigrations
 extends RefCounted
 
-const CURRENT_VERSION := 11
+const CURRENT_VERSION := 12
 const BASE_ATTRIBUTE_VALUE := 10
 const ATTRIBUTE_POINTS_PER_LEVEL := 2
 
@@ -43,6 +43,9 @@ static func migrate(payload: Dictionary) -> Dictionary:
 			10:
 				migrated = migrate_v10_to_v11(migrated)
 				version = 11
+			11:
+				migrated = migrate_v11_to_v12(migrated)
+				version = 12
 			_:
 				return {}
 		migrated.version = version
@@ -173,4 +176,19 @@ static func migrate_v10_to_v11(payload: Dictionary) -> Dictionary:
 	if not player.has("challenge_floor"):
 		player.challenge_floor = 0
 	migrated.player = player
+	return migrated
+
+
+static func migrate_v11_to_v12(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	var player: Dictionary = migrated.get("player", {})
+	if not player.has("species_id"):
+		player.species_id = ""
+	if not player.has("hunter_name"):
+		player.hunter_name = ""
+	migrated.player = player
+	# Existing local saves already represent a returning session. Preserve that
+	# fact without silently completing any missing character choice.
+	if not migrated.has("account"):
+		migrated.account = {"mode": "legacy_local", "session_id": "legacy_primary"}
 	return migrated

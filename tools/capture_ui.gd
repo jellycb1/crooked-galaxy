@@ -24,6 +24,42 @@ func capture() -> void:
 	await process_frame
 	await process_frame
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
+	state.persistence_enabled = true
+	state.account = {}
+	state.player = state.default_player()
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_onboarding_login.png") != OK:
+		quit(1)
+		return
+	state.account = {"mode": "local_test", "session_id": "capture"}
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_onboarding_class.png") != OK:
+		quit(1)
+		return
+	state.player.class_id = "contract_hacker"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_onboarding_species.png") != OK:
+		quit(1)
+		return
+	state.player.species_id = "discontinued_synthetic"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_onboarding_name.png") != OK:
+		quit(1)
+		return
+	state.persistence_enabled = false
+	state.account = {}
+	state.player = state.default_player()
+	scene.render()
+	await process_frame
+	await process_frame
 	if save_frame("ui_board.png") != OK:
 		quit(1)
 		return
@@ -838,7 +874,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured primary UI and destinations, market, transport hangar/briefing/hunt identity, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, three Fenda anomaly profiles, career, wanted archive, arsenal filters/paging, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured mandatory login/class/species/name onboarding, primary UI and destinations, market, transport hangar/briefing/hunt identity, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, three Fenda anomaly profiles, career, wanted archive, arsenal filters/paging, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

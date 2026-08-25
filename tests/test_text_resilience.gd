@@ -88,6 +88,14 @@ func run_text_audit() -> void:
 	scene.render()
 	await audit_scaled_screen(scene, "class selection")
 
+	state.persistence_enabled = true
+	state.account = {"mode": "local_test", "session_id": "text_fixture"}
+	state.player = state.default_player()
+	state.player.class_id = "contract_hacker"
+	scene.render()
+	await audit_scaled_screen(scene, "mandatory species onboarding")
+	state.persistence_enabled = false
+
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout

@@ -59,11 +59,18 @@ func _init() -> void:
 	check(int(established_v9.player.market_cycle) == 2 and established_v9.player.market_purchased_offer_ids == ["market_kept"], "transport migration preserves established market records")
 	check(["helmet", "gloves", "boots", "rig", "implant", "gadget", "relic"].all(func(slot): return established_v9.player.has(slot) and established_v9.player[slot].is_empty()), "version-ten migration reserves every universal equipment slot without inventing loot")
 	check(int(established_v9.player.challenge_floor) == 0, "version-eleven migration adds an untouched challenge ladder")
+	check(str(established_v9.player.species_id).is_empty() and str(established_v9.player.hunter_name).is_empty(), "version-twelve migration never invents species or hunter name")
+	check(str(established_v9.account.mode) == "legacy_local", "an established local save resumes as a returning local session")
 
 	var version_nine := {"version": 9, "player": {"weapon": {"id": "legacy_weapon"}, "armor": {"id": "legacy_armor"}, "equipment_loadouts": [{"weapon_id": "legacy_weapon", "armor_id": "legacy_armor"}, {"weapon_id": "", "armor_id": ""}]}}
 	var universal := SaveMigrations.migrate(version_nine)
 	check(str(universal.player.weapon.id) == "legacy_weapon" and str(universal.player.armor.id) == "legacy_armor", "universal inventory migration preserves both established equipped pieces")
 	check(universal.player.equipment_loadouts.all(func(loadout): return ["weapon", "helmet", "armor", "gloves", "boots", "rig", "implant", "gadget", "relic"].all(func(slot): return loadout.has("%s_id" % slot))), "every migrated loadout receives the same nine-slot shape")
+
+	var version_eleven := {"version": 11, "player": {"class_id": "contract_hacker", "credits": 123}}
+	var identity_ready := SaveMigrations.migrate(version_eleven)
+	check(str(identity_ready.player.class_id) == "contract_hacker" and str(identity_ready.player.species_id).is_empty() and str(identity_ready.player.hunter_name).is_empty(), "identity migration preserves class and resumes at the first missing character field")
+	check(str(identity_ready.account.session_id) == "legacy_primary", "legacy migration creates only a returning-session bridge")
 
 	var current := {"version": SaveMigrations.CURRENT_VERSION, "player": {"credits": 5}}
 	var current_copy := SaveMigrations.migrate(current)

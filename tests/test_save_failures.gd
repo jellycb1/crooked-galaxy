@@ -18,6 +18,10 @@ func run_save_failure_audit() -> void:
 	state.persistence_enabled = true
 	state.save_path = test_save
 	state.player = state.default_player()
+	state.account = {"mode": "local_test", "session_id": "save_failure_fixture"}
+	state.player.class_id = "warrant_breaker"
+	state.player.species_id = "patched_terran"
+	state.player.hunter_name = "Teste Seguro"
 	state.player.credits = 777
 	check(not state.save_game(), "save reports failure when its local parent is unavailable")
 	check(not state.save_warning.is_empty(), "failed write creates a dedicated persistent warning")

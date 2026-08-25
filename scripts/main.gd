@@ -18,6 +18,7 @@ const HangarViewScript = preload("res://scripts/hangar_view.gd")
 const SettingsViewScript = preload("res://scripts/settings_view.gd")
 const ChallengeViewScript = preload("res://scripts/challenge_view.gd")
 const ChallengeRulesScript = preload("res://scripts/challenge_rules.gd")
+const OnboardingViewScript = preload("res://scripts/onboarding_view.gd")
 const PlanetIconScript = preload("res://scripts/planet_icon.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const HuntChoiceIconScript = preload("res://scripts/hunt_choice_icon.gd")
@@ -73,6 +74,8 @@ func _notification(what: int) -> void:
 
 
 func android_back_action() -> String:
+	if GameState.requires_onboarding():
+		return "quit" if GameState.onboarding_step() == "login" else "guard_onboarding"
 	if GameState.phase == GameState.Phase.BOARD:
 		if view_mode == "market" or view_mode == "hangar" or view_mode == "career" or view_mode == "settings" or view_mode == "challenges":
 			return "menu"
@@ -104,6 +107,8 @@ func handle_android_back_request() -> void:
 		# explicit safe actions. Consume Back rather than turning it into an
 		# accidental abandon/claim while the contract owns the screen.
 		"guard_contract":
+			pass
+		"guard_onboarding":
 			pass
 
 
@@ -257,6 +262,18 @@ func render() -> void:
 		victory_timer.stop()
 		call_deferred("restore_action_focus", previous_focus_name, current_generation)
 		return
+	if GameState.requires_onboarding():
+		# The recovery surface above must retain precedence when no trustworthy
+		# identity can be read. Ordinary incomplete profiles continue here.
+		for child in content.get_children():
+			content.remove_child(child)
+			child.queue_free()
+		combat_timer.stop()
+		victory_timer.stop()
+		hunt_timer.stop()
+		OnboardingViewScript.build(self, content, GameState)
+		call_deferred("restore_action_focus", previous_focus_name, current_generation)
+		return
 	match GameState.phase:
 		GameState.Phase.BOARD:
 			if view_mode == "arsenal":
@@ -375,6 +392,8 @@ func update_primary_navigation() -> void:
 
 
 func environment_context() -> String:
+	if GameState.requires_onboarding():
+		return "class_ui"
 	if GameState.phase == GameState.Phase.BOARD:
 		if view_mode == "arsenal":
 			return "workshop"
@@ -473,6 +492,9 @@ func build_header() -> void:
 	badge_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	badge_copy.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	badge_row.add_child(badge_copy)
+	var hunter_name := str(GameState.player.get("hunter_name", ""))
+	if not hunter_name.is_empty():
+		badge_copy.add_child(label(hunter_name.to_upper(), 9, CYAN, HORIZONTAL_ALIGNMENT_CENTER))
 	badge_copy.add_child(label("NÍVEL %d" % int(GameState.player.level), 10, GOLD, HORIZONTAL_ALIGNMENT_CENTER))
 	badge_copy.add_child(label("PODER %d" % CoreRules.player_power(GameState.player), 11, INK, HORIZONTAL_ALIGNMENT_CENTER))
 

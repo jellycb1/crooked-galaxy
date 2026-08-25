@@ -35,7 +35,7 @@ func run_corrupt_save_audit() -> void:
 	var primary: Dictionary = state.read_save_dictionary(test_save)
 	check(not primary.is_empty() and int(primary.version) == state.SAVE_VERSION and int(primary.player.credits) == 25, "fresh start creates a valid canonical primary")
 	check(not state.read_save_dictionary("%s.bak" % test_save).is_empty(), "fresh start also establishes a valid recovery backup")
-	check(scene.find_child("BountyScroll", true, false) != null, "successful fresh start returns to the actionable bounty board")
+	check(scene.find_child("OnboardingLoginAction", true, false) != null and scene.find_child("BountyScroll", true, false) == null, "successful fresh start returns to mandatory login rather than inventing a hunter")
 
 	for cycle in [2, 3]:
 		var cycle_contents := "{ corrupt cycle %d" % cycle

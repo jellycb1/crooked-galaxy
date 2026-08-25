@@ -3,6 +3,7 @@ extends RefCounted
 
 const Rules = preload("res://scripts/core_rules.gd")
 const ClassRulesScript = preload("res://scripts/class_rules.gd")
+const SpeciesRulesScript = preload("res://scripts/species_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const AttributeIconScript = preload("res://scripts/attribute_icon.gd")
 
@@ -113,8 +114,13 @@ static func hunter_profile(host: CrookedUIFactory, state: StateScript, class_id:
 	var identity_copy := VBoxContainer.new()
 	identity_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	identity.add_child(identity_copy)
-	identity_copy.add_child(host.label(ClassRulesScript.class_name_for(class_id), 17, host.GOLD if not class_definition.is_empty() else host.CORAL))
-	var identity_detail := "NÍVEL %d" % int(state.player.get("level", 1))
+	var hunter_name := str(state.player.get("hunter_name", ""))
+	if not hunter_name.is_empty():
+		var hunter_name_label := host.label(hunter_name.to_upper(), 17, host.INK)
+		hunter_name_label.name = "HunterName"
+		identity_copy.add_child(hunter_name_label)
+	identity_copy.add_child(host.label(ClassRulesScript.class_name_for(class_id), 13 if not hunter_name.is_empty() else 17, host.GOLD if not class_definition.is_empty() else host.CORAL))
+	var identity_detail := "%s · NÍVEL %d" % [SpeciesRulesScript.species_name_for(str(state.player.get("species_id", ""))).to_upper(), int(state.player.get("level", 1))]
 	if not class_definition.is_empty():
 		identity_detail += " · PRINCIPAL %s" % str(class_definition.primary_name)
 	identity_copy.add_child(host.label(identity_detail, 10, host.MUTED))
