@@ -1,11 +1,7 @@
-# Crooked Galaxy
+# Crooked Galaxy — Android Test
 
-Android internal test build.
+[Download the latest CrookedGalaxy.apk](https://github.com/jellycb1/crooked-galaxy/releases/download/latest/CrookedGalaxy.apk)
 
-[Download the current CrookedGalaxy.apk](https://github.com/jellycb1/crooked-galaxy/releases/download/latest/CrookedGalaxy.apk)
+Current build: **v0.17.0 (code 59)** — Portuguese interface, account scoped to **International 1**, ARM64/API 24+, stable update-compatible test signature. This is a device-local test build; no live server backend is active yet.
 
-Current build: **v0.16.4 (code 58)**
-
-SHA-256: `a402b879aeef22b8ea56d0e1e6573eb8145aa32e63b47774f19c0c0dda423233`
-
-The `latest` release is updated in place, so the APK link above remains stable.
+[SHA-256 checksum](https://github.com/jellycb1/crooked-galaxy/releases/download/latest/CrookedGalaxy.apk.sha256)
