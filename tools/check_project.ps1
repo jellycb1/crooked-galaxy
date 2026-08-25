@@ -44,6 +44,7 @@ $Tests = @(
 	"test_market.gd",
 	"test_transport.gd",
 	"test_challenges.gd",
+	"test_translation_complete.gd",
     "test_reward_view.gd",
     "test_career_view.gd",
     "test_persistence.gd",

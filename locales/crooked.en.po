@@ -3229,3 +3229,357 @@ msgstr "Probability Clerk"
 
 msgid "RIFT_STAGE_RIFT_NULL_WARDEN_NAME"
 msgstr "Null Sector Warden"
+
+msgid "RIFT_SUBTITLE"
+msgstr "An enemy ladder outside the planetary campaign."
+
+msgid "RIFT_SECTOR"
+msgstr "SECTOR"
+
+msgid "RIFT_NULL"
+msgstr "NULL"
+
+msgid "RIFT_ENCRYPTED_SIGNAL"
+msgstr "ENCRYPTED SIGNAL"
+
+msgid "RIFT_INACCESSIBLE"
+msgstr "RIFT STILL INACCESSIBLE"
+
+msgid "RIFT_UNLOCK_REQUIREMENT"
+msgstr "Complete Dustball Prime to locate the entrance and open the first incursion."
+
+msgid "RIFT_FLOOR"
+msgstr "FLOOR"
+
+msgid "RIFT_ARCHIVE_CLOSED"
+msgstr "IMPOSSIBLE ARCHIVE CLOSED"
+
+msgid "RIFT_CLEARED"
+msgstr "RIFT CLEARED"
+
+msgid "RIFT_COMPLETE_DESCRIPTION"
+msgstr "All six wardens were removed. Technical rigs and implants remain universal across every class."
+
+msgid "COMMON_CHANCE"
+msgstr "CHANCE"
+
+msgid "RIFT_ANOMALY_TEST"
+msgstr "ANOMALY · %s · %s TEST"
+
+msgid "RIFT_ANOMALY_VALUES"
+msgstr "MITIGATION IGNORED %d%% · OPENING ×%.1f"
+
+msgid "RIFT_UNIQUE_REWARD"
+msgstr "UNIQUE REWARD · %s"
+
+msgid "RIFT_REWARD_TOTAL"
+msgstr "◈ %d CREDITS · %d XP"
+
+msgid "RIFT_RULES"
+msgstr "No hunt, incidents, or repeats. Defeat does not consume warrant momentum."
+
+msgid "RIFT_START"
+msgstr "START INCURSION · FLOOR %d"
+
+msgid "RIFT_REWARD_FLOOR_CLEAR"
+msgstr "CLANDESTINE RIFT · FLOOR %d CLEARED"
+
+msgid "RIFT_REWARD_ARTIFACT"
+msgstr "ARTIFACT RECOVERED"
+
+msgid "RIFT_REWARD_RECEIPT"
+msgstr "RIFT RECEIPT · ◈ %d CREDITS · %d XP"
+
+msgid "RIFT_REWARD_EQUIPPED"
+msgstr "CURRENTLY EQUIPPED · +%d POWER"
+
+msgid "RIFT_REWARD_NEXT_FLOOR"
+msgstr "ON CLAIM · FLOOR %d WILL OPEN"
+
+msgid "RIFT_REWARD_COMPLETE"
+msgstr "ON CLAIM · RIFT WILL BE COMPLETE"
+
+msgid "RIFT_REWARD_EQUIP_RETURN"
+msgstr "EQUIP AND RETURN TO RIFT"
+
+msgid "RIFT_REWARD_STORE_RETURN"
+msgstr "STORE AND RETURN TO RIFT"
+
+msgid "RIFT_NOTICE_DEFEAT"
+msgstr "The Rift rejected the incursion. The floor remains open and warrant momentum was preserved."
+
+msgid "RIFT_NOTICE_FLOOR_CLEAR"
+msgstr "floor %d cleared"
+
+msgid "RIFT_NOTICE_CREDITS"
+msgstr "+%d credits"
+
+msgid "RIFT_NOTICE_RECYCLED"
+msgstr "%s recycled: +%d scrap"
+
+msgid "RIFT_NOTICE_EQUIPPED"
+msgstr "%s equipped"
+
+msgid "RIFT_NOTICE_STORED"
+msgstr "%s stored"
+
+msgid "RIFT_NOTICE_UPDATED"
+msgstr "Rift updated: %s"
+
+msgid "RIFT_ANOMALY_VOLATILE_OPENING_NAME"
+msgstr "VOLATILE CHAMBER"
+
+msgid "RIFT_ANOMALY_VOLATILE_OPENING_DESCRIPTION"
+msgstr "The first exchange overloads ambushes; dampeners remain nearly intact."
+
+msgid "RIFT_ANOMALY_VOLATILE_OPENING_FAVORED_AXIS"
+msgstr "OPENING"
+
+msgid "RIFT_ANOMALY_ARMOR_RUPTURE_NAME"
+msgstr "CONTAINMENT FAILURE"
+
+msgid "RIFT_ANOMALY_ARMOR_RUPTURE_DESCRIPTION"
+msgstr "The rupture crosses almost all mitigation; integrity and sustained power gain value."
+
+msgid "RIFT_ANOMALY_ARMOR_RUPTURE_FAVORED_AXIS"
+msgstr "INTEGRITY"
+
+msgid "RIFT_ANOMALY_INERTIAL_ANCHOR_NAME"
+msgstr "INERTIAL ANCHOR"
+
+msgid "RIFT_ANOMALY_INERTIAL_ANCHOR_DESCRIPTION"
+msgstr "Half the mitigation works and the opening retains moderate charge; mixed builds endure the long fight."
+
+msgid "RIFT_ANOMALY_INERTIAL_ANCHOR_FAVORED_AXIS"
+msgstr "MIXED BUILD"
+
+msgid "RIFT_STAGE_RIFT_CUSTOMS_DRONE_TITLE"
+msgstr "FLOOR 1 · ILLEGAL SCREENING"
+
+msgid "RIFT_STAGE_RIFT_CUSTOMS_DRONE_DESCRIPTION"
+msgstr "It still patrols a border erased from every map and charges interest since the collapse."
+
+msgid "RIFT_STAGE_RIFT_CUSTOMS_DRONE_ATTACK_0"
+msgstr "Kinetic Stamp"
+
+msgid "RIFT_STAGE_RIFT_CUSTOMS_DRONE_ATTACK_1"
+msgstr "Retroactive Fee"
+
+msgid "RIFT_STAGE_RIFT_CUSTOMS_DRONE_ATTACK_2"
+msgstr "Contraband Scanner"
+
+msgid "RIFT_STAGE_RIFT_ECHO_COLLECTOR_TITLE"
+msgstr "FLOOR 2 · SOUND ARCHIVE"
+
+msgid "RIFT_STAGE_RIFT_ECHO_COLLECTOR_DESCRIPTION"
+msgstr "It confiscates last words, resells threats, and never issues a quiet receipt."
+
+msgid "RIFT_STAGE_RIFT_ECHO_COLLECTOR_ATTACK_0"
+msgstr "Resonant Collection"
+
+msgid "RIFT_STAGE_RIFT_ECHO_COLLECTOR_ATTACK_1"
+msgstr "Sonic Protest"
+
+msgid "RIFT_STAGE_RIFT_ECHO_COLLECTOR_ATTACK_2"
+msgstr "Recurring Interest"
+
+msgid "RIFT_STAGE_RIFT_QUARTERMASTER_TITLE"
+msgstr "FLOOR 3 · GHOST DEPOT"
+
+msgid "RIFT_STAGE_RIFT_QUARTERMASTER_DESCRIPTION"
+msgstr "It manages ammunition for a nonexistent army and considers you delayed inventory."
+
+msgid "RIFT_STAGE_RIFT_QUARTERMASTER_ATTACK_0"
+msgstr "Stock Write-Off"
+
+msgid "RIFT_STAGE_RIFT_QUARTERMASTER_ATTACK_1"
+msgstr "Asset Barrage"
+
+msgid "RIFT_STAGE_RIFT_QUARTERMASTER_ATTACK_2"
+msgstr "Hostile Inventory"
+
+msgid "RIFT_STAGE_RIFT_MEMORY_LEECH_TITLE"
+msgstr "FLOOR 4 · REVOKED CLINIC"
+
+msgid "RIFT_STAGE_RIFT_MEMORY_LEECH_DESCRIPTION"
+msgstr "It removes embarrassing memories and leaves only the procedure invoice."
+
+msgid "RIFT_STAGE_RIFT_MEMORY_LEECH_ATTACK_0"
+msgstr "Cranial Debt"
+
+msgid "RIFT_STAGE_RIFT_MEMORY_LEECH_ATTACK_1"
+msgstr "Installment Amnesia"
+
+msgid "RIFT_STAGE_RIFT_MEMORY_LEECH_ATTACK_2"
+msgstr "Predatory Synapse"
+
+msgid "RIFT_STAGE_RIFT_PROBABILITY_CLERK_TITLE"
+msgstr "FLOOR 5 · CAUSAL REGISTRY"
+
+msgid "RIFT_STAGE_RIFT_PROBABILITY_CLERK_DESCRIPTION"
+msgstr "It registers possible futures and fines any reality that leaves without authentication."
+
+msgid "RIFT_STAGE_RIFT_PROBABILITY_CLERK_ATTACK_0"
+msgstr "Certified Signature"
+
+msgid "RIFT_STAGE_RIFT_PROBABILITY_CLERK_ATTACK_1"
+msgstr "Improbable Clause"
+
+msgid "RIFT_STAGE_RIFT_PROBABILITY_CLERK_ATTACK_2"
+msgstr "Future Repossession"
+
+msgid "RIFT_STAGE_RIFT_NULL_WARDEN_TITLE"
+msgstr "FLOOR 6 · UNIVERSELESS CELL"
+
+msgid "RIFT_STAGE_RIFT_NULL_WARDEN_DESCRIPTION"
+msgstr "It guards an empty prison with enough devotion to arrest new laws of physics."
+
+msgid "RIFT_STAGE_RIFT_NULL_WARDEN_ATTACK_0"
+msgstr "Antimatter Sentence"
+
+msgid "RIFT_STAGE_RIFT_NULL_WARDEN_ATTACK_1"
+msgstr "Vector Confinement"
+
+msgid "RIFT_STAGE_RIFT_NULL_WARDEN_ATTACK_2"
+msgstr "Appeal Denied"
+
+msgid "RIFT_REWARD_RIFT_CUSTOMS_DRONE_NAME"
+msgstr "Broken Seal Rig"
+
+msgid "RIFT_REWARD_RIFT_CUSTOMS_DRONE_DESCRIPTION"
+msgstr "Redistributes weight, ammunition, and legal responsibility."
+
+msgid "RIFT_REWARD_RIFT_ECHO_COLLECTOR_NAME"
+msgstr "Crooked Frequency Harness"
+
+msgid "RIFT_REWARD_RIFT_ECHO_COLLECTOR_DESCRIPTION"
+msgstr "Turns combat noise into marginally useful decisions."
+
+msgid "RIFT_REWARD_RIFT_QUARTERMASTER_NAME"
+msgstr "Quartermaster Platform"
+
+msgid "RIFT_REWARD_RIFT_QUARTERMASTER_DESCRIPTION"
+msgstr "It has pockets for everything, including an emergency excuse."
+
+msgid "RIFT_REWARD_RIFT_MEMORY_LEECH_NAME"
+msgstr "Smuggled Memory Node"
+
+msgid "RIFT_REWARD_RIFT_MEMORY_LEECH_DESCRIPTION"
+msgstr "Remembers enemy mistakes before they can repeat them."
+
+msgid "RIFT_REWARD_RIFT_PROBABILITY_CLERK_NAME"
+msgstr "Clandestine Calculation Cortex"
+
+msgid "RIFT_REWARD_RIFT_PROBABILITY_CLERK_DESCRIPTION"
+msgstr "Predicts three outcomes and chooses the least documented one."
+
+msgid "RIFT_REWARD_RIFT_NULL_WARDEN_NAME"
+msgstr "Null Sector Interface"
+
+msgid "RIFT_REWARD_RIFT_NULL_WARDEN_DESCRIPTION"
+msgstr "Connects the hunter to a network that officially never existed."
+
+msgid "CHAPTER_COMPLETE_TITLE"
+msgstr "CHAPTER COMPLETE"
+
+msgid "CHAPTER_COMPLETE_FINAL_WARRANT"
+msgstr "FINAL WARRANT EXECUTED"
+
+msgid "CHAPTER_COMPLETE_PAYMENT"
+msgstr "PAYMENT"
+
+msgid "CHAPTER_COMPLETE_OPEN"
+msgstr "%s remains open for new hunts and better equipment."
+
+msgid "CHAPTER_COMPLETE_CONTINUE"
+msgstr "KEEP HUNTING"
+
+msgid "CHAPTER_COMPLETE_NOTICE"
+msgstr "%s pacified. Warrants reopened for better equipment and records."
+
+msgid "COMMON_CAPTURES"
+msgstr "CAPTURES"
+
+msgid "COMMON_REPUTATION"
+msgstr "REPUTATION"
+
+msgid "COMMON_RANK_VALUE"
+msgstr "RANK %d"
+
+msgid "PLANET_DUSTBALL_PRIME_COMPLETION_TEXT"
+msgstr "The mayor was removed from office, the precinct, and his own registry. The paperwork remains at large."
+
+msgid "PLANET_CONGELARIA_SA_COMPLETION_TEXT"
+msgstr "The board was thawed out of its duties. The thermostat now accepts votes and coins."
+
+msgid "PLANET_MICELIA_404_COMPLETION_TEXT"
+msgstr "The mycelial network changed management. The mushrooms demand damp elections."
+
+msgid "PLANET_FERRO_VELHO_OMEGA_COMPLETION_TEXT"
+msgstr "The landfill stopped collecting civilizations. It now accepts only recyclables and opinions with receipts."
+
+msgid "PLANET_CASSINO_QUASAR_COMPLETION_TEXT"
+msgstr "The House finally lost. The prize was split across geological eras, and the exit still runs through the gift shop."
+
+msgid "SETTINGS_LANGUAGE"
+msgstr "LANGUAGE"
+
+msgid "SETTINGS_LANGUAGE_DESCRIPTION"
+msgstr "Interface language on this device"
+
+msgid "SETTINGS_LANGUAGE_NOTICE"
+msgstr "Language changed to %s."
+
+msgid "DEFEAT_STREAK_LOST"
+msgstr " ×%d momentum lost."
+
+msgid "DEFEAT_NOTICE"
+msgstr "%s escaped. Your equipment needs better arguments.%s"
+
+msgid "ABANDON_CAPTURE_SUFFIX"
+msgstr " after %d captures"
+
+msgid "ABANDON_NOTICE"
+msgstr "Warrant abandoned%s. Momentum was lost."
+
+msgid "RESET_NOTICE"
+msgstr "Progress reset. Time to build a new reputation."
+
+msgid "SAVE_WARNING_STORAGE"
+msgstr "PROGRESS NOT YET SAVED · local storage unavailable. Keep the game open and try again."
+
+msgid "SAVE_WARNING_WRITE"
+msgstr "PROGRESS NOT YET SAVED · local storage write failed. Keep the game open and try again."
+
+msgid "SAVE_WARNING_PREPARE"
+msgstr "PROGRESS NOT YET SAVED · safe replacement could not be prepared. Keep the game open and try again."
+
+msgid "SAVE_WARNING_COMMIT"
+msgstr "PROGRESS NOT YET SAVED · safe replacement could not be completed. Keep the game open and try again."
+
+msgid "SAVE_WARNING_QUARANTINE"
+msgstr "DAMAGED SAVE PRESERVED · a backup could not be created before starting over."
+
+msgid "SAVE_WARNING_CORRUPT"
+msgstr "LOCAL SAVE DAMAGED · no intact copy was found. The original file will be preserved before new progress begins."
+
+msgid "SAVE_NOTICE_RESTORED"
+msgstr "SAVE RECOVERED: the latest intact copy was restored without repeating transactions."
+
+msgid "SAVE_NOTICE_MIGRATED"
+msgstr "SAVE UPDATED: legacy progress was preserved and missing records rebuilt."
+
+msgid "SAVE_NOTICE_REPAIRED"
+msgstr "SAVE RECOVERED: valid progress was preserved; inconsistent records were isolated."
+
+msgid "COMMON_OK"
+msgstr "OK"
+
+msgid "SAVE_START_FRESH"
+msgstr "START\nNEW SAVE"
+
+msgid "SAVE_RETRY"
+msgstr "TRY\nAGAIN"
+
+msgid "EQUIPMENT_INTEGRITY"
+msgstr "REINFORCEMENT +%d HEALTH"

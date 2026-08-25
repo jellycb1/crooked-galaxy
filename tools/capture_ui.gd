@@ -58,6 +58,7 @@ func capture() -> void:
 		quit(1)
 		return
 	TranslationServer.set_locale("en")
+	scene.locale_draft = "en"
 	state.account = {}
 	state.player = state.default_player()
 	scene.render()
@@ -66,7 +67,7 @@ func capture() -> void:
 	if save_frame("ui_onboarding_login_en.png") != OK:
 		quit(1)
 		return
-	state.account = {"mode": "local_test", "session_id": "capture", "locale_id": "pt", "server_id": "international_1"}
+	state.account = {"mode": "local_test", "session_id": "capture", "locale_id": "en", "server_id": "international_1"}
 	scene.class_draft = "orbit_gunslinger"
 	scene.render()
 	await process_frame
@@ -108,6 +109,7 @@ func capture() -> void:
 		quit(1)
 		return
 	TranslationServer.set_locale("en")
+	state.account.locale_id = "en"
 	scene.render()
 	await process_frame
 	await process_frame
@@ -279,6 +281,37 @@ func capture() -> void:
 	state.combat_events.clear()
 	state.last_notice = ""
 	state.last_notice_context = ""
+	state.player.completed_planets = ["dustball_prime"]
+	state.player.challenge_floor = 0
+	scene.view_mode = "challenges"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_challenge_en.png") != OK:
+		quit(1)
+		return
+	state.current_bounty = ChallengeRules.stage_at(0)
+	state.pending_loot = ChallengeRules.reward_for(state.current_bounty, ContentDB.ITEM_TRAITS)
+	state.phase = state.Phase.REWARD
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_challenge_reward_en.png") != OK:
+		quit(1)
+		return
+	state.chapter_completion = {"planet": ContentDB.PLANETS[4].duplicate(true), "target": ContentDB.TARGETS[19].duplicate(true), "total_captures": 50, "credits": int(ContentDB.TARGETS[19].credits), "xp": int(ContentDB.TARGETS[19].xp)}
+	state.phase = state.Phase.CHAPTER_COMPLETE
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_chapter_complete_en.png") != OK:
+		quit(1)
+		return
+	state.chapter_completion = {}
+	state.player = state.default_player()
+	state.phase = state.Phase.BOARD
+	state.current_bounty = {}
+	state.pending_loot = {}
 	TranslationServer.set_locale("pt")
 	scene.view_mode = "board"
 	scene.board_section = "bounties"

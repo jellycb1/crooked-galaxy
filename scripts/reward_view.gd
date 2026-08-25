@@ -19,6 +19,9 @@ static func localized_content(prefix: String, definition: Dictionary, field: Str
 
 
 static func localized_item_field(item: Dictionary, field: String) -> String:
+	var item_id := str(item.get("id", ""))
+	if str(item.get("challenge_origin", "")) == "fenda_clandestina":
+		return local_text("RIFT_REWARD_%s_%s" % [item_id.trim_suffix("_reward").to_upper(), field.to_upper()], str(item.get(field, "")))
 	var planet_id := str(item.get("origin_planet_id", Content.PLANET.id))
 	var slot := str(item.get("slot", "weapon"))
 	var catalog := Content.item_catalog_for(planet_id, slot)
@@ -235,8 +238,8 @@ static func build_challenge_reward(host: CrookedUIFactory, content: VBoxContaine
 	var item := state.pending_loot
 	var equipped: Dictionary = state.player.get(str(item.slot), {})
 	var effective_upgrade := Rules.is_upgrade_for_player(state.player, item)
-	content.add_child(host.center_label("FENDA CLANDESTINA · ANDAR %d LIMPO" % (int(state.current_bounty.get("challenge_index", 0)) + 1), 16, host.LIME))
-	content.add_child(host.center_label("ARTEFATO RECUPERADO", 28, host.INK))
+	content.add_child(host.center_label(local_text("RIFT_REWARD_FLOOR_CLEAR", "FENDA CLANDESTINA · ANDAR %d LIMPO", [int(state.current_bounty.get("challenge_index", 0)) + 1]), 16, host.LIME))
+	content.add_child(host.center_label(local_text("RIFT_REWARD_ARTIFACT", "ARTEFATO RECUPERADO"), 28, host.INK))
 	var reward_panel := host.panel(VBoxContainer.new(), Color("#17182f"), 20, 16)
 	reward_panel.name = "ChallengeRewardPanel"
 	content.add_child(reward_panel)
@@ -249,26 +252,26 @@ static func build_challenge_reward(host: CrookedUIFactory, content: VBoxContaine
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	copy.add_child(host.label("%s · %s" % [str(item.rarity).to_upper(), host.slot_name(str(item.slot)).to_upper()], 11, Color(str(item.color))))
-	copy.add_child(host.label(str(item.name), 21, host.INK))
-	var description := host.label(str(item.description), 12, host.MUTED)
+	copy.add_child(host.label("%s · %s" % [localized_rarity(str(item.rarity)), localized_slot(str(item.slot)).to_upper()], 11, Color(str(item.color))))
+	copy.add_child(host.label(localized_item_field(item, "name"), 21, host.INK))
+	var description := host.label(localized_item_field(item, "description"), 12, host.MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(description)
 	if item.has("trait"):
-		var modification := host.center_label("◆ %s · %s" % [str(item.trait.name), str(item.trait.description)], 12, host.GOLD)
+		var modification := host.center_label("◆ %s · %s" % [localized_trait_field(item.trait, "name"), localized_trait_field(item.trait, "description")], 12, host.GOLD)
 		modification.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		box.add_child(modification)
 	box.add_child(host.center_label(EquipmentPresentation.equipment_delta_text(state.player, item), 13, host.LIME if effective_upgrade else host.MUTED))
-	box.add_child(host.center_label("RECIBO DA FENDA · ◈ %d CRÉDITOS · %d XP" % [int(state.current_bounty.credits), int(state.current_bounty.xp)], 13, host.GOLD))
-	var comparison := host.center_label("EQUIPADO AGORA · +%d PODER" % int(equipped.get("power", 0)), 11, host.MUTED)
+	box.add_child(host.center_label(local_text("RIFT_REWARD_RECEIPT", "RECIBO DA FENDA · ◈ %d CRÉDITOS · %d XP", [int(state.current_bounty.credits), int(state.current_bounty.xp)]), 13, host.GOLD))
+	var comparison := host.center_label(local_text("RIFT_REWARD_EQUIPPED", "EQUIPADO AGORA · +%d PODER", [int(equipped.get("power", 0))]), 11, host.MUTED)
 	comparison.name = "ChallengeEquippedComparison"
 	box.add_child(comparison)
 	var next_floor := int(state.current_bounty.get("challenge_index", 0)) + 2
-	var progress := host.center_label("AO RECEBER · ANDAR %d SERÁ ABERTO" % next_floor if next_floor <= 6 else "AO RECEBER · FENDA SERÁ CONCLUÍDA", 12, host.CYAN)
+	var progress := host.center_label(local_text("RIFT_REWARD_NEXT_FLOOR", "AO RECEBER · ANDAR %d SERÁ ABERTO", [next_floor]) if next_floor <= 6 else local_text("RIFT_REWARD_COMPLETE", "AO RECEBER · FENDA SERÁ CONCLUÍDA"), 12, host.CYAN)
 	progress.name = "ChallengeRewardProgress"
 	box.add_child(progress)
 	content.add_spacer(false)
-	var claim := host.action_button("EQUIPAR E VOLTAR À FENDA" if effective_upgrade else "GUARDAR E VOLTAR À FENDA", host.LIME)
+	var claim := host.action_button(local_text("RIFT_REWARD_EQUIP_RETURN", "EQUIPAR E VOLTAR À FENDA") if effective_upgrade else local_text("RIFT_REWARD_STORE_RETURN", "GUARDAR E VOLTAR À FENDA"), host.LIME)
 	claim.name = "ClaimChallengeReward"
 	claim.custom_minimum_size = Vector2(0, 50)
 	claim.pressed.connect(func(): state.claim_reward(effective_upgrade))

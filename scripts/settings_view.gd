@@ -44,6 +44,7 @@ static func preferences_panel(host: CrookedUIFactory, state: StateScript) -> VBo
 	preferences.name = "AccessibilityPreferences"
 	preferences.add_theme_constant_override("separation", 8)
 	result.add_child(preferences)
+	preferences.add_child(language_panel(host, state))
 	preferences.add_child(preference_row(host, t("SETTINGS_AUDIO", "ÁUDIO"), t("SETTINGS_AUDIO_DESCRIPTION", "Efeitos de interface e combate"), t("COMMON_ON", "LIGADO") if bool(state.player.get("sound_enabled", true)) else t("COMMON_OFF", "DESLIGADO"), "SoundPreferenceAction", state.toggle_sound))
 	preferences.add_child(preference_row(host, t("SETTINGS_MOTION", "MOVIMENTO"), t("SETTINGS_MOTION_DESCRIPTION", "Remove apenas transições decorativas"), t("SETTINGS_REDUCED", "REDUZIDO") if bool(state.player.get("reduced_motion", false)) else t("SETTINGS_FULL", "COMPLETO"), "MotionPreferenceAction", state.toggle_reduced_motion))
 	if OS.is_debug_build():
@@ -63,6 +64,30 @@ static func preferences_panel(host: CrookedUIFactory, state: StateScript) -> VBo
 		danger_copy.add_child(reset)
 		result.add_child(danger)
 	return result
+
+
+static func language_panel(host: CrookedUIFactory, state: StateScript) -> PanelContainer:
+	var card := host.panel(VBoxContainer.new(), Color("#101d39"), 12, 11)
+	card.name = "SettingsLanguagePanel"
+	var stack := card.get_child(0) as VBoxContainer
+	stack.add_child(host.label(t("SETTINGS_LANGUAGE", "IDIOMA"), 13, host.INK))
+	stack.add_child(host.label(t("SETTINGS_LANGUAGE_DESCRIPTION", "Idioma da interface neste dispositivo"), 10, host.MUTED))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	stack.add_child(row)
+	var active_id := str(state.account.get("locale_id", TranslationServer.get_locale().left(2)))
+	for locale in LocaleRulesScript.DEFINITIONS:
+		if not bool(locale.get("selectable", false)):
+			continue
+		var locale_id := str(locale.id)
+		var action := host.action_button("%s%s" % ["✓ " if locale_id == active_id else "", str(locale.native_name).to_upper()], host.LIME if locale_id == active_id else host.CYAN, true)
+		action.name = "SettingsLanguage_%s" % locale_id
+		action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		action.custom_minimum_size = Vector2(0, 48)
+		action.disabled = locale_id == active_id
+		action.pressed.connect(func(): state.set_locale(locale_id))
+		row.add_child(action)
+	return card
 
 
 static func preference_row(host: CrookedUIFactory, title: String, description: String, value: String, action_name: String, callback: Callable) -> PanelContainer:

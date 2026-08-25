@@ -593,6 +593,8 @@ func localized_content_field(prefix: String, definition: Dictionary, field: Stri
 	if definition.is_empty():
 		return ""
 	var raw := str(definition.get(field, ""))
+	if prefix == "target" and bool(definition.get("challenge", false)):
+		return t(LocaleRulesScript.content_key("rift_stage", str(definition.get("id", "")), field), raw)
 	return t(LocaleRulesScript.content_key(prefix, str(definition.get("id", "")), field), raw)
 
 
@@ -638,6 +640,10 @@ func localized_combat_action(raw: String, actor: String = "player") -> String:
 	if actor == "player":
 		var player_index := ContentDB.PLAYER_ATTACKS.find(raw)
 		return t("COMBAT_PLAYER_ATTACK_%d" % player_index, raw) if player_index >= 0 else raw
+	if bool(GameState.current_bounty.get("challenge", false)):
+		var stage := ChallengeRulesScript.get_stage(str(GameState.current_bounty.get("id", "")))
+		var stage_attack_index: int = stage.get("attacks", []).find(raw)
+		return t("RIFT_STAGE_%s_ATTACK_%d" % [str(stage.get("id", "")).to_upper(), stage_attack_index], raw) if stage_attack_index >= 0 else raw
 	var target := ContentDB.get_target(str(GameState.current_bounty.get("id", "")))
 	var attacks: Array = target.get("attacks", [])
 	var attack_index := attacks.find(raw)
@@ -1136,7 +1142,7 @@ func notice_banner(message: String, color: Color, dismiss_callback := Callable()
 	message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	row.add_child(message_label)
 	if dismiss_callback.is_valid():
-		var dismiss := action_button("OK", color, true)
+		var dismiss := action_button(t("COMMON_OK", "OK"), color, true)
 		dismiss.name = "BoardNoticeDismiss"
 		dismiss.custom_minimum_size = Vector2(62, 44)
 		dismiss.pressed.connect(dismiss_callback)
@@ -1154,7 +1160,7 @@ func save_warning_banner() -> PanelContainer:
 	message.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(message)
 	var recovery_required := GameState.save_recovery_required
-	var retry := action_button("INICIAR\nNOVO SAVE" if recovery_required else "TENTAR\nNOVAMENTE", CORAL, true)
+	var retry := action_button(t("SAVE_START_FRESH", "INICIAR\nNOVO SAVE") if recovery_required else t("SAVE_RETRY", "TENTAR\nNOVAMENTE"), CORAL, true)
 	retry.name = "StartFreshSaveAction" if recovery_required else "RetrySaveAction"
 	retry.custom_minimum_size = Vector2(112, 48)
 	retry.add_theme_font_size_override("font_size", 10)
@@ -1258,7 +1264,7 @@ func afk_return_banner(include_recovery := false) -> PanelContainer:
 		recovery.name = "AfkRecoveryNotice"
 		recovery.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		copy.add_child(recovery)
-	var dismiss := action_button("OK", CYAN, true)
+	var dismiss := action_button(t("COMMON_OK", "OK"), CYAN, true)
 	dismiss.name = "AfkDismiss"
 	dismiss.custom_minimum_size = Vector2(62, 44)
 	dismiss.pressed.connect(func(): GameState.dismiss_afk_report(include_recovery))
@@ -1911,23 +1917,25 @@ func build_chapter_complete() -> void:
 	var box := chapter.get_child(0) as VBoxContainer
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation", 9)
-	box.add_child(center_label("CAPÍTULO CONCLUÍDO", 16, GOLD))
-	box.add_child(center_label(str(planet.name).to_upper(), 34, INK))
+	var planet_name := localized_content_field("planet", planet, "name")
+	var target_name := localized_content_field("target", target, "name")
+	box.add_child(center_label(t("CHAPTER_COMPLETE_TITLE", "CAPÍTULO CONCLUÍDO"), 16, GOLD))
+	box.add_child(center_label(planet_name.to_upper(), 34, INK))
 	box.add_child(character_portrait(str(target.get("id", "mayor_gold_dust")), 174))
-	box.add_child(center_label("MANDADO FINAL EXECUTADO", 18, LIME))
-	box.add_child(center_label(str(target.get("name", "Prefeito Pó-de-Ouro")), 25, GOLD))
-	var verdict := center_label(str(planet.get("completion_text", "A autoridade local foi retirada do organograma à força.")), 15, MUTED)
+	box.add_child(center_label(t("CHAPTER_COMPLETE_FINAL_WARRANT", "MANDADO FINAL EXECUTADO"), 18, LIME))
+	box.add_child(center_label(target_name, 25, GOLD))
+	var verdict := center_label(localized_content_field("planet", planet, "completion_text"), 15, MUTED)
 	verdict.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(verdict)
 	var stats := HBoxContainer.new()
 	stats.add_theme_constant_override("separation", 8)
 	box.add_child(stats)
-	stats.add_child(metric_chip("CAPTURAS", str(completion.get("total_captures", GameState.player.wins)), CYAN))
-	stats.add_child(metric_chip("REPUTAÇÃO", "RANK %d" % (int(GameState.player.reputation) + 1), LIME))
-	stats.add_child(metric_chip("PAGAMENTO", "◈ %d" % int(completion.get("credits", 0)), GOLD))
-	content.add_child(center_label("%s permanece aberto para novas caçadas e equipamento melhor." % str(planet.name), 14, MUTED))
+	stats.add_child(metric_chip(t("COMMON_CAPTURES", "CAPTURAS"), str(completion.get("total_captures", GameState.player.wins)), CYAN))
+	stats.add_child(metric_chip(t("COMMON_REPUTATION", "REPUTAÇÃO"), t("COMMON_RANK_VALUE", "RANK %d", [int(GameState.player.reputation) + 1]), LIME))
+	stats.add_child(metric_chip(t("CHAPTER_COMPLETE_PAYMENT", "PAGAMENTO"), "◈ %d" % int(completion.get("credits", 0)), GOLD))
+	content.add_child(center_label(t("CHAPTER_COMPLETE_OPEN", "%s permanece aberto para novas caçadas e equipamento melhor.", [planet_name]), 14, MUTED))
 	content.add_spacer(false)
-	var continue_button := action_button("CONTINUAR CAÇANDO", GOLD)
+	var continue_button := action_button(t("CHAPTER_COMPLETE_CONTINUE", "CONTINUAR CAÇANDO"), GOLD)
 	continue_button.pressed.connect(GameState.continue_after_chapter)
 	content.add_child(continue_button)
 

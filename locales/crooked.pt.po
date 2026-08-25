@@ -3229,3 +3229,357 @@ msgstr "Escrivão de Probabilidades"
 
 msgid "RIFT_STAGE_RIFT_NULL_WARDEN_NAME"
 msgstr "Carcereiro do Setor Nulo"
+
+msgid "RIFT_SUBTITLE"
+msgstr "Uma escada de inimigos fora da campanha planetária."
+
+msgid "RIFT_SECTOR"
+msgstr "SETOR"
+
+msgid "RIFT_NULL"
+msgstr "NULO"
+
+msgid "RIFT_ENCRYPTED_SIGNAL"
+msgstr "SINAL CRIPTOGRAFADO"
+
+msgid "RIFT_INACCESSIBLE"
+msgstr "FENDA AINDA INACESSÍVEL"
+
+msgid "RIFT_UNLOCK_REQUIREMENT"
+msgstr "Conclua Dustball Prime para localizar a entrada e abrir a primeira incursão."
+
+msgid "RIFT_FLOOR"
+msgstr "ANDAR"
+
+msgid "RIFT_ARCHIVE_CLOSED"
+msgstr "ARQUIVO IMPOSSÍVEL ENCERRADO"
+
+msgid "RIFT_CLEARED"
+msgstr "FENDA LIMPA"
+
+msgid "RIFT_COMPLETE_DESCRIPTION"
+msgstr "Os seis carcereiros foram removidos. Cinto técnico e implante permanecem universais para todas as classes."
+
+msgid "COMMON_CHANCE"
+msgstr "CHANCE"
+
+msgid "RIFT_ANOMALY_TEST"
+msgstr "ANOMALIA · %s · TESTE DE %s"
+
+msgid "RIFT_ANOMALY_VALUES"
+msgstr "MITIGAÇÃO IGNORADA %d%% · ABERTURA ×%.1f"
+
+msgid "RIFT_UNIQUE_REWARD"
+msgstr "RECOMPENSA ÚNICA · %s"
+
+msgid "RIFT_REWARD_TOTAL"
+msgstr "◈ %d CRÉDITOS · %d XP"
+
+msgid "RIFT_RULES"
+msgstr "Sem caça, incidentes ou repetição. Derrota não consome o embalo dos mandados."
+
+msgid "RIFT_START"
+msgstr "INICIAR INCURSÃO · ANDAR %d"
+
+msgid "RIFT_REWARD_FLOOR_CLEAR"
+msgstr "FENDA CLANDESTINA · ANDAR %d LIMPO"
+
+msgid "RIFT_REWARD_ARTIFACT"
+msgstr "ARTEFATO RECUPERADO"
+
+msgid "RIFT_REWARD_RECEIPT"
+msgstr "RECIBO DA FENDA · ◈ %d CRÉDITOS · %d XP"
+
+msgid "RIFT_REWARD_EQUIPPED"
+msgstr "EQUIPADO AGORA · +%d PODER"
+
+msgid "RIFT_REWARD_NEXT_FLOOR"
+msgstr "AO RECEBER · ANDAR %d SERÁ ABERTO"
+
+msgid "RIFT_REWARD_COMPLETE"
+msgstr "AO RECEBER · FENDA SERÁ CONCLUÍDA"
+
+msgid "RIFT_REWARD_EQUIP_RETURN"
+msgstr "EQUIPAR E VOLTAR À FENDA"
+
+msgid "RIFT_REWARD_STORE_RETURN"
+msgstr "GUARDAR E VOLTAR À FENDA"
+
+msgid "RIFT_NOTICE_DEFEAT"
+msgstr "A Fenda rejeitou a incursão. O andar permanece aberto e o embalo dos mandados foi preservado."
+
+msgid "RIFT_NOTICE_FLOOR_CLEAR"
+msgstr "andar %d limpo"
+
+msgid "RIFT_NOTICE_CREDITS"
+msgstr "+%d créditos"
+
+msgid "RIFT_NOTICE_RECYCLED"
+msgstr "%s reciclado: +%d sucata"
+
+msgid "RIFT_NOTICE_EQUIPPED"
+msgstr "%s equipado"
+
+msgid "RIFT_NOTICE_STORED"
+msgstr "%s guardado"
+
+msgid "RIFT_NOTICE_UPDATED"
+msgstr "Fenda atualizada: %s"
+
+msgid "RIFT_ANOMALY_VOLATILE_OPENING_NAME"
+msgstr "CÂMARA VOLÁTIL"
+
+msgid "RIFT_ANOMALY_VOLATILE_OPENING_DESCRIPTION"
+msgstr "A primeira troca sobrecarrega emboscadas; amortecedores continuam quase íntegros."
+
+msgid "RIFT_ANOMALY_VOLATILE_OPENING_FAVORED_AXIS"
+msgstr "ABERTURA"
+
+msgid "RIFT_ANOMALY_ARMOR_RUPTURE_NAME"
+msgstr "FALHA DE CONTENÇÃO"
+
+msgid "RIFT_ANOMALY_ARMOR_RUPTURE_DESCRIPTION"
+msgstr "A ruptura atravessa quase toda mitigação; integridade e poder sustentado ganham valor."
+
+msgid "RIFT_ANOMALY_ARMOR_RUPTURE_FAVORED_AXIS"
+msgstr "INTEGRIDADE"
+
+msgid "RIFT_ANOMALY_INERTIAL_ANCHOR_NAME"
+msgstr "ÂNCORA INERCIAL"
+
+msgid "RIFT_ANOMALY_INERTIAL_ANCHOR_DESCRIPTION"
+msgstr "Metade da mitigação funciona e a abertura retém carga moderada; builds mistas atravessam o combate longo."
+
+msgid "RIFT_ANOMALY_INERTIAL_ANCHOR_FAVORED_AXIS"
+msgstr "BUILD MISTA"
+
+msgid "RIFT_STAGE_RIFT_CUSTOMS_DRONE_TITLE"
+msgstr "ANDAR 1 · TRIAGEM ILEGAL"
+
+msgid "RIFT_STAGE_RIFT_CUSTOMS_DRONE_DESCRIPTION"
+msgstr "Ainda fiscaliza uma fronteira apagada dos mapas e cobra juros desde o colapso."
+
+msgid "RIFT_STAGE_RIFT_CUSTOMS_DRONE_ATTACK_0"
+msgstr "Carimbo Cinético"
+
+msgid "RIFT_STAGE_RIFT_CUSTOMS_DRONE_ATTACK_1"
+msgstr "Taxa Retroativa"
+
+msgid "RIFT_STAGE_RIFT_CUSTOMS_DRONE_ATTACK_2"
+msgstr "Scanner de Contrabando"
+
+msgid "RIFT_STAGE_RIFT_ECHO_COLLECTOR_TITLE"
+msgstr "ANDAR 2 · ARQUIVO SONORO"
+
+msgid "RIFT_STAGE_RIFT_ECHO_COLLECTOR_DESCRIPTION"
+msgstr "Confisca últimas palavras, revende ameaças e nunca emite recibo em voz baixa."
+
+msgid "RIFT_STAGE_RIFT_ECHO_COLLECTOR_ATTACK_0"
+msgstr "Cobrança Ressonante"
+
+msgid "RIFT_STAGE_RIFT_ECHO_COLLECTOR_ATTACK_1"
+msgstr "Protesto Sônico"
+
+msgid "RIFT_STAGE_RIFT_ECHO_COLLECTOR_ATTACK_2"
+msgstr "Juro em Repetição"
+
+msgid "RIFT_STAGE_RIFT_QUARTERMASTER_TITLE"
+msgstr "ANDAR 3 · DEPÓSITO FANTASMA"
+
+msgid "RIFT_STAGE_RIFT_QUARTERMASTER_DESCRIPTION"
+msgstr "Administra munição para um exército inexistente e considera você atraso de inventário."
+
+msgid "RIFT_STAGE_RIFT_QUARTERMASTER_ATTACK_0"
+msgstr "Baixa de Estoque"
+
+msgid "RIFT_STAGE_RIFT_QUARTERMASTER_ATTACK_1"
+msgstr "Rajada Patrimonial"
+
+msgid "RIFT_STAGE_RIFT_QUARTERMASTER_ATTACK_2"
+msgstr "Inventário Hostil"
+
+msgid "RIFT_STAGE_RIFT_MEMORY_LEECH_TITLE"
+msgstr "ANDAR 4 · CLÍNICA REVOGADA"
+
+msgid "RIFT_STAGE_RIFT_MEMORY_LEECH_DESCRIPTION"
+msgstr "Remove lembranças embaraçosas e deixa apenas a fatura do procedimento."
+
+msgid "RIFT_STAGE_RIFT_MEMORY_LEECH_ATTACK_0"
+msgstr "Débito Craniano"
+
+msgid "RIFT_STAGE_RIFT_MEMORY_LEECH_ATTACK_1"
+msgstr "Amnésia Parcelada"
+
+msgid "RIFT_STAGE_RIFT_MEMORY_LEECH_ATTACK_2"
+msgstr "Sinapse Predatória"
+
+msgid "RIFT_STAGE_RIFT_PROBABILITY_CLERK_TITLE"
+msgstr "ANDAR 5 · CARTÓRIO CAUSAL"
+
+msgid "RIFT_STAGE_RIFT_PROBABILITY_CLERK_DESCRIPTION"
+msgstr "Registra futuros possíveis e multa qualquer realidade que saia sem autenticação."
+
+msgid "RIFT_STAGE_RIFT_PROBABILITY_CLERK_ATTACK_0"
+msgstr "Firma Reconhecida"
+
+msgid "RIFT_STAGE_RIFT_PROBABILITY_CLERK_ATTACK_1"
+msgstr "Cláusula Improvável"
+
+msgid "RIFT_STAGE_RIFT_PROBABILITY_CLERK_ATTACK_2"
+msgstr "Penhora do Futuro"
+
+msgid "RIFT_STAGE_RIFT_NULL_WARDEN_TITLE"
+msgstr "ANDAR 6 · CELA SEM UNIVERSO"
+
+msgid "RIFT_STAGE_RIFT_NULL_WARDEN_DESCRIPTION"
+msgstr "Guarda uma prisão vazia com dedicação suficiente para prender novas leis da física."
+
+msgid "RIFT_STAGE_RIFT_NULL_WARDEN_ATTACK_0"
+msgstr "Sentença de Antimatéria"
+
+msgid "RIFT_STAGE_RIFT_NULL_WARDEN_ATTACK_1"
+msgstr "Confinamento Vetorial"
+
+msgid "RIFT_STAGE_RIFT_NULL_WARDEN_ATTACK_2"
+msgstr "Apelo Negado"
+
+msgid "RIFT_REWARD_RIFT_CUSTOMS_DRONE_NAME"
+msgstr "Cinto de Lacres Rompidos"
+
+msgid "RIFT_REWARD_RIFT_CUSTOMS_DRONE_DESCRIPTION"
+msgstr "Redistribui peso, munição e responsabilidade jurídica."
+
+msgid "RIFT_REWARD_RIFT_ECHO_COLLECTOR_NAME"
+msgstr "Arnês de Frequência Torta"
+
+msgid "RIFT_REWARD_RIFT_ECHO_COLLECTOR_DESCRIPTION"
+msgstr "Transforma ruído de combate em decisões marginalmente úteis."
+
+msgid "RIFT_REWARD_RIFT_QUARTERMASTER_NAME"
+msgstr "Plataforma do Intendente"
+
+msgid "RIFT_REWARD_RIFT_QUARTERMASTER_DESCRIPTION"
+msgstr "Tem bolsos para tudo, inclusive para uma desculpa de emergência."
+
+msgid "RIFT_REWARD_RIFT_MEMORY_LEECH_NAME"
+msgstr "Nódulo de Memória Contrabandeada"
+
+msgid "RIFT_REWARD_RIFT_MEMORY_LEECH_DESCRIPTION"
+msgstr "Lembra os erros do inimigo antes que ele consiga repeti-los."
+
+msgid "RIFT_REWARD_RIFT_PROBABILITY_CLERK_NAME"
+msgstr "Córtex de Cálculo Clandestino"
+
+msgid "RIFT_REWARD_RIFT_PROBABILITY_CLERK_DESCRIPTION"
+msgstr "Prevê três resultados e escolhe o menos documentado."
+
+msgid "RIFT_REWARD_RIFT_NULL_WARDEN_NAME"
+msgstr "Interface do Setor Nulo"
+
+msgid "RIFT_REWARD_RIFT_NULL_WARDEN_DESCRIPTION"
+msgstr "Liga o caçador a uma rede que oficialmente nunca existiu."
+
+msgid "CHAPTER_COMPLETE_TITLE"
+msgstr "CAPÍTULO CONCLUÍDO"
+
+msgid "CHAPTER_COMPLETE_FINAL_WARRANT"
+msgstr "MANDADO FINAL EXECUTADO"
+
+msgid "CHAPTER_COMPLETE_PAYMENT"
+msgstr "PAGAMENTO"
+
+msgid "CHAPTER_COMPLETE_OPEN"
+msgstr "%s permanece aberto para novas caçadas e equipamento melhor."
+
+msgid "CHAPTER_COMPLETE_CONTINUE"
+msgstr "CONTINUAR CAÇANDO"
+
+msgid "CHAPTER_COMPLETE_NOTICE"
+msgstr "%s pacificada. Contratos reabertos para melhorar equipamento e recordes."
+
+msgid "COMMON_CAPTURES"
+msgstr "CAPTURAS"
+
+msgid "COMMON_REPUTATION"
+msgstr "REPUTAÇÃO"
+
+msgid "COMMON_RANK_VALUE"
+msgstr "RANK %d"
+
+msgid "PLANET_DUSTBALL_PRIME_COMPLETION_TEXT"
+msgstr "O prefeito foi afastado do cargo, da delegacia e do próprio cartório. A papelada continua foragida."
+
+msgid "PLANET_CONGELARIA_SA_COMPLETION_TEXT"
+msgstr "A diretoria foi descongelada de suas funções. O termostato agora aceita votos e moedas."
+
+msgid "PLANET_MICELIA_404_COMPLETION_TEXT"
+msgstr "A rede micelial trocou de administração. Os cogumelos exigem eleições úmidas."
+
+msgid "PLANET_FERRO_VELHO_OMEGA_COMPLETION_TEXT"
+msgstr "O aterro deixou de colecionar civilizações. Agora aceita apenas recicláveis e opiniões com nota fiscal."
+
+msgid "PLANET_CASSINO_QUASAR_COMPLETION_TEXT"
+msgstr "A Casa finalmente perdeu. O prêmio foi parcelado em eras geológicas e a saída continua passando pela loja de lembranças."
+
+msgid "SETTINGS_LANGUAGE"
+msgstr "IDIOMA"
+
+msgid "SETTINGS_LANGUAGE_DESCRIPTION"
+msgstr "Idioma da interface neste dispositivo"
+
+msgid "SETTINGS_LANGUAGE_NOTICE"
+msgstr "Idioma alterado para %s."
+
+msgid "DEFEAT_STREAK_LOST"
+msgstr " Embalo ×%d perdido."
+
+msgid "DEFEAT_NOTICE"
+msgstr "%s escapou. Seu equipamento precisa de argumentos melhores.%s"
+
+msgid "ABANDON_CAPTURE_SUFFIX"
+msgstr " após %d capturas"
+
+msgid "ABANDON_NOTICE"
+msgstr "Contrato abandonado%s. O embalo foi perdido."
+
+msgid "RESET_NOTICE"
+msgstr "Progresso reiniciado. Hora de construir uma nova reputação."
+
+msgid "SAVE_WARNING_STORAGE"
+msgstr "PROGRESSO AINDA NÃO SALVO · armazenamento local indisponível. Mantenha o jogo aberto e tente novamente."
+
+msgid "SAVE_WARNING_WRITE"
+msgstr "PROGRESSO AINDA NÃO SALVO · falha ao gravar no armazenamento local. Mantenha o jogo aberto e tente novamente."
+
+msgid "SAVE_WARNING_PREPARE"
+msgstr "PROGRESSO AINDA NÃO SALVO · não foi possível preparar a substituição segura. Mantenha o jogo aberto e tente novamente."
+
+msgid "SAVE_WARNING_COMMIT"
+msgstr "PROGRESSO AINDA NÃO SALVO · não foi possível concluir a substituição segura. Mantenha o jogo aberto e tente novamente."
+
+msgid "SAVE_WARNING_QUARANTINE"
+msgstr "SAVE DANIFICADO PRESERVADO · não foi possível criar a cópia de segurança para iniciar novamente."
+
+msgid "SAVE_WARNING_CORRUPT"
+msgstr "SAVE LOCAL DANIFICADO · nenhuma cópia íntegra foi encontrada. O arquivo original será preservado antes de iniciar um novo progresso."
+
+msgid "SAVE_NOTICE_RESTORED"
+msgstr "SAVE RECUPERADO: a última cópia íntegra foi restaurada sem repetir transações."
+
+msgid "SAVE_NOTICE_MIGRATED"
+msgstr "SAVE ATUALIZADO: progresso legado preservado e registros ausentes reconstruídos."
+
+msgid "SAVE_NOTICE_REPAIRED"
+msgstr "SAVE RECUPERADO: progresso válido preservado; registros inconsistentes foram isolados."
+
+msgid "COMMON_OK"
+msgstr "OK"
+
+msgid "SAVE_START_FRESH"
+msgstr "INICIAR\nNOVO SAVE"
+
+msgid "SAVE_RETRY"
+msgstr "TENTAR\nNOVAMENTE"
+
+msgid "EQUIPMENT_INTEGRITY"
+msgstr "REFORÇO +%d VIDA"

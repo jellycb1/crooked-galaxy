@@ -59,7 +59,7 @@ static func build_login(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 		var locale_id := str(locale.id)
 		var available := bool(locale.selectable)
 		var selected := locale_id == host.locale_draft
-		var language := host.action_button("%s%s" % [str(locale.native_name).to_upper(), t("ONB_TRANSLATION_PENDING", " · EM TRADUÇÃO") if not available else ""], host.LIME if selected else host.CYAN, true)
+		var language := host.action_button("%s%s%s" % ["✓ " if selected else "", str(locale.native_name).to_upper(), t("ONB_TRANSLATION_PENDING", " · EM TRADUÇÃO") if not available else ""], host.LIME if selected else host.CYAN, true)
 		language.name = "OnboardingLanguage_%s" % locale_id
 		language.custom_minimum_size = Vector2(0, 52)
 		language.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -68,6 +68,7 @@ static func build_login(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 		language.tooltip_text = t("ONB_LANGUAGE_AVAILABLE", "Disponível") if available else t("ONB_LANGUAGE_PENDING_TOOLTIP", "A tradução integral será ativada quando todas as telas estiverem localizadas.")
 		language.pressed.connect(func():
 			host.locale_draft = locale_id
+			TranslationServer.set_locale(locale_id)
 			host.call("render")
 		)
 		language_row.add_child(language)

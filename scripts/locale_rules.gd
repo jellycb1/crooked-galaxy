@@ -4,7 +4,7 @@ extends RefCounted
 const DEFAULT_ID := "pt"
 const DEFINITIONS := [
 	{"id": "pt", "name": "Português", "native_name": "Português", "selectable": true},
-	{"id": "en", "name": "Inglês", "native_name": "English", "selectable": false},
+	{"id": "en", "name": "Inglês", "native_name": "English", "selectable": true},
 ]
 
 

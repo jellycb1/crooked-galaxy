@@ -4,6 +4,8 @@ extends Control
 const PortraitScript = preload("res://scripts/procedural_portrait.gd")
 const EquipmentIconScript = preload("res://scripts/equipment_icon.gd")
 const TransportIconScript = preload("res://scripts/transport_icon.gd")
+const EquipmentPresentationScript = preload("res://scripts/equipment_presentation.gd")
+const UILocaleRulesScript = preload("res://scripts/locale_rules.gd")
 
 const INK := Color("#f4f2ff")
 const MUTED := Color("#9da8c8")
@@ -168,9 +170,9 @@ func equipment_chip(item: Dictionary) -> PanelContainer:
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var box := chip.get_child(0) as VBoxContainer
 	box.add_child(label(slot_name(str(item.slot)).to_upper(), 11, MUTED))
-	box.add_child(label("%s  ·  +%d" % [str(item.name), int(item.power)], 13, INK))
+	box.add_child(label("%s  ·  +%d" % [EquipmentPresentationScript.localized_item_field(item, "name"), int(item.power)], 13, INK))
 	if int(item.get("integrity_upgrades", 0)) > 0:
-		box.add_child(label("REFORÇO +%d VIDA" % (int(item.integrity_upgrades) * CoreRules.INTEGRITY_HEALTH_PER_LEVEL), 10, CYAN))
+		box.add_child(label(UILocaleRulesScript.text("EQUIPMENT_INTEGRITY", "REFORÇO +%d VIDA", [int(item.integrity_upgrades) * CoreRules.INTEGRITY_HEALTH_PER_LEVEL]), 10, CYAN))
 	return chip
 
 

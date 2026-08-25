@@ -150,6 +150,18 @@ func begin_local_session(locale_id := LocaleRulesScript.DEFAULT_ID, server_id :=
 	return saved
 
 
+func set_locale(locale_id: String) -> bool:
+	if not account_session_ready() or not LocaleRulesScript.is_selectable(locale_id):
+		return false
+	account.locale_id = locale_id
+	TranslationServer.set_locale(locale_id)
+	last_notice = LocaleRulesScript.text("SETTINGS_LANGUAGE_NOTICE", "Idioma alterado para %s.", [LocaleRulesScript.locale_name_for(locale_id)])
+	last_notice_context = "settings"
+	var saved := save_game()
+	changed.emit()
+	return saved
+
+
 func select_species(species_id: String) -> bool:
 	var class_id := str(player.get("class_id", ""))
 	if not account_session_ready() or class_id.is_empty() or not ClassRules.is_valid(class_id) or not SpeciesRulesScript.is_valid(species_id):
@@ -671,10 +683,12 @@ func finish_combat(won: bool) -> void:
 			player.capture_streak = 0
 		phase = Phase.BOARD
 		if challenge_defeat:
-			last_notice = "A Fenda rejeitou a incursão. O andar permanece aberto e o embalo dos mandados foi preservado."
+			last_notice = LocaleRulesScript.text("RIFT_NOTICE_DEFEAT", "A Fenda rejeitou a incursão. O andar permanece aberto e o embalo dos mandados foi preservado.")
 			last_notice_context = "challenge_defeat"
 		else:
-			last_notice = "%s escapou. Seu equipamento precisa de argumentos melhores.%s" % [str(current_bounty.name), " Embalo ×%d perdido." % lost_streak if lost_streak > 0 else ""]
+			var escaped_name := localized_content_field("target", current_bounty, "name")
+			var streak_suffix := LocaleRulesScript.text("DEFEAT_STREAK_LOST", " Embalo ×%d perdido.", [lost_streak]) if lost_streak > 0 else ""
+			last_notice = LocaleRulesScript.text("DEFEAT_NOTICE", "%s escapou. Seu equipamento precisa de argumentos melhores.%s", [escaped_name, streak_suffix])
 			last_notice_context = "defeat"
 		current_bounty = {}
 		pending_loot = {}
@@ -709,6 +723,8 @@ func can_recycle_reward(item: Dictionary) -> bool:
 
 func localized_item_field(item: Dictionary, field: String) -> String:
 	var item_id := str(item.get("id", ""))
+	if str(item.get("challenge_origin", "")) == "fenda_clandestina":
+		return LocaleRulesScript.text("RIFT_REWARD_%s_%s" % [item_id.trim_suffix("_reward").to_upper(), field.to_upper()], str(item.get(field, "")))
 	if item_id == "starter_weapon" or item_id == "starter_armor":
 		return LocaleRulesScript.text("ITEM_%s_%s" % [item_id.to_upper(), field.to_upper()], str(item.get(field, "")))
 	var planet_id := str(item.get("origin_planet_id", ContentDB.PLANET.id))
@@ -719,6 +735,13 @@ func localized_item_field(item: Dictionary, field: String) -> String:
 			var key := "ITEM_%s_%s_%d_%s" % [planet_id.to_upper(), slot.to_upper(), index, field.to_upper()]
 			return LocaleRulesScript.text(key, str(item.get(field, "")))
 	return str(item.get(field, ""))
+
+
+func localized_content_field(prefix: String, definition: Dictionary, field: String) -> String:
+	if definition.is_empty():
+		return ""
+	var localized_prefix := "rift_stage" if prefix == "target" and bool(definition.get("challenge", false)) else prefix
+	return LocaleRulesScript.text(LocaleRulesScript.content_key(localized_prefix, str(definition.get("id", "")), field), str(definition.get(field, "")))
 
 
 func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := false) -> Dictionary:
@@ -867,7 +890,7 @@ func claim_challenge_reward(equip_item: bool, recycle_item: bool) -> Dictionary:
 		"levels": 0,
 		"scrap": 0,
 		"recycled": recycle_item,
-		"loot_name": str(item.get("name", "Recompensa da Fenda")),
+		"loot_name": localized_item_field(item, "name"),
 		"loot_action": "recycled" if recycle_item else ("equipped" if equip_item else "stored"),
 		"challenge_floor": stage_index + 1,
 	}
@@ -882,16 +905,16 @@ func claim_challenge_reward(equip_item: bool, recycle_item: bool) -> Dictionary:
 		if equip_item:
 			equip(item)
 	player.challenge_floor = stage_index + 1
-	var notice_parts := ["andar %d limpo" % (stage_index + 1), "+%d créditos" % int(summary.credits), "+%d XP" % int(summary.xp)]
+	var notice_parts := [LocaleRulesScript.text("RIFT_NOTICE_FLOOR_CLEAR", "andar %d limpo", [stage_index + 1]), LocaleRulesScript.text("RIFT_NOTICE_CREDITS", "+%d créditos", [int(summary.credits)]), "+%d XP" % int(summary.xp)]
 	if recycle_item:
-		notice_parts.append("%s reciclado: +%d sucata" % [str(summary.loot_name), int(summary.scrap)])
+		notice_parts.append(LocaleRulesScript.text("RIFT_NOTICE_RECYCLED", "%s reciclado: +%d sucata", [str(summary.loot_name), int(summary.scrap)]))
 	elif equip_item:
-		notice_parts.append("%s equipado" % str(summary.loot_name))
+		notice_parts.append(LocaleRulesScript.text("RIFT_NOTICE_EQUIPPED", "%s equipado", [str(summary.loot_name)]))
 	else:
-		notice_parts.append("%s guardado" % str(summary.loot_name))
+		notice_parts.append(LocaleRulesScript.text("RIFT_NOTICE_STORED", "%s guardado", [str(summary.loot_name)]))
 	if int(summary.levels) > 0:
-		notice_parts.append("Nível +%d" % int(summary.levels))
-	last_notice = "Fenda atualizada: " + " · ".join(notice_parts)
+		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_LEVEL", "Nível +%d", [int(summary.levels)]))
+	last_notice = LocaleRulesScript.text("RIFT_NOTICE_UPDATED", "Fenda atualizada: %s", [" · ".join(notice_parts)])
 	last_notice_context = "challenge_reward"
 	phase = Phase.BOARD
 	current_bounty = {}
@@ -912,7 +935,7 @@ func continue_after_chapter() -> void:
 	var completed_planet: Dictionary = chapter_completion.get("planet", ContentDB.PLANET)
 	phase = Phase.BOARD
 	chapter_completion = {}
-	last_notice = "%s pacificada. Contratos reabertos para melhorar equipamento e recordes." % str(completed_planet.name)
+	last_notice = LocaleRulesScript.text("CHAPTER_COMPLETE_NOTICE", "%s pacificada. Contratos reabertos para melhorar equipamento e recordes.", [localized_content_field("planet", completed_planet, "name")])
 	last_notice_context = "chapter"
 	save_game()
 	changed.emit()
@@ -1216,7 +1239,8 @@ func abandon_bounty() -> void:
 		current_bounty = {}
 		offered_approaches = []
 		hunt_event = {}
-		last_notice = "Contrato abandonado%s. O embalo foi perdido." % (" após %d capturas" % lost_streak if lost_streak > 0 else "")
+		var captures_suffix := LocaleRulesScript.text("ABANDON_CAPTURE_SUFFIX", " após %d capturas", [lost_streak]) if lost_streak > 0 else ""
+		last_notice = LocaleRulesScript.text("ABANDON_NOTICE", "Contrato abandonado%s. O embalo foi perdido.", [captures_suffix])
 		last_notice_context = "contract"
 		save_game()
 		changed.emit()
@@ -1234,7 +1258,7 @@ func reset_progress() -> void:
 	chapter_completion = {}
 	afk_report = {}
 	combat_summary = {}
-	last_notice = "Progresso reiniciado. Hora de construir uma nova reputação."
+	last_notice = LocaleRulesScript.text("RESET_NOTICE", "Progresso reiniciado. Hora de construir uma nova reputação.")
 	last_notice_context = "system"
 	save_game()
 	changed.emit()
@@ -1271,12 +1295,12 @@ func save_game() -> bool:
 	var backup_path := "%s.bak" % save_path
 	var file := FileAccess.open(staging_path, FileAccess.WRITE)
 	if file == null:
-		save_warning = "PROGRESSO AINDA NÃO SALVO · armazenamento local indisponível. Mantenha o jogo aberto e tente novamente."
+		save_warning = LocaleRulesScript.text("SAVE_WARNING_STORAGE", "PROGRESSO AINDA NÃO SALVO · armazenamento local indisponível. Mantenha o jogo aberto e tente novamente.")
 		return false
 	file.store_string(JSON.stringify(payload))
 	file.flush()
 	if file.get_error() != OK:
-		save_warning = "PROGRESSO AINDA NÃO SALVO · falha ao gravar no armazenamento local. Mantenha o jogo aberto e tente novamente."
+		save_warning = LocaleRulesScript.text("SAVE_WARNING_WRITE", "PROGRESSO AINDA NÃO SALVO · falha ao gravar no armazenamento local. Mantenha o jogo aberto e tente novamente.")
 		return false
 	file = null
 	var primary_absolute := ProjectSettings.globalize_path(save_path)
@@ -1286,12 +1310,12 @@ func save_game() -> bool:
 		if FileAccess.file_exists(backup_path):
 			DirAccess.remove_absolute(backup_absolute)
 		if DirAccess.rename_absolute(primary_absolute, backup_absolute) != OK:
-			save_warning = "PROGRESSO AINDA NÃO SALVO · não foi possível preparar a substituição segura. Mantenha o jogo aberto e tente novamente."
+			save_warning = LocaleRulesScript.text("SAVE_WARNING_PREPARE", "PROGRESSO AINDA NÃO SALVO · não foi possível preparar a substituição segura. Mantenha o jogo aberto e tente novamente.")
 			return false
 	if DirAccess.rename_absolute(staging_absolute, primary_absolute) != OK:
 		if not FileAccess.file_exists(save_path) and FileAccess.file_exists(backup_path):
 			DirAccess.rename_absolute(backup_absolute, primary_absolute)
-		save_warning = "PROGRESSO AINDA NÃO SALVO · não foi possível concluir a substituição segura. Mantenha o jogo aberto e tente novamente."
+		save_warning = LocaleRulesScript.text("SAVE_WARNING_COMMIT", "PROGRESSO AINDA NÃO SALVO · não foi possível concluir a substituição segura. Mantenha o jogo aberto e tente novamente.")
 		return false
 	# The backup mirrors the latest committed transaction. A corrupt primary can
 	# therefore never resurrect a claimed reward or paid incident from one save ago.
@@ -1323,7 +1347,7 @@ func start_fresh_after_corruption() -> bool:
 	for path in source_paths:
 		var copy_error := DirAccess.copy_absolute(ProjectSettings.globalize_path(path), ProjectSettings.globalize_path("%s%s" % [path, suffix]))
 		if copy_error != OK:
-			save_warning = "SAVE DANIFICADO PRESERVADO · não foi possível criar a cópia de segurança para iniciar novamente."
+			save_warning = LocaleRulesScript.text("SAVE_WARNING_QUARANTINE", "SAVE DANIFICADO PRESERVADO · não foi possível criar a cópia de segurança para iniciar novamente.")
 			changed.emit()
 			return false
 	for path in source_paths:
@@ -1380,7 +1404,7 @@ func load_game() -> void:
 	if parsed.is_empty():
 		if save_family_exists:
 			save_recovery_required = true
-			save_warning = "SAVE LOCAL DANIFICADO · nenhuma cópia íntegra foi encontrada. O arquivo original será preservado antes de iniciar um novo progresso."
+			save_warning = LocaleRulesScript.text("SAVE_WARNING_CORRUPT", "SAVE LOCAL DANIFICADO · nenhuma cópia íntegra foi encontrada. O arquivo original será preservado antes de iniciar um novo progresso.")
 		return
 	if recovered_from_copy and FileAccess.file_exists(save_path):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(save_path))
@@ -1482,13 +1506,13 @@ func load_game() -> void:
 		player_hp = maxi(1, player_hp)
 		enemy_hp = maxi(1, enemy_hp)
 	if recovered_from_copy:
-		last_notice = "SAVE RECUPERADO: a última cópia íntegra foi restaurada sem repetir transações."
+		last_notice = LocaleRulesScript.text("SAVE_NOTICE_RESTORED", "SAVE RECUPERADO: a última cópia íntegra foi restaurada sem repetir transações.")
 		last_notice_context = "system_recovery"
 	elif requires_migration_save:
-		last_notice = "SAVE ATUALIZADO: progresso legado preservado e registros ausentes reconstruídos."
+		last_notice = LocaleRulesScript.text("SAVE_NOTICE_MIGRATED", "SAVE ATUALIZADO: progresso legado preservado e registros ausentes reconstruídos.")
 		last_notice_context = "system_recovery"
 	elif repaired_phase:
-		last_notice = "SAVE RECUPERADO: progresso válido preservado; registros inconsistentes foram isolados."
+		last_notice = LocaleRulesScript.text("SAVE_NOTICE_REPAIRED", "SAVE RECUPERADO: progresso válido preservado; registros inconsistentes foram isolados.")
 		last_notice_context = "system_recovery"
 	if recovered_from_copy or requires_migration_save or repaired_phase:
 		save_game()

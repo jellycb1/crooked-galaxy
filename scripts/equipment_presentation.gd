@@ -8,6 +8,8 @@ const Content = preload("res://scripts/content_db.gd")
 
 static func localized_item_field(item: Dictionary, field: String) -> String:
 	var item_id := str(item.get("id", ""))
+	if str(item.get("challenge_origin", "")) == "fenda_clandestina":
+		return LocaleRules.text("RIFT_REWARD_%s_%s" % [item_id.trim_suffix("_reward").to_upper(), field.to_upper()], str(item.get(field, "")))
 	if item_id == "starter_weapon" or item_id == "starter_armor":
 		return LocaleRules.text("ITEM_%s_%s" % [item_id.to_upper(), field.to_upper()], str(item.get(field, "")))
 	var planet_id := str(item.get("origin_planet_id", Content.PLANET.id))
