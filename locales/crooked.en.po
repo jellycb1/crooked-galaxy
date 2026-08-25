@@ -2857,3 +2857,42 @@ msgstr "Training Zapper"
 
 msgid "ITEM_STARTER_ARMOR_NAME"
 msgstr "Questionable Space Jacket"
+
+msgid "GALAXY_TITLE"
+msgstr "GALACTIC MAP"
+
+msgid "ACTION_BACK"
+msgstr "BACK"
+
+msgid "GALAXY_SUBTITLE"
+msgstr "Planets are chapters. Fuel is an accounting opinion."
+
+msgid "GALAXY_STANDARD_SPEED"
+msgstr "The map calculates every route at standard bureaucratic speed."
+
+msgid "GALAXY_TRANSPORT_BONUS"
+msgstr "-%d%% from the base time of every hunt"
+
+msgid "GALAXY_OPEN_HANGAR"
+msgstr "OPEN HANGAR"
+
+msgid "GALAXY_CHAPTER_COMPLETED"
+msgstr "CHAPTER COMPLETE · %d CAPTURES"
+
+msgid "GALAXY_CURRENT_WARRANT"
+msgstr "CURRENT WARRANT: %s · %d/%d"
+
+msgid "GALAXY_ROUTE_REQUIREMENT"
+msgstr "COMPLETE %s TO OPEN THIS ROUTE"
+
+msgid "GALAXY_TRAVEL"
+msgstr "TRAVEL"
+
+msgid "GALAXY_IN_ORBIT"
+msgstr "IN ORBIT"
+
+msgid "GALAXY_LOCKED"
+msgstr "LOCKED"
+
+msgid "TRAVEL_NOTICE_ROUTE_CONFIRMED"
+msgstr "Route confirmed: %s — fuel will be explained on the invoice."

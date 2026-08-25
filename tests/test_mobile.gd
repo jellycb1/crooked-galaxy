@@ -42,6 +42,26 @@ func run_mobile_audit() -> void:
 	(scene.find_child("BoardSettingsAction", true, false) as Button).pressed.emit()
 	await process_frame
 	check(find_label_with_text(scene, "SETTINGS") != null and find_label_with_text(scene, "GAME EXPERIENCE") != null and find_label_with_text(scene, "AUDIO") != null and (scene.find_child("SoundPreferenceAction", true, false) as Button).text == "ON" and (scene.find_child("ResetProgressAction", true, false) as Button).text == "RESET LOCAL PROGRESS", "English catalog covers device preferences and the explicit local-test reset")
+	var player_before_english_galaxy: Dictionary = state.player.duplicate(true)
+	state.player.completed_planets = ["dustball_prime"]
+	state.player.captures_by_planet = {"dustball_prime": 7}
+	state.player.captures_by_target = {"mirage_moxie": 1}
+	scene.view_mode = "galaxy"
+	scene.render()
+	await process_frame
+	check(find_label_with_text(scene, "GALACTIC MAP") != null and find_label_with_text(scene, "Planets are chapters. Fuel is an accounting opinion.") != null and find_label_with_text(scene, "IN TRANSIT · LICENSED FLYING JUNKBOX") != null and find_label_with_text(scene, "-10% from the base time of every hunt") != null and (scene.find_child("GalaxyHangarAction", true, false) as Button).text == "OPEN HANGAR", "English galaxy header covers navigation and active transport timing")
+	check(find_label_with_text(scene, "DUSTBALL PRIME") != null and find_label_with_text(scene, "FREEZERIA INC.") != null and find_label_with_text(scene, "MYCELIA 404") != null and find_label_with_text(scene, "CHAPTER COMPLETE · 7 CAPTURES") != null and find_label_with_text(scene, "IN ORBIT") != null and find_label_with_text(scene, "LOCKED") != null, "English galaxy cards cover localized planet identity, chapter progress, and route state")
+	var travel_action := scene.find_child("GalaxyTravel_congelaria_sa", true, false) as Button
+	check(travel_action != null and travel_action.text == "TRAVEL", "English galaxy exposes the next unlocked route as a localized action")
+	if travel_action != null:
+		travel_action.pressed.emit()
+	await process_frame
+	var expected_travel_notice := "Route confirmed: Freezeria Inc. — fuel will be explained on the invoice."
+	check(state.last_notice == expected_travel_notice, "English travel transaction localizes the canonical planet identity (received: %s)" % state.last_notice)
+	check(find_label_with_text(scene, expected_travel_notice) != null, "English travel receipt remains visible after returning to the board")
+	state.player = player_before_english_galaxy
+	state.last_notice = ""
+	state.last_notice_context = ""
 	var player_before_english_hunter: Dictionary = state.player.duplicate(true)
 	state.player.class_id = "orbit_gunslinger"
 	state.player.species_id = "nebular_nomad"

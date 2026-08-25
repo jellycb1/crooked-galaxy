@@ -2857,3 +2857,42 @@ msgstr "Zapper de Treino"
 
 msgid "ITEM_STARTER_ARMOR_NAME"
 msgstr "Jaqueta Espacial Duvidosa"
+
+msgid "GALAXY_TITLE"
+msgstr "MAPA GALÁCTICO"
+
+msgid "ACTION_BACK"
+msgstr "VOLTAR"
+
+msgid "GALAXY_SUBTITLE"
+msgstr "Planetas são capítulos. Combustível é uma opinião contábil."
+
+msgid "GALAXY_STANDARD_SPEED"
+msgstr "O mapa calcula cada rota na velocidade burocrática padrão."
+
+msgid "GALAXY_TRANSPORT_BONUS"
+msgstr "-%d%% no tempo-base de todas as caçadas"
+
+msgid "GALAXY_OPEN_HANGAR"
+msgstr "ABRIR HANGAR"
+
+msgid "GALAXY_CHAPTER_COMPLETED"
+msgstr "CAPÍTULO CONCLUÍDO · %d CAPTURAS"
+
+msgid "GALAXY_CURRENT_WARRANT"
+msgstr "MANDADO ATUAL: %s · %d/%d"
+
+msgid "GALAXY_ROUTE_REQUIREMENT"
+msgstr "CONCLUA %s PARA ABRIR A ROTA"
+
+msgid "GALAXY_TRAVEL"
+msgstr "VIAJAR"
+
+msgid "GALAXY_IN_ORBIT"
+msgstr "EM ÓRBITA"
+
+msgid "GALAXY_LOCKED"
+msgstr "BLOQUEADO"
+
+msgid "TRAVEL_NOTICE_ROUTE_CONFIRMED"
+msgstr "Rota confirmada: %s — o combustível será explicado na fatura."

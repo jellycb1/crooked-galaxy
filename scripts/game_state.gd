@@ -252,7 +252,8 @@ func travel_to_planet(planet_id: String) -> bool:
 		return false
 	var planet := ContentDB.get_planet(planet_id)
 	player.current_planet_id = str(planet.id)
-	last_notice = "Rota confirmada: %s. O combustível será explicado na fatura." % str(planet.name)
+	var planet_name := LocaleRulesScript.text(LocaleRulesScript.content_key("planet", str(planet.id), "name"), str(planet.name))
+	last_notice = LocaleRulesScript.text("TRAVEL_NOTICE_ROUTE_CONFIRMED", "Rota confirmada: %s — o combustível será explicado na fatura.", [planet_name])
 	last_notice_context = "travel"
 	save_game()
 	changed.emit()

@@ -955,9 +955,9 @@ func build_galaxy_map() -> void:
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(copy)
-	copy.add_child(label("MAPA GALÁCTICO", 27, INK))
-	copy.add_child(label("Planetas são capítulos. Combustível é uma opinião contábil.", 14, MUTED))
-	var back := action_button("VOLTAR", CYAN, true)
+	copy.add_child(label(t("GALAXY_TITLE", "MAPA GALÁCTICO"), 27, INK))
+	copy.add_child(label(t("GALAXY_SUBTITLE", "Planetas são capítulos. Combustível é uma opinião contábil."), 14, MUTED))
+	var back := action_button(t("ACTION_BACK", "VOLTAR"), CYAN, true)
 	back.custom_minimum_size = Vector2(120, 48)
 	back.pressed.connect(func():
 		view_mode = "board"
@@ -972,16 +972,16 @@ func build_galaxy_map() -> void:
 	var transport_copy := VBoxContainer.new()
 	transport_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if active_transport.is_empty():
-		transport_copy.add_child(label("SEM TRANSPORTE ATIVO", 13, GOLD))
-		transport_copy.add_child(label("O mapa calcula cada rota na velocidade burocrática padrão.", 11, MUTED))
+		transport_copy.add_child(label(t("MENU_NO_TRANSPORT", "SEM TRANSPORTE ATIVO"), 13, GOLD))
+		transport_copy.add_child(label(t("GALAXY_STANDARD_SPEED", "O mapa calcula cada rota na velocidade burocrática padrão."), 11, MUTED))
 	else:
 		var map_icon := transport_icon(active_transport, 54)
 		map_icon.name = "GalaxyTransportIcon"
 		transport_row.add_child(map_icon)
-		transport_copy.add_child(label("EM TRÂNSITO · %s" % str(active_transport.name), 13, Color(str(active_transport.color))))
-		transport_copy.add_child(label("-%d%% no tempo-base de todas as caçadas" % roundi(float(active_transport.speed_bonus) * 100.0), 11, LIME))
+		transport_copy.add_child(label(t("MENU_IN_TRANSIT", "EM TRÂNSITO · %s", [localized_content_field("transport", active_transport, "name").to_upper()]), 13, Color(str(active_transport.color))))
+		transport_copy.add_child(label(t("GALAXY_TRANSPORT_BONUS", "-%d%% no tempo-base de todas as caçadas", [roundi(float(active_transport.speed_bonus) * 100.0)]), 11, LIME))
 	transport_row.add_child(transport_copy)
-	var open_hangar := action_button("ABRIR HANGAR", CYAN, true)
+	var open_hangar := action_button(t("GALAXY_OPEN_HANGAR", "ABRIR HANGAR"), CYAN, true)
 	open_hangar.name = "GalaxyHangarAction"
 	open_hangar.custom_minimum_size = Vector2(118, 48)
 	open_hangar.add_theme_font_size_override("font_size", 10)
@@ -1032,17 +1032,17 @@ func planet_card(planet: Dictionary) -> PanelContainer:
 	var names := VBoxContainer.new()
 	names.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_child(names)
-	names.add_child(label(str(planet.name).to_upper(), 19, accent if unlocked else MUTED))
-	var context_text := str(planet.subtitle)
+	names.add_child(label(localized_content_field("planet", planet, "name").to_upper(), 19, accent if unlocked else MUTED))
+	var context_text := localized_content_field("planet", planet, "subtitle")
 	var context_color := MUTED
 	if unlocked:
-		var progress_text := "CAPÍTULO CONCLUÍDO · %d CAPTURAS" % GameState.planet_capture_count(planet_id)
+		var progress_text := t("GALAXY_CHAPTER_COMPLETED", "CAPÍTULO CONCLUÍDO · %d CAPTURAS", [GameState.planet_capture_count(planet_id)])
 		if not completed:
 			var tier := GameState.planet_tier(planet_id)
 			var target := ContentDB.target_for_planet_tier(planet_id, tier)
 			var required := 1 if tier == 3 else 3
 			var target_captures := int(GameState.player.get("captures_by_target", {}).get(str(target.id), 0))
-			progress_text = "MANDADO ATUAL: %s · %d/%d" % [str(target.name).to_upper(), target_captures, required]
+			progress_text = t("GALAXY_CURRENT_WARRANT", "MANDADO ATUAL: %s · %d/%d", [localized_content_field("target", target, "name").to_upper(), target_captures, required])
 		context_text = progress_text
 		context_color = LIME if completed else GOLD
 		var progress := label(context_text, 11, context_color)
@@ -1051,22 +1051,23 @@ func planet_card(planet: Dictionary) -> PanelContainer:
 		names.add_child(progress)
 	else:
 		var requirement := ContentDB.get_planet(str(planet.get("unlock_after", ContentDB.PLANET.id)))
-		context_text = "CONCLUA %s PARA ABRIR A ROTA" % str(requirement.name).to_upper()
+		context_text = t("GALAXY_ROUTE_REQUIREMENT", "CONCLUA %s PARA ABRIR A ROTA", [localized_content_field("planet", requirement, "name").to_upper()])
 		var requirement_label := label(context_text, 11, MUTED)
 		requirement_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		names.add_child(requirement_label)
 	if unlocked and not current:
-		var travel := action_button("VIAJAR", accent)
+		var travel := action_button(t("GALAXY_TRAVEL", "VIAJAR"), accent)
 		travel.name = "GalaxyTravel_%s" % planet_id
 		travel.custom_minimum_size = Vector2(94, 48)
 		travel.add_theme_font_size_override("font_size", 11)
 		travel.pressed.connect(func():
 			view_mode = "board"
+			board_section = "bounties"
 			GameState.travel_to_planet(planet_id)
 		)
 		heading.add_child(travel)
 	else:
-		var route_status := "EM ÓRBITA" if current else "BLOQUEADO"
+		var route_status := t("GALAXY_IN_ORBIT", "EM ÓRBITA") if current else t("GALAXY_LOCKED", "BLOQUEADO")
 		var status := label(route_status, 11, LIME if current else CORAL, HORIZONTAL_ALIGNMENT_RIGHT)
 		status.custom_minimum_size = Vector2(82, 0)
 		status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER

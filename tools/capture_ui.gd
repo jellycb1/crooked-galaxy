@@ -121,6 +121,18 @@ func capture() -> void:
 	if save_frame("ui_settings_en.png") != OK:
 		quit(1)
 		return
+	state.player.completed_planets = ["dustball_prime"]
+	state.player.captures_by_planet = {"dustball_prime": 7}
+	state.player.captures_by_target = {"mirage_moxie": 1}
+	state.player.owned_transport_ids = ["licensed_junkbox"]
+	state.player.active_transport_id = "licensed_junkbox"
+	scene.view_mode = "galaxy"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_galaxy_en.png") != OK:
+		quit(1)
+		return
 	state.player.class_id = "orbit_gunslinger"
 	state.player.species_id = "nebular_nomad"
 	state.player.hunter_name = "Nova"
