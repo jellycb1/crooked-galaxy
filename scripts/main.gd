@@ -596,6 +596,25 @@ func localized_content_field(prefix: String, definition: Dictionary, field: Stri
 	return t(LocaleRulesScript.content_key(prefix, str(definition.get("id", "")), field), raw)
 
 
+func localized_approach_name(approach_id: String, fallback: String = "CONTRATO BASE") -> String:
+	for approach in ContentDB.contract_approaches():
+		if str(approach.id) == approach_id:
+			return localized_content_field("approach", approach, "name")
+	return t("CONTRACT_BASE", fallback)
+
+
+func localized_risk(odds: float) -> String:
+	return t("RISK_SAFE", "SEGURO") if odds >= 0.72 else (t("RISK_RISKY", "ARRISCADO") if odds >= 0.42 else t("RISK_BRUTAL", "BRUTAL"))
+
+
+func localized_recommendation(approach_id: String) -> String:
+	var class_id := str(GameState.player.get("class_id", ""))
+	var definition := ClassRulesScript.get_definition(class_id)
+	if definition.is_empty() or str(definition.get("preferred_approach", "")) != approach_id:
+		return t("BRIEFING_BEST_BALANCE", "MELHOR EQUILÍBRIO")
+	return t("BRIEFING_SYNERGY", "SINERGIA · %s", [ClassRulesScript.class_name_for(class_id)])
+
+
 func build_board() -> void:
 	if board_section == "destinations":
 		build_frontier_menu()
@@ -607,8 +626,8 @@ func build_board() -> void:
 	var title_box := VBoxContainer.new()
 	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title_box)
-	title_box.add_child(label("QUADRO DE PROCURADOS", 24, INK))
-	var subtitle := label(str(planet.subtitle), 15, MUTED)
+	title_box.add_child(label(t("BOARD_TITLE", "QUADRO DE PROCURADOS"), 24, INK))
+	var subtitle := label(localized_content_field("planet", planet, "subtitle"), 15, MUTED)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title_box.add_child(subtitle)
 	var xp_needed := CoreRules.xp_needed(int(GameState.player.level))
@@ -722,7 +741,7 @@ func build_board_bounties() -> void:
 	var streak_started_inside_receipt := streak == 1 and GameState.last_notice_context.begins_with("reward_")
 	if streak > 0 and not streak_started_inside_receipt:
 		var next_reward := CoreRules.bounty_streak_reward(100, streak + 1)
-		var streak_notice := notice_banner("EMBALO ×%d · próximo contrato recebe +%d%% de créditos · derrota ou abandono encerra a sequência" % [streak, int(next_reward.bonus_percent)], GOLD)
+		var streak_notice := notice_banner(t("BOARD_STREAK", "EMBALO ×%d · próximo contrato recebe +%d%% de créditos · derrota ou abandono encerra a sequência", [streak, int(next_reward.bonus_percent)]), GOLD)
 		streak_notice.name = "StreakNotice"
 		content.add_child(streak_notice)
 	content.add_child(rank_progress_panel())
@@ -743,7 +762,7 @@ func build_board_bounties() -> void:
 	)
 	if board_bounties.size() > 1:
 		var has_primary := board_bounties.any(func(bounty): return str(bounty.get("board_role", "")) == "primary")
-		var hint_text := "MANDADO PRINCIPAL EM DESTAQUE · ROTAS DE PERÍCIA CONTINUAM DISPONÍVEIS" if has_primary else "SETOR PACIFICADO · ESCOLHA UMA ROTA DE PERÍCIA"
+		var hint_text := t("BOARD_PRIMARY_HINT", "MANDADO PRINCIPAL EM DESTAQUE · ROTAS DE PERÍCIA CONTINUAM DISPONÍVEIS") if has_primary else t("BOARD_PACIFIED_HINT", "SETOR PACIFICADO · ESCOLHA UMA ROTA DE PERÍCIA")
 		var choice_hint := label(hint_text, 11, MUTED)
 		choice_hint.name = "BoardChoiceHint"
 		choice_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -853,17 +872,17 @@ func rank_progress_panel() -> PanelContainer:
 		for target in ContentDB.TARGETS:
 			if str(target.get("planet_id", "")) == str(planet.id) and bool(target.get("boss", false)):
 				has_boss = true
-		var left_text := "RANK MÁXIMO DE %s" % str(planet.name).to_upper() if planet_complete else ("ALVO-CHEFE DISPONÍVEL" if has_boss else "FRONTEIRA RECÉM-ABERTA")
-		var right_text := "SETOR DOMINADO" if planet_complete else ("EXECUTE O MANDADO FINAL" if has_boss else "NOVOS MANDADOS EM BREVE")
+		var left_text := t("BOARD_MAX_RANK", "RANK MÁXIMO DE %s", [localized_content_field("planet", planet, "name").to_upper()]) if planet_complete else (t("BOARD_BOSS_AVAILABLE", "ALVO-CHEFE DISPONÍVEL") if has_boss else t("BOARD_NEW_FRONTIER", "FRONTEIRA RECÉM-ABERTA"))
+		var right_text := t("BOARD_SECTOR_DOMINATED", "SETOR DOMINADO") if planet_complete else (t("BOARD_EXECUTE_FINAL", "EXECUTE O MANDADO FINAL") if has_boss else t("BOARD_NEW_WARRANTS_SOON", "NOVOS MANDADOS EM BREVE"))
 		row.add_child(label(left_text, 12, LIME if planet_complete or not has_boss else CORAL))
 		var complete := label(right_text, 12, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
 		complete.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(complete)
 		return card
 	var progress_value := int(warrant_progress.progress)
-	row.add_child(label("PRÓXIMO ALVO: %s" % str(next_target.name).to_upper(), 12, MUTED))
+	row.add_child(label(t("BOARD_NEXT_TARGET", "PRÓXIMO ALVO: %s", [localized_content_field("target", next_target, "name").to_upper()]), 12, MUTED))
 	var prerequisite: Dictionary = warrant_progress.prerequisite
-	var count := label("%d / 3 · %s" % [progress_value, str(prerequisite.name).to_upper()], 12, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
+	var count := label("%d / 3 · %s" % [progress_value, localized_content_field("target", prerequisite, "name").to_upper()], 12, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
 	count.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(count)
 	var progress := ProgressBar.new()
@@ -1036,12 +1055,12 @@ func onboarding_banner() -> PanelContainer:
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	copy.add_child(label("DEFINA SEU ESTILO" if class_pending else "PRIMEIRO TRABALHO", 14, GOLD if class_pending else CYAN))
-	var message := label("Escolha como seu caçador prefere resolver contratos. A troca continua gratuita durante os testes." if class_pending else "Aceite Gloop. A primeira captura ensina o ciclo e garante seu primeiro loot.", 12 if class_pending else 14, INK)
+	copy.add_child(label(t("BOARD_DEFINE_STYLE", "DEFINA SEU ESTILO") if class_pending else t("BOARD_FIRST_JOB", "PRIMEIRO TRABALHO"), 14, GOLD if class_pending else CYAN))
+	var message := label(t("BOARD_DEFINE_STYLE_DESCRIPTION", "Escolha como seu caçador prefere resolver contratos. A troca continua gratuita durante os testes.") if class_pending else t("BOARD_FIRST_JOB_DESCRIPTION", "Aceite Gloop. A primeira captura ensina o ciclo e garante seu primeiro loot."), 12 if class_pending else 14, INK)
 	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(message)
 	if class_pending:
-		var choose_class := action_button("ESCOLHER\nCLASSE", GOLD, true)
+		var choose_class := action_button(t("BOARD_CHOOSE_CLASS", "ESCOLHER\nCLASSE"), GOLD, true)
 		choose_class.name = "OnboardingClassAction"
 		choose_class.custom_minimum_size = Vector2(112, 48)
 		choose_class.add_theme_font_size_override("font_size", 10)
@@ -1208,30 +1227,40 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(details)
 	var board_reason := str(bounty.get("board_reason", ""))
+	var is_primary := str(bounty.get("board_role", "")) == "primary"
+	var is_repeat := str(bounty.get("board_role", "")) == "repeat"
+	if is_primary:
+		board_reason = t("BOARD_FINAL_WARRANT", "MANDADO FINAL") if bool(bounty.get("boss", false)) else t("BOARD_PRIMARY_WARRANT", "MANDADO PRINCIPAL")
+	elif is_repeat:
+		var repeat_captures := int(GameState.player.get("captures_by_target", {}).get(str(bounty.id), 0))
+		var repeat_mastery := CoreRules.target_mastery_level(repeat_captures)
+		var repeat_next := CoreRules.target_mastery_next_requirement(repeat_mastery)
+		board_reason = t("BOARD_RECURRING_MAX", "CONTRATO RECORRENTE · PERÍCIA MÁX.") if repeat_next < 0 else t("BOARD_MASTERY_ROUTE", "ROTA DE PERÍCIA · FALTAM %d", [maxi(0, repeat_next - repeat_captures)])
 	if not board_reason.is_empty():
 		var role_color := CORAL if str(bounty.get("board_role", "")) == "primary" else CYAN
 		var role := label(board_reason, 12, role_color)
 		role.name = "BountyRole_%s" % str(bounty.id)
 		details.add_child(role)
 	elif bool(bounty.get("boss", false)):
-		details.add_child(label("CHEFE DO CAPÍTULO", 12, GOLD))
-	details.add_child(label(str(bounty.name), 21, GOLD if bool(bounty.get("boss", false)) else INK))
-	details.add_child(label(str(bounty.title), 14, CORAL))
+		details.add_child(label(t("BOARD_CHAPTER_BOSS", "CHEFE DO CAPÍTULO"), 12, GOLD))
+	details.add_child(label(localized_content_field("target", bounty, "name"), 21, GOLD if bool(bounty.get("boss", false)) else INK))
+	details.add_child(label(localized_content_field("target", bounty, "title"), 14, CORAL))
 	var captures: Dictionary = GameState.player.get("captures_by_target", {})
 	var capture_count := int(captures.get(str(bounty.id), 0))
 	var mastery_level := CoreRules.target_mastery_level(capture_count)
 	if capture_count > 0:
 		var next_requirement := CoreRules.target_mastery_next_requirement(mastery_level)
-		var mastery_progress := "MÁX." if next_requirement < 0 else "%d/%d" % [capture_count, next_requirement]
-		var mastery_label := label("CAPTURAS %d · PERÍCIA %d/3 · %s" % [capture_count, mastery_level, mastery_progress], 11, LIME)
+		var mastery_progress := t("COMMON_MAX", "MÁX.") if next_requirement < 0 else "%d/%d" % [capture_count, next_requirement]
+		var mastery_label := label(t("BOARD_MASTERY_PROGRESS", "CAPTURAS %d · PERÍCIA %d/3 · %s", [capture_count, mastery_level, mastery_progress]), 11, LIME)
 		mastery_label.name = "BountyMastery_%s" % str(bounty.id)
 		details.add_child(mastery_label)
 	var mastery_objective := CareerRulesScript.next_mastery_objective(GameState.player, ContentDB.TARGETS)
 	if not mastery_objective.is_empty() and str(mastery_objective.target.id) == str(bounty.id):
-		var route_label := label("ROTA DE PERÍCIA · FALTAM %d CAPTURA%s" % [int(mastery_objective.remaining), "S" if int(mastery_objective.remaining) != 1 else ""], 11, GOLD)
+		var remaining_captures := int(mastery_objective.remaining)
+		var route_label := label(t("BOARD_MASTERY_CAPTURES_PLURAL", "ROTA DE PERÍCIA · FALTAM %d CAPTURAS", [remaining_captures]) if remaining_captures != 1 else t("BOARD_MASTERY_CAPTURE_SINGULAR", "ROTA DE PERÍCIA · FALTA 1 CAPTURA"), 11, GOLD)
 		route_label.name = "MasteryRoute_%s" % str(bounty.id)
 		details.add_child(route_label)
-	var description := label(str(bounty.description), 14, MUTED)
+	var description := label(localized_content_field("target", bounty, "description"), 14, MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	details.add_child(description)
 
@@ -1241,14 +1270,13 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 	footer.add_theme_constant_override("separation", 10)
 	box.add_child(footer)
 	var hunt_duration := TransportRulesScript.effective_hunt_duration(GameState.player, float(bounty.duration))
-	footer.add_child(label("◈ %d%s   ✦ %d XP   %ds" % [int(payout.credits), " +EMBALO" if int(payout.bonus_credits) > 0 else "", int(bounty.xp), ceili(hunt_duration)], 15, GOLD))
-	var risk_text := "SEGURO" if odds >= 0.72 else ("ARRISCADO" if odds >= 0.42 else "BRUTAL")
+	footer.add_child(label("◈ %d%s   ✦ %d XP   %ds" % [int(payout.credits), t("BOARD_STREAK_SUFFIX", " +EMBALO") if int(payout.bonus_credits) > 0 else "", int(bounty.xp), ceili(hunt_duration)], 15, GOLD))
+	var risk_text := localized_risk(odds)
 	var risk_color := LIME if odds >= 0.72 else (GOLD if odds >= 0.42 else CORAL)
 	var risk := label("%s · %d%%" % [risk_text, roundi(odds * 100.0)], 14, risk_color, HORIZONTAL_ALIGNMENT_RIGHT)
 	risk.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.add_child(risk)
-	var is_repeat := str(bounty.get("board_role", "")) == "repeat"
-	var hunt := action_button("REPETIR CAÇADA" if is_repeat else "ANALISAR ABORDAGENS", GOLD if is_repeat else CYAN)
+	var hunt := action_button(t("BOARD_REPEAT_HUNT", "REPETIR CAÇADA") if is_repeat else t("BOARD_ANALYZE_APPROACHES", "ANALISAR ABORDAGENS"), GOLD if is_repeat else CYAN)
 	hunt.name = "BountyAction_%s" % str(bounty.id)
 	hunt.pressed.connect(func():
 		briefing_context = {}
@@ -1275,27 +1303,28 @@ func build_briefing() -> void:
 		var briefing_transport := transport_icon(active_transport, 46)
 		briefing_transport.name = "BriefingTransportIcon"
 		target_row.add_child(briefing_transport)
-	target_copy.add_child(label("BRIEFING DO CONTRATO", 15, CYAN))
-	target_copy.add_child(label(str(bounty.name), 26, INK))
+	target_copy.add_child(label(t("BRIEFING_TITLE", "BRIEFING DO CONTRATO"), 15, CYAN))
+	target_copy.add_child(label(localized_content_field("target", bounty, "name"), 26, INK))
 	if str(briefing_context.get("target_id", "")) == str(bounty.id) and str(briefing_context.get("approach_id", "")) == recommended_id:
-		var tested_context := label("BUILD TESTADA · %s · %d%% · RECOMENDAÇÃO CONFIRMADA" % [str(briefing_context.get("approach_name", "CONTRATO BASE")).to_upper(), roundi(float(briefing_context.get("odds", 0.0)) * 100.0)], 11, LIME)
+		var tested_context := label(t("BRIEFING_TESTED_BUILD", "BUILD TESTADA · %s · %d%% · RECOMENDAÇÃO CONFIRMADA", [localized_approach_name(str(briefing_context.get("approach_id", "")), str(briefing_context.get("approach_name", "CONTRATO BASE"))).to_upper(), roundi(float(briefing_context.get("odds", 0.0)) * 100.0)]), 11, LIME)
 		tested_context.name = "BriefingFieldTestContext"
 		target_copy.add_child(tested_context)
 	var kit_origin := CoreRules.equipment_set_origin(GameState.player)
 	if not kit_origin.is_empty():
-		target_copy.add_child(label("KIT PLANETÁRIO · %s · +%d PODER · +%d VIDA" % [str(ContentDB.get_planet(kit_origin).name).to_upper(), CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS], 12, GOLD))
+		var kit_planet := ContentDB.get_planet(kit_origin)
+		target_copy.add_child(label(t("BRIEFING_PLANETARY_KIT", "KIT PLANETÁRIO · %s · +%d PODER · +%d VIDA", [localized_content_field("planet", kit_planet, "name").to_upper(), CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS]), 12, GOLD))
 	var target_captures := int(GameState.player.get("captures_by_target", {}).get(str(bounty.id), 0))
 	var target_mastery := CoreRules.target_mastery_level(target_captures)
 	if target_mastery > 0:
-		var mastery_label := label("PERÍCIA %d/3 · +%d%% RARO · +%d%% ÉPICO" % [target_mastery, target_mastery * 5, target_mastery * 2], 12, LIME)
+		var mastery_label := label(t("BRIEFING_MASTERY", "PERÍCIA %d/3 · +%d%% RARO · +%d%% ÉPICO", [target_mastery, target_mastery * 5, target_mastery * 2]), 12, LIME)
 		mastery_label.name = "BriefingMastery"
 		target_copy.add_child(mastery_label)
-	var flavor := label("O alvo é o mesmo. A quantidade de problemas é uma escolha sua.", 14, MUTED)
+	var flavor := label(t("BRIEFING_FLAVOR", "O alvo é o mesmo. A quantidade de problemas é uma escolha sua."), 14, MUTED)
 	flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	target_copy.add_child(flavor)
 
-	content.add_child(label("COMPARE E ESCOLHA A ROTA", 17, GOLD))
-	var recommendation_hint := label("BUILD mostra sua chance atual; RECOMENDADO equilibra risco, retorno e tempo.", 11, MUTED)
+	content.add_child(label(t("BRIEFING_COMPARE", "COMPARE E ESCOLHA A ROTA"), 17, GOLD))
+	var recommendation_hint := label(t("BRIEFING_HINT", "BUILD mostra sua chance atual; RECOMENDADO equilibra risco, retorno e tempo."), 11, MUTED)
 	recommendation_hint.name = "BriefingRecommendationHint"
 	recommendation_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content.add_child(recommendation_hint)
@@ -1309,7 +1338,7 @@ func build_briefing() -> void:
 	scroller.add_child(list)
 	for index in GameState.offered_approaches.size():
 		list.add_child(approach_card(GameState.offered_approaches[index], evaluations[index], recommended_id))
-	var cancel := action_button("VOLTAR AO QUADRO", CORAL, true)
+	var cancel := action_button(t("BRIEFING_BACK", "VOLTAR AO QUADRO"), CORAL, true)
 	cancel.name = "BriefingCancel"
 	cancel.custom_minimum_size = Vector2(0, 48)
 	cancel.pressed.connect(func():
@@ -1341,29 +1370,30 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 	box.add_theme_constant_override("separation", 5)
 	var heading := HBoxContainer.new()
 	box.add_child(heading)
-	var route_name := label(str(approach.name).to_upper(), 16, color)
+	var translated_name := localized_content_field("approach", approach, "name")
+	var route_name := label(translated_name.to_upper(), 16, color)
 	route_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_child(route_name)
 	if is_recommended:
-		var recommendation := label(ContractRules.recommendation_label(GameState.player, str(approach.id)), 9, LIME, HORIZONTAL_ALIGNMENT_RIGHT)
+		var recommendation := label(localized_recommendation(str(approach.id)), 9, LIME, HORIZONTAL_ALIGNMENT_RIGHT)
 		recommendation.name = "RecommendedApproach_%s" % str(approach.id)
 		heading.add_child(recommendation)
 	var odds := float(evaluation.odds)
-	var risk_text := "SEGURO" if odds >= 0.72 else ("ARRISCADO" if odds >= 0.42 else "BRUTAL")
+	var risk_text := localized_risk(odds)
 	var risk_color := LIME if odds >= 0.72 else (GOLD if odds >= 0.42 else CORAL)
-	var route_summary := label("%s · RISCO %s" % [str(approach.tag), risk_text], 11, risk_color)
+	var route_summary := label(t("BRIEFING_RISK_SUMMARY", "%s · RISCO %s", [localized_content_field("approach", approach, "tag"), risk_text]), 11, risk_color)
 	route_summary.name = "ApproachBuildRisk_%s" % str(approach.id)
 	box.add_child(route_summary)
-	var description := label(str(approach.description), 11, INK)
+	var description := label(localized_content_field("approach", approach, "description"), 11, INK)
 	description.name = "ApproachDescription_%s" % str(approach.id)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(description)
 	var benefits: Array[String] = []
 	if int(evaluation.get("streak_bonus", 0)) > 0:
-		benefits.append("EMBALO +%d%% INCLUÍDO" % int(evaluation.streak_bonus_percent))
+		benefits.append(t("BRIEFING_STREAK_INCLUDED", "EMBALO +%d%% INCLUÍDO", [int(evaluation.streak_bonus_percent)]))
 	var scrap_reward := int(preview.get("scrap_reward", 0))
 	if scrap_reward > 0:
-		benefits.append("+%d SUCATA NA VITÓRIA" % scrap_reward)
+		benefits.append(t("BRIEFING_SCRAP_REWARD", "+%d SUCATA NA VITÓRIA", [scrap_reward]))
 	if not benefits.is_empty():
 		var bonus_summary := label(" · ".join(benefits), 10, GOLD if scrap_reward > 0 else CYAN)
 		bonus_summary.name = "ApproachBonusSummary_%s" % str(approach.id)
@@ -1372,11 +1402,11 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 	metrics.add_theme_constant_override("separation", 8)
 	box.add_child(metrics)
 	var hunt_duration := TransportRulesScript.effective_hunt_duration(GameState.player, float(preview.duration))
-	metrics.add_child(briefing_metric_chip("TEMPO", "%ds" % ceili(hunt_duration), MUTED, "ApproachTime_%s" % str(approach.id)))
-	metrics.add_child(briefing_metric_chip("BUILD", "%d%%" % roundi(odds * 100.0), risk_color, "ApproachBuild_%s" % str(approach.id)))
-	metrics.add_child(briefing_metric_chip("CRÉDITOS", "◈ %d" % int(evaluation.credits), GOLD, "ApproachCredits_%s" % str(approach.id)))
+	metrics.add_child(briefing_metric_chip(t("BRIEFING_TIME", "TEMPO"), "%ds" % ceili(hunt_duration), MUTED, "ApproachTime_%s" % str(approach.id)))
+	metrics.add_child(briefing_metric_chip(t("BRIEFING_BUILD", "BUILD"), "%d%%" % roundi(odds * 100.0), risk_color, "ApproachBuild_%s" % str(approach.id)))
+	metrics.add_child(briefing_metric_chip(t("COMMON_CREDITS", "CRÉDITOS"), "◈ %d" % int(evaluation.credits), GOLD, "ApproachCredits_%s" % str(approach.id)))
 	metrics.add_child(briefing_metric_chip("XP", str(int(preview.xp)), CYAN, "ApproachXp_%s" % str(approach.id)))
-	var choose := action_button("ESCOLHER · %s" % str(approach.name).to_upper(), color)
+	var choose := action_button(t("BRIEFING_CHOOSE", "ESCOLHER · %s", [translated_name.to_upper()]), color)
 	choose.custom_minimum_size = Vector2(0, 48)
 	choose.add_theme_font_size_override("font_size", 13)
 	var approach_id := str(approach.id)
@@ -1406,10 +1436,12 @@ func field_test_record_label(node_name: String) -> Label:
 	var context: Dictionary = GameState.current_bounty.get("field_test_context", {})
 	if context.is_empty():
 		return null
-	var text_value := "TESTE DE CAMPO CONFIRMADO · %s · %d%%" % [str(context.tested_approach_name).to_upper(), roundi(float(context.tested_odds) * 100.0)]
+	var tested_name := localized_approach_name(str(context.get("tested_approach_id", "")), str(context.get("tested_approach_name", "CONTRATO BASE"))).to_upper()
+	var chosen_name := localized_approach_name(str(context.get("chosen_approach_id", "")), str(context.get("chosen_approach_name", "CONTRATO BASE"))).to_upper()
+	var text_value := t("HUNT_FIELD_TEST_CONFIRMED", "TESTE DE CAMPO CONFIRMADO · %s · %d%%", [tested_name, roundi(float(context.tested_odds) * 100.0)])
 	var text_color := LIME
 	if bool(context.overridden):
-		text_value = "ROTA TESTADA SUBSTITUÍDA · %s %d%% → %s" % [str(context.tested_approach_name).to_upper(), roundi(float(context.tested_odds) * 100.0), str(context.chosen_approach_name).to_upper()]
+		text_value = t("HUNT_FIELD_TEST_OVERRIDDEN", "ROTA TESTADA SUBSTITUÍDA · %s %d%% → %s", [tested_name, roundi(float(context.tested_odds) * 100.0), chosen_name])
 		text_color = GOLD
 	var result := center_label(text_value, 13, text_color)
 	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -1420,12 +1452,12 @@ func field_test_record_label(node_name: String) -> Label:
 func build_hunt() -> void:
 	var bounty := GameState.current_bounty
 	content.add_spacer(false)
-	content.add_child(center_label("CAÇADA EM ANDAMENTO", 19, CYAN))
+	content.add_child(center_label(t("HUNT_TITLE", "CAÇADA EM ANDAMENTO"), 19, CYAN))
 	content.add_child(character_portrait(str(bounty.id), 150))
-	content.add_child(center_label(str(bounty.name), 30, INK))
+	content.add_child(center_label(localized_content_field("target", bounty, "name"), 30, INK))
 	var approach: Dictionary = bounty.get("approach", {})
 	if not approach.is_empty():
-		content.add_child(center_label(str(approach.name).to_upper(), 16, Color(str(approach.color))))
+		content.add_child(center_label(localized_content_field("approach", approach, "name").to_upper(), 16, Color(str(approach.color))))
 	var transport := TransportRulesScript.active_transport(GameState.player)
 	if not transport.is_empty():
 		var transport_row := HBoxContainer.new()
@@ -1435,12 +1467,12 @@ func build_hunt() -> void:
 		var hunt_transport := transport_icon(transport, 46)
 		hunt_transport.name = "HuntTransportIcon"
 		transport_row.add_child(hunt_transport)
-		transport_row.add_child(label("%s · -%d%% TEMPO" % [str(transport.name), roundi(float(transport.speed_bonus) * 100.0)], 12, Color(str(transport.color))))
+		transport_row.add_child(label(t("HUNT_TRANSPORT", "%s · -%d%% TEMPO", [localized_content_field("transport", transport, "name"), roundi(float(transport.speed_bonus) * 100.0)]), 12, Color(str(transport.color))))
 		content.add_child(transport_row)
 	var field_test_record := field_test_record_label("HuntFieldTestContext")
 	if field_test_record != null:
 		content.add_child(field_test_record)
-	content.add_child(center_label("Seguindo sinais, subornando robôs e fingindo ter um plano.", 16, MUTED))
+	content.add_child(center_label(t("HUNT_FLAVOR", "Seguindo sinais, subornando robôs e fingindo ter um plano."), 16, MUTED))
 	if bounty.has("hunt_event_result"):
 		content.add_child(notice_banner(str(bounty.hunt_event_result), GOLD))
 
@@ -1448,13 +1480,13 @@ func build_hunt() -> void:
 	var progress_row := HBoxContainer.new()
 	progress_row.name = "HuntProgressStatus"
 	progress_row.add_theme_constant_override("separation", 8)
-	progress_row.add_child(label("PARTIDA", 10, MUTED))
-	var stage_text := "SAINDO DO SETOR" if progress_value < 0.25 else ("RASTREANDO SINAL" if progress_value < 0.8 else "CONTATO IMINENTE")
+	progress_row.add_child(label(t("HUNT_DEPARTURE", "PARTIDA"), 10, MUTED))
+	var stage_text := t("HUNT_LEAVING_SECTOR", "SAINDO DO SETOR") if progress_value < 0.25 else (t("HUNT_TRACKING_SIGNAL", "RASTREANDO SINAL") if progress_value < 0.8 else t("HUNT_CONTACT_IMMINENT", "CONTATO IMINENTE"))
 	var stage := label("%s · %d%%" % [stage_text, roundi(progress_value * 100.0)], 11, CYAN, HORIZONTAL_ALIGNMENT_CENTER)
 	stage.name = "HuntProgressStage"
 	stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	progress_row.add_child(stage)
-	progress_row.add_child(label("ALVO", 10, GOLD, HORIZONTAL_ALIGNMENT_RIGHT))
+	progress_row.add_child(label(t("HUNT_TARGET", "ALVO"), 10, GOLD, HORIZONTAL_ALIGNMENT_RIGHT))
 	content.add_child(progress_row)
 	var progress := ProgressBar.new()
 	progress.name = "HuntProgress"
@@ -1466,7 +1498,7 @@ func build_hunt() -> void:
 	content.add_child(progress)
 
 	var remaining := maxi(0, ceili(GameState.hunt_ends_at - Time.get_unix_time_from_system()))
-	var countdown := center_label("ALVO LOCALIZADO EM %ds" % remaining, 18, GOLD)
+	var countdown := center_label(t("HUNT_COUNTDOWN", "ALVO LOCALIZADO EM %ds", [remaining]), 18, GOLD)
 	countdown.name = "HuntCountdown"
 	content.add_child(countdown)
 	content.add_spacer(false)
@@ -1535,7 +1567,7 @@ func build_hunt_event() -> void:
 
 func abandon_contract_text() -> String:
 	var streak := int(GameState.player.get("capture_streak", 0))
-	return "ABANDONAR · PERDER EMBALO ×%d" % streak if streak > 0 else "ABANDONAR CONTRATO"
+	return t("HUNT_ABANDON_STREAK", "ABANDONAR · PERDER EMBALO ×%d", [streak]) if streak > 0 else t("HUNT_ABANDON", "ABANDONAR CONTRATO")
 
 
 func hunt_choice_card(choice: Dictionary, accent: Color) -> PanelContainer:

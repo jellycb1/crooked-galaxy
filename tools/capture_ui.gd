@@ -121,6 +121,29 @@ func capture() -> void:
 	if save_frame("ui_settings_en.png") != OK:
 		quit(1)
 		return
+	scene.view_mode = "board"
+	scene.board_section = "bounties"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_board_en.png") != OK:
+		quit(1)
+		return
+	state.select_bounty(ContentDB.TARGETS[0])
+	await process_frame
+	await process_frame
+	if save_frame("ui_first_briefing_en.png") != OK:
+		quit(1)
+		return
+	state.choose_approach("hot_hatch")
+	await process_frame
+	await process_frame
+	if save_frame("ui_first_hunt_en.png") != OK:
+		quit(1)
+		return
+	state.abandon_bounty()
+	state.last_notice = ""
+	state.last_notice_context = ""
 	TranslationServer.set_locale("pt")
 	scene.view_mode = "board"
 	scene.board_section = "bounties"

@@ -475,3 +475,411 @@ msgstr "INTERCEPTOR DE PENHORA"
 
 msgid "TRANSPORT_EXECUTIVE_ESCAPE_YACHT_NAME"
 msgstr "IATE DE FUGA EXECUTIVA"
+
+msgid "BOARD_TITLE"
+msgstr "QUADRO DE PROCURADOS"
+
+msgid "BOARD_STREAK"
+msgstr "EMBALO ×%d · próximo contrato recebe +%d%% de créditos · derrota ou abandono encerra a sequência"
+
+msgid "BOARD_PRIMARY_HINT"
+msgstr "MANDADO PRINCIPAL EM DESTAQUE · ROTAS DE PERÍCIA CONTINUAM DISPONÍVEIS"
+
+msgid "BOARD_PACIFIED_HINT"
+msgstr "SETOR PACIFICADO · ESCOLHA UMA ROTA DE PERÍCIA"
+
+msgid "BOARD_MAX_RANK"
+msgstr "RANK MÁXIMO DE %s"
+
+msgid "BOARD_BOSS_AVAILABLE"
+msgstr "ALVO-CHEFE DISPONÍVEL"
+
+msgid "BOARD_NEW_FRONTIER"
+msgstr "FRONTEIRA RECÉM-ABERTA"
+
+msgid "BOARD_SECTOR_DOMINATED"
+msgstr "SETOR DOMINADO"
+
+msgid "BOARD_EXECUTE_FINAL"
+msgstr "EXECUTE O MANDADO FINAL"
+
+msgid "BOARD_NEW_WARRANTS_SOON"
+msgstr "NOVOS MANDADOS EM BREVE"
+
+msgid "BOARD_NEXT_TARGET"
+msgstr "PRÓXIMO ALVO: %s"
+
+msgid "BOARD_DEFINE_STYLE"
+msgstr "DEFINA SEU ESTILO"
+
+msgid "BOARD_FIRST_JOB"
+msgstr "PRIMEIRO TRABALHO"
+
+msgid "BOARD_DEFINE_STYLE_DESCRIPTION"
+msgstr "Escolha como seu caçador prefere resolver contratos. A troca continua gratuita durante os testes."
+
+msgid "BOARD_FIRST_JOB_DESCRIPTION"
+msgstr "Aceite Gloop. A primeira captura ensina o ciclo e garante seu primeiro loot."
+
+msgid "BOARD_CHOOSE_CLASS"
+msgstr "ESCOLHER\\nCLASSE"
+
+msgid "BOARD_FINAL_WARRANT"
+msgstr "MANDADO FINAL"
+
+msgid "BOARD_PRIMARY_WARRANT"
+msgstr "MANDADO PRINCIPAL"
+
+msgid "BOARD_RECURRING_MAX"
+msgstr "CONTRATO RECORRENTE · PERÍCIA MÁX."
+
+msgid "BOARD_MASTERY_ROUTE"
+msgstr "ROTA DE PERÍCIA · FALTAM %d"
+
+msgid "BOARD_CHAPTER_BOSS"
+msgstr "CHEFE DO CAPÍTULO"
+
+msgid "COMMON_MAX"
+msgstr "MÁX."
+
+msgid "BOARD_MASTERY_PROGRESS"
+msgstr "CAPTURAS %d · PERÍCIA %d/3 · %s"
+
+msgid "BOARD_MASTERY_CAPTURES_PLURAL"
+msgstr "ROTA DE PERÍCIA · FALTAM %d CAPTURAS"
+
+msgid "BOARD_MASTERY_CAPTURE_SINGULAR"
+msgstr "ROTA DE PERÍCIA · FALTA 1 CAPTURA"
+
+msgid "BOARD_STREAK_SUFFIX"
+msgstr " +EMBALO"
+
+msgid "RISK_SAFE"
+msgstr "SEGURO"
+
+msgid "RISK_RISKY"
+msgstr "ARRISCADO"
+
+msgid "RISK_BRUTAL"
+msgstr "BRUTAL"
+
+msgid "BOARD_REPEAT_HUNT"
+msgstr "REPETIR CAÇADA"
+
+msgid "BOARD_ANALYZE_APPROACHES"
+msgstr "ANALISAR ABORDAGENS"
+
+msgid "CONTRACT_BASE"
+msgstr "CONTRATO BASE"
+
+msgid "BRIEFING_TITLE"
+msgstr "BRIEFING DO CONTRATO"
+
+msgid "BRIEFING_TESTED_BUILD"
+msgstr "BUILD TESTADA · %s · %d%% · RECOMENDAÇÃO CONFIRMADA"
+
+msgid "BRIEFING_PLANETARY_KIT"
+msgstr "KIT PLANETÁRIO · %s · +%d PODER · +%d VIDA"
+
+msgid "BRIEFING_MASTERY"
+msgstr "PERÍCIA %d/3 · +%d%% RARO · +%d%% ÉPICO"
+
+msgid "BRIEFING_FLAVOR"
+msgstr "O alvo é o mesmo. A quantidade de problemas é uma escolha sua."
+
+msgid "BRIEFING_COMPARE"
+msgstr "COMPARE E ESCOLHA A ROTA"
+
+msgid "BRIEFING_HINT"
+msgstr "BUILD mostra sua chance atual; RECOMENDADO equilibra risco, retorno e tempo."
+
+msgid "BRIEFING_BACK"
+msgstr "VOLTAR AO QUADRO"
+
+msgid "BRIEFING_BEST_BALANCE"
+msgstr "MELHOR EQUILÍBRIO"
+
+msgid "BRIEFING_SYNERGY"
+msgstr "SINERGIA · %s"
+
+msgid "BRIEFING_RISK_SUMMARY"
+msgstr "%s · RISCO %s"
+
+msgid "BRIEFING_STREAK_INCLUDED"
+msgstr "EMBALO +%d%% INCLUÍDO"
+
+msgid "BRIEFING_SCRAP_REWARD"
+msgstr "+%d SUCATA NA VITÓRIA"
+
+msgid "BRIEFING_TIME"
+msgstr "TEMPO"
+
+msgid "BRIEFING_BUILD"
+msgstr "BUILD"
+
+msgid "COMMON_CREDITS"
+msgstr "CRÉDITOS"
+
+msgid "BRIEFING_CHOOSE"
+msgstr "ESCOLHER · %s"
+
+msgid "HUNT_FIELD_TEST_CONFIRMED"
+msgstr "TESTE DE CAMPO CONFIRMADO · %s · %d%%"
+
+msgid "HUNT_FIELD_TEST_OVERRIDDEN"
+msgstr "ROTA TESTADA SUBSTITUÍDA · %s %d%% → %s"
+
+msgid "HUNT_TITLE"
+msgstr "CAÇADA EM ANDAMENTO"
+
+msgid "HUNT_TRANSPORT"
+msgstr "%s · -%d%% TEMPO"
+
+msgid "HUNT_FLAVOR"
+msgstr "Seguindo sinais, subornando robôs e fingindo ter um plano."
+
+msgid "HUNT_DEPARTURE"
+msgstr "PARTIDA"
+
+msgid "HUNT_LEAVING_SECTOR"
+msgstr "SAINDO DO SETOR"
+
+msgid "HUNT_TRACKING_SIGNAL"
+msgstr "RASTREANDO SINAL"
+
+msgid "HUNT_CONTACT_IMMINENT"
+msgstr "CONTATO IMINENTE"
+
+msgid "HUNT_TARGET"
+msgstr "ALVO"
+
+msgid "HUNT_COUNTDOWN"
+msgstr "ALVO LOCALIZADO EM %ds"
+
+msgid "HUNT_ABANDON_STREAK"
+msgstr "ABANDONAR · PERDER EMBALO ×%d"
+
+msgid "HUNT_ABANDON"
+msgstr "ABANDONAR CONTRATO"
+
+msgid "PLANET_DUSTBALL_PRIME_SUBTITLE"
+msgstr "A poeira entra em tudo. Inclusive nos contratos."
+
+msgid "PLANET_CONGELARIA_SA_SUBTITLE"
+msgstr "Tudo abaixo de zero. Inclusive o atendimento."
+
+msgid "PLANET_MICELIA_404_SUBTITLE"
+msgstr "Tudo cresce. Principalmente as taxas."
+
+msgid "PLANET_FERRO_VELHO_OMEGA_SUBTITLE"
+msgstr "Tudo tem dono. Principalmente o lixo."
+
+msgid "PLANET_CASSINO_QUASAR_SUBTITLE"
+msgstr "A casa sempre ganha. E cobra estacionamento."
+
+msgid "APPROACH_QUIET_NET_NAME"
+msgstr "Rede Silenciosa"
+
+msgid "APPROACH_QUIET_NET_TAG"
+msgstr "SEGURO · +XP"
+
+msgid "APPROACH_QUIET_NET_DESCRIPTION"
+msgstr "Cerque o alvo, desligue as saídas e finja que tudo estava planejado."
+
+msgid "APPROACH_HOT_HATCH_NAME"
+msgstr "Entrada pela Escotilha"
+
+msgid "APPROACH_HOT_HATCH_TAG"
+msgstr "RÁPIDO · +35% CRÉDITOS"
+
+msgid "APPROACH_HOT_HATCH_DESCRIPTION"
+msgstr "Chegue antes do plano, chute a porta errada e cobre taxa de urgência."
+
+msgid "APPROACH_PREMIUM_WARRANT_NAME"
+msgstr "Mandado Corporativo"
+
+msgid "APPROACH_PREMIUM_WARRANT_TAG"
+msgstr "LUCRO · +100% CR · +3 SUCATA"
+
+msgid "APPROACH_PREMIUM_WARRANT_DESCRIPTION"
+msgstr "A corporação paga muito mais e libera peças da oficina, desde que o alvo possa revidar muito mais."
+
+msgid "TARGET_GLOOP_NAME"
+msgstr "Gloop, o Inconveniente"
+
+msgid "TARGET_GLOOP_TITLE"
+msgstr "Ladrão de estacionamento orbital"
+
+msgid "TARGET_GLOOP_DESCRIPTION"
+msgstr "Roubou 43 naves. Nenhuma era a nave certa."
+
+msgid "TARGET_BARON_BOOM_NAME"
+msgstr "Barão Boom"
+
+msgid "TARGET_BARON_BOOM_TITLE"
+msgstr "Nobreza autoproclamada e explosiva"
+
+msgid "TARGET_BARON_BOOM_DESCRIPTION"
+msgstr "Assina todos os documentos com dinamite. Até recibos."
+
+msgid "TARGET_MADAME_VACUUM_NAME"
+msgstr "Madame Vácuo"
+
+msgid "TARGET_MADAME_VACUUM_TITLE"
+msgstr "Contrabandista de oxigênio premium"
+
+msgid "TARGET_MADAME_VACUUM_DESCRIPTION"
+msgstr "Vende ar engarrafado e cobra pela tampa separadamente."
+
+msgid "TARGET_MAYOR_GOLD_DUST_NAME"
+msgstr "Prefeito Pó-de-Ouro"
+
+msgid "TARGET_MAYOR_GOLD_DUST_TITLE"
+msgstr "Prefeito, xerife e dono do cartório"
+
+msgid "TARGET_MAYOR_GOLD_DUST_DESCRIPTION"
+msgstr "Emitiu o próprio mandado, carimbou como inocente e cobrou a taxa de leitura."
+
+msgid "TARGET_AUDITOR_FROST_NAME"
+msgstr "Auditor Geada"
+
+msgid "TARGET_AUDITOR_FROST_TITLE"
+msgstr "Fiscal de aquecedores clandestinos"
+
+msgid "TARGET_AUDITOR_FROST_DESCRIPTION"
+msgstr "Confiscou o último cobertor do hemisfério sul por excesso de conforto."
+
+msgid "TARGET_CHEF_COLDFLAME_NAME"
+msgstr "Chef Brasa Fria"
+
+msgid "TARGET_CHEF_COLDFLAME_TITLE"
+msgstr "Contrabandista de sopa acima de zero"
+
+msgid "TARGET_CHEF_COLDFLAME_DESCRIPTION"
+msgstr "Serviu caldo morno sem licença térmica. Três executivos descongelaram sentimentos."
+
+msgid "TARGET_EXECUTIVE_PENGUIN_NAME"
+msgstr "Pinguim Executivo"
+
+msgid "TARGET_EXECUTIVE_PENGUIN_TITLE"
+msgstr "Diretor de demissões em massa polar"
+
+msgid "TARGET_EXECUTIVE_PENGUIN_DESCRIPTION"
+msgstr "Terceirizou o próprio bando e vendeu os peixes da confraternização."
+
+msgid "TARGET_DIRECTOR_KELVIN_NAME"
+msgstr "Diretora Kelvin"
+
+msgid "TARGET_DIRECTOR_KELVIN_TITLE"
+msgstr "CEO vitalícia do frio corporativo"
+
+msgid "TARGET_DIRECTOR_KELVIN_DESCRIPTION"
+msgstr "Patenteou o zero absoluto e agora cobra royalties de todo termômetro."
+
+msgid "TARGET_LANDLORD_SPORE_NAME"
+msgstr "Síndico Esporão"
+
+msgid "TARGET_LANDLORD_SPORE_TITLE"
+msgstr "Administrador do condomínio micelial"
+
+msgid "TARGET_LANDLORD_SPORE_DESCRIPTION"
+msgstr "Cobrou aluguel de cada raiz e instalou catracas nas trilhas de formigas."
+
+msgid "TARGET_COUNTESS_TRUFFLE_NAME"
+msgstr "Condessa Trufa"
+
+msgid "TARGET_COUNTESS_TRUFFLE_TITLE"
+msgstr "Banqueira de raízes offshore"
+
+msgid "TARGET_COUNTESS_TRUFFLE_DESCRIPTION"
+msgstr "Escondeu fortunas em paraísos fiscais subterrâneos e declarou tudo como adubo."
+
+msgid "TARGET_CAPTAIN_CHLOROPHYLL_NAME"
+msgstr "Capitão Clorofila"
+
+msgid "TARGET_CAPTAIN_CHLOROPHYLL_TITLE"
+msgstr "Pirata de fotossíntese patenteada"
+
+msgid "TARGET_CAPTAIN_CHLOROPHYLL_DESCRIPTION"
+msgstr "Desviou três sóis portáteis e vende luz solar em pacotes com anúncios."
+
+msgid "TARGET_MOTHER_MYCELIA_NAME"
+msgstr "Mãe Micélia"
+
+msgid "TARGET_MOTHER_MYCELIA_TITLE"
+msgstr "Rede neural proprietária do planeta"
+
+msgid "TARGET_MOTHER_MYCELIA_DESCRIPTION"
+msgstr "Cobra assinatura por pensamento e vende seus sonhos para anunciantes de fertilizante."
+
+msgid "TARGET_BOLT_COLLECTOR_NAME"
+msgstr "Cobrador Rebite"
+
+msgid "TARGET_BOLT_COLLECTOR_TITLE"
+msgstr "Agente de penhora magnética"
+
+msgid "TARGET_BOLT_COLLECTOR_DESCRIPTION"
+msgstr "Confiscou todos os parafusos de um bairro por atraso de três arruelas."
+
+msgid "TARGET_DOCTOR_PATCHWORK_NAME"
+msgstr "Doutora Gambiarra"
+
+msgid "TARGET_DOCTOR_PATCHWORK_TITLE"
+msgstr "Cirurgiã de naves sem licença"
+
+msgid "TARGET_DOCTOR_PATCHWORK_DESCRIPTION"
+msgstr "Transplantou um motor de ônibus numa fragata e cobrou pelo segundo coração."
+
+msgid "TARGET_CRANE_KING_NAME"
+msgstr "Rei Guindaste"
+
+msgid "TARGET_CRANE_KING_TITLE"
+msgstr "Monarca da sucata prensada"
+
+msgid "TARGET_CRANE_KING_DESCRIPTION"
+msgstr "Coroou a si mesmo com uma calota e anexou seis depósitos por decreto hidráulico."
+
+msgid "TARGET_OMEGA_JUNKYARD_NAME"
+msgstr "Ômega, o Ferro-Velho"
+
+msgid "TARGET_OMEGA_JUNKYARD_TITLE"
+msgstr "Aterro senciente de civilizações"
+
+msgid "TARGET_OMEGA_JUNKYARD_DESCRIPTION"
+msgstr "Arquiva planetas inteiros na categoria “peças talvez úteis” e perdeu o formulário de devolução."
+
+msgid "TARGET_DEALER_COMET_NAME"
+msgstr "Crupiê Cometa"
+
+msgid "TARGET_DEALER_COMET_TITLE"
+msgstr "Distribuidor de órbitas marcadas"
+
+msgid "TARGET_DEALER_COMET_DESCRIPTION"
+msgstr "Embaralhou sete luas e jura que o eclipse na manga veio de fábrica."
+
+msgid "TARGET_DUCHESS_JACKPOT_NAME"
+msgstr "Duquesa Jackpot"
+
+msgid "TARGET_DUCHESS_JACKPOT_TITLE"
+msgstr "Herdeira das máquinas caça-luas"
+
+msgid "TARGET_DUCHESS_JACKPOT_DESCRIPTION"
+msgstr "Transformou a gravidade em assinatura premium e o chão em conteúdo patrocinado."
+
+msgid "TARGET_MISFORTUNE_AUDITOR_NAME"
+msgstr "Auditor do Azar"
+
+msgid "TARGET_MISFORTUNE_AUDITOR_TITLE"
+msgstr "Fiscal de probabilidades não declaradas"
+
+msgid "TARGET_MISFORTUNE_AUDITOR_DESCRIPTION"
+msgstr "Multa coincidências, confisca trevos e exige recibo de todo golpe de sorte."
+
+msgid "TARGET_HOUSE_ETERNAL_NAME"
+msgstr "A Casa Eterna"
+
+msgid "TARGET_HOUSE_ETERNAL_TITLE"
+msgstr "Cassino senciente de saldo infinito"
+
+msgid "TARGET_HOUSE_ETERNAL_DESCRIPTION"
+msgstr "Calcula todas as escolhas possíveis e oferece bebida grátis apenas na pior delas."

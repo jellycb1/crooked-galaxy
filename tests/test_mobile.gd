@@ -40,6 +40,27 @@ func run_mobile_audit() -> void:
 	(scene.find_child("BoardSettingsAction", true, false) as Button).pressed.emit()
 	await process_frame
 	check(find_label_with_text(scene, "SETTINGS") != null and find_label_with_text(scene, "GAME EXPERIENCE") != null and find_label_with_text(scene, "AUDIO") != null and (scene.find_child("SoundPreferenceAction", true, false) as Button).text == "ON" and (scene.find_child("ResetProgressAction", true, false) as Button).text == "RESET LOCAL PROGRESS", "English catalog covers device preferences and the explicit local-test reset")
+	for target in ContentDB.TARGETS:
+		for field in ["NAME", "TITLE", "DESCRIPTION"]:
+			var key := "TARGET_%s_%s" % [str(target.id).to_upper(), field]
+			check(str(TranslationServer.translate(key)) != key, "English catalog resolves %s" % key)
+	for approach in ContentDB.contract_approaches():
+		for field in ["NAME", "TAG", "DESCRIPTION"]:
+			var key := "APPROACH_%s_%s" % [str(approach.id).to_upper(), field]
+			check(str(TranslationServer.translate(key)) != key, "English catalog resolves %s" % key)
+	scene.view_mode = "board"
+	scene.board_section = "bounties"
+	scene.render()
+	await process_frame
+	check(find_label_with_text(scene, "WANTED BOARD") != null and find_label_with_text(scene, "Gloop the Inconvenient") != null and find_label_with_text(scene, "Orbital parking thief") != null and (scene.find_child("BountyAction_gloop", true, false) as Button).text == "ANALYZE APPROACHES", "English catalog covers the wanted board, target dossier, and primary action")
+	state.select_bounty(ContentDB.TARGETS[0])
+	await process_frame
+	check(find_label_with_text(scene, "CONTRACT BRIEFING") != null and find_label_with_text(scene, "SILENT NET") != null and find_label_with_text(scene, "Surround the target, shut down the exits, and pretend it was all planned.") != null and (scene.find_child("ChooseApproach_premium_warrant", true, false) as Button).text == "CHOOSE · CORPORATE WARRANT", "English catalog covers all contract briefing decisions")
+	state.choose_approach("hot_hatch")
+	await process_frame
+	check(find_label_with_text(scene, "HUNT IN PROGRESS") != null and find_label_with_text(scene, "HOT HATCH ENTRY") != null and scene.find_child("HuntAbandonAction", true, false) != null and (scene.find_child("HuntAbandonAction", true, false) as Button).text == "ABANDON CONTRACT", "English catalog remains coherent after committing a live hunt")
+	state.abandon_bounty()
+	await process_frame
 	TranslationServer.set_locale("pt")
 	scene.view_mode = "board"
 	scene.board_section = "bounties"
