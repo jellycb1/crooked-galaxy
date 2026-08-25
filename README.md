@@ -4,8 +4,8 @@ Android internal test build.
 
 [Download the current CrookedGalaxy.apk](https://github.com/jellycb1/crooked-galaxy/releases/download/latest/CrookedGalaxy.apk)
 
-Current build: **v0.14.1 (code 50)**
+Current build: **v0.15.0 (code 51)**
 
-SHA-256: `42bef654c34b5b7586363da5ae37e384fc17e130c9b56a9ed9209a3919b2a9e6`
+SHA-256: `f39c79fe3dae1546e49c5f8fa2b58d07d2646be507423b424375af2cb83719c0`
 
 The `latest` release is updated in place, so the APK link above remains stable.
