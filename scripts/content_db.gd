@@ -783,6 +783,16 @@ const ITEM_TRAITS := {
 		{"id": "evasion_gyros", "name": "GIROSCÓPIOS DE FUGA", "description": "-1 dano recebido por golpe.", "power_bonus": 0, "health_bonus": 0, "damage_reduction": 1},
 		{"id": "argument_thrusters", "name": "PROPULSORES DE ARGUMENTO", "description": "+1 poder e +2 dano de abertura.", "power_bonus": 1, "health_bonus": 0, "opening_damage_bonus": 2},
 	],
+	"rig": [
+		{"id": "smuggler_harness", "name": "ARNÊS DE CONTRABANDO", "description": "+10 de integridade máxima.", "power_bonus": 0, "health_bonus": 10},
+		{"id": "counterweight_servos", "name": "SERVOS DE CONTRAPESO", "description": "-1 dano recebido por golpe.", "power_bonus": 0, "health_bonus": 0, "damage_reduction": 1},
+		{"id": "quickdraw_bus", "name": "BARRAMENTO DE SAQUE", "description": "+1 poder e +2 dano de abertura.", "power_bonus": 1, "health_bonus": 0, "opening_damage_bonus": 2},
+	],
+	"implant": [
+		{"id": "reflex_archive", "name": "ARQUIVO DE REFLEXOS", "description": "+3 dano de abertura.", "power_bonus": 0, "health_bonus": 0, "opening_damage_bonus": 3},
+		{"id": "illegal_adrenaline", "name": "ADRENALINA ILEGAL", "description": "+1 poder e +6 integridade.", "power_bonus": 1, "health_bonus": 6},
+		{"id": "null_synapse", "name": "SINAPSE NULA", "description": "+2 poder de combate.", "power_bonus": 2, "health_bonus": 0},
+	],
 }
 
 

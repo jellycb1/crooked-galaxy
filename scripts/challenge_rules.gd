@@ -1,0 +1,117 @@
+class_name ChallengeRules
+extends RefCounted
+
+const UNLOCK_PLANET_ID := "dustball_prime"
+
+const STAGES := [
+	{
+		"id": "rift_customs_drone",
+		"name": "Drone da Alfândega Morta",
+		"title": "ANDAR 1 · TRIAGEM ILEGAL",
+		"description": "Ainda fiscaliza uma fronteira apagada dos mapas e cobra juros desde o colapso.",
+		"power": 37, "defense": 13, "health": 321, "credits": 118, "xp": 145,
+		"attacks": ["Carimbo Cinético", "Taxa Retroativa", "Scanner de Contrabando"],
+		"reward": {"name": "Cinto de Lacres Rompidos", "description": "Redistribui peso, munição e responsabilidade jurídica.", "slot": "rig", "power": 1, "rarity": "Comum", "trait_id": "smuggler_harness"},
+	},
+	{
+		"id": "rift_echo_collector",
+		"name": "Cobrador de Ecos",
+		"title": "ANDAR 2 · ARQUIVO SONORO",
+		"description": "Confisca últimas palavras, revende ameaças e nunca emite recibo em voz baixa.",
+		"power": 41, "defense": 17, "health": 335, "credits": 146, "xp": 172,
+		"attacks": ["Cobrança Ressonante", "Protesto Sônico", "Juro em Repetição"],
+		"reward": {"name": "Arnês de Frequência Torta", "description": "Transforma ruído de combate em decisões marginalmente úteis.", "slot": "rig", "power": 1, "rarity": "Raro", "trait_id": "counterweight_servos"},
+	},
+	{
+		"id": "rift_quartermaster",
+		"name": "Intendente Sem Regimento",
+		"title": "ANDAR 3 · DEPÓSITO FANTASMA",
+		"description": "Administra munição para um exército inexistente e considera você atraso de inventário.",
+		"power": 81, "defense": 32, "health": 630, "credits": 178, "xp": 205,
+		"attacks": ["Baixa de Estoque", "Rajada Patrimonial", "Inventário Hostil"],
+		"reward": {"name": "Plataforma do Intendente", "description": "Tem bolsos para tudo, inclusive para uma desculpa de emergência.", "slot": "rig", "power": 2, "rarity": "Épico", "trait_id": "quickdraw_bus"},
+	},
+	{
+		"id": "rift_memory_leech",
+		"name": "Sanguessuga de Memória",
+		"title": "ANDAR 4 · CLÍNICA REVOGADA",
+		"description": "Remove lembranças embaraçosas e deixa apenas a fatura do procedimento.",
+		"power": 84, "defense": 34, "health": 649, "credits": 216, "xp": 244,
+		"attacks": ["Débito Craniano", "Amnésia Parcelada", "Sinapse Predatória"],
+		"reward": {"name": "Nódulo de Memória Contrabandeada", "description": "Lembra os erros do inimigo antes que ele consiga repeti-los.", "slot": "implant", "power": 1, "rarity": "Comum", "trait_id": "reflex_archive"},
+	},
+	{
+		"id": "rift_probability_clerk",
+		"name": "Escrivão de Probabilidades",
+		"title": "ANDAR 5 · CARTÓRIO CAUSAL",
+		"description": "Registra futuros possíveis e multa qualquer realidade que saia sem autenticação.",
+		"power": 88, "defense": 37, "health": 700, "credits": 258, "xp": 292,
+		"attacks": ["Firma Reconhecida", "Cláusula Improvável", "Penhora do Futuro"],
+		"reward": {"name": "Córtex de Cálculo Clandestino", "description": "Prevê três resultados e escolhe o menos documentado.", "slot": "implant", "power": 1, "rarity": "Raro", "trait_id": "illegal_adrenaline"},
+	},
+	{
+		"id": "rift_null_warden",
+		"name": "Carcereiro do Setor Nulo",
+		"title": "ANDAR 6 · CELA SEM UNIVERSO",
+		"description": "Guarda uma prisão vazia com dedicação suficiente para prender novas leis da física.",
+		"power": 146, "defense": 60, "health": 1260, "credits": 310, "xp": 348,
+		"attacks": ["Sentença de Antimatéria", "Confinamento Vetorial", "Apelo Negado"],
+		"reward": {"name": "Interface do Setor Nulo", "description": "Liga o caçador a uma rede que oficialmente nunca existiu.", "slot": "implant", "power": 2, "rarity": "Épico", "trait_id": "null_synapse"},
+	},
+]
+
+
+static func is_unlocked(player: Dictionary) -> bool:
+	return player.get("completed_planets", []).has(UNLOCK_PLANET_ID)
+
+
+static func progress(player: Dictionary) -> int:
+	return clampi(int(player.get("challenge_floor", 0)), 0, STAGES.size())
+
+
+static func current_stage(player: Dictionary) -> Dictionary:
+	var floor := progress(player)
+	return {} if floor >= STAGES.size() else stage_at(floor)
+
+
+static func stage_at(index: int) -> Dictionary:
+	if index < 0 or index >= STAGES.size():
+		return {}
+	var stage: Dictionary = STAGES[index].duplicate(true)
+	stage["challenge"] = true
+	stage["challenge_index"] = index
+	stage["duration"] = 0
+	stage["planet_id"] = UNLOCK_PLANET_ID
+	stage["scrap_reward"] = 0
+	return stage
+
+
+static func get_stage(stage_id: String) -> Dictionary:
+	for index in STAGES.size():
+		if str(STAGES[index].id) == stage_id:
+			return stage_at(index)
+	return {}
+
+
+static func reward_for(stage: Dictionary, traits: Dictionary) -> Dictionary:
+	var definition: Dictionary = stage.get("reward", {}).duplicate(true)
+	if definition.is_empty():
+		return {}
+	var rarity := str(definition.get("rarity", "Comum"))
+	var colors := {"Comum": "#b9c2d9", "Raro": "#58d9ff", "Épico": "#d789ff"}
+	var item := {
+		"id": "%s_reward" % str(stage.id),
+		"name": str(definition.name),
+		"description": str(definition.description),
+		"slot": str(definition.slot),
+		"power": int(definition.power),
+		"rarity": rarity,
+		"color": str(colors.get(rarity, colors.Comum)),
+		"challenge_origin": "fenda_clandestina",
+	}
+	var trait_id := str(definition.get("trait_id", ""))
+	for modification in traits.get(str(definition.slot), []):
+		if str(modification.id) == trait_id:
+			item.trait = modification.duplicate(true)
+			break
+	return item

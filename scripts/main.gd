@@ -16,6 +16,8 @@ const ClassesViewScript = preload("res://scripts/classes_view.gd")
 const MarketViewScript = preload("res://scripts/market_view.gd")
 const HangarViewScript = preload("res://scripts/hangar_view.gd")
 const SettingsViewScript = preload("res://scripts/settings_view.gd")
+const ChallengeViewScript = preload("res://scripts/challenge_view.gd")
+const ChallengeRulesScript = preload("res://scripts/challenge_rules.gd")
 const PlanetIconScript = preload("res://scripts/planet_icon.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const HuntChoiceIconScript = preload("res://scripts/hunt_choice_icon.gd")
@@ -72,7 +74,7 @@ func _notification(what: int) -> void:
 
 func android_back_action() -> String:
 	if GameState.phase == GameState.Phase.BOARD:
-		if view_mode == "market" or view_mode == "hangar" or view_mode == "career" or view_mode == "settings":
+		if view_mode == "market" or view_mode == "hangar" or view_mode == "career" or view_mode == "settings" or view_mode == "challenges":
 			return "menu"
 		if view_mode != "board":
 			return "board"
@@ -273,6 +275,8 @@ func render() -> void:
 				build_hangar()
 			elif view_mode == "settings":
 				SettingsViewScript.build(self, content, GameState)
+			elif view_mode == "challenges":
+				ChallengeViewScript.build(self, content, GameState)
 			else:
 				build_board()
 		GameState.Phase.HUNT:
@@ -347,7 +351,7 @@ func update_primary_navigation() -> void:
 		active_id = "hunter"
 	elif view_mode == "galaxy":
 		active_id = "galaxy"
-	elif view_mode == "market" or view_mode == "hangar" or view_mode == "career" or view_mode == "settings" or board_section == "destinations":
+	elif view_mode == "market" or view_mode == "hangar" or view_mode == "career" or view_mode == "settings" or view_mode == "challenges" or board_section == "destinations":
 		active_id = "menu"
 	var labels := {}
 	var badges := {}
@@ -380,6 +384,8 @@ func environment_context() -> String:
 			return "hangar" if reference_backdrop != null and reference_backdrop.local_placeholders_allowed() else "workshop"
 		if view_mode == "settings":
 			return "world"
+		if view_mode == "challenges":
+			return "combat"
 		if view_mode == "career" and reference_backdrop != null and reference_backdrop.local_placeholders_allowed():
 			return "career_ui"
 		if (view_mode == "attributes" or view_mode == "classes") and reference_backdrop != null and reference_backdrop.local_placeholders_allowed():
@@ -586,6 +592,12 @@ func build_frontier_menu() -> void:
 	var career_detail := "%d PRÊMIOS DISPONÍVEIS" % ready_rewards if ready_rewards > 0 else "MARCOS E ARQUIVO"
 	hub_grid.add_child(board_hub_action("CARREIRA", career_detail, LIME, "career", "BoardCareerAction", func():
 		view_mode = "career"
+		render()
+	))
+	var challenge_floor := ChallengeRulesScript.progress(GameState.player)
+	var challenge_detail := "CONCLUA DUSTBALL" if not ChallengeRulesScript.is_unlocked(GameState.player) else ("ARQUIVO CONCLUÍDO" if challenge_floor >= ChallengeRulesScript.STAGES.size() else "ANDAR %d DE %d" % [challenge_floor + 1, ChallengeRulesScript.STAGES.size()])
+	hub_grid.add_child(board_hub_action("FENDA", challenge_detail, CORAL, "contracts", "BoardChallengeAction", func():
+		view_mode = "challenges"
 		render()
 	))
 	hub_grid.add_child(board_hub_action("AJUSTES", "ÁUDIO E MOVIMENTO", MUTED, "settings", "BoardSettingsAction", func():
@@ -1511,7 +1523,8 @@ func hunt_choice_kind(choice: Dictionary) -> String:
 
 func build_combat() -> void:
 	var approach: Dictionary = GameState.current_bounty.get("approach", {})
-	var approach_name := str(approach.get("name", "CONTRATO BASE")).to_upper()
+	var challenge_combat := bool(GameState.current_bounty.get("challenge", false))
+	var approach_name := "INCURSÃO DIRETA" if challenge_combat else str(approach.get("name", "CONTRATO BASE")).to_upper()
 	var combat_payment := CoreRules.bounty_streak_reward(int(GameState.current_bounty.credits), int(GameState.player.get("capture_streak", 0)) + 1)
 	var dossier := panel(HBoxContainer.new(), Color("#111a31e8"), 14, 10)
 	dossier.name = "CombatContractDossier"
@@ -1521,18 +1534,18 @@ func build_combat() -> void:
 	dossier_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	dossier_copy.alignment = BoxContainer.ALIGNMENT_CENTER
 	dossier_row.add_child(dossier_copy)
-	dossier_copy.add_child(label("ENCONTRO AUTOMÁTICO", 10, MUTED))
+	dossier_copy.add_child(label("COMBATE DA FENDA" if challenge_combat else "ENCONTRO AUTOMÁTICO", 10, MUTED))
 	dossier_copy.add_child(label("TURNO %d · %s" % [GameState.combat_round, approach_name], 15, CORAL))
 	if GameState.current_bounty.has("hunt_event_result"):
 		var incident_summary := label("INCIDENTE · %s" % str(GameState.current_bounty.hunt_event_result), 10, GOLD)
 		incident_summary.name = "CombatIncidentSummary"
 		incident_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		dossier_copy.add_child(incident_summary)
-	var payment_status := metric_chip("PAGAMENTO", "◈ %d" % int(combat_payment.credits), GOLD)
+	var payment_status := metric_chip("RECOMPENSA" if challenge_combat else "PAGAMENTO", "◈ %d" % int(GameState.current_bounty.credits if challenge_combat else combat_payment.credits), GOLD)
 	payment_status.name = "CombatPaymentStatus"
 	payment_status.custom_minimum_size = Vector2(104, 0)
 	payment_status.size_flags_horizontal = Control.SIZE_SHRINK_END
-	if int(combat_payment.bonus_credits) > 0:
+	if not challenge_combat and int(combat_payment.bonus_credits) > 0:
 		var payment_box := payment_status.get_child(0) as VBoxContainer
 		var streak_bonus := label("EMBALO +%d" % int(combat_payment.bonus_credits), 9, LIME, HORIZONTAL_ALIGNMENT_CENTER)
 		streak_bonus.name = "CombatPaymentStreakBonus"
@@ -1667,6 +1680,7 @@ func combat_event_chip(event: Dictionary) -> PanelContainer:
 
 
 func build_victory() -> void:
+	var challenge_victory := bool(GameState.current_bounty.get("challenge", false))
 	content.add_spacer(false)
 	var stamp := panel(HBoxContainer.new(), Color("#173f3c"), 18, 18)
 	stamp.name = "VictoryDossier"
@@ -1678,8 +1692,8 @@ func build_victory() -> void:
 	stamp_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stamp_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	dossier.add_child(stamp_box)
-	stamp_box.add_child(label("MANDADO EXECUTADO", 12, MUTED))
-	stamp_box.add_child(label("ALVO CAPTURADO", 28, LIME))
+	stamp_box.add_child(label("INCURSÃO CONCLUÍDA" if challenge_victory else "MANDADO EXECUTADO", 12, MUTED))
+	stamp_box.add_child(label("ANDAR LIMPO" if challenge_victory else "ALVO CAPTURADO", 28, LIME))
 	stamp_box.add_child(label(str(GameState.current_bounty.name), 20, INK))
 	if not GameState.combat_events.is_empty():
 		var final_event: Dictionary = GameState.combat_events[0]
@@ -1692,8 +1706,8 @@ func build_victory() -> void:
 	if not GameState.combat_summary.is_empty():
 		content.add_child(combat_summary_panel(true))
 	var victory_payment := CoreRules.bounty_streak_reward(int(GameState.current_bounty.credits), int(GameState.player.get("capture_streak", 0)) + 1)
-	var payment_text := "PAGAMENTO APROVADO · ◈ %d" % int(victory_payment.credits)
-	if int(victory_payment.bonus_credits) > 0:
+	var payment_text := ("ARQUIVO RECUPERADO · ◈ %d" % int(GameState.current_bounty.credits)) if challenge_victory else ("PAGAMENTO APROVADO · ◈ %d" % int(victory_payment.credits))
+	if not challenge_victory and int(victory_payment.bonus_credits) > 0:
 		payment_text += " · EMBALO +%d INCLUÍDO" % int(victory_payment.bonus_credits)
 	var incident_cost := maxi(0, int(GameState.current_bounty.get("hunt_event_credit_cost", 0)))
 	if incident_cost > 0:

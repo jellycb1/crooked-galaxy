@@ -59,7 +59,7 @@ func _init() -> void:
 		check(family.has("armor") and family.get("armor", []).size() >= 4, "planet has an armor family: %s" % str(planet.id))
 
 	var trait_ids := {}
-	for slot in ["weapon", "armor", "helmet", "gloves", "boots"]:
+	for slot in ["weapon", "armor", "helmet", "gloves", "boots", "rig", "implant"]:
 		check(ContentDB.ITEM_TRAITS.has(slot) and ContentDB.ITEM_TRAITS[slot].size() >= 3, "equipment slot has modification variety: %s" % slot)
 		for modification in ContentDB.ITEM_TRAITS[slot]:
 			var trait_id := str(modification.get("id", ""))

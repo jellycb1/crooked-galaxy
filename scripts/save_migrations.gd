@@ -1,7 +1,7 @@
 class_name SaveMigrations
 extends RefCounted
 
-const CURRENT_VERSION := 10
+const CURRENT_VERSION := 11
 const BASE_ATTRIBUTE_VALUE := 10
 const ATTRIBUTE_POINTS_PER_LEVEL := 2
 
@@ -40,6 +40,9 @@ static func migrate(payload: Dictionary) -> Dictionary:
 			9:
 				migrated = migrate_v9_to_v10(migrated)
 				version = 10
+			10:
+				migrated = migrate_v10_to_v11(migrated)
+				version = 11
 			_:
 				return {}
 		migrated.version = version
@@ -160,5 +163,14 @@ static func migrate_v9_to_v10(payload: Dictionary) -> Dictionary:
 				if not loadouts[index].has(id_key):
 					loadouts[index][id_key] = ""
 		player.equipment_loadouts = loadouts
+	migrated.player = player
+	return migrated
+
+
+static func migrate_v10_to_v11(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	var player: Dictionary = migrated.get("player", {})
+	if not player.has("challenge_floor"):
+		player.challenge_floor = 0
 	migrated.player = player
 	return migrated

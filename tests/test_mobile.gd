@@ -47,12 +47,12 @@ func run_mobile_audit() -> void:
 		menu_action.pressed.emit()
 		await process_frame
 	var board_hub_grid := scene.find_child("BoardHubGrid", true, false) as GridContainer
-	check(board_hub_grid != null and board_hub_grid.columns == 2 and board_hub_grid.get_child_count() == 4, "secondary menu uses a readable 2 by 2 mobile grid")
+	check(board_hub_grid != null and board_hub_grid.columns == 2 and board_hub_grid.get_child_count() == 5, "secondary menu uses a readable two-column mobile grid for five destinations")
 	check(scene.find_children("PrimaryNav_*", "Button", true, false).size() == 5 and scene.find_children("PrimaryNavIcon_*", "Control", true, false).size() == 5, "rapid menu navigation replaces the dock atomically without stale or missing items")
 	var updated_contract_icon := scene.find_child("PrimaryNavIcon_contracts", true, false) as Control
 	check(updated_contract_icon != null and updated_contract_icon.get_instance_id() == stable_contract_icon_id, "primary navigation updates selection in place instead of rebuilding mobile CanvasItems")
-	check(scene.find_children("BoardHubIcon_*", "Control", true, false).size() == 4, "every secondary service has a distinct scalable navigation icon")
-	check(scene.find_children("BoardHubTitle_*", "Label", true, false).size() == 4 and scene.find_children("BoardHubDetail_*", "Label", true, false).size() == 4, "secondary services pair readable location names with concise functional descriptions")
+	check(scene.find_children("BoardHubIcon_*", "Control", true, false).size() == 5, "every secondary service has a scalable navigation icon")
+	check(scene.find_children("BoardHubTitle_*", "Label", true, false).size() == 5 and scene.find_children("BoardHubDetail_*", "Label", true, false).size() == 5, "secondary services pair readable location names with concise functional descriptions")
 	var settings_action := scene.find_child("BoardSettingsAction", true, false) as Button
 	check(settings_action != null, "settings live in the secondary menu instead of the equipment inventory")
 	if settings_action != null:

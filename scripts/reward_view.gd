@@ -10,6 +10,9 @@ const RewardProgressIconScript = preload("res://scripts/reward_progress_icon.gd"
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
+	if bool(state.current_bounty.get("challenge", false)):
+		build_challenge_reward(host, content, state)
+		return
 	var item := state.pending_loot
 	var reward_preview := Rules.bounty_streak_reward(int(state.current_bounty.credits), int(state.player.get("capture_streak", 0)) + 1)
 	var equipped: Dictionary = state.player[str(item.slot)]
@@ -190,6 +193,50 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var claim := host.action_button(claim_text, host.LIME if completes_chapter or unlocks_new_warrant else host.GOLD, not (completes_chapter or unlocks_new_warrant))
 	claim.name = "ClaimAndUnlock" if unlocks_new_warrant else "ClaimAndBoard"
 	claim.custom_minimum_size = Vector2(0, 48)
+	claim.pressed.connect(func(): state.claim_reward(effective_upgrade))
+	content.add_child(claim)
+
+
+static func build_challenge_reward(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
+	var item := state.pending_loot
+	var equipped: Dictionary = state.player.get(str(item.slot), {})
+	var effective_upgrade := Rules.is_upgrade_for_player(state.player, item)
+	content.add_child(host.center_label("FENDA CLANDESTINA · ANDAR %d LIMPO" % (int(state.current_bounty.get("challenge_index", 0)) + 1), 16, host.LIME))
+	content.add_child(host.center_label("ARTEFATO RECUPERADO", 28, host.INK))
+	var reward_panel := host.panel(VBoxContainer.new(), Color("#17182f"), 20, 16)
+	reward_panel.name = "ChallengeRewardPanel"
+	content.add_child(reward_panel)
+	var box := reward_panel.get_child(0) as VBoxContainer
+	box.add_theme_constant_override("separation", 8)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	box.add_child(row)
+	row.add_child(host.equipment_icon(item, 76))
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(copy)
+	copy.add_child(host.label("%s · %s" % [str(item.rarity).to_upper(), host.slot_name(str(item.slot)).to_upper()], 11, Color(str(item.color))))
+	copy.add_child(host.label(str(item.name), 21, host.INK))
+	var description := host.label(str(item.description), 12, host.MUTED)
+	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	copy.add_child(description)
+	if item.has("trait"):
+		var modification := host.center_label("◆ %s · %s" % [str(item.trait.name), str(item.trait.description)], 12, host.GOLD)
+		modification.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		box.add_child(modification)
+	box.add_child(host.center_label(EquipmentPresentation.equipment_delta_text(state.player, item), 13, host.LIME if effective_upgrade else host.MUTED))
+	box.add_child(host.center_label("RECIBO DA FENDA · ◈ %d CRÉDITOS · %d XP" % [int(state.current_bounty.credits), int(state.current_bounty.xp)], 13, host.GOLD))
+	var comparison := host.center_label("EQUIPADO AGORA · +%d PODER" % int(equipped.get("power", 0)), 11, host.MUTED)
+	comparison.name = "ChallengeEquippedComparison"
+	box.add_child(comparison)
+	var next_floor := int(state.current_bounty.get("challenge_index", 0)) + 2
+	var progress := host.center_label("AO RECEBER · ANDAR %d SERÁ ABERTO" % next_floor if next_floor <= 6 else "AO RECEBER · FENDA SERÁ CONCLUÍDA", 12, host.CYAN)
+	progress.name = "ChallengeRewardProgress"
+	box.add_child(progress)
+	content.add_spacer(false)
+	var claim := host.action_button("EQUIPAR E VOLTAR À FENDA" if effective_upgrade else "GUARDAR E VOLTAR À FENDA", host.LIME)
+	claim.name = "ClaimChallengeReward"
+	claim.custom_minimum_size = Vector2(0, 50)
 	claim.pressed.connect(func(): state.claim_reward(effective_upgrade))
 	content.add_child(claim)
 

@@ -58,6 +58,7 @@ func _init() -> void:
 	check(established_v9.player.owned_transport_ids.is_empty() and str(established_v9.player.active_transport_id).is_empty(), "version-nine migration initializes only transport persistence")
 	check(int(established_v9.player.market_cycle) == 2 and established_v9.player.market_purchased_offer_ids == ["market_kept"], "transport migration preserves established market records")
 	check(["helmet", "gloves", "boots", "rig", "implant", "gadget", "relic"].all(func(slot): return established_v9.player.has(slot) and established_v9.player[slot].is_empty()), "version-ten migration reserves every universal equipment slot without inventing loot")
+	check(int(established_v9.player.challenge_floor) == 0, "version-eleven migration adds an untouched challenge ladder")
 
 	var version_nine := {"version": 9, "player": {"weapon": {"id": "legacy_weapon"}, "armor": {"id": "legacy_armor"}, "equipment_loadouts": [{"weapon_id": "legacy_weapon", "armor_id": "legacy_armor"}, {"weapon_id": "", "armor_id": ""}]}}
 	var universal := SaveMigrations.migrate(version_nine)

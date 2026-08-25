@@ -6,6 +6,7 @@ const CareerRules = preload("res://scripts/career_rules.gd")
 const ClassRules = preload("res://scripts/class_rules.gd")
 const MarketRulesScript = preload("res://scripts/market_rules.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
+const ChallengeRulesScript = preload("res://scripts/challenge_rules.gd")
 
 signal changed
 signal combat_event(message: String)
@@ -76,6 +77,7 @@ func default_player() -> Dictionary:
 		"last_seen_unix": Time.get_unix_time_from_system(),
 		"reputation": 0,
 		"wins": 0,
+		"challenge_floor": 0,
 		"base_power": 10,
 		"attributes": CoreRules.default_attributes(),
 		"stat_points": 0,
@@ -117,6 +119,23 @@ func select_bounty(bounty: Dictionary) -> void:
 	phase = Phase.BRIEFING
 	save_game()
 	changed.emit()
+
+
+func start_challenge(stage_id: String) -> bool:
+	if phase != Phase.BOARD or not ChallengeRulesScript.is_unlocked(player):
+		return false
+	var stage := ChallengeRulesScript.get_stage(stage_id)
+	if stage.is_empty() or int(stage.get("challenge_index", -1)) != ChallengeRulesScript.progress(player):
+		return false
+	last_notice = ""
+	last_notice_context = ""
+	combat_summary = {}
+	combat_events = []
+	current_bounty = stage
+	offered_approaches = []
+	hunt_event = {}
+	begin_combat()
+	return true
 
 
 func travel_to_planet(planet_id: String) -> bool:
@@ -516,17 +535,26 @@ func finish_combat(won: bool) -> void:
 	combat_summary.player_hp_remaining = player_hp
 	combat_summary.enemy_hp_remaining = enemy_hp
 	if won:
-		var target_id := str(current_bounty.get("id", ""))
-		var target_captures := int(player.get("captures_by_target", {}).get(target_id, 0))
-		pending_loot = ContentDB.generate_loot(current_bounty, rng, CoreRules.target_mastery_level(target_captures))
+		if bool(current_bounty.get("challenge", false)):
+			pending_loot = ChallengeRulesScript.reward_for(current_bounty, ContentDB.ITEM_TRAITS)
+		else:
+			var target_id := str(current_bounty.get("id", ""))
+			var target_captures := int(player.get("captures_by_target", {}).get(target_id, 0))
+			pending_loot = ContentDB.generate_loot(current_bounty, rng, CoreRules.target_mastery_level(target_captures))
 		phase = Phase.VICTORY
 	else:
-		var lost_streak := int(player.get("capture_streak", 0))
-		combat_summary.lost_streak = lost_streak
-		player.capture_streak = 0
+		var challenge_defeat := bool(current_bounty.get("challenge", false))
+		var lost_streak := 0 if challenge_defeat else int(player.get("capture_streak", 0))
+		if lost_streak > 0:
+			combat_summary.lost_streak = lost_streak
+			player.capture_streak = 0
 		phase = Phase.BOARD
-		last_notice = "%s escapou. Seu equipamento precisa de argumentos melhores.%s" % [str(current_bounty.name), " Embalo ×%d perdido." % lost_streak if lost_streak > 0 else ""]
-		last_notice_context = "defeat"
+		if challenge_defeat:
+			last_notice = "A Fenda rejeitou a incursão. O andar permanece aberto e o embalo dos mandados foi preservado."
+			last_notice_context = "challenge_defeat"
+		else:
+			last_notice = "%s escapou. Seu equipamento precisa de argumentos melhores.%s" % [str(current_bounty.name), " Embalo ×%d perdido." % lost_streak if lost_streak > 0 else ""]
+			last_notice_context = "defeat"
 		current_bounty = {}
 		pending_loot = {}
 		offered_approaches = []
@@ -563,6 +591,8 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		return {}
 	if recycle_item and not can_recycle_reward(pending_loot):
 		return {}
+	if bool(current_bounty.get("challenge", false)):
+		return claim_challenge_reward(equip_item, recycle_item)
 	var new_streak := int(player.get("capture_streak", 0)) + 1
 	var reward := CoreRules.bounty_streak_reward(int(current_bounty.credits), new_streak)
 	var summary := {
@@ -681,6 +711,58 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	if repeat_contract and not first_boss_capture:
 		offered_approaches.assign(ContentDB.contract_approaches())
 	hunt_event = {}
+	save_game()
+	changed.emit()
+	return summary
+
+
+func claim_challenge_reward(equip_item: bool, recycle_item: bool) -> Dictionary:
+	var completed_stage := current_bounty.duplicate(true)
+	var item := pending_loot.duplicate(true)
+	var stage_index := int(completed_stage.get("challenge_index", -1))
+	if stage_index != ChallengeRulesScript.progress(player):
+		return {}
+	var summary := {
+		"challenge": true,
+		"credits": maxi(0, int(completed_stage.get("credits", 0))),
+		"xp": maxi(0, int(completed_stage.get("xp", 0))),
+		"levels": 0,
+		"scrap": 0,
+		"recycled": recycle_item,
+		"loot_name": str(item.get("name", "Recompensa da Fenda")),
+		"loot_action": "recycled" if recycle_item else ("equipped" if equip_item else "stored"),
+		"challenge_floor": stage_index + 1,
+	}
+	player.credits = int(player.credits) + int(summary.credits)
+	summary.levels = CoreRules.apply_xp(player, int(summary.xp))
+	if recycle_item:
+		summary.scrap = CoreRules.salvage_value(item)
+		player.scrap = int(player.get("scrap", 0)) + int(summary.scrap)
+		player.scrap_recycled_total = int(player.get("scrap_recycled_total", 0)) + int(summary.scrap)
+	else:
+		player.inventory.append(item)
+		if equip_item:
+			equip(item)
+	player.challenge_floor = stage_index + 1
+	var notice_parts := ["andar %d limpo" % (stage_index + 1), "+%d créditos" % int(summary.credits), "+%d XP" % int(summary.xp)]
+	if recycle_item:
+		notice_parts.append("%s reciclado: +%d sucata" % [str(summary.loot_name), int(summary.scrap)])
+	elif equip_item:
+		notice_parts.append("%s equipado" % str(summary.loot_name))
+	else:
+		notice_parts.append("%s guardado" % str(summary.loot_name))
+	if int(summary.levels) > 0:
+		notice_parts.append("Nível +%d" % int(summary.levels))
+	last_notice = "Fenda atualizada: " + " · ".join(notice_parts)
+	last_notice_context = "challenge_reward"
+	phase = Phase.BOARD
+	current_bounty = {}
+	pending_loot = {}
+	combat_events.clear()
+	combat_summary = {}
+	offered_approaches.clear()
+	hunt_event = {}
+	CoreRules.clear_bounty_odds_cache()
 	save_game()
 	changed.emit()
 	return summary
@@ -1347,7 +1429,7 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	else:
 		repaired = true
 	sanitized.equipment_loadouts = clean_loadouts
-	for key in ["xp", "credits", "scrap", "scrap_recycled_total", "afk_credits_earned", "afk_scrap_earned", "career_credits_claimed", "career_scrap_claimed", "capture_streak", "best_capture_streak", "reputation", "wins", "stat_points"]:
+	for key in ["xp", "credits", "scrap", "scrap_recycled_total", "afk_credits_earned", "afk_scrap_earned", "career_credits_claimed", "career_scrap_claimed", "capture_streak", "best_capture_streak", "reputation", "wins", "stat_points", "challenge_floor"]:
 		if int(sanitized[key]) < 0:
 			sanitized[key] = 0
 			repaired = true
@@ -1355,6 +1437,10 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 		if int(sanitized[key]) < 1:
 			sanitized[key] = 1
 			repaired = true
+	var clean_challenge_floor := clampi(int(sanitized.get("challenge_floor", 0)), 0, ChallengeRulesScript.STAGES.size())
+	if clean_challenge_floor != int(sanitized.get("challenge_floor", 0)):
+		sanitized.challenge_floor = clean_challenge_floor
+		repaired = true
 	var clean_attributes := CoreRules.default_attributes()
 	var loaded_attributes = loaded.get("attributes", {})
 	if loaded_attributes is Dictionary:
@@ -1410,6 +1496,9 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	if clean_completed.size() != sanitized.completed_planets.size():
 		repaired = true
 	sanitized.completed_planets = clean_completed
+	if int(sanitized.challenge_floor) > 0 and not ChallengeRulesScript.is_unlocked(sanitized):
+		sanitized.challenge_floor = 0
+		repaired = true
 	var current_planet_id := str(sanitized.current_planet_id)
 	if not known_planet_ids.has(current_planet_id) or not ContentDB.is_planet_unlocked(current_planet_id, clean_completed):
 		current_planet_id = str(ContentDB.PLANET.id)
@@ -1470,8 +1559,10 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 func canonicalize_loaded_bounty(loaded: Dictionary) -> Dictionary:
 	if loaded.is_empty():
 		return {"bounty": {}, "repaired": false}
-	var canonical_target := {}
+	var canonical_target := ChallengeRulesScript.get_stage(str(loaded.get("id", ""))) if bool(loaded.get("challenge", false)) else {}
 	for target in ContentDB.TARGETS:
+		if not canonical_target.is_empty():
+			break
 		if str(target.id) == str(loaded.get("id", "")):
 			canonical_target = target.duplicate(true)
 			break
@@ -1520,6 +1611,10 @@ func canonicalize_loaded_field_context(loaded: Dictionary) -> Dictionary:
 
 func canonicalize_loaded_combat_summary(loaded: Dictionary) -> Dictionary:
 	var target := ContentDB.TARGETS.filter(func(definition): return str(definition.id) == str(loaded.get("target_id", "")))
+	if target.is_empty():
+		var challenge_target := ChallengeRulesScript.get_stage(str(loaded.get("target_id", "")))
+		if not challenge_target.is_empty():
+			target = [challenge_target]
 	if target.is_empty():
 		return {"summary": {}, "repaired": true}
 	var definition: Dictionary = target[0]
@@ -1579,6 +1674,9 @@ func sanitize_loaded_combat_events(loaded) -> Dictionary:
 		player_actions[str(action)] = true
 	var enemy_actions := {}
 	for target in ContentDB.TARGETS:
+		for action in target.attacks:
+			enemy_actions[str(action)] = true
+	for target in ChallengeRulesScript.STAGES:
 		for action in target.attacks:
 			enemy_actions[str(action)] = true
 	var events: Array[Dictionary] = []
