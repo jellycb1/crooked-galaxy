@@ -6,6 +6,8 @@ const ClassRulesScript = preload("res://scripts/class_rules.gd")
 const SpeciesRulesScript = preload("res://scripts/species_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const AttributeIconScript = preload("res://scripts/attribute_icon.gd")
+const EquipmentPresentation = preload("res://scripts/equipment_presentation.gd")
+const LocaleRules = preload("res://scripts/locale_rules.gd")
 
 const DEFINITIONS := [
 	{"id": "strength", "name": "FORÇA", "description": "Potência muscular, impacto e armas pesadas."},
@@ -16,6 +18,18 @@ const DEFINITIONS := [
 ]
 
 
+static func text(key: String, fallback: String = "", values: Array = []) -> String:
+	return LocaleRules.text(key, fallback, values)
+
+
+static func attribute_name(attribute_id: String, fallback: String = "") -> String:
+	return text("ATTRIBUTE_%s" % attribute_id.to_upper(), fallback)
+
+
+static func localized_class_field(definition: Dictionary, field: String) -> String:
+	return text("CLASS_%s_%s" % [str(definition.get("id", "")).to_upper(), field.to_upper()], str(definition.get(field, "")))
+
+
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
 	var title_row := HBoxContainer.new()
 	title_row.add_theme_constant_override("separation", 12)
@@ -23,9 +37,9 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var titles := VBoxContainer.new()
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(titles)
-	titles.add_child(host.label("CAÇADOR", 25, host.INK))
-	titles.add_child(host.label("EQUIPAMENTO · STATUS · ATRIBUTOS", 11, host.MUTED))
-	var back := host.action_button("VOLTAR", host.CYAN, true)
+	titles.add_child(host.label(text("HUNTER_TITLE", "CAÇADOR"), 25, host.INK))
+	titles.add_child(host.label(text("HUNTER_SUBTITLE", "EQUIPAMENTO · STATUS · ATRIBUTOS"), 11, host.MUTED))
+	var back := host.action_button(text("COMMON_BACK", "VOLTAR"), host.CYAN, true)
 	back.custom_minimum_size = Vector2(112, 48)
 	back.pressed.connect(func():
 		host.attribute_draft = {}
@@ -57,13 +71,13 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var point_copy := VBoxContainer.new()
 	point_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	point_row.add_child(point_copy)
-	point_copy.add_child(host.label("PONTOS DISPONÍVEIS", 12, host.MUTED))
+	point_copy.add_child(host.label(text("HUNTER_POINTS_AVAILABLE", "PONTOS DISPONÍVEIS"), 12, host.MUTED))
 	var point_value := host.label(str(available), 28, host.GOLD)
 	point_value.name = "AttributePoints"
 	point_copy.add_child(point_value)
-	point_row.add_child(host.label("+%d POR NÍVEL" % Rules.ATTRIBUTE_POINTS_PER_LEVEL, 13, host.LIME, HORIZONTAL_ALIGNMENT_RIGHT))
+	point_row.add_child(host.label(text("HUNTER_POINTS_PER_LEVEL", "+%d POR NÍVEL", [Rules.ATTRIBUTE_POINTS_PER_LEVEL]), 13, host.LIME, HORIZONTAL_ALIGNMENT_RIGHT))
 
-	var section_title := host.label("STATUS E ATRIBUTOS", 17, host.INK)
+	var section_title := host.label(text("HUNTER_STATUS_ATTRIBUTES", "STATUS E ATRIBUTOS"), 17, host.INK)
 	section_title.name = "HunterAttributeHeading"
 	sheet.add_child(section_title)
 	var list := VBoxContainer.new()
@@ -76,7 +90,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 8)
 	content.add_child(actions)
-	var discard := host.action_button("DESCARTAR RASCUNHO", host.CORAL, true)
+	var discard := host.action_button(text("HUNTER_DISCARD_DRAFT", "DESCARTAR RASCUNHO"), host.CORAL, true)
 	discard.name = "DiscardAttributes"
 	discard.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	discard.disabled = drafted <= 0
@@ -85,7 +99,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		host.call("render")
 	)
 	actions.add_child(discard)
-	var confirm := host.action_button("CONFIRMAR · %d" % drafted, host.LIME, true)
+	var confirm := host.action_button(text("HUNTER_CONFIRM_POINTS", "CONFIRMAR · %d", [drafted]), host.LIME, true)
 	confirm.name = "ConfirmAttributes"
 	confirm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	confirm.disabled = drafted <= 0
@@ -120,9 +134,9 @@ static func hunter_profile(host: CrookedUIFactory, state: StateScript, class_id:
 		hunter_name_label.name = "HunterName"
 		identity_copy.add_child(hunter_name_label)
 	identity_copy.add_child(host.label(ClassRulesScript.class_name_for(class_id), 13 if not hunter_name.is_empty() else 17, host.GOLD if not class_definition.is_empty() else host.CORAL))
-	var identity_detail := "%s · NÍVEL %d" % [SpeciesRulesScript.species_name_for(str(state.player.get("species_id", ""))).to_upper(), int(state.player.get("level", 1))]
+	var identity_detail := text("HUNTER_IDENTITY_LEVEL", "%s · NÍVEL %d", [SpeciesRulesScript.species_name_for(str(state.player.get("species_id", ""))).to_upper(), int(state.player.get("level", 1))])
 	if not class_definition.is_empty():
-		identity_detail += " · PRINCIPAL %s" % str(class_definition.primary_name)
+		identity_detail += text("HUNTER_PRIMARY_SUFFIX", " · PRINCIPAL %s", [localized_class_field(class_definition, "primary_name")])
 	identity_copy.add_child(host.label(identity_detail, 10, host.MUTED))
 	var class_mechanic_text := ClassRulesScript.combat_identity_text(state.player, Rules.BASE_ATTRIBUTE_VALUE)
 	if not class_mechanic_text.is_empty():
@@ -157,22 +171,22 @@ static func hunter_profile(host: CrookedUIFactory, state: StateScript, class_id:
 			continue
 		secondary_grid.add_child(compact_equipment_slot(host, state.player.get(slot_id, {}), slot_id))
 	var kit_origin := Rules.equipment_set_origin(state.player)
-	var portrait_caption := host.center_label("KIT PLANETÁRIO ATIVO" if not kit_origin.is_empty() else "LOADOUT EQUIPADO", 9, host.GOLD if not kit_origin.is_empty() else host.MUTED)
+	var portrait_caption := host.center_label(text("HUNTER_PLANETARY_KIT_ACTIVE", "KIT PLANETÁRIO ATIVO") if not kit_origin.is_empty() else text("HUNTER_LOADOUT_EQUIPPED", "LOADOUT EQUIPADO"), 9, host.GOLD if not kit_origin.is_empty() else host.MUTED)
 	box.add_child(portrait_caption)
 
 	var metrics := HBoxContainer.new()
 	metrics.name = "HunterCombatStatus"
 	metrics.add_theme_constant_override("separation", 6)
 	box.add_child(metrics)
-	metrics.add_child(host.metric_chip("PODER", str(Rules.player_power(state.player)), host.GOLD))
-	metrics.add_child(host.metric_chip("VIDA", str(Rules.max_health(state.player)), host.LIME))
-	metrics.add_child(host.metric_chip("ABERTURA", "+%d" % Rules.player_opening_damage(state.player), host.CYAN))
-	metrics.add_child(host.metric_chip("REDUÇÃO", "-%d" % Rules.player_damage_reduction(state.player), host.CORAL))
+	metrics.add_child(host.metric_chip(text("COMMON_POWER", "PODER"), str(Rules.player_power(state.player)), host.GOLD))
+	metrics.add_child(host.metric_chip(text("COMMON_HEALTH", "VIDA"), str(Rules.max_health(state.player)), host.LIME))
+	metrics.add_child(host.metric_chip(text("HUNTER_OPENING", "ABERTURA"), "+%d" % Rules.player_opening_damage(state.player), host.CYAN))
+	metrics.add_child(host.metric_chip(text("HUNTER_REDUCTION", "REDUÇÃO"), "-%d" % Rules.player_damage_reduction(state.player), host.CORAL))
 
 	var profile_actions := HBoxContainer.new()
 	profile_actions.add_theme_constant_override("separation", 8)
 	box.add_child(profile_actions)
-	var choose_class := host.action_button("CLASSE", host.CYAN, true)
+	var choose_class := host.action_button(text("NAV_CLASS", "CLASSE"), host.CYAN, true)
 	choose_class.name = "ChooseClassAction"
 	choose_class.custom_minimum_size = Vector2(0, 48)
 	choose_class.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -182,7 +196,7 @@ static func hunter_profile(host: CrookedUIFactory, state: StateScript, class_id:
 		host.call("render")
 	)
 	profile_actions.add_child(choose_class)
-	var arsenal := host.action_button("ARSENAL", host.GOLD, true)
+	var arsenal := host.action_button(text("NAV_ARSENAL", "ARSENAL"), host.GOLD, true)
 	arsenal.name = "HunterArsenalAction"
 	arsenal.custom_minimum_size = Vector2(0, 48)
 	arsenal.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -198,7 +212,7 @@ static func hunter_profile(host: CrookedUIFactory, state: StateScript, class_id:
 
 static func equipment_slot(host: CrookedUIFactory, item_value: Variant, slot_id: String) -> PanelContainer:
 	var item: Dictionary = item_value if item_value is Dictionary else {}
-	var slot_title := Rules.equipment_slot_name(slot_id).to_upper()
+	var slot_title := EquipmentPresentation.localized_slot(slot_id).to_upper()
 	var slot := host.panel(VBoxContainer.new(), Color("#090f25"), 13, 8)
 	slot.name = "HunterEquipment_%s" % slot_id
 	slot.custom_minimum_size = Vector2(88, 0)
@@ -212,8 +226,8 @@ static func equipment_slot(host: CrookedUIFactory, item_value: Variant, slot_id:
 	icon_item.slot = slot_id
 	var icon := host.equipment_icon(icon_item, 62)
 	box.add_child(icon)
-	box.add_child(host.center_label("+%d PODER" % int(item.get("power", 0)), 10, host.GOLD))
-	slot.tooltip_text = "%s · %s" % [slot_title, str(item.get("name", "SLOT VAZIO"))]
+	box.add_child(host.center_label(text("HUNTER_SLOT_POWER", "+%d PODER", [int(item.get("power", 0))]), 10, host.GOLD))
+	slot.tooltip_text = "%s · %s" % [slot_title, EquipmentPresentation.localized_item_field(item, "name") if not item.is_empty() else text("HUNTER_EMPTY_SLOT", "SLOT VAZIO")]
 	return slot
 
 
@@ -224,12 +238,12 @@ static func compact_equipment_slot(host: CrookedUIFactory, item_value: Variant, 
 	slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var box := slot.get_child(0) as VBoxContainer
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_child(host.center_label(Rules.equipment_slot_name(slot_id).to_upper(), 8, host.MUTED))
+	box.add_child(host.center_label(EquipmentPresentation.localized_slot(slot_id).to_upper(), 8, host.MUTED))
 	var icon_item := item.duplicate(true)
 	icon_item.slot = slot_id
 	box.add_child(host.equipment_icon(icon_item, 42))
-	box.add_child(host.center_label("+%d" % int(item.get("power", 0)) if not item.is_empty() else "VAZIO", 9, host.GOLD if not item.is_empty() else host.MUTED))
-	slot.tooltip_text = "%s · %s" % [Rules.equipment_slot_name(slot_id), str(item.get("name", "SLOT VAZIO"))]
+	box.add_child(host.center_label("+%d" % int(item.get("power", 0)) if not item.is_empty() else text("HUNTER_EMPTY", "VAZIO"), 9, host.GOLD if not item.is_empty() else host.MUTED))
+	slot.tooltip_text = "%s · %s" % [EquipmentPresentation.localized_slot(slot_id), EquipmentPresentation.localized_item_field(item, "name") if not item.is_empty() else text("HUNTER_EMPTY_SLOT", "SLOT VAZIO")]
 	return slot
 static func class_reference_icon(host: CrookedUIFactory, class_id: String) -> TextureRect:
 	if class_id.is_empty():
@@ -248,7 +262,7 @@ static func class_reference_icon(host: CrookedUIFactory, class_id: String) -> Te
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon.tooltip_text = "PLACEHOLDER INTERNO · identidade visual provisória"
+	icon.tooltip_text = text("ONB_CLASS_PLACEHOLDER_TOOLTIP", "PLACEHOLDER INTERNO · identidade visual provisória")
 	return icon
 
 
@@ -275,7 +289,7 @@ static func attribute_card(host: CrookedUIFactory, state: StateScript, definitio
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	copy.add_child(host.label(str(definition.name), 16, host.CYAN))
+	copy.add_child(host.label(attribute_name(attribute_id, str(definition.name)).to_upper(), 16, host.CYAN))
 	copy.add_child(host.label(attribute_effect(attribute_id, value), 10, host.LIME))
 	var add := host.action_button("+1", host.GOLD, true)
 	add.name = "AttributeAdd_%s" % attribute_id
@@ -305,13 +319,13 @@ static func attribute_effect(attribute_id: String, value: int) -> String:
 	var investment := maxi(0, value - Rules.BASE_ATTRIBUTE_VALUE)
 	match attribute_id:
 		"strength":
-			return "BÔNUS UNIVERSAL · +%d PODER" % floori(float(investment) / 2.0)
+			return text("ATTRIBUTE_EFFECT_STRENGTH", "BÔNUS UNIVERSAL · +%d PODER", [floori(float(investment) / 2.0)])
 		"vitality":
-			return "BÔNUS UNIVERSAL · +%d VIDA" % (investment * 4)
+			return text("ATTRIBUTE_EFFECT_VITALITY", "BÔNUS UNIVERSAL · +%d VIDA", [investment * 4])
 		"dexterity":
-			return "BÔNUS UNIVERSAL · -%d DANO RECEBIDO" % floori(float(investment) / 3.0)
+			return text("ATTRIBUTE_EFFECT_DEXTERITY", "BÔNUS UNIVERSAL · -%d DANO RECEBIDO", [floori(float(investment) / 3.0)])
 		"intelligence":
-			return "BÔNUS UNIVERSAL · +%d DANO DE ABERTURA" % floori(float(investment) / 2.0)
+			return text("ATTRIBUTE_EFFECT_INTELLIGENCE", "BÔNUS UNIVERSAL · +%d DANO DE ABERTURA", [floori(float(investment) / 2.0)])
 		"cunning":
-			return "BÔNUS UNIVERSAL · +%.1f%% NO ROLAMENTO" % (minf(0.15, float(investment) * 0.005) * 100.0)
+			return text("ATTRIBUTE_EFFECT_CUNNING", "BÔNUS UNIVERSAL · +%.1f%% NO ROLAMENTO", [minf(0.15, float(investment) * 0.005) * 100.0])
 	return ""

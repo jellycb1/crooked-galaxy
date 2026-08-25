@@ -121,6 +121,47 @@ func capture() -> void:
 	if save_frame("ui_settings_en.png") != OK:
 		quit(1)
 		return
+	state.player.class_id = "orbit_gunslinger"
+	state.player.species_id = "nebular_nomad"
+	state.player.hunter_name = "Nova"
+	state.player.stat_points = 2
+	state.player.inventory = [
+		{"id": "capture_weapon", "name": "Desatomizador de Bolso", "description": "Desmonta átomos, garantias e conversas constrangedoras.", "slot": "weapon", "power": 4, "rarity": "Raro", "color": "#58d9ff", "origin_planet_id": "dustball_prime"},
+		{"id": "capture_armor", "name": "Casaco Antilaser Usado", "description": "As marcas de queimadura comprovam que já funcionou.", "slot": "armor", "power": 3, "rarity": "Comum", "color": "#b9c2d9", "origin_planet_id": "dustball_prime"},
+	]
+	scene.view_mode = "attributes"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_hunter_en.png") != OK:
+		quit(1)
+		return
+	scene.view_mode = "classes"
+	scene.class_draft = "contract_hacker"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_classes_en.png") != OK:
+		quit(1)
+		return
+	scene.view_mode = "arsenal"
+	scene.arsenal_section = "equipped"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_arsenal_equipped_en.png") != OK:
+		quit(1)
+		return
+	scene.arsenal_section = "inventory"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_arsenal_inventory_en.png") != OK:
+		quit(1)
+		return
+	state.player = state.default_player()
+	scene.class_draft = ""
+	scene.arsenal_section = "equipped"
 	scene.view_mode = "board"
 	scene.board_section = "bounties"
 	scene.render()

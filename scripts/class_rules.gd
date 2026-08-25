@@ -1,6 +1,8 @@
 class_name ClassRules
 extends RefCounted
 
+const LocaleRules = preload("res://scripts/locale_rules.gd")
+
 const UNASSIGNED_ID := ""
 const DEFINITIONS := [
 	{
@@ -89,7 +91,7 @@ static func route_profile_text(class_id: String, approach_id: String) -> String:
 	var definition := get_definition(class_id)
 	if definition.is_empty() or str(definition.get("preferred_approach", "")) != approach_id:
 		return ""
-	return str(definition.get("name", "PERFIL"))
+	return class_name_for(class_id)
 
 
 static func specialization_text(definition: Dictionary) -> String:
@@ -171,9 +173,9 @@ static func combat_identity_text(player: Dictionary, base_attribute_value: int) 
 		return ""
 	var preview := specialization_preview(definition, player.get("attributes", {}), base_attribute_value)
 	if int(preview.damage_reduction) > 0:
-		return "CASCO DURO · -%d DANO POR GOLPE" % int(preview.damage_reduction)
+		return LocaleRules.text("CLASS_IDENTITY_HARD_SHELL", "CASCO DURO · -%d DANO POR GOLPE", [int(preview.damage_reduction)])
 	if float(preview.attack_roll_bonus) > 0.0:
-		return "MIRA ORBITAL · +%.1f%% PRECISÃO" % (float(preview.attack_roll_bonus) * 100.0)
+		return LocaleRules.text("CLASS_IDENTITY_ORBITAL_AIM", "MIRA ORBITAL · +%.1f%% PRECISÃO", [float(preview.attack_roll_bonus) * 100.0])
 	if int(preview.opening_damage) > 0:
-		return "INVASÃO · +%d DANO DE ABERTURA" % int(preview.opening_damage)
-	return "ESPECIALIZAÇÃO AINDA INATIVA"
+		return LocaleRules.text("CLASS_IDENTITY_BREACH", "INVASÃO · +%d DANO DE ABERTURA", [int(preview.opening_damage)])
+	return LocaleRules.text("CLASS_IDENTITY_INACTIVE", "ESPECIALIZAÇÃO AINDA INATIVA")

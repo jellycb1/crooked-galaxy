@@ -3,6 +3,36 @@ extends RefCounted
 
 const CoreRules = preload("res://scripts/core_rules.gd")
 const LocaleRules = preload("res://scripts/locale_rules.gd")
+const Content = preload("res://scripts/content_db.gd")
+
+
+static func localized_item_field(item: Dictionary, field: String) -> String:
+	var item_id := str(item.get("id", ""))
+	if item_id == "starter_weapon" or item_id == "starter_armor":
+		return LocaleRules.text("ITEM_%s_%s" % [item_id.to_upper(), field.to_upper()], str(item.get(field, "")))
+	var planet_id := str(item.get("origin_planet_id", Content.PLANET.id))
+	var slot := str(item.get("slot", "weapon"))
+	var catalog := Content.item_catalog_for(planet_id, slot)
+	for index in catalog.size():
+		if str(catalog[index].get("name", "")) == str(item.get("name", "")):
+			var key := "ITEM_%s_%s_%d_%s" % [planet_id.to_upper(), slot.to_upper(), index, field.to_upper()]
+			return LocaleRules.text(key, str(item.get(field, "")))
+	return str(item.get(field, ""))
+
+
+static func localized_trait_field(trait_data: Dictionary, field: String) -> String:
+	return LocaleRules.text("ITEM_TRAIT_%s_%s" % [str(trait_data.get("id", "")).to_upper(), field.to_upper()], str(trait_data.get(field, "")))
+
+
+static func localized_rarity(rarity: String) -> String:
+	match rarity:
+		"Épico": return LocaleRules.text("RARITY_EPIC", "ÉPICO")
+		"Raro": return LocaleRules.text("RARITY_RARE", "RARO")
+		_: return LocaleRules.text("RARITY_COMMON", "COMUM")
+
+
+static func localized_slot(slot: String) -> String:
+	return LocaleRules.text("SLOT_%s" % slot.to_upper(), CoreRules.equipment_slot_name(slot))
 
 
 static func filtered_inventory(inventory: Array, slot_filter: String, sort_mode: String) -> Array:

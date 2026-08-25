@@ -2443,3 +2443,417 @@ msgstr "Contract paid: %s"
 
 msgid "COMMON_REFERENCE_PLACEHOLDER_WATERMARK"
 msgstr "INTERNAL PLACEHOLDER · REPLACE"
+
+msgid "ATTRIBUTE_VITALITY"
+msgstr "Vitality"
+
+msgid "ATTRIBUTE_CUNNING"
+msgstr "Cunning"
+
+msgid "COMMON_POWER"
+msgstr "POWER"
+
+msgid "COMMON_HEALTH"
+msgstr "HEALTH"
+
+msgid "HUNTER_TITLE"
+msgstr "HUNTER"
+
+msgid "HUNTER_SUBTITLE"
+msgstr "EQUIPMENT · STATS · ATTRIBUTES"
+
+msgid "HUNTER_POINTS_AVAILABLE"
+msgstr "AVAILABLE POINTS"
+
+msgid "HUNTER_POINTS_PER_LEVEL"
+msgstr "+%d PER LEVEL"
+
+msgid "HUNTER_STATUS_ATTRIBUTES"
+msgstr "STATS AND ATTRIBUTES"
+
+msgid "HUNTER_DISCARD_DRAFT"
+msgstr "DISCARD DRAFT"
+
+msgid "HUNTER_CONFIRM_POINTS"
+msgstr "CONFIRM · %d"
+
+msgid "HUNTER_IDENTITY_LEVEL"
+msgstr "%s · LEVEL %d"
+
+msgid "HUNTER_PRIMARY_SUFFIX"
+msgstr " · PRIMARY %s"
+
+msgid "HUNTER_PLANETARY_KIT_ACTIVE"
+msgstr "PLANETARY KIT ACTIVE"
+
+msgid "HUNTER_LOADOUT_EQUIPPED"
+msgstr "EQUIPPED LOADOUT"
+
+msgid "HUNTER_OPENING"
+msgstr "OPENING"
+
+msgid "HUNTER_REDUCTION"
+msgstr "REDUCTION"
+
+msgid "HUNTER_SLOT_POWER"
+msgstr "+%d POWER"
+
+msgid "HUNTER_EMPTY_SLOT"
+msgstr "EMPTY SLOT"
+
+msgid "HUNTER_EMPTY"
+msgstr "EMPTY"
+
+msgid "ATTRIBUTE_EFFECT_STRENGTH"
+msgstr "UNIVERSAL BONUS · +%d POWER"
+
+msgid "ATTRIBUTE_EFFECT_VITALITY"
+msgstr "UNIVERSAL BONUS · +%d HEALTH"
+
+msgid "ATTRIBUTE_EFFECT_DEXTERITY"
+msgstr "UNIVERSAL BONUS · -%d DAMAGE TAKEN"
+
+msgid "ATTRIBUTE_EFFECT_INTELLIGENCE"
+msgstr "UNIVERSAL BONUS · +%d OPENING DAMAGE"
+
+msgid "ATTRIBUTE_EFFECT_CUNNING"
+msgstr "UNIVERSAL BONUS · +%.1f%% ATTACK ROLL"
+
+msgid "CLASS_VIEW_TITLE"
+msgstr "HUNTER CLASS"
+
+msgid "CLASS_VIEW_SUBTITLE"
+msgstr "Choose the specialization that amplifies your primary attribute."
+
+msgid "CLASS_VIEW_PROVISIONAL"
+msgstr "PROVISIONAL ARCHETYPES · FREE SWITCHING"
+
+msgid "CLASS_VIEW_EXPLANATION"
+msgstr "Your class grants +1 Power for every 2 points invested in its primary attribute. Every other attribute remains active."
+
+msgid "CLASS_VIEW_CONFIRM"
+msgstr "CONFIRM CLASS"
+
+msgid "CLASS_VIEW_CURRENT_SUFFIX"
+msgstr " · CURRENT"
+
+msgid "CLASS_VIEW_FOCUSED_SUFFIX"
+msgstr " · FOCUSED"
+
+msgid "CLASS_VIEW_PRIMARY"
+msgstr "PRIMARY ATTRIBUTE · %s"
+
+msgid "CLASS_VIEW_IN_FOCUS"
+msgstr "FOCUSED"
+
+msgid "CLASS_VIEW_SHEET"
+msgstr "VIEW SHEET"
+
+msgid "CLASS_VIEW_CURRENT"
+msgstr "CURRENT CLASS"
+
+msgid "CLASS_VIEW_PENDING"
+msgstr "PENDING CHANGE"
+
+msgid "CLASS_VIEW_FIRST"
+msgstr "FIRST CLASS"
+
+msgid "CLASS_VIEW_SPECIALIZATION"
+msgstr "SPECIALIZATION · %s"
+
+msgid "CLASS_VIEW_CONTRACT_STYLE"
+msgstr "CONTRACT STYLE · %s"
+
+msgid "CLASS_VIEW_BONUS_POWER"
+msgstr "+%d POWER"
+
+msgid "CLASS_VIEW_BONUS_OPENING"
+msgstr "+%d OPENING"
+
+msgid "CLASS_VIEW_BONUS_REDUCTION"
+msgstr "-%d DAMAGE/HIT"
+
+msgid "CLASS_VIEW_BONUS_AIM"
+msgstr "+%.1f%% AIM"
+
+msgid "CLASS_VIEW_BUILD_BONUS"
+msgstr "BUILD BONUS · %s"
+
+msgid "CLASS_VIEW_INACTIVE"
+msgstr "NOT ACTIVE YET"
+
+msgid "CLASS_IDENTITY_HARD_SHELL"
+msgstr "HARD SHELL · -%d DAMAGE PER HIT"
+
+msgid "CLASS_IDENTITY_ORBITAL_AIM"
+msgstr "ORBITAL AIM · +%.1f%% ACCURACY"
+
+msgid "CLASS_IDENTITY_BREACH"
+msgstr "BREACH · +%d OPENING DAMAGE"
+
+msgid "CLASS_IDENTITY_INACTIVE"
+msgstr "SPECIALIZATION NOT ACTIVE YET"
+
+msgid "COMMON_BASE_CONTRACT"
+msgstr "BASE CONTRACT"
+
+msgid "ARSENAL_TITLE"
+msgstr "ARSENAL"
+
+msgid "ARSENAL_BUILD_UPGRADES"
+msgstr "BUILD AND UPGRADES"
+
+msgid "ARSENAL_BACKPACK_COUNT"
+msgstr "BACKPACK · %d ITEMS"
+
+msgid "ARSENAL_CHOOSE_ROUTE"
+msgstr "CHOOSE ROUTE"
+
+msgid "ARSENAL_EQUIPPED"
+msgstr "EQUIPPED"
+
+msgid "ARSENAL_BACKPACK"
+msgstr "BACKPACK"
+
+msgid "ARSENAL_WORKSHOP_LOG"
+msgstr "WORKSHOP LOG"
+
+msgid "ARSENAL_CONTRACT_RECEIPT"
+msgstr "CONTRACT RECEIPT"
+
+msgid "ARSENAL_WORKSHOP_STATUS"
+msgstr "WORKSHOP · %d SCRAP · TOTAL POWER %d"
+
+msgid "ARSENAL_KIT_INACTIVE"
+msgstr "PLANETARY KIT · INACTIVE · match weapon and armor from the same origin"
+
+msgid "ARSENAL_KIT_ACTIVE"
+msgstr "PLANETARY KIT · %s · +%d POWER · +%d HEALTH"
+
+msgid "ARSENAL_FILTER_EMPTY"
+msgstr "No items match this filter."
+
+msgid "ARSENAL_FILTER_EMPTY_HINT"
+msgstr "The other compartments may be slightly less empty."
+
+msgid "ARSENAL_ITEM_COUNT"
+msgstr "ITEMS · %d / %d"
+
+msgid "ARSENAL_PREVIOUS_PAGE"
+msgstr "Previous inventory page"
+
+msgid "ARSENAL_NEXT_PAGE"
+msgstr "Next inventory page"
+
+msgid "ARSENAL_OVERRIDE_DEFEATED"
+msgstr "OVERRIDE DEFEATED · TESTED %s → CHOSEN %s · REASSESS THE ROUTE"
+
+msgid "ARSENAL_TESTED_ROUTE_FAILED"
+msgstr "TESTED ROUTE ALSO FAILED · %s · IMPROVE THE BUILD OR REASSESS THE INCIDENT"
+
+msgid "ARSENAL_FIELD_TEST_UNAVAILABLE"
+msgstr "FIELD TEST UNAVAILABLE"
+
+msgid "ARSENAL_REVENGE"
+msgstr "REVENGE"
+
+msgid "ARSENAL_CURRENT_WARRANT"
+msgstr "CURRENT WARRANT"
+
+msgid "ARSENAL_NEXT_WARRANT"
+msgstr "NEXT WARRANT"
+
+msgid "ARSENAL_CHAPTER_BOSS"
+msgstr "CHAPTER BOSS"
+
+msgid "ARSENAL_FIELD_TEST_TARGET"
+msgstr "FIELD TEST · %s: %s"
+
+msgid "ARSENAL_NOW"
+msgstr "NOW"
+
+msgid "ARSENAL_PLUS_POWER"
+msgstr "+1 POWER"
+
+msgid "ARSENAL_PLUS_HEALTH"
+msgstr "+8 HEALTH"
+
+msgid "ARSENAL_MAX_REINFORCEMENT"
+msgstr "MAX REINF."
+
+msgid "ARSENAL_TESTED_APPROACH"
+msgstr "TESTED APPROACH · %s · incidents can still change the odds"
+
+msgid "ARSENAL_EQUIPPED_WEAPON"
+msgstr "Equipped weapon"
+
+msgid "ARSENAL_EQUIPPED_ARMOR"
+msgstr "Equipped armor"
+
+msgid "ARSENAL_NEXT_INVESTMENT"
+msgstr "NEXT INVESTMENT"
+
+msgid "ARSENAL_NO_AFFORDABLE_UPGRADE"
+msgstr "No upgrade is within reach of the current scrap."
+
+msgid "ARSENAL_HEALTH_GAIN"
+msgstr "+%d HEALTH"
+
+msgid "ARSENAL_BEST_INVESTMENT"
+msgstr "BEST INVESTMENT · %s"
+
+msgid "ARSENAL_TEST_IMPACT"
+msgstr "%d%% → %d%% in the test"
+
+msgid "ARSENAL_ODDS_CAPPED"
+msgstr "odds already capped · build impact +%d"
+
+msgid "ARSENAL_SCRAP_IMPACT"
+msgstr "%d scrap · %s"
+
+msgid "ARSENAL_APPLY"
+msgstr "APPLY"
+
+msgid "ARSENAL_APPLY_TOOLTIP"
+msgstr "Applies the upgrade with the best projected gain per scrap."
+
+msgid "ARSENAL_FILTER_ALL"
+msgstr "ALL"
+
+msgid "ARSENAL_FILTER_WEAPONS"
+msgstr "WEAPONS"
+
+msgid "ARSENAL_FILTER_ARMOR"
+msgstr "ARMOR"
+
+msgid "ARSENAL_FILTER_OTHER"
+msgstr "OTHER"
+
+msgid "ARSENAL_SORT"
+msgstr "SORT · %s"
+
+msgid "ARSENAL_RARITY"
+msgstr "RARITY"
+
+msgid "ARSENAL_RECYCLE_BULK"
+msgstr "RECYCLE · %d · +%d"
+
+msgid "ARSENAL_RECYCLE_BULK_TOOLTIP"
+msgstr "Recycles only common, unmodified, uninvested items that do not beat the current effect."
+
+msgid "ARSENAL_LOADOUT"
+msgstr "LOADOUT · %s"
+
+msgid "ARSENAL_NOT_SAVED"
+msgstr "not saved"
+
+msgid "ARSENAL_LOADOUT_SUMMARY"
+msgstr "%d/%d ITEMS · %s / %s"
+
+msgid "ARSENAL_SAVE"
+msgstr "SAVE"
+
+msgid "ARSENAL_USE"
+msgstr "USE"
+
+msgid "ARSENAL_ITEM_STATS"
+msgstr "%s · %s · +%d power"
+
+msgid "ARSENAL_CALIBRATIONS"
+msgstr "%d cal."
+
+msgid "ARSENAL_REINFORCEMENTS"
+msgstr "%d reinforcements · +%d health"
+
+msgid "ARSENAL_WORKSHOP_ITEM"
+msgstr "◇ WORKSHOP · %s"
+
+msgid "ARSENAL_EQUIP"
+msgstr "EQUIP"
+
+msgid "ARSENAL_UNLOCK"
+msgstr "UNLOCK"
+
+msgid "ARSENAL_PROTECT"
+msgstr "PROTECT"
+
+msgid "ARSENAL_RECYCLE_ITEM"
+msgstr "RECYCLE +%d"
+
+msgid "ARSENAL_UPGRADE_STATUS"
+msgstr "CAL %d · REINF %d/%d · +%d HEALTH"
+
+msgid "ARSENAL_UPGRADE_POWER"
+msgstr "+1 POWER · %d"
+
+msgid "ARSENAL_RECOMMENDED_TOOLTIP"
+msgstr "Best projected gain per scrap against the field-test target."
+
+msgid "ARSENAL_REINFORCE_HEALTH"
+msgstr "+%d HEALTH · %d"
+
+msgid "ARSENAL_MAX_INTEGRITY"
+msgstr "MAX INTEGRITY"
+
+msgid "ARSENAL_UNIVERSAL_SHEET"
+msgstr "UNIVERSAL SHEET"
+
+msgid "ARSENAL_EQUIPPED_COUNT"
+msgstr "%d / %d EQUIPPED"
+
+msgid "ARSENAL_NEXT_SECONDARY_DROP"
+msgstr "NEXT SECONDARY DROP · HELMET ON CONGELARIA LLC"
+
+msgid "ARSENAL_FRONTIER_DROPS"
+msgstr "DROPS ON THIS FRONTIER · %s"
+
+msgid "ARSENAL_FUTURE_LOOT_SLOT"
+msgstr "Reserved for future loot"
+
+msgid "WORKSHOP_NOTICE_EQUIPPED"
+msgstr "%s equipped. Total power: %d."
+
+msgid "WORKSHOP_NOTICE_RECYCLED"
+msgstr "%s recycled: +%d scrap."
+
+msgid "WORKSHOP_NOTICE_BULK_RECYCLED"
+msgstr "%d inferior items recycled: +%d scrap."
+
+msgid "WORKSHOP_NOTICE_UNLOCKED"
+msgstr "Protection removed. The workshop is interested in that item again."
+
+msgid "WORKSHOP_NOTICE_PROTECTED"
+msgstr "Item protected against manual and bulk recycling."
+
+msgid "WORKSHOP_NOTICE_LOADOUT_SAVED"
+msgstr "Loadout %s archived. Its items were protected."
+
+msgid "WORKSHOP_NOTICE_LOADOUT_INCOMPLETE"
+msgstr "Incomplete loadout. One of its items probably became workshop history."
+
+msgid "WORKSHOP_NOTICE_LOADOUT_EQUIPPED"
+msgstr "Loadout %s equipped. Power %d · Health %d."
+
+msgid "LOADOUT_HUNT"
+msgstr "HUNT"
+
+msgid "LOADOUT_RESERVE"
+msgstr "RESERVE"
+
+msgid "WORKSHOP_NOTICE_CALIBRATED"
+msgstr "%s calibrated to +%d power."
+
+msgid "WORKSHOP_NOTICE_REINFORCED"
+msgstr "%s reinforced: +%d total health."
+
+msgid "ATTRIBUTE_NOTICE_CONFIRMED_SINGULAR"
+msgstr "%d attribute point confirmed."
+
+msgid "ATTRIBUTE_NOTICE_CONFIRMED_PLURAL"
+msgstr "%d attribute points confirmed."
+
+msgid "ITEM_STARTER_WEAPON_NAME"
+msgstr "Training Zapper"
+
+msgid "ITEM_STARTER_ARMOR_NAME"
+msgstr "Questionable Space Jacket"

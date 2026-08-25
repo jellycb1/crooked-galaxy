@@ -22,11 +22,13 @@ func run_mobile_audit() -> void:
 	state.player.owned_transport_ids = ["licensed_junkbox"]
 	state.player.active_transport_id = "licensed_junkbox"
 	state.player.inventory = [
-		{"id": "mobile_weapon", "name": "Arma de Bolso", "slot": "weapon", "power": 4, "rarity": "Raro", "color": "#58d9ff"},
-		{"id": "mobile_armor", "name": "Colete de Bolso", "slot": "armor", "power": 4, "rarity": "Comum", "color": "#b9c2d9"},
+		{"id": "mobile_weapon", "name": "Desatomizador de Bolso", "description": "Desmonta átomos, garantias e conversas constrangedoras.", "slot": "weapon", "power": 4, "rarity": "Raro", "color": "#58d9ff", "origin_planet_id": "dustball_prime"},
+		{"id": "mobile_armor", "name": "Casaco Antilaser Usado", "description": "As marcas de queimadura comprovam que já funcionou.", "slot": "armor", "power": 4, "rarity": "Comum", "color": "#b9c2d9", "origin_planet_id": "dustball_prime"},
 	]
 	for index in 28:
-		state.player.inventory.append({"id": "mobile_page_%02d" % index, "name": "Peça Móvel %02d" % index, "slot": "weapon" if index % 2 == 0 else "armor", "power": index + 2, "rarity": "Comum", "color": "#b9c2d9"})
+		var fixture_slot := "weapon" if index % 2 == 0 else "armor"
+		var catalog_item: Dictionary = ContentDB.item_catalog_for("dustball_prime", fixture_slot)[index % 4]
+		state.player.inventory.append({"id": "mobile_page_%02d" % index, "name": str(catalog_item.name), "description": str(catalog_item.description), "slot": fixture_slot, "power": index + 2, "rarity": "Comum", "color": "#b9c2d9", "origin_planet_id": "dustball_prime"})
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
@@ -40,6 +42,40 @@ func run_mobile_audit() -> void:
 	(scene.find_child("BoardSettingsAction", true, false) as Button).pressed.emit()
 	await process_frame
 	check(find_label_with_text(scene, "SETTINGS") != null and find_label_with_text(scene, "GAME EXPERIENCE") != null and find_label_with_text(scene, "AUDIO") != null and (scene.find_child("SoundPreferenceAction", true, false) as Button).text == "ON" and (scene.find_child("ResetProgressAction", true, false) as Button).text == "RESET LOCAL PROGRESS", "English catalog covers device preferences and the explicit local-test reset")
+	var player_before_english_hunter: Dictionary = state.player.duplicate(true)
+	state.player.class_id = "orbit_gunslinger"
+	state.player.species_id = "nebular_nomad"
+	state.player.hunter_name = "Nova"
+	state.player.stat_points = 2
+	scene.view_mode = "attributes"
+	scene.render()
+	await process_frame
+	check(find_label_with_text(scene, "HUNTER") != null and find_label_with_text(scene, "EQUIPMENT · STATS · ATTRIBUTES") != null and find_label_with_text(scene, "NEBULAR NOMAD · LEVEL 1") != null and find_label_with_text(scene, "ORBIT GUNSLINGER") != null and find_label_with_text(scene, "AVAILABLE POINTS") != null, "English catalog covers hunter identity, equipment overview, and spendable status points")
+	check(["STRENGTH", "VITALITY", "DEXTERITY", "INTELLIGENCE", "CUNNING"].all(func(attribute_name): return find_label_with_text(scene, attribute_name) != null) and find_label_with_text(scene, "UNIVERSAL BONUS") != null, "English hunter sheet covers all five attributes and their live mechanical effects")
+	(scene.find_child("ChooseClassAction", true, false) as Button).pressed.emit()
+	await process_frame
+	check(find_label_with_text(scene, "HUNTER CLASS") != null and find_label_with_text(scene, "PROVISIONAL ARCHETYPES · FREE SWITCHING") != null and find_label_with_text(scene, "WARRANT BREAKER") != null and find_label_with_text(scene, "CONTRACT HACKER") != null and find_label_with_text(scene, "CONTRACT STYLE") != null and (scene.find_child("ConfirmClass", true, false) as Button).text == "CONFIRM CLASS", "English catalog covers the complete three-class comparison and confirmation surface")
+	scene.view_mode = "arsenal"
+	scene.arsenal_section = "equipped"
+	scene.render()
+	await process_frame
+	check(find_label_with_text(scene, "ARSENAL") != null and find_label_with_text(scene, "BUILD AND UPGRADES") != null and find_label_with_text(scene, "WORKSHOP") != null and find_label_with_text(scene, "UNIVERSAL SHEET") != null and find_label_with_text(scene, "FIELD TEST") != null and find_label_with_text(scene, "Training Zapper") != null and find_label_with_text(scene, "Questionable Space Jacket") != null, "English equipped arsenal covers starter gear, universal slots, workshop economy, and field-test guidance")
+	(scene.find_child("ArsenalTab_inventory", true, false) as Button).pressed.emit()
+	await process_frame
+	check(find_label_with_text(scene, "BACKPACK · 30 ITEMS") != null and (scene.find_child("InventoryFilter_all", true, false) as Button).text == "ALL" and (scene.find_child("InventorySort", true, false) as Button).text.contains("SORT") and find_label_with_text(scene, "Pocket Deatomizer") != null and find_label_with_text(scene, "COMMON · WEAPON") != null, "English backpack covers catalog identity, rarity, slots, filters, sorting, paging, and item comparison")
+	state.equip_from_inventory("mobile_weapon")
+	await process_frame
+	scene.arsenal_section = "equipped"
+	scene.render()
+	await process_frame
+	check(state.last_notice.begins_with("Pocket Deatomizer equipped.") and find_label_with_text(scene, "WORKSHOP LOG · Pocket Deatomizer equipped.") != null, "English workshop transaction remains localized after equipping an inventory item")
+	state.player = player_before_english_hunter
+	state.last_notice = ""
+	state.last_notice_context = ""
+	state.phase = state.Phase.BOARD
+	scene.view_mode = "settings"
+	scene.render()
+	await process_frame
 	for target in ContentDB.TARGETS:
 		for field in ["NAME", "TITLE", "DESCRIPTION"]:
 			var key := "TARGET_%s_%s" % [str(target.id).to_upper(), field]

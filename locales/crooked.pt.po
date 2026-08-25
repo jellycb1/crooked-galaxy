@@ -2443,3 +2443,417 @@ msgstr "Contrato pago: %s"
 
 msgid "COMMON_REFERENCE_PLACEHOLDER_WATERMARK"
 msgstr "PLACEHOLDER INTERNO · SUBSTITUIR"
+
+msgid "ATTRIBUTE_VITALITY"
+msgstr "Vitalidade"
+
+msgid "ATTRIBUTE_CUNNING"
+msgstr "Astúcia"
+
+msgid "COMMON_POWER"
+msgstr "PODER"
+
+msgid "COMMON_HEALTH"
+msgstr "VIDA"
+
+msgid "HUNTER_TITLE"
+msgstr "CAÇADOR"
+
+msgid "HUNTER_SUBTITLE"
+msgstr "EQUIPAMENTO · STATUS · ATRIBUTOS"
+
+msgid "HUNTER_POINTS_AVAILABLE"
+msgstr "PONTOS DISPONÍVEIS"
+
+msgid "HUNTER_POINTS_PER_LEVEL"
+msgstr "+%d POR NÍVEL"
+
+msgid "HUNTER_STATUS_ATTRIBUTES"
+msgstr "STATUS E ATRIBUTOS"
+
+msgid "HUNTER_DISCARD_DRAFT"
+msgstr "DESCARTAR RASCUNHO"
+
+msgid "HUNTER_CONFIRM_POINTS"
+msgstr "CONFIRMAR · %d"
+
+msgid "HUNTER_IDENTITY_LEVEL"
+msgstr "%s · NÍVEL %d"
+
+msgid "HUNTER_PRIMARY_SUFFIX"
+msgstr " · PRINCIPAL %s"
+
+msgid "HUNTER_PLANETARY_KIT_ACTIVE"
+msgstr "KIT PLANETÁRIO ATIVO"
+
+msgid "HUNTER_LOADOUT_EQUIPPED"
+msgstr "LOADOUT EQUIPADO"
+
+msgid "HUNTER_OPENING"
+msgstr "ABERTURA"
+
+msgid "HUNTER_REDUCTION"
+msgstr "REDUÇÃO"
+
+msgid "HUNTER_SLOT_POWER"
+msgstr "+%d PODER"
+
+msgid "HUNTER_EMPTY_SLOT"
+msgstr "SLOT VAZIO"
+
+msgid "HUNTER_EMPTY"
+msgstr "VAZIO"
+
+msgid "ATTRIBUTE_EFFECT_STRENGTH"
+msgstr "BÔNUS UNIVERSAL · +%d PODER"
+
+msgid "ATTRIBUTE_EFFECT_VITALITY"
+msgstr "BÔNUS UNIVERSAL · +%d VIDA"
+
+msgid "ATTRIBUTE_EFFECT_DEXTERITY"
+msgstr "BÔNUS UNIVERSAL · -%d DANO RECEBIDO"
+
+msgid "ATTRIBUTE_EFFECT_INTELLIGENCE"
+msgstr "BÔNUS UNIVERSAL · +%d DANO DE ABERTURA"
+
+msgid "ATTRIBUTE_EFFECT_CUNNING"
+msgstr "BÔNUS UNIVERSAL · +%.1f%% NO ROLAMENTO"
+
+msgid "CLASS_VIEW_TITLE"
+msgstr "CLASSE DO CAÇADOR"
+
+msgid "CLASS_VIEW_SUBTITLE"
+msgstr "Escolha a especialização que amplifica seu atributo principal."
+
+msgid "CLASS_VIEW_PROVISIONAL"
+msgstr "ARQUÉTIPOS PROVISÓRIOS · TROCA GRATUITA"
+
+msgid "CLASS_VIEW_EXPLANATION"
+msgstr "A classe concede +1 Poder a cada 2 pontos investidos no atributo principal. Seus demais atributos continuam ativos."
+
+msgid "CLASS_VIEW_CONFIRM"
+msgstr "CONFIRMAR CLASSE"
+
+msgid "CLASS_VIEW_CURRENT_SUFFIX"
+msgstr " · ATUAL"
+
+msgid "CLASS_VIEW_FOCUSED_SUFFIX"
+msgstr " · EM FOCO"
+
+msgid "CLASS_VIEW_PRIMARY"
+msgstr "ATRIBUTO PRINCIPAL · %s"
+
+msgid "CLASS_VIEW_IN_FOCUS"
+msgstr "EM FOCO"
+
+msgid "CLASS_VIEW_SHEET"
+msgstr "VER FICHA"
+
+msgid "CLASS_VIEW_CURRENT"
+msgstr "CLASSE ATUAL"
+
+msgid "CLASS_VIEW_PENDING"
+msgstr "ALTERAÇÃO PENDENTE"
+
+msgid "CLASS_VIEW_FIRST"
+msgstr "PRIMEIRA CLASSE"
+
+msgid "CLASS_VIEW_SPECIALIZATION"
+msgstr "ESPECIALIZAÇÃO · %s"
+
+msgid "CLASS_VIEW_CONTRACT_STYLE"
+msgstr "ESTILO DE CONTRATO · %s"
+
+msgid "CLASS_VIEW_BONUS_POWER"
+msgstr "+%d PODER"
+
+msgid "CLASS_VIEW_BONUS_OPENING"
+msgstr "+%d ABERTURA"
+
+msgid "CLASS_VIEW_BONUS_REDUCTION"
+msgstr "-%d DANO/GOLPE"
+
+msgid "CLASS_VIEW_BONUS_AIM"
+msgstr "+%.1f%% MIRA"
+
+msgid "CLASS_VIEW_BUILD_BONUS"
+msgstr "BÔNUS NA BUILD · %s"
+
+msgid "CLASS_VIEW_INACTIVE"
+msgstr "AINDA INATIVO"
+
+msgid "CLASS_IDENTITY_HARD_SHELL"
+msgstr "CASCO DURO · -%d DANO POR GOLPE"
+
+msgid "CLASS_IDENTITY_ORBITAL_AIM"
+msgstr "MIRA ORBITAL · +%.1f%% PRECISÃO"
+
+msgid "CLASS_IDENTITY_BREACH"
+msgstr "INVASÃO · +%d DANO DE ABERTURA"
+
+msgid "CLASS_IDENTITY_INACTIVE"
+msgstr "ESPECIALIZAÇÃO AINDA INATIVA"
+
+msgid "COMMON_BASE_CONTRACT"
+msgstr "CONTRATO BASE"
+
+msgid "ARSENAL_TITLE"
+msgstr "ARSENAL"
+
+msgid "ARSENAL_BUILD_UPGRADES"
+msgstr "BUILD E MELHORIAS"
+
+msgid "ARSENAL_BACKPACK_COUNT"
+msgstr "MOCHILA · %d ITENS"
+
+msgid "ARSENAL_CHOOSE_ROUTE"
+msgstr "ESCOLHER ROTA"
+
+msgid "ARSENAL_EQUIPPED"
+msgstr "EQUIPADO"
+
+msgid "ARSENAL_BACKPACK"
+msgstr "MOCHILA"
+
+msgid "ARSENAL_WORKSHOP_LOG"
+msgstr "REGISTRO DA OFICINA"
+
+msgid "ARSENAL_CONTRACT_RECEIPT"
+msgstr "RECIBO DE CONTRATO"
+
+msgid "ARSENAL_WORKSHOP_STATUS"
+msgstr "OFICINA · %d SUCATA · PODER TOTAL %d"
+
+msgid "ARSENAL_KIT_INACTIVE"
+msgstr "KIT PLANETÁRIO · INATIVO · combine arma e armadura da mesma origem"
+
+msgid "ARSENAL_KIT_ACTIVE"
+msgstr "KIT PLANETÁRIO · %s · +%d PODER · +%d VIDA"
+
+msgid "ARSENAL_FILTER_EMPTY"
+msgstr "Nenhuma peça neste filtro."
+
+msgid "ARSENAL_FILTER_EMPTY_HINT"
+msgstr "Outros compartimentos talvez estejam menos vazios."
+
+msgid "ARSENAL_ITEM_COUNT"
+msgstr "ITENS · %d / %d"
+
+msgid "ARSENAL_PREVIOUS_PAGE"
+msgstr "Página anterior do inventário"
+
+msgid "ARSENAL_NEXT_PAGE"
+msgstr "Próxima página do inventário"
+
+msgid "ARSENAL_OVERRIDE_DEFEATED"
+msgstr "OVERRIDE DERROTADO · TESTADA %s → ESCOLHIDA %s · REAVALIE A ROTA"
+
+msgid "ARSENAL_TESTED_ROUTE_FAILED"
+msgstr "ROTA TESTADA TAMBÉM FALHOU · %s · REFORCE A BUILD OU REVEJA O INCIDENTE"
+
+msgid "ARSENAL_FIELD_TEST_UNAVAILABLE"
+msgstr "TESTE DE CAMPO INDISPONÍVEL"
+
+msgid "ARSENAL_REVENGE"
+msgstr "REVANCHE"
+
+msgid "ARSENAL_CURRENT_WARRANT"
+msgstr "MANDADO ATUAL"
+
+msgid "ARSENAL_NEXT_WARRANT"
+msgstr "PRÓXIMO MANDADO"
+
+msgid "ARSENAL_CHAPTER_BOSS"
+msgstr "CHEFE DO CAPÍTULO"
+
+msgid "ARSENAL_FIELD_TEST_TARGET"
+msgstr "TESTE DE CAMPO · %s: %s"
+
+msgid "ARSENAL_NOW"
+msgstr "AGORA"
+
+msgid "ARSENAL_PLUS_POWER"
+msgstr "+1 PODER"
+
+msgid "ARSENAL_PLUS_HEALTH"
+msgstr "+8 VIDA"
+
+msgid "ARSENAL_MAX_REINFORCEMENT"
+msgstr "REF. MÁX."
+
+msgid "ARSENAL_TESTED_APPROACH"
+msgstr "ABORDAGEM TESTADA · %s · incidentes ainda podem alterar as chances"
+
+msgid "ARSENAL_EQUIPPED_WEAPON"
+msgstr "Arma equipada"
+
+msgid "ARSENAL_EQUIPPED_ARMOR"
+msgstr "Armadura equipada"
+
+msgid "ARSENAL_NEXT_INVESTMENT"
+msgstr "PRÓXIMO INVESTIMENTO"
+
+msgid "ARSENAL_NO_AFFORDABLE_UPGRADE"
+msgstr "Nenhuma melhoria está ao alcance da sucata atual."
+
+msgid "ARSENAL_HEALTH_GAIN"
+msgstr "+%d VIDA"
+
+msgid "ARSENAL_BEST_INVESTMENT"
+msgstr "MELHOR INVESTIMENTO · %s"
+
+msgid "ARSENAL_TEST_IMPACT"
+msgstr "%d%% → %d%% no teste"
+
+msgid "ARSENAL_ODDS_CAPPED"
+msgstr "chance já no limite · impacto de build +%d"
+
+msgid "ARSENAL_SCRAP_IMPACT"
+msgstr "%d sucata · %s"
+
+msgid "ARSENAL_APPLY"
+msgstr "APLICAR"
+
+msgid "ARSENAL_APPLY_TOOLTIP"
+msgstr "Executa a melhoria com o melhor ganho projetado por sucata."
+
+msgid "ARSENAL_FILTER_ALL"
+msgstr "TODOS"
+
+msgid "ARSENAL_FILTER_WEAPONS"
+msgstr "ARMAS"
+
+msgid "ARSENAL_FILTER_ARMOR"
+msgstr "TRAJES"
+
+msgid "ARSENAL_FILTER_OTHER"
+msgstr "OUTROS"
+
+msgid "ARSENAL_SORT"
+msgstr "ORDEM · %s"
+
+msgid "ARSENAL_RARITY"
+msgstr "RARIDADE"
+
+msgid "ARSENAL_RECYCLE_BULK"
+msgstr "RECICLAR · %d · +%d"
+
+msgid "ARSENAL_RECYCLE_BULK_TOOLTIP"
+msgstr "Recicla apenas peças comuns sem modificações ou investimento que não superam o efeito atual."
+
+msgid "ARSENAL_LOADOUT"
+msgstr "LOADOUT · %s"
+
+msgid "ARSENAL_NOT_SAVED"
+msgstr "não salvo"
+
+msgid "ARSENAL_LOADOUT_SUMMARY"
+msgstr "%d/%d PEÇAS · %s / %s"
+
+msgid "ARSENAL_SAVE"
+msgstr "SALVAR"
+
+msgid "ARSENAL_USE"
+msgstr "USAR"
+
+msgid "ARSENAL_ITEM_STATS"
+msgstr "%s · %s · +%d poder"
+
+msgid "ARSENAL_CALIBRATIONS"
+msgstr "%d calib."
+
+msgid "ARSENAL_REINFORCEMENTS"
+msgstr "%d reforços · +%d vida"
+
+msgid "ARSENAL_WORKSHOP_ITEM"
+msgstr "◇ OFICINA · %s"
+
+msgid "ARSENAL_EQUIP"
+msgstr "EQUIPAR"
+
+msgid "ARSENAL_UNLOCK"
+msgstr "LIBERAR"
+
+msgid "ARSENAL_PROTECT"
+msgstr "PROTEGER"
+
+msgid "ARSENAL_RECYCLE_ITEM"
+msgstr "RECICLAR +%d"
+
+msgid "ARSENAL_UPGRADE_STATUS"
+msgstr "CAL %d · REF %d/%d · +%d VIDA"
+
+msgid "ARSENAL_UPGRADE_POWER"
+msgstr "+1 PODER · %d"
+
+msgid "ARSENAL_RECOMMENDED_TOOLTIP"
+msgstr "Melhor ganho projetado por sucata contra o alvo do teste de campo."
+
+msgid "ARSENAL_REINFORCE_HEALTH"
+msgstr "+%d VIDA · %d"
+
+msgid "ARSENAL_MAX_INTEGRITY"
+msgstr "INTEGRIDADE MÁX."
+
+msgid "ARSENAL_UNIVERSAL_SHEET"
+msgstr "FICHA UNIVERSAL"
+
+msgid "ARSENAL_EQUIPPED_COUNT"
+msgstr "%d / %d EQUIPADOS"
+
+msgid "ARSENAL_NEXT_SECONDARY_DROP"
+msgstr "PRÓXIMO DROP SECUNDÁRIO · CAPACETE EM CONGELÁRIA S.A."
+
+msgid "ARSENAL_FRONTIER_DROPS"
+msgstr "DROPS NESTA FRONTEIRA · %s"
+
+msgid "ARSENAL_FUTURE_LOOT_SLOT"
+msgstr "Espaço reservado para loot futuro"
+
+msgid "WORKSHOP_NOTICE_EQUIPPED"
+msgstr "%s equipado. Poder total: %d."
+
+msgid "WORKSHOP_NOTICE_RECYCLED"
+msgstr "%s reciclado: +%d sucata."
+
+msgid "WORKSHOP_NOTICE_BULK_RECYCLED"
+msgstr "%d peças inferiores recicladas: +%d sucata."
+
+msgid "WORKSHOP_NOTICE_UNLOCKED"
+msgstr "Proteção removida. A oficina voltou a olhar para essa peça com interesse."
+
+msgid "WORKSHOP_NOTICE_PROTECTED"
+msgstr "Peça protegida contra reciclagem manual e em massa."
+
+msgid "WORKSHOP_NOTICE_LOADOUT_SAVED"
+msgstr "Loadout %s arquivado. As peças foram protegidas."
+
+msgid "WORKSHOP_NOTICE_LOADOUT_INCOMPLETE"
+msgstr "Loadout incompleto. Uma das peças provavelmente virou história de oficina."
+
+msgid "WORKSHOP_NOTICE_LOADOUT_EQUIPPED"
+msgstr "Loadout %s equipado. Poder %d · Vida %d."
+
+msgid "LOADOUT_HUNT"
+msgstr "CAÇA"
+
+msgid "LOADOUT_RESERVE"
+msgstr "RESERVA"
+
+msgid "WORKSHOP_NOTICE_CALIBRATED"
+msgstr "%s calibrado para +%d poder."
+
+msgid "WORKSHOP_NOTICE_REINFORCED"
+msgstr "%s reforçado: +%d vida total."
+
+msgid "ATTRIBUTE_NOTICE_CONFIRMED_SINGULAR"
+msgstr "%d ponto de atributo confirmado."
+
+msgid "ATTRIBUTE_NOTICE_CONFIRMED_PLURAL"
+msgstr "%d pontos de atributo confirmados."
+
+msgid "ITEM_STARTER_WEAPON_NAME"
+msgstr "Zapper de Treino"
+
+msgid "ITEM_STARTER_ARMOR_NAME"
+msgstr "Jaqueta Espacial Duvidosa"

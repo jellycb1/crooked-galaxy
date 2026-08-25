@@ -703,6 +703,9 @@ func can_recycle_reward(item: Dictionary) -> bool:
 
 
 func localized_item_field(item: Dictionary, field: String) -> String:
+	var item_id := str(item.get("id", ""))
+	if item_id == "starter_weapon" or item_id == "starter_armor":
+		return LocaleRulesScript.text("ITEM_%s_%s" % [item_id.to_upper(), field.to_upper()], str(item.get(field, "")))
 	var planet_id := str(item.get("origin_planet_id", ContentDB.PLANET.id))
 	var slot := str(item.get("slot", "weapon"))
 	var catalog := ContentDB.item_catalog_for(planet_id, slot)
@@ -933,7 +936,7 @@ func equip_from_inventory(item_id: String) -> void:
 	for item in player.inventory:
 		if str(item.get("id", "")) == item_id:
 			equip(item)
-			last_notice = "%s equipado. Poder total: %d." % [str(item.name), CoreRules.player_power(player)]
+			last_notice = LocaleRulesScript.text("WORKSHOP_NOTICE_EQUIPPED", "%s equipado. Poder total: %d.", [localized_item_field(item, "name"), CoreRules.player_power(player)])
 			last_notice_context = "workshop"
 			save_game()
 			changed.emit()
@@ -953,7 +956,7 @@ func scrap_item(item_id: String) -> bool:
 		player.inventory.remove_at(item_index)
 		player.scrap = int(player.get("scrap", 0)) + value
 		player.scrap_recycled_total = int(player.get("scrap_recycled_total", 0)) + value
-		last_notice = "%s reciclado: +%d sucata." % [str(item.name), value]
+		last_notice = LocaleRulesScript.text("WORKSHOP_NOTICE_RECYCLED", "%s reciclado: +%d sucata.", [localized_item_field(item, "name"), value])
 		last_notice_context = "workshop"
 		save_game()
 		changed.emit()
@@ -996,7 +999,7 @@ func recycle_inferior_inventory() -> Dictionary:
 	player.inventory = retained
 	player.scrap = int(player.get("scrap", 0)) + int(preview.scrap)
 	player.scrap_recycled_total = int(player.get("scrap_recycled_total", 0)) + int(preview.scrap)
-	last_notice = "%d peças inferiores recicladas: +%d sucata." % [int(preview.count), int(preview.scrap)]
+	last_notice = LocaleRulesScript.text("WORKSHOP_NOTICE_BULK_RECYCLED", "%d peças inferiores recicladas: +%d sucata.", [int(preview.count), int(preview.scrap)])
 	last_notice_context = "workshop"
 	save_game()
 	changed.emit()
@@ -1031,10 +1034,10 @@ func toggle_item_lock(item_id: String) -> bool:
 	var locked: Array = player.get("locked_item_ids", [])
 	if locked.has(item_id):
 		locked.erase(item_id)
-		last_notice = "Proteção removida. A oficina voltou a olhar para essa peça com interesse."
+		last_notice = LocaleRulesScript.text("WORKSHOP_NOTICE_UNLOCKED", "Proteção removida. A oficina voltou a olhar para essa peça com interesse.")
 	else:
 		locked.append(item_id)
-		last_notice = "Peça protegida contra reciclagem manual e em massa."
+		last_notice = LocaleRulesScript.text("WORKSHOP_NOTICE_PROTECTED", "Peça protegida contra reciclagem manual e em massa.")
 	last_notice_context = "workshop"
 	player.locked_item_ids = locked
 	save_game()
@@ -1051,7 +1054,7 @@ func save_equipment_loadout(index: int) -> bool:
 		snapshot["%s_id" % slot] = str(player.get(slot, {}).get("id", ""))
 	loadouts[index] = snapshot
 	player.equipment_loadouts = loadouts
-	last_notice = "Loadout %s arquivado. As peças foram protegidas." % loadout_name(index)
+	last_notice = LocaleRulesScript.text("WORKSHOP_NOTICE_LOADOUT_SAVED", "Loadout %s arquivado. As peças foram protegidas.", [loadout_name(index)])
 	last_notice_context = "workshop"
 	save_game()
 	changed.emit()
@@ -1066,7 +1069,7 @@ func apply_equipment_loadout(index: int) -> bool:
 	var weapon := inventory_item_by_id(str(loadout.get("weapon_id", "")))
 	var armor := inventory_item_by_id(str(loadout.get("armor_id", "")))
 	if weapon.is_empty() or armor.is_empty():
-		last_notice = "Loadout incompleto. Uma das peças provavelmente virou história de oficina."
+		last_notice = LocaleRulesScript.text("WORKSHOP_NOTICE_LOADOUT_INCOMPLETE", "Loadout incompleto. Uma das peças provavelmente virou história de oficina.")
 		last_notice_context = "workshop"
 		changed.emit()
 		return false
@@ -1076,7 +1079,7 @@ func apply_equipment_loadout(index: int) -> bool:
 			var item := inventory_item_by_id(item_id)
 			if not item.is_empty() and str(item.get("slot", "")) == slot:
 				equip(item)
-	last_notice = "Loadout %s equipado. Poder %d · Vida %d." % [loadout_name(index), CoreRules.player_power(player), CoreRules.max_health(player)]
+	last_notice = LocaleRulesScript.text("WORKSHOP_NOTICE_LOADOUT_EQUIPPED", "Loadout %s equipado. Poder %d · Vida %d.", [loadout_name(index), CoreRules.player_power(player), CoreRules.max_health(player)])
 	last_notice_context = "workshop"
 	save_game()
 	changed.emit()
@@ -1097,7 +1100,7 @@ func inventory_item_by_id(item_id: String) -> Dictionary:
 
 
 func loadout_name(index: int) -> String:
-	return "CAÇA" if index == 0 else "RESERVA"
+	return LocaleRulesScript.text("LOADOUT_HUNT", "CAÇA") if index == 0 else LocaleRulesScript.text("LOADOUT_RESERVE", "RESERVA")
 
 
 func upgrade_equipped(slot: String) -> bool:
@@ -1113,7 +1116,7 @@ func upgrade_equipped(slot: String) -> bool:
 	item.power_upgrades = int(item.get("power_upgrades", 0)) + 1
 	player[slot] = item
 	sync_item_to_inventory(item)
-	last_notice = "%s calibrado para +%d poder." % [str(item.name), int(item.power)]
+	last_notice = LocaleRulesScript.text("WORKSHOP_NOTICE_CALIBRATED", "%s calibrado para +%d poder.", [localized_item_field(item, "name"), int(item.power)])
 	last_notice_context = "workshop"
 	save_game()
 	changed.emit()
@@ -1134,7 +1137,7 @@ func reinforce_equipped(slot: String) -> bool:
 	item.integrity_upgrades = int(item.get("integrity_upgrades", 0)) + 1
 	player[slot] = item
 	sync_item_to_inventory(item)
-	last_notice = "%s reforçado: +%d vida total." % [str(item.name), int(item.integrity_upgrades) * CoreRules.INTEGRITY_HEALTH_PER_LEVEL]
+	last_notice = LocaleRulesScript.text("WORKSHOP_NOTICE_REINFORCED", "%s reforçado: +%d vida total.", [localized_item_field(item, "name"), int(item.integrity_upgrades) * CoreRules.INTEGRITY_HEALTH_PER_LEVEL])
 	last_notice_context = "workshop"
 	save_game()
 	changed.emit()
@@ -1181,7 +1184,7 @@ func allocate_attribute_points(allocations: Dictionary) -> bool:
 		attributes[str(attribute_id)] = int(attributes.get(str(attribute_id), CoreRules.BASE_ATTRIBUTE_VALUE)) + int(allocations[attribute_id])
 	player.attributes = attributes
 	player.stat_points = int(player.get("stat_points", 0)) - total
-	last_notice = "%d ponto%s de atributo confirmado%s." % [total, "s" if total != 1 else "", "s" if total != 1 else ""]
+	last_notice = LocaleRulesScript.text("ATTRIBUTE_NOTICE_CONFIRMED_PLURAL" if total != 1 else "ATTRIBUTE_NOTICE_CONFIRMED_SINGULAR", "%d pontos de atributo confirmados." if total != 1 else "%d ponto de atributo confirmado.", [total])
 	last_notice_context = "attributes"
 	save_game()
 	changed.emit()

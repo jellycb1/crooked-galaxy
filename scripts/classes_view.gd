@@ -4,6 +4,15 @@ extends RefCounted
 const ClassRulesScript = preload("res://scripts/class_rules.gd")
 const Rules = preload("res://scripts/core_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
+const LocaleRules = preload("res://scripts/locale_rules.gd")
+
+
+static func text(key: String, fallback: String = "", values: Array = []) -> String:
+	return LocaleRules.text(key, fallback, values)
+
+
+static func localized_class_field(definition: Dictionary, field: String) -> String:
+	return text("CLASS_%s_%s" % [str(definition.get("id", "")).to_upper(), field.to_upper()], str(definition.get(field, "")))
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
@@ -13,11 +22,11 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var titles := VBoxContainer.new()
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(titles)
-	titles.add_child(host.label("CLASSE DO CAÇADOR", 25, host.INK))
-	var subtitle := host.label("Escolha a especialização que amplifica seu atributo principal.", 13, host.MUTED)
+	titles.add_child(host.label(text("CLASS_VIEW_TITLE", "CLASSE DO CAÇADOR"), 25, host.INK))
+	var subtitle := host.label(text("CLASS_VIEW_SUBTITLE", "Escolha a especialização que amplifica seu atributo principal."), 13, host.MUTED)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	titles.add_child(subtitle)
-	var back := host.action_button("VOLTAR", host.CYAN, true)
+	var back := host.action_button(text("COMMON_BACK", "VOLTAR"), host.CYAN, true)
 	back.custom_minimum_size = Vector2(112, 48)
 	back.pressed.connect(func():
 		host.class_draft = ""
@@ -33,8 +42,8 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var info := host.panel(VBoxContainer.new(), host.PANEL_LIGHT, 16, 12)
 	content.add_child(info)
 	var info_copy := info.get_child(0) as VBoxContainer
-	info_copy.add_child(host.label("ARQUÉTIPOS PROVISÓRIOS · TROCA GRATUITA", 12, host.LIME))
-	var explanation := host.label("A classe concede +1 Poder a cada 2 pontos investidos no atributo principal. Seus demais atributos continuam ativos.", 12, host.INK)
+	info_copy.add_child(host.label(text("CLASS_VIEW_PROVISIONAL", "ARQUÉTIPOS PROVISÓRIOS · TROCA GRATUITA"), 12, host.LIME))
+	var explanation := host.label(text("CLASS_VIEW_EXPLANATION", "A classe concede +1 Poder a cada 2 pontos investidos no atributo principal. Seus demais atributos continuam ativos."), 12, host.INK)
 	explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info_copy.add_child(explanation)
 
@@ -55,7 +64,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	content.add_child(spacer)
 
 	var changed := not host.class_draft.is_empty() and host.class_draft != current_id
-	var confirm := host.action_button("CONFIRMAR CLASSE", host.LIME, true)
+	var confirm := host.action_button(text("CLASS_VIEW_CONFIRM", "CONFIRMAR CLASSE"), host.LIME, true)
 	confirm.name = "ConfirmClass"
 	confirm.disabled = not changed
 	confirm.pressed.connect(func():
@@ -81,10 +90,10 @@ static func class_selector(host: CrookedUIFactory, definition: Dictionary, pendi
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	copy.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_child(copy)
-	var status := " · ATUAL" if class_id == current_id else (" · EM FOCO" if selected else "")
-	copy.add_child(host.label("%s%s" % [str(definition.name), status], 14, host.GOLD if selected else host.INK))
-	copy.add_child(host.label("ATRIBUTO PRINCIPAL · %s" % str(definition.primary_name), 10, host.LIME if selected else host.MUTED))
-	var choose_text := "EM FOCO" if selected and committed_or_drafted else ("ESCOLHER" if selected else "VER FICHA")
+	var status := text("CLASS_VIEW_CURRENT_SUFFIX", " · ATUAL") if class_id == current_id else (text("CLASS_VIEW_FOCUSED_SUFFIX", " · EM FOCO") if selected else "")
+	copy.add_child(host.label("%s%s" % [ClassRulesScript.class_name_for(class_id), status], 14, host.GOLD if selected else host.INK))
+	copy.add_child(host.label(text("CLASS_VIEW_PRIMARY", "ATRIBUTO PRINCIPAL · %s", [localized_class_field(definition, "primary_name")]), 10, host.LIME if selected else host.MUTED))
+	var choose_text := text("CLASS_VIEW_IN_FOCUS", "EM FOCO") if selected and committed_or_drafted else (text("COMMON_CHOOSE", "ESCOLHER") if selected else text("CLASS_VIEW_SHEET", "VER FICHA"))
 	var choose := host.action_button(choose_text, host.GOLD if selected else host.CYAN, true)
 	choose.name = "ClassSelect_%s" % class_id
 	choose.custom_minimum_size = Vector2(102, 46)
@@ -111,19 +120,19 @@ static func class_detail(host: CrookedUIFactory, definition: Dictionary, player:
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	copy.add_theme_constant_override("separation", 3)
 	row.add_child(copy)
-	var state_text := "CLASSE ATUAL" if class_id == current_id else ("ALTERAÇÃO PENDENTE" if not current_id.is_empty() else "PRIMEIRA CLASSE")
+	var state_text := text("CLASS_VIEW_CURRENT", "CLASSE ATUAL") if class_id == current_id else (text("CLASS_VIEW_PENDING", "ALTERAÇÃO PENDENTE") if not current_id.is_empty() else text("CLASS_VIEW_FIRST", "PRIMEIRA CLASSE"))
 	copy.add_child(host.label(state_text, 10, host.LIME))
-	copy.add_child(host.label(str(definition.name), 18, host.GOLD))
-	var tagline := host.label(str(definition.tagline), 12, host.INK)
+	copy.add_child(host.label(ClassRulesScript.class_name_for(class_id), 18, host.GOLD))
+	var tagline := host.label(localized_class_field(definition, "tagline"), 12, host.INK)
 	tagline.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(tagline)
-	var flavor := host.label(str(definition.flavor), 11, host.MUTED)
+	var flavor := host.label(localized_class_field(definition, "flavor"), 11, host.MUTED)
 	flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(flavor)
-	var specialization := host.label("ESPECIALIZAÇÃO · %s" % ClassRulesScript.specialization_text(definition), 11, host.GOLD)
+	var specialization := host.label(text("CLASS_VIEW_SPECIALIZATION", "ESPECIALIZAÇÃO · %s", [ClassRulesScript.specialization_text(definition)]), 11, host.GOLD)
 	specialization.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(specialization)
-	var route_profile := host.label("ESTILO DE CONTRATO · %s" % str(definition.get("route_style", "ROTA PREFERIDA")), 11, host.CYAN)
+	var route_profile := host.label(text("CLASS_VIEW_CONTRACT_STYLE", "ESTILO DE CONTRATO · %s", [localized_class_field(definition, "route_style")]), 11, host.CYAN)
 	route_profile.name = "ClassRouteProfile_%s" % class_id
 	copy.add_child(route_profile)
 	var impact := host.label(current_impact_text(definition, player), 12, host.LIME)
@@ -148,7 +157,7 @@ static func class_reference_icon(host: CrookedUIFactory, class_id: String, dimen
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon.tooltip_text = "PLACEHOLDER INTERNO · identidade visual provisória"
+	icon.tooltip_text = text("ONB_CLASS_PLACEHOLDER_TOOLTIP", "PLACEHOLDER INTERNO · identidade visual provisória")
 	return icon
 
 
@@ -156,11 +165,11 @@ static func current_impact_text(definition: Dictionary, player: Dictionary) -> S
 	var preview := ClassRulesScript.specialization_preview(definition, player.get("attributes", {}), Rules.BASE_ATTRIBUTE_VALUE)
 	var parts: Array[String] = []
 	if int(preview.power) > 0:
-		parts.append("+%d PODER" % int(preview.power))
+		parts.append(text("CLASS_VIEW_BONUS_POWER", "+%d PODER", [int(preview.power)]))
 	if int(preview.opening_damage) > 0:
-		parts.append("+%d ABERTURA" % int(preview.opening_damage))
+		parts.append(text("CLASS_VIEW_BONUS_OPENING", "+%d ABERTURA", [int(preview.opening_damage)]))
 	if int(preview.damage_reduction) > 0:
-		parts.append("-%d DANO/GOLPE" % int(preview.damage_reduction))
+		parts.append(text("CLASS_VIEW_BONUS_REDUCTION", "-%d DANO/GOLPE", [int(preview.damage_reduction)]))
 	if float(preview.attack_roll_bonus) > 0.0:
-		parts.append("+%.1f%% MIRA" % (float(preview.attack_roll_bonus) * 100.0))
-	return "BÔNUS NA BUILD · %s" % (" · ".join(parts) if not parts.is_empty() else "AINDA INATIVO")
+		parts.append(text("CLASS_VIEW_BONUS_AIM", "+%.1f%% MIRA", [float(preview.attack_roll_bonus) * 100.0]))
+	return text("CLASS_VIEW_BUILD_BONUS", "BÔNUS NA BUILD · %s", [" · ".join(parts) if not parts.is_empty() else text("CLASS_VIEW_INACTIVE", "AINDA INATIVO")])
