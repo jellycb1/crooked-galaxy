@@ -10,7 +10,7 @@ func _initialize() -> void:
 
 
 func run() -> void:
-	for slot in ["weapon", "armor"]:
+	for slot in ["weapon", "helmet", "armor", "gloves", "boots", "rig", "implant", "gadget", "relic"]:
 		var icon := EquipmentIconScript.new()
 		icon.item = {"slot": slot, "rarity": "Épico", "origin_planet_id": "micelia_404", "power_upgrades": 3, "integrity_upgrades": 2}
 		icon.custom_minimum_size = Vector2(76, 76)

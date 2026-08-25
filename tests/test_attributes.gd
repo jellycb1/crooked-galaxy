@@ -61,7 +61,7 @@ func run_attributes_test() -> void:
 	check(scene.find_children("Attribute_*", "PanelContainer", true, false).size() == 5, "the attribute hub renders all five agreed attributes")
 	check(scene.find_children("AttributeGlyph_*", "Control", true, false).size() == 5, "every attribute has a distinct compact visual glyph")
 	check(scene.find_child("HunterProfile", true, false) != null and scene.find_child("HunterProfilePortrait", true, false) != null, "the hunter sheet keeps the equipped character visually central")
-	check(scene.find_children("HunterEquipment_*", "PanelContainer", true, false).size() == 2, "the hunter sheet shows both live equipment slots")
+	check(scene.find_children("HunterEquipment_*", "PanelContainer", true, false).size() == Rules.EQUIPMENT_SLOTS.size(), "the hunter sheet shows the complete universal equipment contract")
 	check(scene.find_child("HunterCombatStatus", true, false) != null and scene.find_child("HunterArsenalAction", true, false) != null, "the hunter sheet exposes combat status and an equipment-management route")
 	var add_strength := scene.find_child("AttributeAdd_strength", true, false) as Button
 	check(add_strength != null and not add_strength.disabled, "an available point enables the mobile strength action")

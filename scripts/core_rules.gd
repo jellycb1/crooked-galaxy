@@ -11,20 +11,35 @@ const BOUNTY_ODDS_CACHE_LIMIT := 512
 const BASE_ATTRIBUTE_VALUE := 10
 const ATTRIBUTE_POINTS_PER_LEVEL := 2
 const ATTRIBUTE_KEYS := ["strength", "vitality", "dexterity", "intelligence", "cunning"]
+const EQUIPMENT_SLOTS := ["weapon", "helmet", "armor", "gloves", "boots", "rig", "implant", "gadget", "relic"]
+const EQUIPMENT_SLOT_NAMES := {
+	"weapon": "Arma",
+	"helmet": "Capacete",
+	"armor": "Traje",
+	"gloves": "Luvas",
+	"boots": "Botas",
+	"rig": "Cinto técnico",
+	"implant": "Implante",
+	"gadget": "Gadget",
+	"relic": "Relíquia",
+}
 
 static var bounty_odds_cache: Dictionary = {}
 
 
 static func player_power(player: Dictionary) -> int:
-	var weapon_power := item_combat_power(player.get("weapon", {}))
-	var armor_power := item_combat_power(player.get("armor", {}))
-	return int(player.get("base_power", 10)) + weapon_power + armor_power + equipment_set_bonus_power(player) + floori(float(attribute_investment(player, "strength")) / 2.0) + ClassRulesScript.specialization_power(player, BASE_ATTRIBUTE_VALUE)
+	var equipment_power := 0
+	for slot in EQUIPMENT_SLOTS:
+		equipment_power += item_combat_power(player.get(slot, {}))
+	return int(player.get("base_power", 10)) + equipment_power + equipment_set_bonus_power(player) + floori(float(attribute_investment(player, "strength")) / 2.0) + ClassRulesScript.specialization_power(player, BASE_ATTRIBUTE_VALUE)
 
 
 static func max_health(player: Dictionary) -> int:
-	var weapon: Dictionary = player.get("weapon", {})
 	var armor: Dictionary = player.get("armor", {})
-	return 72 + int(player.get("level", 1)) * 8 + int(armor.get("power", 0)) * 3 + item_health_bonus(weapon) + item_health_bonus(armor) + equipment_set_bonus_health(player) + attribute_investment(player, "vitality") * 4
+	var equipment_health := 0
+	for slot in EQUIPMENT_SLOTS:
+		equipment_health += item_health_bonus(player.get(slot, {}))
+	return 72 + int(player.get("level", 1)) * 8 + int(armor.get("power", 0)) * 3 + equipment_health + equipment_set_bonus_health(player) + attribute_investment(player, "vitality") * 4
 
 
 static func default_attributes() -> Dictionary:
@@ -70,11 +85,33 @@ static func item_damage_reduction(item: Dictionary) -> int:
 
 
 static func player_opening_damage(player: Dictionary) -> int:
-	return item_opening_damage(player.get("weapon", {})) + item_opening_damage(player.get("armor", {})) + floori(float(attribute_investment(player, "intelligence")) / 2.0) + ClassRulesScript.specialization_opening_damage(player, BASE_ATTRIBUTE_VALUE)
+	var equipment_bonus := 0
+	for slot in EQUIPMENT_SLOTS:
+		equipment_bonus += item_opening_damage(player.get(slot, {}))
+	return equipment_bonus + floori(float(attribute_investment(player, "intelligence")) / 2.0) + ClassRulesScript.specialization_opening_damage(player, BASE_ATTRIBUTE_VALUE)
 
 
 static func player_damage_reduction(player: Dictionary) -> int:
-	return item_damage_reduction(player.get("weapon", {})) + item_damage_reduction(player.get("armor", {})) + floori(float(attribute_investment(player, "dexterity")) / 3.0) + ClassRulesScript.specialization_damage_reduction(player, BASE_ATTRIBUTE_VALUE)
+	var equipment_bonus := 0
+	for slot in EQUIPMENT_SLOTS:
+		equipment_bonus += item_damage_reduction(player.get(slot, {}))
+	return equipment_bonus + floori(float(attribute_investment(player, "dexterity")) / 3.0) + ClassRulesScript.specialization_damage_reduction(player, BASE_ATTRIBUTE_VALUE)
+
+
+static func is_equipment_slot(slot: String) -> bool:
+	return EQUIPMENT_SLOTS.has(slot)
+
+
+static func equipment_slot_name(slot: String) -> String:
+	return str(EQUIPMENT_SLOT_NAMES.get(slot, "Equipamento"))
+
+
+static func equipped_item_count(player: Dictionary) -> int:
+	var count := 0
+	for slot in EQUIPMENT_SLOTS:
+		if not player.get(slot, {}).is_empty():
+			count += 1
+	return count
 
 
 static func equipment_set_origin(player: Dictionary) -> String:
@@ -191,7 +228,7 @@ static func is_upgrade(item: Dictionary, equipped: Dictionary) -> bool:
 
 static func is_upgrade_for_player(player: Dictionary, item: Dictionary) -> bool:
 	var slot := str(item.get("slot", ""))
-	if slot != "weapon" and slot != "armor":
+	if not is_equipment_slot(slot):
 		return false
 	var simulated := player.duplicate(true)
 	simulated[slot] = item

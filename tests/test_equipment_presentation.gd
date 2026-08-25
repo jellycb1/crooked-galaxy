@@ -11,10 +11,13 @@ func _init() -> void:
 		{"id": "epic_weapon", "slot": "weapon", "power": 4, "rarity": "Épico"},
 		{"id": "rare_weapon", "slot": "weapon", "power": 6, "rarity": "Raro"},
 		{"id": "trait_weapon", "slot": "weapon", "power": 5, "rarity": "Raro", "trait": {"power_bonus": 2}},
+		{"id": "spare_implant", "slot": "implant", "power": 3, "rarity": "Comum"},
 	]
 	var weapons := EquipmentPresentation.filtered_inventory(inventory, "weapon", "power")
 	check(weapons.size() == 3, "slot filters exclude unrelated equipment")
 	check(str(weapons[0].id) == "trait_weapon", "power sorting includes modification effects")
+	var other_gear := EquipmentPresentation.filtered_inventory(inventory, "other", "power")
+	check(other_gear.size() == 1 and str(other_gear[0].id) == "spare_implant", "grouped mobile filter exposes every non-core universal slot")
 	var by_rarity := EquipmentPresentation.filtered_inventory(inventory, "all", "rarity")
 	check(str(by_rarity[0].id) == "epic_weapon", "rarity sorting places epic equipment first")
 	by_rarity[0].power = 99

@@ -167,4 +167,4 @@ func equipment_chip(item: Dictionary) -> PanelContainer:
 
 
 func slot_name(slot: String) -> String:
-	return "Arma" if slot == "weapon" else "Armadura"
+	return CoreRules.equipment_slot_name(slot)

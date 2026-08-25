@@ -12,7 +12,8 @@ static func filtered_inventory(inventory: Array, slot_filter: String, sort_mode:
 static func filtered_inventory_refs(inventory: Array, slot_filter: String, sort_mode: String) -> Array:
 	var items: Array = []
 	for item in inventory:
-		if slot_filter == "all" or str(item.get("slot", "")) == slot_filter:
+		var item_slot := str(item.get("slot", ""))
+		if slot_filter == "all" or item_slot == slot_filter or (slot_filter == "other" and item_slot != "weapon" and item_slot != "armor"):
 			items.append(item)
 	items.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return inventory_item_before(a, b, sort_mode)
@@ -43,7 +44,7 @@ static func rarity_weight(rarity: String) -> int:
 
 static func equipment_deltas(player: Dictionary, item: Dictionary) -> Dictionary:
 	var slot := str(item.get("slot", ""))
-	if slot != "weapon" and slot != "armor":
+	if not CoreRules.is_equipment_slot(slot):
 		return {"power": 0, "health": 0, "upgrade": false}
 	var simulated := player.duplicate(true)
 	simulated[slot] = item

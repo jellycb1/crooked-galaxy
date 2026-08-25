@@ -72,7 +72,7 @@ func default_player() -> Dictionary:
 		"owned_transport_ids": [],
 		"active_transport_id": "",
 		"locked_item_ids": [],
-		"equipment_loadouts": [{"weapon_id": "", "armor_id": ""}, {"weapon_id": "", "armor_id": ""}],
+		"equipment_loadouts": [default_loadout(), default_loadout()],
 		"last_seen_unix": Time.get_unix_time_from_system(),
 		"reputation": 0,
 		"wins": 0,
@@ -86,9 +86,23 @@ func default_player() -> Dictionary:
 		"completed_planets": [],
 		"current_planet_id": "dustball_prime",
 		"weapon": {"id": "starter_weapon", "name": "Zapper de Treino", "slot": "weapon", "power": 1, "rarity": "Comum", "color": "#b9c2d9"},
+		"helmet": {},
 		"armor": {"id": "starter_armor", "name": "Jaqueta Espacial Duvidosa", "slot": "armor", "power": 1, "rarity": "Comum", "color": "#b9c2d9"},
+		"gloves": {},
+		"boots": {},
+		"rig": {},
+		"implant": {},
+		"gadget": {},
+		"relic": {},
 		"inventory": [],
 	}
+
+
+func default_loadout() -> Dictionary:
+	var loadout := {}
+	for slot in CoreRules.EQUIPMENT_SLOTS:
+		loadout["%s_id" % slot] = ""
+	return loadout
 
 
 func select_bounty(bounty: Dictionary) -> void:
@@ -539,7 +553,7 @@ func combat_quality(roll: float) -> String:
 
 func can_recycle_reward(item: Dictionary) -> bool:
 	var slot := str(item.get("slot", ""))
-	if slot != "weapon" and slot != "armor":
+	if not CoreRules.is_equipment_slot(slot):
 		return false
 	return not item.has("trait") and not CoreRules.has_workshop_investment(item) and not CoreRules.is_upgrade_for_player(player, item)
 
@@ -686,7 +700,7 @@ func continue_after_chapter() -> void:
 
 func equip(item: Dictionary) -> void:
 	var slot := str(item.get("slot", ""))
-	if slot == "weapon" or slot == "armor":
+	if CoreRules.is_equipment_slot(slot):
 		var previous: Dictionary = player.get(slot, {})
 		var previous_id := str(previous.get("id", ""))
 		var new_id := str(item.get("id", ""))
@@ -740,7 +754,7 @@ func inferior_recycle_preview() -> Dictionary:
 	var scrap := 0
 	for item in player.get("inventory", []):
 		var slot := str(item.get("slot", ""))
-		if slot != "weapon" and slot != "armor":
+		if not CoreRules.is_equipment_slot(slot):
 			continue
 		if is_item_protected(str(item.get("id", ""))):
 			continue
@@ -764,7 +778,7 @@ func recycle_inferior_inventory() -> Dictionary:
 	for item in player.get("inventory", []):
 		var slot := str(item.get("slot", ""))
 		var is_equipped: bool = is_item_protected(str(item.get("id", "")))
-		var is_inferior: bool = (slot == "weapon" or slot == "armor") and not item.has("trait") and not CoreRules.has_workshop_investment(item) and not CoreRules.is_upgrade_for_player(player, item)
+		var is_inferior: bool = CoreRules.is_equipment_slot(slot) and not item.has("trait") and not CoreRules.has_workshop_investment(item) and not CoreRules.is_upgrade_for_player(player, item)
 		if is_equipped or not is_inferior:
 			retained.append(item)
 	player.inventory = retained
@@ -780,14 +794,15 @@ func recycle_inferior_inventory() -> Dictionary:
 func is_item_protected(item_id: String) -> bool:
 	if item_id.is_empty():
 		return false
-	for slot in ["weapon", "armor"]:
+	for slot in CoreRules.EQUIPMENT_SLOTS:
 		if str(player.get(slot, {}).get("id", "")) == item_id:
 			return true
 	if player.get("locked_item_ids", []).has(item_id):
 		return true
 	for loadout in player.get("equipment_loadouts", []):
-		if str(loadout.get("weapon_id", "")) == item_id or str(loadout.get("armor_id", "")) == item_id:
-			return true
+		for slot in CoreRules.EQUIPMENT_SLOTS:
+			if str(loadout.get("%s_id" % slot, "")) == item_id:
+				return true
 	return false
 
 
@@ -819,10 +834,10 @@ func save_equipment_loadout(index: int) -> bool:
 	var loadouts: Array = player.get("equipment_loadouts", [])
 	if phase != Phase.BOARD or index < 0 or index >= loadouts.size():
 		return false
-	loadouts[index] = {
-		"weapon_id": str(player.get("weapon", {}).get("id", "")),
-		"armor_id": str(player.get("armor", {}).get("id", "")),
-	}
+	var snapshot := default_loadout()
+	for slot in CoreRules.EQUIPMENT_SLOTS:
+		snapshot["%s_id" % slot] = str(player.get(slot, {}).get("id", ""))
+	loadouts[index] = snapshot
 	player.equipment_loadouts = loadouts
 	last_notice = "Loadout %s arquivado. As peças foram protegidas." % loadout_name(index)
 	last_notice_context = "workshop"
@@ -843,8 +858,12 @@ func apply_equipment_loadout(index: int) -> bool:
 		last_notice_context = "workshop"
 		changed.emit()
 		return false
-	equip(weapon)
-	equip(armor)
+	for slot in CoreRules.EQUIPMENT_SLOTS:
+		var item_id := str(loadout.get("%s_id" % slot, ""))
+		if not item_id.is_empty():
+			var item := inventory_item_by_id(item_id)
+			if not item.is_empty() and str(item.get("slot", "")) == slot:
+				equip(item)
 	last_notice = "Loadout %s equipado. Poder %d · Vida %d." % [loadout_name(index), CoreRules.player_power(player), CoreRules.max_health(player)]
 	last_notice_context = "workshop"
 	save_game()
@@ -855,7 +874,7 @@ func apply_equipment_loadout(index: int) -> bool:
 func inventory_item_by_id(item_id: String) -> Dictionary:
 	if item_id.is_empty():
 		return {}
-	for slot in ["weapon", "armor"]:
+	for slot in CoreRules.EQUIPMENT_SLOTS:
 		var equipped: Dictionary = player.get(slot, {})
 		if str(equipped.get("id", "")) == item_id:
 			return equipped.duplicate(true)
@@ -870,7 +889,7 @@ func loadout_name(index: int) -> String:
 
 
 func upgrade_equipped(slot: String) -> bool:
-	if phase != Phase.BOARD or (slot != "weapon" and slot != "armor"):
+	if phase != Phase.BOARD or not CoreRules.is_equipment_slot(slot) or player.get(slot, {}).is_empty():
 		return false
 	var item: Dictionary = player[slot]
 	var cost := CoreRules.equipment_upgrade_cost(item)
@@ -890,7 +909,7 @@ func upgrade_equipped(slot: String) -> bool:
 
 
 func reinforce_equipped(slot: String) -> bool:
-	if phase != Phase.BOARD or (slot != "weapon" and slot != "armor"):
+	if phase != Phase.BOARD or not CoreRules.is_equipment_slot(slot) or player.get(slot, {}).is_empty():
 		return false
 	var item: Dictionary = player[slot]
 	if not CoreRules.can_upgrade_integrity(item):
@@ -1280,9 +1299,12 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 			sanitized[key] = int(incoming) if expected is int else (float(incoming) if expected is float else incoming)
 		else:
 			repaired = true
-	for slot in ["weapon", "armor"]:
+	for slot in CoreRules.EQUIPMENT_SLOTS:
 		var fallback: Dictionary = default_player()[slot]
 		var loaded_item = loaded.get(slot, {})
+		if fallback.is_empty() and loaded_item is Dictionary and loaded_item.is_empty():
+			sanitized[slot] = {}
+			continue
 		if loaded_item is Dictionary:
 			var item := fallback.duplicate(true)
 			for key in loaded_item:
@@ -1310,15 +1332,14 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	else:
 		repaired = true
 	sanitized.inventory = clean_inventory
-	var clean_loadouts := [{"weapon_id": "", "armor_id": ""}, {"weapon_id": "", "armor_id": ""}]
+	var clean_loadouts := [default_loadout(), default_loadout()]
 	var loaded_loadouts = loaded.get("equipment_loadouts", [])
 	if loaded_loadouts is Array:
 		for index in mini(2, loaded_loadouts.size()):
 			if loaded_loadouts[index] is Dictionary:
-				clean_loadouts[index] = {
-					"weapon_id": str(loaded_loadouts[index].get("weapon_id", "")),
-					"armor_id": str(loaded_loadouts[index].get("armor_id", "")),
-				}
+				for slot in CoreRules.EQUIPMENT_SLOTS:
+					var id_key := "%s_id" % slot
+					clean_loadouts[index][id_key] = str(loaded_loadouts[index].get(id_key, ""))
 			else:
 				repaired = true
 		if loaded_loadouts.size() != 2:
@@ -1423,7 +1444,11 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 		else:
 			repaired = true
 	sanitized.claimed_milestones = clean_claimed
-	var owned_item_ids := {str(sanitized.weapon.id): true, str(sanitized.armor.id): true}
+	var owned_item_ids := {}
+	for slot in CoreRules.EQUIPMENT_SLOTS:
+		var equipped_id := str(sanitized.get(slot, {}).get("id", ""))
+		if not equipped_id.is_empty():
+			owned_item_ids[equipped_id] = true
 	for item in sanitized.inventory:
 		owned_item_ids[str(item.id)] = true
 	var clean_locked_ids: Array = []
@@ -1434,7 +1459,7 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 			repaired = true
 	sanitized.locked_item_ids = clean_locked_ids
 	for loadout in sanitized.equipment_loadouts:
-		for slot in ["weapon", "armor"]:
+		for slot in CoreRules.EQUIPMENT_SLOTS:
 			var id_key := "%s_id" % slot
 			if not str(loadout[id_key]).is_empty() and not owned_item_ids.has(str(loadout[id_key])):
 				loadout[id_key] = ""
@@ -1593,7 +1618,7 @@ func sanitize_loaded_combat_events(loaded) -> Dictionary:
 
 
 func loaded_equipment_is_safe(item: Dictionary, expected_slot: String) -> bool:
-	if expected_slot != "weapon" and expected_slot != "armor":
+	if not CoreRules.is_equipment_slot(expected_slot):
 		return false
 	if str(item.get("slot", "")) != expected_slot or str(item.get("id", "")).is_empty() or str(item.get("name", "")).is_empty():
 		return false
@@ -1636,7 +1661,7 @@ func sanitize_loaded_equipment(item: Dictionary) -> bool:
 	if item.has("trait"):
 		var canonical_trait := {}
 		var trait_id := str(item.trait.get("id", ""))
-		for definition in ContentDB.ITEM_TRAITS[str(item.slot)]:
+		for definition in ContentDB.ITEM_TRAITS.get(str(item.slot), []):
 			if str(definition.id) == trait_id:
 				canonical_trait = definition.duplicate(true)
 				break

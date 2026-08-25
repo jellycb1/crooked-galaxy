@@ -129,17 +129,27 @@ static func hunter_profile(host: CrookedUIFactory, state: StateScript, class_id:
 	showcase.alignment = BoxContainer.ALIGNMENT_CENTER
 	showcase.add_theme_constant_override("separation", 10)
 	box.add_child(showcase)
-	showcase.add_child(equipment_slot(host, state.player.get("weapon", {}), "ARMA"))
+	showcase.add_child(equipment_slot(host, state.player.get("weapon", {}), "weapon"))
 	var portrait_column := VBoxContainer.new()
 	portrait_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	portrait_column.size_flags_stretch_ratio = 1.35
 	portrait_column.alignment = BoxContainer.ALIGNMENT_CENTER
 	showcase.add_child(portrait_column)
-	var portrait: Control = host.call("framed_hunter_portrait", 196.0)
+	var portrait: Control = host.call("framed_hunter_portrait", 154.0)
 	portrait.name = "HunterProfilePortrait"
 	portrait.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	portrait_column.add_child(portrait)
-	showcase.add_child(equipment_slot(host, state.player.get("armor", {}), "ARMADURA"))
+	showcase.add_child(equipment_slot(host, state.player.get("armor", {}), "armor"))
+	var secondary_grid := GridContainer.new()
+	secondary_grid.name = "HunterUniversalEquipment"
+	secondary_grid.columns = 4
+	secondary_grid.add_theme_constant_override("h_separation", 6)
+	secondary_grid.add_theme_constant_override("v_separation", 6)
+	box.add_child(secondary_grid)
+	for slot_id in Rules.EQUIPMENT_SLOTS:
+		if slot_id == "weapon" or slot_id == "armor":
+			continue
+		secondary_grid.add_child(compact_equipment_slot(host, state.player.get(slot_id, {}), slot_id))
 	var kit_origin := Rules.equipment_set_origin(state.player)
 	var portrait_caption := host.center_label("KIT PLANETÁRIO ATIVO" if not kit_origin.is_empty() else "LOADOUT EQUIPADO", 9, host.GOLD if not kit_origin.is_empty() else host.MUTED)
 	box.add_child(portrait_caption)
@@ -180,21 +190,40 @@ static func hunter_profile(host: CrookedUIFactory, state: StateScript, class_id:
 	return profile
 
 
-static func equipment_slot(host: CrookedUIFactory, item_value: Variant, slot_title: String) -> PanelContainer:
+static func equipment_slot(host: CrookedUIFactory, item_value: Variant, slot_id: String) -> PanelContainer:
 	var item: Dictionary = item_value if item_value is Dictionary else {}
+	var slot_title := Rules.equipment_slot_name(slot_id).to_upper()
 	var slot := host.panel(VBoxContainer.new(), Color("#090f25"), 13, 8)
-	slot.name = "HunterEquipment_%s" % str(item.get("slot", slot_title.to_lower()))
-	slot.custom_minimum_size = Vector2(124, 0)
+	slot.name = "HunterEquipment_%s" % slot_id
+	slot.custom_minimum_size = Vector2(88, 0)
 	slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	slot.size_flags_stretch_ratio = 0.9
 	var box := slot.get_child(0) as VBoxContainer
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation", 2)
 	box.add_child(host.center_label(slot_title, 10, host.MUTED))
-	var icon := host.equipment_icon(item, 82)
+	var icon_item := item.duplicate(true)
+	icon_item.slot = slot_id
+	var icon := host.equipment_icon(icon_item, 62)
 	box.add_child(icon)
-	box.add_child(host.center_label("+%d PODER" % int(item.get("power", 0)), 11, host.GOLD))
+	box.add_child(host.center_label("+%d PODER" % int(item.get("power", 0)), 10, host.GOLD))
 	slot.tooltip_text = "%s · %s" % [slot_title, str(item.get("name", "SLOT VAZIO"))]
+	return slot
+
+
+static func compact_equipment_slot(host: CrookedUIFactory, item_value: Variant, slot_id: String) -> PanelContainer:
+	var item: Dictionary = item_value if item_value is Dictionary else {}
+	var slot := host.panel(VBoxContainer.new(), Color("#090f25"), 7, 5)
+	slot.name = "HunterEquipment_%s" % slot_id
+	slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var box := slot.get_child(0) as VBoxContainer
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	box.add_child(host.center_label(Rules.equipment_slot_name(slot_id).to_upper(), 8, host.MUTED))
+	var icon_item := item.duplicate(true)
+	icon_item.slot = slot_id
+	box.add_child(host.equipment_icon(icon_item, 42))
+	box.add_child(host.center_label("+%d" % int(item.get("power", 0)) if not item.is_empty() else "VAZIO", 9, host.GOLD if not item.is_empty() else host.MUTED))
+	slot.tooltip_text = "%s · %s" % [Rules.equipment_slot_name(slot_id), str(item.get("name", "SLOT VAZIO"))]
 	return slot
 static func class_reference_icon(host: CrookedUIFactory, class_id: String) -> TextureRect:
 	if class_id.is_empty():

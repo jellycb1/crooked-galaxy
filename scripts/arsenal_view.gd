@@ -101,6 +101,7 @@ static func build_equipped_section(host: CrookedUIFactory, content: VBoxContaine
 	var set_label := host.label(set_text, 12, set_color)
 	set_label.name = "PlanetaryKitStatus"
 	content.add_child(set_label)
+	content.add_child(universal_equipment_grid(host, state))
 	content.add_child(field_readiness_card(host, state, readiness))
 	var workshop_recommendation := recommended_workshop_action(state)
 	content.add_child(workshop_recommendation_card(host, state, workshop_recommendation, readiness))
@@ -392,7 +393,8 @@ static func inventory_toolbar(host: CrookedUIFactory, state: StateScript) -> VBo
 	for definition in [
 		{"id": "all", "text": "TODOS"},
 		{"id": "weapon", "text": "ARMAS"},
-		{"id": "armor", "text": "ARMADURAS"},
+		{"id": "armor", "text": "TRAJES"},
+		{"id": "other", "text": "OUTROS"},
 	]:
 		var mode := str(definition.id)
 		var selected := host.inventory_filter == mode
@@ -450,7 +452,11 @@ static func loadout_toolbar(host: CrookedUIFactory, state: StateScript) -> HBoxC
 		row.add_child(card)
 		var box := card.get_child(0) as VBoxContainer
 		box.add_child(host.label("LOADOUT · %s" % state.loadout_name(index), 10, host.GOLD))
-		var summary := "%s / %s" % [str(weapon.get("name", "não salvo")), str(armor.get("name", "não salvo"))]
+		var saved_count := 0
+		for slot in Rules.EQUIPMENT_SLOTS:
+			if not str(loadout.get("%s_id" % slot, "")).is_empty():
+				saved_count += 1
+		var summary := "%d/%d PEÇAS · %s / %s" % [saved_count, Rules.EQUIPMENT_SLOTS.size(), str(weapon.get("name", "não salvo")), str(armor.get("name", "não salvo"))]
 		var summary_label := host.label(summary, 9, host.MUTED)
 		summary_label.custom_minimum_size = Vector2.ZERO
 		summary_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -606,4 +612,43 @@ static func workshop_upgrade_card(host: CrookedUIFactory, state: StateScript, sl
 	reinforce.add_theme_font_size_override("font_size", 10)
 	reinforce.pressed.connect(func(): state.reinforce_equipped(slot))
 	actions.add_child(reinforce)
+	return card
+
+
+static func universal_equipment_grid(host: CrookedUIFactory, state: StateScript) -> PanelContainer:
+	var card := host.panel(VBoxContainer.new(), Color("#0b1430e8"), 11, 8)
+	card.name = "UniversalEquipmentCard"
+	var box := card.get_child(0) as VBoxContainer
+	box.add_theme_constant_override("separation", 7)
+	var heading := HBoxContainer.new()
+	box.add_child(heading)
+	var title := host.label("FICHA UNIVERSAL", 12, host.CYAN)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	heading.add_child(title)
+	heading.add_child(host.label("%d / %d EQUIPADOS" % [Rules.equipped_item_count(state.player), Rules.EQUIPMENT_SLOTS.size()], 10, host.GOLD))
+	var grid := GridContainer.new()
+	grid.name = "UniversalEquipmentGrid"
+	grid.columns = 3
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 6)
+	box.add_child(grid)
+	for slot_id in Rules.EQUIPMENT_SLOTS:
+		var item: Dictionary = state.player.get(slot_id, {})
+		var slot_panel := host.panel(HBoxContainer.new(), Color("#090f25"), 7, 5)
+		slot_panel.name = "UniversalSlot_%s" % slot_id
+		slot_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var row := slot_panel.get_child(0) as HBoxContainer
+		row.add_theme_constant_override("separation", 5)
+		var icon_item := item.duplicate(true)
+		icon_item.slot = slot_id
+		row.add_child(host.equipment_icon(icon_item, 34))
+		var copy := VBoxContainer.new()
+		copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(copy)
+		copy.add_child(host.label(Rules.equipment_slot_name(slot_id).to_upper(), 8, host.MUTED))
+		var value := host.label("+%d" % int(item.get("power", 0)) if not item.is_empty() else "VAZIO", 10, host.GOLD if not item.is_empty() else host.MUTED)
+		value.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		copy.add_child(value)
+		slot_panel.tooltip_text = str(item.get("name", "Espaço reservado para loot futuro"))
+		grid.add_child(slot_panel)
 	return card

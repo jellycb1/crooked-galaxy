@@ -57,6 +57,12 @@ func _init() -> void:
 	var established_v9 := SaveMigrations.migrate(established_v8_payload)
 	check(established_v9.player.owned_transport_ids.is_empty() and str(established_v9.player.active_transport_id).is_empty(), "version-nine migration initializes only transport persistence")
 	check(int(established_v9.player.market_cycle) == 2 and established_v9.player.market_purchased_offer_ids == ["market_kept"], "transport migration preserves established market records")
+	check(["helmet", "gloves", "boots", "rig", "implant", "gadget", "relic"].all(func(slot): return established_v9.player.has(slot) and established_v9.player[slot].is_empty()), "version-ten migration reserves every universal equipment slot without inventing loot")
+
+	var version_nine := {"version": 9, "player": {"weapon": {"id": "legacy_weapon"}, "armor": {"id": "legacy_armor"}, "equipment_loadouts": [{"weapon_id": "legacy_weapon", "armor_id": "legacy_armor"}, {"weapon_id": "", "armor_id": ""}]}}
+	var universal := SaveMigrations.migrate(version_nine)
+	check(str(universal.player.weapon.id) == "legacy_weapon" and str(universal.player.armor.id) == "legacy_armor", "universal inventory migration preserves both established equipped pieces")
+	check(universal.player.equipment_loadouts.all(func(loadout): return ["weapon", "helmet", "armor", "gloves", "boots", "rig", "implant", "gadget", "relic"].all(func(slot): return loadout.has("%s_id" % slot))), "every migrated loadout receives the same nine-slot shape")
 
 	var current := {"version": SaveMigrations.CURRENT_VERSION, "player": {"credits": 5}}
 	var current_copy := SaveMigrations.migrate(current)
