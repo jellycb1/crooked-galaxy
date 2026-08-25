@@ -48,6 +48,21 @@ func run_mobile_audit() -> void:
 		for field in ["NAME", "TAG", "DESCRIPTION"]:
 			var key := "APPROACH_%s_%s" % [str(approach.id).to_upper(), field]
 			check(str(TranslationServer.translate(key)) != key, "English catalog resolves %s" % key)
+	for event in ContentDB.HUNT_EVENTS:
+		for field in ["TITLE", "DESCRIPTION"]:
+			var key := "HUNT_EVENT_%s_%s" % [str(event.id).to_upper(), field]
+			check(str(TranslationServer.translate(key)) != key, "English catalog resolves %s" % key)
+		for choice in event.get("choices", []):
+			for field in ["NAME", "EFFECT_TEXT", "RESULT"]:
+				var key := "HUNT_EVENT_%s_CHOICE_%s_%s" % [str(event.id).to_upper(), str(choice.id).to_upper(), field]
+				check(str(TranslationServer.translate(key)) != key, "English catalog resolves %s" % key)
+	for attack_index in ContentDB.PLAYER_ATTACKS.size():
+		var key := "COMBAT_PLAYER_ATTACK_%d" % attack_index
+		check(str(TranslationServer.translate(key)) != key, "English catalog resolves %s" % key)
+	for target in ContentDB.TARGETS:
+		for attack_index in target.get("attacks", []).size():
+			var key := "TARGET_%s_ATTACK_%d" % [str(target.id).to_upper(), attack_index]
+			check(str(TranslationServer.translate(key)) != key, "English catalog resolves %s" % key)
 	scene.view_mode = "board"
 	scene.board_section = "bounties"
 	scene.render()
@@ -59,7 +74,34 @@ func run_mobile_audit() -> void:
 	state.choose_approach("hot_hatch")
 	await process_frame
 	check(find_label_with_text(scene, "HUNT IN PROGRESS") != null and find_label_with_text(scene, "HOT HATCH ENTRY") != null and scene.find_child("HuntAbandonAction", true, false) != null and (scene.find_child("HuntAbandonAction", true, false) as Button).text == "ABANDON CONTRACT", "English catalog remains coherent after committing a live hunt")
-	state.abandon_bounty()
+	state.hunt_event = ContentDB.HUNT_EVENTS[0].duplicate(true)
+	state.hunt_elapsed_before_event = 2.0
+	state.hunt_remaining_after_event = 3.0
+	state.phase = state.Phase.HUNT_EVENT
+	scene.render()
+	await process_frame
+	check(find_label_with_text(scene, "HUNT INCIDENT") != null and find_label_with_text(scene, "D-7 Drone Toll") != null and find_label_with_text(scene, "The drone reveals weak points: -18% target defense.") != null and (scene.find_child("HuntChoice_detour", true, false) as Button).text == "CHOOSE", "English catalog covers the complete live incident decision")
+	(scene.find_child("HuntChoice_detour", true, false) as Button).pressed.emit()
+	await process_frame
+	check(find_label_with_text(scene, "The detour ended behind the target. For once, a road sign helped.") != null, "English incident result survives the committed choice and resumed hunt")
+	state.begin_combat()
+	state.combat_step()
+	scene.render()
+	await process_frame
+	check(find_label_with_text(scene, "AUTOMATIC ENCOUNTER") != null and find_label_with_text(scene, "RELATIVE HEALTH") != null and find_label_with_text(scene, "LAST ROUND") != null and (scene.find_child("CombatSpeedAction", true, false) as Button).text == "SPEED · 1×", "English catalog covers automatic combat chrome, live pressure, and round report")
+	var action_labels := scene.find_children("*", "Label", true, false).filter(func(candidate): return str((candidate as Label).text).contains("DAMAGE"))
+	check(not action_labels.is_empty(), "English combat events localize damage quality and preserve numeric evidence")
+	state.enemy_hp = 1
+	state.combat_step()
+	scene.render()
+	await process_frame
+	check(find_label_with_text(scene, "WARRANT EXECUTED") != null and find_label_with_text(scene, "TARGET CAPTURED") != null and find_label_with_text(scene, "WARRANT REPORT") != null and (scene.find_child("OpenRewardAction", true, false) as Button).text == "OPEN REWARD", "English catalog covers the complete victory handoff into reward")
+	state.phase = state.Phase.BOARD
+	state.current_bounty = {}
+	state.pending_loot = {}
+	state.combat_events.clear()
+	scene.render()
+	await process_frame
 	await process_frame
 	TranslationServer.set_locale("pt")
 	scene.view_mode = "board"

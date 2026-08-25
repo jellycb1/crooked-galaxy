@@ -141,7 +141,42 @@ func capture() -> void:
 	if save_frame("ui_first_hunt_en.png") != OK:
 		quit(1)
 		return
-	state.abandon_bounty()
+	state.hunt_event = ContentDB.HUNT_EVENTS[0].duplicate(true)
+	state.hunt_elapsed_before_event = 2.0
+	state.hunt_remaining_after_event = 3.0
+	state.phase = state.Phase.HUNT_EVENT
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_first_incident_en.png") != OK:
+		quit(1)
+		return
+	state.resolve_hunt_event("detour")
+	await process_frame
+	await process_frame
+	if save_frame("ui_first_incident_result_en.png") != OK:
+		quit(1)
+		return
+	state.begin_combat()
+	state.combat_step()
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_first_combat_en.png") != OK:
+		quit(1)
+		return
+	state.enemy_hp = 1
+	state.combat_step()
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_first_victory_en.png") != OK:
+		quit(1)
+		return
+	state.phase = state.Phase.BOARD
+	state.current_bounty = {}
+	state.pending_loot = {}
+	state.combat_events.clear()
 	state.last_notice = ""
 	state.last_notice_context = ""
 	TranslationServer.set_locale("pt")

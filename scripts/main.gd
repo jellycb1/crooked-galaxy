@@ -597,6 +597,8 @@ func localized_content_field(prefix: String, definition: Dictionary, field: Stri
 
 
 func localized_approach_name(approach_id: String, fallback: String = "CONTRATO BASE") -> String:
+	if approach_id.is_empty() and fallback != "CONTRATO BASE":
+		return fallback
 	for approach in ContentDB.contract_approaches():
 		if str(approach.id) == approach_id:
 			return localized_content_field("approach", approach, "name")
@@ -613,6 +615,57 @@ func localized_recommendation(approach_id: String) -> String:
 	if definition.is_empty() or str(definition.get("preferred_approach", "")) != approach_id:
 		return t("BRIEFING_BEST_BALANCE", "MELHOR EQUILÍBRIO")
 	return t("BRIEFING_SYNERGY", "SINERGIA · %s", [ClassRulesScript.class_name_for(class_id)])
+
+
+func localized_hunt_choice_field(event_id: String, choice: Dictionary, field: String) -> String:
+	var raw := str(choice.get(field, ""))
+	var key := "HUNT_EVENT_%s_CHOICE_%s_%s" % [event_id.to_upper(), str(choice.get("id", "")).to_upper(), field.to_upper()]
+	return t(key, raw)
+
+
+func localized_hunt_result(bounty: Dictionary) -> String:
+	var choice_id := str(bounty.get("hunt_event_choice_id", ""))
+	if choice_id.is_empty():
+		return str(bounty.get("hunt_event_result", ""))
+	for event in ContentDB.HUNT_EVENTS:
+		for choice in event.get("choices", []):
+			if str(choice.get("id", "")) == choice_id:
+				return localized_hunt_choice_field(str(event.id), choice, "result")
+	return str(bounty.get("hunt_event_result", ""))
+
+
+func localized_combat_action(raw: String, actor: String = "player") -> String:
+	if actor == "player":
+		var player_index := ContentDB.PLAYER_ATTACKS.find(raw)
+		return t("COMBAT_PLAYER_ATTACK_%d" % player_index, raw) if player_index >= 0 else raw
+	var target := ContentDB.get_target(str(GameState.current_bounty.get("id", "")))
+	var attacks: Array = target.get("attacks", [])
+	var attack_index := attacks.find(raw)
+	return t("TARGET_%s_ATTACK_%d" % [str(target.get("id", "")).to_upper(), attack_index], raw) if attack_index >= 0 else raw
+
+
+func localized_combat_effect(raw: String) -> String:
+	var translated_parts: Array[String] = []
+	var effect_keys := {"EMBOSCADA": "COMBAT_EFFECT_AMBUSH", "INVASÃO": "COMBAT_EFFECT_BREACH", "INSTABILIDADE": "COMBAT_EFFECT_INSTABILITY", "INTERFERÊNCIA": "COMBAT_EFFECT_INTERFERENCE", "MIRA ORBITAL": "COMBAT_EFFECT_ORBITAL_AIM", "AMORTECEDOR": "COMBAT_EFFECT_DAMPENER", "CASCO DURO": "COMBAT_EFFECT_HARD_SHELL", "RUPTURA": "COMBAT_EFFECT_BREACHING"}
+	for part in raw.split(" · "):
+		var translated := part
+		for prefix in effect_keys:
+			if part.begins_with(prefix):
+				translated = t(str(effect_keys[prefix]), "%s %s" % [prefix, part.trim_prefix(prefix).strip_edges()], [part.trim_prefix(prefix).strip_edges()])
+				break
+		translated_parts.append(translated)
+	return " · ".join(translated_parts)
+
+
+func localized_combat_narrative() -> String:
+	if GameState.combat_events.is_empty():
+		return t("COMBAT_IDLE_NARRATIVE", "Os dois lados avaliam suas escolhas de vida...")
+	var player_event: Dictionary = GameState.combat_events[0]
+	var narrative := t("COMBAT_PLAYER_HIT", "%s causa %d de dano.", [localized_combat_action(str(player_event.get("action", "")), "player"), int(player_event.get("damage", 0))])
+	if GameState.combat_events.size() > 1:
+		var enemy_event: Dictionary = GameState.combat_events[1]
+		narrative += t("COMBAT_ENEMY_HIT", "  %s responde com %d.", [localized_combat_action(str(enemy_event.get("action", "")), "enemy"), int(enemy_event.get("damage", 0))])
+	return narrative
 
 
 func build_board() -> void:
@@ -1115,7 +1168,9 @@ func combat_summary_panel(won: bool) -> PanelContainer:
 	card.name = "CombatSummaryVictory" if won else "CombatSummaryDefeat"
 	var box := card.get_child(0) as VBoxContainer
 	box.add_theme_constant_override("separation", 7)
-	var report_title := "RELATÓRIO DO MANDADO" if won else "FUGA: %s" % str(summary.get("target_name", "ALVO DESCONHECIDO")).to_upper()
+	var summary_target := ContentDB.get_target(str(summary.get("target_id", "")))
+	var summary_target_name := localized_content_field("target", summary_target, "name") if not summary_target.is_empty() else str(summary.get("target_name", t("COMBAT_UNKNOWN_TARGET", "ALVO DESCONHECIDO")))
+	var report_title := t("COMBAT_WARRANT_REPORT", "RELATÓRIO DO MANDADO") if won else t("COMBAT_ESCAPE_REPORT", "FUGA: %s", [summary_target_name.to_upper()])
 	var report_header := HBoxContainer.new()
 	report_header.add_theme_constant_override("separation", 8)
 	box.add_child(report_header)
@@ -1131,45 +1186,49 @@ func combat_summary_panel(won: bool) -> PanelContainer:
 	var metrics := HBoxContainer.new()
 	metrics.add_theme_constant_override("separation", 7)
 	box.add_child(metrics)
-	metrics.add_child(metric_chip("TURNOS", str(int(summary.get("rounds", 0))), GOLD))
-	metrics.add_child(metric_chip("CAUSADO", str(int(summary.get("damage_dealt", 0))), CYAN))
-	metrics.add_child(metric_chip("RECEBIDO", str(int(summary.get("damage_taken", 0))), CORAL))
+	metrics.add_child(metric_chip(t("COMBAT_ROUNDS", "TURNOS"), str(int(summary.get("rounds", 0))), GOLD))
+	metrics.add_child(metric_chip(t("COMBAT_DEALT", "CAUSADO"), str(int(summary.get("damage_dealt", 0))), CYAN))
+	metrics.add_child(metric_chip(t("COMBAT_TAKEN", "RECEBIDO"), str(int(summary.get("damage_taken", 0))), CORAL))
 	var effects: Array[String] = []
 	var class_opening_bonus := ClassRulesScript.specialization_opening_damage(GameState.player, CoreRules.BASE_ATTRIBUTE_VALUE)
 	var non_class_opening_bonus := maxi(0, int(summary.get("opening_bonus", 0)) - class_opening_bonus)
 	if non_class_opening_bonus > 0:
-		effects.append("emboscada +%d" % non_class_opening_bonus)
+		effects.append(t("COMBAT_EVIDENCE_AMBUSH", "emboscada +%d", [non_class_opening_bonus]))
 	if int(summary.get("damage_prevented", 0)) > 0:
-		effects.append("%d dano total amortecido" % int(summary.damage_prevented))
+		effects.append(t("COMBAT_EVIDENCE_PREVENTED", "%d dano total amortecido", [int(summary.damage_prevented)]))
 	var class_identity := ClassRulesScript.combat_identity_text(GameState.player, CoreRules.BASE_ATTRIBUTE_VALUE)
 	if not class_identity.is_empty():
-		effects.append(class_identity.to_lower())
+		effects.append(t("COMBAT_EVIDENCE_CLASS", "especialização %s ativa", [ClassRulesScript.class_name_for(str(GameState.player.get("class_id", ""))).to_lower()]))
 	var kit_origin := str(summary.get("kit_origin", ""))
 	if not kit_origin.is_empty():
-		effects.append("kit %s" % str(ContentDB.get_planet(kit_origin).name))
-	var evidence_text := "BUILD ATIVA · %s" % " · ".join(effects) if not effects.is_empty() else "SEM EFEITOS TÁTICOS · modificações e kits podem mudar o próximo confronto"
+		effects.append(t("COMBAT_EVIDENCE_KIT", "kit %s", [localized_content_field("planet", ContentDB.get_planet(kit_origin), "name")]))
+	var evidence_text := t("COMBAT_ACTIVE_BUILD", "BUILD ATIVA · %s", [" · ".join(effects)]) if not effects.is_empty() else t("COMBAT_NO_EFFECTS", "SEM EFEITOS TÁTICOS · modificações e kits podem mudar o próximo confronto")
 	var evidence := label(evidence_text, 11, GOLD if not effects.is_empty() else MUTED)
 	evidence.name = "CombatBuildEvidence"
 	evidence.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(evidence)
 	if not won:
-		var route_diagnosis_text := ContractRules.field_test_defeat_text(summary.get("field_test_context", {}))
+		var field_context: Dictionary = summary.get("field_test_context", {})
+		var route_diagnosis_text := ""
+		if not field_context.is_empty():
+			var tested := "%s %d%%" % [localized_approach_name(str(field_context.get("tested_approach_id", "")), str(field_context.get("tested_approach_name", "CONTRATO BASE"))).to_upper(), roundi(float(field_context.get("tested_odds", 0.0)) * 100.0)]
+			route_diagnosis_text = t("COMBAT_OVERRIDE_DEFEAT", "OVERRIDE DERROTADO · TESTADA %s → ESCOLHIDA %s · REAVALIE A ROTA", [tested, localized_approach_name(str(field_context.get("chosen_approach_id", "")), str(field_context.get("chosen_approach_name", "CONTRATO BASE"))).to_upper()]) if bool(field_context.get("overridden", false)) else t("COMBAT_TESTED_ROUTE_FAILED", "ROTA TESTADA TAMBÉM FALHOU · %s · REFORCE A BUILD OU REVEJA O INCIDENTE", [tested])
 		if not route_diagnosis_text.is_empty():
 			var route_diagnosis := label(route_diagnosis_text, 11, GOLD)
 			route_diagnosis.name = "DefeatFieldTestDiagnosis"
 			route_diagnosis.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			box.add_child(route_diagnosis)
 		var remaining := int(summary.get("enemy_hp_remaining", 0))
-		var diagnosis := label("O alvo conservou %d HP. Compare as odds, ative um kit ou invista na oficina antes da revanche." % remaining, 12, INK)
+		var diagnosis := label(t("COMBAT_DEFEAT_DIAGNOSIS", "O alvo conservou %d HP. Compare as odds, ative um kit ou invista na oficina antes da revanche.", [remaining]), 12, INK)
 		diagnosis.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		box.add_child(diagnosis)
 		var lost_streak := int(summary.get("lost_streak", 0))
 		if lost_streak > 0:
-			var streak_loss := label("EMBALO ×%d ENCERRADO · a próxima captura recomeça em ×1" % lost_streak, 11, CORAL)
+			var streak_loss := label(t("COMBAT_STREAK_LOST", "EMBALO ×%d ENCERRADO · a próxima captura recomeça em ×1", [lost_streak]), 11, CORAL)
 			streak_loss.name = "DefeatStreakLoss"
 			streak_loss.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			box.add_child(streak_loss)
-		var workshop := action_button("ABRIR OFICINA E TESTAR BUILD", CYAN, true)
+		var workshop := action_button(t("COMBAT_OPEN_WORKSHOP", "ABRIR OFICINA E TESTAR BUILD"), CYAN, true)
 		workshop.name = "DefeatWorkshopAction"
 		workshop.custom_minimum_size = Vector2(0, 44)
 		workshop.pressed.connect(func():
@@ -1474,7 +1533,7 @@ func build_hunt() -> void:
 		content.add_child(field_test_record)
 	content.add_child(center_label(t("HUNT_FLAVOR", "Seguindo sinais, subornando robôs e fingindo ter um plano."), 16, MUTED))
 	if bounty.has("hunt_event_result"):
-		content.add_child(notice_banner(str(bounty.hunt_event_result), GOLD))
+		content.add_child(notice_banner(localized_hunt_result(bounty), GOLD))
 
 	var progress_value := clampf(GameState.hunt_progress(), 0.0, 1.0)
 	var progress_row := HBoxContainer.new()
@@ -1517,8 +1576,8 @@ func build_hunt_event() -> void:
 	var heading_copy := VBoxContainer.new()
 	heading_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	event_heading.add_child(heading_copy)
-	heading_copy.add_child(label("IMPREVISTO NA CAÇADA", 17, CORAL))
-	heading_copy.add_child(label("DECISÃO DE CAMPO · A CAÇA ESTÁ PAUSADA", 11, MUTED))
+	heading_copy.add_child(label(t("HUNT_EVENT_TITLE", "IMPREVISTO NA CAÇADA"), 17, CORAL))
+	heading_copy.add_child(label(t("HUNT_EVENT_PAUSED", "DECISÃO DE CAMPO · A CAÇA ESTÁ PAUSADA"), 11, MUTED))
 	var field_test_record := field_test_record_label("IncidentFieldTestContext")
 	if field_test_record != null:
 		content.add_child(field_test_record)
@@ -1533,7 +1592,7 @@ func build_hunt_event() -> void:
 	signal_panel.custom_minimum_size = Vector2(86, 86)
 	var signal_box := signal_panel.get_child(0) as VBoxContainer
 	signal_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	signal_box.add_child(center_label("SINAL", 10, MUTED))
+	signal_box.add_child(center_label(t("HUNT_EVENT_SIGNAL", "SINAL"), 10, MUTED))
 	signal_box.add_child(center_label(symbol, 30, accent))
 	incident_row.add_child(signal_panel)
 	var incident_box := VBoxContainer.new()
@@ -1541,13 +1600,13 @@ func build_hunt_event() -> void:
 	incident_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	incident_box.add_theme_constant_override("separation", 4)
 	incident_row.add_child(incident_box)
-	incident_box.add_child(label(str(event.get("title", "Algo Estranho")), 22, INK))
-	var description := label(str(event.get("description", "A perseguição ficou mais complicada.")), 13, MUTED)
+	incident_box.add_child(label(localized_content_field("hunt_event", event, "title"), 22, INK))
+	var description := label(localized_content_field("hunt_event", event, "description"), 13, MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	incident_box.add_child(description)
 	var paused_duration := maxf(0.1, GameState.hunt_elapsed_before_event + GameState.hunt_remaining_after_event)
 	var paused_percent := roundi(100.0 * GameState.hunt_elapsed_before_event / paused_duration)
-	var pause_status := label("CAÇA PAUSADA EM %d%% · %ds RESTANTES APÓS A ESCOLHA" % [paused_percent, ceili(GameState.hunt_remaining_after_event)], 11, GOLD)
+	var pause_status := label(t("HUNT_EVENT_PAUSE_STATUS", "CAÇA PAUSADA EM %d%% · %ds RESTANTES APÓS A ESCOLHA", [paused_percent, ceili(GameState.hunt_remaining_after_event)]), 11, GOLD)
 	pause_status.name = "HuntEventPauseStatus"
 	incident_box.add_child(pause_status)
 
@@ -1556,7 +1615,7 @@ func build_hunt_event() -> void:
 	choices.add_theme_constant_override("separation", 10)
 	content.add_child(choices)
 	for choice in event.get("choices", []):
-		choices.add_child(hunt_choice_card(choice, accent))
+		choices.add_child(hunt_choice_card(choice, accent, str(event.get("id", ""))))
 	content.add_spacer(false)
 	var abandon := action_button(abandon_contract_text(), CORAL, true)
 	abandon.name = "HuntAbandonAction"
@@ -1570,7 +1629,7 @@ func abandon_contract_text() -> String:
 	return t("HUNT_ABANDON_STREAK", "ABANDONAR · PERDER EMBALO ×%d", [streak]) if streak > 0 else t("HUNT_ABANDON", "ABANDONAR CONTRATO")
 
 
-func hunt_choice_card(choice: Dictionary, accent: Color) -> PanelContainer:
+func hunt_choice_card(choice: Dictionary, accent: Color, event_id: String = "") -> PanelContainer:
 	var kind := hunt_choice_kind(choice)
 	var choice_color := GOLD if kind == "tactical" else (CYAN if kind == "detour" else CORAL)
 	var card_fill := Color("#181d38") if kind == "tactical" else (Color("#10213d") if kind == "detour" else Color("#25162f"))
@@ -1584,24 +1643,24 @@ func hunt_choice_card(choice: Dictionary, accent: Color) -> PanelContainer:
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	copy.add_child(label(str(choice.name), 15, choice_color))
-	var effect := label(str(choice.effect_text), 13, MUTED)
+	copy.add_child(label(localized_hunt_choice_field(event_id, choice, "name"), 15, choice_color))
+	var effect := label(localized_hunt_choice_field(event_id, choice, "effect_text"), 13, MUTED)
 	effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(effect)
 	var projected_contract := ContentDB.apply_hunt_choice(GameState.current_bounty, choice)
 	var projected_payment := CoreRules.bounty_streak_reward(int(projected_contract.credits), int(GameState.player.get("capture_streak", 0)) + 1)
-	var payment_text := "VITÓRIA ◈ %d" % int(projected_payment.credits)
+	var payment_text := t("HUNT_EVENT_VICTORY_PAYMENT", "VITÓRIA ◈ %d", [int(projected_payment.credits)])
 	if int(projected_payment.bonus_credits) > 0:
-		payment_text += " · EMBALO +%d INCLUÍDO" % int(projected_payment.bonus_credits)
+		payment_text += t("HUNT_EVENT_MOMENTUM_INCLUDED", " · EMBALO +%d INCLUÍDO", [int(projected_payment.bonus_credits)])
 	var choice_cost := int(choice.get("credit_cost", 0))
 	if choice_cost > 0:
-		payment_text += " · LÍQUIDO ◈ %d" % (int(projected_payment.credits) - choice_cost)
+		payment_text += t("HUNT_EVENT_NET_PAYMENT", " · LÍQUIDO ◈ %d", [int(projected_payment.credits) - choice_cost])
 	var payment := label(payment_text, 11, choice_color)
 	payment.name = "HuntChoicePayment_%s" % str(choice.id)
 	copy.add_child(payment)
 	var affordable := GameState.can_afford_hunt_choice(choice)
 	var missing_credits := maxi(0, choice_cost - int(GameState.player.credits))
-	var choice_text := "ESCOLHER" if affordable else "FALTAM %d CR" % missing_credits
+	var choice_text := t("HUNT_EVENT_CHOOSE", "ESCOLHER") if affordable else t("HUNT_EVENT_MISSING_CREDITS", "FALTAM %d CR", [missing_credits])
 	var choose := action_button(choice_text, choice_color, true)
 	choose.custom_minimum_size = Vector2(122, 48)
 	choose.add_theme_font_size_override("font_size", 13)
@@ -1624,7 +1683,7 @@ func hunt_choice_kind(choice: Dictionary) -> String:
 func build_combat() -> void:
 	var approach: Dictionary = GameState.current_bounty.get("approach", {})
 	var challenge_combat := bool(GameState.current_bounty.get("challenge", false))
-	var approach_name := "INCURSÃO DIRETA" if challenge_combat else str(approach.get("name", "CONTRATO BASE")).to_upper()
+	var approach_name := t("COMBAT_DIRECT_INCURSION", "INCURSÃO DIRETA") if challenge_combat else localized_content_field("approach", approach, "name").to_upper()
 	var combat_payment := CoreRules.bounty_streak_reward(int(GameState.current_bounty.credits), int(GameState.player.get("capture_streak", 0)) + 1)
 	var dossier := panel(HBoxContainer.new(), Color("#111a31e8"), 14, 10)
 	dossier.name = "CombatContractDossier"
@@ -1634,20 +1693,20 @@ func build_combat() -> void:
 	dossier_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	dossier_copy.alignment = BoxContainer.ALIGNMENT_CENTER
 	dossier_row.add_child(dossier_copy)
-	dossier_copy.add_child(label("COMBATE DA FENDA" if challenge_combat else "ENCONTRO AUTOMÁTICO", 10, MUTED))
-	dossier_copy.add_child(label("TURNO %d · %s" % [GameState.combat_round, approach_name], 15, CORAL))
+	dossier_copy.add_child(label(t("COMBAT_RIFT_COMBAT", "COMBATE DA FENDA") if challenge_combat else t("COMBAT_AUTOMATIC_ENCOUNTER", "ENCONTRO AUTOMÁTICO"), 10, MUTED))
+	dossier_copy.add_child(label(t("COMBAT_TURN_APPROACH", "TURNO %d · %s", [GameState.combat_round, approach_name]), 15, CORAL))
 	if GameState.current_bounty.has("hunt_event_result"):
-		var incident_summary := label("INCIDENTE · %s" % str(GameState.current_bounty.hunt_event_result), 10, GOLD)
+		var incident_summary := label(t("COMBAT_INCIDENT", "INCIDENTE · %s", [localized_hunt_result(GameState.current_bounty)]), 10, GOLD)
 		incident_summary.name = "CombatIncidentSummary"
 		incident_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		dossier_copy.add_child(incident_summary)
-	var payment_status := metric_chip("RECOMPENSA" if challenge_combat else "PAGAMENTO", "◈ %d" % int(GameState.current_bounty.credits if challenge_combat else combat_payment.credits), GOLD)
+	var payment_status := metric_chip(t("COMBAT_REWARD", "RECOMPENSA") if challenge_combat else t("COMBAT_PAYMENT", "PAGAMENTO"), "◈ %d" % int(GameState.current_bounty.credits if challenge_combat else combat_payment.credits), GOLD)
 	payment_status.name = "CombatPaymentStatus"
 	payment_status.custom_minimum_size = Vector2(104, 0)
 	payment_status.size_flags_horizontal = Control.SIZE_SHRINK_END
 	if not challenge_combat and int(combat_payment.bonus_credits) > 0:
 		var payment_box := payment_status.get_child(0) as VBoxContainer
-		var streak_bonus := label("EMBALO +%d" % int(combat_payment.bonus_credits), 9, LIME, HORIZONTAL_ALIGNMENT_CENTER)
+		var streak_bonus := label(t("COMBAT_MOMENTUM", "EMBALO +%d", [int(combat_payment.bonus_credits)]), 9, LIME, HORIZONTAL_ALIGNMENT_CENTER)
 		streak_bonus.name = "CombatPaymentStreakBonus"
 		payment_box.add_child(streak_bonus)
 	dossier_row.add_child(payment_status)
@@ -1676,15 +1735,15 @@ func build_combat() -> void:
 	var player_health_ratio := clampf(float(GameState.player_hp) / float(maxi(1, CoreRules.max_health(GameState.player))), 0.0, 1.0)
 	var enemy_health_ratio := clampf(float(GameState.enemy_hp) / float(maxi(1, int(GameState.current_bounty.health))), 0.0, 1.0)
 	var health_gap := player_health_ratio - enemy_health_ratio
-	var pressure_text := "EQUILIBRADA"
+	var pressure_text := t("COMBAT_PRESSURE_BALANCED", "EQUILIBRADA")
 	var pressure_color := GOLD
 	if health_gap >= 0.08:
-		pressure_text = "SUA"
+		pressure_text = t("COMBAT_PRESSURE_YOURS", "SUA")
 		pressure_color = LIME
 	elif health_gap <= -0.08:
-		pressure_text = "DO ALVO"
+		pressure_text = t("COMBAT_PRESSURE_TARGET", "DO ALVO")
 		pressure_color = CORAL
-	var advantage := center_label("VIDA RELATIVA · VOCÊ %d%% · ALVO %d%% · PRESSÃO %s" % [roundi(player_health_ratio * 100.0), roundi(enemy_health_ratio * 100.0), pressure_text], 12, pressure_color)
+	var advantage := center_label(t("COMBAT_RELATIVE_HEALTH", "VIDA RELATIVA · VOCÊ %d%% · ALVO %d%% · PRESSÃO %s", [roundi(player_health_ratio * 100.0), roundi(enemy_health_ratio * 100.0), pressure_text]), 12, pressure_color)
 	advantage.name = "CombatAdvantage"
 	stage_box.add_child(advantage)
 	var pressure_track := HBoxContainer.new()
@@ -1712,7 +1771,7 @@ func build_combat() -> void:
 	event_row.add_theme_constant_override("separation", 8)
 	stage_box.add_child(event_row)
 	if GameState.combat_events.is_empty():
-		event_row.add_child(center_label("SENSORES TRAVADOS · ARMAS CARREGADAS", 14, GOLD))
+		event_row.add_child(center_label(t("COMBAT_SENSORS_LOCKED", "SENSORES TRAVADOS · ARMAS CARREGADAS"), 14, GOLD))
 	else:
 		for event in GameState.combat_events:
 			event_row.add_child(combat_event_chip(event))
@@ -1721,9 +1780,9 @@ func build_combat() -> void:
 	arena.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	arena.add_theme_constant_override("separation", 20)
 	stage_box.add_child(arena)
-	arena.add_child(fighter("VOCÊ", "hunter", GameState.player_hp, CoreRules.max_health(GameState.player), CYAN))
+	arena.add_child(fighter(t("COMBAT_YOU", "VOCÊ"), "hunter", GameState.player_hp, CoreRules.max_health(GameState.player), CYAN))
 	arena.add_child(center_label("VS", 28, GOLD))
-	arena.add_child(fighter(str(GameState.current_bounty.name), str(GameState.current_bounty.id), GameState.enemy_hp, int(GameState.current_bounty.health), CORAL))
+	arena.add_child(fighter(localized_content_field("target", GameState.current_bounty, "name"), str(GameState.current_bounty.id), GameState.enemy_hp, int(GameState.current_bounty.health), CORAL))
 
 	var log_panel := panel(VBoxContainer.new(), PANEL, 18, 14)
 	log_panel.name = "CombatTurnReport"
@@ -1739,20 +1798,20 @@ func build_combat() -> void:
 		else:
 			enemy_turn_damage += int(event.get("damage", 0))
 	var turn_balance := player_turn_damage - enemy_turn_damage
-	var turn_heading_text := "PRÓXIMO TURNO · ARMAS PRONTAS"
+	var turn_heading_text := t("COMBAT_NEXT_TURN", "PRÓXIMO TURNO · ARMAS PRONTAS")
 	var turn_heading_color := MUTED
 	if not GameState.combat_events.is_empty():
-		turn_heading_text = "ÚLTIMO TURNO · VOCÊ %d DANO · ALVO %d DANO" % [player_turn_damage, enemy_turn_damage]
+		turn_heading_text = t("COMBAT_LAST_TURN", "ÚLTIMO TURNO · VOCÊ %d DANO · ALVO %d DANO", [player_turn_damage, enemy_turn_damage])
 		turn_heading_color = LIME if turn_balance > 0 else (CORAL if turn_balance < 0 else GOLD)
 	var turn_heading := label(turn_heading_text, 13, turn_heading_color)
 	turn_heading.name = "CombatTurnBalance"
 	log_box.add_child(turn_heading)
-	var message := last_combat_message if not last_combat_message.is_empty() else "Os dois lados avaliam suas escolhas de vida..."
+	var message := localized_combat_narrative()
 	var log_label := label(message, 16, INK)
 	log_label.name = "CombatTurnNarrative"
 	log_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	log_box.add_child(log_label)
-	var speed := action_button("VELOCIDADE · %s" % ("2×" if combat_fast else "1×"), CYAN, true)
+	var speed := action_button(t("COMBAT_SPEED", "VELOCIDADE · %s", ["2×" if combat_fast else "1×"]), CYAN, true)
 	speed.name = "CombatSpeedAction"
 	speed.custom_minimum_size = Vector2(0, 46)
 	speed.pressed.connect(func():
@@ -1770,12 +1829,13 @@ func combat_event_chip(event: Dictionary) -> PanelContainer:
 	chip.name = "CombatEventPlayer" if player_action else "CombatEventEnemy"
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var box := chip.get_child(0) as VBoxContainer
-	box.add_child(label(str(event.get("action", "GOLPE")).to_upper(), 12, color, HORIZONTAL_ALIGNMENT_CENTER))
-	var quality := str(event.get("quality", "ACERTO"))
-	var quality_color := GOLD if quality == "CRÍTICO" else (MUTED if quality == "DE RASPÃO" else INK)
-	box.add_child(label("%d DANO · %s" % [int(event.get("damage", 0)), quality], 13, quality_color, HORIZONTAL_ALIGNMENT_CENTER))
+	box.add_child(label(localized_combat_action(str(event.get("action", t("COMBAT_HIT", "GOLPE"))), "player" if player_action else "enemy").to_upper(), 12, color, HORIZONTAL_ALIGNMENT_CENTER))
+	var raw_quality := str(event.get("quality", "ACERTO"))
+	var quality := t("COMBAT_QUALITY_CRITICAL", "CRÍTICO") if raw_quality == "CRÍTICO" else (t("COMBAT_QUALITY_GRAZE", "DE RASPÃO") if raw_quality == "DE RASPÃO" else t("COMBAT_QUALITY_HIT", "ACERTO"))
+	var quality_color := GOLD if raw_quality == "CRÍTICO" else (MUTED if raw_quality == "DE RASPÃO" else INK)
+	box.add_child(label(t("COMBAT_DAMAGE_QUALITY", "%d DANO · %s", [int(event.get("damage", 0)), quality]), 13, quality_color, HORIZONTAL_ALIGNMENT_CENTER))
 	if event.has("effect"):
-		box.add_child(label(str(event.effect), 10, LIME if player_action else CYAN, HORIZONTAL_ALIGNMENT_CENTER))
+		box.add_child(label(localized_combat_effect(str(event.effect)), 10, LIME if player_action else CYAN, HORIZONTAL_ALIGNMENT_CENTER))
 	return chip
 
 
@@ -1792,12 +1852,12 @@ func build_victory() -> void:
 	stamp_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stamp_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	dossier.add_child(stamp_box)
-	stamp_box.add_child(label("INCURSÃO CONCLUÍDA" if challenge_victory else "MANDADO EXECUTADO", 12, MUTED))
-	stamp_box.add_child(label("ANDAR LIMPO" if challenge_victory else "ALVO CAPTURADO", 28, LIME))
-	stamp_box.add_child(label(str(GameState.current_bounty.name), 20, INK))
+	stamp_box.add_child(label(t("VICTORY_INCURSION_COMPLETE", "INCURSÃO CONCLUÍDA") if challenge_victory else t("VICTORY_WARRANT_EXECUTED", "MANDADO EXECUTADO"), 12, MUTED))
+	stamp_box.add_child(label(t("VICTORY_FLOOR_CLEAR", "ANDAR LIMPO") if challenge_victory else t("VICTORY_TARGET_CAPTURED", "ALVO CAPTURADO"), 28, LIME))
+	stamp_box.add_child(label(localized_content_field("target", GameState.current_bounty, "name"), 20, INK))
 	if not GameState.combat_events.is_empty():
 		var final_event: Dictionary = GameState.combat_events[0]
-		var final_blow := label("GOLPE FINAL · %s · %d DANO" % [str(final_event.action).to_upper(), int(final_event.damage)], 11, GOLD)
+		var final_blow := label(t("VICTORY_FINAL_BLOW", "GOLPE FINAL · %s · %d DANO", [localized_combat_action(str(final_event.action), str(final_event.get("actor", "player"))).to_upper(), int(final_event.damage)]), 11, GOLD)
 		final_blow.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		stamp_box.add_child(final_blow)
 	var field_test_record := field_test_record_label("VictoryFieldTestContext")
@@ -1806,12 +1866,12 @@ func build_victory() -> void:
 	if not GameState.combat_summary.is_empty():
 		content.add_child(combat_summary_panel(true))
 	var victory_payment := CoreRules.bounty_streak_reward(int(GameState.current_bounty.credits), int(GameState.player.get("capture_streak", 0)) + 1)
-	var payment_text := ("ARQUIVO RECUPERADO · ◈ %d" % int(GameState.current_bounty.credits)) if challenge_victory else ("PAGAMENTO APROVADO · ◈ %d" % int(victory_payment.credits))
+	var payment_text := t("VICTORY_ARCHIVE_RECOVERED", "ARQUIVO RECUPERADO · ◈ %d", [int(GameState.current_bounty.credits)]) if challenge_victory else t("VICTORY_PAYMENT_APPROVED", "PAGAMENTO APROVADO · ◈ %d", [int(victory_payment.credits)])
 	if not challenge_victory and int(victory_payment.bonus_credits) > 0:
-		payment_text += " · EMBALO +%d INCLUÍDO" % int(victory_payment.bonus_credits)
+		payment_text += t("VICTORY_MOMENTUM_INCLUDED", " · EMBALO +%d INCLUÍDO", [int(victory_payment.bonus_credits)])
 	var incident_cost := maxi(0, int(GameState.current_bounty.get("hunt_event_credit_cost", 0)))
 	if incident_cost > 0:
-		payment_text += " · SALDO +%d APÓS CUSTO" % (int(victory_payment.credits) - incident_cost)
+		payment_text += t("VICTORY_NET_AFTER_COST", " · SALDO +%d APÓS CUSTO", [int(victory_payment.credits) - incident_cost])
 	var payment_card := panel(HBoxContainer.new(), Color("#19263d"), 12, 10)
 	payment_card.name = "VictoryPaymentCard"
 	var payment_row := payment_card.get_child(0) as HBoxContainer
@@ -1826,10 +1886,10 @@ func build_victory() -> void:
 	payment.name = "VictoryPayment"
 	payment.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	payment_copy.add_child(payment)
-	payment_copy.add_child(label("Autenticando pagamento e sacudindo os bolsos do alvo...", 11, MUTED))
+	payment_copy.add_child(label(t("VICTORY_AUTHENTICATING", "Autenticando pagamento e sacudindo os bolsos do alvo..."), 11, MUTED))
 	content.add_child(payment_card)
 	content.add_spacer(false)
-	var open_reward := action_button("ABRIR RECOMPENSA", LIME)
+	var open_reward := action_button(t("VICTORY_OPEN_REWARD", "ABRIR RECOMPENSA"), LIME)
 	open_reward.name = "OpenRewardAction"
 	open_reward.custom_minimum_size = Vector2(0, 48)
 	open_reward.pressed.connect(GameState.open_reward)
@@ -1881,12 +1941,12 @@ func fighter(title: String, character_id: String, hp: int, maximum: int, color: 
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	fighter_box.add_child(name_label)
 	if character_id == "hunter":
-		var loadout := center_label("BUILD · +%d ARMA · +%d ARMADURA" % [int(GameState.player.weapon.power), int(GameState.player.armor.power)], 11, CYAN)
+		var loadout := center_label(t("COMBAT_LOADOUT", "BUILD · +%d ARMA · +%d ARMADURA", [int(GameState.player.weapon.power), int(GameState.player.armor.power)]), 11, CYAN)
 		loadout.name = "CombatLoadoutSummary"
 		fighter_box.add_child(loadout)
 		var kit_origin := CoreRules.equipment_set_origin(GameState.player)
 		if not kit_origin.is_empty():
-			fighter_box.add_child(center_label("KIT %s · +%d PODER · +%d VIDA" % [str(ContentDB.get_planet(kit_origin).name).to_upper(), CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS], 10, GOLD))
+			fighter_box.add_child(center_label(t("COMBAT_KIT", "KIT %s · +%d PODER · +%d VIDA", [localized_content_field("planet", ContentDB.get_planet(kit_origin), "name").to_upper(), CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS]), 10, GOLD))
 	var health := ProgressBar.new()
 	health.name = "CombatHealthBar_%s" % character_id
 	health.max_value = maximum
@@ -1914,7 +1974,7 @@ func on_hunt_timer() -> void:
 		progress.value = GameState.hunt_progress() * 100.0
 	if countdown:
 		var remaining := maxi(0, ceili(GameState.hunt_ends_at - Time.get_unix_time_from_system()))
-		countdown.text = "ALVO LOCALIZADO EM %ds" % remaining
+		countdown.text = t("HUNT_COUNTDOWN", "ALVO LOCALIZADO EM %ds", [remaining])
 
 
 func on_combat_timer() -> void:

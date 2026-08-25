@@ -883,3 +883,741 @@ msgstr "Sentient casino with an infinite balance"
 
 msgid "TARGET_HOUSE_ETERNAL_DESCRIPTION"
 msgstr "Calculates every possible choice and offers a free drink only on the worst one."
+
+msgid "HUNT_EVENT_TITLE"
+msgstr "HUNT INCIDENT"
+
+msgid "HUNT_EVENT_PAUSED"
+msgstr "FIELD DECISION · HUNT PAUSED"
+
+msgid "HUNT_EVENT_SIGNAL"
+msgstr "SIGNAL"
+
+msgid "HUNT_EVENT_PAUSE_STATUS"
+msgstr "HUNT PAUSED AT %d%% · %ds REMAIN AFTER YOUR CHOICE"
+
+msgid "HUNT_EVENT_VICTORY_PAYMENT"
+msgstr "VICTORY ◈ %d"
+
+msgid "HUNT_EVENT_MOMENTUM_INCLUDED"
+msgstr " · MOMENTUM +%d INCLUDED"
+
+msgid "HUNT_EVENT_NET_PAYMENT"
+msgstr " · NET ◈ %d"
+
+msgid "HUNT_EVENT_CHOOSE"
+msgstr "CHOOSE"
+
+msgid "HUNT_EVENT_MISSING_CREDITS"
+msgstr "NEED %d CR"
+
+msgid "HUNT_EVENT_TOLL_DRONE_TITLE"
+msgstr "D-7 Drone Toll"
+
+msgid "HUNT_EVENT_TOLL_DRONE_DESCRIPTION"
+msgstr "A municipal drone blocks the route. Its sticker says “completely official”."
+
+msgid "HUNT_EVENT_TOLL_DRONE_CHOICE_BRIBE_NAME"
+msgstr "PAY 8 CREDITS"
+
+msgid "HUNT_EVENT_TOLL_DRONE_CHOICE_BRIBE_EFFECT_TEXT"
+msgstr "The drone reveals weak points: -18% target defense."
+
+msgid "HUNT_EVENT_TOLL_DRONE_CHOICE_BRIBE_RESULT"
+msgstr "D-7 accepted the administration fee and tagged the faulty armor."
+
+msgid "HUNT_EVENT_TOLL_DRONE_CHOICE_DETOUR_NAME"
+msgstr "TAKE THE DETOUR"
+
+msgid "HUNT_EVENT_TOLL_DRONE_CHOICE_DETOUR_EFFECT_TEXT"
+msgstr "+2s hunt time, but the target loses 12% health."
+
+msgid "HUNT_EVENT_TOLL_DRONE_CHOICE_DETOUR_RESULT"
+msgstr "The detour ended behind the target. For once, a road sign helped."
+
+msgid "HUNT_EVENT_TOLL_DRONE_CHOICE_RAM_NAME"
+msgstr "RAM THE BLOCKADE"
+
+msgid "HUNT_EVENT_TOLL_DRONE_CHOICE_RAM_EFFECT_TEXT"
+msgstr "+12% enemy power, but +18% credits."
+
+msgid "HUNT_EVENT_TOLL_DRONE_CHOICE_RAM_RESULT"
+msgstr "The drone sent your plate number to the target and a fine to the client."
+
+msgid "HUNT_EVENT_BOUNTY_STREAMER_TITLE"
+msgstr "Bounty Streamer"
+
+msgid "HUNT_EVENT_BOUNTY_STREAMER_DESCRIPTION"
+msgstr "A reporter streams your pursuit live to eleven viewers and one bot."
+
+msgid "HUNT_EVENT_BOUNTY_STREAMER_CHOICE_INTERVIEW_NAME"
+msgstr "GIVE AN INTERVIEW"
+
+msgid "HUNT_EVENT_BOUNTY_STREAMER_CHOICE_INTERVIEW_EFFECT_TEXT"
+msgstr "+22% XP, but the target gains 8% power."
+
+msgid "HUNT_EVENT_BOUNTY_STREAMER_CHOICE_INTERVIEW_RESULT"
+msgstr "The interview went viral among all eleven viewers. The target watched too."
+
+msgid "HUNT_EVENT_BOUNTY_STREAMER_CHOICE_JAM_SIGNAL_NAME"
+msgstr "JAM SIGNAL · 6 CR"
+
+msgid "HUNT_EVENT_BOUNTY_STREAMER_CHOICE_JAM_SIGNAL_EFFECT_TEXT"
+msgstr "Ambush preserved: -8% target power."
+
+msgid "HUNT_EVENT_BOUNTY_STREAMER_CHOICE_JAM_SIGNAL_RESULT"
+msgstr "The stream dropped at the perfect moment. Your ambush did not."
+
+msgid "HUNT_EVENT_BOUNTY_STREAMER_CHOICE_WAVE_NAME"
+msgstr "GIVE A THUMBS-UP"
+
+msgid "HUNT_EVENT_BOUNTY_STREAMER_CHOICE_WAVE_EFFECT_TEXT"
+msgstr "+1s hunt time and +8% credits from advertising."
+
+msgid "HUNT_EVENT_BOUNTY_STREAMER_CHOICE_WAVE_RESULT"
+msgstr "The thumbs-up became a sponsorship. Nobody knows why."
+
+msgid "HUNT_EVENT_HEAT_INSPECTOR_TITLE"
+msgstr "Heat Inspector"
+
+msgid "HUNT_EVENT_HEAT_INSPECTOR_DESCRIPTION"
+msgstr "A thermometer in a suit detected intentions above the permitted temperature."
+
+msgid "HUNT_EVENT_HEAT_INSPECTOR_CHOICE_PAY_COOLING_FEE_NAME"
+msgstr "PAY 12 CREDITS"
+
+msgid "HUNT_EVENT_HEAT_INSPECTOR_CHOICE_PAY_COOLING_FEE_EFFECT_TEXT"
+msgstr "The inspector freezes exposed joints: -20% target defense."
+
+msgid "HUNT_EVENT_HEAT_INSPECTOR_CHOICE_PAY_COOLING_FEE_RESULT"
+msgstr "Cooling fee paid. Even the target's bolts started chattering."
+
+msgid "HUNT_EVENT_HEAT_INSPECTOR_CHOICE_FAKE_BADGE_NAME"
+msgstr "FORGE A BADGE"
+
+msgid "HUNT_EVENT_HEAT_INSPECTOR_CHOICE_FAKE_BADGE_EFFECT_TEXT"
+msgstr "+2s hunt time and +18% XP for corporate experience."
+
+msgid "HUNT_EVENT_HEAT_INSPECTOR_CHOICE_FAKE_BADGE_RESULT"
+msgstr "Your new title is Senior Deputy Hunter. Nobody asked for references."
+
+msgid "HUNT_EVENT_HEAT_INSPECTOR_CHOICE_OVERCLOCK_HEATER_NAME"
+msgstr "OVERCLOCK HEATER"
+
+msgid "HUNT_EVENT_HEAT_INSPECTOR_CHOICE_OVERCLOCK_HEATER_EFFECT_TEXT"
+msgstr "+10% enemy power, but +20% hazard-pay credits."
+
+msgid "HUNT_EVENT_HEAT_INSPECTOR_CHOICE_OVERCLOCK_HEATER_RESULT"
+msgstr "The heater triggered alarms, hazard pay, and one forgotten slice of toast."
+
+msgid "HUNT_EVENT_CORPORATE_AVALANCHE_TITLE"
+msgstr "Corporate Avalanche"
+
+msgid "HUNT_EVENT_CORPORATE_AVALANCHE_DESCRIPTION"
+msgstr "The glacier was restructured without notice and half the route was laid off."
+
+msgid "HUNT_EVENT_CORPORATE_AVALANCHE_CHOICE_MELT_ROUTE_NAME"
+msgstr "MELT ROUTE · 10 CR"
+
+msgid "HUNT_EVENT_CORPORATE_AVALANCHE_CHOICE_MELT_ROUTE_EFFECT_TEXT"
+msgstr "Thermal shortcut: target loses 15% health."
+
+msgid "HUNT_EVENT_CORPORATE_AVALANCHE_CHOICE_MELT_ROUTE_RESULT"
+msgstr "The route melted. So did Legal, but only slightly."
+
+msgid "HUNT_EVENT_CORPORATE_AVALANCHE_CHOICE_CLIMB_SHELF_NAME"
+msgstr "CLIMB THE GLACIER"
+
+msgid "HUNT_EVENT_CORPORATE_AVALANCHE_CHOICE_CLIMB_SHELF_EFFECT_TEXT"
+msgstr "+3s hunt time and +20% XP from unsolicited training."
+
+msgid "HUNT_EVENT_CORPORATE_AVALANCHE_CHOICE_CLIMB_SHELF_RESULT"
+msgstr "You climbed the new glacial hierarchy without a single meeting."
+
+msgid "HUNT_EVENT_CORPORATE_AVALANCHE_CHOICE_SURF_COLLAPSE_NAME"
+msgstr "SURF THE COLLAPSE"
+
+msgid "HUNT_EVENT_CORPORATE_AVALANCHE_CHOICE_SURF_COLLAPSE_EFFECT_TEXT"
+msgstr "+12% enemy power, but +22% credits for the spectacle."
+
+msgid "HUNT_EVENT_CORPORATE_AVALANCHE_CHOICE_SURF_COLLAPSE_RESULT"
+msgstr "The stunt earned a perfect ten and a safety warning."
+
+msgid "HUNT_EVENT_SPORE_CUSTOMS_TITLE"
+msgstr "Spore Customs"
+
+msgid "HUNT_EVENT_SPORE_CUSTOMS_DESCRIPTION"
+msgstr "A cloud stamps every molecule entering. Your lungs have expired paperwork."
+
+msgid "HUNT_EVENT_SPORE_CUSTOMS_CHOICE_BUY_MASK_NAME"
+msgstr "BUY MASK · 14 CR"
+
+msgid "HUNT_EVENT_SPORE_CUSTOMS_CHOICE_BUY_MASK_EFFECT_TEXT"
+msgstr "Filters reveal the target through the haze: -20% defense."
+
+msgid "HUNT_EVENT_SPORE_CUSTOMS_CHOICE_BUY_MASK_RESULT"
+msgstr "The mask filters spores, excuses, and ninety percent of advertisements."
+
+msgid "HUNT_EVENT_SPORE_CUSTOMS_CHOICE_DECLARE_LUNGS_NAME"
+msgstr "DECLARE YOUR LUNGS"
+
+msgid "HUNT_EVENT_SPORE_CUSTOMS_CHOICE_DECLARE_LUNGS_EFFECT_TEXT"
+msgstr "+3s hunt time and +20% XP for filing anatomy in triplicate."
+
+msgid "HUNT_EVENT_SPORE_CUSTOMS_CHOICE_DECLARE_LUNGS_RESULT"
+msgstr "Your lungs are now registered as regulation carry-on luggage."
+
+msgid "HUNT_EVENT_SPORE_CUSTOMS_CHOICE_SNEEZE_THROUGH_NAME"
+msgstr "SNEEZE AND FLOOR IT"
+
+msgid "HUNT_EVENT_SPORE_CUSTOMS_CHOICE_SNEEZE_THROUGH_EFFECT_TEXT"
+msgstr "+12% enemy power, but +22% contamination credits."
+
+msgid "HUNT_EVENT_SPORE_CUSTOMS_CHOICE_SNEEZE_THROUGH_RESULT"
+msgstr "The sneeze opened a tunnel and closed three organic restaurants."
+
+msgid "HUNT_EVENT_SENTIENT_SHORTCUT_TITLE"
+msgstr "Sentient Shortcut"
+
+msgid "HUNT_EVENT_SENTIENT_SHORTCUT_DESCRIPTION"
+msgstr "The trail woke up, asked your name, and wants a cut of the bounty."
+
+msgid "HUNT_EVENT_SENTIENT_SHORTCUT_CHOICE_PAY_PATH_NAME"
+msgstr "PAY 16 CREDITS"
+
+msgid "HUNT_EVENT_SENTIENT_SHORTCUT_CHOICE_PAY_PATH_EFFECT_TEXT"
+msgstr "The trail delivers the target: -16% enemy health."
+
+msgid "HUNT_EVENT_SENTIENT_SHORTCUT_CHOICE_PAY_PATH_RESULT"
+msgstr "The shortcut accepted payment, a tip, and a five-star review."
+
+msgid "HUNT_EVENT_SENTIENT_SHORTCUT_CHOICE_TELL_STORY_NAME"
+msgstr "TELL A STORY"
+
+msgid "HUNT_EVENT_SENTIENT_SHORTCUT_CHOICE_TELL_STORY_EFFECT_TEXT"
+msgstr "+2s hunt time and +18% XP for botanical therapy."
+
+msgid "HUNT_EVENT_SENTIENT_SHORTCUT_CHOICE_TELL_STORY_RESULT"
+msgstr "The trail cried sap and pointed out an emotionally shorter route."
+
+msgid "HUNT_EVENT_SENTIENT_SHORTCUT_CHOICE_STEP_ON_IT_NAME"
+msgstr "FLOOR IT"
+
+msgid "HUNT_EVENT_SENTIENT_SHORTCUT_CHOICE_STEP_ON_IT_EFFECT_TEXT"
+msgstr "+10% enemy power, but +20% credits for botanical damages."
+
+msgid "HUNT_EVENT_SENTIENT_SHORTCUT_CHOICE_STEP_ON_IT_RESULT"
+msgstr "The trail filed suit. The client covered legal fees."
+
+msgid "HUNT_EVENT_MAGNETIC_STORM_TITLE"
+msgstr "Magnetic Storm"
+
+msgid "HUNT_EVENT_MAGNETIC_STORM_DESCRIPTION"
+msgstr "A magnetic front ripped signs, cutlery, and three decorative moons off the route."
+
+msgid "HUNT_EVENT_MAGNETIC_STORM_CHOICE_RENT_DEMAGNETIZER_NAME"
+msgstr "RENT DEMAGNETIZER · 18 CR"
+
+msgid "HUNT_EVENT_MAGNETIC_STORM_CHOICE_RENT_DEMAGNETIZER_EFFECT_TEXT"
+msgstr "The field exposes metal joints: -20% target defense."
+
+msgid "HUNT_EVENT_MAGNETIC_STORM_CHOICE_RENT_DEMAGNETIZER_RESULT"
+msgstr "The device demagnetized the route and erased two very important tapes."
+
+msgid "HUNT_EVENT_MAGNETIC_STORM_CHOICE_FOLLOW_DEBRIS_NAME"
+msgstr "FOLLOW THE DEBRIS"
+
+msgid "HUNT_EVENT_MAGNETIC_STORM_CHOICE_FOLLOW_DEBRIS_EFFECT_TEXT"
+msgstr "+3s hunt time and +20% XP in automotive archaeology."
+
+msgid "HUNT_EVENT_MAGNETIC_STORM_CHOICE_FOLLOW_DEBRIS_RESULT"
+msgstr "The debris formed an arrow, a tax bill, then another arrow."
+
+msgid "HUNT_EVENT_MAGNETIC_STORM_CHOICE_RIDE_MAGNETISM_NAME"
+msgstr "RIDE THE FIELD"
+
+msgid "HUNT_EVENT_MAGNETIC_STORM_CHOICE_RIDE_MAGNETISM_EFFECT_TEXT"
+msgstr "+12% enemy power, but +22% credits for metallic risk."
+
+msgid "HUNT_EVENT_MAGNETIC_STORM_CHOICE_RIDE_MAGNETISM_RESULT"
+msgstr "The stunt attracted the target, the bounty, and an entire workshop's contents."
+
+msgid "HUNT_EVENT_WARRANTY_GHOST_TITLE"
+msgstr "Warranty Ghost"
+
+msgid "HUNT_EVENT_WARRANTY_GHOST_DESCRIPTION"
+msgstr "A hologram insists your pursuit lost coverage four kilometers ago."
+
+msgid "HUNT_EVENT_WARRANTY_GHOST_CHOICE_EXTEND_WARRANTY_NAME"
+msgstr "EXTEND WARRANTY · 20 CR"
+
+msgid "HUNT_EVENT_WARRANTY_GHOST_CHOICE_EXTEND_WARRANTY_EFFECT_TEXT"
+msgstr "Authorized service reduces enemy power by 12%."
+
+msgid "HUNT_EVENT_WARRANTY_GHOST_CHOICE_EXTEND_WARRANTY_RESULT"
+msgstr "The warranty covers impacts, lasers, and a legally vague number of explosions."
+
+msgid "HUNT_EVENT_WARRANTY_GHOST_CHOICE_READ_FINE_PRINT_NAME"
+msgstr "READ THE FINE PRINT"
+
+msgid "HUNT_EVENT_WARRANTY_GHOST_CHOICE_READ_FINE_PRINT_EFFECT_TEXT"
+msgstr "+2s hunt time and +18% XP in workshop law."
+
+msgid "HUNT_EVENT_WARRANTY_GHOST_CHOICE_READ_FINE_PRINT_RESULT"
+msgstr "Clause 9001 lists the target as a manufacturing defect."
+
+msgid "HUNT_EVENT_WARRANTY_GHOST_CHOICE_VOID_IT_NAME"
+msgstr "VOID THE WARRANTY"
+
+msgid "HUNT_EVENT_WARRANTY_GHOST_CHOICE_VOID_IT_EFFECT_TEXT"
+msgstr "+10% enemy health, but +20% uninsured credits."
+
+msgid "HUNT_EVENT_WARRANTY_GHOST_CHOICE_VOID_IT_RESULT"
+msgstr "The warranty evaporated. The client called it an autonomy bonus."
+
+msgid "HUNT_EVENT_GRAVITY_ROULETTE_TITLE"
+msgstr "Gravity Roulette"
+
+msgid "HUNT_EVENT_GRAVITY_ROULETTE_DESCRIPTION"
+msgstr "The avenue spins, the ship floats, and a voice announces that falling counts as a bet."
+
+msgid "HUNT_EVENT_GRAVITY_ROULETTE_CHOICE_BUY_ANCHOR_NAME"
+msgstr "RENT ANCHOR · 22 CR"
+
+msgid "HUNT_EVENT_GRAVITY_ROULETTE_CHOICE_BUY_ANCHOR_EFFECT_TEXT"
+msgstr "The route stabilizes and exposes the target: -20% defense."
+
+msgid "HUNT_EVENT_GRAVITY_ROULETTE_CHOICE_BUY_ANCHOR_RESULT"
+msgstr "The anchor came with a receipt, chain, and a fee for the concept of down."
+
+msgid "HUNT_EVENT_GRAVITY_ROULETTE_CHOICE_RIDE_SPIN_NAME"
+msgstr "RIDE THE SPIN"
+
+msgid "HUNT_EVENT_GRAVITY_ROULETTE_CHOICE_RIDE_SPIN_EFFECT_TEXT"
+msgstr "+3s hunt time and +20% XP in recreational physics."
+
+msgid "HUNT_EVENT_GRAVITY_ROULETTE_CHOICE_RIDE_SPIN_RESULT"
+msgstr "Three spins later, you understand gravity and disapprove of management."
+
+msgid "HUNT_EVENT_GRAVITY_ROULETTE_CHOICE_BET_ON_RED_NAME"
+msgstr "BET ON RED"
+
+msgid "HUNT_EVENT_GRAVITY_ROULETTE_CHOICE_BET_ON_RED_EFFECT_TEXT"
+msgstr "+12% enemy power, but +22% credits if the ship stops in one piece."
+
+msgid "HUNT_EVENT_GRAVITY_ROULETTE_CHOICE_BET_ON_RED_RESULT"
+msgstr "Red won. The target heard and brought themed ammunition."
+
+msgid "HUNT_EVENT_LUCK_INSPECTOR_TITLE"
+msgstr "Luck Inspector"
+
+msgid "HUNT_EVENT_LUCK_INSPECTOR_DESCRIPTION"
+msgstr "A die wearing a tie demands a license for favorable public coincidences."
+
+msgid "HUNT_EVENT_LUCK_INSPECTOR_CHOICE_LICENSE_LUCK_NAME"
+msgstr "LICENSE LUCK · 24 CR"
+
+msgid "HUNT_EVENT_LUCK_INSPECTOR_CHOICE_LICENSE_LUCK_EFFECT_TEXT"
+msgstr "The inspector recalculates the target: -14% enemy power."
+
+msgid "HUNT_EVENT_LUCK_INSPECTOR_CHOICE_LICENSE_LUCK_RESULT"
+msgstr "Your luck now has a stamp, expiry date, and one authorized useful coincidence."
+
+msgid "HUNT_EVENT_LUCK_INSPECTOR_CHOICE_AUDIT_ODDS_NAME"
+msgstr "AUDIT THE ODDS"
+
+msgid "HUNT_EVENT_LUCK_INSPECTOR_CHOICE_AUDIT_ODDS_EFFECT_TEXT"
+msgstr "+2s hunt time and +18% XP for hostile mathematics."
+
+msgid "HUNT_EVENT_LUCK_INSPECTOR_CHOICE_AUDIT_ODDS_RESULT"
+msgstr "The numbers balance. The casino opens another spreadsheet to dispute them."
+
+msgid "HUNT_EVENT_LUCK_INSPECTOR_CHOICE_ROLL_ANYWAY_NAME"
+msgstr "ROLL ANYWAY"
+
+msgid "HUNT_EVENT_LUCK_INSPECTOR_CHOICE_ROLL_ANYWAY_EFFECT_TEXT"
+msgstr "+10% enemy health, but +20% credits without actuarial coverage."
+
+msgid "HUNT_EVENT_LUCK_INSPECTOR_CHOICE_ROLL_ANYWAY_RESULT"
+msgstr "The die landed upright. The client called it a spectacle clause."
+
+msgid "COMBAT_EFFECT_AMBUSH"
+msgstr "AMBUSH %s"
+
+msgid "COMBAT_EFFECT_BREACH"
+msgstr "BREACH %s"
+
+msgid "COMBAT_EFFECT_INSTABILITY"
+msgstr "INSTABILITY %s"
+
+msgid "COMBAT_EFFECT_INTERFERENCE"
+msgstr "INTERFERENCE %s"
+
+msgid "COMBAT_EFFECT_ORBITAL_AIM"
+msgstr "ORBITAL AIM %s"
+
+msgid "COMBAT_EFFECT_DAMPENER"
+msgstr "DAMPENER %s"
+
+msgid "COMBAT_EFFECT_HARD_SHELL"
+msgstr "HARD SHELL %s"
+
+msgid "COMBAT_EFFECT_BREACHING"
+msgstr "PIERCING %s"
+
+msgid "COMBAT_IDLE_NARRATIVE"
+msgstr "Both sides reconsider their life choices..."
+
+msgid "COMBAT_PLAYER_HIT"
+msgstr "%s deals %d damage."
+
+msgid "COMBAT_ENEMY_HIT"
+msgstr "  %s answers for %d."
+
+msgid "COMBAT_UNKNOWN_TARGET"
+msgstr "UNKNOWN TARGET"
+
+msgid "COMBAT_WARRANT_REPORT"
+msgstr "WARRANT REPORT"
+
+msgid "COMBAT_ESCAPE_REPORT"
+msgstr "ESCAPED: %s"
+
+msgid "COMBAT_ROUNDS"
+msgstr "ROUNDS"
+
+msgid "COMBAT_DEALT"
+msgstr "DEALT"
+
+msgid "COMBAT_TAKEN"
+msgstr "TAKEN"
+
+msgid "COMBAT_EVIDENCE_AMBUSH"
+msgstr "ambush +%d"
+
+msgid "COMBAT_EVIDENCE_PREVENTED"
+msgstr "%d total damage prevented"
+
+msgid "COMBAT_EVIDENCE_CLASS"
+msgstr "%s specialization active"
+
+msgid "COMBAT_EVIDENCE_KIT"
+msgstr "%s kit"
+
+msgid "COMBAT_ACTIVE_BUILD"
+msgstr "ACTIVE BUILD · %s"
+
+msgid "COMBAT_NO_EFFECTS"
+msgstr "NO TACTICAL EFFECTS · modifications and kits can change the next fight"
+
+msgid "COMBAT_OVERRIDE_DEFEAT"
+msgstr "DEFEATED OVERRIDE · TESTED %s → CHOSEN %s · REASSESS ROUTE"
+
+msgid "COMBAT_TESTED_ROUTE_FAILED"
+msgstr "TESTED ROUTE ALSO FAILED · %s · STRENGTHEN BUILD OR REVISIT INCIDENT"
+
+msgid "COMBAT_DEFEAT_DIAGNOSIS"
+msgstr "The target kept %d HP. Compare odds, activate a kit, or invest in the workshop before a rematch."
+
+msgid "COMBAT_STREAK_LOST"
+msgstr "MOMENTUM ×%d ENDED · the next capture restarts at ×1"
+
+msgid "COMBAT_OPEN_WORKSHOP"
+msgstr "OPEN WORKSHOP AND TEST BUILD"
+
+msgid "COMBAT_DIRECT_INCURSION"
+msgstr "DIRECT INCURSION"
+
+msgid "COMBAT_RIFT_COMBAT"
+msgstr "RIFT COMBAT"
+
+msgid "COMBAT_AUTOMATIC_ENCOUNTER"
+msgstr "AUTOMATIC ENCOUNTER"
+
+msgid "COMBAT_TURN_APPROACH"
+msgstr "ROUND %d · %s"
+
+msgid "COMBAT_INCIDENT"
+msgstr "INCIDENT · %s"
+
+msgid "COMBAT_REWARD"
+msgstr "REWARD"
+
+msgid "COMBAT_PAYMENT"
+msgstr "PAYMENT"
+
+msgid "COMBAT_MOMENTUM"
+msgstr "MOMENTUM +%d"
+
+msgid "COMBAT_PRESSURE_BALANCED"
+msgstr "BALANCED"
+
+msgid "COMBAT_PRESSURE_YOURS"
+msgstr "YOURS"
+
+msgid "COMBAT_PRESSURE_TARGET"
+msgstr "TARGET"
+
+msgid "COMBAT_RELATIVE_HEALTH"
+msgstr "RELATIVE HEALTH · YOU %d%% · TARGET %d%% · PRESSURE %s"
+
+msgid "COMBAT_SENSORS_LOCKED"
+msgstr "SENSORS LOCKED · WEAPONS CHARGED"
+
+msgid "COMBAT_YOU"
+msgstr "YOU"
+
+msgid "COMBAT_NEXT_TURN"
+msgstr "NEXT ROUND · WEAPONS READY"
+
+msgid "COMBAT_LAST_TURN"
+msgstr "LAST ROUND · YOU %d DAMAGE · TARGET %d DAMAGE"
+
+msgid "COMBAT_SPEED"
+msgstr "SPEED · %s"
+
+msgid "COMBAT_HIT"
+msgstr "HIT"
+
+msgid "COMBAT_QUALITY_CRITICAL"
+msgstr "CRITICAL"
+
+msgid "COMBAT_QUALITY_GRAZE"
+msgstr "GRAZE"
+
+msgid "COMBAT_QUALITY_HIT"
+msgstr "HIT"
+
+msgid "COMBAT_DAMAGE_QUALITY"
+msgstr "%d DAMAGE · %s"
+
+msgid "VICTORY_INCURSION_COMPLETE"
+msgstr "INCURSION COMPLETE"
+
+msgid "VICTORY_WARRANT_EXECUTED"
+msgstr "WARRANT EXECUTED"
+
+msgid "VICTORY_FLOOR_CLEAR"
+msgstr "FLOOR CLEAR"
+
+msgid "VICTORY_TARGET_CAPTURED"
+msgstr "TARGET CAPTURED"
+
+msgid "VICTORY_FINAL_BLOW"
+msgstr "FINAL BLOW · %s · %d DAMAGE"
+
+msgid "VICTORY_ARCHIVE_RECOVERED"
+msgstr "ARCHIVE RECOVERED · ◈ %d"
+
+msgid "VICTORY_PAYMENT_APPROVED"
+msgstr "PAYMENT APPROVED · ◈ %d"
+
+msgid "VICTORY_MOMENTUM_INCLUDED"
+msgstr " · MOMENTUM +%d INCLUDED"
+
+msgid "VICTORY_NET_AFTER_COST"
+msgstr " · NET +%d AFTER COST"
+
+msgid "VICTORY_AUTHENTICATING"
+msgstr "Authenticating payment and shaking down the target's pockets..."
+
+msgid "VICTORY_OPEN_REWARD"
+msgstr "OPEN REWARD"
+
+msgid "COMBAT_LOADOUT"
+msgstr "BUILD · +%d WEAPON · +%d ARMOR"
+
+msgid "COMBAT_KIT"
+msgstr "%s KIT · +%d POWER · +%d HEALTH"
+
+msgid "COMBAT_PLAYER_ATTACK_0"
+msgstr "Plasma Ricochet"
+
+msgid "COMBAT_PLAYER_ATTACK_1"
+msgstr "Point-Blank Collection"
+
+msgid "COMBAT_PLAYER_ATTACK_2"
+msgstr "Almost Calculated Shot"
+
+msgid "COMBAT_PLAYER_ATTACK_3"
+msgstr "Piercing Clause"
+
+msgid "TARGET_GLOOP_ATTACK_0"
+msgstr "Tentacle Slap"
+
+msgid "TARGET_GLOOP_ATTACK_1"
+msgstr "Form Spit"
+
+msgid "TARGET_GLOOP_ATTACK_2"
+msgstr "Badly Parked Beam"
+
+msgid "TARGET_BARON_BOOM_ATTACK_0"
+msgstr "Explosive Decree"
+
+msgid "TARGET_BARON_BOOM_ATTACK_1"
+msgstr "Impact Tax"
+
+msgid "TARGET_BARON_BOOM_ATTACK_2"
+msgstr "Coat-of-Arms Bomb"
+
+msgid "TARGET_MADAME_VACUUM_ATTACK_0"
+msgstr "Executive Vacuum"
+
+msgid "TARGET_MADAME_VACUUM_ATTACK_1"
+msgstr "Breathing Fee"
+
+msgid "TARGET_MADAME_VACUUM_ATTACK_2"
+msgstr "Premium Suction"
+
+msgid "TARGET_MAYOR_GOLD_DUST_ATTACK_0"
+msgstr "Plasma Veto"
+
+msgid "TARGET_MAYOR_GOLD_DUST_ATTACK_1"
+msgstr "Emergency Stamp"
+
+msgid "TARGET_MAYOR_GOLD_DUST_ATTACK_2"
+msgstr "Dodge Tax"
+
+msgid "TARGET_AUDITOR_FROST_ATTACK_0"
+msgstr "Glacial Citation"
+
+msgid "TARGET_AUDITOR_FROST_ATTACK_1"
+msgstr "Cryogenic Pen"
+
+msgid "TARGET_AUDITOR_FROST_ATTACK_2"
+msgstr "Freezing Interest"
+
+msgid "TARGET_CHEF_COLDFLAME_ATTACK_0"
+msgstr "Lava Ladle"
+
+msgid "TARGET_CHEF_COLDFLAME_ATTACK_1"
+msgstr "Bootleg Broth"
+
+msgid "TARGET_CHEF_COLDFLAME_ATTACK_2"
+msgstr "Reentry Pepper"
+
+msgid "TARGET_EXECUTIVE_PENGUIN_ATTACK_0"
+msgstr "Torpedo Tie"
+
+msgid "TARGET_EXECUTIVE_PENGUIN_ATTACK_1"
+msgstr "Agenda-Free Meeting"
+
+msgid "TARGET_EXECUTIVE_PENGUIN_ATTACK_2"
+msgstr "Termination Peck"
+
+msgid "TARGET_DIRECTOR_KELVIN_ATTACK_0"
+msgstr "Hostile Merger"
+
+msgid "TARGET_DIRECTOR_KELVIN_ATTACK_1"
+msgstr "Fiscal Absolute Zero"
+
+msgid "TARGET_DIRECTOR_KELVIN_ATTACK_2"
+msgstr "Cryogenic Synergy"
+
+msgid "TARGET_LANDLORD_SPORE_ATTACK_0"
+msgstr "Spore Invoice"
+
+msgid "TARGET_LANDLORD_SPORE_ATTACK_1"
+msgstr "Poisonous Assembly"
+
+msgid "TARGET_LANDLORD_SPORE_ATTACK_2"
+msgstr "Humidity Fee"
+
+msgid "TARGET_COUNTESS_TRUFFLE_ATTACK_0"
+msgstr "Compostable Interest"
+
+msgid "TARGET_COUNTESS_TRUFFLE_ATTACK_1"
+msgstr "Root Mortgage"
+
+msgid "TARGET_COUNTESS_TRUFFLE_ATTACK_2"
+msgstr "Premium Toxic Perfume"
+
+msgid "TARGET_CAPTAIN_CHLOROPHYLL_ATTACK_0"
+msgstr "Green Photon Saber"
+
+msgid "TARGET_CAPTAIN_CHLOROPHYLL_ATTACK_1"
+msgstr "Sap Cannon"
+
+msgid "TARGET_CAPTAIN_CHLOROPHYLL_ATTACK_2"
+msgstr "Photosynthetic Mutiny"
+
+msgid "TARGET_MOTHER_MYCELIA_ATTACK_0"
+msgstr "Mycelial Consensus"
+
+msgid "TARGET_MOTHER_MYCELIA_ATTACK_1"
+msgstr "Sponsored Thought"
+
+msgid "TARGET_MOTHER_MYCELIA_ATTACK_2"
+msgstr "System Root"
+
+msgid "TARGET_BOLT_COLLECTOR_ATTACK_0"
+msgstr "Magnetic Collection"
+
+msgid "TARGET_BOLT_COLLECTOR_ATTACK_1"
+msgstr "Rivet Fine"
+
+msgid "TARGET_BOLT_COLLECTOR_ATTACK_2"
+msgstr "Bolt Repossession"
+
+msgid "TARGET_DOCTOR_PATCHWORK_ATTACK_0"
+msgstr "Welding Scalpel"
+
+msgid "TARGET_DOCTOR_PATCHWORK_ATTACK_1"
+msgstr "Battery Anesthesia"
+
+msgid "TARGET_DOCTOR_PATCHWORK_ATTACK_2"
+msgstr "Contraindicated Discharge"
+
+msgid "TARGET_CRANE_KING_ATTACK_0"
+msgstr "Hydraulic Decree"
+
+msgid "TARGET_CRANE_KING_ATTACK_1"
+msgstr "Hubcap Crown"
+
+msgid "TARGET_CRANE_KING_ATTACK_2"
+msgstr "Royal Press"
+
+msgid "TARGET_OMEGA_JUNKYARD_ATTACK_0"
+msgstr "Planetary Compaction"
+
+msgid "TARGET_OMEGA_JUNKYARD_ATTACK_1"
+msgstr "Infinite Inventory"
+
+msgid "TARGET_OMEGA_JUNKYARD_ATTACK_2"
+msgstr "End Warranty"
+
+msgid "TARGET_DEALER_COMET_ATTACK_0"
+msgstr "Ballistic Deck"
+
+msgid "TARGET_DEALER_COMET_ATTACK_1"
+msgstr "Orbit Cut"
+
+msgid "TARGET_DEALER_COMET_ATTACK_2"
+msgstr "Blind Bet"
+
+msgid "TARGET_DUCHESS_JACKPOT_ATTACK_0"
+msgstr "Plasma Jackpot"
+
+msgid "TARGET_DUCHESS_JACKPOT_ATTACK_1"
+msgstr "Gravitational High Heel"
+
+msgid "TARGET_DUCHESS_JACKPOT_ATTACK_2"
+msgstr "Marked Dividends"
+
+msgid "TARGET_MISFORTUNE_AUDITOR_ATTACK_0"
+msgstr "Fate Interest"
+
+msgid "TARGET_MISFORTUNE_AUDITOR_ATTACK_1"
+msgstr "Misfortune Citation"
+
+msgid "TARGET_MISFORTUNE_AUDITOR_ATTACK_2"
+msgstr "Reverse Probability"
+
+msgid "TARGET_HOUSE_ETERNAL_ATTACK_0"
+msgstr "House Edge"
+
+msgid "TARGET_HOUSE_ETERNAL_ATTACK_1"
+msgstr "Singularity Roulette"
+
+msgid "TARGET_HOUSE_ETERNAL_ATTACK_2"
+msgstr "Final Chip"
