@@ -63,7 +63,11 @@ static func get_definition(class_id: String) -> Dictionary:
 
 static func class_name_for(class_id: String) -> String:
 	var definition := get_definition(class_id)
-	return "SEM CLASSE" if definition.is_empty() else str(definition.name)
+	if definition.is_empty():
+		return str(TranslationServer.translate("CLASS_NONE"))
+	var key := "CLASS_%s_NAME" % class_id.to_upper()
+	var translated := str(TranslationServer.translate(key))
+	return str(definition.name) if translated == key else translated
 
 
 static func primary_attribute(class_id: String) -> String:
@@ -92,22 +96,27 @@ static func specialization_text(definition: Dictionary) -> String:
 	var effects: Dictionary = definition.get("effects", {})
 	var parts: Array[String] = []
 	var power_step := int(effects.get("power_per_primary_points", 0))
+	var primary_id := str(definition.get("primary_attribute", ""))
+	var primary_key := "ATTRIBUTE_%s" % primary_id.to_upper()
+	var primary_name := str(TranslationServer.translate(primary_key))
+	if primary_name == primary_key:
+		primary_name = str(definition.get("primary_name", "atributo principal")).capitalize()
 	if power_step > 0:
-		parts.append("+1 Poder a cada %d pontos de %s investidos" % [power_step, str(definition.get("primary_name", "atributo principal")).capitalize()])
+		parts.append(str(TranslationServer.translate("CLASS_SPECIALIZATION_POWER")) % [power_step, primary_name])
 	var opening_multiplier := int(effects.get("opening_damage_per_primary_point", 0))
 	var base_opening := int(effects.get("base_opening_damage", 0))
 	if base_opening > 0 or opening_multiplier > 0:
-		parts.append("Invasão: +%d abertura base e +%d por ponto investido" % [base_opening, opening_multiplier])
+		parts.append(str(TranslationServer.translate("CLASS_SPECIALIZATION_INVASION")) % [base_opening, opening_multiplier])
 	var reduction_step := int(effects.get("damage_reduction_per_primary_points", 0))
 	var base_reduction := int(effects.get("base_damage_reduction", 0))
 	if base_reduction > 0 or reduction_step > 0:
-		parts.append("Casco Duro: -%d dano base e -1 adicional a cada %d pontos investidos" % [base_reduction, reduction_step])
+		parts.append(str(TranslationServer.translate("CLASS_SPECIALIZATION_HULL")) % [base_reduction, reduction_step])
 	var base_roll_percent := float(effects.get("base_attack_roll_bonus", 0.0)) * 100.0
 	var roll_per_point_percent := float(effects.get("attack_roll_bonus_per_primary_point", 0.0)) * 100.0
 	var roll_cap_percent := float(effects.get("attack_roll_bonus_cap", 0.0)) * 100.0
 	if base_roll_percent > 0 or roll_per_point_percent > 0:
-		parts.append("Mira Orbital: +%.1f%% base e +%.1f%% por ponto investido, até +%.1f%%" % [base_roll_percent, roll_per_point_percent, roll_cap_percent])
-	return ". ".join(parts) + ("." if not parts.is_empty() else "Sem bônus mecânico.")
+		parts.append(str(TranslationServer.translate("CLASS_SPECIALIZATION_AIM")) % [base_roll_percent, roll_per_point_percent, roll_cap_percent])
+	return ". ".join(parts) + ("." if not parts.is_empty() else str(TranslationServer.translate("CLASS_SPECIALIZATION_NONE")))
 
 
 static func specialization_preview(definition: Dictionary, attributes: Dictionary, base_attribute_value: int) -> Dictionary:

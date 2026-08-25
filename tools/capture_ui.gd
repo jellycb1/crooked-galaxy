@@ -57,6 +57,40 @@ func capture() -> void:
 	if save_frame("ui_onboarding_name.png") != OK:
 		quit(1)
 		return
+	TranslationServer.set_locale("en")
+	state.account = {}
+	state.player = state.default_player()
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_onboarding_login_en.png") != OK:
+		quit(1)
+		return
+	state.account = {"mode": "local_test", "session_id": "capture", "locale_id": "pt", "server_id": "international_1"}
+	scene.class_draft = "orbit_gunslinger"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_onboarding_class_en.png") != OK:
+		quit(1)
+		return
+	state.player.class_id = "contract_hacker"
+	scene.class_draft = ""
+	scene.species_draft = "unstable_luminar"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_onboarding_species_en.png") != OK:
+		quit(1)
+		return
+	state.player.species_id = "discontinued_synthetic"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_onboarding_name_en.png") != OK:
+		quit(1)
+		return
+	TranslationServer.set_locale("pt")
 	state.persistence_enabled = false
 	state.account = {}
 	state.player = state.default_player()

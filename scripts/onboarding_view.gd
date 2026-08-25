@@ -17,7 +17,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	brand.add_theme_constant_override("separation", 2)
 	content.add_child(brand)
 	brand.add_child(host.center_label("CROOKED GALAXY", 27, host.CYAN))
-	var progress := host.center_label("REGISTRO DE CAÇADOR · ETAPA %d/4" % int(STEP_INDEX.get(step, 4)), 11, host.GOLD)
+	var progress := host.center_label(t("ONB_PROGRESS", "REGISTRO DE CAÇADOR · ETAPA %d/4", [int(STEP_INDEX.get(step, 4))]), 11, host.GOLD)
 	progress.name = "OnboardingProgress"
 	brand.add_child(progress)
 
@@ -45,12 +45,12 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 
 
 static func build_login(host: CrookedUIFactory, stack: VBoxContainer, state: StateScript) -> void:
-	section_intro(host, stack, "ENTRAR", "A sua carreira começa com uma sessão neste dispositivo.")
+	section_intro(host, stack, t("ONB_LOGIN_TITLE", "ENTRAR"), t("ONB_LOGIN_DESCRIPTION", "A sua carreira começa com uma sessão neste dispositivo."))
 	if host.locale_draft.is_empty():
 		host.locale_draft = LocaleRulesScript.DEFAULT_ID
 	if host.server_draft.is_empty():
 		host.server_draft = ServerRulesScript.DEFAULT_ID
-	stack.add_child(host.label("IDIOMA", 12, host.MUTED))
+	stack.add_child(host.label(t("ONB_LANGUAGE", "IDIOMA"), 12, host.MUTED))
 	var language_row := HBoxContainer.new()
 	language_row.name = "OnboardingLanguageSelector"
 	language_row.add_theme_constant_override("separation", 8)
@@ -59,19 +59,19 @@ static func build_login(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 		var locale_id := str(locale.id)
 		var available := bool(locale.selectable)
 		var selected := locale_id == host.locale_draft
-		var language := host.action_button("%s%s" % [str(locale.native_name).to_upper(), " · EM TRADUÇÃO" if not available else ""], host.LIME if selected else host.CYAN, true)
+		var language := host.action_button("%s%s" % [str(locale.native_name).to_upper(), t("ONB_TRANSLATION_PENDING", " · EM TRADUÇÃO") if not available else ""], host.LIME if selected else host.CYAN, true)
 		language.name = "OnboardingLanguage_%s" % locale_id
 		language.custom_minimum_size = Vector2(0, 52)
 		language.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		language.add_theme_font_size_override("font_size", 11)
 		language.disabled = not available or selected
-		language.tooltip_text = "Disponível" if available else "A tradução integral será ativada quando todas as telas estiverem localizadas."
+		language.tooltip_text = t("ONB_LANGUAGE_AVAILABLE", "Disponível") if available else t("ONB_LANGUAGE_PENDING_TOOLTIP", "A tradução integral será ativada quando todas as telas estiverem localizadas.")
 		language.pressed.connect(func():
 			host.locale_draft = locale_id
 			host.call("render")
 		)
 		language_row.add_child(language)
-	stack.add_child(host.label("SERVIDOR", 12, host.MUTED))
+	stack.add_child(host.label(t("ONB_SERVER", "SERVIDOR"), 12, host.MUTED))
 	var server_definition := ServerRulesScript.get_definition(host.server_draft)
 	var server := host.panel(HBoxContainer.new(), Color("#162947"), 14, 11)
 	server.name = "OnboardingServer_%s" % host.server_draft
@@ -81,11 +81,11 @@ static func build_login(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 	server_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	server_row.add_child(server_copy)
 	server_copy.add_child(host.label(str(server_definition.get("name", "International 1")), 16, host.GOLD))
-	server_copy.add_child(host.label("%s · %s" % [str(server_definition.get("region", "GLOBAL")), str(server_definition.get("language_policy", "MULTILÍNGUE"))], 10, host.CYAN))
-	var server_status := host.label("PRIMEIRO MUNDO · conexão online ainda não ativa neste APK", 11, host.MUTED)
+	server_copy.add_child(host.label(t("ONB_SERVER_POLICY", "%s · %s", [str(server_definition.get("region", "GLOBAL")), t("SERVER_POLICY_MULTILINGUAL", "MULTILÍNGUE")]), 10, host.CYAN))
+	var server_status := host.label(t("ONB_SERVER_STATUS", "PRIMEIRO MUNDO · conexão online ainda não ativa neste APK"), 11, host.MUTED)
 	server_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	server_copy.add_child(server_status)
-	var selected_server := host.action_button("SELECIONADO", host.GOLD, true)
+	var selected_server := host.action_button(t("COMMON_SELECTED", "SELECIONADO"), host.GOLD, true)
 	selected_server.name = "OnboardingServerSelected"
 	selected_server.custom_minimum_size = Vector2(112, 48)
 	selected_server.add_theme_font_size_override("font_size", 10)
@@ -95,24 +95,24 @@ static func build_login(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 	notice.name = "LocalSessionNotice"
 	stack.add_child(notice)
 	var copy := notice.get_child(0) as VBoxContainer
-	copy.add_child(host.label("SESSÃO LOCAL DE TESTE", 13, host.LIME))
-	var explanation := host.label("Ainda não existe servidor de contas. Esta entrada não pede senha, não simula autenticação online e mantém o progresso apenas neste dispositivo.", 12, host.INK)
+	copy.add_child(host.label(t("ONB_LOCAL_SESSION_TITLE", "SESSÃO LOCAL DE TESTE"), 13, host.LIME))
+	var explanation := host.label(t("ONB_LOCAL_SESSION_DESCRIPTION", "Ainda não existe servidor de contas. Esta entrada não pede senha, não simula autenticação online e mantém o progresso apenas neste dispositivo."), 12, host.INK)
 	explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(explanation)
-	var future := host.label("A identidade da sessão já está separada da classe, raça e nome para receber uma conta online futuramente.", 11, host.MUTED)
+	var future := host.label(t("ONB_LOCAL_SESSION_FUTURE", "A identidade da sessão já está separada da classe, raça e nome para receber uma conta online futuramente."), 11, host.MUTED)
 	future.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(future)
 	var spacer := Control.new()
 	spacer.custom_minimum_size.y = 8
 	stack.add_child(spacer)
-	var enter := host.action_button("ENTRAR EM INTERNATIONAL 1", host.LIME)
+	var enter := host.action_button(t("ONB_ENTER_SERVER", "ENTRAR EM %s", [str(server_definition.get("name", "International 1")).to_upper()]), host.LIME)
 	enter.name = "OnboardingLoginAction"
 	enter.pressed.connect(func(): state.begin_local_session(host.locale_draft, host.server_draft))
 	stack.add_child(enter)
 
 
 static func build_class(host: CrookedUIFactory, stack: VBoxContainer, state: StateScript) -> void:
-	section_intro(host, stack, "ESCOLHA A CLASSE", "A classe define sua especialização inicial de combate e contratos.")
+	section_intro(host, stack, t("ONB_CLASS_TITLE", "ESCOLHA A CLASSE"), t("ONB_CLASS_DESCRIPTION", "A classe define sua especialização inicial de combate e contratos."))
 	var pending_id := host.class_draft
 	var pending_definition := ClassRulesScript.get_definition(pending_id)
 	var preview := host.panel(HBoxContainer.new(), Color("#162947"), 16, 13)
@@ -129,22 +129,22 @@ static func build_class(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 	preview_copy.alignment = BoxContainer.ALIGNMENT_CENTER
 	preview_copy.add_theme_constant_override("separation", 3)
 	preview_row.add_child(preview_copy)
-	preview_copy.add_child(host.label("PRÉVIA DO ARQUÉTIPO", 10, host.CYAN))
-	var preview_name := host.label(str(pending_definition.get("name", "NENHUMA CLASSE SELECIONADA")), 17, host.GOLD if not pending_definition.is_empty() else host.INK)
+	preview_copy.add_child(host.label(t("ONB_CLASS_PREVIEW", "PRÉVIA DO ARQUÉTIPO"), 10, host.CYAN))
+	var preview_name := host.label(localized_class_field(pending_definition, "name", t("ONB_CLASS_NONE", "NENHUMA CLASSE SELECIONADA")), 17, host.GOLD if not pending_definition.is_empty() else host.INK)
 	preview_name.name = "OnboardingClassPreviewName"
 	preview_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	preview_copy.add_child(preview_name)
-	var preview_primary := "ATRIBUTO · %s" % str(pending_definition.get("primary_name", "ESCOLHA UM ARQUÉTIPO ABAIXO"))
+	var preview_primary := t("ONB_CLASS_ATTRIBUTE", "ATRIBUTO · %s", [localized_class_field(pending_definition, "primary_name", t("ONB_CLASS_CHOOSE_BELOW", "ESCOLHA UM ARQUÉTIPO ABAIXO"))])
 	preview_copy.add_child(host.label(preview_primary, 10, host.LIME if not pending_definition.is_empty() else host.MUTED))
 	if not pending_definition.is_empty():
-		var preview_route := host.label("ESTILO · %s" % str(pending_definition.get("route_style", "CONTRATO FLEXÍVEL")), 10, host.CYAN)
+		var preview_route := host.label(t("ONB_CLASS_STYLE", "ESTILO · %s", [localized_class_field(pending_definition, "route_style", t("ONB_CLASS_FLEXIBLE", "CONTRATO FLEXÍVEL"))]), 10, host.CYAN)
 		preview_route.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		preview_copy.add_child(preview_route)
 	for definition in ClassRulesScript.DEFINITIONS:
 		var class_id := str(definition.id)
 		var selected := class_id == pending_id
 		var class_color := {"warrant_breaker": host.CORAL, "orbit_gunslinger": host.GOLD, "contract_hacker": host.CYAN}.get(class_id, host.CYAN) as Color
-		var card := choice_card(host, str(definition.name), "ATRIBUTO · %s" % str(definition.primary_name), str(definition.tagline), selected, class_color, "", class_id)
+		var card := choice_card(host, localized_class_field(definition, "name"), t("ONB_CLASS_ATTRIBUTE", "ATRIBUTO · %s", [localized_class_field(definition, "primary_name")]), localized_class_field(definition, "tagline"), selected, class_color, "", class_id)
 		card.name = "OnboardingClass_%s" % class_id
 		var choose := card.get_meta("action") as Button
 		choose.name = "OnboardingClassAction_%s" % class_id
@@ -161,15 +161,15 @@ static func build_class(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 		stack.add_child(mechanics)
 		var mechanics_copy := mechanics.get_child(0) as VBoxContainer
 		mechanics_copy.add_theme_constant_override("separation", 3)
-		mechanics_copy.add_child(host.label("ARQUÉTIPO PROVISÓRIO · MECÂNICA ATIVA", 10, host.LIME))
-		var flavor := host.label(str(pending_definition.get("flavor", "")), 11, host.MUTED)
+		mechanics_copy.add_child(host.label(t("ONB_CLASS_PROVISIONAL", "ARQUÉTIPO PROVISÓRIO · MECÂNICA ATIVA"), 10, host.LIME))
+		var flavor := host.label(localized_class_field(pending_definition, "flavor"), 11, host.MUTED)
 		flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		mechanics_copy.add_child(flavor)
-		var specialization := host.label("ESPECIALIZAÇÃO · %s" % ClassRulesScript.specialization_text(pending_definition), 11, host.GOLD)
+		var specialization := host.label(t("ONB_CLASS_SPECIALIZATION", "ESPECIALIZAÇÃO · %s", [ClassRulesScript.specialization_text(pending_definition)]), 11, host.GOLD)
 		specialization.name = "OnboardingClassSpecialization"
 		specialization.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		mechanics_copy.add_child(specialization)
-	var confirm := host.action_button("CONFIRMAR CLASSE", host.LIME)
+	var confirm := host.action_button(t("ONB_CLASS_CONFIRM", "CONFIRMAR CLASSE"), host.LIME)
 	confirm.name = "OnboardingClassConfirm"
 	confirm.disabled = pending_id.is_empty()
 	confirm.pressed.connect(func():
@@ -183,7 +183,7 @@ static func build_class(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 
 
 static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: StateScript) -> void:
-	section_intro(host, stack, "ESCOLHA A RAÇA", "A raça define a aparência e a origem do caçador. É uma escolha cosmética: não altera atributos, combate ou progressão.")
+	section_intro(host, stack, t("ONB_SPECIES_TITLE", "ESCOLHA A RAÇA"), t("ONB_SPECIES_DESCRIPTION", "A raça define a aparência e a origem do caçador. É uma escolha cosmética: não altera atributos, combate ou progressão."))
 	var pending_id := host.species_draft
 	var pending_definition := SpeciesRulesScript.get_definition(pending_id)
 	var preview := host.panel(HBoxContainer.new(), Color("#162947"), 16, 13)
@@ -198,18 +198,18 @@ static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: S
 	preview_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	preview_copy.add_theme_constant_override("separation", 3)
 	preview_row.add_child(preview_copy)
-	preview_copy.add_child(host.label("PRÉVIA DO CAÇADOR", 10, host.CYAN))
-	var preview_name := host.label(str(pending_definition.get("name", "NENHUMA RAÇA SELECIONADA")), 17, Color(str(pending_definition.get("color", "#f4f2ff"))))
+	preview_copy.add_child(host.label(t("ONB_SPECIES_PREVIEW", "PRÉVIA DO CAÇADOR"), 10, host.CYAN))
+	var preview_name := host.label(localized_species_field(pending_definition, "name", t("ONB_SPECIES_NONE", "NENHUMA RAÇA SELECIONADA")), 17, Color(str(pending_definition.get("color", "#f4f2ff"))))
 	preview_name.name = "OnboardingSpeciesPreviewName"
 	preview_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	preview_copy.add_child(preview_name)
-	var preview_hint := host.label(str(pending_definition.get("identity", "TOQUE EM UMA ORIGEM ABAIXO")), 10, host.MUTED)
+	var preview_hint := host.label(localized_species_field(pending_definition, "identity", t("ONB_SPECIES_CHOOSE_BELOW", "TOQUE EM UMA ORIGEM ABAIXO")), 10, host.MUTED)
 	preview_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	preview_copy.add_child(preview_hint)
 	for definition in SpeciesRulesScript.DEFINITIONS:
 		var species_id := str(definition.id)
 		var selected := species_id == pending_id
-		var card := choice_card(host, str(definition.name), str(definition.identity), str(definition.tagline), selected, Color(str(definition.color)), species_id)
+		var card := choice_card(host, localized_species_field(definition, "name"), localized_species_field(definition, "identity"), localized_species_field(definition, "tagline"), selected, Color(str(definition.color)), species_id)
 		card.name = "OnboardingSpecies_%s" % species_id
 		var choose := card.get_meta("action") as Button
 		choose.name = "OnboardingSpeciesAction_%s" % species_id
@@ -220,7 +220,7 @@ static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: S
 			host.call("render")
 		)
 		stack.add_child(card)
-	var confirm := host.action_button("CONFIRMAR RAÇA", host.LIME)
+	var confirm := host.action_button(t("ONB_SPECIES_CONFIRM", "CONFIRMAR RAÇA"), host.LIME)
 	confirm.name = "OnboardingSpeciesConfirm"
 	confirm.disabled = pending_id.is_empty()
 	confirm.pressed.connect(func():
@@ -234,7 +234,7 @@ static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: S
 
 
 static func build_name(host: CrookedUIFactory, stack: VBoxContainer, state: StateScript) -> void:
-	section_intro(host, stack, "NOME DO CAÇADOR", "Este é o nome que aparecerá nos mandados, relatórios e registros da carreira.")
+	section_intro(host, stack, t("ONB_NAME_TITLE", "NOME DO CAÇADOR"), t("ONB_NAME_DESCRIPTION", "Este é o nome que aparecerá nos mandados, relatórios e registros da carreira."))
 	var identity := host.panel(HBoxContainer.new(), host.PANEL_LIGHT, 16, 13)
 	identity.name = "OnboardingIdentitySummary"
 	stack.add_child(identity)
@@ -246,12 +246,12 @@ static func build_name(host: CrookedUIFactory, stack: VBoxContainer, state: Stat
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	identity_row.add_child(copy)
-	copy.add_child(host.label("CLASSE · %s" % ClassRulesScript.class_name_for(str(state.player.class_id)), 12, host.GOLD))
-	copy.add_child(host.label("RAÇA · %s" % SpeciesRulesScript.species_name_for(str(state.player.species_id)), 12, host.CYAN))
+	copy.add_child(host.label(t("ONB_NAME_CLASS", "CLASSE · %s", [ClassRulesScript.class_name_for(str(state.player.class_id))]), 12, host.GOLD))
+	copy.add_child(host.label(t("ONB_NAME_SPECIES", "RAÇA · %s", [SpeciesRulesScript.species_name_for(str(state.player.species_id))]), 12, host.CYAN))
 	var corrections := HBoxContainer.new()
 	corrections.add_theme_constant_override("separation", 6)
 	copy.add_child(corrections)
-	var change_class := host.action_button("ALTERAR CLASSE", host.GOLD, true)
+	var change_class := host.action_button(t("ONB_NAME_CHANGE_CLASS", "ALTERAR CLASSE"), host.GOLD, true)
 	change_class.name = "OnboardingChangeClass"
 	change_class.custom_minimum_size = Vector2(0, 48)
 	change_class.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -261,7 +261,7 @@ static func build_name(host: CrookedUIFactory, stack: VBoxContainer, state: Stat
 		state.reopen_onboarding_choice("class")
 	)
 	corrections.add_child(change_class)
-	var change_species := host.action_button("ALTERAR RAÇA", host.CYAN, true)
+	var change_species := host.action_button(t("ONB_NAME_CHANGE_SPECIES", "ALTERAR RAÇA"), host.CYAN, true)
 	change_species.name = "OnboardingChangeSpecies"
 	change_species.custom_minimum_size = Vector2(0, 48)
 	change_species.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -273,16 +273,16 @@ static func build_name(host: CrookedUIFactory, stack: VBoxContainer, state: Stat
 	corrections.add_child(change_species)
 	var input := LineEdit.new()
 	input.name = "OnboardingNameInput"
-	input.placeholder_text = "3–20 caracteres"
+	input.placeholder_text = t("ONB_NAME_PLACEHOLDER", "3–20 caracteres")
 	input.max_length = 20
 	input.custom_minimum_size.y = 58
 	input.add_theme_font_size_override("font_size", 18)
 	input.add_theme_stylebox_override("normal", host.bordered_box_style(Color("#0d1730"), 12, host.CYAN, 2))
 	stack.add_child(input)
-	var hint := host.label("Espaços repetidos serão corrigidos. Símbolos de marcação e controles não são aceitos.", 11, host.MUTED)
+	var hint := host.label(t("ONB_NAME_HINT", "Espaços repetidos serão corrigidos. Símbolos de marcação e controles não são aceitos."), 11, host.MUTED)
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	stack.add_child(hint)
-	var confirm := host.action_button("ENTRAR NA GALÁXIA", host.LIME)
+	var confirm := host.action_button(t("ONB_NAME_CONFIRM", "ENTRAR NA GALÁXIA"), host.LIME)
 	confirm.name = "OnboardingNameConfirm"
 	confirm.disabled = true
 	confirm.pressed.connect(func(): state.set_hunter_name(input.text))
@@ -324,7 +324,7 @@ static func choice_card(host: CrookedUIFactory, title: String, eyebrow: String, 
 	var flavor := host.label(description, 11, host.MUTED)
 	flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(flavor)
-	var action := host.action_button("SELECIONADO" if selected else "ESCOLHER", accent, true)
+	var action := host.action_button(t("COMMON_SELECTED", "SELECIONADO") if selected else t("COMMON_CHOOSE", "ESCOLHER"), accent, true)
 	action.custom_minimum_size = Vector2(104, 52)
 	action.add_theme_font_size_override("font_size", 10)
 	action.disabled = selected
@@ -349,5 +349,23 @@ static func class_reference_icon(host: CrookedUIFactory, class_id: String, dimen
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon.tooltip_text = "PLACEHOLDER INTERNO · identidade visual provisória"
+	icon.tooltip_text = t("ONB_CLASS_PLACEHOLDER_TOOLTIP", "PLACEHOLDER INTERNO · identidade visual provisória")
 	return icon
+
+
+static func t(key: String, fallback: String = "", values: Array = []) -> String:
+	return LocaleRulesScript.text(key, fallback, values)
+
+
+static func localized_class_field(definition: Dictionary, field: String, fallback: String = "") -> String:
+	if definition.is_empty():
+		return fallback
+	var raw := str(definition.get(field, fallback))
+	return t(LocaleRulesScript.content_key("class", str(definition.id), field), raw)
+
+
+static func localized_species_field(definition: Dictionary, field: String, fallback: String = "") -> String:
+	if definition.is_empty():
+		return fallback
+	var raw := str(definition.get(field, fallback))
+	return t(LocaleRulesScript.content_key("species", str(definition.id), field), raw)

@@ -25,3 +25,14 @@ static func get_definition(locale_id: String) -> Dictionary:
 
 static func locale_name_for(locale_id: String) -> String:
 	return str(get_definition(locale_id).get("native_name", "IDIOMA INDISPONÍVEL"))
+
+
+static func text(key: String, fallback: String = "", values: Array = []) -> String:
+	var translated := str(TranslationServer.translate(key))
+	if translated == key:
+		translated = fallback if not fallback.is_empty() else key
+	return translated % values if not values.is_empty() else translated
+
+
+static func content_key(prefix: String, content_id: String, field: String) -> String:
+	return "%s_%s_%s" % [prefix.to_upper(), content_id.to_upper(), field.to_upper()]

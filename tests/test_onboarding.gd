@@ -1,6 +1,7 @@
 extends SceneTree
 
 const Species = preload("res://scripts/species_rules.gd")
+const Locales = preload("res://scripts/locale_rules.gd")
 
 var failures := 0
 var state
@@ -32,6 +33,34 @@ func run_test() -> void:
 
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
+	await process_frame
+	TranslationServer.set_locale("en")
+	scene.render()
+	await process_frame
+	check(find_label_with_text(scene, "SIGN IN") != null and find_label_with_text(scene, "FIRST WORLD") != null and (scene.find_child("OnboardingLoginAction", true, false) as Button).text == "ENTER INTERNATIONAL 1", "English catalog renders the complete login and server surface")
+	check(Locales.text("ONB_NOTICE_SESSION", "", ["International 1"]) == "Local session started on International 1. No online connection was simulated.", "English catalog includes onboarding transaction feedback")
+	state.account = {"mode": "local_test", "session_id": "locale_preview", "locale_id": "pt", "server_id": "international_1"}
+	scene.class_draft = "warrant_breaker"
+	scene.render()
+	await process_frame
+	check(find_label_with_text(scene, "CHOOSE YOUR CLASS") != null and find_label_with_text(scene, "WARRANT BREAKER") != null and find_label_with_text(scene, "Hard Shell") != null and (scene.find_child("OnboardingClassConfirm", true, false) as Button).text == "CONFIRM CLASS", "English catalog covers class chrome, content, and exact specialization")
+	state.player.class_id = "contract_hacker"
+	scene.class_draft = ""
+	scene.species_draft = "catalog_chimera"
+	scene.render()
+	await process_frame
+	check(find_label_with_text(scene, "CHOOSE YOUR SPECIES") != null and find_label_with_text(scene, "Catalog Chimera") != null and find_label_with_text(scene, "HYBRID · BIOENGINEERED") != null and (scene.find_child("OnboardingSpeciesConfirm", true, false) as Button).text == "CONFIRM SPECIES", "English catalog covers all cosmetic-origin selector layers")
+	state.player.species_id = "discontinued_synthetic"
+	scene.species_draft = ""
+	scene.render()
+	await process_frame
+	check(find_label_with_text(scene, "HUNTER NAME") != null and find_label_with_text(scene, "CLASS · CONTRACT HACKER") != null and find_label_with_text(scene, "SPECIES · Discontinued Synthetic") != null and (scene.find_child("OnboardingNameConfirm", true, false) as Button).text == "ENTER THE GALAXY", "English catalog covers final identity review and entry")
+	TranslationServer.set_locale("pt")
+	state.account = {}
+	state.player = state.default_player()
+	scene.class_draft = ""
+	scene.species_draft = ""
+	scene.render()
 	await process_frame
 	check(scene.find_child("OnboardingLoginAction", true, false) != null and scene.find_child("HeaderResourceStrip", true, false) == null, "login replaces the game shell instead of overlaying it")
 	check(not state.begin_local_session("en", "international_1") and state.account.is_empty(), "an advertised translation roadmap cannot start an incomplete English session")

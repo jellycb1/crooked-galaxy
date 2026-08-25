@@ -143,7 +143,7 @@ func begin_local_session(locale_id := LocaleRulesScript.DEFAULT_ID, server_id :=
 		return false
 	account = {"mode": "local_test", "session_id": "local_primary", "locale_id": str(locale_id), "server_id": str(server_id)}
 	TranslationServer.set_locale(str(locale_id))
-	last_notice = "Sessão local iniciada em %s. Nenhuma conexão online foi simulada." % ServerRulesScript.server_name_for(str(server_id))
+	last_notice = LocaleRulesScript.text("ONB_NOTICE_SESSION", "Sessão local iniciada em %s. Nenhuma conexão online foi simulada.", [ServerRulesScript.server_name_for(str(server_id))])
 	last_notice_context = "onboarding"
 	var saved := save_game()
 	changed.emit()
@@ -155,7 +155,7 @@ func select_species(species_id: String) -> bool:
 	if not account_session_ready() or class_id.is_empty() or not ClassRules.is_valid(class_id) or not SpeciesRulesScript.is_valid(species_id):
 		return false
 	player.species_id = species_id
-	last_notice = "Raça confirmada: %s." % SpeciesRulesScript.species_name_for(species_id)
+	last_notice = LocaleRulesScript.text("ONB_NOTICE_SPECIES", "Raça confirmada: %s.", [SpeciesRulesScript.species_name_for(species_id)])
 	last_notice_context = "onboarding"
 	var saved := save_game()
 	changed.emit()
@@ -182,7 +182,7 @@ func set_hunter_name(raw_name: String) -> bool:
 	if clean.is_empty():
 		return false
 	player.hunter_name = clean
-	last_notice = "Caçador registrado: %s." % clean
+	last_notice = LocaleRulesScript.text("ONB_NOTICE_NAME", "Caçador registrado: %s.", [clean])
 	last_notice_context = "onboarding_complete"
 	var saved := save_game()
 	changed.emit()
@@ -199,7 +199,7 @@ func reopen_onboarding_choice(choice: String) -> bool:
 			player.species_id = ""
 		_:
 			return false
-	last_notice = "Registro reaberto para corrigir %s." % ("a classe" if choice == "class" else "a raça")
+	last_notice = LocaleRulesScript.text("ONB_NOTICE_REOPEN_CLASS" if choice == "class" else "ONB_NOTICE_REOPEN_SPECIES", "Registro reaberto para corrigir a classe." if choice == "class" else "Registro reaberto para corrigir a raça.")
 	last_notice_context = "onboarding"
 	var saved := save_game()
 	changed.emit()
@@ -1178,7 +1178,7 @@ func select_class(class_id: String) -> bool:
 	if phase != Phase.BOARD or class_id.is_empty() or not ClassRules.is_valid(class_id):
 		return false
 	player.class_id = class_id
-	last_notice = "Classe confirmada: %s. Especialização recalculada." % ClassRules.class_name_for(class_id)
+	last_notice = LocaleRulesScript.text("ONB_NOTICE_CLASS", "Classe confirmada: %s. Especialização recalculada.", [ClassRules.class_name_for(class_id)])
 	last_notice_context = "class"
 	CoreRules.clear_bounty_odds_cache()
 	save_game()

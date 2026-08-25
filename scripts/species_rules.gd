@@ -83,4 +83,9 @@ static func get_definition(species_id: String) -> Dictionary:
 
 
 static func species_name_for(species_id: String) -> String:
-	return str(get_definition(species_id).get("name", "SEM RAÇA"))
+	var definition := get_definition(species_id)
+	if definition.is_empty():
+		return str(TranslationServer.translate("SPECIES_NONE"))
+	var key := "SPECIES_%s_NAME" % species_id.to_upper()
+	var translated := str(TranslationServer.translate(key))
+	return str(definition.name) if translated == key else translated

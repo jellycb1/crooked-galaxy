@@ -1,0 +1,303 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Crooked Galaxy\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "ONB_PROGRESS"
+msgstr "HUNTER REGISTRATION · STEP %d/4"
+
+msgid "ONB_LOGIN_TITLE"
+msgstr "SIGN IN"
+
+msgid "ONB_LOGIN_DESCRIPTION"
+msgstr "Your career begins with a session on this device."
+
+msgid "ONB_LANGUAGE"
+msgstr "LANGUAGE"
+
+msgid "ONB_TRANSLATION_PENDING"
+msgstr " · IN TRANSLATION"
+
+msgid "ONB_LANGUAGE_AVAILABLE"
+msgstr "Available"
+
+msgid "ONB_LANGUAGE_PENDING_TOOLTIP"
+msgstr "English will be enabled after every playable screen has been localized."
+
+msgid "ONB_SERVER"
+msgstr "SERVER"
+
+msgid "SERVER_POLICY_MULTILINGUAL"
+msgstr "MULTILINGUAL"
+
+msgid "ONB_SERVER_POLICY"
+msgstr "%s · %s"
+
+msgid "ONB_SERVER_STATUS"
+msgstr "FIRST WORLD · online connection is not active in this APK yet"
+
+msgid "COMMON_SELECTED"
+msgstr "SELECTED"
+
+msgid "COMMON_CHOOSE"
+msgstr "CHOOSE"
+
+msgid "ONB_LOCAL_SESSION_TITLE"
+msgstr "LOCAL TEST SESSION"
+
+msgid "ONB_LOCAL_SESSION_DESCRIPTION"
+msgstr "There is no account server yet. This entry asks for no password, does not simulate online authentication, and keeps progress only on this device."
+
+msgid "ONB_LOCAL_SESSION_FUTURE"
+msgstr "Session identity is already separate from class, species, and name so it can receive an online account later."
+
+msgid "ONB_ENTER_SERVER"
+msgstr "ENTER %s"
+
+msgid "ONB_CLASS_TITLE"
+msgstr "CHOOSE YOUR CLASS"
+
+msgid "ONB_CLASS_DESCRIPTION"
+msgstr "Your class defines your initial combat and contract specialization."
+
+msgid "ONB_CLASS_PREVIEW"
+msgstr "ARCHETYPE PREVIEW"
+
+msgid "ONB_CLASS_NONE"
+msgstr "NO CLASS SELECTED"
+
+msgid "ONB_CLASS_ATTRIBUTE"
+msgstr "ATTRIBUTE · %s"
+
+msgid "ONB_CLASS_CHOOSE_BELOW"
+msgstr "CHOOSE AN ARCHETYPE BELOW"
+
+msgid "ONB_CLASS_STYLE"
+msgstr "STYLE · %s"
+
+msgid "ONB_CLASS_FLEXIBLE"
+msgstr "FLEXIBLE CONTRACT"
+
+msgid "ONB_CLASS_PROVISIONAL"
+msgstr "PROVISIONAL ARCHETYPE · ACTIVE MECHANIC"
+
+msgid "ONB_CLASS_SPECIALIZATION"
+msgstr "SPECIALIZATION · %s"
+
+msgid "ONB_CLASS_CONFIRM"
+msgstr "CONFIRM CLASS"
+
+msgid "ONB_CLASS_PLACEHOLDER_TOOLTIP"
+msgstr "INTERNAL PLACEHOLDER · provisional visual identity"
+
+msgid "ONB_SPECIES_TITLE"
+msgstr "CHOOSE YOUR SPECIES"
+
+msgid "ONB_SPECIES_DESCRIPTION"
+msgstr "Species defines your hunter's appearance and origin. It is cosmetic and never changes attributes, combat, or progression."
+
+msgid "ONB_SPECIES_PREVIEW"
+msgstr "HUNTER PREVIEW"
+
+msgid "ONB_SPECIES_NONE"
+msgstr "NO SPECIES SELECTED"
+
+msgid "ONB_SPECIES_CHOOSE_BELOW"
+msgstr "TAP AN ORIGIN BELOW"
+
+msgid "ONB_SPECIES_CONFIRM"
+msgstr "CONFIRM SPECIES"
+
+msgid "ONB_NAME_TITLE"
+msgstr "HUNTER NAME"
+
+msgid "ONB_NAME_DESCRIPTION"
+msgstr "This name will appear on warrants, reports, and career records."
+
+msgid "ONB_NAME_CLASS"
+msgstr "CLASS · %s"
+
+msgid "ONB_NAME_SPECIES"
+msgstr "SPECIES · %s"
+
+msgid "ONB_NAME_CHANGE_CLASS"
+msgstr "CHANGE CLASS"
+
+msgid "ONB_NAME_CHANGE_SPECIES"
+msgstr "CHANGE SPECIES"
+
+msgid "ONB_NAME_PLACEHOLDER"
+msgstr "3–20 characters"
+
+msgid "ONB_NAME_HINT"
+msgstr "Repeated spaces will be corrected. Markup symbols and control characters are not accepted."
+
+msgid "ONB_NAME_CONFIRM"
+msgstr "ENTER THE GALAXY"
+
+msgid "ONB_NOTICE_SESSION"
+msgstr "Local session started on %s. No online connection was simulated."
+
+msgid "ONB_NOTICE_CLASS"
+msgstr "Class confirmed: %s. Specialization recalculated."
+
+msgid "ONB_NOTICE_SPECIES"
+msgstr "Species confirmed: %s."
+
+msgid "ONB_NOTICE_NAME"
+msgstr "Hunter registered: %s."
+
+msgid "ONB_NOTICE_REOPEN_CLASS"
+msgstr "Registration reopened to correct the class."
+
+msgid "ONB_NOTICE_REOPEN_SPECIES"
+msgstr "Registration reopened to correct the species."
+
+msgid "CLASS_NONE"
+msgstr "NO CLASS"
+
+msgid "SPECIES_NONE"
+msgstr "NO SPECIES"
+
+msgid "ATTRIBUTE_STRENGTH"
+msgstr "Strength"
+
+msgid "ATTRIBUTE_DEXTERITY"
+msgstr "Dexterity"
+
+msgid "ATTRIBUTE_INTELLIGENCE"
+msgstr "Intelligence"
+
+msgid "CLASS_SPECIALIZATION_POWER"
+msgstr "+1 Power for every %d invested %s points"
+
+msgid "CLASS_SPECIALIZATION_INVASION"
+msgstr "Breach: +%d base opening damage and +%d per invested point"
+
+msgid "CLASS_SPECIALIZATION_HULL"
+msgstr "Hard Shell: -%d base damage and -1 additional damage for every %d invested points"
+
+msgid "CLASS_SPECIALIZATION_AIM"
+msgstr "Orbital Aim: +%.1f%% base and +%.1f%% per invested point, up to +%.1f%%"
+
+msgid "CLASS_SPECIALIZATION_NONE"
+msgstr "No mechanical bonus."
+
+msgid "CLASS_WARRANT_BREAKER_NAME"
+msgstr "WARRANT BREAKER"
+
+msgid "CLASS_WARRANT_BREAKER_PRIMARY_NAME"
+msgstr "STRENGTH"
+
+msgid "CLASS_WARRANT_BREAKER_TAGLINE"
+msgstr "Impact, heavy weapons, and collections without subtlety."
+
+msgid "CLASS_WARRANT_BREAKER_FLAVOR"
+msgstr "Solves heavy contracts with even heavier tools."
+
+msgid "CLASS_WARRANT_BREAKER_ROUTE_STYLE"
+msgstr "CORPORATE PRESSURE"
+
+msgid "CLASS_ORBIT_GUNSLINGER_NAME"
+msgstr "ORBIT GUNSLINGER"
+
+msgid "CLASS_ORBIT_GUNSLINGER_PRIMARY_NAME"
+msgstr "DEXTERITY"
+
+msgid "CLASS_ORBIT_GUNSLINGER_TAGLINE"
+msgstr "Reflexes, positioning, and accuracy on the move."
+
+msgid "CLASS_ORBIT_GUNSLINGER_FLAVOR"
+msgstr "Turns bad angles and worse probabilities into an advantage."
+
+msgid "CLASS_ORBIT_GUNSLINGER_ROUTE_STYLE"
+msgstr "QUICK ENTRY"
+
+msgid "CLASS_CONTRACT_HACKER_NAME"
+msgstr "CONTRACT HACKER"
+
+msgid "CLASS_CONTRACT_HACKER_PRIMARY_NAME"
+msgstr "INTELLIGENCE"
+
+msgid "CLASS_CONTRACT_HACKER_TAGLINE"
+msgstr "Devices, tactical openings, and improvised technology."
+
+msgid "CLASS_CONTRACT_HACKER_FLAVOR"
+msgstr "Rewrites locks, drones, and occasionally the definition of legal."
+
+msgid "CLASS_CONTRACT_HACKER_ROUTE_STYLE"
+msgstr "TACTICAL CONTROL"
+
+msgid "SPECIES_PATCHED_TERRAN_NAME"
+msgstr "Patched Terran"
+
+msgid "SPECIES_PATCHED_TERRAN_IDENTITY"
+msgstr "ORGANIC · ADAPTABLE"
+
+msgid "SPECIES_PATCHED_TERRAN_TAGLINE"
+msgstr "Survives through adaptation, industrial tape, and statistically unjustified confidence."
+
+msgid "SPECIES_DISCONTINUED_SYNTHETIC_NAME"
+msgstr "Discontinued Synthetic"
+
+msgid "SPECIES_DISCONTINUED_SYNTHETIC_IDENTITY"
+msgstr "SYNTHETIC · MODULAR"
+
+msgid "SPECIES_DISCONTINUED_SYNTHETIC_TAGLINE"
+msgstr "The manufacturer ended support; fortunately, it also ended the warranty restrictions."
+
+msgid "SPECIES_NEBULAR_NOMAD_NAME"
+msgstr "Nebular Nomad"
+
+msgid "SPECIES_NEBULAR_NOMAD_IDENTITY"
+msgstr "ALIEN · INTUITIVE"
+
+msgid "SPECIES_NEBULAR_NOMAD_TAGLINE"
+msgstr "Reads cosmic currents, bad contracts, and rooms where nobody intends to pay."
+
+msgid "SPECIES_CELLAR_MYCELIAN_NAME"
+msgstr "Cellar Mycelian"
+
+msgid "SPECIES_CELLAR_MYCELIAN_IDENTITY"
+msgstr "FUNGAL · COLLECTIVE"
+
+msgid "SPECIES_CELLAR_MYCELIAN_TAGLINE"
+msgstr "A spore colony with a coat, a dubious license, and excellent collective memory."
+
+msgid "SPECIES_RUSTED_FERRITE_NAME"
+msgstr "Rusted Ferrite"
+
+msgid "SPECIES_RUSTED_FERRITE_IDENTITY"
+msgstr "MINERAL · RESONANT"
+
+msgid "SPECIES_RUSTED_FERRITE_TAGLINE"
+msgstr "Born among iron asteroids and considers rust a respectable mark of maturity."
+
+msgid "SPECIES_TANKBORN_ABYSSAL_NAME"
+msgstr "Tankborn Abyssal"
+
+msgid "SPECIES_TANKBORN_ABYSSAL_IDENTITY"
+msgstr "AQUATIC · AMPHIBIOUS"
+
+msgid "SPECIES_TANKBORN_ABYSSAL_TAGLINE"
+msgstr "Raised under pressure and breathes any atmosphere, provided nobody asks about the warranty."
+
+msgid "SPECIES_UNSTABLE_LUMINAR_NAME"
+msgstr "Unstable Luminar"
+
+msgid "SPECIES_UNSTABLE_LUMINAR_IDENTITY"
+msgstr "ENERGETIC · PRISMATIC"
+
+msgid "SPECIES_UNSTABLE_LUMINAR_TAGLINE"
+msgstr "Made of condensed light; flickers when lying and illuminates corridors at no extra charge."
+
+msgid "SPECIES_CATALOG_CHIMERA_NAME"
+msgstr "Catalog Chimera"
+
+msgid "SPECIES_CATALOG_CHIMERA_IDENTITY"
+msgstr "HYBRID · BIOENGINEERED"
+
+msgid "SPECIES_CATALOG_CHIMERA_TAGLINE"
+msgstr "Ordered in parts, assembled without a manual, and proudly outside factory specifications."
