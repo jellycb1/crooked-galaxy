@@ -24,7 +24,8 @@ func run_test() -> void:
 	state.player = state.default_player()
 	state.phase = state.Phase.BOARD
 	state.current_bounty = {}
-	check(Species.DEFINITIONS.size() == 3 and Species.DEFINITIONS.all(func(definition): return bool(definition.prototype)), "the first species roster is explicitly provisional")
+	check(Species.DEFINITIONS.size() == 8 and Species.DEFINITIONS.all(func(definition): return bool(definition.prototype)), "the initial species roster exposes eight replaceable visual identities")
+	check(Species.DEFINITIONS.map(func(definition): return str(definition.id)).all(func(species_id): return Species.is_valid(species_id)), "every displayed species is accepted by identity validation")
 	check(state.requires_onboarding() and state.onboarding_step() == "login", "a new local profile cannot bypass login")
 	state.select_bounty(ContentDB.TARGETS[0])
 	check(state.phase == state.Phase.BOARD and state.current_bounty.is_empty(), "state-level bounty entry is blocked before identity completion")
@@ -50,8 +51,8 @@ func run_test() -> void:
 	class_confirm.pressed.emit()
 	await process_frame
 	check(state.onboarding_step() == "species" and str(state.player.class_id) == "contract_hacker", "confirmed class advances exactly to species")
-	check(scene.find_children("OnboardingSpecies_*", "PanelContainer", true, false).size() == 3, "species step exposes three replaceable origins")
-	check(scene.find_children("OnboardingSpeciesIcon_*", "Control", true, false).size() == 3, "every provisional species has an original scalable emblem")
+	check(scene.find_children("OnboardingSpecies_*", "PanelContainer", true, false).size() == 8, "species step exposes all eight visual origins")
+	check(scene.find_children("OnboardingSpeciesIcon_*", "Control", true, false).size() == 8, "every initial species has an original scalable emblem")
 	check_onboarding_touch_targets(scene, "species")
 	var species_action := scene.find_child("OnboardingSpeciesAction_discontinued_synthetic", true, false) as Button
 	species_action.pressed.emit()

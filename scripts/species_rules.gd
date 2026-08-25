@@ -1,8 +1,8 @@
 class_name SpeciesRules
 extends RefCounted
 
-# Provisional identity roster. Species are presentation-only until their
-# mechanical contract has been balanced across every class and campaign route.
+# Initial identity roster. Species are permanently presentation-only: they may
+# change portrait, emblem and narrative copy, but never combat or progression.
 const DEFINITIONS := [
 	{
 		"id": "patched_terran",
@@ -26,6 +26,46 @@ const DEFINITIONS := [
 		"tagline": "Lê correntes cósmicas, maus contratos e salas onde ninguém pretende pagar.",
 		"identity": "ALIENÍGENA · INTUITIVO",
 		"color": "#b8f45d",
+		"prototype": true,
+	},
+	{
+		"id": "cellar_mycelian",
+		"name": "Miceliano de Porão",
+		"tagline": "Uma colônia de esporos com um casaco, uma licença duvidosa e excelente memória coletiva.",
+		"identity": "FÚNGICO · COLETIVO",
+		"color": "#ff7ad9",
+		"prototype": true,
+	},
+	{
+		"id": "rusted_ferrite",
+		"name": "Ferrídeo Oxidado",
+		"tagline": "Nasceu entre asteroides de ferro e considera ferrugem uma respeitável marca de maturidade.",
+		"identity": "MINERAL · RESSONANTE",
+		"color": "#ff8a4c",
+		"prototype": true,
+	},
+	{
+		"id": "tankborn_abyssal",
+		"name": "Abissal de Tanque",
+		"tagline": "Criado sob pressão, respira qualquer atmosfera desde que ninguém pergunte pela garantia.",
+		"identity": "AQUÁTICO · ANFÍBIO",
+		"color": "#46d9c8",
+		"prototype": true,
+	},
+	{
+		"id": "unstable_luminar",
+		"name": "Luminar Instável",
+		"tagline": "É feito de luz condensada; pisca quando mente e ilumina corredores sem cobrar adicional.",
+		"identity": "ENERGÉTICO · PRISMÁTICO",
+		"color": "#ffe66d",
+		"prototype": true,
+	},
+	{
+		"id": "catalog_chimera",
+		"name": "Quimera de Catálogo",
+		"tagline": "Encomendada por peças, montada sem manual e orgulhosamente fora do padrão de fábrica.",
+		"identity": "HÍBRIDO · BIOENGENHADO",
+		"color": "#f06d8f",
 		"prototype": true,
 	},
 ]

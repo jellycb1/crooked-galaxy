@@ -158,7 +158,7 @@ Login owns account/session identity. Class, species and hunter name belong to th
 
 A new player cannot inspect or accept bounties until all four stages are complete. Each choice must be explicitly previewed and confirmed, and an interrupted creation flow must resume at the first incomplete stage rather than skipping ahead or losing earlier choices.
 
-The current class and species rosters are allowed to remain replaceable placeholders while their mechanical contracts are developed. The universal nine-slot inventory remains independent of both class and species.
+The current class and species rosters are allowed to remain replaceable placeholders. The eight initial species are visual and narrative identity only: species must never alter attributes, combat formulas, loot, economy or progression. The universal nine-slot inventory remains independent of both class and species.
 
 FIRST PRODUCT GOAL
 

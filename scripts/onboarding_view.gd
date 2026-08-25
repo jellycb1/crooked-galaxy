@@ -90,7 +90,7 @@ static func build_class(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 
 
 static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: StateScript) -> void:
-	section_intro(host, stack, "ESCOLHA A RAÇA", "A raça define a origem do caçador; seus efeitos mecânicos serão adicionados somente depois de balanceados.")
+	section_intro(host, stack, "ESCOLHA A RAÇA", "A raça define a aparência e a origem do caçador. É uma escolha cosmética: não altera atributos, combate ou progressão.")
 	var pending_id := host.species_draft
 	for definition in SpeciesRulesScript.DEFINITIONS:
 		var species_id := str(definition.id)

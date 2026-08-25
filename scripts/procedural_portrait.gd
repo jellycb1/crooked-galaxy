@@ -142,6 +142,26 @@ func draw_hunter() -> void:
 		draw_circle(Vector2(0.50, 0.39), 0.025, species_accent)
 		draw_line(Vector2(0.35, 0.28), Vector2(0.29, 0.17), species_accent, 0.025, true)
 		draw_line(Vector2(0.66, 0.27), Vector2(0.73, 0.15), species_accent, 0.025, true)
+	elif species_id == "cellar_mycelian":
+		for point in [Vector2(0.31, 0.65), Vector2(0.39, 0.72), Vector2(0.69, 0.63)]:
+			draw_circle(point, 0.022, species_accent)
+	elif species_id == "rusted_ferrite":
+		draw_line(Vector2(0.29, 0.65), Vector2(0.41, 0.75), species_accent, 0.025, true)
+		draw_line(Vector2(0.69, 0.62), Vector2(0.58, 0.74), species_accent, 0.025, true)
+		draw_circle(Vector2(0.72, 0.57), 0.022, Color("#d7c5b5"))
+	elif species_id == "tankborn_abyssal":
+		for y in [0.61, 0.67, 0.73]:
+			draw_line(Vector2(0.28, y), Vector2(0.34, y - 0.015), species_accent, 0.020, true)
+			draw_line(Vector2(0.72, y), Vector2(0.66, y - 0.015), species_accent, 0.020, true)
+	elif species_id == "unstable_luminar":
+		draw_colored_polygon(PackedVector2Array([Vector2(0.50, 0.37), Vector2(0.54, 0.42), Vector2(0.50, 0.47), Vector2(0.46, 0.42)]), species_accent)
+		draw_line(Vector2(0.35, 0.67), Vector2(0.50, 0.76), Color(species_accent, 0.75), 0.020, true)
+		draw_line(Vector2(0.65, 0.65), Vector2(0.50, 0.76), Color(species_accent, 0.75), 0.020, true)
+	elif species_id == "catalog_chimera":
+		draw_line(Vector2(0.35, 0.29), Vector2(0.29, 0.18), species_accent, 0.030, true)
+		draw_line(Vector2(0.65, 0.27), Vector2(0.72, 0.16), species_accent, 0.030, true)
+		for point in [Vector2(0.32, 0.65), Vector2(0.39, 0.72), Vector2(0.68, 0.64)]:
+			draw_circle(point, 0.019, species_accent)
 	# Antenna keeps the silhouette distinctive.
 	draw_line(Vector2(0.72, 0.17), Vector2(0.84, 0.08), ink, 0.025, true)
 	outlined_circle(Vector2(0.86, 0.065), 0.035, weapon_color, ink, 0.018)
@@ -164,6 +184,16 @@ func species_skin_color(species_id: String) -> Color:
 			return Color("#7189a8")
 		"nebular_nomad":
 			return Color("#8c74b5")
+		"cellar_mycelian":
+			return Color("#9fbd72")
+		"rusted_ferrite":
+			return Color("#806b5d")
+		"tankborn_abyssal":
+			return Color("#508ca3")
+		"unstable_luminar":
+			return Color("#bcecf2")
+		"catalog_chimera":
+			return Color("#aa6977")
 		_:
 			return Color("#d7d6c9")
 
@@ -176,6 +206,16 @@ func species_accent_color(species_id: String) -> Color:
 			return Color("#55e5ff")
 		"nebular_nomad":
 			return Color("#b8f45d")
+		"cellar_mycelian":
+			return Color("#ff7ad9")
+		"rusted_ferrite":
+			return Color("#ff8a4c")
+		"tankborn_abyssal":
+			return Color("#46d9c8")
+		"unstable_luminar":
+			return Color("#ffe66d")
+		"catalog_chimera":
+			return Color("#f06d8f")
 		_:
 			return Color("#55e5ff")
 

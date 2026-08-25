@@ -25,6 +25,17 @@ func run() -> void:
 	check(portrait.planet_loadout_color("unknown") == Color("#55e5ff"), "unknown equipment origins keep the hunter fallback palette")
 	check(portrait.species_skin_color("discontinued_synthetic") != portrait.species_skin_color("patched_terran"), "species identity changes the hunter face palette")
 	check(portrait.species_accent_color("nebular_nomad") == Color("#b8f45d"), "species identity resolves a stable non-combat accent")
+	var visual_species := ["patched_terran", "discontinued_synthetic", "nebular_nomad", "cellar_mycelian", "rusted_ferrite", "tankborn_abyssal", "unstable_luminar", "catalog_chimera"]
+	var skin_colors := visual_species.map(func(species_id): return portrait.species_skin_color(species_id))
+	var accent_colors := visual_species.map(func(species_id): return portrait.species_accent_color(species_id))
+	check(skin_colors.duplicate().reduce(func(unique, color):
+		if not unique.has(color): unique.append(color)
+		return unique
+	, []).size() == 8, "all eight species retain a distinct portrait palette")
+	check(accent_colors.duplicate().reduce(func(unique, color):
+		if not unique.has(color): unique.append(color)
+		return unique
+	, []).size() == 8, "all eight species retain a distinct emblem accent")
 	portrait.queue_free()
 	if failures == 0:
 		print("PASS: hunter portrait reflects the equipped loadout")
