@@ -38,6 +38,8 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 			build_species(host, stack, state)
 		"name":
 			build_name(host, stack, state)
+	if step == "species" and host.onboarding_scroll_position > 0:
+		host.call_deferred("restore_onboarding_scroll")
 
 
 static func build_login(host: CrookedUIFactory, stack: VBoxContainer, state: StateScript) -> void:
@@ -92,6 +94,27 @@ static func build_class(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: StateScript) -> void:
 	section_intro(host, stack, "ESCOLHA A RAÇA", "A raça define a aparência e a origem do caçador. É uma escolha cosmética: não altera atributos, combate ou progressão.")
 	var pending_id := host.species_draft
+	var pending_definition := SpeciesRulesScript.get_definition(pending_id)
+	var preview := host.panel(HBoxContainer.new(), Color("#162947"), 16, 13)
+	preview.name = "OnboardingSpeciesPreview"
+	stack.add_child(preview)
+	var preview_row := preview.get_child(0) as HBoxContainer
+	preview_row.add_theme_constant_override("separation", 13)
+	var preview_portrait := host.character_portrait("hunter", 106.0, {"species_id": pending_id})
+	preview_portrait.name = "OnboardingSpeciesPreviewPortrait"
+	preview_row.add_child(preview_portrait)
+	var preview_copy := VBoxContainer.new()
+	preview_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	preview_copy.add_theme_constant_override("separation", 3)
+	preview_row.add_child(preview_copy)
+	preview_copy.add_child(host.label("PRÉVIA DO CAÇADOR", 10, host.CYAN))
+	var preview_name := host.label(str(pending_definition.get("name", "NENHUMA RAÇA SELECIONADA")), 17, Color(str(pending_definition.get("color", "#f4f2ff"))))
+	preview_name.name = "OnboardingSpeciesPreviewName"
+	preview_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	preview_copy.add_child(preview_name)
+	var preview_hint := host.label(str(pending_definition.get("identity", "TOQUE EM UMA ORIGEM ABAIXO")), 10, host.MUTED)
+	preview_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	preview_copy.add_child(preview_hint)
 	for definition in SpeciesRulesScript.DEFINITIONS:
 		var species_id := str(definition.id)
 		var selected := species_id == pending_id
@@ -100,6 +123,8 @@ static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: S
 		var choose := card.get_meta("action") as Button
 		choose.name = "OnboardingSpeciesAction_%s" % species_id
 		choose.pressed.connect(func():
+			var scroll := stack.get_parent() as ScrollContainer
+			host.onboarding_scroll_position = scroll.scroll_vertical
 			host.species_draft = species_id
 			host.call("render")
 		)
@@ -112,7 +137,8 @@ static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: S
 		host.species_draft = ""
 		state.select_species(selected)
 	)
-	stack.add_child(confirm)
+	var content := stack.get_parent().get_parent() as VBoxContainer
+	content.add_child(confirm)
 
 
 static func build_name(host: CrookedUIFactory, stack: VBoxContainer, state: StateScript) -> void:
@@ -145,7 +171,10 @@ static func build_name(host: CrookedUIFactory, stack: VBoxContainer, state: Stat
 	change_species.custom_minimum_size = Vector2(0, 48)
 	change_species.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	change_species.add_theme_font_size_override("font_size", 9)
-	change_species.pressed.connect(func(): state.reopen_onboarding_choice("species"))
+	change_species.pressed.connect(func():
+		host.onboarding_scroll_position = 0
+		state.reopen_onboarding_choice("species")
+	)
 	corrections.add_child(change_species)
 	var input := LineEdit.new()
 	input.name = "OnboardingNameInput"

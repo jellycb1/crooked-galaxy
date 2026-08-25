@@ -249,6 +249,12 @@ func render() -> void:
 		old_career_scroll.get_v_scroll_bar().set_block_signals(true)
 		content.remove_child(old_career_scroll)
 		old_career_scroll.queue_free()
+	var old_onboarding_scroll := content.find_child("OnboardingScroll", false, false) as ScrollContainer
+	if old_onboarding_scroll != null:
+		onboarding_scroll_position = old_onboarding_scroll.scroll_vertical
+		old_onboarding_scroll.get_v_scroll_bar().set_block_signals(true)
+		content.remove_child(old_onboarding_scroll)
+		old_onboarding_scroll.queue_free()
 	for child in content.get_children():
 		content.remove_child(child)
 		child.queue_free()
@@ -327,6 +333,22 @@ func render() -> void:
 	else:
 		hunt_timer.stop()
 	call_deferred("restore_action_focus", previous_focus_name, current_generation)
+
+
+func restore_onboarding_scroll() -> void:
+	# The factory rebuilds the onboarding tree when a draft changes. Wait for the
+	# new responsive layout and resolve the current node at application time so a
+	# rapid second tap cannot leave a callback holding a freed ScrollContainer.
+	await get_tree().process_frame
+	var scroll := content.find_child("OnboardingScroll", false, false) as ScrollContainer
+	if scroll == null or not GameState.requires_onboarding() or GameState.onboarding_step() != "species":
+		return
+	scroll.scroll_vertical = onboarding_scroll_position
+	await get_tree().process_frame
+	scroll = content.find_child("OnboardingScroll", false, false) as ScrollContainer
+	if scroll != null and GameState.requires_onboarding() and GameState.onboarding_step() == "species":
+		scroll.scroll_vertical = onboarding_scroll_position
+		onboarding_scroll_position = scroll.scroll_vertical
 
 
 func on_primary_navigation(destination_id: String) -> void:

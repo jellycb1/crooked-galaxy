@@ -22,6 +22,7 @@ var arsenal_section := "equipped"
 var board_section := "bounties"
 var briefing_context: Dictionary = {}
 var career_scroll_position := 0
+var onboarding_scroll_position := 0
 var attribute_draft: Dictionary = {}
 var class_draft := ""
 var species_draft := ""
@@ -36,6 +37,7 @@ func reset_transient_navigation() -> void:
 	board_section = "bounties"
 	briefing_context = {}
 	career_scroll_position = 0
+	onboarding_scroll_position = 0
 	attribute_draft = {}
 	class_draft = ""
 	species_draft = ""

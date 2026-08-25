@@ -53,7 +53,23 @@ func run_test() -> void:
 	check(state.onboarding_step() == "species" and str(state.player.class_id) == "contract_hacker", "confirmed class advances exactly to species")
 	check(scene.find_children("OnboardingSpecies_*", "PanelContainer", true, false).size() == 8, "species step exposes all eight visual origins")
 	check(scene.find_children("OnboardingSpeciesIcon_*", "Control", true, false).size() == 8, "every initial species has an original scalable emblem")
+	check(scene.find_child("OnboardingSpeciesPreviewPortrait", true, false) != null and scene.find_child("OnboardingSpeciesPreviewName", true, false) != null, "species choice previews the assembled hunter before confirmation")
+	var species_scroll := scene.find_child("OnboardingScroll", true, false) as ScrollContainer
+	var fixed_species_confirm := scene.find_child("OnboardingSpeciesConfirm", true, false) as Button
+	check(fixed_species_confirm != null and fixed_species_confirm.get_parent() != species_scroll.get_child(0), "species confirmation stays outside the long scrolling roster")
 	check_onboarding_touch_targets(scene, "species")
+	# Constrain the harness to exercise the same overflow path used by smaller or
+	# enlarged-text Android layouts; the default 720x1280 test viewport fits it.
+	(species_scroll.get_child(0) as Control).custom_minimum_size.y = 1600
+	await process_frame
+	species_scroll.scroll_vertical = 160
+	await process_frame
+	(scene.find_child("OnboardingSpeciesAction_catalog_chimera", true, false) as Button).pressed.emit()
+	species_scroll = scene.find_child("OnboardingScroll", true, false) as ScrollContainer
+	(species_scroll.get_child(0) as Control).custom_minimum_size.y = 1600
+	await process_frame
+	await process_frame
+	check(str(scene.species_draft) == "catalog_chimera" and species_scroll.scroll_vertical >= 120, "selecting a lower species preserves roster position while updating the preview (draft %s, scroll %d)" % [str(scene.species_draft), species_scroll.scroll_vertical])
 	var species_action := scene.find_child("OnboardingSpeciesAction_discontinued_synthetic", true, false) as Button
 	species_action.pressed.emit()
 	await process_frame

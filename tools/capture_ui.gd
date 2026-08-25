@@ -41,6 +41,7 @@ func capture() -> void:
 		quit(1)
 		return
 	state.player.class_id = "contract_hacker"
+	scene.species_draft = "unstable_luminar"
 	scene.render()
 	await process_frame
 	await process_frame
