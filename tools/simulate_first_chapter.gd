@@ -76,7 +76,7 @@ func _init() -> void:
 
 func recommended_contract(player: Dictionary, target: Dictionary) -> Dictionary:
 	var evaluations := ContractRulesScript.evaluate_approaches(player, target, Content.contract_approaches())
-	var recommended_id := ContractRulesScript.recommended_approach_id(evaluations)
+	var recommended_id := ContractRulesScript.recommended_approach_id(evaluations, str(player.get("class_id", "")))
 	for evaluation in evaluations:
 		if str(evaluation.id) == recommended_id:
 			return evaluation.preview

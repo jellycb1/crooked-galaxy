@@ -235,7 +235,7 @@ static func warrant_impact(player: Dictionary, item: Dictionary, target: Diction
 	if equip_item:
 		projected_player[str(item.slot)] = item.duplicate(true)
 	var projected_evaluations := ContractRules.evaluate_approaches(projected_player, target, Content.contract_approaches())
-	var recommended_id := ContractRules.recommended_approach_id(projected_evaluations)
+	var recommended_id := ContractRules.recommended_approach_id(projected_evaluations, str(projected_player.get("class_id", "")))
 	var current_evaluations := ContractRules.evaluate_approaches(player, target, Content.contract_approaches())
 	var route_name := "ROTA SEGURA"
 	var current_odds := 0.0

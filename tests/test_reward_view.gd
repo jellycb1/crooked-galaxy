@@ -53,7 +53,7 @@ func _init() -> void:
 	state.player.capture_streak = 1
 	RewardScript.build(host, content, state)
 	var corporate_totals := host.find_child("RewardContractTotals", true, false) as Label
-	check(corporate_totals != null and corporate_totals.text.contains("2 sucata"), "isolated reward previews corporate workshop funding")
+	check(corporate_totals != null and corporate_totals.text.contains("3 sucata"), "isolated reward previews corporate workshop funding")
 	check(host.find_child("RewardStreakBonus", true, false) != null, "continued reward distinguishes an active streak bonus from its ×1 baseline")
 
 	clear_content(content)

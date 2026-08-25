@@ -27,6 +27,7 @@ func run_classes_test() -> void:
 
 	for definition in Classes.DEFINITIONS:
 		check(definition.get("effects", {}) is Dictionary and not Classes.specialization_text(definition).is_empty(), "%s owns data-driven effects and a derived player-facing description" % str(definition.name))
+		check(not str(definition.get("preferred_approach", "")).is_empty() and float(definition.get("approach_affinity", 1.0)) > 1.0, "%s declares a data-driven contract style" % str(definition.name))
 		var unassigned: Dictionary = state.default_player()
 		var specialized: Dictionary = unassigned.duplicate(true)
 		var primary := str(definition.primary_attribute)
@@ -90,7 +91,7 @@ func run_classes_test() -> void:
 	await process_frame
 	check(scene.find_children("Class_*", "PanelContainer", true, false).size() == 3, "the class screen renders every initial archetype")
 	check(find_label_with_text(scene, "ARQUÉTIPOS PROVISÓRIOS") != null, "the selector clearly identifies the current roster as provisional")
-	check(scene.find_child("ClassDetail", true, false) != null, "the selector presents one focused class sheet instead of repeating all detail in every row")
+	check(scene.find_child("ClassDetail", true, false) != null and scene.find_child("ClassRouteProfile_warrant_breaker", true, false) != null, "the focused class sheet explains both build and contract identity")
 	var first_class := scene.find_child("ClassSelect_warrant_breaker", true, false) as Button
 	check(first_class != null and not first_class.disabled and first_class.text == "ESCOLHER", "the default preview can still be explicitly drafted by an unassigned hunter")
 	var hacker_select := scene.find_child("ClassSelect_contract_hacker", true, false) as Button

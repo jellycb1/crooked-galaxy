@@ -161,8 +161,8 @@ func _init() -> void:
 	corporate_state.current_bounty = Content.apply_approach(Content.TARGETS[0], Content.CONTRACT_APPROACHES[2])
 	corporate_state.pending_loot = {"id": "corporate_loot", "name": "Recibo Corporativo", "slot": "armor", "power": 2, "rarity": "Comum", "color": "#b9c2d9"}
 	var corporate_summary := corporate_state.claim_reward(false)
-	check(int(corporate_summary.contract_scrap) == 2 and int(corporate_summary.scrap) == 2 and int(corporate_state.player.scrap) == 2, "corporate victory pays workshop scrap exactly once")
-	check(str(corporate_state.last_notice).contains("Mandado corporativo: +2 sucata"), "corporate workshop reward survives as exact board feedback")
+	check(int(corporate_summary.contract_scrap) == 3 and int(corporate_summary.scrap) == 3 and int(corporate_state.player.scrap) == 3, "corporate victory pays workshop scrap exactly once")
+	check(str(corporate_state.last_notice).contains("Mandado corporativo: +3 sucata"), "corporate workshop reward survives as exact board feedback")
 	corporate_state.free()
 	var tactical_state = StateScript.new()
 	tactical_state.persistence_enabled = false

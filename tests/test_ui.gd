@@ -29,6 +29,8 @@ func run_smoke_test() -> void:
 	var header_character := scene.find_child("HeaderCharacterAction", true, false) as Button
 	check(header_character != null and scene.find_child("HeaderHunterPortrait", true, false) != null, "primary header keeps hunter identity and character navigation visible")
 	check(scene.find_child("HeaderResourceStrip", true, false) != null and ["HeaderCredits", "HeaderScrap", "HeaderReputation", "HeaderWins"].all(func(node_name): return scene.find_child(node_name, true, false) != null), "primary header keeps all resources in one compact ledger")
+	var onboarding_class := scene.find_child("OnboardingClassAction", true, false) as Button
+	check(onboarding_class != null, "the first board surfaces hunter identity before hiding it behind navigation")
 	if header_character != null:
 		header_character.pressed.emit()
 		await process_frame

@@ -924,14 +924,28 @@ func build_hangar() -> void:
 
 func onboarding_banner() -> PanelContainer:
 	var banner := panel(HBoxContainer.new(), Color("#173356"), 15, 15)
+	banner.name = "FirstHunterOnboarding"
 	var row := banner.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 14)
-	row.add_child(center_label("1", 30, CYAN))
+	var class_pending := str(GameState.player.get("class_id", "")).is_empty()
+	row.add_child(center_label("!" if class_pending else "1", 30, GOLD if class_pending else CYAN))
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	copy.add_child(label("PRIMEIRO TRABALHO", 14, CYAN))
-	copy.add_child(label("Aceite Gloop. A primeira captura ensina o ciclo e garante seu primeiro loot.", 14, INK))
+	copy.add_child(label("DEFINA SEU ESTILO" if class_pending else "PRIMEIRO TRABALHO", 14, GOLD if class_pending else CYAN))
+	var message := label("Escolha como seu caçador prefere resolver contratos. A troca continua gratuita durante os testes." if class_pending else "Aceite Gloop. A primeira captura ensina o ciclo e garante seu primeiro loot.", 12 if class_pending else 14, INK)
+	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	copy.add_child(message)
+	if class_pending:
+		var choose_class := action_button("ESCOLHER\nCLASSE", GOLD, true)
+		choose_class.name = "OnboardingClassAction"
+		choose_class.custom_minimum_size = Vector2(112, 48)
+		choose_class.add_theme_font_size_override("font_size", 10)
+		choose_class.pressed.connect(func():
+			view_mode = "classes"
+			render()
+		)
+		row.add_child(choose_class)
 	return banner
 
 
@@ -1137,7 +1151,7 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 func build_briefing() -> void:
 	var bounty := GameState.current_bounty
 	var evaluations := ContractRules.evaluate_approaches(GameState.player, bounty, GameState.offered_approaches)
-	var recommended_id := ContractRules.recommended_approach_id(evaluations)
+	var recommended_id := ContractRules.recommended_approach_id(evaluations, str(GameState.player.get("class_id", "")))
 	var target_row := HBoxContainer.new()
 	target_row.add_theme_constant_override("separation", 18)
 	content.add_child(target_row)
@@ -1221,7 +1235,7 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 	route_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_child(route_name)
 	if is_recommended:
-		var recommendation := label("MELHOR EQUILÍBRIO", 9, LIME, HORIZONTAL_ALIGNMENT_RIGHT)
+		var recommendation := label(ContractRules.recommendation_label(GameState.player, str(approach.id)), 9, LIME, HORIZONTAL_ALIGNMENT_RIGHT)
 		recommendation.name = "RecommendedApproach_%s" % str(approach.id)
 		heading.add_child(recommendation)
 	var odds := float(evaluation.odds)

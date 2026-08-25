@@ -123,6 +123,9 @@ static func class_detail(host: CrookedUIFactory, definition: Dictionary, player:
 	var specialization := host.label("ESPECIALIZAÇÃO · %s" % ClassRulesScript.specialization_text(definition), 11, host.GOLD)
 	specialization.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(specialization)
+	var route_profile := host.label("ESTILO DE CONTRATO · %s" % str(definition.get("route_style", "ROTA PREFERIDA")), 11, host.CYAN)
+	route_profile.name = "ClassRouteProfile_%s" % class_id
+	copy.add_child(route_profile)
 	var impact := host.label(current_impact_text(definition, player), 12, host.LIME)
 	impact.name = "ClassImpact_%s" % class_id
 	impact.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

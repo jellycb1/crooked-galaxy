@@ -21,6 +21,18 @@ func _init() -> void:
 		{"id": "profit", "odds": 0.99, "credits": 96, "xp": 53, "duration": 7},
 	]
 	check(ContractRules.recommended_approach_id(overpowered) == "fast", "recommendation favors efficient returns when every approach is safe")
+	var profile_routes: Array[Dictionary] = [
+		{"id": "quiet_net", "odds": 0.80, "credits": 70, "xp": 60, "scrap": 0, "duration": 7},
+		{"id": "hot_hatch", "odds": 0.80, "credits": 70, "xp": 60, "scrap": 0, "duration": 7},
+		{"id": "premium_warrant", "odds": 0.80, "credits": 70, "xp": 60, "scrap": 0, "duration": 7},
+	]
+	check(ContractRules.recommended_approach_id(profile_routes, "warrant_breaker") == "premium_warrant", "breaker profile resolves an otherwise equal recommendation toward corporate pressure")
+	check(ContractRules.recommended_approach_id(profile_routes, "orbit_gunslinger") == "hot_hatch", "gunslinger profile resolves an otherwise equal recommendation toward speed")
+	check(ContractRules.recommended_approach_id(profile_routes, "contract_hacker") == "quiet_net", "hacker profile resolves an otherwise equal recommendation toward control")
+	check(ContractRules.recommendation_label({"class_id": "contract_hacker"}, "quiet_net").contains("HACKER"), "recommendation label exposes class-route synergy")
+	var unsafe_profile_routes := profile_routes.duplicate(true)
+	unsafe_profile_routes[0].odds = 0.54
+	check(ContractRules.recommended_approach_id(unsafe_profile_routes, "contract_hacker") != "quiet_net", "class identity never promotes its preferred route below the viability gate")
 
 	var desperate: Array[Dictionary] = [
 		{"id": "safer", "odds": 0.31, "credits": 20, "xp": 20, "duration": 9},

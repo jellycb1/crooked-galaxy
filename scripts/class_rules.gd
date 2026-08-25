@@ -11,6 +11,9 @@ const DEFINITIONS := [
 		"primary_name": "FORÇA",
 		"tagline": "Impacto, armamento pesado e cobranças sem sutileza.",
 		"flavor": "Resolve contratos pesados com ferramentas ainda mais pesadas.",
+		"preferred_approach": "premium_warrant",
+		"route_style": "PRESSÃO CORPORATIVA",
+		"approach_affinity": 1.18,
 		"effects": {"power_per_primary_points": 2},
 	},
 	{
@@ -21,6 +24,9 @@ const DEFINITIONS := [
 		"primary_name": "DESTREZA",
 		"tagline": "Reflexos, posicionamento e precisão em movimento.",
 		"flavor": "Transforma ângulos ruins e probabilidades piores em vantagem.",
+		"preferred_approach": "hot_hatch",
+		"route_style": "ENTRADA RÁPIDA",
+		"approach_affinity": 1.18,
 		"effects": {"power_per_primary_points": 2},
 	},
 	{
@@ -31,6 +37,9 @@ const DEFINITIONS := [
 		"primary_name": "INTELIGÊNCIA",
 		"tagline": "Dispositivos, abertura tática e tecnologia improvisada.",
 		"flavor": "Reescreve fechaduras, drones e ocasionalmente a definição de legal.",
+		"preferred_approach": "quiet_net",
+		"route_style": "CONTROLE TÁTICO",
+		"approach_affinity": 2.25,
 		"effects": {"power_per_primary_points": 2, "opening_damage_per_primary_point": 2},
 	},
 ]
@@ -63,6 +72,20 @@ static func primary_attribute(class_id: String) -> String:
 
 static func is_prototype(class_id: String) -> bool:
 	return bool(get_definition(class_id).get("prototype", false))
+
+
+static func approach_affinity(class_id: String, approach_id: String) -> float:
+	var definition := get_definition(class_id)
+	if definition.is_empty() or str(definition.get("preferred_approach", "")) != approach_id:
+		return 1.0
+	return maxf(1.0, float(definition.get("approach_affinity", 1.0)))
+
+
+static func route_profile_text(class_id: String, approach_id: String) -> String:
+	var definition := get_definition(class_id)
+	if definition.is_empty() or str(definition.get("preferred_approach", "")) != approach_id:
+		return ""
+	return str(definition.get("name", "PERFIL"))
 
 
 static func specialization_text(definition: Dictionary) -> String:

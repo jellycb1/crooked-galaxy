@@ -68,10 +68,11 @@ func _init() -> void:
 			check(int(modification.get("power_bonus", 0)) > 0 or int(modification.get("health_bonus", 0)) > 0 or int(modification.get("opening_damage_bonus", 0)) > 0 or int(modification.get("damage_reduction", 0)) > 0, "equipment modification has a mechanical effect: %s" % trait_id)
 
 	check(ContentDB.CONTRACT_APPROACHES.size() == 3, "every contract keeps three strategic approaches")
-	check(int(ContentDB.CONTRACT_APPROACHES[0].get("scrap_reward", 0)) == 0 and int(ContentDB.CONTRACT_APPROACHES[1].get("scrap_reward", 0)) == 0 and int(ContentDB.CONTRACT_APPROACHES[2].get("scrap_reward", 0)) == 2, "only the high-risk corporate warrant funds the workshop")
+	check(int(ContentDB.CONTRACT_APPROACHES[0].get("scrap_reward", 0)) == 0 and int(ContentDB.CONTRACT_APPROACHES[1].get("scrap_reward", 0)) == 0 and int(ContentDB.CONTRACT_APPROACHES[2].get("scrap_reward", 0)) == 3, "only the high-risk corporate warrant funds the workshop")
 	var dustball_premium := ContentDB.apply_approach(ContentDB.TARGETS[1], ContentDB.CONTRACT_APPROACHES[2])
 	var omega_premium := ContentDB.apply_approach(ContentDB.TARGETS[13], ContentDB.CONTRACT_APPROACHES[2])
-	check(int(omega_premium.scrap_reward) == 2, "corporate scrap reward survives contract application")
+	check(int(omega_premium.scrap_reward) == 3, "corporate scrap reward survives contract application")
+	check(int(dustball_premium.health) > roundi(float(ContentDB.TARGETS[1].health) * float(ContentDB.CONTRACT_APPROACHES[2].health_mult)), "high-risk routes retain extra pressure while frontier stats are still small")
 	check(int(omega_premium.health) > roundi(float(ContentDB.TARGETS[13].health) * float(ContentDB.CONTRACT_APPROACHES[2].health_mult)), "aggressive contract resistance grows across later planets")
 	check(int(omega_premium.loot_power) == int(ContentDB.TARGETS[13].power), "late route pressure never inflates its equipment tier")
 	check(int(dustball_premium.power) == roundi(float(ContentDB.TARGETS[1].power) * float(ContentDB.CONTRACT_APPROACHES[2].power_mult)), "first-chapter risk calibration remains stable")

@@ -432,30 +432,32 @@ const CONTRACT_APPROACHES := [
 	{
 		"id": "hot_hatch",
 		"name": "Entrada pela Escotilha",
-		"tag": "RÁPIDO · +45% CRÉDITOS",
+		"tag": "RÁPIDO · +35% CRÉDITOS",
 		"description": "Chegue antes do plano, chute a porta errada e cobre taxa de urgência.",
-		"duration_mult": 0.55,
+		"duration_mult": 0.65,
 		"power_mult": 1.18,
 		"defense_mult": 1.08,
 		"health_mult": 1.28,
+		"frontier_health_bonus": 0.22,
 		"planet_health_step": 0.03,
-		"credits_mult": 1.45,
+		"credits_mult": 1.35,
 		"xp_mult": 1.0,
 		"color": "#ff6f7d",
 	},
 	{
 		"id": "premium_warrant",
 		"name": "Mandado Corporativo",
-		"tag": "LUCRO · +85% CR · +2 SUCATA",
+		"tag": "LUCRO · +100% CR · +3 SUCATA",
 		"description": "A corporação paga muito mais e libera peças da oficina, desde que o alvo possa revidar muito mais.",
 		"duration_mult": 1.0,
 		"power_mult": 1.22,
 		"defense_mult": 1.14,
 		"health_mult": 1.32,
+		"frontier_health_bonus": 0.32,
 		"planet_health_step": 0.02,
-		"credits_mult": 1.85,
-		"xp_mult": 0.85,
-		"scrap_reward": 2,
+		"credits_mult": 2.0,
+		"xp_mult": 0.90,
+		"scrap_reward": 3,
 		"color": "#ffc857",
 	},
 ]
@@ -966,7 +968,11 @@ static func apply_approach(bounty: Dictionary, approach: Dictionary) -> Dictiona
 	# Otherwise the fastest recommended route compounds its own power advantage.
 	result["loot_power"] = int(bounty.get("loot_power", bounty.power))
 	var planet_index := planet_index_for(str(bounty.get("planet_id", PLANET.id)))
-	var health_mult := float(approach.health_mult) + float(approach.get("planet_health_step", 0.0)) * planet_index
+	# Small first-chapter targets under-round route multipliers and saturate after
+	# the first loot drops. The correction is intentionally isolated to Dustball
+	# so established planet balance and endpoint guard rails remain unchanged.
+	var frontier_pressure := float(approach.get("frontier_health_bonus", 0.0)) if planet_index == 0 else 0.0
+	var health_mult := float(approach.health_mult) + float(approach.get("planet_health_step", 0.0)) * planet_index + frontier_pressure
 	result["duration"] = maxi(1, ceili(float(bounty.duration) * float(approach.duration_mult)))
 	result["power"] = maxi(1, roundi(float(bounty.power) * float(approach.power_mult)))
 	result["defense"] = maxi(0, roundi(float(bounty.defense) * float(approach.defense_mult)))

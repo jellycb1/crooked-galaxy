@@ -215,7 +215,7 @@ static func field_readiness(state: StateScript) -> Dictionary:
 	if target.is_empty():
 		return {}
 	var evaluations := ContractRules.evaluate_approaches(state.player, target, Content.contract_approaches())
-	var recommended_id := ContractRules.recommended_approach_id(evaluations)
+	var recommended_id := ContractRules.recommended_approach_id(evaluations, str(state.player.get("class_id", "")))
 	var contract := target
 	for evaluation in evaluations:
 		if str(evaluation.id) == recommended_id:
