@@ -17,6 +17,7 @@ func capture() -> void:
 		state.pending_loot = {}
 		state.last_notice = ""
 		state.last_notice_context = ""
+		state.afk_report = {}
 	var packed_scene: PackedScene = load("res://scenes/main.tscn")
 	var scene: Control = packed_scene.instantiate()
 	root.add_child(scene)

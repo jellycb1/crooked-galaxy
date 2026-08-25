@@ -24,7 +24,6 @@ func _ready() -> void:
 
 
 func configure(active_id: String, labels: Dictionary = {}, badges: Dictionary = {}) -> void:
-	clear_items()
 	var frame := StyleBoxFlat.new()
 	frame.bg_color = Color("#071126f2")
 	frame.corner_radius_top_left = 16
@@ -36,26 +35,36 @@ func configure(active_id: String, labels: Dictionary = {}, badges: Dictionary = 
 	frame.content_margin_top = 5
 	frame.content_margin_bottom = 5
 	add_theme_stylebox_override("panel", frame)
-	var row := HBoxContainer.new()
-	row.name = "PrimaryNavigationRow"
-	row.add_theme_constant_override("separation", 4)
-	add_child(row)
-	for definition in [
+	var definitions := [
 		{"id": "contracts", "label": "MANDADOS", "icon": "contracts", "color": CORAL},
 		{"id": "arsenal", "label": "ARSENAL", "icon": "arsenal", "color": GOLD},
 		{"id": "hunter", "label": "CAÇADOR", "icon": "hunter", "color": CYAN},
 		{"id": "galaxy", "label": "GALÁXIA", "icon": "galaxy", "color": LIME},
 		{"id": "menu", "label": "MENU", "icon": "menu", "color": CYAN},
-	]:
-		var destination_id := str(definition.id)
-		var display_label := str(labels.get(destination_id, definition.label))
-		row.add_child(navigation_button(destination_id, display_label, str(definition.icon), definition.color, active_id == destination_id, int(badges.get(destination_id, 0))))
+	]
+	var row := get_node_or_null("PrimaryNavigationRow") as HBoxContainer
+	if row == null or row.get_child_count() != definitions.size():
+		clear_items()
+		row = HBoxContainer.new()
+		row.name = "PrimaryNavigationRow"
+		row.add_theme_constant_override("separation", 4)
+		add_child(row)
+		for definition in definitions:
+			var destination_id := str(definition.id)
+			var display_label := str(labels.get(destination_id, definition.label))
+			row.add_child(navigation_button(destination_id, display_label, str(definition.icon), definition.color, active_id == destination_id, int(badges.get(destination_id, 0))))
+	else:
+		for definition in definitions:
+			var destination_id := str(definition.id)
+			var display_label := str(labels.get(destination_id, definition.label))
+			var button := row.get_node_or_null("PrimaryNav_%s" % destination_id) as Button
+			if button != null:
+				refresh_navigation_button(button, destination_id, display_label, str(definition.icon), definition.color, active_id == destination_id, int(badges.get(destination_id, 0)))
 	visible = true
 
 
 func hide_and_clear() -> void:
 	visible = false
-	clear_items()
 
 
 func clear_items() -> void:
@@ -105,6 +114,7 @@ func navigation_button(destination_id: String, display_label: String, icon_kind:
 	icon.configure(icon_kind, visual_color)
 	stack.add_child(icon)
 	var caption := Label.new()
+	caption.name = "PrimaryNavCaption_%s" % destination_id
 	caption.text = display_label
 	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	caption.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -112,28 +122,60 @@ func navigation_button(destination_id: String, display_label: String, icon_kind:
 	caption.add_theme_color_override("font_color", DEEP if selected else INK)
 	stack.add_child(caption)
 	if badge_count > 0:
-		var badge := Label.new()
-		badge.name = "PrimaryNavBadge_%s" % destination_id
-		badge.text = str(mini(99, badge_count))
-		badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		badge.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-		badge.offset_left = -24.0
-		badge.offset_top = 3.0
-		badge.offset_right = -3.0
-		badge.offset_bottom = 24.0
-		badge.add_theme_font_size_override("font_size", 10)
-		badge.add_theme_color_override("font_color", DEEP)
-		var badge_style := dock_style(CORAL, CORAL, 0)
-		badge_style.corner_radius_top_left = 10
-		badge_style.corner_radius_top_right = 10
-		badge_style.corner_radius_bottom_left = 10
-		badge_style.corner_radius_bottom_right = 10
-		badge.add_theme_stylebox_override("normal", badge_style)
-		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		button.add_child(badge)
+		add_navigation_badge(button, destination_id, badge_count)
 	button.pressed.connect(func(): destination_selected.emit(destination_id))
 	return button
+
+
+func refresh_navigation_button(button: Button, destination_id: String, display_label: String, icon_kind: String, accent: Color, selected: bool, badge_count: int) -> void:
+	button.text = display_label
+	button.tooltip_text = display_label.capitalize()
+	var normal := dock_style(Color("#0a1830d9"), accent.darkened(0.42), 1)
+	var hover := dock_style(Color("#16284d"), accent, 1)
+	button.add_theme_stylebox_override("normal", dock_style(accent, accent, 0) if selected else normal)
+	button.add_theme_stylebox_override("hover", dock_style(accent, accent, 0) if selected else hover)
+	button.add_theme_stylebox_override("pressed", dock_style(Color("#0b1d3a"), accent, 1))
+	button.add_theme_stylebox_override("focus", dock_style(accent if selected else Color("#16284d"), GOLD, 3))
+	var visual_color := DEEP if selected else accent
+	var icon := button.find_child("PrimaryNavIcon_%s" % destination_id, true, false) as HubDestinationIcon
+	if icon != null:
+		icon.configure(icon_kind, visual_color)
+	var caption := button.find_child("PrimaryNavCaption_%s" % destination_id, true, false) as Label
+	if caption != null:
+		caption.text = display_label
+		caption.add_theme_color_override("font_color", DEEP if selected else INK)
+	var existing_badge := button.find_child("PrimaryNavBadge_%s" % destination_id, false, false) as Label
+	if badge_count > 0:
+		if existing_badge == null:
+			add_navigation_badge(button, destination_id, badge_count)
+		else:
+			existing_badge.text = str(mini(99, badge_count))
+	elif existing_badge != null:
+		button.remove_child(existing_badge)
+		existing_badge.queue_free()
+
+
+func add_navigation_badge(button: Button, destination_id: String, badge_count: int) -> void:
+	var badge := Label.new()
+	badge.name = "PrimaryNavBadge_%s" % destination_id
+	badge.text = str(mini(99, badge_count))
+	badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	badge.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	badge.offset_left = -24.0
+	badge.offset_top = 3.0
+	badge.offset_right = -3.0
+	badge.offset_bottom = 24.0
+	badge.add_theme_font_size_override("font_size", 10)
+	badge.add_theme_color_override("font_color", DEEP)
+	var badge_style := dock_style(CORAL, CORAL, 0)
+	badge_style.corner_radius_top_left = 10
+	badge_style.corner_radius_top_right = 10
+	badge_style.corner_radius_bottom_left = 10
+	badge_style.corner_radius_bottom_right = 10
+	badge.add_theme_stylebox_override("normal", badge_style)
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(badge)
 
 
 func dock_style(fill: Color, border: Color, width: int) -> StyleBoxFlat:

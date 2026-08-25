@@ -119,7 +119,9 @@ func run_smoke_test() -> void:
 	var combat_loadout := scene.find_child("CombatLoadoutSummary", true, false) as Label
 	check(combat_loadout != null and combat_loadout.text.contains("ARMA") and combat_loadout.text.contains("ARMADURA"), "combat portrait names the equipment values driving its visual loadout")
 	var combat_incident := scene.find_child("CombatIncidentSummary", true, false) as Label
-	check(combat_incident != null and combat_incident.text.contains("PAGAMENTO") and combat_incident.text.contains("EMBALO"), "combat carries the chosen incident consequence and adjusted payout")
+	var combat_payment_status := scene.find_child("CombatPaymentStatus", true, false) as PanelContainer
+	var combat_streak_bonus := scene.find_child("CombatPaymentStreakBonus", true, false) as Label
+	check(scene.find_child("CombatContractDossier", true, false) != null and combat_incident != null and combat_incident.text.contains("INCIDENTE") and combat_payment_status != null and combat_streak_bonus != null and combat_streak_bonus.text.contains("EMBALO"), "combat groups turn, chosen incident consequence, adjusted payout, and streak bonus into one contract dossier")
 	var opening_advantage := scene.find_child("CombatAdvantage", true, false) as Label
 	check(opening_advantage != null and opening_advantage.text.contains("VOCÊ 100%") and opening_advantage.text.contains("ALVO 100%") and opening_advantage.text.contains("EQUILIBRADA"), "combat opens with an explicit relative-health reading")
 	check(scene.find_child("CombatPressureTrack", true, false) != null and scene.find_child("CombatPressurePlayer", true, false) != null and scene.find_child("CombatPressureEnemy", true, false) != null, "combat turns relative health into a persistent two-sided pressure strip")
@@ -453,7 +455,8 @@ func run_smoke_test() -> void:
 	scene.render()
 	await process_frame
 	var career_action := scene.find_child("BoardCareerAction", true, false) as Button
-	check(career_action != null and (state.career_rewards_ready() == 0 or career_action.text.contains("%d PRÊMIOS" % state.career_rewards_ready())), "claimable career rewards remain counted in the destinations view after a defeat")
+	var career_detail := scene.find_child("BoardHubDetail_career", true, false) as Label
+	check(career_action != null and career_detail != null and (state.career_rewards_ready() == 0 or career_detail.text.contains("%d PRÊMIOS" % state.career_rewards_ready())), "claimable career rewards remain counted in the destinations view after a defeat")
 	scene.board_section = "bounties"
 	scene.render()
 	await process_frame

@@ -39,6 +39,8 @@ func run_mobile_audit() -> void:
 		var icon := scene.find_child("PrimaryNavIcon_%s" % destination, true, false) as Control
 		return icon != null and icon.is_visible_in_tree() and icon.size.x >= 40.0
 	), "all five primary destinations retain visible icon identity")
+	var stable_contract_icon := scene.find_child("PrimaryNavIcon_contracts", true, false) as Control
+	var stable_contract_icon_id := stable_contract_icon.get_instance_id() if stable_contract_icon != null else 0
 	var menu_action := scene.find_child("PrimaryNav_menu", true, false) as Button
 	check(menu_action != null and menu_action.size.y >= 48.0, "primary menu remains a mobile touch target")
 	if menu_action != null:
@@ -47,7 +49,10 @@ func run_mobile_audit() -> void:
 	var board_hub_grid := scene.find_child("BoardHubGrid", true, false) as GridContainer
 	check(board_hub_grid != null and board_hub_grid.columns == 2 and board_hub_grid.get_child_count() == 4, "secondary menu uses a readable 2 by 2 mobile grid")
 	check(scene.find_children("PrimaryNav_*", "Button", true, false).size() == 5 and scene.find_children("PrimaryNavIcon_*", "Control", true, false).size() == 5, "rapid menu navigation replaces the dock atomically without stale or missing items")
+	var updated_contract_icon := scene.find_child("PrimaryNavIcon_contracts", true, false) as Control
+	check(updated_contract_icon != null and updated_contract_icon.get_instance_id() == stable_contract_icon_id, "primary navigation updates selection in place instead of rebuilding mobile CanvasItems")
 	check(scene.find_children("BoardHubIcon_*", "Control", true, false).size() == 4, "every secondary service has a distinct scalable navigation icon")
+	check(scene.find_children("BoardHubTitle_*", "Label", true, false).size() == 4 and scene.find_children("BoardHubDetail_*", "Label", true, false).size() == 4, "secondary services pair readable location names with concise functional descriptions")
 	var settings_action := scene.find_child("BoardSettingsAction", true, false) as Button
 	check(settings_action != null, "settings live in the secondary menu instead of the equipment inventory")
 	if settings_action != null:
@@ -144,7 +149,8 @@ func run_mobile_audit() -> void:
 
 	state.select_bounty(ContentDB.TARGETS[0])
 	await process_frame
-	check(scene.find_children("PrimaryNav_*", "Button", true, false).is_empty(), "contract-owned phases hide the free-navigation dock")
+	var contract_dock := scene.find_child("PrimaryNavigationDock", true, false) as Control
+	check(contract_dock != null and not contract_dock.is_visible_in_tree(), "contract-owned phases hide the free-navigation dock")
 	check_touch_targets(scene, "contract briefing")
 	check(scene.find_child("BriefingTransportIcon", true, false) != null, "contract briefing carries the active transport silhouette")
 	var briefing_scroll := scene.find_child("BriefingScroll", true, false) as ScrollContainer
@@ -158,7 +164,7 @@ func run_mobile_audit() -> void:
 	await process_frame
 	state.choose_approach("quiet_net")
 	await process_frame
-	check(scene.find_children("PrimaryNav_*", "Button", true, false).is_empty(), "active hunt keeps the navigation dock unavailable")
+	check(contract_dock != null and not contract_dock.is_visible_in_tree(), "active hunt keeps the navigation dock unavailable")
 	check(scene.find_child("HuntTransportIcon", true, false) != null, "active hunt carries the transport silhouette and timing identity")
 	check(not scene.hunt_timer.is_stopped(), "hunt refresh wakes only for the timed hunt phase")
 	check(scene.android_back_action() == "guard_contract", "Android Back cannot accidentally abandon an active timed contract")

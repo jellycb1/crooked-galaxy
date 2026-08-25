@@ -571,28 +571,29 @@ func build_frontier_menu() -> void:
 	hub_grid.add_theme_constant_override("h_separation", 10)
 	hub_grid.add_theme_constant_override("v_separation", 10)
 	content.add_child(hub_grid)
-	hub_grid.add_child(board_hub_action("MERCADO\nEQUIPAMENTO", GOLD, "market", "BoardMarketAction", func():
+	var active_transport := TransportRulesScript.active_transport(GameState.player)
+	hub_grid.add_child(board_hub_action("MERCADO", "ARMAS E ARMADURAS", GOLD, "market", "BoardMarketAction", func():
 		view_mode = "market"
 		render()
 	))
-	hub_grid.add_child(board_hub_action("HANGAR\nTRANSPORTE", CYAN, "hangar", "BoardHangarAction", func():
+	var hangar_detail := "SEM TRANSPORTE ATIVO" if active_transport.is_empty() else str(active_transport.name).to_upper()
+	hub_grid.add_child(board_hub_action("HANGAR", hangar_detail, CYAN, "hangar", "BoardHangarAction", func():
 		view_mode = "hangar"
 		render()
 	))
 	var ready_rewards := GameState.career_rewards_ready()
-	var career_text := "CARREIRA\n%d PRÊMIOS" % ready_rewards if ready_rewards > 0 else "CARREIRA\nPROGRESSO"
-	hub_grid.add_child(board_hub_action(career_text, LIME, "career", "BoardCareerAction", func():
+	var career_detail := "%d PRÊMIOS DISPONÍVEIS" % ready_rewards if ready_rewards > 0 else "MARCOS E ARQUIVO"
+	hub_grid.add_child(board_hub_action("CARREIRA", career_detail, LIME, "career", "BoardCareerAction", func():
 		view_mode = "career"
 		render()
 	))
-	hub_grid.add_child(board_hub_action("AJUSTES\nSOM E MOVIMENTO", MUTED, "settings", "BoardSettingsAction", func():
+	hub_grid.add_child(board_hub_action("AJUSTES", "ÁUDIO E MOVIMENTO", MUTED, "settings", "BoardSettingsAction", func():
 		view_mode = "settings"
 		render()
 	))
 	var hub_divider := reference_ui_decoration("hub_divider", 12.0)
 	if hub_divider != null:
 		content.add_child(hub_divider)
-	var active_transport := TransportRulesScript.active_transport(GameState.player)
 	var status := panel(HBoxContainer.new(), Color("#0d1530"), 14, 11)
 	status.name = "BoardDestinationStatus"
 	var status_row := status.get_child(0) as HBoxContainer
@@ -670,22 +671,44 @@ func build_board_bounties() -> void:
 		list.add_child(bounty_card(bounty))
 
 
-func board_hub_action(text_value: String, color: Color, icon_kind: String, node_name: String, callback: Callable) -> Button:
-	var button := action_button(text_value, color, true)
+func board_hub_action(title: String, detail: String, color: Color, icon_kind: String, node_name: String, callback: Callable) -> Button:
+	var button := action_button(title, color, true)
 	button.name = node_name
-	button.custom_minimum_size = Vector2(0, 78)
+	button.custom_minimum_size = Vector2(0, 82)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.add_theme_font_size_override("font_size", 11)
+	button.tooltip_text = "%s · %s" % [title.capitalize(), detail.capitalize()]
+	for theme_color in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
+		button.add_theme_color_override(theme_color, Color.TRANSPARENT)
+	var inset := MarginContainer.new()
+	inset.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	inset.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	inset.add_theme_constant_override("margin_left", 8)
+	inset.add_theme_constant_override("margin_right", 8)
+	inset.add_theme_constant_override("margin_top", 8)
+	inset.add_theme_constant_override("margin_bottom", 8)
+	button.add_child(inset)
+	var row := HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_theme_constant_override("separation", 7)
+	inset.add_child(row)
 	var icon: Control = HubDestinationIconScript.new()
 	icon.name = "BoardHubIcon_%s" % icon_kind
 	icon.configure(icon_kind, color)
-	icon.anchor_top = 0.5
-	icon.anchor_bottom = 0.5
-	icon.offset_left = 8.0
-	icon.offset_top = -24.0
-	icon.offset_right = 56.0
-	icon.offset_bottom = 24.0
-	button.add_child(icon)
+	row.add_child(icon)
+	var copy := VBoxContainer.new()
+	copy.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_child(copy)
+	var title_label := label(title, 14, color)
+	title_label.name = "BoardHubTitle_%s" % icon_kind
+	title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	copy.add_child(title_label)
+	var detail_label := label(detail, 11, INK)
+	detail_label.name = "BoardHubDetail_%s" % icon_kind
+	detail_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	copy.add_child(detail_label)
 	button.pressed.connect(callback)
 	return button
 
@@ -1481,20 +1504,37 @@ func hunt_choice_kind(choice: Dictionary) -> String:
 
 func build_combat() -> void:
 	var approach: Dictionary = GameState.current_bounty.get("approach", {})
-	var approach_suffix := " · %s" % str(approach.get("name", "")).to_upper() if not approach.is_empty() else ""
-	content.add_child(center_label("ENCONTRO AUTOMÁTICO · TURNO %d%s" % [GameState.combat_round, approach_suffix], 17, CORAL))
+	var approach_name := str(approach.get("name", "CONTRATO BASE")).to_upper()
+	var combat_payment := CoreRules.bounty_streak_reward(int(GameState.current_bounty.credits), int(GameState.player.get("capture_streak", 0)) + 1)
+	var dossier := panel(HBoxContainer.new(), Color("#111a31e8"), 14, 10)
+	dossier.name = "CombatContractDossier"
+	var dossier_row := dossier.get_child(0) as HBoxContainer
+	dossier_row.add_theme_constant_override("separation", 10)
+	var dossier_copy := VBoxContainer.new()
+	dossier_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	dossier_copy.alignment = BoxContainer.ALIGNMENT_CENTER
+	dossier_row.add_child(dossier_copy)
+	dossier_copy.add_child(label("ENCONTRO AUTOMÁTICO", 10, MUTED))
+	dossier_copy.add_child(label("TURNO %d · %s" % [GameState.combat_round, approach_name], 15, CORAL))
+	if GameState.current_bounty.has("hunt_event_result"):
+		var incident_summary := label("INCIDENTE · %s" % str(GameState.current_bounty.hunt_event_result), 10, GOLD)
+		incident_summary.name = "CombatIncidentSummary"
+		incident_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		dossier_copy.add_child(incident_summary)
+	var payment_status := metric_chip("PAGAMENTO", "◈ %d" % int(combat_payment.credits), GOLD)
+	payment_status.name = "CombatPaymentStatus"
+	payment_status.custom_minimum_size = Vector2(104, 0)
+	payment_status.size_flags_horizontal = Control.SIZE_SHRINK_END
+	if int(combat_payment.bonus_credits) > 0:
+		var payment_box := payment_status.get_child(0) as VBoxContainer
+		var streak_bonus := label("EMBALO +%d" % int(combat_payment.bonus_credits), 9, LIME, HORIZONTAL_ALIGNMENT_CENTER)
+		streak_bonus.name = "CombatPaymentStreakBonus"
+		payment_box.add_child(streak_bonus)
+	dossier_row.add_child(payment_status)
+	content.add_child(dossier)
 	var field_test_record := field_test_record_label("CombatFieldTestContext")
 	if field_test_record != null:
 		content.add_child(field_test_record)
-	if GameState.current_bounty.has("hunt_event_result"):
-		var combat_payment := CoreRules.bounty_streak_reward(int(GameState.current_bounty.credits), int(GameState.player.get("capture_streak", 0)) + 1)
-		var incident_text := "INCIDENTE APLICADO · %s · PAGAMENTO ◈ %d" % [str(GameState.current_bounty.hunt_event_result), int(combat_payment.credits)]
-		if int(combat_payment.bonus_credits) > 0:
-			incident_text += " (EMBALO +%d INCLUÍDO)" % int(combat_payment.bonus_credits)
-		var incident_summary := center_label(incident_text, 11, GOLD)
-		incident_summary.name = "CombatIncidentSummary"
-		incident_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		content.add_child(incident_summary)
 	var stage := PanelContainer.new()
 	stage.clip_contents = true
 	stage.custom_minimum_size = Vector2(0, 450)
