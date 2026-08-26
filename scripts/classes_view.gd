@@ -113,11 +113,9 @@ static func class_detail(host: CrookedUIFactory, definition: Dictionary, player:
 	detail.name = "ClassDetail"
 	var row := detail.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 14)
-	var reference_icon: Control = host.class_illustration(class_id, 174.0)
-	if reference_icon == null:
-		reference_icon = class_reference_icon(host, class_id, 92)
+	var reference_icon: Control = class_reference_icon(host, class_id, 92)
 	if reference_icon != null:
-		reference_icon.name = "ClassIllustration_%s" % class_id if reference_icon is TextureRect else "ClassIcon_%s" % class_id
+		reference_icon.name = "ClassIcon_%s" % class_id
 		row.add_child(reference_icon)
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL

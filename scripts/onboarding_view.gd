@@ -124,11 +124,9 @@ static func build_class(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 	stack.add_child(preview)
 	var preview_row := preview.get_child(0) as HBoxContainer
 	preview_row.add_theme_constant_override("separation", 13)
-	var preview_icon: Control = host.class_illustration(pending_id, 138.0)
-	if preview_icon == null:
-		preview_icon = class_reference_icon(host, pending_id, 106.0)
+	var preview_icon: Control = class_reference_icon(host, pending_id, 106.0)
 	if preview_icon != null:
-		preview_icon.name = "OnboardingClassPreviewArt" if preview_icon is TextureRect else "OnboardingClassPreviewIcon"
+		preview_icon.name = "OnboardingClassPreviewIcon"
 		preview_row.add_child(preview_icon)
 	var preview_copy := VBoxContainer.new()
 	preview_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL

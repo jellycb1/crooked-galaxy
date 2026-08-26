@@ -8,9 +8,6 @@ Generated with the built-in OpenAI image-generation workflow. No reference image
 | `assets/backgrounds/frontier_spaceport.png` | Galaxy map, career | Improvised spaceport town overlook; stacked towers and landing pads; teal twilight and broad low-detail sky. |
 | `assets/backgrounds/arsenal_workshop.png` | Arsenal, equipment recovery | Ramshackle mechanic bay; tool racks, coils and armor stands around a dark central workbench; orange/cyan lighting. |
 | `assets/backgrounds/frontier_arena.png` | Combat, victory | Empty landing-pad duel arena; scrap barricades, desert settlement and damaged freighter; violet dusk with warm hazard lights. |
-| `assets/classes/orbit_gunslinger_character_v1.png` | Orbit Gunslinger class choice and dossier | Species-neutral space-western hunter; navy patched coat, mustard scarf, sealed cyan visor, compact ray pistol; bold ink and cel shading on genuine transparency. |
-| `assets/classes/warrant_breaker_character_v1.png` | Warrant Breaker class choice and dossier | Species-neutral breach specialist; broad burgundy scrap armor, coral sealed visor, reinforced gauntlets and magnetic hammer; genuine transparency. |
-| `assets/classes/contract_hacker_character_v1.png` | Contract Hacker class choice and dossier | Fully sealed intrusion specialist; narrow hooded silhouette, cyan decoder, teal armor, probe and acidic-lime cabling; genuine transparency. |
 
 ## Production constraints
 
@@ -20,5 +17,7 @@ Generated with the built-in OpenAI image-generation workflow. No reference image
 - No embedded UI, text, letters, numbers, logos, trademarks, watermarks, or recognizable third-party characters.
 - Environment detail remains near the frame; central contrast is controlled by `EnvironmentBackdrop` scrims.
 - Source PNGs are tracked production content and must remain included in both desktop and Android pack inspection.
-- Class illustrations use genuine transparency and remain separate from the player's modular species, appearance, and equipment portrait.
-- All three initial classes now have approved illustrations. Future or unavailable class art fails closed to the original vector emblem.
+
+## Rejected experiments
+
+The class illustrations introduced in versions 0.34.0-0.35.0 were rejected on 2026-08-26. Although original and technically valid, their sealed helmets, semi-realistic anatomy, tactical material detail, and serious mood contradicted the humorous caricature-led direction. They were removed from runtime and production assets; Git history retains them for postmortem comparison only. Vector class emblems remain the deliberate fallback until a replacement passes `Notes/ASSET_GENERATION_RULES.md`.

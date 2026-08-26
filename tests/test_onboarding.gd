@@ -86,11 +86,11 @@ func run_test() -> void:
 	check(scene.find_child("OnboardingClassPreview", true, false) != null and scene.find_child("OnboardingClassPreviewName", true, false) != null, "class choice owns a live archetype preview before confirmation")
 	scene.class_draft = "orbit_gunslinger"
 	scene.render()
-	check(scene.find_child("OnboardingClassPreviewArt", true, false) != null, "the illustrated Orbit Gunslinger owns the first production class-art vertical slice")
+	check(scene.find_child("OnboardingClassPreviewIcon", true, false) != null, "the Orbit Gunslinger preview uses its deliberate vector emblem while replacement art is unapproved")
 	for class_id in ["warrant_breaker", "contract_hacker"]:
 		scene.class_draft = class_id
 		scene.render()
-		check(scene.find_child("OnboardingClassPreviewArt", true, false) != null, "initial class '%s' participates in the illustrated roster" % class_id)
+		check(scene.find_child("OnboardingClassPreviewIcon", true, false) != null, "initial class '%s' keeps a consistent vector-emblem fallback" % class_id)
 	scene.class_draft = ""
 	scene.render()
 	check_onboarding_touch_targets(scene, "class")

@@ -24,7 +24,7 @@ These layers may differ in detail, but they must share navy shadows, warm worn m
 - Use one dominant hue, one supporting hue, and one restrained luminous accent.
 - No embedded text, insignia, franchise shapes, or ornamental detail that disappears on a phone.
 
-Class illustration and personal avatar have different jobs. Class art sells an archetype and stays species-neutral where possible. The modular portrait shows the player's chosen race, appearance, and equipped items. A fixed class illustration must never replace personal identity in the hunter sheet.
+Class illustration and personal avatar have different jobs. Class art sells an archetype through a memorable representative character and may use any suitable species; forcing species neutrality must never erase face, humor, or personality. The modular portrait shows the player's chosen race, appearance, and equipped items. A fixed class illustration must never replace personal identity in the hunter sheet.
 
 ## Class silhouette targets
 
@@ -32,7 +32,7 @@ Class illustration and personal avatar have different jobs. Class art sells an a
 - **Pistoleiro Orbital** — tall coat-and-hat silhouette, visible sidearm, agile asymmetry, mustard gold and cyan targeting accent.
 - **Hacker de Contratos** — narrow layered silhouette, articulated tech rig, projected intrusion tools, cyan with acidic lime accent.
 
-The Orbit Gunslinger established the production vertical slice. Warrant Breaker and Contract Hacker now complete the initial trio at the same runtime scale: broad/coral, tall/gold and narrow/cyan silhouettes remain distinguishable before details are read. Vector emblems remain intentional fallbacks for future classes or unavailable raster resources.
+The initial generated class trio was rejected because its serious tactical concept-art language contradicted the intended caricature-led RPG. Vector emblems are the intentional production presentation until one replacement draft passes `Notes/ASSET_GENERATION_RULES.md` and receives explicit user approval.
 
 ## UI composition
 
@@ -49,4 +49,4 @@ The Orbit Gunslinger established the production vertical slice. Warrant Breaker 
 - Portrait textures use alpha, no baked panel or background.
 - Imported raster art is capped to the smallest resolution that survives its maximum display size; the current class slice is capped at 1024 px on its longest edge.
 - Load large class art only on screens that display it, reuse Godot's resource cache, and keep procedural/vector fallbacks.
-- New art enters one vertical slice first, is captured on the 720×1280 logical viewport, and must pass mobile layout, text resilience, and Android pack checks before expansion.
+- New art follows the mandatory gate in `Notes/ASSET_GENERATION_RULES.md`: one off-runtime draft, explicit user approval, then a 450×800 physical capture and technical checks before integration or expansion.

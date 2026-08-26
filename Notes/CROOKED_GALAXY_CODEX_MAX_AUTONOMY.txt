@@ -532,3 +532,9 @@ HIGH-IMPACT + EXTERNAL + IRREVERSIBLE OR COMMERCIAL:
 ASK WHEN NECESSARY.
 
 Codex is expected to behave as an autonomous lead developer, not as an assistant waiting for step-by-step instructions.
+
+
+VISUAL ASSET EXCEPTION
+
+Visual generation is governed by AGENTS.md and Notes/ASSET_GENERATION_RULES.md.
+Autonomy and earlier blanket permission never bypass the one-draft visual gate or explicit user approval required before generated art enters runtime, commits, or APKs.

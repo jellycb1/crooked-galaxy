@@ -3,7 +3,6 @@ extends SceneTree
 const EnvironmentBackdropScript = preload("res://scripts/environment_backdrop.gd")
 const ClassIconScript = preload("res://scripts/class_icon.gd")
 const PortraitFrameScript = preload("res://scripts/portrait_frame.gd")
-const UIConsumerScript = preload("res://scripts/ui_factory.gd")
 
 var failures := 0
 
@@ -35,22 +34,11 @@ func run() -> void:
 		icon.configure(class_id, Color("#55e5ff"), 64.0)
 		check(icon.class_id == class_id and icon.custom_minimum_size == Vector2(64, 64), "original vector class icon configures for '%s'" % class_id)
 		icon.free()
-	var factory = UIConsumerScript.new()
-	root.add_child(factory)
-	for class_id in ["warrant_breaker", "orbit_gunslinger", "contract_hacker"]:
-		var class_art := factory.class_illustration(class_id, 160)
-		var source: Texture2D = null
-		if class_art != null and class_art.texture is AtlasTexture:
-			source = (class_art.texture as AtlasTexture).atlas
-		check(source != null and source.get_height() <= 1024, "original transparent class art resolves at a mobile-bounded import size for '%s'" % class_id)
-		if class_art != null:
-			class_art.free()
-	factory.free()
 	var frame = PortraitFrameScript.new()
 	frame.configure(Color("#ffc857"))
 	check(frame.accent == Color("#ffc857"), "original portrait frame accepts contextual accent")
 	frame.free()
 	backdrop.free()
 	if failures == 0:
-		print("PASS: production visuals are original, runtime-ready, and reference-free")
+		print("PASS: accepted production visuals are runtime-ready and rejected class drafts remain excluded")
 	quit(1 if failures > 0 else 0)
