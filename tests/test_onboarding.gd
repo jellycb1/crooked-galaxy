@@ -27,7 +27,7 @@ func run_test() -> void:
 	state.player = state.default_player()
 	state.phase = state.Phase.BOARD
 	state.current_bounty = {}
-	check(Species.DEFINITIONS.size() == 8 and Species.DEFINITIONS.all(func(definition): return bool(definition.prototype)), "the initial species roster exposes eight replaceable visual identities")
+	check(Species.DEFINITIONS.size() == 8 and Species.DEFINITIONS.all(func(definition): return not bool(definition.prototype)), "the initial species roster exposes eight finalized visual identities")
 	check(Species.DEFINITIONS.map(func(definition): return str(definition.id)).all(func(species_id): return Species.is_valid(species_id)), "every displayed species is accepted by identity validation")
 	check(state.requires_onboarding() and state.onboarding_step() == "login", "a new local profile cannot bypass login")
 	state.select_bounty(ContentDB.TARGETS[0])
@@ -48,15 +48,16 @@ func run_test() -> void:
 	check(find_label_with_text(scene, "CHOOSE YOUR CLASS") != null and find_label_with_text(scene, "WARRANT BREAKER") != null and find_label_with_text(scene, "Hard Shell") != null and (scene.find_child("OnboardingClassConfirm", true, false) as Button).text == "CONFIRM CLASS", "English catalog covers class chrome, content, and exact specialization")
 	state.player.class_id = "contract_hacker"
 	scene.class_draft = ""
-	scene.species_draft = "catalog_chimera"
+	scene.species_draft = "scraproot"
 	scene.render()
 	await process_frame
-	check(find_label_with_text(scene, "CHOOSE YOUR SPECIES") != null and find_label_with_text(scene, "Catalog Chimera") != null and find_label_with_text(scene, "HYBRID · BIOENGINEERED") != null and (scene.find_child("OnboardingSpeciesConfirm", true, false) as Button).text == "CONFIRM SPECIES", "English catalog covers all cosmetic-origin selector layers")
-	state.player.species_id = "discontinued_synthetic"
+	check(find_label_with_text(scene, "CHOOSE YOUR SPECIES") != null and find_label_with_text(scene, "Scraproot") != null and find_label_with_text(scene, "BOTANICAL · GRAFTED") != null and (scene.find_child("OnboardingSpeciesConfirm", true, false) as Button).text == "CONFIRM SPECIES", "English catalog covers all cosmetic-origin selector layers")
+	state.player.species_id = "synthetic"
+	state.player.appearance = {"palette": "native", "eyes": "standard", "feature": "classic", "marking": "clean"}
 	scene.species_draft = ""
 	scene.render()
 	await process_frame
-	check(find_label_with_text(scene, "HUNTER NAME") != null and find_label_with_text(scene, "CLASS · CONTRACT HACKER") != null and find_label_with_text(scene, "SPECIES · Discontinued Synthetic") != null and (scene.find_child("OnboardingNameConfirm", true, false) as Button).text == "ENTER THE GALAXY", "English catalog covers final identity review and entry")
+	check(find_label_with_text(scene, "HUNTER NAME") != null and find_label_with_text(scene, "CLASS · CONTRACT HACKER") != null and find_label_with_text(scene, "SPECIES · Synthetic") != null and (scene.find_child("OnboardingNameConfirm", true, false) as Button).text == "ENTER THE GALAXY", "English catalog covers final identity review and entry")
 	TranslationServer.set_locale("pt")
 	state.account = {}
 	state.player = state.default_player()
@@ -81,7 +82,7 @@ func run_test() -> void:
 	login.pressed.emit()
 	await process_frame
 	check(state.onboarding_step() == "class" and str(state.account.server_id) == "international_1" and str(state.account.locale_id) == "pt" and TranslationServer.get_locale().begins_with("pt") and not state.account.has("password"), "local login applies language and stores server identity without credentials")
-	check(scene.find_children("OnboardingClass_*", "PanelContainer", true, false).size() == 3, "mandatory class step shows the complete prototype trio")
+	check(scene.find_children("OnboardingClass_*", "PanelContainer", true, false).size() == 3, "mandatory class step shows the complete initial trio")
 	check(scene.find_child("OnboardingClassPreview", true, false) != null and scene.find_child("OnboardingClassPreviewName", true, false) != null, "class choice owns a live archetype preview before confirmation")
 	check_onboarding_touch_targets(scene, "class")
 	var class_confirm := scene.find_child("OnboardingClassConfirm", true, false) as Button
@@ -95,7 +96,7 @@ func run_test() -> void:
 	var class_preview_name := scene.find_child("OnboardingClassPreviewName", true, false) as Label
 	var class_specialization := scene.find_child("OnboardingClassSpecialization", true, false) as Label
 	check(class_confirm != null and not class_confirm.disabled and str(state.player.class_id).is_empty() and class_preview_name.text == "HACKER DE CONTRATOS", "class focus updates its preview but remains a draft until confirmation")
-	check(class_specialization != null and class_specialization.text.contains("Invasão") and find_label_with_text(scene, "ARQUÉTIPO PROVISÓRIO") != null, "mandatory class choice explains its active mechanic and placeholder status")
+	check(class_specialization != null and class_specialization.text.contains("Invasão") and find_label_with_text(scene, "IDENTIDADE DE CLASSE") != null, "mandatory class choice explains its active mechanic and finalized identity")
 	class_confirm.pressed.emit()
 	await process_frame
 	check(state.onboarding_step() == "species" and str(state.player.class_id) == "contract_hacker", "confirmed class advances exactly to species")
@@ -114,26 +115,33 @@ func run_test() -> void:
 	await process_frame
 	species_scroll.scroll_vertical = 160
 	await process_frame
-	(scene.find_child("OnboardingSpeciesAction_catalog_chimera", true, false) as Button).pressed.emit()
+	(scene.find_child("OnboardingSpeciesAction_scraproot", true, false) as Button).pressed.emit()
 	species_scroll = scene.find_child("OnboardingScroll", true, false) as ScrollContainer
 	(species_scroll.get_child(0) as Control).custom_minimum_size.y = 1600
 	await process_frame
 	await process_frame
 	await process_frame
-	check(str(scene.species_draft) == "catalog_chimera" and species_scroll.scroll_vertical >= 120, "selecting a lower species preserves roster position while updating the preview (draft %s, scroll %d, remembered %d, generation %d)" % [str(scene.species_draft), species_scroll.scroll_vertical, int(scene.onboarding_scroll_position), int(scene.render_generation)])
-	var species_action := scene.find_child("OnboardingSpeciesAction_discontinued_synthetic", true, false) as Button
+	check(str(scene.species_draft) == "scraproot" and species_scroll.scroll_vertical >= 120, "selecting a lower species preserves roster position while updating the preview (draft %s, scroll %d, remembered %d, generation %d)" % [str(scene.species_draft), species_scroll.scroll_vertical, int(scene.onboarding_scroll_position), int(scene.render_generation)])
+	var species_action := scene.find_child("OnboardingSpeciesAction_synthetic", true, false) as Button
 	species_action.pressed.emit()
 	await process_frame
 	var species_confirm := scene.find_child("OnboardingSpeciesConfirm", true, false) as Button
 	check(species_confirm != null and not species_confirm.disabled and str(state.player.species_id).is_empty(), "species focus remains a draft until confirmation")
 	species_confirm.pressed.emit()
 	await process_frame
-	check(state.onboarding_step() == "name" and str(state.player.species_id) == "discontinued_synthetic", "confirmed species advances exactly to hunter naming")
-	check(scene.find_child("OnboardingHunterPortrait", true, false) != null and scene.find_child("OnboardingChangeClass", true, false) != null and scene.find_child("OnboardingChangeSpecies", true, false) != null, "final identity review shows the hunter and both correction routes")
+	check(state.onboarding_step() == "appearance" and str(state.player.species_id) == "synthetic", "confirmed species advances exactly to cosmetic customization")
+	check(scene.find_child("OnboardingAppearancePreview", true, false) != null and scene.find_child("OnboardingAppearanceNext_palette", true, false) != null, "appearance step exposes a live portrait and touch-friendly cosmetic selectors")
+	(scene.find_child("OnboardingAppearanceNext_palette", true, false) as Button).pressed.emit()
+	await process_frame
+	check(str(scene.appearance_draft.palette) == "warm", "appearance selectors update the reversible live draft")
+	(scene.find_child("OnboardingAppearanceConfirm", true, false) as Button).pressed.emit()
+	await process_frame
+	check(state.onboarding_step() == "name" and str(state.player.appearance.palette) == "warm", "appearance confirmation persists the cosmetic recipe before naming")
+	check(scene.find_child("OnboardingHunterPortrait", true, false) != null and scene.find_child("OnboardingChangeClass", true, false) != null and scene.find_child("OnboardingChangeSpecies", true, false) != null and scene.find_child("OnboardingChangeAppearance", true, false) != null, "final identity review shows the hunter and all correction routes")
 	var change_class := scene.find_child("OnboardingChangeClass", true, false) as Button
 	change_class.pressed.emit()
 	await process_frame
-	check(state.onboarding_step() == "class" and str(state.player.species_id) == "discontinued_synthetic", "class correction retains the already confirmed species")
+	check(state.onboarding_step() == "class" and str(state.player.species_id) == "synthetic", "class correction retains the already confirmed species")
 	(scene.find_child("OnboardingClassAction_contract_hacker", true, false) as Button).pressed.emit()
 	await process_frame
 	(scene.find_child("OnboardingClassConfirm", true, false) as Button).pressed.emit()
@@ -142,11 +150,14 @@ func run_test() -> void:
 	change_species.pressed.emit()
 	await process_frame
 	check(state.onboarding_step() == "species" and str(state.player.class_id) == "contract_hacker", "species correction retains the already confirmed class")
-	(scene.find_child("OnboardingSpeciesAction_discontinued_synthetic", true, false) as Button).pressed.emit()
+	(scene.find_child("OnboardingSpeciesAction_synthetic", true, false) as Button).pressed.emit()
 	await process_frame
 	(scene.find_child("OnboardingSpeciesConfirm", true, false) as Button).pressed.emit()
 	await process_frame
-	check(state.onboarding_step() == "name", "corrected class and species return to final naming")
+	check(state.onboarding_step() == "appearance", "corrected species returns through visual customization")
+	(scene.find_child("OnboardingAppearanceConfirm", true, false) as Button).pressed.emit()
+	await process_frame
+	check(state.onboarding_step() == "name", "corrected class, species, and appearance return to final naming")
 	var name_input := scene.find_child("OnboardingNameInput", true, false) as LineEdit
 	var name_confirm := scene.find_child("OnboardingNameConfirm", true, false) as Button
 	check(name_input != null and name_confirm != null and name_confirm.disabled, "empty hunter names cannot finish creation")
@@ -162,7 +173,7 @@ func run_test() -> void:
 	check(scene.find_child("OnboardingScroll", true, false) == null, "onboarding is removed after completion")
 
 	var persisted: Dictionary = state.read_save_dictionary(test_save_path)
-	check(str(persisted.account.mode) == "local_test" and str(persisted.account.server_id) == "international_1" and str(persisted.account.locale_id) == "pt" and str(persisted.player.class_id) == "contract_hacker" and str(persisted.player.species_id) == "discontinued_synthetic" and str(persisted.player.hunter_name) == "Nova Vex", "server, locale, and every confirmed character stage survive interruption")
+	check(str(persisted.account.mode) == "local_test" and str(persisted.account.server_id) == "international_1" and str(persisted.account.locale_id) == "pt" and str(persisted.player.class_id) == "contract_hacker" and str(persisted.player.species_id) == "synthetic" and str(persisted.player.hunter_name) == "Nova Vex" and str(persisted.player.appearance.palette) == "native", "server, locale, and every confirmed character stage survive interruption")
 	check(str(persisted.account.provider_id) == "local_device" and str(persisted.account.authority) == "device" and str(persisted.account.sync_state) == "local_only" and str(persisted.account.active_character_id) == str(persisted.player.character_id), "fresh onboarding persists honest local authority and character ownership")
 	scene.queue_free()
 	await process_frame

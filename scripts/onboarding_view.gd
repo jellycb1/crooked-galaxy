@@ -3,12 +3,13 @@ extends RefCounted
 
 const ClassRulesScript = preload("res://scripts/class_rules.gd")
 const SpeciesRulesScript = preload("res://scripts/species_rules.gd")
+const AppearanceRulesScript = preload("res://scripts/appearance_rules.gd")
 const SpeciesIconScript = preload("res://scripts/species_icon.gd")
 const ServerRulesScript = preload("res://scripts/server_rules.gd")
 const LocaleRulesScript = preload("res://scripts/locale_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 
-const STEP_INDEX := {"login": 1, "class": 2, "species": 3, "name": 4}
+const STEP_INDEX := {"login": 1, "class": 2, "species": 3, "appearance": 4, "name": 5}
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
@@ -17,7 +18,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	brand.add_theme_constant_override("separation", 2)
 	content.add_child(brand)
 	brand.add_child(host.center_label("CROOKED GALAXY", 27, host.CYAN))
-	var progress := host.center_label(t("ONB_PROGRESS", "REGISTRO DE CAÇADOR · ETAPA %d/4", [int(STEP_INDEX.get(step, 4))]), 11, host.GOLD)
+	var progress := host.center_label(t("ONB_PROGRESS", "REGISTRO DE CAÇADOR · ETAPA %d/5", [int(STEP_INDEX.get(step, 5))]), 11, host.GOLD)
 	progress.name = "OnboardingProgress"
 	brand.add_child(progress)
 
@@ -38,9 +39,11 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 			build_class(host, stack, state)
 		"species":
 			build_species(host, stack, state)
+		"appearance":
+			build_appearance(host, stack, state)
 		"name":
 			build_name(host, stack, state)
-	if step == "class" or step == "species":
+	if step in ["class", "species", "appearance"]:
 		host.call_deferred("restore_onboarding_scroll", int(host.get("render_generation")))
 
 
@@ -162,7 +165,7 @@ static func build_class(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 		stack.add_child(mechanics)
 		var mechanics_copy := mechanics.get_child(0) as VBoxContainer
 		mechanics_copy.add_theme_constant_override("separation", 3)
-		mechanics_copy.add_child(host.label(t("ONB_CLASS_PROVISIONAL", "ARQUÉTIPO PROVISÓRIO · MECÂNICA ATIVA"), 10, host.LIME))
+		mechanics_copy.add_child(host.label(t("ONB_CLASS_PROVISIONAL", "IDENTIDADE DE CLASSE · MECÂNICA ATIVA"), 10, host.LIME))
 		var flavor := host.label(localized_class_field(pending_definition, "flavor"), 11, host.MUTED)
 		flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		mechanics_copy.add_child(flavor)
@@ -178,6 +181,60 @@ static func build_class(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 		host.class_draft = ""
 		host.onboarding_scroll_position = 0
 		state.select_class(selected)
+	)
+	var content := stack.get_parent().get_parent() as VBoxContainer
+	content.add_child(confirm)
+
+
+static func build_appearance(host: CrookedUIFactory, stack: VBoxContainer, state: StateScript) -> void:
+	section_intro(host, stack, t("ONB_APPEARANCE_TITLE", "PERSONALIZE O CAÇADOR"), t("ONB_APPEARANCE_DESCRIPTION", "Estas escolhas são visuais e podem combinar-se livremente sem alterar o poder."))
+	if not AppearanceRulesScript.is_complete(host.appearance_draft):
+		host.appearance_draft = AppearanceRulesScript.default_appearance()
+	var profile: Dictionary = state.player.duplicate(true)
+	profile.appearance = host.appearance_draft.duplicate(true)
+	var preview_panel := host.panel(VBoxContainer.new(), Color("#162947"), 16, 13)
+	preview_panel.name = "OnboardingAppearancePreview"
+	stack.add_child(preview_panel)
+	var preview_copy := preview_panel.get_child(0) as VBoxContainer
+	preview_copy.alignment = BoxContainer.ALIGNMENT_CENTER
+	preview_copy.add_child(host.character_portrait("hunter", 178.0, profile))
+	preview_copy.add_child(host.center_label(SpeciesRulesScript.species_name_for(str(state.player.species_id)), 16, host.GOLD))
+	for category in AppearanceRulesScript.CATEGORIES:
+		var selector := host.panel(HBoxContainer.new(), Color("#0d1730"), 12, 8)
+		selector.name = "OnboardingAppearance_%s" % category
+		stack.add_child(selector)
+		var row := selector.get_child(0) as HBoxContainer
+		row.add_theme_constant_override("separation", 8)
+		var previous := host.action_button("‹", host.CYAN, true)
+		previous.custom_minimum_size = Vector2(54, 52)
+		previous.name = "OnboardingAppearancePrevious_%s" % category
+		row.add_child(previous)
+		var copy := VBoxContainer.new()
+		copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		copy.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_child(copy)
+		copy.add_child(host.center_label(t("APPEARANCE_%s" % category.to_upper(), category.to_upper()), 10, host.MUTED))
+		var option_id := str(host.appearance_draft[category])
+		copy.add_child(host.center_label(t("APPEARANCE_OPTION_%s" % option_id.to_upper(), option_id.to_upper()), 14, host.INK))
+		var next := host.action_button("›", host.CYAN, true)
+		next.custom_minimum_size = Vector2(54, 52)
+		next.name = "OnboardingAppearanceNext_%s" % category
+		row.add_child(next)
+		previous.pressed.connect(func():
+			host.appearance_draft = AppearanceRulesScript.cycle(host.appearance_draft, category, -1)
+			host.call("render")
+		)
+		next.pressed.connect(func():
+			host.appearance_draft = AppearanceRulesScript.cycle(host.appearance_draft, category, 1)
+			host.call("render")
+		)
+	var confirm := host.action_button(t("ONB_APPEARANCE_CONFIRM", "CONFIRMAR APARÊNCIA"), host.LIME)
+	confirm.name = "OnboardingAppearanceConfirm"
+	confirm.pressed.connect(func():
+		var selected := host.appearance_draft.duplicate(true)
+		host.appearance_draft = {}
+		host.onboarding_scroll_position = 0
+		state.confirm_appearance(selected)
 	)
 	var content := stack.get_parent().get_parent() as VBoxContainer
 	content.add_child(confirm)
@@ -272,6 +329,15 @@ static func build_name(host: CrookedUIFactory, stack: VBoxContainer, state: Stat
 		state.reopen_onboarding_choice("species")
 	)
 	corrections.add_child(change_species)
+	var change_appearance := host.action_button(t("ONB_NAME_CHANGE_APPEARANCE", "ALTERAR APARÊNCIA"), host.LIME, true)
+	change_appearance.name = "OnboardingChangeAppearance"
+	change_appearance.custom_minimum_size = Vector2(0, 48)
+	change_appearance.add_theme_font_size_override("font_size", 10)
+	change_appearance.pressed.connect(func():
+		host.onboarding_scroll_position = 0
+		state.reopen_onboarding_choice("appearance")
+	)
+	copy.add_child(change_appearance)
 	var input := LineEdit.new()
 	input.name = "OnboardingNameInput"
 	input.placeholder_text = t("ONB_NAME_PLACEHOLDER", "3–20 caracteres")
@@ -334,24 +400,10 @@ static func choice_card(host: CrookedUIFactory, title: String, eyebrow: String, 
 	return card
 
 
-static func class_reference_icon(host: CrookedUIFactory, class_id: String, dimension: float) -> TextureRect:
+static func class_reference_icon(host: CrookedUIFactory, class_id: String, dimension: float) -> Control:
 	if class_id.is_empty():
 		return null
-	var reference_layer = host.get("reference_backdrop")
-	if reference_layer == null or not reference_layer.has_method("ui_texture"):
-		return null
-	var texture: Texture2D = reference_layer.ui_texture(class_id)
-	if texture == null:
-		return null
-	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(dimension, dimension)
-	icon.texture = texture
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon.tooltip_text = t("ONB_CLASS_PLACEHOLDER_TOOLTIP", "PLACEHOLDER INTERNO · identidade visual provisória")
-	return icon
+	return host.class_icon(class_id, dimension)
 
 
 static func t(key: String, fallback: String = "", values: Array = []) -> String:

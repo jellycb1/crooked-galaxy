@@ -43,14 +43,23 @@ func capture() -> void:
 		return
 	state.player.class_id = "contract_hacker"
 	scene.class_draft = ""
-	scene.species_draft = "unstable_luminar"
+	scene.species_draft = "glitchlight"
 	scene.render()
 	await process_frame
 	await process_frame
 	if save_frame("ui_onboarding_species.png") != OK:
 		quit(1)
 		return
-	state.player.species_id = "discontinued_synthetic"
+	state.player.species_id = "synthetic"
+	scene.appearance_draft = {"palette": "cool", "eyes": "wide", "feature": "bold", "marking": "stripe"}
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_onboarding_appearance.png") != OK:
+		quit(1)
+		return
+	state.player.appearance = scene.appearance_draft.duplicate(true)
+	scene.appearance_draft = {}
 	scene.render()
 	await process_frame
 	await process_frame
@@ -77,14 +86,23 @@ func capture() -> void:
 		return
 	state.player.class_id = "contract_hacker"
 	scene.class_draft = ""
-	scene.species_draft = "unstable_luminar"
+	scene.species_draft = "glitchlight"
 	scene.render()
 	await process_frame
 	await process_frame
 	if save_frame("ui_onboarding_species_en.png") != OK:
 		quit(1)
 		return
-	state.player.species_id = "discontinued_synthetic"
+	state.player.species_id = "synthetic"
+	scene.appearance_draft = {"palette": "warm", "eyes": "narrow", "feature": "subtle", "marking": "spots"}
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_onboarding_appearance_en.png") != OK:
+		quit(1)
+		return
+	state.player.appearance = scene.appearance_draft.duplicate(true)
+	scene.appearance_draft = {}
 	scene.render()
 	await process_frame
 	await process_frame

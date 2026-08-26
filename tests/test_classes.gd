@@ -21,7 +21,7 @@ func run_classes_test() -> void:
 	state.player = state.default_player()
 	state.phase = state.Phase.BOARD
 	check(Classes.DEFINITIONS.size() == 3, "the first class roster has three focused archetypes")
-	check(Classes.DEFINITIONS.all(func(definition): return bool(definition.get("prototype", false))), "the complete initial trio is explicitly marked as replaceable prototype content")
+	check(Classes.DEFINITIONS.all(func(definition): return not bool(definition.get("prototype", true))), "the complete initial trio is explicitly marked as finalized design content")
 	var primaries := Classes.DEFINITIONS.map(func(definition): return str(definition.primary_attribute))
 	check(primaries == ["strength", "dexterity", "intelligence"], "the roster specializes the three offensive attributes without consuming vitality or cunning")
 	check(str(state.player.class_id).is_empty() and Classes.specialization_power(state.player, Rules.BASE_ATTRIBUTE_VALUE) == 0, "new hunters remain safely unassigned until the player chooses")
@@ -58,7 +58,7 @@ func run_classes_test() -> void:
 	neutral_dexterity.class_id = ""
 	check(Rules.player_damage_reduction(breaker) == Rules.player_damage_reduction(neutral_strength) + 2, "warrant breaker absorbs base and strength-scaled damage on every enemy hit")
 	check(is_equal_approx(Rules.player_attack_roll(gunslinger, 0.5), Rules.player_attack_roll(neutral_dexterity, 0.5) + 0.01), "orbital gunslinger adds persistent base and dexterity-scaled precision")
-	check(Classes.combat_identity_text(breaker, Rules.BASE_ATTRIBUTE_VALUE).contains("CASCO DURO") and Classes.combat_identity_text(gunslinger, Rules.BASE_ATTRIBUTE_VALUE).contains("MIRA ORBITAL") and Classes.combat_identity_text(hacker, Rules.BASE_ATTRIBUTE_VALUE).contains("INVASÃO"), "every prototype class exposes a distinct active combat identity")
+	check(Classes.combat_identity_text(breaker, Rules.BASE_ATTRIBUTE_VALUE).contains("CASCO DURO") and Classes.combat_identity_text(gunslinger, Rules.BASE_ATTRIBUTE_VALUE).contains("MIRA ORBITAL") and Classes.combat_identity_text(hacker, Rules.BASE_ATTRIBUTE_VALUE).contains("INVASÃO"), "every initial class exposes a distinct active combat identity")
 
 	var breaker_combat = StateScript.new()
 	breaker_combat.persistence_enabled = false
@@ -131,7 +131,7 @@ func run_classes_test() -> void:
 	scene.render()
 	await process_frame
 	check(scene.find_children("Class_*", "PanelContainer", true, false).size() == 3, "the class screen renders every initial archetype")
-	check(find_label_with_text(scene, "ARQUÉTIPOS PROVISÓRIOS") != null, "the selector clearly identifies the current roster as provisional")
+	check(find_label_with_text(scene, "CLASSES INICIAIS") != null, "the selector clearly identifies the finalized initial roster")
 	check(scene.find_child("ClassDetail", true, false) != null and scene.find_child("ClassRouteProfile_warrant_breaker", true, false) != null, "the focused class sheet explains both build and contract identity")
 	var breaker_impact := scene.find_child("ClassImpact_warrant_breaker", true, false) as Label
 	check(breaker_impact != null and breaker_impact.text.contains("-2 DANO/GOLPE"), "breaker sheet previews its live per-hit mitigation")

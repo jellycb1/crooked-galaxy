@@ -66,7 +66,8 @@ func run_test() -> void:
 	state.account = {"mode": "local_test", "session_id": "translation_audit", "locale_id": "en", "server_id": "international_1"}
 	state.player = state.default_player()
 	state.player.class_id = "orbit_gunslinger"
-	state.player.species_id = "nebular_nomad"
+	state.player.species_id = "starworn"
+	state.player.appearance = {"palette": "native", "eyes": "standard", "feature": "classic", "marking": "clean"}
 	state.player.hunter_name = "Nova"
 	state.player.completed_planets = ["dustball_prime"]
 	state.player.challenge_floor = 0

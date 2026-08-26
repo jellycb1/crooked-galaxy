@@ -2,7 +2,6 @@ extends "res://scripts/ui_factory.gd"
 
 const SpaceBackdropScript = preload("res://scripts/space_backdrop.gd")
 const EnvironmentBackdropScript = preload("res://scripts/environment_backdrop.gd")
-const ReferencePlaceholderBackdropScript = preload("res://scripts/reference_placeholder_backdrop.gd")
 const CombatBackdropScript = preload("res://scripts/combat_backdrop.gd")
 const SoundFXScript = preload("res://scripts/sound_fx.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
@@ -39,7 +38,6 @@ var sound_fx: Node
 var previous_phase := -1
 var space_backdrop: Control
 var environment_backdrop: Control
-var reference_backdrop: Control
 var safe_container: MarginContainer
 var render_generation := 0
 var lifecycle_suspensions: Dictionary = {}
@@ -158,8 +156,6 @@ func build_shell() -> void:
 	add_child(space_backdrop)
 	environment_backdrop = EnvironmentBackdropScript.new()
 	add_child(environment_backdrop)
-	reference_backdrop = ReferencePlaceholderBackdropScript.new()
-	add_child(reference_backdrop)
 	sound_fx = SoundFXScript.new()
 	add_child(sound_fx)
 
@@ -218,13 +214,8 @@ func render() -> void:
 	var current_generation := render_generation
 	if space_backdrop:
 		space_backdrop.planet_id = str(GameState.player.get("current_planet_id", ContentDB.PLANET.id))
-	if reference_backdrop:
-		reference_backdrop.show_context(environment_context())
 	if environment_backdrop:
-		if reference_backdrop != null and reference_backdrop.visible:
-			environment_backdrop.show_context("")
-		else:
-			environment_backdrop.show_context(environment_context(), str(GameState.player.get("current_planet_id", ContentDB.PLANET.id)))
+		environment_backdrop.show_context(environment_context(), str(GameState.player.get("current_planet_id", ContentDB.PLANET.id)))
 	if sound_fx:
 		sound_fx.enabled = bool(GameState.player.get("sound_enabled", true))
 	var phase_changed := previous_phase >= 0 and previous_phase != GameState.phase
@@ -356,7 +347,7 @@ func apply_onboarding_scroll(expected_generation: int) -> void:
 	if expected_generation != render_generation:
 		return
 	var scroll := content.find_child("OnboardingScroll", false, false) as ScrollContainer
-	if scroll == null or not GameState.requires_onboarding() or not GameState.onboarding_step() in ["class", "species"]:
+	if scroll == null or not GameState.requires_onboarding() or not GameState.onboarding_step() in ["class", "species", "appearance"]:
 		return
 	scroll.scroll_vertical = onboarding_scroll_position
 	onboarding_scroll_position = scroll.scroll_vertical
@@ -426,22 +417,18 @@ func update_primary_navigation() -> void:
 
 func environment_context() -> String:
 	if GameState.requires_onboarding():
-		return "class_ui"
+		return "world"
 	if GameState.phase == GameState.Phase.BOARD:
 		if view_mode == "arsenal":
 			return "workshop"
 		if view_mode == "market":
-			return "market" if reference_backdrop != null and reference_backdrop.local_placeholders_allowed() else "workshop"
+			return "workshop"
 		if view_mode == "hangar":
-			return "hangar" if reference_backdrop != null and reference_backdrop.local_placeholders_allowed() else "workshop"
+			return "workshop"
 		if view_mode == "settings":
 			return "world"
 		if view_mode == "challenges":
 			return "combat"
-		if view_mode == "career" and reference_backdrop != null and reference_backdrop.local_placeholders_allowed():
-			return "career_ui"
-		if (view_mode == "attributes" or view_mode == "classes") and reference_backdrop != null and reference_backdrop.local_placeholders_allowed():
-			return "class_ui"
 		if view_mode == "galaxy" or view_mode == "career" or view_mode == "attributes" or view_mode == "classes":
 			return "world"
 	if GameState.phase == GameState.Phase.COMBAT or GameState.phase == GameState.Phase.VICTORY:
@@ -872,47 +859,21 @@ func board_hub_action(title: String, detail: String, color: Color, icon_kind: St
 	return button
 
 
-func reference_ui_decoration(key: String, height: float) -> TextureRect:
-	if reference_backdrop == null or not reference_backdrop.has_method("ui_texture"):
-		return null
-	var texture: Texture2D = reference_backdrop.ui_texture(key)
-	if texture == null:
-		return null
-	var decoration := TextureRect.new()
-	decoration.name = "ReferenceDecoration_%s" % key
+func reference_ui_decoration(_key: String, height: float) -> Control:
+	var decoration := HSeparator.new()
+	decoration.name = "OriginalHubDivider"
 	decoration.custom_minimum_size = Vector2(0, height)
-	decoration.texture = texture
-	decoration.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	decoration.stretch_mode = TextureRect.STRETCH_SCALE
-	decoration.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	var line := StyleBoxFlat.new()
+	line.bg_color = Color(CYAN, 0.34)
+	line.content_margin_top = 2.0
+	line.content_margin_bottom = 2.0
+	decoration.add_theme_stylebox_override("separator", line)
 	decoration.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	decoration.tooltip_text = t("COMMON_PLACEHOLDER_DECORATION", "PLACEHOLDER INTERNO · ornamento provisório")
 	return decoration
 
 
 func framed_hunter_portrait(dimension: float) -> Control:
-	var frame_texture: Texture2D = reference_backdrop.ui_texture("portrait_frame") if reference_backdrop != null and reference_backdrop.has_method("ui_texture") else null
-	if frame_texture == null:
-		return character_portrait("hunter", dimension, GameState.player)
-	var stack := Control.new()
-	stack.custom_minimum_size = Vector2(dimension, dimension)
-	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var portrait := character_portrait("hunter", dimension - 6.0, GameState.player)
-	portrait.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	portrait.offset_left = 3.0
-	portrait.offset_top = 3.0
-	portrait.offset_right = -3.0
-	portrait.offset_bottom = -3.0
-	stack.add_child(portrait)
-	var frame := TextureRect.new()
-	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	frame.texture = frame_texture
-	frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	frame.stretch_mode = TextureRect.STRETCH_SCALE
-	frame.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	stack.add_child(frame)
-	return stack
+	return framed_portrait("hunter", dimension, GameState.player)
 
 
 func rank_progress_panel() -> PanelContainer:

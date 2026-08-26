@@ -245,24 +245,11 @@ static func compact_equipment_slot(host: CrookedUIFactory, item_value: Variant, 
 	box.add_child(host.center_label("+%d" % int(item.get("power", 0)) if not item.is_empty() else text("HUNTER_EMPTY", "VAZIO"), 9, host.GOLD if not item.is_empty() else host.MUTED))
 	slot.tooltip_text = "%s · %s" % [EquipmentPresentation.localized_slot(slot_id), EquipmentPresentation.localized_item_field(item, "name") if not item.is_empty() else text("HUNTER_EMPTY_SLOT", "SLOT VAZIO")]
 	return slot
-static func class_reference_icon(host: CrookedUIFactory, class_id: String) -> TextureRect:
+static func class_reference_icon(host: CrookedUIFactory, class_id: String) -> Control:
 	if class_id.is_empty():
 		return null
-	var reference_layer = host.get("reference_backdrop")
-	if reference_layer == null or not reference_layer.has_method("ui_texture"):
-		return null
-	var texture: Texture2D = reference_layer.ui_texture(class_id)
-	if texture == null:
-		return null
-	var icon := TextureRect.new()
+	var icon := host.class_icon(class_id, 62.0)
 	icon.name = "AttributeClassReferenceIcon"
-	icon.custom_minimum_size = Vector2(62, 62)
-	icon.texture = texture
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon.tooltip_text = text("ONB_CLASS_PLACEHOLDER_TOOLTIP", "PLACEHOLDER INTERNO · identidade visual provisória")
 	return icon
 
 

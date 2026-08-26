@@ -26,22 +26,22 @@ func _draw() -> void:
 	draw_circle(Vector2(0.5, 0.5), 0.46, Color("#071126e8"))
 	draw_arc(Vector2(0.5, 0.5), 0.43, 0.0, TAU, 36, Color(accent, 0.82), 0.045, true)
 	match species_id:
-		"patched_terran":
+		"terran":
 			draw_terran()
-		"discontinued_synthetic":
+		"synthetic":
 			draw_synthetic()
-		"nebular_nomad":
+		"starworn":
 			draw_nomad()
-		"cellar_mycelian":
+		"fungoid":
 			draw_mycelian()
-		"rusted_ferrite":
-			draw_ferrite()
-		"tankborn_abyssal":
+		"mothari":
+			draw_mothari()
+		"abyssal":
 			draw_abyssal()
-		"unstable_luminar":
+		"glitchlight":
 			draw_luminar()
-		"catalog_chimera":
-			draw_chimera()
+		"scraproot":
+			draw_scraproot()
 		_:
 			draw_circle(Vector2(0.5, 0.5), 0.13, accent)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -99,16 +99,17 @@ func draw_mycelian() -> void:
 		draw_circle(point, 0.025, accent)
 
 
-func draw_ferrite() -> void:
+func draw_mothari() -> void:
 	var ink := Color("#071126")
-	var head := PackedVector2Array([Vector2(0.31, 0.28), Vector2(0.66, 0.24), Vector2(0.76, 0.48), Vector2(0.63, 0.73), Vector2(0.36, 0.75), Vector2(0.24, 0.48)])
-	draw_colored_polygon(head, Color("#806b5d"))
-	draw_polyline(PackedVector2Array(Array(head) + [head[0]]), accent, 0.045, true)
-	draw_line(Vector2(0.29, 0.43), Vector2(0.70, 0.39), ink, 0.05, true)
-	draw_circle(Vector2(0.39, 0.43), 0.032, accent)
-	draw_circle(Vector2(0.61, 0.41), 0.032, accent)
-	for point in [Vector2(0.31, 0.31), Vector2(0.69, 0.30), Vector2(0.50, 0.70)]:
-		draw_circle(point, 0.025, Color("#c6b3a3"))
+	draw_colored_polygon(PackedVector2Array([Vector2(0.29, 0.29), Vector2(0.12, 0.48), Vector2(0.29, 0.70), Vector2(0.42, 0.58)]), Color(accent, 0.62))
+	draw_colored_polygon(PackedVector2Array([Vector2(0.71, 0.29), Vector2(0.88, 0.48), Vector2(0.71, 0.70), Vector2(0.58, 0.58)]), Color(accent, 0.62))
+	draw_circle(Vector2(0.5, 0.49), 0.22, Color("#5e536e"))
+	draw_line(Vector2(0.40, 0.31), Vector2(0.30, 0.13), accent, 0.035, true)
+	draw_line(Vector2(0.60, 0.31), Vector2(0.70, 0.13), accent, 0.035, true)
+	draw_circle(Vector2(0.40, 0.47), 0.075, Color("#fff0cf"))
+	draw_circle(Vector2(0.60, 0.47), 0.075, Color("#fff0cf"))
+	draw_circle(Vector2(0.40, 0.47), 0.032, ink)
+	draw_circle(Vector2(0.60, 0.47), 0.032, ink)
 
 
 func draw_abyssal() -> void:
@@ -135,13 +136,14 @@ func draw_luminar() -> void:
 	draw_circle(Vector2(0.50, 0.62), 0.055, accent)
 
 
-func draw_chimera() -> void:
+func draw_scraproot() -> void:
 	var ink := Color("#071126")
-	draw_circle(Vector2(0.5, 0.50), 0.23, Color("#aa6977"))
-	draw_colored_polygon(PackedVector2Array([Vector2(0.34, 0.32), Vector2(0.23, 0.12), Vector2(0.43, 0.26)]), accent)
-	draw_colored_polygon(PackedVector2Array([Vector2(0.66, 0.32), Vector2(0.77, 0.12), Vector2(0.57, 0.26)]), accent)
+	draw_circle(Vector2(0.5, 0.50), 0.23, Color("#648a58"))
+	draw_line(Vector2(0.39, 0.31), Vector2(0.31, 0.13), accent, 0.055, true)
+	draw_line(Vector2(0.49, 0.28), Vector2(0.50, 0.10), accent, 0.055, true)
+	draw_line(Vector2(0.60, 0.31), Vector2(0.69, 0.13), accent, 0.055, true)
 	draw_circle(Vector2(0.40, 0.47), 0.04, Color("#eafcff"))
 	draw_circle(Vector2(0.60, 0.47), 0.04, Color("#eafcff"))
-	draw_line(Vector2(0.48, 0.52), Vector2(0.54, 0.60), ink, 0.025, true)
-	for point in [Vector2(0.33, 0.59), Vector2(0.41, 0.67), Vector2(0.68, 0.59)]:
-		draw_circle(point, 0.025, accent)
+	draw_line(Vector2(0.42, 0.62), Vector2(0.58, 0.62), ink, 0.025, true)
+	draw_line(Vector2(0.27, 0.66), Vector2(0.38, 0.74), Color("#8d8070"), 0.05, true)
+	draw_circle(Vector2(0.70, 0.68), 0.045, accent)

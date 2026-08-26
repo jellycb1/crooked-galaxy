@@ -42,7 +42,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var info := host.panel(VBoxContainer.new(), host.PANEL_LIGHT, 16, 12)
 	content.add_child(info)
 	var info_copy := info.get_child(0) as VBoxContainer
-	info_copy.add_child(host.label(text("CLASS_VIEW_PROVISIONAL", "ARQUÉTIPOS PROVISÓRIOS · TROCA GRATUITA"), 12, host.LIME))
+	info_copy.add_child(host.label(text("CLASS_VIEW_PROVISIONAL", "CLASSES INICIAIS · TROCA GRATUITA"), 12, host.LIME))
 	var explanation := host.label(text("CLASS_VIEW_EXPLANATION", "A classe concede +1 Poder a cada 2 pontos investidos no atributo principal. Seus demais atributos continuam ativos."), 12, host.INK)
 	explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info_copy.add_child(explanation)
@@ -142,22 +142,9 @@ static func class_detail(host: CrookedUIFactory, definition: Dictionary, player:
 	return detail
 
 
-static func class_reference_icon(host: CrookedUIFactory, class_id: String, dimension: float = 76.0) -> TextureRect:
-	var reference_layer = host.get("reference_backdrop")
-	if reference_layer == null or not reference_layer.has_method("ui_texture"):
-		return null
-	var texture: Texture2D = reference_layer.ui_texture(class_id)
-	if texture == null:
-		return null
-	var icon := TextureRect.new()
-	icon.name = "ClassReferenceIcon_%s" % class_id
-	icon.custom_minimum_size = Vector2(dimension, dimension)
-	icon.texture = texture
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon.tooltip_text = text("ONB_CLASS_PLACEHOLDER_TOOLTIP", "PLACEHOLDER INTERNO · identidade visual provisória")
+static func class_reference_icon(host: CrookedUIFactory, class_id: String, dimension: float = 76.0) -> Control:
+	var icon := host.class_icon(class_id, dimension)
+	icon.name = "ClassIcon_%s" % class_id
 	return icon
 
 

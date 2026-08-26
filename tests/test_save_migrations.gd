@@ -80,6 +80,12 @@ func _init() -> void:
 	check(interrupted_v12.account.is_empty(), "an interrupted fresh login is not silently assigned to a server by migration")
 	check(not interrupted_v12.player.has("character_id"), "an interrupted fresh login is not silently assigned character ownership")
 
+	var legacy_identity := SaveMigrations.migrate({"version": 14, "player": {"species_id": "nebular_nomad", "hunter_name": "Nova"}})
+	check(str(legacy_identity.player.species_id) == "starworn", "schema fifteen maps a colliding provisional species ID to its finalized identity")
+	check(str(legacy_identity.player.appearance.palette) == "native" and str(legacy_identity.player.appearance.marking) == "clean", "established hunters receive a neutral complete cosmetic recipe")
+	var interrupted_identity := SaveMigrations.migrate({"version": 14, "player": {"species_id": "cellar_mycelian", "hunter_name": ""}})
+	check(str(interrupted_identity.player.species_id) == "fungoid" and interrupted_identity.player.appearance.is_empty(), "interrupted creation resumes at customization after species migration")
+
 	var current := {"version": SaveMigrations.CURRENT_VERSION, "player": {"credits": 5}}
 	var current_copy := SaveMigrations.migrate(current)
 	current_copy.player.credits = 9

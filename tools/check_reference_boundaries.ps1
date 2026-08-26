@@ -25,24 +25,24 @@ if ($PresetText.Contains('name="Android Internal References"')) {
     throw "The obsolete second Android reference profile must not return."
 }
 if (-not $PresetText.Contains('name="Android APK"') -or
-    -not $PresetText.Contains('custom_features="reference_placeholders"') -or
-    -not $PresetText.Contains('include_filter="internal_reference_assets/*.png.bin"')) {
-    throw "The single Android APK must remain explicitly feature-gated and include staged placeholders."
+    $PresetText.Contains('custom_features="reference_placeholders"') -or
+    $PresetText.Contains('include_filter="internal_reference_assets/*.png.bin"')) {
+    throw "The Android APK must not include staged reference placeholders."
 }
 
-$ApprovedReferencePathFiles = @(
-    "scripts/reference_placeholder_backdrop.gd",
-    "tools/export_pack_inspector/inspect_pack.gd"
-)
+$ApprovedReferencePathFiles = @("tools/export_pack_inspector/inspect_pack.gd")
 $TrackedRuntimeFiles = @(& git -C $ProjectRoot ls-files -- "*.gd" "*.tscn" "*.tres" "project.godot")
 foreach ($RelativePath in $TrackedRuntimeFiles) {
     if ($ApprovedReferencePathFiles -contains $RelativePath) {
         continue
     }
     $AbsolutePath = Join-Path $ProjectRoot $RelativePath
+    if (-not (Test-Path -LiteralPath $AbsolutePath)) {
+        continue
+    }
     if ((Get-Content -LiteralPath $AbsolutePath -Raw).Contains("res://References/")) {
         throw "Direct reference-asset path outside the approved loader: $RelativePath"
     }
 }
 
-Write-Host "PASS: raw references remain Git-local while the single Android APK explicitly stages its documented placeholders."
+Write-Host "PASS: raw references remain Git-local and are excluded from every runtime export."

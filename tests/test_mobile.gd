@@ -35,7 +35,7 @@ func run_mobile_audit() -> void:
 	TranslationServer.set_locale("en")
 	scene.render()
 	await process_frame
-	check((scene.find_child("PrimaryNav_contracts", true, false) as Button).text == "WARRANTS" and (scene.find_child("PrimaryNav_hunter", true, false) as Button).text == "CLASS" and find_label_with_text(scene, "LEVEL 1") != null and find_label_with_text(scene, "CREDITS") != null and find_label_with_text(scene, "WINS") != null and find_label_with_text(scene, "INTERNAL PLACEHOLDER · REPLACE") != null, "English catalog covers persistent header resources, reference watermark, and context-sensitive primary navigation")
+	check((scene.find_child("PrimaryNav_contracts", true, false) as Button).text == "WARRANTS" and (scene.find_child("PrimaryNav_hunter", true, false) as Button).text == "CLASS" and find_label_with_text(scene, "LEVEL 1") != null and find_label_with_text(scene, "CREDITS") != null and find_label_with_text(scene, "WINS") != null and find_label_with_text(scene, "INTERNAL PLACEHOLDER · REPLACE") == null, "English catalog covers persistent header resources and the reference-free primary navigation")
 	(scene.find_child("PrimaryNav_menu", true, false) as Button).pressed.emit()
 	await process_frame
 	check(find_label_with_text(scene, "FRONTIER MENU") != null and find_label_with_text(scene, "MARKET") != null and find_label_with_text(scene, "LICENSED FLYING JUNKBOX") != null and find_label_with_text(scene, "CURRENT POSITION") != null, "English catalog covers the complete Frontier Menu and localized current transport")
@@ -116,17 +116,18 @@ func run_mobile_audit() -> void:
 	state.last_notice_context = ""
 	var player_before_english_hunter: Dictionary = state.player.duplicate(true)
 	state.player.class_id = "orbit_gunslinger"
-	state.player.species_id = "nebular_nomad"
+	state.player.species_id = "starworn"
+	state.player.appearance = {"palette": "native", "eyes": "standard", "feature": "classic", "marking": "clean"}
 	state.player.hunter_name = "Nova"
 	state.player.stat_points = 2
 	scene.view_mode = "attributes"
 	scene.render()
 	await process_frame
-	check(find_label_with_text(scene, "HUNTER") != null and find_label_with_text(scene, "EQUIPMENT · STATS · ATTRIBUTES") != null and find_label_with_text(scene, "NEBULAR NOMAD · LEVEL 1") != null and find_label_with_text(scene, "ORBIT GUNSLINGER") != null and find_label_with_text(scene, "AVAILABLE POINTS") != null, "English catalog covers hunter identity, equipment overview, and spendable status points")
+	check(find_label_with_text(scene, "HUNTER") != null and find_label_with_text(scene, "EQUIPMENT · STATS · ATTRIBUTES") != null and find_label_with_text(scene, "STARWORN · LEVEL 1") != null and find_label_with_text(scene, "ORBIT GUNSLINGER") != null and find_label_with_text(scene, "AVAILABLE POINTS") != null, "English catalog covers hunter identity, equipment overview, and spendable status points")
 	check(["STRENGTH", "VITALITY", "DEXTERITY", "INTELLIGENCE", "CUNNING"].all(func(attribute_name): return find_label_with_text(scene, attribute_name) != null) and find_label_with_text(scene, "UNIVERSAL BONUS") != null, "English hunter sheet covers all five attributes and their live mechanical effects")
 	(scene.find_child("ChooseClassAction", true, false) as Button).pressed.emit()
 	await process_frame
-	check(find_label_with_text(scene, "HUNTER CLASS") != null and find_label_with_text(scene, "PROVISIONAL ARCHETYPES · FREE SWITCHING") != null and find_label_with_text(scene, "WARRANT BREAKER") != null and find_label_with_text(scene, "CONTRACT HACKER") != null and find_label_with_text(scene, "CONTRACT STYLE") != null and (scene.find_child("ConfirmClass", true, false) as Button).text == "CONFIRM CLASS", "English catalog covers the complete three-class comparison and confirmation surface")
+	check(find_label_with_text(scene, "HUNTER CLASS") != null and find_label_with_text(scene, "INITIAL CLASSES · FREE SWITCHING") != null and find_label_with_text(scene, "WARRANT BREAKER") != null and find_label_with_text(scene, "CONTRACT HACKER") != null and find_label_with_text(scene, "CONTRACT STYLE") != null and (scene.find_child("ConfirmClass", true, false) as Button).text == "CONFIRM CLASS", "English catalog covers the complete three-class comparison and confirmation surface")
 	scene.view_mode = "arsenal"
 	scene.arsenal_section = "equipped"
 	scene.render()

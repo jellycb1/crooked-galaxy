@@ -6,7 +6,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 
 msgid "ONB_PROGRESS"
-msgstr "REGISTRO DE CAÇADOR · ETAPA %d/4"
+msgstr "REGISTRO DE CAÇADOR · ETAPA %d/5"
 
 msgid "ONB_LOGIN_TITLE"
 msgstr "ENTRAR"
@@ -81,16 +81,13 @@ msgid "ONB_CLASS_FLEXIBLE"
 msgstr "CONTRATO FLEXÍVEL"
 
 msgid "ONB_CLASS_PROVISIONAL"
-msgstr "ARQUÉTIPO PROVISÓRIO · MECÂNICA ATIVA"
+msgstr "IDENTIDADE DE CLASSE · MECÂNICA ATIVA"
 
 msgid "ONB_CLASS_SPECIALIZATION"
 msgstr "ESPECIALIZAÇÃO · %s"
 
 msgid "ONB_CLASS_CONFIRM"
 msgstr "CONFIRMAR CLASSE"
-
-msgid "ONB_CLASS_PLACEHOLDER_TOOLTIP"
-msgstr "PLACEHOLDER INTERNO · identidade visual provisória"
 
 msgid "ONB_SPECIES_TITLE"
 msgstr "ESCOLHA A RAÇA"
@@ -110,6 +107,66 @@ msgstr "TOQUE EM UMA ORIGEM ABAIXO"
 msgid "ONB_SPECIES_CONFIRM"
 msgstr "CONFIRMAR RAÇA"
 
+msgid "ONB_APPEARANCE_TITLE"
+msgstr "PERSONALIZE O CAÇADOR"
+
+msgid "ONB_APPEARANCE_DESCRIPTION"
+msgstr "Estas escolhas são visuais e podem combinar-se livremente sem alterar o poder."
+
+msgid "ONB_APPEARANCE_CONFIRM"
+msgstr "CONFIRMAR APARÊNCIA"
+
+msgid "ONB_NOTICE_APPEARANCE"
+msgstr "Aparência confirmada."
+
+msgid "APPEARANCE_PALETTE"
+msgstr "PALETA"
+
+msgid "APPEARANCE_EYES"
+msgstr "OLHOS"
+
+msgid "APPEARANCE_FEATURE"
+msgstr "TRAÇO"
+
+msgid "APPEARANCE_MARKING"
+msgstr "MARCA"
+
+msgid "APPEARANCE_OPTION_NATIVE"
+msgstr "NATIVA"
+
+msgid "APPEARANCE_OPTION_WARM"
+msgstr "QUENTE"
+
+msgid "APPEARANCE_OPTION_COOL"
+msgstr "FRIA"
+
+msgid "APPEARANCE_OPTION_STANDARD"
+msgstr "PADRÃO"
+
+msgid "APPEARANCE_OPTION_WIDE"
+msgstr "AMPLOS"
+
+msgid "APPEARANCE_OPTION_NARROW"
+msgstr "ESTREITOS"
+
+msgid "APPEARANCE_OPTION_CLASSIC"
+msgstr "CLÁSSICO"
+
+msgid "APPEARANCE_OPTION_BOLD"
+msgstr "MARCANTE"
+
+msgid "APPEARANCE_OPTION_SUBTLE"
+msgstr "DISCRETO"
+
+msgid "APPEARANCE_OPTION_CLEAN"
+msgstr "LIMPA"
+
+msgid "APPEARANCE_OPTION_STRIPE"
+msgstr "FAIXA"
+
+msgid "APPEARANCE_OPTION_SPOTS"
+msgstr "PINTAS"
+
 msgid "ONB_NAME_TITLE"
 msgstr "NOME DO CAÇADOR"
 
@@ -127,6 +184,9 @@ msgstr "ALTERAR CLASSE"
 
 msgid "ONB_NAME_CHANGE_SPECIES"
 msgstr "ALTERAR RAÇA"
+
+msgid "ONB_NAME_CHANGE_APPEARANCE"
+msgstr "ALTERAR APARÊNCIA"
 
 msgid "ONB_NAME_PLACEHOLDER"
 msgstr "3–20 caracteres"
@@ -154,6 +214,9 @@ msgstr "Registro reaberto para corrigir a classe."
 
 msgid "ONB_NOTICE_REOPEN_SPECIES"
 msgstr "Registro reaberto para corrigir a raça."
+
+msgid "ONB_NOTICE_REOPEN_APPEARANCE"
+msgstr "Registro reaberto para corrigir a aparência."
 
 msgid "CLASS_NONE"
 msgstr "SEM CLASSE"
@@ -230,77 +293,77 @@ msgstr "Reescreve fechaduras, drones e ocasionalmente a definição de legal."
 msgid "CLASS_CONTRACT_HACKER_ROUTE_STYLE"
 msgstr "CONTROLE TÁTICO"
 
-msgid "SPECIES_PATCHED_TERRAN_NAME"
-msgstr "Terrano Remendado"
+msgid "SPECIES_TERRAN_NAME"
+msgstr "Terrano"
 
-msgid "SPECIES_PATCHED_TERRAN_IDENTITY"
+msgid "SPECIES_TERRAN_IDENTITY"
 msgstr "ORGÂNICO · ADAPTÁVEL"
 
-msgid "SPECIES_PATCHED_TERRAN_TAGLINE"
-msgstr "Sobrevive por adaptação, fita industrial e uma confiança estatisticamente injustificada."
+msgid "SPECIES_TERRAN_TAGLINE"
+msgstr "Humanos espalhados pela galáxia, especialistas em sobreviver com equipamento remendado."
 
-msgid "SPECIES_DISCONTINUED_SYNTHETIC_NAME"
-msgstr "Sintético Descontinuado"
+msgid "SPECIES_SYNTHETIC_NAME"
+msgstr "Sintético"
 
-msgid "SPECIES_DISCONTINUED_SYNTHETIC_IDENTITY"
+msgid "SPECIES_SYNTHETIC_IDENTITY"
 msgstr "SINTÉTICO · MODULAR"
 
-msgid "SPECIES_DISCONTINUED_SYNTHETIC_TAGLINE"
-msgstr "O fabricante encerrou o suporte; felizmente também encerrou as limitações de garantia."
+msgid "SPECIES_SYNTHETIC_TAGLINE"
+msgstr "Corpos modulares que continuaram a evoluir muito depois do fim da garantia."
 
-msgid "SPECIES_NEBULAR_NOMAD_NAME"
-msgstr "Nômade Nebular"
+msgid "SPECIES_STARWORN_NAME"
+msgstr "Astrerrante"
 
-msgid "SPECIES_NEBULAR_NOMAD_IDENTITY"
-msgstr "ALIENÍGENA · INTUITIVO"
+msgid "SPECIES_STARWORN_IDENTITY"
+msgstr "CÓSMICO · INTUITIVO"
 
-msgid "SPECIES_NEBULAR_NOMAD_TAGLINE"
-msgstr "Lê correntes cósmicas, maus contratos e salas onde ninguém pretende pagar."
+msgid "SPECIES_STARWORN_TAGLINE"
+msgstr "Viajantes esguios marcados por rotas estelares que só eles conseguem ler."
 
-msgid "SPECIES_CELLAR_MYCELIAN_NAME"
-msgstr "Miceliano de Porão"
+msgid "SPECIES_FUNGOID_NAME"
+msgstr "Fungoide"
 
-msgid "SPECIES_CELLAR_MYCELIAN_IDENTITY"
+msgid "SPECIES_FUNGOID_IDENTITY"
 msgstr "FÚNGICO · COLETIVO"
 
-msgid "SPECIES_CELLAR_MYCELIAN_TAGLINE"
-msgstr "Uma colônia de esporos com um casaco, uma licença duvidosa e excelente memória coletiva."
+msgid "SPECIES_FUNGOID_TAGLINE"
+msgstr "Colónias conscientes que usam um único corpo, muitas memórias e excelentes casacos."
 
-msgid "SPECIES_RUSTED_FERRITE_NAME"
-msgstr "Ferrídeo Oxidado"
+msgid "SPECIES_MOTHARI_NAME"
+msgstr "Mothari"
 
-msgid "SPECIES_RUSTED_FERRITE_IDENTITY"
-msgstr "MINERAL · RESSONANTE"
+msgid "SPECIES_MOTHARI_IDENTITY"
+msgstr "ALADO · NOTURNO"
 
-msgid "SPECIES_RUSTED_FERRITE_TAGLINE"
-msgstr "Nasceu entre asteroides de ferro e considera ferrugem uma respeitável marca de maturidade."
+msgid "SPECIES_MOTHARI_TAGLINE"
+msgstr "Navegadores noturnos de olhos enormes, antenas sensíveis e mantos iridescentes."
 
-msgid "SPECIES_TANKBORN_ABYSSAL_NAME"
-msgstr "Abissal de Tanque"
+msgid "SPECIES_ABYSSAL_NAME"
+msgstr "Abissal"
 
-msgid "SPECIES_TANKBORN_ABYSSAL_IDENTITY"
+msgid "SPECIES_ABYSSAL_IDENTITY"
 msgstr "AQUÁTICO · ANFÍBIO"
 
-msgid "SPECIES_TANKBORN_ABYSSAL_TAGLINE"
-msgstr "Criado sob pressão, respira qualquer atmosfera desde que ninguém pergunte pela garantia."
+msgid "SPECIES_ABYSSAL_TAGLINE"
+msgstr "Anfíbios de mundos oceânicos, criados sob uma pressão capaz de esmagar cargueiros."
 
-msgid "SPECIES_UNSTABLE_LUMINAR_NAME"
-msgstr "Luminar Instável"
+msgid "SPECIES_GLITCHLIGHT_NAME"
+msgstr "Luz-Defeituosa"
 
-msgid "SPECIES_UNSTABLE_LUMINAR_IDENTITY"
+msgid "SPECIES_GLITCHLIGHT_IDENTITY"
 msgstr "ENERGÉTICO · PRISMÁTICO"
 
-msgid "SPECIES_UNSTABLE_LUMINAR_TAGLINE"
-msgstr "É feito de luz condensada; pisca quando mente e ilumina corredores sem cobrar adicional."
+msgid "SPECIES_GLITCHLIGHT_TAGLINE"
+msgstr "Entidades de energia condensada que piscam, fragmentam e recusam ficar quietas."
 
-msgid "SPECIES_CATALOG_CHIMERA_NAME"
-msgstr "Quimera de Catálogo"
+msgid "SPECIES_SCRAPROOT_NAME"
+msgstr "Raiz-de-Sucata"
 
-msgid "SPECIES_CATALOG_CHIMERA_IDENTITY"
-msgstr "HÍBRIDO · BIOENGENHADO"
+msgid "SPECIES_SCRAPROOT_IDENTITY"
+msgstr "BOTÂNICO · ENXERTADO"
 
-msgid "SPECIES_CATALOG_CHIMERA_TAGLINE"
-msgstr "Encomendada por peças, montada sem manual e orgulhosamente fora do padrão de fábrica."
+msgid "SPECIES_SCRAPROOT_TAGLINE"
+msgstr "Flora ambulante que enxerta metal recuperado onde outras espécies usariam armadura."
 
 msgid "NAV_CONTRACTS"
 msgstr "MANDADOS"
@@ -397,9 +460,6 @@ msgstr "POSIÇÃO ATUAL"
 
 msgid "MENU_IN_TRANSIT"
 msgstr "EM TRÂNSITO · %s"
-
-msgid "COMMON_PLACEHOLDER_DECORATION"
-msgstr "PLACEHOLDER INTERNO · ornamento provisório"
 
 msgid "COMMON_BACK"
 msgstr "VOLTAR"
@@ -2441,9 +2501,6 @@ msgstr "Perícia com alvo %d: +%d sucata"
 msgid "REWARD_NOTICE_PAID"
 msgstr "Contrato pago: %s"
 
-msgid "COMMON_REFERENCE_PLACEHOLDER_WATERMARK"
-msgstr "PLACEHOLDER INTERNO · SUBSTITUIR"
-
 msgid "ATTRIBUTE_VITALITY"
 msgstr "Vitalidade"
 
@@ -2526,7 +2583,7 @@ msgid "CLASS_VIEW_SUBTITLE"
 msgstr "Escolha a especialização que amplifica seu atributo principal."
 
 msgid "CLASS_VIEW_PROVISIONAL"
-msgstr "ARQUÉTIPOS PROVISÓRIOS · TROCA GRATUITA"
+msgstr "CLASSES INICIAIS · TROCA GRATUITA"
 
 msgid "CLASS_VIEW_EXPLANATION"
 msgstr "A classe concede +1 Poder a cada 2 pontos investidos no atributo principal. Seus demais atributos continuam ativos."

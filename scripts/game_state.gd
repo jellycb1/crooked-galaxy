@@ -5,6 +5,7 @@ const SaveMigrationRules = preload("res://scripts/save_migrations.gd")
 const CareerRules = preload("res://scripts/career_rules.gd")
 const ClassRules = preload("res://scripts/class_rules.gd")
 const SpeciesRulesScript = preload("res://scripts/species_rules.gd")
+const AppearanceRulesScript = preload("res://scripts/appearance_rules.gd")
 const ServerRulesScript = preload("res://scripts/server_rules.gd")
 const LocaleRulesScript = preload("res://scripts/locale_rules.gd")
 const MarketRulesScript = preload("res://scripts/market_rules.gd")
@@ -68,6 +69,7 @@ func default_player() -> Dictionary:
 		"character_id": "",
 		"class_id": "",
 		"species_id": "",
+		"appearance": {},
 		"hunter_name": "",
 		"level": 1,
 		"xp": 0,
@@ -121,6 +123,8 @@ func onboarding_step() -> String:
 		return "class"
 	if not SpeciesRulesScript.is_valid(str(player.get("species_id", ""))):
 		return "species"
+	if not AppearanceRulesScript.is_complete(player.get("appearance", {})):
+		return "appearance"
 	if normalized_hunter_name(str(player.get("hunter_name", ""))).is_empty():
 		return "name"
 	return "complete"
@@ -171,7 +175,19 @@ func select_species(species_id: String) -> bool:
 	if not account_session_ready() or class_id.is_empty() or not ClassRules.is_valid(class_id) or not SpeciesRulesScript.is_valid(species_id):
 		return false
 	player.species_id = species_id
+	player.appearance = {}
 	last_notice = LocaleRulesScript.text("ONB_NOTICE_SPECIES", "Raça confirmada: %s.", [SpeciesRulesScript.species_name_for(species_id)])
+	last_notice_context = "onboarding"
+	var saved := save_game()
+	changed.emit()
+	return saved
+
+
+func confirm_appearance(appearance: Dictionary) -> bool:
+	if not SpeciesRulesScript.is_valid(str(player.get("species_id", ""))) or not AppearanceRulesScript.is_complete(appearance):
+		return false
+	player.appearance = AppearanceRulesScript.sanitize(appearance)
+	last_notice = LocaleRulesScript.text("ONB_NOTICE_APPEARANCE", "Aparência confirmada.")
 	last_notice_context = "onboarding"
 	var saved := save_game()
 	changed.emit()
@@ -192,7 +208,7 @@ func normalized_hunter_name(raw_name: String) -> String:
 
 
 func set_hunter_name(raw_name: String) -> bool:
-	if not SpeciesRulesScript.is_valid(str(player.get("species_id", ""))):
+	if not SpeciesRulesScript.is_valid(str(player.get("species_id", ""))) or not AppearanceRulesScript.is_complete(player.get("appearance", {})):
 		return false
 	var clean := normalized_hunter_name(raw_name)
 	if clean.is_empty():
@@ -213,9 +229,14 @@ func reopen_onboarding_choice(choice: String) -> bool:
 			player.class_id = ""
 		"species":
 			player.species_id = ""
+			player.appearance = {}
+		"appearance":
+			player.appearance = {}
 		_:
 			return false
-	last_notice = LocaleRulesScript.text("ONB_NOTICE_REOPEN_CLASS" if choice == "class" else "ONB_NOTICE_REOPEN_SPECIES", "Registro reaberto para corrigir a classe." if choice == "class" else "Registro reaberto para corrigir a raça.")
+	var notice_key := {"class": "ONB_NOTICE_REOPEN_CLASS", "species": "ONB_NOTICE_REOPEN_SPECIES", "appearance": "ONB_NOTICE_REOPEN_APPEARANCE"}.get(choice, "ONB_NOTICE_REOPEN_SPECIES") as String
+	var notice_fallback := {"class": "Registro reaberto para corrigir a classe.", "species": "Registro reaberto para corrigir a raça.", "appearance": "Registro reaberto para corrigir a aparência."}.get(choice, "Registro reaberto.") as String
+	last_notice = LocaleRulesScript.text(notice_key, notice_fallback)
 	last_notice_context = "onboarding"
 	var saved := save_game()
 	changed.emit()
@@ -1654,6 +1675,14 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	if not species_id.is_empty() and not SpeciesRulesScript.is_valid(species_id):
 		sanitized.species_id = ""
 		repaired = true
+	var clean_appearance := AppearanceRulesScript.sanitize(sanitized.get("appearance", {}))
+	if AppearanceRulesScript.is_complete(sanitized.get("appearance", {})):
+		sanitized.appearance = clean_appearance
+	elif not str(sanitized.get("hunter_name", "")).is_empty() and SpeciesRulesScript.is_valid(str(sanitized.get("species_id", ""))):
+		sanitized.appearance = clean_appearance
+		repaired = true
+	else:
+		sanitized.appearance = {}
 	var clean_hunter_name := normalized_hunter_name(str(sanitized.get("hunter_name", "")))
 	if clean_hunter_name != str(sanitized.get("hunter_name", "")):
 		sanitized.hunter_name = clean_hunter_name

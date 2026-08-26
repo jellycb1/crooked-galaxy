@@ -123,7 +123,9 @@ func draw_hunter() -> void:
 	draw_frame(Color("#13284a"), gold if kit_active else origin_color)
 	# Shoulders and helmet.
 	filled_polygon([Vector2(0.12, 0.94), Vector2(0.20, 0.72), Vector2(0.38, 0.64), Vector2(0.62, 0.64), Vector2(0.80, 0.72), Vector2(0.88, 0.94)], armor_color.darkened(0.35), ink)
-	outlined_circle(Vector2(0.50, 0.50), 0.31, species_skin_color(species_id), ink, 0.032)
+	var appearance: Dictionary = equipment_profile.get("appearance", {})
+	var skin := appearance_skin_color(species_skin_color(species_id), str(appearance.get("palette", "native")))
+	outlined_circle(Vector2(0.50, 0.50), 0.31, skin, ink, 0.032)
 	# Crooked space-western hat.
 	filled_polygon([Vector2(0.20, 0.30), Vector2(0.81, 0.25), Vector2(0.75, 0.36), Vector2(0.23, 0.38)], Color("#9a552b"), ink)
 	filled_polygon([Vector2(0.34, 0.29), Vector2(0.38, 0.10), Vector2(0.65, 0.08), Vector2(0.72, 0.28)], Color("#b96a35"), ink)
@@ -131,37 +133,48 @@ func draw_hunter() -> void:
 	# Visor and face read at tiny sizes.
 	filled_polygon([Vector2(0.24, 0.43), Vector2(0.76, 0.39), Vector2(0.70, 0.62), Vector2(0.30, 0.64)], Color("#173952"), ink)
 	draw_line(Vector2(0.31, 0.47), Vector2(0.64, 0.44), Color(weapon_color, 0.85), 0.035, true)
-	draw_circle(Vector2(0.37, 0.54), 0.035, weapon_color)
-	draw_circle(Vector2(0.62, 0.52), 0.035, weapon_color)
+	var eye_radius := 0.046 if str(appearance.get("eyes", "standard")) == "wide" else (0.025 if str(appearance.get("eyes", "standard")) == "narrow" else 0.035)
+	draw_circle(Vector2(0.37, 0.54), eye_radius, weapon_color)
+	draw_circle(Vector2(0.62, 0.52), eye_radius, weapon_color)
 	draw_line(Vector2(0.43, 0.70), Vector2(0.61, 0.68), ink, 0.025, true)
-	if species_id == "discontinued_synthetic":
+	if species_id == "synthetic":
 		draw_line(Vector2(0.30, 0.65), Vector2(0.39, 0.75), species_accent, 0.022, true)
 		draw_line(Vector2(0.70, 0.63), Vector2(0.61, 0.75), species_accent, 0.022, true)
 		draw_circle(Vector2(0.72, 0.58), 0.025, species_accent)
-	elif species_id == "nebular_nomad":
+	elif species_id == "starworn":
 		draw_circle(Vector2(0.50, 0.39), 0.025, species_accent)
 		draw_line(Vector2(0.35, 0.28), Vector2(0.29, 0.17), species_accent, 0.025, true)
 		draw_line(Vector2(0.66, 0.27), Vector2(0.73, 0.15), species_accent, 0.025, true)
-	elif species_id == "cellar_mycelian":
+	elif species_id == "fungoid":
 		for point in [Vector2(0.31, 0.65), Vector2(0.39, 0.72), Vector2(0.69, 0.63)]:
 			draw_circle(point, 0.022, species_accent)
-	elif species_id == "rusted_ferrite":
+	elif species_id == "mothari":
 		draw_line(Vector2(0.29, 0.65), Vector2(0.41, 0.75), species_accent, 0.025, true)
 		draw_line(Vector2(0.69, 0.62), Vector2(0.58, 0.74), species_accent, 0.025, true)
 		draw_circle(Vector2(0.72, 0.57), 0.022, Color("#d7c5b5"))
-	elif species_id == "tankborn_abyssal":
+	elif species_id == "abyssal":
 		for y in [0.61, 0.67, 0.73]:
 			draw_line(Vector2(0.28, y), Vector2(0.34, y - 0.015), species_accent, 0.020, true)
 			draw_line(Vector2(0.72, y), Vector2(0.66, y - 0.015), species_accent, 0.020, true)
-	elif species_id == "unstable_luminar":
+	elif species_id == "glitchlight":
 		draw_colored_polygon(PackedVector2Array([Vector2(0.50, 0.37), Vector2(0.54, 0.42), Vector2(0.50, 0.47), Vector2(0.46, 0.42)]), species_accent)
 		draw_line(Vector2(0.35, 0.67), Vector2(0.50, 0.76), Color(species_accent, 0.75), 0.020, true)
 		draw_line(Vector2(0.65, 0.65), Vector2(0.50, 0.76), Color(species_accent, 0.75), 0.020, true)
-	elif species_id == "catalog_chimera":
+	elif species_id == "scraproot":
 		draw_line(Vector2(0.35, 0.29), Vector2(0.29, 0.18), species_accent, 0.030, true)
 		draw_line(Vector2(0.65, 0.27), Vector2(0.72, 0.16), species_accent, 0.030, true)
 		for point in [Vector2(0.32, 0.65), Vector2(0.39, 0.72), Vector2(0.68, 0.64)]:
 			draw_circle(point, 0.019, species_accent)
+	if str(appearance.get("marking", "clean")) == "stripe":
+		draw_line(Vector2(0.32, 0.66), Vector2(0.68, 0.62), Color(species_accent, 0.75), 0.022, true)
+	elif str(appearance.get("marking", "clean")) == "spots":
+		for point in [Vector2(0.34, 0.66), Vector2(0.48, 0.72), Vector2(0.64, 0.65)]:
+			draw_circle(point, 0.018, Color(species_accent, 0.78))
+	if str(appearance.get("feature", "classic")) == "bold":
+		draw_line(Vector2(0.27, 0.36), Vector2(0.20, 0.21), species_accent, 0.032, true)
+		draw_line(Vector2(0.73, 0.34), Vector2(0.80, 0.19), species_accent, 0.032, true)
+	elif str(appearance.get("feature", "classic")) == "subtle":
+		draw_circle(Vector2(0.50, 0.39), 0.018, species_accent)
 	# Antenna keeps the silhouette distinctive.
 	draw_line(Vector2(0.72, 0.17), Vector2(0.84, 0.08), ink, 0.025, true)
 	outlined_circle(Vector2(0.86, 0.065), 0.035, weapon_color, ink, 0.018)
@@ -180,44 +193,54 @@ func equipment_color(item: Dictionary, fallback: Color) -> Color:
 
 func species_skin_color(species_id: String) -> Color:
 	match species_id:
-		"discontinued_synthetic":
+		"synthetic":
 			return Color("#7189a8")
-		"nebular_nomad":
+		"starworn":
 			return Color("#8c74b5")
-		"cellar_mycelian":
+		"fungoid":
 			return Color("#9fbd72")
-		"rusted_ferrite":
+		"mothari":
 			return Color("#806b5d")
-		"tankborn_abyssal":
+		"abyssal":
 			return Color("#508ca3")
-		"unstable_luminar":
+		"glitchlight":
 			return Color("#bcecf2")
-		"catalog_chimera":
-			return Color("#aa6977")
+		"scraproot":
+			return Color("#648a58")
 		_:
 			return Color("#d7d6c9")
 
 
 func species_accent_color(species_id: String) -> Color:
 	match species_id:
-		"patched_terran":
+		"terran":
 			return Color("#ffc857")
-		"discontinued_synthetic":
+		"synthetic":
 			return Color("#55e5ff")
-		"nebular_nomad":
+		"starworn":
 			return Color("#b8f45d")
-		"cellar_mycelian":
+		"fungoid":
 			return Color("#ff7ad9")
-		"rusted_ferrite":
+		"mothari":
 			return Color("#ff8a4c")
-		"tankborn_abyssal":
+		"abyssal":
 			return Color("#46d9c8")
-		"unstable_luminar":
+		"glitchlight":
 			return Color("#ffe66d")
-		"catalog_chimera":
-			return Color("#f06d8f")
+		"scraproot":
+			return Color("#72d572")
 		_:
 			return Color("#55e5ff")
+
+
+func appearance_skin_color(base: Color, palette: String) -> Color:
+	match palette:
+		"warm":
+			return base.lerp(Color("#d98f68"), 0.34)
+		"cool":
+			return base.lerp(Color("#738bd4"), 0.34)
+		_:
+			return base
 
 
 func planet_loadout_color(planet_id: String) -> Color:

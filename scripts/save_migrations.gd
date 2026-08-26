@@ -1,7 +1,7 @@
 class_name SaveMigrations
 extends RefCounted
 
-const CURRENT_VERSION := 14
+const CURRENT_VERSION := 15
 const BASE_ATTRIBUTE_VALUE := 10
 const ATTRIBUTE_POINTS_PER_LEVEL := 2
 
@@ -52,6 +52,9 @@ static func migrate(payload: Dictionary) -> Dictionary:
 			13:
 				migrated = migrate_v13_to_v14(migrated)
 				version = 14
+			14:
+				migrated = migrate_v14_to_v15(migrated)
+				version = 15
 			_:
 				return {}
 		migrated.version = version
@@ -236,4 +239,29 @@ static func migrate_v13_to_v14(payload: Dictionary) -> Dictionary:
 		account.last_server_revision = 0
 		migrated.account = account
 		migrated.player = player
+	return migrated
+
+
+static func migrate_v14_to_v15(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	var player: Dictionary = migrated.get("player", {})
+	var legacy_species := {
+		"patched_terran": "terran",
+		"discontinued_synthetic": "synthetic",
+		"nebular_nomad": "starworn",
+		"cellar_mycelian": "fungoid",
+		"tankborn_abyssal": "abyssal",
+		"rusted_ferrite": "mothari",
+		"catalog_chimera": "scraproot",
+		"unstable_luminar": "glitchlight",
+	}
+	var old_id := str(player.get("species_id", ""))
+	player.species_id = str(legacy_species.get(old_id, old_id))
+	# Established hunters receive the neutral preset and never get forced back
+	# through onboarding. Interrupted creation still visits customization.
+	if not str(player.get("hunter_name", "")).is_empty():
+		player.appearance = {"palette": "native", "eyes": "standard", "feature": "classic", "marking": "clean"}
+	elif not player.has("appearance"):
+		player.appearance = {}
+	migrated.player = player
 	return migrated

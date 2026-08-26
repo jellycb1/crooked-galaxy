@@ -8,7 +8,7 @@ const DEFINITIONS := [
 	{
 		"id": "warrant_breaker",
 		"name": "QUEBRA-MANDADOS",
-		"prototype": true,
+		"prototype": false,
 		"primary_attribute": "strength",
 		"primary_name": "FORÇA",
 		"tagline": "Impacto, armamento pesado e cobranças sem sutileza.",
@@ -21,7 +21,7 @@ const DEFINITIONS := [
 	{
 		"id": "orbit_gunslinger",
 		"name": "PISTOLEIRO ORBITAL",
-		"prototype": true,
+		"prototype": false,
 		"primary_attribute": "dexterity",
 		"primary_name": "DESTREZA",
 		"tagline": "Reflexos, posicionamento e precisão em movimento.",
@@ -34,7 +34,7 @@ const DEFINITIONS := [
 	{
 		"id": "contract_hacker",
 		"name": "HACKER DE CONTRATOS",
-		"prototype": true,
+		"prototype": false,
 		"primary_attribute": "intelligence",
 		"primary_name": "INTELIGÊNCIA",
 		"tagline": "Dispositivos, abertura tática e tecnologia improvisada.",

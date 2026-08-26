@@ -32,12 +32,8 @@ if ($LASTEXITCODE -ne 0) {
     throw "Could not verify the GitHub repository visibility."
 }
 $RepositoryInfo = $RepositoryJson | ConvertFrom-Json
-if ((-not [bool]$RepositoryInfo.isPrivate -or [string]$RepositoryInfo.visibility -ne "PRIVATE") -and -not $AllowPublicReferenceBuild) {
-    throw "Refusing to publish reference placeholders: $($RepositoryInfo.url) is not private."
-}
-if (-not [bool]$RepositoryInfo.isPrivate) {
-    Write-Warning "Publishing the internal reference-placeholder APK to the explicitly authorized public repository $Repository."
-}
+# The switch is retained for command-line compatibility with older local
+# workflows. Current exports are reference-free regardless of repository scope.
 
 $Commit = (& git -C $ProjectRoot rev-parse --short HEAD).Trim()
 $ProjectText = Get-Content -LiteralPath (Join-Path $ProjectRoot "project.godot") -Raw
@@ -48,7 +44,7 @@ if (-not $VersionMatch.Success) {
 $Version = $VersionMatch.Groups[1].Value
 $ApkHash = (Get-FileHash -LiteralPath $OutputApk -Algorithm SHA256).Hash.ToLowerInvariant()
 Set-Content -LiteralPath $ChecksumPath -Value "$ApkHash  CrookedGalaxy.apk" -Encoding ascii
-$Notes = "Crooked Galaxy $Version Android team-test build from commit $Commit. Includes documented temporary reference placeholders. ARM64, update-compatible debug signature for direct testing.`n`nSHA-256: ``$ApkHash``"
+$Notes = "Crooked Galaxy $Version Android team-test build from commit $Commit. Reference-free runtime with original production art. ARM64, update-compatible debug signature for direct testing.`n`nSHA-256: ``$ApkHash``"
 
 & gh release view latest --repo $Repository *> $null
 if ($LASTEXITCODE -eq 0) {

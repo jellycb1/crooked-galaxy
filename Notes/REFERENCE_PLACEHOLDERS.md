@@ -1,40 +1,19 @@
-# Reference placeholder register
+# Reference study register — archived
 
-## Internal development authorization — 2026-08-24
+## Runtime status — 2026-08-26
 
-The project owner explicitly permits the development team to inspect any asset or source-code section under `References/` to understand behavior, flows, and interface organization. Any reference asset may be packaged as a visibly marked placeholder in the team-only Android test APK when its source, purpose, and intended replacement are documented here. This authorization does not make the material production-owned: final implementation code remains independently written, and every shipped placeholder remains scheduled for replacement.
+No asset from `References/` is active in Crooked Galaxy or included in its Android/Windows exports. The former thirteen-image test allowlist, runtime loader, feature flag, watermark, staging step, and public-build exception were removed in version 0.28.0.
 
-The project owner explicitly permits the Android team-test APK containing documented reference placeholders to remain on the public `latest` release of `jellycb1/crooked-galaxy`. Public accessibility is accepted for this internal testing workflow. The publisher still requires the deliberate `-AllowPublicReferenceBuild` switch so a different operator or destination cannot inherit that exception silently.
+Their independently created replacements are:
 
-## Prototype class content
+- `assets/backgrounds/bounty_office.png` for contracts;
+- `assets/backgrounds/frontier_spaceport.png` for world, career, classes, and onboarding;
+- `assets/backgrounds/arsenal_workshop.png` for arsenal, market, and hangar;
+- `assets/backgrounds/frontier_arena.png` for combat and the Fenda;
+- `scripts/class_icon.gd` for all three class emblems;
+- `scripts/portrait_frame.gd` for hunter and archive portrait framing;
+- an original styled separator in `scripts/main.gd` for the board hub.
 
-The current Quebra-Mandados, Pistoleiro Orbital, and Hacker de Contratos trio is mechanical prototype content. Names, descriptions, themes, and eventual visual identities are not final. Each definition carries `prototype: true`, while its effect values remain data-driven test scaffolding; replacing the roster must preserve save-ID migration explicitly rather than silently reassigning existing hunters.
+`References/.gdignore` remains mandatory so Godot never imports the local study library. Both export presets exclude `References/*`; Android has no custom reference feature and no staged include filter. The pack inspector rejects raw paths and every former `internal_reference_assets/*.png.bin` path.
 
-These files are proprietary study material used as temporary composition placeholders. They are never tracked or imported by Godot. The thirteen documented images are staged into the single Android APK used on our own test device. Windows remains reference-free; Android also retains the independently generated original production art as its fallback.
-
-| Context | Local source under `References/` | Prototype purpose | Original replacement |
-| --- | --- | --- | --- |
-| Contract board, briefing, hunt, incident, reward | `Shakes and Fidget Assets/StreamingAssets/tavern/tavern_back.png` | Test a character-rich illustrated mission hub behind the card hierarchy | `assets/backgrounds/bounty_office.png` |
-| Galaxy map and career | `Shakes and Fidget Assets/StreamingAssets/town/bg_town_day.png` | Test a navigable illustrated world overview rather than an abstract list | `assets/backgrounds/frontier_spaceport.png` |
-| Arsenal and workshop | `Shakes and Fidget Assets/StreamingAssets/others/shopsprites/Shakes_Store_2K.png` | Test a visually explicit equipment bench with recognizable weapon and armor silhouettes | `assets/backgrounds/arsenal_workshop.png` |
-| Market | `Shakes and Fidget Assets/StreamingAssets/dealer/default/dealer_day.png` | Give the equipment shop a recognizable merchant silhouette instead of reusing the arsenal | Original Crooked Galaxy frontier dealer |
-| Transport hangar | `Shakes and Fidget Assets/StreamingAssets/stable/stable_Tag_good_2k.png` | Test an immediately recognizable vehicle showroom composition | Original Crooked Galaxy orbital hangar |
-| Combat and victory | `Shakes and Fidget Assets/StreamingAssets/locations/location_battle_0.png` | Test illustrated arena depth behind automatic combat | `assets/backgrounds/frontier_arena.png` |
-| Class-selection surface | `Shakes and Fidget Assets/StreamingAssets/ui/sf_4k_UI-BG-navi.png` | Test an ornamental portrait panel with stronger section framing | Original Crooked Galaxy sci-fi navigation frame |
-| Quebra-Mandados prototype icon | `Shakes and Fidget Assets/StreamingAssets/registration/icon_warrior_active.png` | Test immediate heavy-class recognition inside cards and the attribute profile | Original class emblem after the placeholder roster is finalized |
-| Pistoleiro Orbital prototype icon | `Shakes and Fidget Assets/StreamingAssets/registration/icon_hunter_active.png` | Test immediate precision-class recognition inside cards and the attribute profile | Original class emblem after the placeholder roster is finalized |
-| Hacker de Contratos prototype icon | `Shakes and Fidget Assets/StreamingAssets/registration/icon_mage_active.png` | Test immediate technology-class recognition inside cards and the attribute profile | Original class emblem after the placeholder roster is finalized |
-| Career surface | `Shakes and Fidget Assets/StreamingAssets/ui/sf_4k_UI-BG-navi-login.png` | Test a dedicated long-form career ledger instead of reusing the galaxy-map surface | Original Crooked Galaxy career/archive frame |
-| Important portrait frame | `Shakes and Fidget Assets/StreamingAssets/z_shared/portrait_glow_border_300.png` | Test visual priority around hunter and current-mastery portraits | Original modular portrait frame |
-| Board hub divider | `Shakes and Fidget Assets/StreamingAssets/ui/frame_top.png` | Test a lightweight boundary between secondary destinations and the active contract | Original sci-fi board divider |
-
-## Boundary rules
-
-- `ReferencePlaceholderBackdrop` is the only runtime file allowed to name `res://References/` paths and maps eight composition surfaces plus five interface textures.
-- Raw image loading is limited to interactive editor runs or builds carrying the explicit `reference_placeholders` feature.
-- The adapter retains only the current decoded placeholder. Changing or leaving a context drops the previous texture, and the production backdrop is unloaded while a placeholder is visible.
-- `References/.gdignore` remains mandatory, so Godot never imports these assets.
-- Every export preset excludes raw `References/*`; the single Android profile stages only the thirteen registered PNGs as Git-ignored raw bytes.
-- The Android pack inspector requires and decodes all thirteen staged placeholders; the Windows inspector remains reference-free.
-- Builds and captures containing the visible `PLACEHOLDER INTERNO · SUBSTITUIR` watermark are test material, never release or marketing material.
-- Replacement art must be independently created; reference names, characters, layouts, text, code, data, and formulas are not production content.
+The material may still be consulted locally for high-level flow and usability analysis. Production implementation must continue using independently written code, copy, data, characters, iconography, and visual composition.

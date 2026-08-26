@@ -2,6 +2,8 @@ class_name CrookedUIFactory
 extends Control
 
 const PortraitScript = preload("res://scripts/procedural_portrait.gd")
+const ClassIconScript = preload("res://scripts/class_icon.gd")
+const PortraitFrameScript = preload("res://scripts/portrait_frame.gd")
 const EquipmentIconScript = preload("res://scripts/equipment_icon.gd")
 const TransportIconScript = preload("res://scripts/transport_icon.gd")
 const EquipmentPresentationScript = preload("res://scripts/equipment_presentation.gd")
@@ -28,6 +30,7 @@ var onboarding_scroll_position := 0
 var attribute_draft: Dictionary = {}
 var class_draft := ""
 var species_draft := ""
+var appearance_draft: Dictionary = {}
 var locale_draft := ""
 var server_draft := ""
 
@@ -45,6 +48,7 @@ func reset_transient_navigation() -> void:
 	attribute_draft = {}
 	class_draft = ""
 	species_draft = ""
+	appearance_draft = {}
 	locale_draft = ""
 	server_draft = ""
 
@@ -125,6 +129,33 @@ func character_portrait(character_id: String, dimension: float, equipment_profil
 	result.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	result.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	return result
+
+
+func class_icon(class_id: String, dimension: float) -> Control:
+	var icon: Control = ClassIconScript.new()
+	var color := {"warrant_breaker": CORAL, "orbit_gunslinger": GOLD, "contract_hacker": CYAN}.get(class_id, CYAN) as Color
+	icon.configure(class_id, color, dimension)
+	return icon
+
+
+func framed_portrait(character_id: String, dimension: float, equipment_profile: Dictionary = {}) -> Control:
+	var stack := Control.new()
+	stack.custom_minimum_size = Vector2(dimension, dimension)
+	stack.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	stack.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var portrait := character_portrait(character_id, dimension - 8.0, equipment_profile)
+	portrait.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	portrait.offset_left = 4.0
+	portrait.offset_top = 4.0
+	portrait.offset_right = -4.0
+	portrait.offset_bottom = -4.0
+	stack.add_child(portrait)
+	var frame: Control = PortraitFrameScript.new()
+	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	frame.configure(CYAN)
+	stack.add_child(frame)
+	return stack
 
 
 func equipment_icon(item: Dictionary, dimension: float) -> Control:

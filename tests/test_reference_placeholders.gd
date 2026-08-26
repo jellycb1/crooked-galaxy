@@ -1,6 +1,8 @@
 extends SceneTree
 
-const ReferenceBackdrop = preload("res://scripts/reference_placeholder_backdrop.gd")
+const EnvironmentBackdropScript = preload("res://scripts/environment_backdrop.gd")
+const ClassIconScript = preload("res://scripts/class_icon.gd")
+const PortraitFrameScript = preload("res://scripts/portrait_frame.gd")
 
 var failures := 0
 
@@ -16,30 +18,27 @@ func check(condition: bool, message: String) -> void:
 
 
 func run() -> void:
-	var backdrop := ReferenceBackdrop.new()
+	var backdrop := EnvironmentBackdropScript.new()
 	root.add_child(backdrop)
 	await process_frame
-	check(backdrop.CONTEXT_PATHS.size() == 8, "all documented composition placeholders keep an explicit context mapping")
-	for context in ["contracts", "world", "workshop", "market", "hangar", "combat", "class_ui", "career_ui"]:
-		check(FileAccess.file_exists(str(backdrop.CONTEXT_PATHS[context])), "documented local placeholder exists for '%s'" % context)
-	check(backdrop.UI_PATHS.size() == 5, "class icons and ornamental UI assets have explicit internal mappings")
-	for class_id in backdrop.UI_PATHS:
-		check(FileAccess.file_exists(str(backdrop.UI_PATHS[class_id])), "documented local class icon exists for '%s'" % class_id)
-	check(not backdrop.local_placeholders_allowed(), "headless validation never decodes visual placeholders")
-	for context in ["contracts", "world", "workshop", "market", "hangar", "combat", "class_ui", "career_ui", "unknown"]:
-		backdrop.show_context(context)
-		check(not backdrop.visible, "headless context '%s' keeps the placeholder hidden" % context)
-	check(backdrop.loaded_source_path.is_empty() and backdrop.texture_rect.texture == null, "headless validation does not retain a decoded reference image")
-	var decoded: Texture2D
-	for context in backdrop.CONTEXT_PATHS:
-		decoded = backdrop.load_local_texture(str(backdrop.CONTEXT_PATHS[context]))
-		check(decoded != null, "registered local PNG for '%s' can be decoded by the runtime path" % context)
-	decoded = backdrop.load_local_texture(str(backdrop.CONTEXT_PATHS.contracts))
-	backdrop.texture_rect.texture = decoded
-	backdrop.loaded_source_path = str(backdrop.CONTEXT_PATHS.contracts)
-	backdrop.release_texture()
-	check(backdrop.texture_rect.texture == null and backdrop.loaded_source_path.is_empty(), "placeholder release drops the only decoded texture reference")
-	backdrop.queue_free()
+	check(backdrop.CONTEXT_PATHS.size() == 4, "all active contexts use the compact original-art backdrop set")
+	for context in ["contracts", "world", "workshop", "combat"]:
+		var path := str(backdrop.CONTEXT_PATHS[context])
+		check(path.begins_with("res://assets/backgrounds/") and FileAccess.file_exists(path), "production background exists for '%s'" % context)
+	backdrop.show_context("contracts", "dustball_prime")
+	check(backdrop.visible and backdrop.texture_rect.texture != null, "production contract art resolves without a reference loader")
+	backdrop.show_context("unknown")
+	check(not backdrop.visible and backdrop.texture_rect.texture == null, "unknown contexts fail closed")
+	for class_id in ["warrant_breaker", "orbit_gunslinger", "contract_hacker"]:
+		var icon = ClassIconScript.new()
+		icon.configure(class_id, Color("#55e5ff"), 64.0)
+		check(icon.class_id == class_id and icon.custom_minimum_size == Vector2(64, 64), "original vector class icon configures for '%s'" % class_id)
+		icon.free()
+	var frame = PortraitFrameScript.new()
+	frame.configure(Color("#ffc857"))
+	check(frame.accent == Color("#ffc857"), "original portrait frame accepts contextual accent")
+	frame.free()
+	backdrop.free()
 	if failures == 0:
-		print("PASS: reference placeholders are mapped, documented, and headless-safe")
+		print("PASS: production visuals are original, runtime-ready, and reference-free")
 	quit(1 if failures > 0 else 0)
