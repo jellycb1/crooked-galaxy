@@ -16,6 +16,9 @@ func _init() -> void:
 	check(outlined.get_theme_stylebox("normal") is StyleBoxFlat, "factory builds outlined button styles")
 	var portrait := factory.character_portrait("hunter", 80)
 	check(portrait.custom_minimum_size == Vector2(80, 80), "factory builds consistently sized portraits")
+	var illustrated_class := factory.class_illustration("orbit_gunslinger", 140)
+	check(illustrated_class != null and illustrated_class.texture is AtlasTexture and illustrated_class.custom_minimum_size == Vector2(119, 140), "factory resolves a readable upper-body crop from the illustrated class slice")
+	check(factory.class_illustration("warrant_breaker", 140) == null, "classes without approved illustrations fail closed to their vector emblem")
 	var equipment := factory.equipment_chip({"name": "Arma Teste", "slot": "weapon", "power": 5, "integrity_upgrades": 2})
 	check(equipment is PanelContainer and equipment.get_child_count() == 1, "factory builds reinforced equipment chips")
 	var card := factory.panel(VBoxContainer.new(), factory.PANEL, 12, 10)
@@ -37,7 +40,7 @@ func _init() -> void:
 	check(factory.briefing_context.is_empty() and factory.career_section == "progress" and factory.career_scroll_position == 0 and not factory.career_section_switch_pending, "factory reset clears stale briefing and career positions")
 	check(factory.market_scroll_position == 0 and factory.hangar_scroll_position == 0 and factory.inventory_scroll_position == 0, "factory reset clears remembered commerce and inventory positions")
 
-	for control in [title, button, outlined, portrait, equipment, card]:
+	for control in [title, button, outlined, portrait, illustrated_class, equipment, card]:
 		control.free()
 	factory.free()
 	if failures == 0:

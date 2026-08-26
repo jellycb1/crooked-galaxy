@@ -3,6 +3,7 @@ extends SceneTree
 const EnvironmentBackdropScript = preload("res://scripts/environment_backdrop.gd")
 const ClassIconScript = preload("res://scripts/class_icon.gd")
 const PortraitFrameScript = preload("res://scripts/portrait_frame.gd")
+const UIConsumerScript = preload("res://scripts/ui_factory.gd")
 
 var failures := 0
 
@@ -34,6 +35,13 @@ func run() -> void:
 		icon.configure(class_id, Color("#55e5ff"), 64.0)
 		check(icon.class_id == class_id and icon.custom_minimum_size == Vector2(64, 64), "original vector class icon configures for '%s'" % class_id)
 		icon.free()
+	var factory = UIConsumerScript.new()
+	root.add_child(factory)
+	var class_art := factory.class_illustration("orbit_gunslinger", 160)
+	check(class_art != null and class_art.texture != null and class_art.texture.get_height() <= 1024, "original transparent class art resolves at a mobile-bounded import size")
+	if class_art != null:
+		class_art.free()
+	factory.free()
 	var frame = PortraitFrameScript.new()
 	frame.configure(Color("#ffc857"))
 	check(frame.accent == Color("#ffc857"), "original portrait frame accepts contextual accent")

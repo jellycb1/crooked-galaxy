@@ -9,6 +9,10 @@ const TransportIconScript = preload("res://scripts/transport_icon.gd")
 const EquipmentPresentationScript = preload("res://scripts/equipment_presentation.gd")
 const UILocaleRulesScript = preload("res://scripts/locale_rules.gd")
 
+const CLASS_ILLUSTRATION_PATHS := {
+	"orbit_gunslinger": "res://assets/classes/orbit_gunslinger_character_v1.png",
+}
+
 const INK := Color("#f4f2ff")
 const MUTED := Color("#9da8c8")
 const CYAN := Color("#55e5ff")
@@ -153,6 +157,29 @@ func class_icon(class_id: String, dimension: float) -> Control:
 	var color := {"warrant_breaker": CORAL, "orbit_gunslinger": GOLD, "contract_hacker": CYAN}.get(class_id, CYAN) as Color
 	icon.configure(class_id, color, dimension)
 	return icon
+
+
+func class_illustration(class_id: String, height: float) -> TextureRect:
+	var path := str(CLASS_ILLUSTRATION_PATHS.get(class_id, ""))
+	if path.is_empty() or not ResourceLoader.exists(path):
+		return null
+	var art := TextureRect.new()
+	var source := ResourceLoader.load(path, "Texture2D", ResourceLoader.CACHE_MODE_REUSE) as Texture2D
+	if source == null:
+		art.queue_free()
+		return null
+	var crop := AtlasTexture.new()
+	crop.atlas = source
+	crop.region = Rect2(0.0, 0.0, float(source.get_width()), roundf(float(source.get_height()) * 0.72))
+	art.texture = crop
+	art.custom_minimum_size = Vector2(roundf(height * 0.85), height)
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	art.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return art
 
 
 func framed_portrait(character_id: String, dimension: float, equipment_profile: Dictionary = {}) -> Control:

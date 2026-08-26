@@ -84,6 +84,11 @@ func run_test() -> void:
 	check(state.onboarding_step() == "class" and str(state.account.server_id) == "international_1" and str(state.account.locale_id) == "pt" and TranslationServer.get_locale().begins_with("pt") and not state.account.has("password"), "local login applies language and stores server identity without credentials")
 	check(scene.find_children("OnboardingClass_*", "PanelContainer", true, false).size() == 3, "mandatory class step shows the complete initial trio")
 	check(scene.find_child("OnboardingClassPreview", true, false) != null and scene.find_child("OnboardingClassPreviewName", true, false) != null, "class choice owns a live archetype preview before confirmation")
+	scene.class_draft = "orbit_gunslinger"
+	scene.render()
+	check(scene.find_child("OnboardingClassPreviewArt", true, false) != null, "the illustrated Orbit Gunslinger owns the first production class-art vertical slice")
+	scene.class_draft = ""
+	scene.render()
 	check_onboarding_touch_targets(scene, "class")
 	var class_confirm := scene.find_child("OnboardingClassConfirm", true, false) as Button
 	var class_scroll := scene.find_child("OnboardingScroll", true, false) as ScrollContainer
