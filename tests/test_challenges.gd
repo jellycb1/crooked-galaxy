@@ -57,6 +57,7 @@ func run_audit() -> void:
 	check(volatile_opening_damage > rupture_opening_damage, "volatile chambers amplify opening gear more than containment failures")
 	check(int(anchor_reduction.prevented) > int(rupture_reduction.prevented), "inertial anchors preserve more mitigation than containment failures")
 	check(float(rupture_profile.attack_roll_bonus_multiplier) < float(anchor_profile.attack_roll_bonus_multiplier), "containment failures disrupt precision more than inertial anchors")
+	check(is_zero_approx(float(volatile_profile.defense_bypass_multiplier)) and is_zero_approx(float(anchor_profile.counter_damage_multiplier)), "challenge anomalies explicitly suppress the class mechanic they are designed to resist")
 	check(CoreRules.max_health(health_probe) == CoreRules.max_health(profile_probe) + 14, "integrity gear remains fully active when mitigation is mostly pierced")
 	var maximum_campaign_safe_delta := 0.0
 	var maximum_campaign_route_delta := 0.0

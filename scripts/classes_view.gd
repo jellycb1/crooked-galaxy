@@ -43,7 +43,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	content.add_child(info)
 	var info_copy := info.get_child(0) as VBoxContainer
 	info_copy.add_child(host.label(text("CLASS_VIEW_PROVISIONAL", "CLASSES INICIAIS · TROCA GRATUITA"), 12, host.LIME))
-	var explanation := host.label(text("CLASS_VIEW_EXPLANATION", "A classe concede +1 Poder a cada 2 pontos investidos no atributo principal. Seus demais atributos continuam ativos."), 12, host.INK)
+	var explanation := host.label(text("CLASS_VIEW_EXPLANATION", "O atributo principal amplia Poder e a mecânica exclusiva da classe. Todos os demais atributos continuam ativos."), 12, host.INK)
 	explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info_copy.add_child(explanation)
 
@@ -159,4 +159,10 @@ static func current_impact_text(definition: Dictionary, player: Dictionary) -> S
 		parts.append(text("CLASS_VIEW_BONUS_REDUCTION", "-%d DANO/GOLPE", [int(preview.damage_reduction)]))
 	if float(preview.attack_roll_bonus) > 0.0:
 		parts.append(text("CLASS_VIEW_BONUS_AIM", "+%.1f%% MIRA", [float(preview.attack_roll_bonus) * 100.0]))
+	if int(preview.counter_damage) > 0:
+		parts.append(text("CLASS_VIEW_BONUS_COUNTER", "+%d CONTRA-ATAQUE/3T", [int(preview.counter_damage)]))
+	if float(preview.evasion_chance) > 0.0:
+		parts.append(text("CLASS_VIEW_BONUS_EVASION", "%.1f%% ESQUIVA", [float(preview.evasion_chance) * 100.0]))
+	if int(preview.defense_bypass) > 0:
+		parts.append(text("CLASS_VIEW_BONUS_OVERLOAD", "-%d DEFESA", [int(preview.defense_bypass)]))
 	return text("CLASS_VIEW_BUILD_BONUS", "BÔNUS NA BUILD · %s", [" · ".join(parts) if not parts.is_empty() else text("CLASS_VIEW_INACTIVE", "AINDA INATIVO")])

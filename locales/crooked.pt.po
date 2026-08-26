@@ -245,6 +245,18 @@ msgstr "Casco Duro: -%d dano base e -1 adicional a cada %d pontos investidos"
 msgid "CLASS_SPECIALIZATION_AIM"
 msgstr "Mira Orbital: +%.1f%% base e +%.1f%% por ponto investido, até +%.1f%%"
 
+msgid "CLASS_SPECIALIZATION_AIM_FIXED"
+msgstr "Mira Orbital: +%.1f%% precisão constante"
+
+msgid "CLASS_SPECIALIZATION_COUNTER"
+msgstr "Contra-ataque: +%d dano a cada %d turnos"
+
+msgid "CLASS_SPECIALIZATION_GUNSLINGER"
+msgstr "Reflexos: %.1f%% esquiva base; tiro perfeito gera rajada de %.0f%%"
+
+msgid "CLASS_SPECIALIZATION_OVERLOAD"
+msgstr "Sobrecarga: ignora %d defesa base em cada ataque"
+
 msgid "CLASS_SPECIALIZATION_NONE"
 msgstr "Sem bônus mecânico."
 
@@ -1325,6 +1337,18 @@ msgstr "CASCO DURO %s"
 msgid "COMBAT_EFFECT_BREACHING"
 msgstr "RUPTURA %s"
 
+msgid "COMBAT_EFFECT_OVERLOAD"
+msgstr "SOBRECARGA %s"
+
+msgid "COMBAT_EFFECT_ORBITAL_BURST"
+msgstr "RAJADA ORBITAL %s"
+
+msgid "COMBAT_EFFECT_COUNTER"
+msgstr "CONTRA-ATAQUE %s"
+
+msgid "COMBAT_EFFECT_ORBITAL_EVASION"
+msgstr "EVASÃO ORBITAL"
+
 msgid "COMBAT_IDLE_NARRATIVE"
 msgstr "Os dois lados avaliam suas escolhas de vida..."
 
@@ -1360,6 +1384,18 @@ msgstr "%d dano total amortecido"
 
 msgid "COMBAT_EVIDENCE_CLASS"
 msgstr "especialização %s ativa"
+
+msgid "COMBAT_EVIDENCE_COUNTER"
+msgstr "%d dano de contra-ataque"
+
+msgid "COMBAT_EVIDENCE_FOLLOW_UP"
+msgstr "%d dano de rajada"
+
+msgid "COMBAT_EVIDENCE_DODGES"
+msgstr "%d ataques evitados"
+
+msgid "COMBAT_EVIDENCE_OVERLOAD"
+msgstr "%d defesa total ignorada"
 
 msgid "COMBAT_EVIDENCE_KIT"
 msgstr "kit %s"
@@ -2586,7 +2622,7 @@ msgid "CLASS_VIEW_PROVISIONAL"
 msgstr "CLASSES INICIAIS · TROCA GRATUITA"
 
 msgid "CLASS_VIEW_EXPLANATION"
-msgstr "A classe concede +1 Poder a cada 2 pontos investidos no atributo principal. Seus demais atributos continuam ativos."
+msgstr "O atributo principal amplia Poder e a mecânica exclusiva da classe. Todos os demais atributos continuam ativos."
 
 msgid "CLASS_VIEW_CONFIRM"
 msgstr "CONFIRMAR CLASSE"
@@ -2633,6 +2669,15 @@ msgstr "-%d DANO/GOLPE"
 msgid "CLASS_VIEW_BONUS_AIM"
 msgstr "+%.1f%% MIRA"
 
+msgid "CLASS_VIEW_BONUS_COUNTER"
+msgstr "+%d CONTRA-ATAQUE/3T"
+
+msgid "CLASS_VIEW_BONUS_EVASION"
+msgstr "%.1f%% ESQUIVA"
+
+msgid "CLASS_VIEW_BONUS_OVERLOAD"
+msgstr "-%d DEFESA"
+
 msgid "CLASS_VIEW_BUILD_BONUS"
 msgstr "BÔNUS NA BUILD · %s"
 
@@ -2647,6 +2692,15 @@ msgstr "MIRA ORBITAL · +%.1f%% PRECISÃO"
 
 msgid "CLASS_IDENTITY_BREACH"
 msgstr "INVASÃO · +%d DANO DE ABERTURA"
+
+msgid "CLASS_IDENTITY_BREAKER"
+msgstr "CASCO DURO · -%d DANO/GOLPE · CONTRA-ATAQUE +%d A CADA 3 TURNOS"
+
+msgid "CLASS_IDENTITY_GUNSLINGER"
+msgstr "MIRA ORBITAL · +%.1f%% PRECISÃO · %.1f%% ESQUIVA · RAJADA EM TIRO PERFEITO"
+
+msgid "CLASS_IDENTITY_HACKER"
+msgstr "INVASÃO · +%d ABERTURA · SOBRECARGA -%d DEFESA"
 
 msgid "CLASS_IDENTITY_INACTIVE"
 msgstr "ESPECIALIZAÇÃO AINDA INATIVA"

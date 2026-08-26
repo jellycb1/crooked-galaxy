@@ -245,6 +245,18 @@ msgstr "Hard Shell: -%d base damage and -1 additional damage for every %d invest
 msgid "CLASS_SPECIALIZATION_AIM"
 msgstr "Orbital Aim: +%.1f%% base and +%.1f%% per invested point, up to +%.1f%%"
 
+msgid "CLASS_SPECIALIZATION_AIM_FIXED"
+msgstr "Orbital Aim: constant +%.1f%% accuracy"
+
+msgid "CLASS_SPECIALIZATION_COUNTER"
+msgstr "Counterattack: +%d damage every %d rounds"
+
+msgid "CLASS_SPECIALIZATION_GUNSLINGER"
+msgstr "Reflexes: %.1f%% base evasion; perfect shots trigger a %.0f%% burst"
+
+msgid "CLASS_SPECIALIZATION_OVERLOAD"
+msgstr "Overload: bypasses %d base defense on every attack"
+
 msgid "CLASS_SPECIALIZATION_NONE"
 msgstr "No mechanical bonus."
 
@@ -1325,6 +1337,18 @@ msgstr "HARD SHELL %s"
 msgid "COMBAT_EFFECT_BREACHING"
 msgstr "PIERCING %s"
 
+msgid "COMBAT_EFFECT_OVERLOAD"
+msgstr "OVERLOAD %s"
+
+msgid "COMBAT_EFFECT_ORBITAL_BURST"
+msgstr "ORBITAL BURST %s"
+
+msgid "COMBAT_EFFECT_COUNTER"
+msgstr "COUNTERATTACK %s"
+
+msgid "COMBAT_EFFECT_ORBITAL_EVASION"
+msgstr "ORBITAL EVASION"
+
 msgid "COMBAT_IDLE_NARRATIVE"
 msgstr "Both sides reconsider their life choices..."
 
@@ -1360,6 +1384,18 @@ msgstr "%d total damage prevented"
 
 msgid "COMBAT_EVIDENCE_CLASS"
 msgstr "%s specialization active"
+
+msgid "COMBAT_EVIDENCE_COUNTER"
+msgstr "%d counterattack damage"
+
+msgid "COMBAT_EVIDENCE_FOLLOW_UP"
+msgstr "%d burst damage"
+
+msgid "COMBAT_EVIDENCE_DODGES"
+msgstr "%d attacks evaded"
+
+msgid "COMBAT_EVIDENCE_OVERLOAD"
+msgstr "%d total defense bypassed"
 
 msgid "COMBAT_EVIDENCE_KIT"
 msgstr "%s kit"
@@ -2586,7 +2622,7 @@ msgid "CLASS_VIEW_PROVISIONAL"
 msgstr "INITIAL CLASSES · FREE SWITCHING"
 
 msgid "CLASS_VIEW_EXPLANATION"
-msgstr "Your class grants +1 Power for every 2 points invested in its primary attribute. Every other attribute remains active."
+msgstr "The primary attribute improves Power and the class-exclusive mechanic. Every other attribute remains active."
 
 msgid "CLASS_VIEW_CONFIRM"
 msgstr "CONFIRM CLASS"
@@ -2633,6 +2669,15 @@ msgstr "-%d DAMAGE/HIT"
 msgid "CLASS_VIEW_BONUS_AIM"
 msgstr "+%.1f%% AIM"
 
+msgid "CLASS_VIEW_BONUS_COUNTER"
+msgstr "+%d COUNTER/3R"
+
+msgid "CLASS_VIEW_BONUS_EVASION"
+msgstr "%.1f%% EVASION"
+
+msgid "CLASS_VIEW_BONUS_OVERLOAD"
+msgstr "-%d DEFENSE"
+
 msgid "CLASS_VIEW_BUILD_BONUS"
 msgstr "BUILD BONUS · %s"
 
@@ -2647,6 +2692,15 @@ msgstr "ORBITAL AIM · +%.1f%% ACCURACY"
 
 msgid "CLASS_IDENTITY_BREACH"
 msgstr "BREACH · +%d OPENING DAMAGE"
+
+msgid "CLASS_IDENTITY_BREAKER"
+msgstr "HARD SHELL · -%d DAMAGE/HIT · COUNTER +%d EVERY 3 ROUNDS"
+
+msgid "CLASS_IDENTITY_GUNSLINGER"
+msgstr "ORBITAL AIM · +%.1f%% ACCURACY · %.1f%% EVASION · BURST ON PERFECT SHOT"
+
+msgid "CLASS_IDENTITY_HACKER"
+msgstr "BREACH · +%d OPENING · OVERLOAD -%d DEFENSE"
 
 msgid "CLASS_IDENTITY_INACTIVE"
 msgstr "SPECIALIZATION NOT ACTIVE YET"

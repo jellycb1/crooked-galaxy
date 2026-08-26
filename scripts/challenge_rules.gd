@@ -9,7 +9,9 @@ const ANOMALY_PROFILES := {
 		"description": "A primeira troca sobrecarrega emboscadas, mas a turbulência atravessa quase todos os amortecedores.",
 		"opening_damage_multiplier": 2.5,
 		"damage_reduction_piercing": 0.85,
-		"attack_roll_bonus_multiplier": 1.0,
+		"attack_roll_bonus_multiplier": 3.0,
+		"defense_bypass_multiplier": 0.0,
+		"counter_damage_multiplier": 1.0,
 		"favored_axis": "ABERTURA",
 	},
 	"armor_rupture": {
@@ -18,6 +20,8 @@ const ANOMALY_PROFILES := {
 		"opening_damage_multiplier": 0.5,
 		"damage_reduction_piercing": 0.75,
 		"attack_roll_bonus_multiplier": 0.30,
+		"defense_bypass_multiplier": 0.5,
+		"counter_damage_multiplier": 1.0,
 		"favored_axis": "PODER SUSTENTADO",
 	},
 	"inertial_anchor": {
@@ -25,7 +29,9 @@ const ANOMALY_PROFILES := {
 		"description": "Metade da mitigação funciona e sistemas de mira permanecem estáveis; builds mistas atravessam o combate longo.",
 		"opening_damage_multiplier": 1.0,
 		"damage_reduction_piercing": 0.5,
-		"attack_roll_bonus_multiplier": 5.0,
+		"attack_roll_bonus_multiplier": 30.0,
+		"defense_bypass_multiplier": 0.5,
+		"counter_damage_multiplier": 0.0,
 		"favored_axis": "BUILD MISTA",
 	},
 }
@@ -120,6 +126,8 @@ static func stage_at(index: int) -> Dictionary:
 	stage["damage_reduction_piercing"] = float(anomaly.damage_reduction_piercing)
 	stage["opening_damage_multiplier"] = float(anomaly.opening_damage_multiplier)
 	stage["attack_roll_bonus_multiplier"] = float(anomaly.attack_roll_bonus_multiplier)
+	stage["defense_bypass_multiplier"] = float(anomaly.defense_bypass_multiplier)
+	stage["counter_damage_multiplier"] = float(anomaly.counter_damage_multiplier)
 	stage["duration"] = 0
 	stage["planet_id"] = UNLOCK_PLANET_ID
 	stage["scrap_reward"] = 0

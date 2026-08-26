@@ -164,7 +164,7 @@ Account provider, session, shard, locale and character ownership are separate id
 
 A new player cannot inspect or accept bounties until all four stages are complete. Each choice must be explicitly previewed and confirmed, and an interrupted creation flow must resume at the first incomplete stage rather than skipping ahead or losing earlier choices.
 
-The current class and species rosters are allowed to remain replaceable placeholders. The eight initial species are visual and narrative identity only: species must never alter attributes, combat formulas, loot, economy or progression. The universal nine-slot inventory remains independent of both class and species.
+The three initial classes and eight initial species are the launch design baseline, while the unlimited setting may add new identities later. The eight initial species are visual and narrative identity only: species must never alter attributes, combat formulas, loot, economy or progression. The universal nine-slot inventory remains independent of both class and species.
 
 FIRST PRODUCT GOAL
 

@@ -142,8 +142,10 @@ static func damage_roll(power: int, defense: int, roll: float) -> int:
 	return maxi(1, roundi(float(power) * variance - float(defense) * 0.45))
 
 
-static func player_attack_damage(player: Dictionary, target_defense: int, roll: float, round_number: int, opening_damage_multiplier := 1.0, attack_roll_bonus_multiplier := 1.0) -> int:
-	var damage := damage_roll(player_power(player), target_defense, player_attack_roll(player, roll, attack_roll_bonus_multiplier))
+static func player_attack_damage(player: Dictionary, target_defense: int, roll: float, round_number: int, opening_damage_multiplier := 1.0, attack_roll_bonus_multiplier := 1.0, defense_bypass_multiplier := 1.0) -> int:
+	var bypass := roundi(float(ClassRulesScript.specialization_defense_bypass(player, BASE_ATTRIBUTE_VALUE)) * maxf(0.0, defense_bypass_multiplier))
+	var effective_defense := maxi(0, target_defense - bypass)
+	var damage := damage_roll(player_power(player), effective_defense, player_attack_roll(player, roll, attack_roll_bonus_multiplier))
 	if round_number == 1:
 		damage += roundi(float(player_opening_damage(player)) * maxf(0.0, float(opening_damage_multiplier)))
 	return damage
@@ -156,6 +158,8 @@ static func enemy_attack_damage(player: Dictionary, target_power: int, roll: flo
 static func enemy_attack_breakdown(player: Dictionary, target_power: int, roll: float, damage_reduction_piercing := 0.0) -> Dictionary:
 	var defense := int(player.get("armor", {}).get("power", 0)) + 3
 	var raw_damage := damage_roll(target_power, defense, roll)
+	if roll < ClassRulesScript.specialization_evasion_chance(player, BASE_ATTRIBUTE_VALUE):
+		return {"raw_damage": raw_damage, "damage": 0, "prevented": raw_damage, "base_reduction": player_damage_reduction(player), "effective_reduction": 0, "dodged": true}
 	var base_reduction := player_damage_reduction(player)
 	var effective_reduction := roundi(float(base_reduction) * (1.0 - clampf(float(damage_reduction_piercing), 0.0, 1.0)))
 	var damage := maxi(1, raw_damage - effective_reduction)
@@ -165,6 +169,7 @@ static func enemy_attack_breakdown(player: Dictionary, target_power: int, roll: 
 		"prevented": raw_damage - damage,
 		"base_reduction": base_reduction,
 		"effective_reduction": effective_reduction,
+		"dodged": false,
 	}
 
 
@@ -194,13 +199,18 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 	var opening_damage := player_opening_damage(player)
 	var damage_reduction := player_damage_reduction(player)
 	var attack_roll_bonus := roundi((cunning_roll_bonus(player) + ClassRulesScript.specialization_attack_roll_bonus(player, BASE_ATTRIBUTE_VALUE)) * 1000.0)
+	var counter_damage := ClassRulesScript.specialization_counter_damage(player, BASE_ATTRIBUTE_VALUE, 3)
+	var evasion_chance := roundi(ClassRulesScript.specialization_evasion_chance(player, BASE_ATTRIBUTE_VALUE) * 1000.0)
+	var defense_bypass := ClassRulesScript.specialization_defense_bypass(player, BASE_ATTRIBUTE_VALUE)
 	var target_power := int(target.get("power", 1))
 	var target_defense := int(target.get("defense", 0))
 	var target_health := int(target.get("health", 1))
 	var damage_reduction_piercing := roundi(clampf(float(target.get("damage_reduction_piercing", 0.0)), 0.0, 1.0) * 1000.0)
 	var opening_damage_multiplier := roundi(maxf(0.0, float(target.get("opening_damage_multiplier", 1.0))) * 1000.0)
 	var attack_roll_bonus_multiplier := roundi(maxf(0.0, float(target.get("attack_roll_bonus_multiplier", 1.0))) * 1000.0)
-	var cache_key := "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d" % [hunter_health, hunter_power, armor_power, opening_damage, damage_reduction, attack_roll_bonus, target_power, target_defense, target_health, damage_reduction_piercing, opening_damage_multiplier, attack_roll_bonus_multiplier]
+	var defense_bypass_multiplier := roundi(maxf(0.0, float(target.get("defense_bypass_multiplier", 1.0))) * 1000.0)
+	var counter_damage_multiplier := roundi(maxf(0.0, float(target.get("counter_damage_multiplier", 1.0))) * 1000.0)
+	var cache_key := "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d" % [hunter_health, hunter_power, armor_power, opening_damage, damage_reduction, attack_roll_bonus, counter_damage, evasion_chance, defense_bypass, target_power, target_defense, target_health, damage_reduction_piercing, opening_damage_multiplier, attack_roll_bonus_multiplier, defense_bypass_multiplier, counter_damage_multiplier]
 	if bounty_odds_cache.has(cache_key):
 		return float(bounty_odds_cache[cache_key])
 	var rng := RandomNumberGenerator.new()
@@ -214,11 +224,23 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 		var rounds := 0
 		while player_hp > 0 and enemy_hp > 0 and rounds < 100:
 			rounds += 1
-			enemy_hp -= player_attack_damage(player, target_defense, rng.randf(), rounds, float(opening_damage_multiplier) / 1000.0, float(attack_roll_bonus_multiplier) / 1000.0)
+			var player_roll := rng.randf()
+			var primary_damage := player_attack_damage(player, target_defense, player_roll, rounds, float(opening_damage_multiplier) / 1000.0, float(attack_roll_bonus_multiplier) / 1000.0, float(defense_bypass_multiplier) / 1000.0)
+			enemy_hp -= primary_damage
+			if enemy_hp <= 0:
+				wins += 1
+				break
+			var adjusted_roll := player_attack_roll(player, player_roll, float(attack_roll_bonus_multiplier) / 1000.0)
+			enemy_hp -= ClassRulesScript.specialization_follow_up_damage(player, adjusted_roll, primary_damage)
 			if enemy_hp <= 0:
 				wins += 1
 				break
 			player_hp -= enemy_attack_damage(player, target_power, rng.randf(), float(damage_reduction_piercing) / 1000.0)
+			if player_hp > 0:
+				enemy_hp -= roundi(float(ClassRulesScript.specialization_counter_damage(player, BASE_ATTRIBUTE_VALUE, rounds)) * float(counter_damage_multiplier) / 1000.0)
+				if enemy_hp <= 0:
+					wins += 1
+					break
 	var result := clampf(float(wins) / float(TRIALS), 0.01, 0.99)
 	if bounty_odds_cache.size() >= BOUNTY_ODDS_CACHE_LIMIT:
 		bounty_odds_cache.clear()

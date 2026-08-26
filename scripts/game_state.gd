@@ -587,12 +587,17 @@ func begin_combat() -> void:
 	combat_summary = {
 		"target_id": str(current_bounty.get("id", "")),
 		"target_name": str(current_bounty.get("name", "Alvo sem recibo")),
+		"class_id": str(player.get("class_id", "")),
 		"rounds": 0,
 		"damage_dealt": 0,
 		"damage_taken": 0,
 		"damage_prevented": 0,
 		"critical_hits": 0,
 		"opening_bonus": CoreRules.player_opening_damage(player),
+		"counter_damage": 0,
+		"follow_up_damage": 0,
+		"dodges": 0,
+		"defense_bypassed": 0,
 		"target_max_health": int(current_bounty.health),
 	}
 	var kit_origin := CoreRules.equipment_set_origin(player)
@@ -614,7 +619,8 @@ func combat_step() -> Dictionary:
 	var player_roll := rng.randf()
 	var opening_multiplier := float(current_bounty.get("opening_damage_multiplier", 1.0))
 	var roll_bonus_multiplier := float(current_bounty.get("attack_roll_bonus_multiplier", 1.0))
-	var player_damage := CoreRules.player_attack_damage(player, int(current_bounty.defense), player_roll, combat_round, opening_multiplier, roll_bonus_multiplier)
+	var defense_bypass_multiplier := float(current_bounty.get("defense_bypass_multiplier", 1.0))
+	var player_damage := CoreRules.player_attack_damage(player, int(current_bounty.defense), player_roll, combat_round, opening_multiplier, roll_bonus_multiplier, defense_bypass_multiplier)
 	var player_event := {
 		"actor": "player",
 		"action": ContentDB.player_attack(rng),
@@ -638,6 +644,10 @@ func combat_step() -> Dictionary:
 	var class_roll_bonus := ClassRules.specialization_attack_roll_bonus(player, CoreRules.BASE_ATTRIBUTE_VALUE)
 	if class_roll_bonus > 0.0:
 		player_effects.append("MIRA ORBITAL +%.1f%%" % (class_roll_bonus * roll_bonus_multiplier * 100.0))
+	var defense_bypass := mini(int(current_bounty.defense), roundi(float(ClassRules.specialization_defense_bypass(player, CoreRules.BASE_ATTRIBUTE_VALUE)) * defense_bypass_multiplier))
+	if defense_bypass > 0:
+		player_effects.append("SOBRECARGA -%d DEFESA" % defense_bypass)
+		combat_summary.defense_bypassed = int(combat_summary.get("defense_bypassed", 0)) + defense_bypass
 	if not player_effects.is_empty():
 		player_event.effect = " · ".join(player_effects)
 	round_events.append(player_event)
@@ -651,6 +661,20 @@ func combat_step() -> Dictionary:
 		combat_events = round_events
 		finish_combat(true)
 		return {"message": message, "finished": true, "won": true}
+	var adjusted_player_roll := CoreRules.player_attack_roll(player, player_roll, roll_bonus_multiplier)
+	var follow_up_damage := ClassRules.specialization_follow_up_damage(player, adjusted_player_roll, player_damage)
+	if follow_up_damage > 0:
+		var applied_follow_up := mini(enemy_hp, follow_up_damage)
+		var follow_up_event := {"actor": "player", "action": str(player_event.action), "damage": follow_up_damage, "quality": "ACERTO", "effect": "RAJADA ORBITAL +%d" % follow_up_damage}
+		round_events.append(follow_up_event)
+		combat_summary.damage_dealt = int(combat_summary.get("damage_dealt", 0)) + applied_follow_up
+		combat_summary.follow_up_damage = int(combat_summary.get("follow_up_damage", 0)) + applied_follow_up
+		enemy_hp = maxi(0, enemy_hp - follow_up_damage)
+		message += "  Rajada orbital causa %d." % follow_up_damage
+		if enemy_hp <= 0:
+			combat_events = round_events
+			finish_combat(true)
+			return {"message": message, "finished": true, "won": true}
 
 	var enemy_roll := rng.randf()
 	var enemy_breakdown := CoreRules.enemy_attack_breakdown(player, int(current_bounty.power), enemy_roll, float(current_bounty.get("damage_reduction_piercing", 0.0)))
@@ -662,13 +686,17 @@ func combat_step() -> Dictionary:
 		"quality": combat_quality(enemy_roll),
 	}
 	var damage_reduction := CoreRules.player_damage_reduction(player)
-	var reduction_pierced := maxi(0, damage_reduction - int(enemy_breakdown.get("effective_reduction", damage_reduction)))
+	var dodged := bool(enemy_breakdown.get("dodged", false))
+	var reduction_pierced := 0 if dodged else maxi(0, damage_reduction - int(enemy_breakdown.get("effective_reduction", damage_reduction)))
 	var enemy_effects: Array[String] = []
+	if dodged:
+		enemy_effects.append("EVASÃO ORBITAL")
+		combat_summary.dodges = int(combat_summary.get("dodges", 0)) + 1
 	var class_damage_reduction := ClassRules.specialization_damage_reduction(player, CoreRules.BASE_ATTRIBUTE_VALUE)
 	var non_class_damage_reduction := maxi(0, damage_reduction - class_damage_reduction)
-	if non_class_damage_reduction > 0:
+	if non_class_damage_reduction > 0 and not dodged:
 		enemy_effects.append("AMORTECEDOR -%d" % non_class_damage_reduction)
-	if class_damage_reduction > 0:
+	if class_damage_reduction > 0 and not dodged:
 		enemy_effects.append("CASCO DURO -%d" % class_damage_reduction)
 	if reduction_pierced > 0:
 		enemy_effects.append("RUPTURA +%d" % reduction_pierced)
@@ -679,6 +707,20 @@ func combat_step() -> Dictionary:
 	combat_summary.damage_prevented = int(combat_summary.get("damage_prevented", 0)) + int(enemy_breakdown.prevented)
 	player_hp = maxi(0, player_hp - enemy_damage)
 	message += "  %s responde com %d." % [enemy_event.action, enemy_damage]
+	if player_hp > 0:
+		var counter_damage := roundi(float(ClassRules.specialization_counter_damage(player, CoreRules.BASE_ATTRIBUTE_VALUE, combat_round)) * float(current_bounty.get("counter_damage_multiplier", 1.0)))
+		if counter_damage > 0:
+			var applied_counter := mini(enemy_hp, counter_damage)
+			var counter_event := {"actor": "player", "action": str(player_event.action), "damage": counter_damage, "quality": "ACERTO", "effect": "CONTRA-ATAQUE +%d" % counter_damage}
+			round_events.append(counter_event)
+			combat_summary.damage_dealt = int(combat_summary.get("damage_dealt", 0)) + applied_counter
+			combat_summary.counter_damage = int(combat_summary.get("counter_damage", 0)) + applied_counter
+			enemy_hp = maxi(0, enemy_hp - counter_damage)
+			message += "  Contra-ataque causa %d." % counter_damage
+			if enemy_hp <= 0:
+				combat_events = round_events
+				finish_combat(true)
+				return {"message": message, "finished": true, "won": true}
 	combat_events = round_events
 	if player_hp <= 0:
 		finish_combat(false)
@@ -1856,12 +1898,17 @@ func canonicalize_loaded_combat_summary(loaded: Dictionary) -> Dictionary:
 	var summary := {
 		"target_id": str(definition.id),
 		"target_name": str(definition.name),
+		"class_id": str(loaded.get("class_id", player.get("class_id", ""))) if ClassRules.is_valid(str(loaded.get("class_id", player.get("class_id", "")))) else str(player.get("class_id", "")),
 		"rounds": maxi(0, int(loaded.get("rounds", 0))),
 		"damage_dealt": maxi(0, int(loaded.get("damage_dealt", 0))),
 		"damage_taken": maxi(0, int(loaded.get("damage_taken", 0))),
 		"damage_prevented": maxi(0, int(loaded.get("damage_prevented", 0))),
 		"critical_hits": maxi(0, int(loaded.get("critical_hits", 0))),
 		"opening_bonus": maxi(0, int(loaded.get("opening_bonus", 0))),
+		"counter_damage": maxi(0, int(loaded.get("counter_damage", 0))),
+		"follow_up_damage": maxi(0, int(loaded.get("follow_up_damage", 0))),
+		"dodges": maxi(0, int(loaded.get("dodges", 0))),
+		"defense_bypassed": maxi(0, int(loaded.get("defense_bypassed", 0))),
 		"target_max_health": target_max,
 	}
 	var kit_origin := str(loaded.get("kit_origin", ""))
@@ -1936,7 +1983,7 @@ func sanitize_loaded_combat_events(loaded) -> Dictionary:
 		var effect_parts := effect.split(" · ", false)
 		var effect_is_safe := effect.length() <= 96
 		for part in effect_parts:
-			if not part.begins_with("EMBOSCADA +") and not part.begins_with("AMORTECEDOR -") and not part.begins_with("INVASÃO +") and not part.begins_with("MIRA ORBITAL +") and not part.begins_with("CASCO DURO -") and not part.begins_with("RUPTURA +") and not part.begins_with("INSTABILIDADE +") and not part.begins_with("INTERFERÊNCIA -"):
+			if not part.begins_with("EMBOSCADA +") and not part.begins_with("AMORTECEDOR -") and not part.begins_with("INVASÃO +") and not part.begins_with("MIRA ORBITAL +") and not part.begins_with("CASCO DURO -") and not part.begins_with("RUPTURA +") and not part.begins_with("INSTABILIDADE +") and not part.begins_with("INTERFERÊNCIA -") and not part.begins_with("SOBRECARGA -") and not part.begins_with("RAJADA ORBITAL +") and not part.begins_with("CONTRA-ATAQUE +") and part != "EVASÃO ORBITAL":
 				effect_is_safe = false
 				break
 		if not effect.is_empty() and effect_is_safe:

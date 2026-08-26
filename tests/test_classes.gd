@@ -57,7 +57,11 @@ func run_classes_test() -> void:
 	var neutral_dexterity := gunslinger.duplicate(true)
 	neutral_dexterity.class_id = ""
 	check(Rules.player_damage_reduction(breaker) == Rules.player_damage_reduction(neutral_strength) + 2, "warrant breaker absorbs base and strength-scaled damage on every enemy hit")
-	check(is_equal_approx(Rules.player_attack_roll(gunslinger, 0.5), Rules.player_attack_roll(neutral_dexterity, 0.5) + 0.01), "orbital gunslinger adds persistent base and dexterity-scaled precision")
+	check(is_equal_approx(Rules.player_attack_roll(gunslinger, 0.5), Rules.player_attack_roll(neutral_dexterity, 0.5) + 0.005), "orbital gunslinger adds a restrained persistent precision bonus")
+	check(Classes.specialization_counter_damage(breaker, Rules.BASE_ATTRIBUTE_VALUE, 2) == 0 and Classes.specialization_counter_damage(breaker, Rules.BASE_ATTRIBUTE_VALUE, 3) == 1, "warrant breaker retaliates on a predictable third-round cadence")
+	check(is_equal_approx(Classes.specialization_evasion_chance(gunslinger, Rules.BASE_ATTRIBUTE_VALUE), 0.006), "gunslinger gains a bounded dexterity-scaled evasion window")
+	check(Classes.specialization_follow_up_damage(gunslinger, 0.98, 10) == 0 and Classes.specialization_follow_up_damage(gunslinger, 0.99, 10) == 1, "gunslinger perfect shots add a small follow-up without flattening contract risk")
+	check(Classes.specialization_defense_bypass(hacker, Rules.BASE_ATTRIBUTE_VALUE) == 1, "contract hacker overload bypasses defense on every attack")
 	check(Classes.combat_identity_text(breaker, Rules.BASE_ATTRIBUTE_VALUE).contains("CASCO DURO") and Classes.combat_identity_text(gunslinger, Rules.BASE_ATTRIBUTE_VALUE).contains("MIRA ORBITAL") and Classes.combat_identity_text(hacker, Rules.BASE_ATTRIBUTE_VALUE).contains("INVASÃO"), "every initial class exposes a distinct active combat identity")
 
 	var breaker_combat = StateScript.new()
@@ -76,7 +80,7 @@ func run_classes_test() -> void:
 	gunslinger_combat.current_bounty.health = 999
 	gunslinger_combat.begin_combat()
 	gunslinger_combat.combat_step()
-	check(str(gunslinger_combat.combat_events[0].get("effect", "")).contains("MIRA ORBITAL +1.0%"), "gunslinger precision is named on every player turn that it changes")
+	check(str(gunslinger_combat.combat_events[0].get("effect", "")).contains("MIRA ORBITAL +0.5%"), "gunslinger precision is named on every player turn that it changes")
 	gunslinger_combat.free()
 	var hacker_combat = StateScript.new()
 	hacker_combat.persistence_enabled = false
@@ -118,6 +122,7 @@ func run_classes_test() -> void:
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
+	check(scene.localized_combat_effect("SOBRECARGA -1 DEFESA") == "SOBRECARGA -1 DEFESA" and scene.localized_combat_effect("EVASÃO ORBITAL") == "EVASÃO ORBITAL", "new class evidence localizes both valued and marker-only effects safely")
 	scene.board_section = "destinations"
 	scene.render()
 	await process_frame

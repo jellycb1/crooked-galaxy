@@ -141,12 +141,17 @@ func run_smoke_test() -> void:
 	await process_frame
 	check(scene.combat_fast and is_equal_approx(scene.combat_timer.wait_time, 0.34), "combat speed switches to a persistent session 2× pace")
 
+	state.combat_summary.class_id = "orbit_gunslinger"
+	state.combat_summary.follow_up_damage = 3
+	state.combat_summary.dodges = 1
 	state.finish_combat(true)
 	await process_frame
 	check(state.phase == state.Phase.VICTORY, "victory screen renders before loot")
 	check(scene.combat_timer.is_stopped() and scene.combat_fast, "victory stops automatic turns without resetting the chosen combat pace")
 	check(not state.pending_loot.is_empty(), "reward screen receives an item")
 	check(scene.find_child("CombatSummaryVictory", true, false) != null, "victory explains aggregate combat performance")
+	var class_evidence := scene.find_child("CombatBuildEvidence", true, false) as Label
+	check(class_evidence != null and class_evidence.text.contains("3 dano de rajada") and class_evidence.text.contains("1 ataques evitados"), "victory report quantifies class-exclusive follow-up and evasion contributions")
 	check(scene.find_child("VictoryDossier", true, false) != null and scene.find_child("VictoryPaymentCard", true, false) != null, "victory groups target, verdict, report, and payment into a coherent dossier")
 	var victory_payment := scene.find_child("VictoryPayment", true, false) as Label
 	check(victory_payment != null and victory_payment.text.contains("EMBALO") and victory_payment.text.contains("SALDO"), "victory preserves the paid-incident payout receipt")

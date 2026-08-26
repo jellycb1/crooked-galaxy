@@ -639,12 +639,13 @@ func localized_combat_action(raw: String, actor: String = "player") -> String:
 
 func localized_combat_effect(raw: String) -> String:
 	var translated_parts: Array[String] = []
-	var effect_keys := {"EMBOSCADA": "COMBAT_EFFECT_AMBUSH", "INVASÃO": "COMBAT_EFFECT_BREACH", "INSTABILIDADE": "COMBAT_EFFECT_INSTABILITY", "INTERFERÊNCIA": "COMBAT_EFFECT_INTERFERENCE", "MIRA ORBITAL": "COMBAT_EFFECT_ORBITAL_AIM", "AMORTECEDOR": "COMBAT_EFFECT_DAMPENER", "CASCO DURO": "COMBAT_EFFECT_HARD_SHELL", "RUPTURA": "COMBAT_EFFECT_BREACHING"}
+	var effect_keys := {"EMBOSCADA": "COMBAT_EFFECT_AMBUSH", "INVASÃO": "COMBAT_EFFECT_BREACH", "INSTABILIDADE": "COMBAT_EFFECT_INSTABILITY", "INTERFERÊNCIA": "COMBAT_EFFECT_INTERFERENCE", "MIRA ORBITAL": "COMBAT_EFFECT_ORBITAL_AIM", "AMORTECEDOR": "COMBAT_EFFECT_DAMPENER", "CASCO DURO": "COMBAT_EFFECT_HARD_SHELL", "RUPTURA": "COMBAT_EFFECT_BREACHING", "SOBRECARGA": "COMBAT_EFFECT_OVERLOAD", "RAJADA ORBITAL": "COMBAT_EFFECT_ORBITAL_BURST", "CONTRA-ATAQUE": "COMBAT_EFFECT_COUNTER", "EVASÃO ORBITAL": "COMBAT_EFFECT_ORBITAL_EVASION"}
 	for part in raw.split(" · "):
 		var translated := part
 		for prefix in effect_keys:
 			if part.begins_with(prefix):
-				translated = t(str(effect_keys[prefix]), "%s %s" % [prefix, part.trim_prefix(prefix).strip_edges()], [part.trim_prefix(prefix).strip_edges()])
+				var suffix := part.trim_prefix(prefix).strip_edges()
+				translated = t(str(effect_keys[prefix]), prefix) if suffix.is_empty() else t(str(effect_keys[prefix]), "%s %s" % [prefix, suffix], [suffix])
 				break
 		translated_parts.append(translated)
 	return " · ".join(translated_parts)
@@ -655,8 +656,9 @@ func localized_combat_narrative() -> String:
 		return t("COMBAT_IDLE_NARRATIVE", "Os dois lados avaliam suas escolhas de vida...")
 	var player_event: Dictionary = GameState.combat_events[0]
 	var narrative := t("COMBAT_PLAYER_HIT", "%s causa %d de dano.", [localized_combat_action(str(player_event.get("action", "")), "player"), int(player_event.get("damage", 0))])
-	if GameState.combat_events.size() > 1:
-		var enemy_event: Dictionary = GameState.combat_events[1]
+	var enemy_events := GameState.combat_events.filter(func(event): return str(event.get("actor", "")) == "enemy")
+	if not enemy_events.is_empty():
+		var enemy_event: Dictionary = enemy_events[0]
 		narrative += t("COMBAT_ENEMY_HIT", "  %s responde com %d.", [localized_combat_action(str(enemy_event.get("action", "")), "enemy"), int(enemy_event.get("damage", 0))])
 	return narrative
 
@@ -1158,15 +1160,25 @@ func combat_summary_panel(won: bool) -> PanelContainer:
 	metrics.add_child(metric_chip(t("COMBAT_DEALT", "CAUSADO"), str(int(summary.get("damage_dealt", 0))), CYAN))
 	metrics.add_child(metric_chip(t("COMBAT_TAKEN", "RECEBIDO"), str(int(summary.get("damage_taken", 0))), CORAL))
 	var effects: Array[String] = []
-	var class_opening_bonus := ClassRulesScript.specialization_opening_damage(GameState.player, CoreRules.BASE_ATTRIBUTE_VALUE)
+	var report_player := GameState.player.duplicate(true)
+	report_player.class_id = str(summary.get("class_id", GameState.player.get("class_id", "")))
+	var class_opening_bonus := ClassRulesScript.specialization_opening_damage(report_player, CoreRules.BASE_ATTRIBUTE_VALUE)
 	var non_class_opening_bonus := maxi(0, int(summary.get("opening_bonus", 0)) - class_opening_bonus)
 	if non_class_opening_bonus > 0:
 		effects.append(t("COMBAT_EVIDENCE_AMBUSH", "emboscada +%d", [non_class_opening_bonus]))
 	if int(summary.get("damage_prevented", 0)) > 0:
 		effects.append(t("COMBAT_EVIDENCE_PREVENTED", "%d dano total amortecido", [int(summary.damage_prevented)]))
-	var class_identity := ClassRulesScript.combat_identity_text(GameState.player, CoreRules.BASE_ATTRIBUTE_VALUE)
+	var class_identity := ClassRulesScript.combat_identity_text(report_player, CoreRules.BASE_ATTRIBUTE_VALUE)
 	if not class_identity.is_empty():
-		effects.append(t("COMBAT_EVIDENCE_CLASS", "especialização %s ativa", [ClassRulesScript.class_name_for(str(GameState.player.get("class_id", ""))).to_lower()]))
+		effects.append(t("COMBAT_EVIDENCE_CLASS", "especialização %s ativa", [ClassRulesScript.class_name_for(str(report_player.get("class_id", ""))).to_lower()]))
+	if int(summary.get("counter_damage", 0)) > 0:
+		effects.append(t("COMBAT_EVIDENCE_COUNTER", "%d dano de contra-ataque", [int(summary.counter_damage)]))
+	if int(summary.get("follow_up_damage", 0)) > 0:
+		effects.append(t("COMBAT_EVIDENCE_FOLLOW_UP", "%d dano de rajada", [int(summary.follow_up_damage)]))
+	if int(summary.get("dodges", 0)) > 0:
+		effects.append(t("COMBAT_EVIDENCE_DODGES", "%d ataques evitados", [int(summary.dodges)]))
+	if int(summary.get("defense_bypassed", 0)) > 0:
+		effects.append(t("COMBAT_EVIDENCE_OVERLOAD", "%d defesa total ignorada", [int(summary.defense_bypassed)]))
 	var kit_origin := str(summary.get("kit_origin", ""))
 	if not kit_origin.is_empty():
 		effects.append(t("COMBAT_EVIDENCE_KIT", "kit %s", [localized_content_field("planet", ContentDB.get_planet(kit_origin), "name")]))
