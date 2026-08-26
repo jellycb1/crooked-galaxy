@@ -214,13 +214,13 @@ static func mastery_directive_card(host: CrookedUIFactory, state: StateScript, o
 	action.name = "MasteryDirectiveAction"
 	action.custom_minimum_size = Vector2(105, 52)
 	action.add_theme_font_size_override("font_size", 10)
-	var planet_id := str(target.planet_id)
 	var target_id := str(target.id)
 	action.pressed.connect(func():
 		host.view_mode = "board"
 		host.briefing_context = {}
-		if state.travel_to_planet(planet_id):
-			state.select_bounty(Content.get_target(target_id))
+		var offer := MissionRules.offer_for_target(state.player, Content.get_target(target_id))
+		if not offer.is_empty():
+			state.select_bounty(offer)
 	)
 	row.add_child(action)
 	return card

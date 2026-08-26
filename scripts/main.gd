@@ -678,7 +678,7 @@ func build_board() -> void:
 	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title_box)
 	title_box.add_child(label(t("BOARD_TITLE", "QUADRO DE PROCURADOS"), 24, INK))
-	var subtitle := label(t("BOARD_INTERSTELLAR_SUBTITLE", "Três contratos. Três distâncias. Uma nave com manutenção questionável."), 15, MUTED)
+	var subtitle := label(t("BOARD_INTERSTELLAR_SUBTITLE", "Três contratos. Rotas diferentes. Uma nave com manutenção questionável."), 15, MUTED)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title_box.add_child(subtitle)
 	var xp_needed := CoreRules.xp_needed(int(GameState.player.level))
@@ -1237,7 +1237,7 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 	row.add_child(details)
 	var destination := ContentDB.get_planet(str(bounty.get("planet_id", ContentDB.PLANET.id)))
 	var role_id := str(bounty.get("mission_role", "standard"))
-	var role_text := t("BOARD_ROLE_SAFE", "CONTRATO SEGURO") if role_id == "safe" else (t("BOARD_ROLE_DANGEROUS", "CONTRATO PERIGOSO") if role_id == "dangerous" else t("BOARD_ROLE_STANDARD", "CONTRATO EQUILIBRADO"))
+	var role_text := t("BOARD_ROLE_SAFE", "MANDADO DE ROTINA") if role_id == "safe" else (t("BOARD_ROLE_DANGEROUS", "MANDADO DE ALTO VALOR") if role_id == "dangerous" else t("BOARD_ROLE_STANDARD", "MANDADO PRIORITÁRIO"))
 	var mission_role := label("%s · %s" % [role_text, localized_content_field("planet", destination, "name").to_upper()], 11, Color(str(destination.accent)))
 	mission_role.name = "BountyRole_%s" % str(bounty.id)
 	details.add_child(mission_role)

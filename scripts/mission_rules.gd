@@ -4,9 +4,9 @@ extends RefCounted
 const Content = preload("res://scripts/content_db.gd")
 
 const ROLES := [
-	{"id": "safe", "level_offset": -1, "pressure_mult": 0.94, "reward_mult": 0.90},
-	{"id": "standard", "level_offset": 0, "pressure_mult": 1.00, "reward_mult": 1.00},
-	{"id": "dangerous", "level_offset": 1, "pressure_mult": 1.06, "reward_mult": 1.15},
+	{"id": "safe", "pressure_mult": 0.94, "reward_mult": 0.90},
+	{"id": "standard", "pressure_mult": 1.00, "reward_mult": 1.00},
+	{"id": "dangerous", "pressure_mult": 1.12, "reward_mult": 1.15},
 ]
 
 
@@ -57,7 +57,7 @@ static func targets_for_planet(planet_id: String) -> Array[Dictionary]:
 
 
 static func scale_offer(template: Dictionary, planet: Dictionary, player_level: int, role: Dictionary, offer_index: int) -> Dictionary:
-	var mission_level := maxi(1, player_level + int(role.level_offset))
+	var mission_level := maxi(1, player_level)
 	return scale_offer_level(template, planet, mission_level, role, offer_index)
 
 
@@ -74,11 +74,11 @@ static func scale_offer_level(template: Dictionary, planet: Dictionary, mission_
 	offer.erase("boss")
 	# This curve is derived only from the snapshotted mission level. It never
 	# reads equipment or current player power, so upgrades can improve real odds.
-	offer["power"] = maxi(1, roundi((10 + (mission_level - 1) * 4) * pressure_mult))
-	offer["defense"] = maxi(0, roundi((4 + (mission_level - 1) * 2) * pressure_mult))
-	offer["health"] = maxi(1, roundi((70 + (mission_level - 1) * 30) * pressure_mult))
+	offer["power"] = maxi(1, roundi((11.0 + (mission_level - 1) * 5.0) * pressure_mult))
+	offer["defense"] = maxi(0, roundi((4.0 + (mission_level - 1) * 2.5) * pressure_mult))
+	offer["health"] = maxi(1, roundi((70.0 + (mission_level - 1) * 35.0) * pressure_mult))
 	offer["credits"] = maxi(1, roundi((32.0 + 1.35 * mission_level * mission_level) * reward_mult))
-	offer["xp"] = maxi(1, roundi((36.0 + 1.15 * mission_level * mission_level) * reward_mult))
+	offer["xp"] = maxi(1, roundi((36.0 + 7.0 * mission_level) * reward_mult))
 	offer["loot_power"] = int(offer.power)
 	offer["travel_duration"] = float(planet.get("travel_duration", 30.0))
 	offer["pursuit_duration"] = 20.0 + minf(100.0, float(mission_level) * 4.0)

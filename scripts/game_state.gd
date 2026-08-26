@@ -848,8 +848,9 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		"loot_action": "recycled" if recycle_item else ("equipped" if equip_item else "stored"),
 	}
 	var completed_bounty := current_bounty.duplicate(true)
+	var network_mission := bool(completed_bounty.get("mission_offer", false))
 	var completed_planet_id := str(completed_bounty.get("planet_id", ContentDB.PLANET.id))
-	var old_chapter_tier := planet_tier(completed_planet_id)
+	var old_chapter_tier := 0 if network_mission else planet_tier(completed_planet_id)
 	player.credits = int(player.credits) + summary.credits
 	player.capture_streak = new_streak
 	player.best_capture_streak = maxi(int(player.get("best_capture_streak", 0)), new_streak)
@@ -873,7 +874,7 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	var planet_captures: Dictionary = player.get("captures_by_planet", {})
 	planet_captures[completed_planet_id] = int(planet_captures.get(completed_planet_id, 0)) + 1
 	player.captures_by_planet = planet_captures
-	summary.chapter_tier_up = planet_tier(completed_planet_id) > old_chapter_tier
+	summary.chapter_tier_up = not network_mission and planet_tier(completed_planet_id) > old_chapter_tier
 	var old_reputation := int(player.reputation)
 	var highest_rank := 0
 	for target in ContentDB.TARGETS:
@@ -913,7 +914,7 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_LEVEL", "Nível +%d", [int(summary.levels)]))
 		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_ATTRIBUTE_POINTS", "+%d pontos de atributo", [int(summary.levels) * CoreRules.ATTRIBUTE_POINTS_PER_LEVEL]))
 	if bool(summary.rank_up):
-		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_CONTRACT_UNLOCKED", "Novo contrato liberado"))
+		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_NETWORK_RANK", "Reputação da rede aumentada") if network_mission else LocaleRulesScript.text("REWARD_NOTICE_CONTRACT_UNLOCKED", "Novo contrato liberado"))
 	elif bool(summary.chapter_tier_up):
 		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_WARRANT_UNLOCKED", "Novo mandado planetário"))
 	if bool(summary.target_mastery_up):

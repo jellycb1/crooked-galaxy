@@ -3,6 +3,7 @@ extends SceneTree
 const FactoryScript = preload("res://scripts/ui_factory.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const RewardScript = preload("res://scripts/reward_view.gd")
+const MissionRules = preload("res://scripts/mission_rules.gd")
 
 var failures := 0
 
@@ -33,6 +34,15 @@ func _init() -> void:
 	var repeat_value := host.find_child("RewardRepeatValue", true, false) as Label
 	check(repeat_value != null and repeat_value.text.contains("EMBALO ×2") and repeat_value.text.contains("+5% SOBRE O PAGAMENTO") and not repeat_value.text.contains("CRÉDITOS"), "regular reward promises only the approach-invariant next streak value")
 	check(host.find_child("ClaimAndRepeat", true, false) != null and host.find_child("ClaimAndBoard", true, false) != null, "isolated reward preserves repeat and board decisions")
+
+	clear_content(content)
+	state.current_bounty = MissionRules.offer_for_target(state.player, ContentDB.TARGETS[0])
+	state.player.captures_by_target = {"gloop": 2}
+	RewardScript.build(host, content, state)
+	check(host.find_child("RewardNetworkRefresh", true, false) != null, "network reward previews the refreshed three-offer board")
+	check(host.find_child("RewardWarrantProgress", true, false) == null and host.find_child("RewardWarrantUnlock", true, false) == null, "network reward never resurrects sequential warrant progress")
+	check(host.find_child("ClaimAndRepeat", true, false) != null, "network reward preserves exact-contract repetition for mastery")
+	state.current_bounty = ContentDB.TARGETS[0].duplicate(true)
 
 	clear_content(content)
 	state.player.captures_by_target = {"gloop": 1}

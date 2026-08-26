@@ -163,7 +163,7 @@ func run_smoke_test() -> void:
 	check(scene.find_child("RewardEquipmentIcon", true, false) != null, "reward presents loot with a slot- and origin-specific icon")
 	check(scene.find_child("RewardMastery", true, false) != null, "reward screen confirms applied target mastery")
 	check(scene.find_child("RewardMasteryProgress", true, false) != null, "reward screen counts the pending capture toward the next mastery")
-	check(scene.find_child("RewardWarrantProgress", true, false) != null, "reward screen previews progress toward the next warrant")
+	check(scene.find_child("RewardNetworkRefresh", true, false) != null and scene.find_child("RewardWarrantProgress", true, false) == null, "network reward previews board renewal without sequential warrant progress")
 	check(scene.find_child("RewardIncidentNet", true, false) != null, "reward screen receives the same paid-incident receipt")
 	check(scene.find_child("ClaimAndRepeat", true, false) != null, "reward screen offers another contract immediately")
 	check(scene.find_child("ClaimAndBoard", true, false) != null, "reward screen preserves the board return path")
@@ -171,10 +171,10 @@ func run_smoke_test() -> void:
 	state.player.captures_by_target = {"gloop": 2}
 	scene.render()
 	await process_frame
-	check(scene.find_child("RewardWarrantUnlock", true, false) != null, "third capture previews the newly unlocked warrant")
-	check(scene.find_child("ClaimAndRepeat", true, false) == null, "unlock reward directs the first visit back to the expanded board")
+	check(scene.find_child("RewardNetworkRefresh", true, false) != null and scene.find_child("RewardWarrantUnlock", true, false) == null, "third capture remains mastery progress instead of unlocking a sequential warrant")
+	check(scene.find_child("ClaimAndRepeat", true, false) != null, "network threshold preserves exact-contract repetition")
 	var unlock_claim := scene.find_child("ClaimAndUnlock", true, false) as Button
-	check(unlock_claim != null and unlock_claim.text.contains("NOVO MANDADO"), "unlock reward CTA names its destination")
+	check(unlock_claim == null, "network reward exposes no obsolete chapter-unlock destination")
 	state.player.captures_by_planet = {}
 	scene.render()
 	await process_frame
@@ -241,7 +241,7 @@ func run_smoke_test() -> void:
 				scene.victory_timer.stop()
 				state.open_reward()
 				await process_frame
-				check(scene.find_child("VictoryFieldTestContext", true, false) == null and scene.find_child("RewardNextHuntImpact", true, false) != null, "reward cleanly replaces route provenance with the next-hunt loot projection")
+				check(scene.find_child("VictoryFieldTestContext", true, false) == null and scene.find_child("RewardNetworkRefresh", true, false) != null, "reward cleanly replaces route provenance with the refreshed-network projection")
 				state.phase = state.Phase.BOARD
 				state.current_bounty = {}
 				state.pending_loot = {}

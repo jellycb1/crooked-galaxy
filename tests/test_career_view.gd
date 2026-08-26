@@ -36,7 +36,7 @@ func _init() -> void:
 	check(mastery_action != null and mastery_action.text == "ESCOLHER\nROTA", "mastery objective truthfully links to route selection")
 	check(host.find_child("CareerTarget_gloop", true, false) == null, "progress section does not build the offscreen wanted archive")
 	mastery_action.pressed.emit()
-	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "gloop", "mastery directive opens the recommended target briefing directly")
+	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "gloop" and bool(state.current_bounty.get("mission_offer", false)), "mastery directive opens a level-banded target briefing without re-entering chapter progression")
 	state.cancel_briefing()
 	var dustball_archive := CareerViewScript.ordered_archive_targets(state)
 	check(dustball_archive.size() == Content.TARGETS.size(), "active-first archive preserves all wanted records")

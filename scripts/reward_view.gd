@@ -135,16 +135,17 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var captures_after_reward := previous_captures + 1
 	var mastery_after_reward := Rules.target_mastery_level(captures_after_reward)
 	var planet_id := str(state.current_bounty.get("planet_id", Content.PLANET.id))
+	var network_mission := bool(state.current_bounty.get("mission_offer", false))
 	var captures_before: Dictionary = state.player.get("captures_by_target", {})
 	var captures_after := captures_before.duplicate(true)
 	var bounty_id := str(state.current_bounty.id)
 	captures_after[bounty_id] = int(captures_after.get(bounty_id, 0)) + 1
-	var tier_before := Content.planet_tier_from_target_captures(planet_id, captures_before)
-	var tier_after := Content.planet_tier_from_target_captures(planet_id, captures_after)
-	var progress_after := Content.warrant_progress(planet_id, captures_after)
-	var next_target: Dictionary = Content.target_for_planet_tier(planet_id, tier_after) if tier_after > tier_before else progress_after.next_target
+	var tier_before := 0 if network_mission else Content.planet_tier_from_target_captures(planet_id, captures_before)
+	var tier_after := 0 if network_mission else Content.planet_tier_from_target_captures(planet_id, captures_after)
+	var progress_after := {} if network_mission else Content.warrant_progress(planet_id, captures_after)
+	var next_target: Dictionary = {} if network_mission else (Content.target_for_planet_tier(planet_id, tier_after) if tier_after > tier_before else progress_after.next_target)
 	var unlocks_new_warrant := tier_after > tier_before and not next_target.is_empty()
-	var combined_next_capture := captures_after_reward == 2 and reward_mastery == 0 and not next_target.is_empty() and int(progress_after.progress) == 2 and int(progress_after.requirement) == 3
+	var combined_next_capture := not network_mission and captures_after_reward == 2 and reward_mastery == 0 and not next_target.is_empty() and int(progress_after.progress) == 2 and int(progress_after.requirement) == 3
 	if mastery_after_reward > reward_mastery:
 		var mastery_unlock := host.center_label(local_text("REWARD_NEW_MASTERY", "NOVA PERÍCIA AO RECEBER · NÍVEL %d/3", [mastery_after_reward]), 13, host.GOLD)
 		mastery_unlock.name = "RewardMasteryUnlock"
@@ -168,6 +169,10 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		var streak_start := host.center_label(local_text("REWARD_MOMENTUM_START", "EMBALO REINICIADO ×1 · BÔNUS COMEÇA NA PRÓXIMA CAPTURA"), 12, host.CYAN)
 		streak_start.name = "RewardStreakStart"
 		progress_box.add_child(reward_progress_row(host, "streak", streak_start, null, host.CYAN))
+	if network_mission:
+		var network_refresh := host.center_label(local_text("REWARD_NETWORK_REFRESH", "REDE PRONTA · TRÊS NOVOS MANDADOS AO VOLTAR AO QUADRO"), 12, host.CYAN)
+		network_refresh.name = "RewardNetworkRefresh"
+		progress_box.add_child(reward_progress_row(host, "warrant", network_refresh, null, host.CYAN))
 	if unlocks_new_warrant:
 		var unlock_label := host.center_label(local_text("REWARD_NEW_WARRANT", "NOVO MANDADO AO RECEBER · %s", [localized_content("target", next_target, "name").to_upper()]), 14, host.LIME)
 		unlock_label.name = "RewardWarrantUnlock"

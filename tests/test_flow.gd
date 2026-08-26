@@ -5,6 +5,7 @@ const Content = preload("res://scripts/content_db.gd")
 const RewardScript = preload("res://scripts/reward_view.gd")
 const ArsenalScript = preload("res://scripts/arsenal_view.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
+const MissionRules = preload("res://scripts/mission_rules.gd")
 
 var failures := 0
 
@@ -60,6 +61,18 @@ func _init() -> void:
 	check(receipt_expiry_state.last_notice.is_empty() and receipt_expiry_state.last_notice_context.is_empty(), "gameplay receipts expire when the player commits to the next contract")
 	receipt_expiry_state.free()
 	check(int(state.player.reputation) == 0, "rank requires three captures")
+	var network_claim_state = StateScript.new()
+	network_claim_state.persistence_enabled = false
+	network_claim_state.player = network_claim_state.default_player()
+	network_claim_state.player.wins = 2
+	network_claim_state.player.captures_by_target = {"gloop": 2}
+	network_claim_state.phase = network_claim_state.Phase.REWARD
+	network_claim_state.current_bounty = MissionRules.offer_for_target(network_claim_state.player, Content.TARGETS[0])
+	network_claim_state.pending_loot = {"id": "network_receipt", "name": "Recibo da Rede", "slot": "weapon", "power": 2, "rarity": "Comum", "color": "#b9c2d9"}
+	var network_summary := network_claim_state.claim_reward(false)
+	check(not bool(network_summary.chapter_tier_up) and not network_claim_state.last_notice.contains("Novo mandado planetário"), "network claim cannot emit a legacy sequential-warrant unlock")
+	check(bool(network_summary.rank_up) and network_claim_state.last_notice.contains("Reputação da rede aumentada"), "network rank receipt describes standing without claiming a content unlock")
+	network_claim_state.free()
 	var projection_state = StateScript.new()
 	projection_state.persistence_enabled = false
 	projection_state.player = projection_state.default_player()

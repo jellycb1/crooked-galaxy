@@ -15,9 +15,15 @@ func _init() -> void:
 	check(starter.size() == 3, "a fresh hunter receives three mission choices")
 	check(starter.all(func(offer): return str(offer.planet_id) == "dustball_prime"), "level one keeps all offers inside the only discovered world")
 	check(starter.map(func(offer): return str(offer.mission_role)) == ["safe", "standard", "dangerous"], "the board exposes safe, standard, and dangerous bands")
-	check(int(starter[0].mission_level) == 1 and int(starter[2].mission_level) == 2, "difficulty is a fixed mission-level offset")
+	check(starter.all(func(offer): return int(offer.mission_level) == 1), "all role pressure is anchored to the same snapshotted hunter level")
 	check(int(starter[0].power) < int(starter[1].power) and int(starter[1].power) < int(starter[2].power), "all three roles remain genuinely ordered at the level-one floor")
 	check(float(starter[0].travel_duration) == 30.0 and float(starter[0].pursuit_duration) > 0.0, "travel and pursuit are independent timing axes")
+	for checkpoint_level in [1, 4, 8, 13, 19, 50, 100]:
+		state.player.level = checkpoint_level
+		state.player.wins = 0
+		var checkpoint_offers := MissionRules.board_offers(state.player)
+		check(int(checkpoint_offers[0].power) < int(checkpoint_offers[1].power) and int(checkpoint_offers[1].power) < int(checkpoint_offers[2].power), "role pressure remains ordered at level %d" % checkpoint_level)
+		check(int(checkpoint_offers[1].xp) < CoreRules.xp_needed(checkpoint_level), "one balanced warrant cannot trigger runaway leveling at level %d" % checkpoint_level)
 
 	state.player.level = 19
 	state.player.wins = 7

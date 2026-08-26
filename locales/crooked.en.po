@@ -3783,10 +3783,16 @@ msgid "SAVE_WARNING_ACCOUNT"
 msgstr "PROGRESS NOT YET SAVED · the local account-to-character link is invalid. Keep the game open and try again."
 
 msgid "BOARD_INTERSTELLAR_SUBTITLE"
-msgstr "Three contracts. Three distances. One questionably maintained ship."
+msgstr "Three contracts. Different routes. One questionably maintained ship."
 
 msgid "BOARD_OFFER_HINT"
 msgstr "THE NETWORK RENEWS ALL THREE WARRANTS AFTER EACH CAPTURE"
+
+msgid "REWARD_NETWORK_REFRESH"
+msgstr "NETWORK READY · THREE NEW WARRANTS WHEN YOU RETURN TO THE BOARD"
+
+msgid "REWARD_NOTICE_NETWORK_RANK"
+msgstr "Network reputation increased"
 
 msgid "BOARD_NETWORK_LEVEL"
 msgstr "WARRANT NETWORK · LEVEL %d"
@@ -3801,13 +3807,13 @@ msgid "BOARD_ALL_WORLDS"
 msgstr "ALL CURRENT DESTINATIONS ARE ON THE NETWORK"
 
 msgid "BOARD_ROLE_SAFE"
-msgstr "SAFE CONTRACT"
+msgstr "ROUTINE WARRANT"
 
 msgid "BOARD_ROLE_STANDARD"
-msgstr "BALANCED CONTRACT"
+msgstr "PRIORITY WARRANT"
 
 msgid "BOARD_ROLE_DANGEROUS"
-msgstr "DANGEROUS CONTRACT"
+msgstr "HIGH-VALUE WARRANT"
 
 msgid "BOARD_MISSION_TIMING"
 msgstr "TRAVEL %s · PURSUIT %s"

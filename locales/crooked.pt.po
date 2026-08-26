@@ -3783,10 +3783,16 @@ msgid "SAVE_WARNING_ACCOUNT"
 msgstr "PROGRESSO AINDA NÃO SALVO · o vínculo local entre conta e personagem é inválido. Mantenha o jogo aberto e tente novamente."
 
 msgid "BOARD_INTERSTELLAR_SUBTITLE"
-msgstr "Três contratos. Três distâncias. Uma nave com manutenção questionável."
+msgstr "Três contratos. Rotas diferentes. Uma nave com manutenção questionável."
 
 msgid "BOARD_OFFER_HINT"
 msgstr "A REDE RENOVA OS TRÊS MANDADOS APÓS CADA CAPTURA"
+
+msgid "REWARD_NETWORK_REFRESH"
+msgstr "REDE PRONTA · TRÊS NOVOS MANDADOS AO VOLTAR AO QUADRO"
+
+msgid "REWARD_NOTICE_NETWORK_RANK"
+msgstr "Reputação da rede aumentada"
 
 msgid "BOARD_NETWORK_LEVEL"
 msgstr "REDE DE MANDADOS · NÍVEL %d"
@@ -3801,13 +3807,13 @@ msgid "BOARD_ALL_WORLDS"
 msgstr "TODOS OS DESTINOS ATUAIS ESTÃO NA REDE"
 
 msgid "BOARD_ROLE_SAFE"
-msgstr "CONTRATO SEGURO"
+msgstr "MANDADO DE ROTINA"
 
 msgid "BOARD_ROLE_STANDARD"
-msgstr "CONTRATO EQUILIBRADO"
+msgstr "MANDADO PRIORITÁRIO"
 
 msgid "BOARD_ROLE_DANGEROUS"
-msgstr "CONTRATO PERIGOSO"
+msgstr "MANDADO DE ALTO VALOR"
 
 msgid "BOARD_MISSION_TIMING"
 msgstr "VIAGEM %s · PERSEGUIÇÃO %s"
