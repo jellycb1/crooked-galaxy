@@ -228,7 +228,10 @@ static func apply_xp(player: Dictionary, amount: int) -> int:
 static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 	# A short seeded simulation follows the actual alternating combat rules. It is
 	# deterministic for identical stats, so UI percentages never flicker.
-	const TRIALS := 1024
+	# 768 deterministic trials keep sub-percent display resolution while cutting
+	# cold mobile field-test work by 25%. Common random streams still make build
+	# comparisons stable, and career simulations guard the 55% recommendation gate.
+	const TRIALS := 768
 	var hunter_health := max_health(player)
 	var hunter_power := player_power(player)
 	var armor_power := int(player.get("armor", {}).get("power", 0))

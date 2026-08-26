@@ -980,6 +980,9 @@ msgstr " · LÍQUIDO ◈ %d"
 msgid "HUNT_EVENT_CHOOSE"
 msgstr "ESCOLHER"
 
+msgid "HUNT_EVENT_IGNORE"
+msgstr "IGNORAR · CONTINUAR ROTA"
+
 msgid "MISSION_READY_ANDROID"
 msgstr "Alvo localizado. O combate está pronto."
 

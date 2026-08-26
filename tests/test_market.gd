@@ -6,6 +6,7 @@ const MarketRulesScript = preload("res://scripts/market_rules.gd")
 const MarketViewScript = preload("res://scripts/market_view.gd")
 const SpendingGuidanceScript = preload("res://scripts/spending_guidance.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
+const CoreRulesScript = preload("res://scripts/core_rules.gd")
 
 var failures := 0
 
@@ -57,6 +58,18 @@ func _init() -> void:
 	check(owns_item, "purchased equipment is either equipped or stored")
 	var credits_after_purchase := int(state.player.credits)
 	check(not state.buy_market_offer(str(chosen.id)) and int(state.player.credits) == credits_after_purchase, "the same offer cannot be charged twice")
+	var cache_state = StateScript.new()
+	cache_state.persistence_enabled = false
+	cache_state.player = cache_state.default_player()
+	cache_state.player.weapon.power = 999
+	cache_state.player.armor.power = 999
+	cache_state.player.credits = 99999
+	CoreRulesScript.clear_bounty_odds_cache()
+	CoreRulesScript.bounty_odds(cache_state.player, ContentDB.TARGETS[0])
+	var cached_estimates := CoreRulesScript.bounty_odds_cache.size()
+	var stored_offer: Dictionary = cache_state.market_offers()[0]
+	check(cache_state.buy_market_offer(str(stored_offer.id)) and CoreRulesScript.bounty_odds_cache.size() == cached_estimates, "a stored market purchase retains unchanged combat estimates for responsive navigation")
+	cache_state.free()
 
 	state.phase = state.Phase.HUNT
 	check(not state.refresh_market(), "market cannot mutate credits during a contract")

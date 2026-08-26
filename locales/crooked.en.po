@@ -980,6 +980,9 @@ msgstr " · NET ◈ %d"
 msgid "HUNT_EVENT_CHOOSE"
 msgstr "CHOOSE"
 
+msgid "HUNT_EVENT_IGNORE"
+msgstr "IGNORE · CONTINUE ROUTE"
+
 msgid "MISSION_READY_ANDROID"
 msgstr "Target located. Combat is ready."
 

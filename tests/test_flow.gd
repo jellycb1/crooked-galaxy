@@ -311,6 +311,22 @@ func _init() -> void:
 	check(state.current_bounty.defense == 3, "event consequence modifies the target")
 	check(state.current_bounty.has("hunt_event_result"), "event result is retained for feedback")
 	check(int(state.current_bounty.get("hunt_event_credit_cost", 0)) == 8, "paid incident cost remains attached to the live contract receipt")
+	var ignored = StateScript.new()
+	ignored.persistence_enabled = false
+	ignored.player = ignored.default_player()
+	ignored.start_bounty(Content.TARGETS[0].duplicate(true))
+	ignored.hunt_event = Content.HUNT_EVENTS[0].duplicate(true)
+	ignored.phase = ignored.Phase.HUNT_EVENT
+	ignored.hunt_event_triggered = true
+	ignored.hunt_started_at = Time.get_unix_time_from_system() - 10.0
+	ignored.hunt_ends_at = Time.get_unix_time_from_system() + 60.0
+	var ignored_deadline: float = ignored.hunt_ends_at
+	var ignored_credits := int(ignored.player.credits)
+	check(ignored.ignore_hunt_event() and ignored.phase == ignored.Phase.HUNT, "an optional incident can be dismissed back to the moving hunt")
+	check(ignored.hunt_event.is_empty() and is_equal_approx(ignored.hunt_ends_at, ignored_deadline), "ignoring clears the prompt without changing the authoritative deadline")
+	check(not ignored.current_bounty.has("hunt_event_result") and int(ignored.player.credits) == ignored_credits, "explicit ignore applies no hidden result or cost")
+	check(not ignored.ignore_hunt_event(), "a dismissed incident cannot be ignored twice")
+	ignored.free()
 	var unattended = StateScript.new()
 	unattended.persistence_enabled = false
 	unattended.player = unattended.default_player()

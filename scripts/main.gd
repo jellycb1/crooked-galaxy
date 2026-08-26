@@ -47,6 +47,8 @@ var lifecycle_suspensions: Dictionary = {}
 var timed_actions_suspended := false
 var suspended_victory_time_left := 0.0
 var selected_board_offer_index := 0
+var last_hunt_remaining := -1
+var last_hunt_percent := -1
 
 
 func _ready() -> void:
@@ -86,6 +88,8 @@ func android_back_action() -> String:
 		if view_mode != "board":
 			return "board"
 		return "board_bounties" if board_section != "bounties" else "quit"
+	if GameState.phase == GameState.Phase.HUNT_EVENT:
+		return "ignore_hunt_event"
 	if GameState.phase == GameState.Phase.BRIEFING:
 		return "cancel_briefing"
 	return "guard_contract"
@@ -104,12 +108,14 @@ func handle_android_back_request() -> void:
 			render()
 		"cancel_briefing":
 			GameState.cancel_briefing()
+		"ignore_hunt_event":
+			GameState.ignore_hunt_event()
 		"quit":
 			if try_save_before_quit():
 				get_tree().quit()
-		# Timed hunts, incidents, combat, victory, rewards, and finales all have
-		# explicit safe actions. Consume Back rather than turning it into an
-		# accidental abandon/claim while the contract owns the screen.
+		# Timed hunts, combat, victory, rewards, and finales all have explicit safe
+		# actions. Incidents are the exception: Back performs their neutral ignore.
+		# Other contract screens consume Back rather than abandoning or claiming.
 		"guard_contract":
 			pass
 		"guard_onboarding":
@@ -191,7 +197,9 @@ func build_shell() -> void:
 	add_child(victory_timer)
 
 	hunt_timer = Timer.new()
-	hunt_timer.wait_time = 0.1
+	# Four updates per second keep the bar fluid while avoiding ten wakeups per
+	# second during multi-minute Android hunts. Visible second text is deduplicated.
+	hunt_timer.wait_time = 0.25
 	hunt_timer.timeout.connect(on_hunt_timer)
 	add_child(hunt_timer)
 
@@ -225,6 +233,9 @@ func render() -> void:
 	var phase_changed := previous_phase >= 0 and previous_phase != GameState.phase
 	if phase_changed and GameState.phase == GameState.Phase.COMBAT:
 		last_combat_message = ""
+	if phase_changed and (GameState.phase == GameState.Phase.HUNT or GameState.phase == GameState.Phase.HUNT_EVENT):
+		last_hunt_remaining = -1
+		last_hunt_percent = -1
 	if phase_changed and sound_fx:
 		match GameState.phase:
 			GameState.Phase.HUNT:
@@ -254,6 +265,14 @@ func render() -> void:
 		old_onboarding_scroll.get_v_scroll_bar().set_block_signals(true)
 		content.remove_child(old_onboarding_scroll)
 		old_onboarding_scroll.queue_free()
+	for scroll_definition in [
+		{"name": "MarketScroll", "property": "market_scroll_position"},
+		{"name": "HangarScroll", "property": "hangar_scroll_position"},
+		{"name": "InventoryScroll", "property": "inventory_scroll_position"},
+	]:
+		var remembered_scroll := content.find_child(str(scroll_definition.name), false, false) as ScrollContainer
+		if remembered_scroll != null:
+			set(str(scroll_definition.property), remembered_scroll.scroll_vertical)
 	for child in content.get_children():
 		content.remove_child(child)
 		child.queue_free()
@@ -316,6 +335,7 @@ func render() -> void:
 		GameState.Phase.CHAPTER_COMPLETE:
 			build_chapter_complete()
 	update_primary_navigation()
+	restore_session_scroll(current_generation)
 	if GameState.phase == GameState.Phase.COMBAT and not timed_actions_suspended:
 		if combat_timer.is_stopped():
 			combat_timer.start()
@@ -334,6 +354,35 @@ func render() -> void:
 	if GameState.phase == GameState.Phase.COMBAT and GameState.consume_mission_ready_feedback():
 		AndroidFeedbackScript.mission_ready(t("MISSION_READY_ANDROID", "Alvo localizado. O combate está pronto."))
 	call_deferred("restore_action_focus", previous_focus_name, current_generation)
+
+
+func restore_session_scroll(expected_generation: int) -> void:
+	var scroll_name := ""
+	var position := 0
+	if GameState.phase == GameState.Phase.BOARD:
+		if view_mode == "market":
+			scroll_name = "MarketScroll"
+			position = market_scroll_position
+		elif view_mode == "hangar":
+			scroll_name = "HangarScroll"
+			position = hangar_scroll_position
+		elif view_mode == "arsenal" and arsenal_section == "inventory":
+			scroll_name = "InventoryScroll"
+			position = inventory_scroll_position
+	if scroll_name.is_empty() or position <= 0:
+		return
+	get_tree().process_frame.connect(Callable(self, "apply_session_scroll").bind(expected_generation, scroll_name, position, false), CONNECT_ONE_SHOT)
+
+
+func apply_session_scroll(expected_generation: int, scroll_name: String, position: int, final_pass: bool) -> void:
+	if expected_generation != render_generation or not is_inside_tree():
+		return
+	var scroll := content.find_child(scroll_name, false, false) as ScrollContainer
+	if scroll == null:
+		return
+	scroll.scroll_vertical = position
+	if not final_pass:
+		get_tree().process_frame.connect(Callable(self, "apply_session_scroll").bind(expected_generation, scroll_name, position, true), CONNECT_ONE_SHOT)
 
 
 func restore_onboarding_scroll(expected_generation: int) -> void:
@@ -1695,12 +1744,24 @@ func build_hunt_event() -> void:
 	content.add_child(choices)
 	for choice in event.get("choices", []):
 		choices.add_child(hunt_choice_card(choice, accent, str(event.get("id", ""))))
-	content.add_spacer(false)
+	var footer_actions := HBoxContainer.new()
+	footer_actions.name = "HuntEventFooterActions"
+	footer_actions.add_theme_constant_override("separation", 8)
+	content.add_child(footer_actions)
+	var ignore := action_button(t("HUNT_EVENT_IGNORE", "IGNORAR · CONTINUAR ROTA"), CYAN, true)
+	ignore.name = "HuntEventIgnoreAction"
+	ignore.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ignore.custom_minimum_size = Vector2(0, 48)
+	ignore.add_theme_font_size_override("font_size", 11)
+	ignore.pressed.connect(GameState.ignore_hunt_event)
+	footer_actions.add_child(ignore)
 	var abandon := action_button(abandon_contract_text(), CORAL, true)
 	abandon.name = "HuntAbandonAction"
-	abandon.custom_minimum_size = Vector2(0, 46)
+	abandon.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	abandon.custom_minimum_size = Vector2(0, 48)
+	abandon.add_theme_font_size_override("font_size", 11)
 	abandon.pressed.connect(GameState.abandon_bounty)
-	content.add_child(abandon)
+	footer_actions.add_child(abandon)
 
 
 func abandon_contract_text() -> String:
@@ -2058,21 +2119,32 @@ func fighter(title: String, character_id: String, hp: int, maximum: int, color: 
 func on_hunt_timer() -> void:
 	if GameState.phase != GameState.Phase.HUNT and GameState.phase != GameState.Phase.HUNT_EVENT:
 		return
-	if GameState.update_hunt():
+	var now := Time.get_unix_time_from_system()
+	if GameState.update_hunt(now):
 		return
+	var remaining := maxi(0, ceili(GameState.hunt_ends_at - now))
 	if GameState.phase == GameState.Phase.HUNT_EVENT:
-		var event_status := find_child("HuntEventPauseStatus", true, false) as Label
-		if event_status:
-			var event_remaining := maxi(0, ceili(GameState.hunt_ends_at - Time.get_unix_time_from_system()))
-			event_status.text = t("HUNT_EVENT_PAUSE_STATUS", "ROTA EM CURSO · %s RESTANTES · IGNORAR = SEM ALTERAÇÃO", [format_hunt_duration(event_remaining)])
+		if remaining != last_hunt_remaining:
+			var event_status := find_child("HuntEventPauseStatus", true, false) as Label
+			if event_status:
+				event_status.text = t("HUNT_EVENT_PAUSE_STATUS", "ROTA EM CURSO · %s RESTANTES · IGNORAR = SEM ALTERAÇÃO", [format_hunt_duration(remaining)])
+			last_hunt_remaining = remaining
 		return
 	var progress := find_child("HuntProgress", true, false) as ProgressBar
 	var countdown := find_child("HuntCountdown", true, false) as Label
+	var progress_value := GameState.hunt_progress(now)
 	if progress:
-		progress.value = GameState.hunt_progress() * 100.0
-	if countdown:
-		var remaining := maxi(0, ceili(GameState.hunt_ends_at - Time.get_unix_time_from_system()))
+		progress.value = progress_value * 100.0
+	var percent := roundi(progress_value * 100.0)
+	if percent != last_hunt_percent:
+		var stage := find_child("HuntProgressStage", true, false) as Label
+		if stage:
+			var stage_text := t("HUNT_LEAVING_SECTOR", "SAINDO DO SETOR") if progress_value < 0.25 else (t("HUNT_TRACKING_SIGNAL", "RASTREANDO SINAL") if progress_value < 0.8 else t("HUNT_CONTACT_IMMINENT", "CONTATO IMINENTE"))
+			stage.text = "%s · %d%%" % [stage_text, percent]
+		last_hunt_percent = percent
+	if countdown and remaining != last_hunt_remaining:
 		countdown.text = t("HUNT_COUNTDOWN", "ALVO LOCALIZADO EM %ds", [remaining])
+		last_hunt_remaining = remaining
 
 
 func on_combat_timer() -> void:

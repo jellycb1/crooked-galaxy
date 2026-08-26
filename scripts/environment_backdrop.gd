@@ -11,6 +11,7 @@ const CONTEXT_PATHS := {
 var texture_rect: TextureRect
 var scrim: ColorRect
 var loaded_context := ""
+var loaded_planet := ""
 var texture_cache: Dictionary = {}
 
 
@@ -38,7 +39,10 @@ func show_context(context: String, planet_id := "") -> void:
 	if not CONTEXT_PATHS.has(context):
 		texture_rect.texture = null
 		loaded_context = ""
+		loaded_planet = ""
 		visible = false
+		return
+	if context == loaded_context and planet_id == loaded_planet and visible:
 		return
 	if context != loaded_context:
 		var texture := texture_cache.get(context) as Texture2D
@@ -47,11 +51,13 @@ func show_context(context: String, planet_id := "") -> void:
 		if texture == null:
 			texture_rect.texture = null
 			loaded_context = ""
+			loaded_planet = ""
 			visible = false
 			return
 		texture_cache[context] = texture
 		texture_rect.texture = texture
 		loaded_context = context
+	loaded_planet = planet_id
 	texture_rect.modulate = Color.WHITE.lerp(planet_tint(planet_id), 0.14)
 	scrim.color = Color(0.015, 0.025, 0.075, 0.72 if context == "world" or context == "workshop" else (0.52 if context == "combat" else 0.60))
 	visible = true

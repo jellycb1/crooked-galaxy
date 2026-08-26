@@ -29,6 +29,9 @@ var career_section := "progress"
 var career_scroll_position := 0
 var career_section_switch_pending := false
 var onboarding_scroll_position := 0
+var market_scroll_position := 0
+var hangar_scroll_position := 0
+var inventory_scroll_position := 0
 var attribute_draft: Dictionary = {}
 var class_draft := ""
 var species_draft := ""
@@ -49,12 +52,22 @@ func reset_transient_navigation() -> void:
 	career_scroll_position = 0
 	career_section_switch_pending = false
 	onboarding_scroll_position = 0
+	market_scroll_position = 0
+	hangar_scroll_position = 0
+	inventory_scroll_position = 0
 	attribute_draft = {}
 	class_draft = ""
 	species_draft = ""
 	appearance_draft = {}
 	locale_draft = ""
 	server_draft = ""
+
+
+func reset_session_scroll(node_name: String, property_name: String) -> void:
+	set(property_name, 0)
+	var scroll := find_child(node_name, true, false) as ScrollContainer
+	if scroll != null:
+		scroll.scroll_vertical = 0
 
 
 func panel(child: Control, color: Color, radius: int, margin: int) -> PanelContainer:

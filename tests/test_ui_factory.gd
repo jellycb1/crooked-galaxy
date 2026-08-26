@@ -29,9 +29,13 @@ func _init() -> void:
 	factory.career_section = "archive"
 	factory.career_scroll_position = 900
 	factory.career_section_switch_pending = true
+	factory.market_scroll_position = 120
+	factory.hangar_scroll_position = 140
+	factory.inventory_scroll_position = 160
 	factory.reset_transient_navigation()
 	check(factory.view_mode == "board" and factory.inventory_filter == "all" and factory.inventory_sort == "power" and factory.inventory_page == 0 and factory.arsenal_section == "equipped" and factory.board_section == "bounties", "factory reset restores default hub navigation")
 	check(factory.briefing_context.is_empty() and factory.career_section == "progress" and factory.career_scroll_position == 0 and not factory.career_section_switch_pending, "factory reset clears stale briefing and career positions")
+	check(factory.market_scroll_position == 0 and factory.hangar_scroll_position == 0 and factory.inventory_scroll_position == 0, "factory reset clears remembered commerce and inventory positions")
 
 	for control in [title, button, outlined, portrait, equipment, card]:
 		control.free()

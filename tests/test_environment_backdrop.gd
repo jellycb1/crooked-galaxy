@@ -18,6 +18,8 @@ func run() -> void:
 	check(backdrop.loaded_context == "contracts", "environment loads only the requested contract context")
 	var contract_texture := backdrop.texture_rect.texture
 	var dustball_modulate := backdrop.texture_rect.modulate
+	backdrop.show_context("contracts", "dustball_prime")
+	check(backdrop.loaded_planet == "dustball_prime" and backdrop.texture_rect.texture == contract_texture, "unchanged environment state is reused without another visual update")
 	backdrop.show_context("contracts", "congelaria_sa")
 	check(backdrop.texture_rect.modulate != dustball_modulate, "same environment receives a distinct active-planet tint without reloading its texture")
 	check(backdrop.texture_rect.texture != null, "contract environment resolves its imported texture")

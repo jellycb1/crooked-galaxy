@@ -196,6 +196,8 @@ func run_mobile_audit() -> void:
 	scene.render()
 	await process_frame
 	check(find_label_with_text(scene, "HUNT INCIDENT") != null and find_label_with_text(scene, "D-7 Drone Toll") != null and find_label_with_text(scene, "The drone reveals weak points: -18% target defense.") != null and (scene.find_child("HuntChoice_detour", true, false) as Button).text == "CHOOSE", "English catalog covers the complete live incident decision")
+	var english_ignore := scene.find_child("HuntEventIgnoreAction", true, false) as Button
+	check(english_ignore != null and english_ignore.text == "IGNORE · CONTINUE ROUTE" and english_ignore.custom_minimum_size.y >= 48.0, "incident exposes a localized touch-safe neutral exit")
 	(scene.find_child("HuntChoice_detour", true, false) as Button).pressed.emit()
 	await process_frame
 	check(find_label_with_text(scene, "The detour ended behind the target. For once, a road sign helped.") != null, "English incident result survives the committed choice and resumed hunt")
@@ -309,6 +311,13 @@ func run_mobile_audit() -> void:
 	await process_frame
 	check_touch_targets(scene, "planet market")
 	check(scene.find_child("MarketScroll", true, false) != null and scene.find_children("MarketOffer_*", "PanelContainer", true, false).size() == 3, "all three market offers remain reachable in the portrait scroller")
+	scene.market_scroll_position = 80
+	var refresh_market := scene.find_child("MarketRefresh", true, false) as Button
+	if refresh_market != null:
+		refresh_market.pressed.emit()
+		await process_frame
+		await process_frame
+	check(scene.market_scroll_position == 0 and (scene.find_child("MarketScroll", true, false) as ScrollContainer).scroll_vertical == 0, "replacing the complete market stock intentionally returns to its first offer")
 	var market_hangar_action := scene.find_child("MarketHangarAction", true, false) as Button
 	check(market_hangar_action != null, "market keeps the transport alternative one touch away")
 	check(scene.android_back_action() == "menu", "Android Back routes the market to its secondary menu parent")
@@ -341,12 +350,23 @@ func run_mobile_audit() -> void:
 	check(inventory_scroll != null and inventory_scroll.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "arsenal disables horizontal scrolling")
 	check(inventory_scroll != null and inventory_scroll.size.y >= 48.0, "arsenal reserves a complete touch row for the inventory on mobile (actual %.1f)" % (inventory_scroll.size.y if inventory_scroll != null else -1.0))
 	check(scene.find_children("InventoryItem_*", "PanelContainer", true, false).size() == 12, "mobile arsenal instantiates only one bounded inventory page")
+	if inventory_scroll != null:
+		inventory_scroll.scroll_vertical = 80
+		await process_frame
+		var remembered_inventory_position := inventory_scroll.scroll_vertical
+		scene.render()
+		await process_frame
+		await process_frame
+		await process_frame
+		inventory_scroll = scene.find_child("InventoryScroll", true, false) as ScrollContainer
+		check(remembered_inventory_position > 0 and inventory_scroll != null and abs(inventory_scroll.scroll_vertical - remembered_inventory_position) <= 1, "inventory transactions preserve the current page position")
 	var next_inventory_page := scene.find_child("InventoryPageNext", true, false) as Button
 	check(next_inventory_page != null and next_inventory_page.custom_minimum_size.y >= 48.0, "inventory pager preserves a complete mobile touch target")
 	if next_inventory_page != null:
 		next_inventory_page.pressed.emit()
 		await process_frame
 	check(scene.inventory_page == 1 and (scene.find_child("InventoryPageStatus", true, false) as Label).text == "2 / 3", "mobile inventory navigation advances one page without touching the save")
+	check((scene.find_child("InventoryScroll", true, false) as ScrollContainer).scroll_vertical == 0, "changing inventory page starts at the first item")
 
 	scene.view_mode = "career"
 	scene.render()
@@ -404,6 +424,7 @@ func run_mobile_audit() -> void:
 	await process_frame
 	check(not scene.hunt_timer.is_stopped(), "incident keeps the wall-clock hunt refresh active while input remains optional")
 	check_touch_targets(scene, "hunt incident")
+	check(scene.android_back_action() == "ignore_hunt_event", "Android Back closes an optional incident through the same neutral action")
 
 	state.player = state.default_player()
 	state.phase = state.Phase.REWARD

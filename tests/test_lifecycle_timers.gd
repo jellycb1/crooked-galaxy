@@ -26,6 +26,7 @@ func run_lifecycle_audit() -> void:
 	await process_frame
 	check(not scene.combat_timer.is_stopped(), "focused combat starts its automatic timer")
 	check(scene.hunt_timer.is_stopped(), "hunt refresh is inactive during combat")
+	check(scene.hunt_timer.wait_time >= 0.2 and scene.hunt_timer.wait_time <= 0.5, "multi-minute hunt refresh uses a mobile-conscious cadence")
 
 	var round_before := int(state.combat_round)
 	scene._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)

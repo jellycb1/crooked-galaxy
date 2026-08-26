@@ -206,6 +206,7 @@ static func inventory_header(host: CrookedUIFactory, page_data: Dictionary, inve
 	previous.disabled = int(page_data.page) <= 0
 	previous.pressed.connect(func():
 		host.inventory_page = maxi(0, host.inventory_page - 1)
+		host.reset_session_scroll("InventoryScroll", "inventory_scroll_position")
 		host.call("render")
 	)
 	row.add_child(previous)
@@ -220,6 +221,7 @@ static func inventory_header(host: CrookedUIFactory, page_data: Dictionary, inve
 	next.disabled = int(page_data.page) >= int(page_data.page_count) - 1
 	next.pressed.connect(func():
 		host.inventory_page = mini(int(page_data.page_count) - 1, host.inventory_page + 1)
+		host.reset_session_scroll("InventoryScroll", "inventory_scroll_position")
 		host.call("render")
 	)
 	row.add_child(next)
@@ -429,6 +431,7 @@ static func inventory_toolbar(host: CrookedUIFactory, state: StateScript) -> VBo
 		filter_button.pressed.connect(func():
 			host.inventory_filter = mode
 			host.inventory_page = 0
+			host.reset_session_scroll("InventoryScroll", "inventory_scroll_position")
 			host.call("render")
 		)
 		filters.add_child(filter_button)
@@ -443,6 +446,7 @@ static func inventory_toolbar(host: CrookedUIFactory, state: StateScript) -> VBo
 	sort.pressed.connect(func():
 		host.inventory_sort = "rarity" if host.inventory_sort == "power" else "power"
 		host.inventory_page = 0
+		host.reset_session_scroll("InventoryScroll", "inventory_scroll_position")
 		host.call("render")
 	)
 	utility_row.add_child(sort)

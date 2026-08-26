@@ -341,7 +341,10 @@ func buy_market_offer(offer_id: String) -> bool:
 	var item_name := localized_item_field(item, "name")
 	last_notice = LocaleRulesScript.text("MARKET_NOTICE_EQUIPPED", "Mercado: %s comprado por %d créditos e equipado.", [item_name, price]) if equipped else LocaleRulesScript.text("MARKET_NOTICE_STORED", "Mercado: %s comprado por %d créditos e guardado.", [item_name, price])
 	last_notice_context = "market"
-	CoreRules.clear_bounty_odds_cache()
+	# A stored purchase changes wallet/inventory presentation but not the combat
+	# build. Retain expensive deterministic estimates unless the item auto-equips.
+	if equipped:
+		CoreRules.clear_bounty_odds_cache()
 	save_game()
 	changed.emit()
 	return true
@@ -532,23 +535,24 @@ func cancel_briefing() -> void:
 	changed.emit()
 
 
-func hunt_progress() -> float:
+func hunt_progress(now := -1.0) -> float:
 	if phase != Phase.HUNT and phase != Phase.HUNT_EVENT:
 		return 0.0
-	return HuntTimingRulesScript.progress(Time.get_unix_time_from_system(), hunt_started_at, hunt_ends_at)
+	var sampled_now: float = Time.get_unix_time_from_system() if now < 0.0 else now
+	return HuntTimingRulesScript.progress(sampled_now, hunt_started_at, hunt_ends_at)
 
 
-func update_hunt() -> bool:
+func update_hunt(now := -1.0) -> bool:
 	if phase != Phase.HUNT and phase != Phase.HUNT_EVENT:
 		return false
-	var now := Time.get_unix_time_from_system()
-	if HuntTimingRulesScript.is_complete(now, hunt_ends_at):
+	var sampled_now: float = Time.get_unix_time_from_system() if now < 0.0 else now
+	if HuntTimingRulesScript.is_complete(sampled_now, hunt_ends_at):
 		begin_combat(true)
 		return true
-	if phase == Phase.HUNT and not hunt_event_triggered and hunt_progress() >= 0.45:
+	if phase == Phase.HUNT and not hunt_event_triggered and hunt_progress(sampled_now) >= 0.45:
 		hunt_event_triggered = true
-		hunt_elapsed_before_event = maxf(0.0, now - hunt_started_at)
-		hunt_remaining_after_event = maxf(0.1, HuntTimingRulesScript.remaining(now, hunt_ends_at))
+		hunt_elapsed_before_event = maxf(0.0, sampled_now - hunt_started_at)
+		hunt_remaining_after_event = maxf(0.1, HuntTimingRulesScript.remaining(sampled_now, hunt_ends_at))
 		phase = Phase.HUNT_EVENT
 		save_game()
 		changed.emit()
@@ -558,6 +562,21 @@ func update_hunt() -> bool:
 
 func can_afford_hunt_choice(choice: Dictionary) -> bool:
 	return int(player.credits) >= int(choice.get("credit_cost", 0))
+
+
+func ignore_hunt_event() -> bool:
+	if phase != Phase.HUNT_EVENT:
+		return false
+	hunt_event = {}
+	var now := Time.get_unix_time_from_system()
+	if HuntTimingRulesScript.is_complete(now, hunt_ends_at):
+		begin_combat(true)
+		return true
+	phase = Phase.HUNT
+	hunt_remaining_after_event = HuntTimingRulesScript.remaining(now, hunt_ends_at)
+	save_game()
+	changed.emit()
+	return true
 
 
 func resolve_hunt_event(choice_id: String) -> bool:

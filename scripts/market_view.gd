@@ -45,7 +45,10 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	refresh.custom_minimum_size = Vector2(128, 48)
 	refresh.add_theme_font_size_override("font_size", 11)
 	refresh.disabled = int(state.player.credits) < refresh_cost
-	refresh.pressed.connect(state.refresh_market)
+	refresh.pressed.connect(func():
+		host.reset_session_scroll("MarketScroll", "market_scroll_position")
+		state.refresh_market()
+	)
 	info_row.add_child(refresh)
 
 	var transport_goal := SpendingGuidanceScript.next_transport_goal(state.player)
