@@ -10,6 +10,8 @@ const LocaleRulesScript = preload("res://scripts/locale_rules.gd")
 const MarketRulesScript = preload("res://scripts/market_rules.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const ChallengeRulesScript = preload("res://scripts/challenge_rules.gd")
+const AccountRulesScript = preload("res://scripts/account_rules.gd")
+const AccountServiceScript = preload("res://scripts/account_service.gd")
 
 signal changed
 signal combat_event(message: String)
@@ -47,6 +49,7 @@ var afk_report: Dictionary = {}
 var save_warning := ""
 var save_recovery_required := false
 var onboarding_gate_enabled := false
+var account_service = AccountServiceScript.new()
 
 
 func _ready() -> void:
@@ -62,6 +65,7 @@ func _ready() -> void:
 
 func default_player() -> Dictionary:
 	return {
+		"character_id": "",
 		"class_id": "",
 		"species_id": "",
 		"hunter_name": "",
@@ -129,11 +133,9 @@ func requires_onboarding() -> bool:
 
 
 func account_session_ready() -> bool:
-	var mode := str(account.get("mode", ""))
-	var session_id := str(account.get("session_id", ""))
 	var server_id := str(account.get("server_id", ""))
 	var locale_id := str(account.get("locale_id", ""))
-	return (mode == "local_test" or mode == "legacy_local") and not session_id.is_empty() and ServerRulesScript.is_valid(server_id) and LocaleRulesScript.is_selectable(locale_id)
+	return account_service.session_ready(account) and ServerRulesScript.is_valid(server_id) and LocaleRulesScript.is_selectable(locale_id)
 
 
 func begin_local_session(locale_id := LocaleRulesScript.DEFAULT_ID, server_id := ServerRulesScript.DEFAULT_ID) -> bool:
@@ -141,7 +143,9 @@ func begin_local_session(locale_id := LocaleRulesScript.DEFAULT_ID, server_id :=
 		return true
 	if not LocaleRulesScript.is_selectable(str(locale_id)) or not ServerRulesScript.is_valid(str(server_id)):
 		return false
-	account = {"mode": "local_test", "session_id": "local_primary", "locale_id": str(locale_id), "server_id": str(server_id)}
+	if str(player.get("character_id", "")).is_empty():
+		player.character_id = AccountRulesScript.LOCAL_CHARACTER_ID
+	account = account_service.create_session(str(locale_id), str(server_id), str(player.character_id))
 	TranslationServer.set_locale(str(locale_id))
 	last_notice = LocaleRulesScript.text("ONB_NOTICE_SESSION", "Sessão local iniciada em %s. Nenhuma conexão online foi simulada.", [ServerRulesScript.server_name_for(str(server_id))])
 	last_notice_context = "onboarding"
@@ -1270,9 +1274,16 @@ func save_game() -> bool:
 	if save_recovery_required:
 		return false
 	player.last_seen_unix = maxf(float(player.get("last_seen_unix", 0.0)), Time.get_unix_time_from_system())
+	if not account.is_empty() and str(player.get("character_id", "")).is_empty():
+		player.character_id = AccountRulesScript.LOCAL_CHARACTER_ID
+	var canonical_account := account_service.canonicalize_account(account, str(player.get("character_id", ""))) if not account.is_empty() else {}
+	if not account.is_empty() and (canonical_account.is_empty() or not account_service.session_ready(canonical_account) or not account_service.owns_character(canonical_account, str(player.character_id))):
+		save_warning = LocaleRulesScript.text("SAVE_WARNING_ACCOUNT", "PROGRESSO AINDA NÃO SALVO · o vínculo local entre conta e personagem é inválido. Mantenha o jogo aberto e tente novamente.")
+		return false
+	var committed_account := account_service.prepare_local_commit(canonical_account)
 	var payload := {
 		"version": SAVE_VERSION,
-		"account": account,
+		"account": committed_account,
 		"player": player,
 		"phase": int(phase),
 		"current_bounty": current_bounty,
@@ -1322,6 +1333,7 @@ func save_game() -> bool:
 	if FileAccess.file_exists(backup_path):
 		DirAccess.remove_absolute(backup_absolute)
 	DirAccess.copy_absolute(primary_absolute, backup_absolute)
+	account = committed_account
 	save_warning = ""
 	return true
 
@@ -1412,9 +1424,7 @@ func load_game() -> void:
 	parsed = migrate_save_payload(parsed)
 	if parsed.is_empty():
 		return
-	account = sanitize_loaded_account(parsed.get("account", {}))
-	if account_session_ready():
-		TranslationServer.set_locale(str(account.locale_id))
+	var loaded_account = parsed.get("account", {})
 	var loaded_player = parsed.get("player", {})
 	var player_repaired := false
 	if loaded_player is Dictionary:
@@ -1426,6 +1436,9 @@ func load_game() -> void:
 			player.captures_by_planet = {ContentDB.PLANET.id: int(player.wins)}
 	else:
 		player_repaired = true
+	account = sanitize_loaded_account(loaded_account, str(player.get("character_id", "")))
+	if account_session_ready():
+		TranslationServer.set_locale(str(account.locale_id))
 	var phase_payload_repaired := false
 	phase = int(parsed.get("phase", Phase.BOARD))
 	var loaded_bounty = parsed.get("current_bounty", {})
@@ -1732,16 +1745,19 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	return {"player": sanitized, "repaired": repaired}
 
 
-func sanitize_loaded_account(loaded) -> Dictionary:
+func sanitize_loaded_account(loaded, character_id := "") -> Dictionary:
 	if not loaded is Dictionary:
 		return {}
-	var mode := str(loaded.get("mode", ""))
-	var session_id := str(loaded.get("session_id", ""))
-	var server_id := str(loaded.get("server_id", ""))
-	var locale_id := str(loaded.get("locale_id", ""))
-	if not (mode == "local_test" or mode == "legacy_local") or session_id.is_empty() or session_id.length() > 64 or not ServerRulesScript.is_valid(server_id) or not LocaleRulesScript.is_selectable(locale_id):
+	var canonical := account_service.canonicalize_account(loaded, character_id)
+	if canonical.is_empty() or not account_service.session_ready(canonical):
 		return {}
-	return {"mode": mode, "session_id": session_id, "server_id": server_id, "locale_id": locale_id}
+	if str(canonical.get("provider_id", "")) != AccountRulesScript.LOCAL_PROVIDER_ID or str(canonical.get("account_id", "")).is_empty() or str(canonical.get("account_id", "")).length() > 64:
+		return {}
+	if not ServerRulesScript.is_valid(str(canonical.get("server_id", ""))) or not LocaleRulesScript.is_selectable(str(canonical.get("locale_id", ""))):
+		return {}
+	if not account_service.owns_character(canonical, character_id):
+		return {}
+	return canonical
 
 
 func canonicalize_loaded_bounty(loaded: Dictionary) -> Dictionary:

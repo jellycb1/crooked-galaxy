@@ -23,7 +23,9 @@ func run_save_failure_audit() -> void:
 	state.player.species_id = "patched_terran"
 	state.player.hunter_name = "Teste Seguro"
 	state.player.credits = 777
+	var revision_before_failure := int(state.account.get("local_revision", 0))
 	check(not state.save_game(), "save reports failure when its local parent is unavailable")
+	check(int(state.account.get("local_revision", 0)) == revision_before_failure, "failed save does not advance the committed profile revision")
 	check(not state.save_warning.is_empty(), "failed write creates a dedicated persistent warning")
 	check(not FileAccess.file_exists(test_save), "failed write cannot pretend a save exists")
 
@@ -60,6 +62,7 @@ func run_save_failure_audit() -> void:
 	var file := FileAccess.open(test_save, FileAccess.READ)
 	var payload = JSON.parse_string(file.get_as_text())
 	check(payload is Dictionary and int(payload.player.credits) == 777, "successful retry persists the exact in-memory progress")
+	check(payload is Dictionary and int(payload.account.local_revision) == int(state.account.local_revision) and int(payload.account.local_revision) > revision_before_failure, "only successful save transactions advance and persist the profile revision")
 
 	scene.free()
 	await process_frame

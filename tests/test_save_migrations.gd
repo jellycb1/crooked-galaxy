@@ -62,6 +62,8 @@ func _init() -> void:
 	check(str(established_v9.player.species_id).is_empty() and str(established_v9.player.hunter_name).is_empty(), "version-twelve migration never invents species or hunter name")
 	check(str(established_v9.account.mode) == "legacy_local", "an established local save resumes as a returning local session")
 	check(str(established_v9.account.server_id) == "international_1" and str(established_v9.account.locale_id) == "pt", "established local saves join International 1 with their existing Portuguese presentation")
+	check(str(established_v9.account.provider_id) == "local_device" and str(established_v9.account.authority) == "device" and str(established_v9.account.sync_state) == "local_only", "established saves gain an honest device-authoritative account boundary")
+	check(str(established_v9.player.character_id) == "local_character_primary" and str(established_v9.account.active_character_id) == str(established_v9.player.character_id) and established_v9.account.owned_character_ids == [str(established_v9.player.character_id)], "migration binds the existing hunter to one stable locally owned character")
 
 	var version_nine := {"version": 9, "player": {"weapon": {"id": "legacy_weapon"}, "armor": {"id": "legacy_armor"}, "equipment_loadouts": [{"weapon_id": "legacy_weapon", "armor_id": "legacy_armor"}, {"weapon_id": "", "armor_id": ""}]}}
 	var universal := SaveMigrations.migrate(version_nine)
@@ -76,6 +78,7 @@ func _init() -> void:
 
 	var interrupted_v12 := SaveMigrations.migrate({"version": 12, "account": {}, "player": {"class_id": ""}})
 	check(interrupted_v12.account.is_empty(), "an interrupted fresh login is not silently assigned to a server by migration")
+	check(not interrupted_v12.player.has("character_id"), "an interrupted fresh login is not silently assigned character ownership")
 
 	var current := {"version": SaveMigrations.CURRENT_VERSION, "player": {"credits": 5}}
 	var current_copy := SaveMigrations.migrate(current)

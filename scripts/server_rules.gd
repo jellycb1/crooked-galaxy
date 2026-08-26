@@ -10,6 +10,9 @@ const DEFINITIONS := [
 		"region": "GLOBAL",
 		"language_policy": "MULTILÍNGUE",
 		"prototype": true,
+		"service_mode": "local_contract",
+		"account_backend": false,
+		"progress_authority": "device",
 	},
 ]
 

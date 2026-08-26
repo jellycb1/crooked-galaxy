@@ -163,6 +163,7 @@ func run_test() -> void:
 
 	var persisted: Dictionary = state.read_save_dictionary(test_save_path)
 	check(str(persisted.account.mode) == "local_test" and str(persisted.account.server_id) == "international_1" and str(persisted.account.locale_id) == "pt" and str(persisted.player.class_id) == "contract_hacker" and str(persisted.player.species_id) == "discontinued_synthetic" and str(persisted.player.hunter_name) == "Nova Vex", "server, locale, and every confirmed character stage survive interruption")
+	check(str(persisted.account.provider_id) == "local_device" and str(persisted.account.authority) == "device" and str(persisted.account.sync_state) == "local_only" and str(persisted.account.active_character_id) == str(persisted.player.character_id), "fresh onboarding persists honest local authority and character ownership")
 	scene.queue_free()
 	await process_frame
 	finish()

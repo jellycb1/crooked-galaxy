@@ -1,7 +1,7 @@
 class_name SaveMigrations
 extends RefCounted
 
-const CURRENT_VERSION := 13
+const CURRENT_VERSION := 14
 const BASE_ATTRIBUTE_VALUE := 10
 const ATTRIBUTE_POINTS_PER_LEVEL := 2
 
@@ -49,6 +49,9 @@ static func migrate(payload: Dictionary) -> Dictionary:
 			12:
 				migrated = migrate_v12_to_v13(migrated)
 				version = 13
+			13:
+				migrated = migrate_v13_to_v14(migrated)
+				version = 14
 			_:
 				return {}
 		migrated.version = version
@@ -208,4 +211,29 @@ static func migrate_v12_to_v13(payload: Dictionary) -> Dictionary:
 		if not account.has("locale_id"):
 			account.locale_id = "pt"
 		migrated.account = account
+	return migrated
+
+
+static func migrate_v13_to_v14(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	var account = migrated.get("account", {})
+	var player: Dictionary = migrated.get("player", {})
+	# An interrupted fresh login remains identity-free. Established local profiles
+	# receive stable device-owned IDs without inventing credentials or server state.
+	if account is Dictionary and not account.is_empty():
+		var character_id := str(player.get("character_id", "local_character_primary"))
+		if character_id.is_empty():
+			character_id = "local_character_primary"
+		player.character_id = character_id
+		account.provider_id = "local_device"
+		account.account_id = str(account.get("account_id", "local_account_primary"))
+		account.session_state = "local_ready"
+		account.active_character_id = character_id
+		account.owned_character_ids = [character_id]
+		account.authority = "device"
+		account.sync_state = "local_only"
+		account.local_revision = maxi(0, int(account.get("local_revision", 0)))
+		account.last_server_revision = 0
+		migrated.account = account
+		migrated.player = player
 	return migrated

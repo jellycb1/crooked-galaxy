@@ -3,6 +3,7 @@ extends RefCounted
 
 const StateScript = preload("res://scripts/game_state.gd")
 const LocaleRulesScript = preload("res://scripts/locale_rules.gd")
+const ServerRulesScript = preload("res://scripts/server_rules.gd")
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
@@ -44,6 +45,7 @@ static func preferences_panel(host: CrookedUIFactory, state: StateScript) -> VBo
 	preferences.name = "AccessibilityPreferences"
 	preferences.add_theme_constant_override("separation", 8)
 	result.add_child(preferences)
+	preferences.add_child(account_panel(host, state))
 	preferences.add_child(language_panel(host, state))
 	preferences.add_child(preference_row(host, t("SETTINGS_AUDIO", "ÁUDIO"), t("SETTINGS_AUDIO_DESCRIPTION", "Efeitos de interface e combate"), t("COMMON_ON", "LIGADO") if bool(state.player.get("sound_enabled", true)) else t("COMMON_OFF", "DESLIGADO"), "SoundPreferenceAction", state.toggle_sound))
 	preferences.add_child(preference_row(host, t("SETTINGS_MOTION", "MOVIMENTO"), t("SETTINGS_MOTION_DESCRIPTION", "Remove apenas transições decorativas"), t("SETTINGS_REDUCED", "REDUZIDO") if bool(state.player.get("reduced_motion", false)) else t("SETTINGS_FULL", "COMPLETO"), "MotionPreferenceAction", state.toggle_reduced_motion))
@@ -64,6 +66,23 @@ static func preferences_panel(host: CrookedUIFactory, state: StateScript) -> VBo
 		danger_copy.add_child(reset)
 		result.add_child(danger)
 	return result
+
+
+static func account_panel(host: CrookedUIFactory, state: StateScript) -> PanelContainer:
+	var card := host.panel(VBoxContainer.new(), Color("#172442"), 13, 12)
+	card.name = "SettingsAccountPanel"
+	var stack := card.get_child(0) as VBoxContainer
+	stack.add_theme_constant_override("separation", 4)
+	stack.add_child(host.label(t("SETTINGS_ACCOUNT_TITLE", "CONTA E SERVIDOR"), 13, host.LIME))
+	var server_name := ServerRulesScript.server_name_for(str(state.account.get("server_id", ServerRulesScript.DEFAULT_ID)))
+	stack.add_child(host.label(t("SETTINGS_ACCOUNT_LOCAL", "PERFIL LOCAL DE TESTE"), 15, host.INK))
+	stack.add_child(host.label(t("SETTINGS_ACCOUNT_SCOPE", "%s · ESTE DISPOSITIVO", [server_name.to_upper()]), 11, host.CYAN))
+	var description := host.label(t("SETTINGS_ACCOUNT_DESCRIPTION", "Autoridade do progresso: este dispositivo. Este APK ainda não usa credenciais, nuvem ou sincronização com servidor."), 11, host.MUTED)
+	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	stack.add_child(description)
+	var revision := maxi(0, int(state.account.get("local_revision", 0)))
+	stack.add_child(host.label(t("SETTINGS_ACCOUNT_REVISION", "ESTADO LOCAL · REVISÃO %d · SEM CONFLITOS REMOTOS", [revision]), 10, host.GOLD))
+	return card
 
 
 static func language_panel(host: CrookedUIFactory, state: StateScript) -> PanelContainer:

@@ -3583,3 +3583,21 @@ msgstr "TRY\nAGAIN"
 
 msgid "EQUIPMENT_INTEGRITY"
 msgstr "REINFORCEMENT +%d HEALTH"
+
+msgid "SETTINGS_ACCOUNT_TITLE"
+msgstr "ACCOUNT AND SERVER"
+
+msgid "SETTINGS_ACCOUNT_LOCAL"
+msgstr "LOCAL TEST PROFILE"
+
+msgid "SETTINGS_ACCOUNT_SCOPE"
+msgstr "%s · THIS DEVICE"
+
+msgid "SETTINGS_ACCOUNT_DESCRIPTION"
+msgstr "Progress authority: this device. This APK does not use credentials, cloud storage, or server synchronization yet."
+
+msgid "SETTINGS_ACCOUNT_REVISION"
+msgstr "LOCAL STATE · REVISION %d · NO REMOTE CONFLICTS"
+
+msgid "SAVE_WARNING_ACCOUNT"
+msgstr "PROGRESS NOT YET SAVED · the local account-to-character link is invalid. Keep the game open and try again."

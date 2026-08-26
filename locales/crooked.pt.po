@@ -3583,3 +3583,21 @@ msgstr "TENTAR\nNOVAMENTE"
 
 msgid "EQUIPMENT_INTEGRITY"
 msgstr "REFORÇO +%d VIDA"
+
+msgid "SETTINGS_ACCOUNT_TITLE"
+msgstr "CONTA E SERVIDOR"
+
+msgid "SETTINGS_ACCOUNT_LOCAL"
+msgstr "PERFIL LOCAL DE TESTE"
+
+msgid "SETTINGS_ACCOUNT_SCOPE"
+msgstr "%s · ESTE DISPOSITIVO"
+
+msgid "SETTINGS_ACCOUNT_DESCRIPTION"
+msgstr "Autoridade do progresso: este dispositivo. Este APK ainda não usa credenciais, nuvem ou sincronização com servidor."
+
+msgid "SETTINGS_ACCOUNT_REVISION"
+msgstr "ESTADO LOCAL · REVISÃO %d · SEM CONFLITOS REMOTOS"
+
+msgid "SAVE_WARNING_ACCOUNT"
+msgstr "PROGRESSO AINDA NÃO SALVO · o vínculo local entre conta e personagem é inválido. Mantenha o jogo aberto e tente novamente."

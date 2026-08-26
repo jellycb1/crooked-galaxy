@@ -42,6 +42,7 @@ func run_mobile_audit() -> void:
 	(scene.find_child("BoardSettingsAction", true, false) as Button).pressed.emit()
 	await process_frame
 	check(find_label_with_text(scene, "SETTINGS") != null and find_label_with_text(scene, "GAME EXPERIENCE") != null and find_label_with_text(scene, "AUDIO") != null and (scene.find_child("SoundPreferenceAction", true, false) as Button).text == "ON" and (scene.find_child("ResetProgressAction", true, false) as Button).text == "RESET LOCAL PROGRESS", "English catalog covers device preferences and the explicit local-test reset")
+	check(find_label_with_text(scene, "ACCOUNT AND SERVER") != null and find_label_with_text(scene, "LOCAL TEST PROFILE") != null and find_label_with_text(scene, "INTERNATIONAL 1 · THIS DEVICE") != null and find_label_with_text(scene, "NO REMOTE CONFLICTS") != null, "Settings exposes honest account authority, shard scope, and local-only revision state")
 	var player_before_english_commerce: Dictionary = state.player.duplicate(true)
 	state.player.credits = 20000
 	state.player.completed_planets = ["dustball_prime"]

@@ -160,6 +160,8 @@ Crooked Galaxy is an international, multilingual game. User-facing copy must mig
 
 Accounts and characters belong to a server shard. The first world is International 1, a global multilingual server. Local test builds must preserve and display that server identity while stating honestly that no online connection or authoritative backend exists yet; local state must never pretend to be live server state.
 
+Account provider, session, shard, locale and character ownership are separate identities. Device-authoritative test saves advance a local transaction revision but never claim authentication or synchronization. A future backend must compare acknowledged revisions and stop on divergent progress; currencies, inventory, claimed rewards and active phases must never be merged heuristically.
+
 A new player cannot inspect or accept bounties until all four stages are complete. Each choice must be explicitly previewed and confirmed, and an interrupted creation flow must resume at the first incomplete stage rather than skipping ahead or losing earlier choices.
 
 The current class and species rosters are allowed to remain replaceable placeholders. The eight initial species are visual and narrative identity only: species must never alter attributes, combat formulas, loot, economy or progression. The universal nine-slot inventory remains independent of both class and species.
