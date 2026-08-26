@@ -75,8 +75,8 @@ func _init() -> void:
 	check(int(reward_impact.levels_gained) == 1, "reward projection includes a level crossed by the pending XP")
 	projection_state.claim_reward(true)
 	var claimed_readiness := ArsenalScript.field_readiness(projection_state)
-	check(str(claimed_readiness.target.id) == str(projected_target.id) and str(claimed_readiness.approach.id) == str(reward_impact.approach_id), "post-claim field test keeps the reward's projected target and fixed route")
-	check(is_equal_approx(float(claimed_readiness.current_odds), float(reward_impact.projected_odds)), "post-claim field test exactly confirms the reward's projected odds after XP and equipment")
+	check(bool(claimed_readiness.target.get("mission_offer", false)) and int(claimed_readiness.target.mission_level) == int(projection_state.player.level), "post-claim field test follows the fixed level-banded board instead of a completed chapter tier")
+	check(is_equal_approx(float(claimed_readiness.current_odds), CoreRules.bounty_odds(projection_state.player, claimed_readiness.contract)), "post-claim field test exactly reflects the upgraded build against its immutable offer")
 	projection_state.free()
 	var tested_route_state = StateScript.new()
 	tested_route_state.persistence_enabled = false
@@ -222,6 +222,7 @@ func _init() -> void:
 	career_state.player.wins = 12
 	career_state.player.captures_by_target = {"gloop": 3}
 	career_state.player.completed_planets = ["dustball_prime", "congelaria_sa", "micelia_404", "ferro_velho_omega", "cassino_quasar"]
+	career_state.player.level = 19
 	career_state.player.scrap_recycled_total = 25
 	career_state.player.best_capture_streak = 5
 	var all_credits_before := int(career_state.player.credits)
@@ -378,8 +379,9 @@ func _init() -> void:
 	check(str(chapter_state.chapter_completion.target.id) == "mayor_gold_dust", "chapter finale retains the defeated boss")
 	chapter_state.continue_after_chapter()
 	check(chapter_state.phase == chapter_state.Phase.BOARD, "chapter finale returns to repeatable bounties")
-	check(chapter_state.travel_to_planet("congelaria_sa"), "chapter completion opens travel to the next planet")
-	check(str(chapter_state.player.current_planet_id) == "congelaria_sa", "travel updates the active planet")
+	check(not chapter_state.travel_to_planet("congelaria_sa"), "legacy chapter completion no longer bypasses the level discovery gate")
+	chapter_state.player.level = 4
+	check(chapter_state.travel_to_planet("congelaria_sa") and str(chapter_state.player.current_planet_id) == "congelaria_sa", "hunter level opens the next world independently of legacy completion")
 	chapter_state.phase = chapter_state.Phase.REWARD
 	chapter_state.current_bounty = Content.TARGETS[3].duplicate(true)
 	chapter_state.pending_loot = {
@@ -400,6 +402,7 @@ func _init() -> void:
 	frozen_state.player.wins = 19
 	frozen_state.player.completed_planets = [Content.PLANET.id]
 	frozen_state.player.current_planet_id = "congelaria_sa"
+	frozen_state.player.level = 8
 	frozen_state.player.captures_by_planet = {Content.PLANET.id: 10, "congelaria_sa": 9}
 	frozen_state.phase = frozen_state.Phase.REWARD
 	frozen_state.current_bounty = Content.TARGETS[7].duplicate(true)
@@ -414,8 +417,7 @@ func _init() -> void:
 	check(frozen_state.planet_capture_count("congelaria_sa") == 10, "planet capture counter advances independently")
 	check(str(frozen_state.chapter_completion.planet.id) == "congelaria_sa", "finale resolves the correct planet metadata")
 	frozen_state.continue_after_chapter()
-	check(frozen_state.travel_to_planet("micelia_404"), "second chapter opens travel to Micelia")
-	check(str(frozen_state.player.current_planet_id) == "micelia_404", "third planet becomes the active destination")
+	check(frozen_state.travel_to_planet("micelia_404") and str(frozen_state.player.current_planet_id) == "micelia_404", "level discovery makes Micelia available regardless of chapter completion")
 	frozen_state.player.wins = 29
 	frozen_state.player.captures_by_planet.micelia_404 = 9
 	frozen_state.phase = frozen_state.Phase.REWARD
@@ -430,7 +432,8 @@ func _init() -> void:
 	check(frozen_state.player.completed_planets.has("micelia_404"), "third completed planet persists in progression")
 	check(frozen_state.planet_capture_count("micelia_404") == 10, "fungal capture counter completes its chapter")
 	frozen_state.continue_after_chapter()
-	check(frozen_state.travel_to_planet("ferro_velho_omega"), "third chapter opens travel to Ferro-Velho Omega")
+	frozen_state.player.level = 13
+	check(frozen_state.travel_to_planet("ferro_velho_omega"), "level discovery opens Ferro-Velho Omega")
 	frozen_state.player.wins = 39
 	frozen_state.player.captures_by_planet.ferro_velho_omega = 9
 	frozen_state.phase = frozen_state.Phase.REWARD
@@ -444,9 +447,10 @@ func _init() -> void:
 	check(bool(scrapyard_summary.chapter_complete), "fourth planet reports chapter completion")
 	check(frozen_state.player.completed_planets.has("ferro_velho_omega"), "fourth completed planet persists in progression")
 	check(frozen_state.planet_capture_count("ferro_velho_omega") == 10, "scrapyard capture counter completes its chapter")
-	check(bool(frozen_state.career_milestones()[4].complete), "fourth planet completes the apocalypse mechanic milestone")
+	check(bool(frozen_state.career_milestones()[4].complete), "discovering the fourth world completes the apocalypse mechanic milestone")
 	frozen_state.continue_after_chapter()
-	check(frozen_state.travel_to_planet("cassino_quasar"), "fourth chapter opens travel to Cassino Quasar")
+	frozen_state.player.level = 19
+	check(frozen_state.travel_to_planet("cassino_quasar"), "level discovery opens Cassino Quasar")
 	frozen_state.player.wins = 49
 	frozen_state.player.captures_by_planet.cassino_quasar = 9
 	frozen_state.phase = frozen_state.Phase.REWARD
@@ -458,7 +462,7 @@ func _init() -> void:
 	var casino_summary := frozen_state.claim_reward(true)
 	check(frozen_state.phase == frozen_state.Phase.CHAPTER_COMPLETE and bool(casino_summary.chapter_complete), "Cassino Quasar boss completes the fifth chapter")
 	check(frozen_state.player.completed_planets.has("cassino_quasar") and frozen_state.planet_capture_count("cassino_quasar") == 10, "fifth planet completion persists with its own capture counter")
-	check(bool(frozen_state.career_milestones()[5].complete), "fifth planet completes the house-breaker milestone")
+	check(bool(frozen_state.career_milestones()[5].complete), "discovering the fifth world completes the house-breaker milestone")
 	frozen_state.free()
 
 	state.free()

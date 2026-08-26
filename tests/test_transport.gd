@@ -37,7 +37,8 @@ func _init() -> void:
 	state.player.credits = 99999
 	check(not state.acquire_or_equip_transport("cloned_warp_taxi"), "locked transport cannot be purchased early")
 	state.player.completed_planets = ["dustball_prime"]
-	check(state.acquire_or_equip_transport("cloned_warp_taxi"), "chapter completion unlocks the next transport")
+	state.player.level = 4
+	check(state.acquire_or_equip_transport("cloned_warp_taxi"), "hunter level unlocks the next transport")
 	check(is_equal_approx(TransportRulesScript.effective_hunt_duration(state.player, 20.0), 16.0), "equipped warp taxi removes exactly twenty percent")
 
 	state.current_bounty = ContentDB.TARGETS[0].duplicate(true)

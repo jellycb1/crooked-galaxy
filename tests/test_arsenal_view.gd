@@ -63,7 +63,7 @@ func _init() -> void:
 	check(field_action != null and field_action.text == "ESCOLHER ROTA", "field test truthfully links an available warrant to route selection")
 	state.player.captures_by_target.baron_boom = 1
 	state.player.captures_by_planet.dustball_prime = 4
-	check(str(ArsenalScript.field_readiness(state).target.id) == "madame_vacuum", "field test advances after the new warrant's first capture")
+	check(str(ArsenalScript.field_readiness(state).target.id) == "baron_boom", "mastery captures do not silently reroll the immutable board cycle")
 	state.current_bounty = {}
 	state.combat_summary = {
 		"won": false,
@@ -106,9 +106,9 @@ func _init() -> void:
 	late_state.player.captures_by_target = {"bolt_collector": 3, "doctor_patchwork": 3, "crane_king": 3}
 	late_state.player.captures_by_planet = {"ferro_velho_omega": 9}
 	var late_readiness := ArsenalScript.field_readiness(late_state)
-	check(str(late_readiness.target.id) == "omega_junkyard" and str(late_readiness.approach.id) == "hot_hatch", "boss-ready field test focuses the viable fast contract instead of a saturated base target")
+	check(bool(late_readiness.target.get("mission_offer", false)) and int(late_readiness.target.mission_level) == 20 and str(late_readiness.target.mission_role) == "standard", "late field test focuses the board's fixed level-banded standard contract")
 	var late_base_odds := CoreRules.bounty_odds(late_state.player, late_readiness.target)
-	check(float(late_readiness.current_odds) < late_base_odds, "boss-ready projection preserves the recommended approach's real combat risk (route %d%% / base %d%%)" % [roundi(float(late_readiness.current_odds) * 100.0), roundi(late_base_odds * 100.0)])
+	check(float(late_readiness.current_odds) <= late_base_odds and float(late_readiness.current_odds) == CoreRules.bounty_odds(late_state.player, late_readiness.contract), "late projection preserves the selected approach's exact risk without scaling from equipped power")
 	late_state.free()
 	var kit_status := host.find_child("PlanetaryKitStatus", true, false) as Label
 	check(kit_status != null and kit_status.text.contains("DUSTBALL PRIME") and kit_status.text.contains("+1 PODER") and kit_status.text.contains("+6 VIDA"), "arsenal exposes the active planetary kit")

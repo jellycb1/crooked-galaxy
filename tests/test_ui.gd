@@ -57,7 +57,7 @@ func run_smoke_test() -> void:
 	scene.render()
 	await process_frame
 	check(scene.find_child("BoardChoiceHint", true, false) != null, "expanded board explains the primary-versus-repeat choice")
-	check(scene.find_child("BountyRole_gloop", true, false) != null and scene.find_child("BountyAction_gloop", true, false).text == "REPETIR CAÇADA", "prior warrant is clearly presented as a repeat hunt")
+	check(scene.find_child("BountyRole_gloop", true, false) != null and scene.find_child("BountyAction_gloop", true, false).text == "ANALISAR ABORDAGENS", "known targets retain mastery while the new board presents a fresh level-banded contract")
 	check(scene.find_child("BountyMastery_gloop", true, false) != null, "bounty cards expose target mastery progress")
 	check(scene.find_child("MasteryRoute_gloop", true, false) != null, "bounty board preserves the career mastery recommendation")
 	(scene.find_child("BountyAction_gloop", true, false) as Button).pressed.emit()
@@ -339,6 +339,7 @@ func run_smoke_test() -> void:
 	state.player.completed_planets = [ContentDB.PLANET.id]
 	state.player.current_planet_id = ContentDB.PLANET.id
 	state.player.reputation = 3
+	state.player.level = 19
 	scene.view_mode = "galaxy"
 	scene.render()
 	await process_frame
@@ -353,19 +354,19 @@ func run_smoke_test() -> void:
 	scene.board_section = "bounties"
 	check(state.travel_to_planet("congelaria_sa"), "UI state can travel to an unlocked planet")
 	await process_frame
-	check(scene.find_child("BountyCard_auditor_frost", true, false) != null, "second planet bounty board renders")
+	check(scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 3, "interplanetary board remains complete after selecting the second discovered world")
 	state.player.completed_planets.append("congelaria_sa")
 	check(state.travel_to_planet("micelia_404"), "UI state can enter the third unlocked planet")
 	await process_frame
-	check(scene.find_child("BountyCard_landlord_spore", true, false) != null, "third planet bounty board renders")
+	check(scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 3, "interplanetary board remains complete after selecting the third discovered world")
 	state.player.completed_planets.append("micelia_404")
 	check(state.travel_to_planet("ferro_velho_omega"), "UI state can enter the fourth unlocked planet")
 	await process_frame
-	check(scene.find_child("BountyCard_bolt_collector", true, false) != null, "fourth planet bounty board renders")
+	check(scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 3, "interplanetary board remains complete after selecting the fourth discovered world")
 	state.player.completed_planets.append("ferro_velho_omega")
 	check(state.travel_to_planet("cassino_quasar"), "UI state can enter the fifth unlocked planet")
 	await process_frame
-	check(scene.find_child("BountyCard_dealer_comet", true, false) != null, "fifth planet bounty board renders")
+	check(scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 3, "interplanetary board remains complete after selecting the fifth discovered world")
 	scene.view_mode = "galaxy"
 	scene.render()
 	await process_frame

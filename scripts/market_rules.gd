@@ -3,6 +3,7 @@ extends RefCounted
 
 const Content = preload("res://scripts/content_db.gd")
 const Rules = preload("res://scripts/core_rules.gd")
+const MissionRules = preload("res://scripts/mission_rules.gd")
 
 const OFFER_COUNT := 3
 const MAX_PURCHASE_RECORDS := 60
@@ -10,17 +11,18 @@ const MAX_PURCHASE_RECORDS := 60
 
 static func offers(player: Dictionary) -> Array[Dictionary]:
 	var planet_id := str(player.get("current_planet_id", Content.PLANET.id))
-	var progress_tier := Content.planet_tier_from_target_captures(planet_id, player.get("captures_by_target", {}))
-	if player.get("completed_planets", []).has(planet_id):
-		progress_tier = 4
-	# The market is a catch-up sink, not a way to buy the next warrant's reward
-	# before facing it. Its stock trails the active tier by one step.
-	var stock_tier := 3 if progress_tier >= 4 else maxi(0, progress_tier - 1)
-	var target := Content.target_for_planet_tier(planet_id, stock_tier)
-	if target.is_empty():
-		target = Content.target_for_planet_tier(planet_id, 0)
 	var cycle := maxi(0, int(player.get("market_cycle", 0)))
 	var planet_index := Content.planet_index_for(planet_id)
+	var templates := MissionRules.targets_for_planet(planet_id)
+	if templates.is_empty():
+		return []
+	var target := MissionRules.offer_for_target(player, templates[(int(player.get("level", 1)) + cycle) % templates.size()])
+	if target.is_empty():
+		return []
+	# Stock follows the fixed level curve but trails the live contract by one
+	# level-equivalent power step, preserving the market as optional catch-up.
+	target.loot_power = maxi(10, int(target.loot_power) - 4)
+	var stock_tier := maxi(1, int(player.get("level", 1)))
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 98173 + planet_index * 1301 + stock_tier * 101 + cycle * 7919
 	var result: Array[Dictionary] = []
@@ -52,10 +54,8 @@ static func item_price(item: Dictionary, planet_index: int, tier: int) -> int:
 
 static func refresh_cost(player: Dictionary) -> int:
 	var planet_id := str(player.get("current_planet_id", Content.PLANET.id))
-	var tier := Content.planet_tier_from_target_captures(planet_id, player.get("captures_by_target", {}))
-	if player.get("completed_planets", []).has(planet_id):
-		tier = 3
-	return 75 + Content.planet_index_for(planet_id) * 180 + tier * 90 + mini(10, maxi(0, int(player.get("market_cycle", 0)))) * 25
+	var level_band := maxi(0, int(player.get("level", 1)) - 1)
+	return 75 + Content.planet_index_for(planet_id) * 180 + level_band * 30 + mini(10, maxi(0, int(player.get("market_cycle", 0)))) * 25
 
 
 static func purchase_records_are_safe(records) -> bool:

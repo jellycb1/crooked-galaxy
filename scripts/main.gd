@@ -23,6 +23,7 @@ const ServerRulesScript = preload("res://scripts/server_rules.gd")
 const LocaleRulesScript = preload("res://scripts/locale_rules.gd")
 const PlanetIconScript = preload("res://scripts/planet_icon.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
+const MissionRulesScript = preload("res://scripts/mission_rules.gd")
 const HuntChoiceIconScript = preload("res://scripts/hunt_choice_icon.gd")
 const HubDestinationIconScript = preload("res://scripts/hub_destination_icon.gd")
 const NavigationDockScript = preload("res://scripts/navigation_dock.gd")
@@ -670,7 +671,6 @@ func build_board() -> void:
 	if board_section == "destinations":
 		build_frontier_menu()
 		return
-	var planet := active_planet()
 	var title_row := HBoxContainer.new()
 	title_row.add_theme_constant_override("separation", 10)
 	content.add_child(title_row)
@@ -678,7 +678,7 @@ func build_board() -> void:
 	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title_box)
 	title_box.add_child(label(t("BOARD_TITLE", "QUADRO DE PROCURADOS"), 24, INK))
-	var subtitle := label(localized_content_field("planet", planet, "subtitle"), 15, MUTED)
+	var subtitle := label(t("BOARD_INTERSTELLAR_SUBTITLE", "Três contratos. Três distâncias. Uma nave com manutenção questionável."), 15, MUTED)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title_box.add_child(subtitle)
 	var xp_needed := CoreRules.xp_needed(int(GameState.player.level))
@@ -770,8 +770,6 @@ func build_frontier_menu() -> void:
 
 
 func build_board_bounties() -> void:
-	var planet := active_planet()
-
 	var recovery_inside_afk := not GameState.afk_report.is_empty() and GameState.last_notice_context == "system_recovery"
 	var defeat_report_visible := GameState.last_notice_context == "defeat" and not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true))
 	if not GameState.afk_report.is_empty():
@@ -805,16 +803,9 @@ func build_board_bounties() -> void:
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", 14)
 	scroller.add_child(list)
-	var board_bounties := ContentDB.board_bounties(
-		int(GameState.player.reputation),
-		str(planet.id),
-		GameState.planet_tier(str(planet.id)),
-		GameState.player.get("captures_by_target", {})
-	)
+	var board_bounties := MissionRulesScript.board_offers(GameState.player)
 	if board_bounties.size() > 1:
-		var has_primary := board_bounties.any(func(bounty): return str(bounty.get("board_role", "")) == "primary")
-		var hint_text := t("BOARD_PRIMARY_HINT", "MANDADO PRINCIPAL EM DESTAQUE · ROTAS DE PERÍCIA CONTINUAM DISPONÍVEIS") if has_primary else t("BOARD_PACIFIED_HINT", "SETOR PACIFICADO · ESCOLHA UMA ROTA DE PERÍCIA")
-		var choice_hint := label(hint_text, 11, MUTED)
+		var choice_hint := label(t("BOARD_OFFER_HINT", "A REDE RENOVA OS TRÊS MANDADOS APÓS CADA CAPTURA"), 11, MUTED)
 		choice_hint.name = "BoardChoiceHint"
 		choice_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		list.add_child(choice_hint)
@@ -882,36 +873,32 @@ func framed_hunter_portrait(dimension: float) -> Control:
 
 
 func rank_progress_panel() -> PanelContainer:
-	var planet := active_planet()
-	var warrant_progress := ContentDB.warrant_progress(str(planet.id), GameState.player.get("captures_by_target", {}))
-	var next_target: Dictionary = warrant_progress.next_target
 	var card := panel(VBoxContainer.new(), Color("#0d1530"), 12, 11)
 	card.name = "NextWarrantProgress"
 	var box := card.get_child(0) as VBoxContainer
 	box.add_theme_constant_override("separation", 6)
 	var row := HBoxContainer.new()
 	box.add_child(row)
-	if next_target.is_empty():
-		var planet_complete: bool = GameState.player.get("completed_planets", []).has(str(planet.id))
-		var has_boss := false
-		for target in ContentDB.TARGETS:
-			if str(target.get("planet_id", "")) == str(planet.id) and bool(target.get("boss", false)):
-				has_boss = true
-		var left_text := t("BOARD_MAX_RANK", "RANK MÁXIMO DE %s", [localized_content_field("planet", planet, "name").to_upper()]) if planet_complete else (t("BOARD_BOSS_AVAILABLE", "ALVO-CHEFE DISPONÍVEL") if has_boss else t("BOARD_NEW_FRONTIER", "FRONTEIRA RECÉM-ABERTA"))
-		var right_text := t("BOARD_SECTOR_DOMINATED", "SETOR DOMINADO") if planet_complete else (t("BOARD_EXECUTE_FINAL", "EXECUTE O MANDADO FINAL") if has_boss else t("BOARD_NEW_WARRANTS_SOON", "NOVOS MANDADOS EM BREVE"))
-		row.add_child(label(left_text, 12, LIME if planet_complete or not has_boss else CORAL))
-		var complete := label(right_text, 12, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
-		complete.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(complete)
-		return card
-	var progress_value := int(warrant_progress.progress)
-	row.add_child(label(t("BOARD_NEXT_TARGET", "PRÓXIMO ALVO: %s", [localized_content_field("target", next_target, "name").to_upper()]), 12, MUTED))
-	var prerequisite: Dictionary = warrant_progress.prerequisite
-	var count := label("%d / 3 · %s" % [progress_value, localized_content_field("target", prerequisite, "name").to_upper()], 12, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
-	count.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(count)
+	var level := int(GameState.player.get("level", 1))
+	var available := MissionRulesScript.available_planets(level)
+	row.add_child(label(t("BOARD_NETWORK_LEVEL", "REDE DE MANDADOS · NÍVEL %d", [level]), 12, CYAN))
+	var discovered := label(t("BOARD_DISCOVERED_WORLDS", "%d/%d MUNDOS CONHECIDOS", [available.size(), ContentDB.PLANETS.size()]), 12, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
+	discovered.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(discovered)
+	var next_planet: Dictionary = {}
+	for planet in ContentDB.PLANETS:
+		if level < int(planet.get("unlock_level", 1)):
+			next_planet = planet
+			break
+	var progress_value := level
+	var progress_max := level
+	if not next_planet.is_empty():
+		progress_max = int(next_planet.unlock_level)
+		box.add_child(label(t("BOARD_NEXT_WORLD", "PRÓXIMO DESTINO · %s NO NÍVEL %d", [localized_content_field("planet", next_planet, "name").to_upper(), progress_max]), 10, MUTED))
+	else:
+		box.add_child(label(t("BOARD_ALL_WORLDS", "TODOS OS DESTINOS ATUAIS ESTÃO NA REDE"), 10, LIME))
 	var progress := ProgressBar.new()
-	progress.max_value = 3
+	progress.max_value = maxi(1, progress_max)
 	progress.value = progress_value
 	progress.show_percentage = false
 	progress.custom_minimum_size = Vector2(0, 9)
@@ -928,7 +915,7 @@ func build_galaxy_map() -> void:
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(copy)
 	copy.add_child(label(t("GALAXY_TITLE", "MAPA GALÁCTICO"), 27, INK))
-	copy.add_child(label(t("GALAXY_SUBTITLE", "Planetas são capítulos. Combustível é uma opinião contábil."), 14, MUTED))
+	copy.add_child(label(t("GALAXY_SUBTITLE", "Mundos conhecidos, distâncias e ocorrências da rede de mandados."), 14, MUTED))
 	var back := action_button(t("ACTION_BACK", "VOLTAR"), CYAN, true)
 	back.custom_minimum_size = Vector2(120, 48)
 	back.pressed.connect(func():
@@ -951,7 +938,7 @@ func build_galaxy_map() -> void:
 		map_icon.name = "GalaxyTransportIcon"
 		transport_row.add_child(map_icon)
 		transport_copy.add_child(label(t("MENU_IN_TRANSIT", "EM TRÂNSITO · %s", [localized_content_field("transport", active_transport, "name").to_upper()]), 13, Color(str(active_transport.color))))
-		transport_copy.add_child(label(t("GALAXY_TRANSPORT_BONUS", "-%d%% no tempo-base de todas as caçadas", [roundi(float(active_transport.speed_bonus) * 100.0)]), 11, LIME))
+		transport_copy.add_child(label(t("GALAXY_TRANSPORT_BONUS", "-%d%% no tempo de viagem de todos os contratos", [roundi(float(active_transport.speed_bonus) * 100.0)]), 11, LIME))
 	transport_row.add_child(transport_copy)
 	var open_hangar := action_button(t("GALAXY_OPEN_HANGAR", "ABRIR HANGAR"), CYAN, true)
 	open_hangar.name = "GalaxyHangarAction"
@@ -979,10 +966,10 @@ func build_galaxy_map() -> void:
 func planet_card(planet: Dictionary) -> PanelContainer:
 	var planet_id := str(planet.id)
 	var current := planet_id == str(GameState.player.get("current_planet_id", ContentDB.PLANET.id))
-	var unlocked := ContentDB.is_planet_unlocked(planet_id, GameState.player.get("completed_planets", []))
-	var completed: bool = GameState.player.get("completed_planets", []).has(planet_id)
+	var unlocked := MissionRulesScript.is_planet_available(planet_id, int(GameState.player.get("level", 1)))
+	var visited := GameState.planet_capture_count(planet_id) > 0
 	var accent := Color(str(planet.accent))
-	var card_fill := Color("#173356") if current else (Color("#121d3d") if completed else (PANEL_LIGHT if unlocked else Color("#0b1228")))
+	var card_fill := Color("#173356") if current else (Color("#121d3d") if visited else (PANEL_LIGHT if unlocked else Color("#0b1228")))
 	var card := panel(VBoxContainer.new(), card_fill, 18, 12)
 	card.name = "GalaxyPlanet_%s" % planet_id
 	if current:
@@ -1008,42 +995,22 @@ func planet_card(planet: Dictionary) -> PanelContainer:
 	var context_text := localized_content_field("planet", planet, "subtitle")
 	var context_color := MUTED
 	if unlocked:
-		var progress_text := t("GALAXY_CHAPTER_COMPLETED", "CAPÍTULO CONCLUÍDO · %d CAPTURAS", [GameState.planet_capture_count(planet_id)])
-		if not completed:
-			var tier := GameState.planet_tier(planet_id)
-			var target := ContentDB.target_for_planet_tier(planet_id, tier)
-			var required := 1 if tier == 3 else 3
-			var target_captures := int(GameState.player.get("captures_by_target", {}).get(str(target.id), 0))
-			progress_text = t("GALAXY_CURRENT_WARRANT", "MANDADO ATUAL: %s · %d/%d", [localized_content_field("target", target, "name").to_upper(), target_captures, required])
-		context_text = progress_text
-		context_color = LIME if completed else GOLD
+		context_text = t("GALAXY_WORLD_RECORD", "ROTA-BASE %s · %d CAPTURAS REGISTADAS", [format_hunt_duration(float(planet.get("travel_duration", 0.0))), GameState.planet_capture_count(planet_id)])
+		context_color = LIME if visited else GOLD
 		var progress := label(context_text, 11, context_color)
 		progress.name = "GalaxyPlanetProgress_%s" % planet_id
 		progress.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		names.add_child(progress)
 	else:
-		var requirement := ContentDB.get_planet(str(planet.get("unlock_after", ContentDB.PLANET.id)))
-		context_text = t("GALAXY_ROUTE_REQUIREMENT", "CONCLUA %s PARA ABRIR A ROTA", [localized_content_field("planet", requirement, "name").to_upper()])
+		context_text = t("GALAXY_LEVEL_REQUIREMENT", "ENTRA NA REDE NO NÍVEL %d", [int(planet.get("unlock_level", 1))])
 		var requirement_label := label(context_text, 11, MUTED)
 		requirement_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		names.add_child(requirement_label)
-	if unlocked and not current:
-		var travel := action_button(t("GALAXY_TRAVEL", "VIAJAR"), accent)
-		travel.name = "GalaxyTravel_%s" % planet_id
-		travel.custom_minimum_size = Vector2(94, 48)
-		travel.add_theme_font_size_override("font_size", 11)
-		travel.pressed.connect(func():
-			view_mode = "board"
-			board_section = "bounties"
-			GameState.travel_to_planet(planet_id)
-		)
-		heading.add_child(travel)
-	else:
-		var route_status := t("GALAXY_IN_ORBIT", "EM ÓRBITA") if current else t("GALAXY_LOCKED", "BLOQUEADO")
-		var status := label(route_status, 11, LIME if current else CORAL, HORIZONTAL_ALIGNMENT_RIGHT)
-		status.custom_minimum_size = Vector2(82, 0)
-		status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		heading.add_child(status)
+	var route_status := t("GALAXY_NETWORK_AVAILABLE", "NA REDE") if unlocked else t("GALAXY_LOCKED", "BLOQUEADO")
+	var status := label(route_status, 11, accent if unlocked else CORAL, HORIZONTAL_ALIGNMENT_RIGHT)
+	status.custom_minimum_size = Vector2(82, 0)
+	status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	heading.add_child(status)
 	return card
 
 
@@ -1268,6 +1235,12 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 	var details := VBoxContainer.new()
 	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(details)
+	var destination := ContentDB.get_planet(str(bounty.get("planet_id", ContentDB.PLANET.id)))
+	var role_id := str(bounty.get("mission_role", "standard"))
+	var role_text := t("BOARD_ROLE_SAFE", "CONTRATO SEGURO") if role_id == "safe" else (t("BOARD_ROLE_DANGEROUS", "CONTRATO PERIGOSO") if role_id == "dangerous" else t("BOARD_ROLE_STANDARD", "CONTRATO EQUILIBRADO"))
+	var mission_role := label("%s · %s" % [role_text, localized_content_field("planet", destination, "name").to_upper()], 11, Color(str(destination.accent)))
+	mission_role.name = "BountyRole_%s" % str(bounty.id)
+	details.add_child(mission_role)
 	var board_reason := str(bounty.get("board_reason", ""))
 	var is_primary := str(bounty.get("board_role", "")) == "primary"
 	var is_repeat := str(bounty.get("board_role", "")) == "repeat"
@@ -1311,8 +1284,8 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 	var footer := HBoxContainer.new()
 	footer.add_theme_constant_override("separation", 10)
 	box.add_child(footer)
-	var hunt_duration := TransportRulesScript.effective_hunt_duration(GameState.player, float(bounty.duration))
-	footer.add_child(label("◈ %d%s   ✦ %d XP   %ds" % [int(payout.credits), t("BOARD_STREAK_SUFFIX", " +EMBALO") if int(payout.bonus_credits) > 0 else "", int(bounty.xp), ceili(hunt_duration)], 15, GOLD))
+	var hunt_duration := TransportRulesScript.effective_mission_duration(GameState.player, bounty)
+	footer.add_child(label("◈ %d%s   ✦ %d XP   %s" % [int(payout.credits), t("BOARD_STREAK_SUFFIX", " +EMBALO") if int(payout.bonus_credits) > 0 else "", int(bounty.xp), format_hunt_duration(hunt_duration)], 15, GOLD))
 	var risk_text := localized_risk(odds)
 	var risk_color := LIME if odds >= 0.72 else (GOLD if odds >= 0.42 else CORAL)
 	var risk := label("%s · %d%%" % [risk_text, roundi(odds * 100.0)], 14, risk_color, HORIZONTAL_ALIGNMENT_RIGHT)
@@ -1325,7 +1298,22 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 		GameState.select_bounty(bounty)
 	)
 	box.add_child(hunt)
+	if bool(bounty.get("mission_offer", false)):
+		var saved := TransportRulesScript.mission_saved_seconds(GameState.player, bounty)
+		var timing := t("BOARD_MISSION_TIMING", "VIAGEM %s · PERSEGUIÇÃO %s", [format_hunt_duration(float(bounty.get("travel_duration", 0.0))), format_hunt_duration(float(bounty.get("pursuit_duration", 0.0)))])
+		if saved > 0.5:
+			timing += t("BOARD_TRANSPORT_SAVING", " · NAVE POUPA %s", [format_hunt_duration(saved)])
+		var timing_label := label(timing, 10, LIME if saved > 0.5 else MUTED)
+		timing_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		box.add_child(timing_label)
 	return card
+
+
+func format_hunt_duration(seconds: float) -> String:
+	var rounded := maxi(0, ceili(seconds))
+	if rounded >= 60:
+		return "%dmin %02ds" % [rounded / 60, rounded % 60]
+	return "%ds" % rounded
 
 
 func build_briefing() -> void:
@@ -1455,8 +1443,8 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 	var metrics := HBoxContainer.new()
 	metrics.add_theme_constant_override("separation", 8)
 	box.add_child(metrics)
-	var hunt_duration := TransportRulesScript.effective_hunt_duration(GameState.player, float(preview.duration))
-	metrics.add_child(briefing_metric_chip(t("BRIEFING_TIME", "TEMPO"), "%ds" % ceili(hunt_duration), MUTED, "ApproachTime_%s" % str(approach.id)))
+	var hunt_duration := TransportRulesScript.effective_mission_duration(GameState.player, preview)
+	metrics.add_child(briefing_metric_chip(t("BRIEFING_TIME", "TEMPO"), format_hunt_duration(hunt_duration), MUTED, "ApproachTime_%s" % str(approach.id)))
 	metrics.add_child(briefing_metric_chip(t("BRIEFING_BUILD", "BUILD"), "%d%%" % roundi(odds * 100.0), risk_color, "ApproachBuild_%s" % str(approach.id)))
 	metrics.add_child(briefing_metric_chip(t("COMMON_CREDITS", "CRÉDITOS"), "◈ %d" % int(evaluation.credits), GOLD, "ApproachCredits_%s" % str(approach.id)))
 	metrics.add_child(briefing_metric_chip("XP", str(int(preview.xp)), CYAN, "ApproachXp_%s" % str(approach.id)))

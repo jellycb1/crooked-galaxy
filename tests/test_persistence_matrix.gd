@@ -41,6 +41,7 @@ func audit_hunt_choice_roundtrips() -> void:
 					break
 				completed_planets.append(str(planet.id))
 			source.player.completed_planets = completed_planets
+			source.player.level = int(ContentDB.get_planet(str(event.planet_id)).get("unlock_level", 1))
 			source.player.current_planet_id = str(event.planet_id)
 			source.select_bounty(matching_targets[0])
 			source.choose_approach("quiet_net")
@@ -73,6 +74,7 @@ func audit_contract_approach_roundtrips() -> void:
 					break
 				completed_planets.append(str(planet.id))
 			source.player.completed_planets = completed_planets
+			source.player.level = int(ContentDB.get_planet(str(target.planet_id)).get("unlock_level", 1))
 			source.player.current_planet_id = str(target.planet_id)
 			var captures: Dictionary = {}
 			for prerequisite in ContentDB.TARGETS:

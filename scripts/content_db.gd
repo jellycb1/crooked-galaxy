@@ -7,6 +7,8 @@ const CoreRulesScript = preload("res://scripts/core_rules.gd")
 const PLANET := {
 	"id": "dustball_prime",
 	"name": "Dustball Prime",
+	"unlock_level": 1,
+	"travel_duration": 30.0,
 	"subtitle": "A poeira entra em tudo. Inclusive nos contratos.",
 	"accent": "#ffc857",
 	"completion_text": "O prefeito foi afastado do cargo, da delegacia e do próprio cartório. A papelada continua foragida.",
@@ -17,6 +19,8 @@ const PLANETS := [
 	{
 		"id": "congelaria_sa",
 		"name": "Congelária S.A.",
+		"unlock_level": 4,
+		"travel_duration": 90.0,
 		"subtitle": "Tudo abaixo de zero. Inclusive o atendimento.",
 		"description": "Um frigorífico planetário privatizado, com geleiras, cubículos e multas por aquecimento.",
 		"accent": "#72f1dd",
@@ -26,6 +30,8 @@ const PLANETS := [
 	{
 		"id": "micelia_404",
 		"name": "Micélia 404",
+		"unlock_level": 8,
+		"travel_duration": 180.0,
 		"subtitle": "Tudo cresce. Principalmente as taxas.",
 		"description": "Uma rede fúngica planetária onde prédios brotam, calçadas respiram e todo esporo tem cadastro.",
 		"accent": "#c7f464",
@@ -35,6 +41,8 @@ const PLANETS := [
 	{
 		"id": "ferro_velho_omega",
 		"name": "Ferro-Velho Ômega",
+		"unlock_level": 13,
+		"travel_duration": 300.0,
 		"subtitle": "Tudo tem dono. Principalmente o lixo.",
 		"description": "Um planeta-oficina montado com luas usadas, garantias vencidas e robôs que cobram estacionamento por eixo.",
 		"accent": "#ff9f43",
@@ -44,6 +52,8 @@ const PLANETS := [
 	{
 		"id": "cassino_quasar",
 		"name": "Cassino Quasar",
+		"unlock_level": 19,
+		"travel_duration": 480.0,
 		"subtitle": "A casa sempre ganha. E cobra estacionamento.",
 		"description": "Um resort orbital construído em torno de uma estrela viciada, com roletas gravitacionais e probabilidades sob licença.",
 		"accent": "#ff75d8",
@@ -1063,7 +1073,11 @@ static func apply_approach(bounty: Dictionary, approach: Dictionary) -> Dictiona
 	# so established planet balance and endpoint guard rails remain unchanged.
 	var frontier_pressure := float(approach.get("frontier_health_bonus", 0.0)) if planet_index == 0 else 0.0
 	var health_mult := float(approach.health_mult) + float(approach.get("planet_health_step", 0.0)) * planet_index + frontier_pressure
-	result["duration"] = maxi(1, ceili(float(bounty.duration) * float(approach.duration_mult)))
+	if bool(bounty.get("mission_offer", false)):
+		result["pursuit_duration"] = maxf(1.0, float(bounty.get("pursuit_duration", 1.0)) * float(approach.duration_mult))
+		result["duration"] = maxi(1, ceili(float(bounty.get("travel_duration", 0.0)) + float(result.pursuit_duration)))
+	else:
+		result["duration"] = maxi(1, ceili(float(bounty.duration) * float(approach.duration_mult)))
 	result["power"] = maxi(1, roundi(float(bounty.power) * float(approach.power_mult)))
 	result["defense"] = maxi(0, roundi(float(bounty.defense) * float(approach.defense_mult)))
 	result["health"] = maxi(1, roundi(float(bounty.health) * health_mult))

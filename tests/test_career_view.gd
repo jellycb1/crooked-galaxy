@@ -53,12 +53,13 @@ func _init() -> void:
 	check(host.find_child("CareerTarget_gloop", true, false) != null and host.find_child("CareerPlanet_dustball_prime", true, false) == null, "wanted section builds records without hidden progression cards")
 	var archive_target_action := host.find_child("CareerTargetAction_gloop", true, false) as Button
 	check(archive_target_action != null and archive_target_action.text == "ABRIR", "available archive records link back to their contract")
-	check(host.find_child("CareerTargetAction_baron_boom", true, false) == null, "captured but currently locked archive records do not bypass sequential progression")
+	check(host.find_child("CareerTargetAction_baron_boom", true, false) != null, "discovered-world records can generate a current level-banded contract")
 	archive_target_action.pressed.emit()
-	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "gloop", "archive record opens its available target briefing directly")
+	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "gloop" and bool(state.current_bounty.get("mission_offer", false)), "archive record opens a scaled mission snapshot rather than the legacy canonical enemy")
 	state.cancel_briefing()
 	state.player.completed_planets = ["dustball_prime"]
 	state.player.current_planet_id = "congelaria_sa"
+	state.player.level = 19
 	host.career_section = "progress"
 	clear_children(content)
 	CareerViewScript.build(host, content, state)

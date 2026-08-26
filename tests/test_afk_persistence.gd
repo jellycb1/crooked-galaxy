@@ -94,6 +94,7 @@ func eligible_state() -> StateScript:
 	state.persistence_enabled = false
 	state.player = state.default_player()
 	state.player.wins = 5
+	state.player.level = 4
 	state.player.completed_planets = ["dustball_prime", "congelaria_sa"]
 	state.player.credits = 0
 	state.player.scrap = 0

@@ -2,6 +2,7 @@ class_name ChallengeRules
 extends RefCounted
 
 const UNLOCK_PLANET_ID := "dustball_prime"
+const UNLOCK_LEVEL := 4
 
 const ANOMALY_PROFILES := {
 	"volatile_opening": {
@@ -101,7 +102,7 @@ const STAGES := [
 
 
 static func is_unlocked(player: Dictionary) -> bool:
-	return player.get("completed_planets", []).has(UNLOCK_PLANET_ID)
+	return int(player.get("level", 1)) >= UNLOCK_LEVEL
 
 
 static func progress(player: Dictionary) -> int:

@@ -4,6 +4,7 @@ extends RefCounted
 const Rules = preload("res://scripts/core_rules.gd")
 const Content = preload("res://scripts/content_db.gd")
 const Classes = preload("res://scripts/class_rules.gd")
+const TransportRules = preload("res://scripts/transport_rules.gd")
 
 const MIN_RECOMMENDED_ODDS := 0.55
 const SCRAP_VALUE := 16.0
@@ -24,7 +25,7 @@ static func evaluate_approaches(player: Dictionary, target: Dictionary, approach
 			"streak_bonus_percent": int(payout.bonus_percent),
 			"xp": int(preview.xp),
 			"scrap": int(preview.get("scrap_reward", 0)),
-			"duration": int(preview.duration),
+			"duration": ceili(TransportRules.effective_mission_duration(player, preview)),
 		})
 	return evaluations
 

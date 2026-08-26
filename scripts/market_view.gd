@@ -70,7 +70,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		alternative_copy.add_child(goal_label)
 		var transport_copy := t("MARKET_TRANSPORT_DETAIL", "-%d%% tempo de caça · ◈ %d", [roundi(float(transport_goal.speed_bonus) * 100.0), int(transport_goal.price)])
 		if not unlocked:
-			transport_copy += t("MARKET_TRANSPORT_LOCK", " · após %d capítulos", [int(transport_goal.required_completed_planets)])
+			transport_copy += t("MARKET_TRANSPORT_LEVEL_LOCK", " · nível %d", [int(transport_goal.required_level)])
 		var detail_label := host.label(transport_copy, 10, host.MUTED)
 		detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		alternative_copy.add_child(detail_label)

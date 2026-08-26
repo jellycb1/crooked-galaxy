@@ -46,6 +46,7 @@ func run_mobile_audit() -> void:
 	var player_before_english_commerce: Dictionary = state.player.duplicate(true)
 	state.player.credits = 20000
 	state.player.completed_planets = ["dustball_prime"]
+	state.player.level = 4
 	scene.view_mode = "market"
 	scene.render()
 	await process_frame
@@ -79,7 +80,7 @@ func run_mobile_audit() -> void:
 	scene.view_mode = "career"
 	scene.render()
 	await process_frame
-	check(find_label_with_text(scene, "HUNTER CAREER") != null and find_label_with_text(scene, "LEVEL 4 HUNTER") != null and find_label_with_text(scene, "7 CAPTURES · 1/5 SECTORS") != null and find_label_with_text(scene, "NEXT LEVEL") != null and (scene.find_child("CareerProgressJump", true, false) as Button).text == "PROGRESS" and (scene.find_child("CareerArchiveJump", true, false) as Button).text == "WANTED · 20", "English career covers hunter progression, XP, sector summary, and section navigation")
+	check(find_label_with_text(scene, "HUNTER CAREER") != null and find_label_with_text(scene, "LEVEL 4 HUNTER") != null and find_label_with_text(scene, "7 CAPTURES · 2/5 KNOWN WORLDS") != null and find_label_with_text(scene, "NEXT LEVEL") != null and (scene.find_child("CareerProgressJump", true, false) as Button).text == "PROGRESS" and (scene.find_child("CareerArchiveJump", true, false) as Button).text == "WANTED · 20", "English career covers hunter progression, XP, discovered worlds, and section navigation")
 	check(find_label_with_text(scene, "NEXT MASTERY · GLOOP THE INCONVENIENT") != null and find_label_with_text(scene, "PLANETARY PROGRESS") != null and find_label_with_text(scene, "CLANDESTINE RIFT") != null and find_label_with_text(scene, "FIRST WARRANT") != null, "English career covers mastery direction, planetary ladder, parallel progress, and milestones")
 	state.claim_career_milestone("first_warrant")
 	await process_frame
@@ -96,21 +97,14 @@ func run_mobile_audit() -> void:
 	state.player = player_before_english_career
 	var player_before_english_galaxy: Dictionary = state.player.duplicate(true)
 	state.player.completed_planets = ["dustball_prime"]
+	state.player.level = 4
 	state.player.captures_by_planet = {"dustball_prime": 7}
 	state.player.captures_by_target = {"mirage_moxie": 1}
 	scene.view_mode = "galaxy"
 	scene.render()
 	await process_frame
-	check(find_label_with_text(scene, "GALACTIC MAP") != null and find_label_with_text(scene, "Planets are chapters. Fuel is an accounting opinion.") != null and find_label_with_text(scene, "IN TRANSIT · LICENSED FLYING JUNKBOX") != null and find_label_with_text(scene, "-10% from the base time of every hunt") != null and (scene.find_child("GalaxyHangarAction", true, false) as Button).text == "OPEN HANGAR", "English galaxy header covers navigation and active transport timing")
-	check(find_label_with_text(scene, "DUSTBALL PRIME") != null and find_label_with_text(scene, "FREEZERIA INC.") != null and find_label_with_text(scene, "MYCELIA 404") != null and find_label_with_text(scene, "CHAPTER COMPLETE · 7 CAPTURES") != null and find_label_with_text(scene, "IN ORBIT") != null and find_label_with_text(scene, "LOCKED") != null, "English galaxy cards cover localized planet identity, chapter progress, and route state")
-	var travel_action := scene.find_child("GalaxyTravel_congelaria_sa", true, false) as Button
-	check(travel_action != null and travel_action.text == "TRAVEL", "English galaxy exposes the next unlocked route as a localized action")
-	if travel_action != null:
-		travel_action.pressed.emit()
-	await process_frame
-	var expected_travel_notice := "Route confirmed: Freezeria Inc. — fuel will be explained on the invoice."
-	check(state.last_notice == expected_travel_notice, "English travel transaction localizes the canonical planet identity (received: %s)" % state.last_notice)
-	check(find_label_with_text(scene, expected_travel_notice) != null, "English travel receipt remains visible after returning to the board")
+	check(find_label_with_text(scene, "GALACTIC MAP") != null and find_label_with_text(scene, "Known worlds, distances, and incidents in the warrant network.") != null and find_label_with_text(scene, "IN TRANSIT · LICENSED FLYING JUNKBOX") != null and find_label_with_text(scene, "-10% from travel time on every contract") != null and (scene.find_child("GalaxyHangarAction", true, false) as Button).text == "OPEN HANGAR", "English galaxy header covers discovery and active transport timing")
+	check(find_label_with_text(scene, "DUSTBALL PRIME") != null and find_label_with_text(scene, "FREEZERIA INC.") != null and find_label_with_text(scene, "MYCELIA 404") != null and find_label_with_text(scene, "BASE ROUTE 30s · 7 RECORDED CAPTURES") != null and find_label_with_text(scene, "ON NETWORK") != null and find_label_with_text(scene, "LOCKED") != null, "English galaxy cards cover localized identity, distance, records, and level discovery")
 	state.player = player_before_english_galaxy
 	state.last_notice = ""
 	state.last_notice_context = ""
@@ -352,6 +346,7 @@ func run_mobile_audit() -> void:
 	await process_frame
 	check_touch_targets(scene, "career navigation")
 	state.player.completed_planets = ["dustball_prime"]
+	state.player.level = maxi(4, int(state.player.get("level", 1)))
 	state.player.challenge_floor = 0
 	scene.view_mode = "challenges"
 	scene.render()

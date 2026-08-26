@@ -23,9 +23,9 @@ func run_audit() -> void:
 	state.phase = state.Phase.BOARD
 	check(not Challenge.is_unlocked(state.player), "challenge ladder stays outside the opening planet tutorial")
 	check(not state.start_challenge(str(Challenge.STAGES[0].id)), "locked ladder rejects direct state calls")
-	state.player.completed_planets = [Challenge.UNLOCK_PLANET_ID]
+	state.player.level = Challenge.UNLOCK_LEVEL
 	state.player.capture_streak = 4
-	check(Challenge.is_unlocked(state.player) and Challenge.progress(state.player) == 0, "Dustball completion opens the first floor without inventing progress")
+	check(Challenge.is_unlocked(state.player) and Challenge.progress(state.player) == 0, "hunter level opens the first floor without inventing progress")
 	var anomaly_counts := {}
 	for index in Challenge.STAGES.size():
 		var stage := Challenge.stage_at(index)

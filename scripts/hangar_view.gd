@@ -32,10 +32,10 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var status_box := status.get_child(0) as VBoxContainer
 	if active.is_empty():
 		status_box.add_child(host.label(t("MENU_NO_TRANSPORT", "SEM TRANSPORTE ATIVO"), 14, host.GOLD))
-		status_box.add_child(host.label(t("HANGAR_FULL_DURATION", "As caçadas usam a duração completa da abordagem."), 11, host.MUTED))
+		status_box.add_child(host.label(t("HANGAR_FULL_DURATION", "As viagens usam a duração interestelar completa."), 11, host.MUTED))
 	else:
 		status_box.add_child(host.label(t("HANGAR_ACTIVE", "ATIVO · %s", [localized_transport_field(active, "name")]), 14, Color(str(active.color))))
-		status_box.add_child(host.label(t("HANGAR_ACTIVE_BONUS", "CAÇADAS %d%% MAIS RÁPIDAS · atrasos de incidentes não recebem desconto", [roundi(float(active.speed_bonus) * 100.0)]), 11, host.LIME))
+		status_box.add_child(host.label(t("HANGAR_ACTIVE_BONUS", "VIAGENS %d%% MAIS RÁPIDAS · perseguições e incidentes não recebem desconto", [roundi(float(active.speed_bonus) * 100.0)]), 11, host.LIME))
 	content.add_child(status)
 
 	var market_summary := SpendingGuidanceScript.market_upgrade_summary(state.player, state.market_offers())
@@ -111,12 +111,12 @@ static func transport_card(host: CrookedUIFactory, state: StateScript, transport
 	var name_label := host.label(localized_transport_field(transport, "name"), 14, Color(str(transport.color)) if unlocked else host.MUTED)
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(name_label)
-	copy.add_child(host.label(t("HANGAR_PERMANENT_BONUS", "-%d%% TEMPO DE CAÇA · PERMANENTE", [roundi(float(transport.speed_bonus) * 100.0)]), 11, host.GOLD if unlocked else host.MUTED))
+	copy.add_child(host.label(t("HANGAR_PERMANENT_BONUS", "-%d%% TEMPO DE VIAGEM · PERMANENTE", [roundi(float(transport.speed_bonus) * 100.0)]), 11, host.GOLD if unlocked else host.MUTED))
 	var tagline := host.label(localized_transport_field(transport, "tagline"), 10, host.INK if unlocked else host.MUTED)
 	tagline.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(tagline)
 	if not unlocked:
-		copy.add_child(host.label(t("HANGAR_UNLOCK_AFTER", "DESBLOQUEIA APÓS %d CAPÍTULOS", [int(transport.required_completed_planets)]), 10, host.MUTED))
+		copy.add_child(host.label(t("HANGAR_UNLOCK_LEVEL", "DESBLOQUEIA NO NÍVEL %d", [int(transport.required_level)]), 10, host.MUTED))
 
 	var action_text := t("HANGAR_ACTION_ACTIVE", "ATIVO") if active else (t("HANGAR_ACTION_EQUIP", "EQUIPAR") if owned else (t("HANGAR_ACTION_BUY", "COMPRAR · ◈ %d", [int(transport.price)]) if affordable else t("MARKET_MISSING_CREDITS", "FALTAM ◈ %d", [int(transport.price) - int(state.player.credits)])))
 	if not unlocked:

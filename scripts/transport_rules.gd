@@ -11,7 +11,7 @@ const DEFINITIONS := [
 		"description": "Um ônibus orbital aposentado, legalizado com três carimbos e uma ameaça educada.",
 		"speed_bonus": 0.10,
 		"price": 500,
-		"required_completed_planets": 0,
+		"required_level": 1,
 		"symbol": "▰",
 		"color": "#72f1dd",
 	},
@@ -22,7 +22,7 @@ const DEFINITIONS := [
 		"description": "Chega depressa, em duplicado e ocasionalmente ao planeta correto.",
 		"speed_bonus": 0.20,
 		"price": 2200,
-		"required_completed_planets": 1,
+		"required_level": 4,
 		"symbol": "◇",
 		"color": "#55e5ff",
 	},
@@ -33,7 +33,7 @@ const DEFINITIONS := [
 		"description": "Construído para alcançar devedores antes que terminem de esconder os móveis.",
 		"speed_bonus": 0.30,
 		"price": 6500,
-		"required_completed_planets": 2,
+		"required_level": 8,
 		"symbol": "▶",
 		"color": "#ffc857",
 	},
@@ -44,7 +44,7 @@ const DEFINITIONS := [
 		"description": "Sala de crise, minibar e compartimento fiscal vendidos separadamente.",
 		"speed_bonus": 0.40,
 		"price": 15000,
-		"required_completed_planets": 3,
+		"required_level": 13,
 		"symbol": "◆",
 		"color": "#ff75d8",
 	},
@@ -63,7 +63,7 @@ static func is_valid_id(transport_id: String) -> bool:
 
 
 static func is_unlocked(player: Dictionary, transport: Dictionary) -> bool:
-	return player.get("completed_planets", []).size() >= int(transport.get("required_completed_planets", 0))
+	return int(player.get("level", 1)) >= int(transport.get("required_level", 1))
 
 
 static func is_owned(player: Dictionary, transport_id: String) -> bool:
@@ -83,6 +83,20 @@ static func speed_bonus(player: Dictionary) -> float:
 
 static func effective_hunt_duration(player: Dictionary, base_duration: float) -> float:
 	return maxf(MIN_HUNT_DURATION, base_duration * (1.0 - speed_bonus(player)))
+
+
+static func effective_mission_duration(player: Dictionary, bounty: Dictionary) -> float:
+	if not bool(bounty.get("mission_offer", false)):
+		return effective_hunt_duration(player, float(bounty.get("duration", MIN_HUNT_DURATION)))
+	var travel := maxf(0.0, float(bounty.get("travel_duration", 0.0)))
+	var pursuit := maxf(1.0, float(bounty.get("pursuit_duration", 1.0)))
+	return maxf(MIN_HUNT_DURATION, travel * (1.0 - speed_bonus(player)) + pursuit)
+
+
+static func mission_saved_seconds(player: Dictionary, bounty: Dictionary) -> float:
+	if not bool(bounty.get("mission_offer", false)):
+		return saved_seconds(player, float(bounty.get("duration", MIN_HUNT_DURATION)))
+	return maxf(0.0, float(bounty.get("travel_duration", 0.0)) * speed_bonus(player))
 
 
 static func saved_seconds(player: Dictionary, base_duration: float) -> float:

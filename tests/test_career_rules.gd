@@ -8,6 +8,7 @@ var failures := 0
 func _init() -> void:
 	var player := {
 		"wins": 12,
+		"level": 19,
 		"captures_by_target": {"repeat": 3},
 		"completed_planets": ["a", "b", "c", "d", "e"],
 		"scrap_recycled_total": 25,

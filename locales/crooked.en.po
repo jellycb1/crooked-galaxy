@@ -3045,13 +3045,13 @@ msgid "ACTION_BACK"
 msgstr "BACK"
 
 msgid "GALAXY_SUBTITLE"
-msgstr "Planets are chapters. Fuel is an accounting opinion."
+msgstr "Known worlds, distances, and incidents in the warrant network."
 
 msgid "GALAXY_STANDARD_SPEED"
 msgstr "The map calculates every route at standard bureaucratic speed."
 
 msgid "GALAXY_TRANSPORT_BONUS"
-msgstr "-%d%% from the base time of every hunt"
+msgstr "-%d%% from travel time on every contract"
 
 msgid "GALAXY_OPEN_HANGAR"
 msgstr "OPEN HANGAR"
@@ -3102,7 +3102,7 @@ msgid "MARKET_TRANSPORT_ALTERNATIVE"
 msgstr "PERMANENT ALTERNATIVE · %s"
 
 msgid "MARKET_TRANSPORT_DETAIL"
-msgstr "-%d%% hunt time · ◈ %d"
+msgstr "-%d%% travel time · ◈ %d"
 
 msgid "MARKET_TRANSPORT_LOCK"
 msgstr " · after %d chapters"
@@ -3138,13 +3138,13 @@ msgid "HANGAR_SUBTITLE"
 msgstr "Permanent transports for arriving before the excuse."
 
 msgid "HANGAR_FULL_DURATION"
-msgstr "Hunts use the full duration of the selected approach."
+msgstr "Travel uses the full interstellar duration."
 
 msgid "HANGAR_ACTIVE"
 msgstr "ACTIVE · %s"
 
 msgid "HANGAR_ACTIVE_BONUS"
-msgstr "HUNTS %d%% FASTER · incident delays receive no discount"
+msgstr "TRAVEL %d%% FASTER · pursuits and incidents receive no discount"
 
 msgid "HANGAR_COMBAT_ALTERNATIVE"
 msgstr "COMBAT ALTERNATIVE · %d UPGRADES"
@@ -3162,7 +3162,7 @@ msgid "HANGAR_VIEW_MARKET"
 msgstr "VIEW MARKET"
 
 msgid "HANGAR_PERMANENT_BONUS"
-msgstr "-%d%% HUNT TIME · PERMANENT"
+msgstr "-%d%% TRAVEL TIME · PERMANENT"
 
 msgid "HANGAR_UNLOCK_AFTER"
 msgstr "UNLOCKS AFTER %d CHAPTERS"
@@ -3228,7 +3228,7 @@ msgid "CAREER_HUNTER_LEVEL"
 msgstr "LEVEL %d HUNTER"
 
 msgid "CAREER_CAPTURE_SECTORS"
-msgstr "%d CAPTURES · %d/%d SECTORS"
+msgstr "%d CAPTURES · %d/%d KNOWN WORLDS"
 
 msgid "CAREER_NEXT_LEVEL"
 msgstr "NEXT LEVEL"
@@ -3255,7 +3255,7 @@ msgid "CAREER_CHOOSE_ROUTE"
 msgstr "CHOOSE\nROUTE"
 
 msgid "CAREER_PLANET_CAPTURES"
-msgstr "%d CAPTURES · TIER %d/3"
+msgstr "%d CAPTURES · BASE ROUTE %ds"
 
 msgid "CAREER_COMPLETED"
 msgstr "COMPLETE"
@@ -3357,28 +3357,28 @@ msgid "CAREER_MILESTONE_REPEAT_CUSTOMER_DESCRIPTION"
 msgstr "Capture the same target three times."
 
 msgid "CAREER_MILESTONE_SECTOR_OWNER_NAME"
-msgstr "SECTOR OWNER"
+msgstr "FIRST FRONTIER"
 
 msgid "CAREER_MILESTONE_SECTOR_OWNER_DESCRIPTION"
-msgstr "Complete your first planet."
+msgstr "Discover your second contract world."
 
 msgid "CAREER_MILESTONE_TRIPLE_FRONTIER_NAME"
 msgstr "TRIPLE FRONTIER"
 
 msgid "CAREER_MILESTONE_TRIPLE_FRONTIER_DESCRIPTION"
-msgstr "Complete three planets."
+msgstr "Discover three network worlds."
 
 msgid "CAREER_MILESTONE_OMEGA_MECHANIC_NAME"
 msgstr "APOCALYPSE MECHANIC"
 
 msgid "CAREER_MILESTONE_OMEGA_MECHANIC_DESCRIPTION"
-msgstr "Complete four planets."
+msgstr "Discover four network worlds."
 
 msgid "CAREER_MILESTONE_HOUSE_BREAKER_NAME"
 msgstr "THE HOUSE LOST"
 
 msgid "CAREER_MILESTONE_HOUSE_BREAKER_DESCRIPTION"
-msgstr "Complete five planets."
+msgstr "Discover five network worlds."
 
 msgid "CAREER_MILESTONE_NOTHING_WASTED_NAME"
 msgstr "NOTHING WASTED"
@@ -3781,3 +3781,57 @@ msgstr "LOCAL STATE · REVISION %d · NO REMOTE CONFLICTS"
 
 msgid "SAVE_WARNING_ACCOUNT"
 msgstr "PROGRESS NOT YET SAVED · the local account-to-character link is invalid. Keep the game open and try again."
+
+msgid "BOARD_INTERSTELLAR_SUBTITLE"
+msgstr "Three contracts. Three distances. One questionably maintained ship."
+
+msgid "BOARD_OFFER_HINT"
+msgstr "THE NETWORK RENEWS ALL THREE WARRANTS AFTER EACH CAPTURE"
+
+msgid "BOARD_NETWORK_LEVEL"
+msgstr "WARRANT NETWORK · LEVEL %d"
+
+msgid "BOARD_DISCOVERED_WORLDS"
+msgstr "%d/%d KNOWN WORLDS"
+
+msgid "BOARD_NEXT_WORLD"
+msgstr "NEXT DESTINATION · %s AT LEVEL %d"
+
+msgid "BOARD_ALL_WORLDS"
+msgstr "ALL CURRENT DESTINATIONS ARE ON THE NETWORK"
+
+msgid "BOARD_ROLE_SAFE"
+msgstr "SAFE CONTRACT"
+
+msgid "BOARD_ROLE_STANDARD"
+msgstr "BALANCED CONTRACT"
+
+msgid "BOARD_ROLE_DANGEROUS"
+msgstr "DANGEROUS CONTRACT"
+
+msgid "BOARD_MISSION_TIMING"
+msgstr "TRAVEL %s · PURSUIT %s"
+
+msgid "BOARD_TRANSPORT_SAVING"
+msgstr " · SHIP SAVES %s"
+
+msgid "HANGAR_UNLOCK_LEVEL"
+msgstr "UNLOCKS AT LEVEL %d"
+
+msgid "MARKET_TRANSPORT_LEVEL_LOCK"
+msgstr " · level %d"
+
+msgid "GALAXY_WORLD_RECORD"
+msgstr "BASE ROUTE %s · %d RECORDED CAPTURES"
+
+msgid "GALAXY_LEVEL_REQUIREMENT"
+msgstr "JOINS THE NETWORK AT LEVEL %d"
+
+msgid "GALAXY_NETWORK_AVAILABLE"
+msgstr "ON NETWORK"
+
+msgid "CAREER_VISITED"
+msgstr "VISITED"
+
+msgid "CAREER_DISCOVERED"
+msgstr "DISCOVERED"

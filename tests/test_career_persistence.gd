@@ -96,6 +96,9 @@ func configured_state(profile: Dictionary) -> StateScript:
 	state.player.captures_by_target = profile.get("captures_by_target", {}).duplicate(true)
 	state.player.scrap_recycled_total = int(profile.get("scrap_recycled_total", 0))
 	state.player.best_capture_streak = int(profile.get("best_capture_streak", 0))
+	var discovery_levels := [1, 4, 8, 13, 19]
+	var requested_discoveries := int(profile.get("completed_count", 0))
+	state.player.level = discovery_levels[mini(discovery_levels.size() - 1, requested_discoveries)] if requested_discoveries > 0 else 1
 	var completed: Array = []
 	for index in int(profile.get("completed_count", 0)):
 		completed.append(str(ContentDB.PLANETS[index].id))

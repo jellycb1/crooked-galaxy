@@ -8,6 +8,7 @@ const Content = preload("res://scripts/content_db.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const PlanetIconScript = preload("res://scripts/planet_icon.gd")
 const LocaleRules = preload("res://scripts/locale_rules.gd")
+const MissionRules = preload("res://scripts/mission_rules.gd")
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
@@ -162,7 +163,7 @@ static func summary_card(host: CrookedUIFactory, state: StateScript) -> PanelCon
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
 	copy.add_child(host.label(t("CAREER_HUNTER_LEVEL", "CAÇADOR NÍVEL %d", [int(state.player.level)]), 18, host.GOLD))
-	copy.add_child(host.label(t("CAREER_CAPTURE_SECTORS", "%d CAPTURAS · %d/%d SETORES", [int(state.player.wins), state.player.get("completed_planets", []).size(), Content.PLANETS.size()]), 12, host.INK))
+	copy.add_child(host.label(t("CAREER_CAPTURE_SECTORS", "%d CAPTURAS · %d/%d MUNDOS CONHECIDOS", [int(state.player.wins), MissionRules.available_planets(int(state.player.get("level", 1))).size(), Content.PLANETS.size()]), 12, host.INK))
 	var xp_needed := Rules.xp_needed(int(state.player.level))
 	var xp_row := HBoxContainer.new()
 	copy.add_child(xp_row)
@@ -233,9 +234,9 @@ static func framed_portrait(host: CrookedUIFactory, character_id: String, dimens
 
 static func planet_card(host: CrookedUIFactory, state: StateScript, planet: Dictionary) -> PanelContainer:
 	var planet_id := str(planet.id)
-	var completed: bool = state.player.get("completed_planets", []).has(planet_id)
-	var unlocked: bool = Content.is_planet_unlocked(planet_id, state.player.get("completed_planets", []))
+	var unlocked: bool = MissionRules.is_planet_available(planet_id, int(state.player.get("level", 1)))
 	var captures: int = state.planet_capture_count(planet_id)
+	var visited := captures > 0
 	var accent := Color(str(planet.accent))
 	var card := host.panel(HBoxContainer.new(), Color("#0d1530"), 12, 11)
 	card.name = "CareerPlanet_%s" % planet_id
@@ -264,13 +265,13 @@ static func planet_card(host: CrookedUIFactory, state: StateScript, planet: Dict
 	progress.add_theme_stylebox_override("background", host.box_style(Color("#071025"), 4))
 	progress.add_theme_stylebox_override("fill", host.box_style(accent if unlocked else host.MUTED.darkened(0.35), 4))
 	copy.add_child(progress)
-	copy.add_child(host.label(t("CAREER_PLANET_CAPTURES", "%d CAPTURAS · TIER %d/3", [captures, state.planet_tier(planet_id)]), 10, host.MUTED))
-	var status: String = t("CAREER_COMPLETED", "CONCLUÍDO") if completed else (t("CAREER_IN_PROGRESS", "EM ANDAMENTO") if unlocked else t("GALAXY_LOCKED", "BLOQUEADO"))
+	copy.add_child(host.label(t("CAREER_PLANET_CAPTURES", "%d CAPTURAS · ROTA-BASE %ds", [captures, roundi(float(planet.get("travel_duration", 0.0)))]), 10, host.MUTED))
+	var status: String = t("CAREER_VISITED", "VISITADO") if visited else (t("CAREER_DISCOVERED", "DESCOBERTO") if unlocked else t("GALAXY_LOCKED", "BLOQUEADO"))
 	var status_copy := VBoxContainer.new()
 	status_copy.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_child(status_copy)
-	status_copy.add_child(host.label("✓" if completed else ("→" if unlocked else "×"), 20, host.LIME if completed else (host.GOLD if unlocked else host.MUTED), HORIZONTAL_ALIGNMENT_CENTER))
-	status_copy.add_child(host.label(status, 9, host.LIME if completed else (host.GOLD if unlocked else host.MUTED), HORIZONTAL_ALIGNMENT_RIGHT))
+	status_copy.add_child(host.label("✓" if visited else ("→" if unlocked else "×"), 20, host.LIME if visited else (host.GOLD if unlocked else host.MUTED), HORIZONTAL_ALIGNMENT_CENTER))
+	status_copy.add_child(host.label(status, 9, host.LIME if visited else (host.GOLD if unlocked else host.MUTED), HORIZONTAL_ALIGNMENT_RIGHT))
 	return card
 
 
@@ -367,9 +368,8 @@ static func target_card(host: CrookedUIFactory, state: StateScript, target: Dict
 	var planet_id := str(target.get("planet_id", Content.PLANET.id))
 	var planet := Content.get_planet(planet_id)
 	var captures := int(state.player.get("captures_by_target", {}).get(target_id, 0))
-	var planet_unlocked: bool = Content.is_planet_unlocked(planet_id, state.player.get("completed_planets", []))
-	var tier_available: bool = int(target.get("chapter_tier", target.rank)) <= state.planet_tier(planet_id)
-	var revealed: bool = captures > 0 or (planet_unlocked and tier_available)
+	var planet_unlocked: bool = MissionRules.is_planet_available(planet_id, int(state.player.get("level", 1)))
+	var revealed: bool = captures > 0 or planet_unlocked
 	var card := host.panel(HBoxContainer.new(), Color("#101d39") if revealed else Color("#080e20"), 12, 10)
 	card.name = "CareerTarget_%s" % target_id
 	var row := card.get_child(0) as HBoxContainer
@@ -392,7 +392,7 @@ static func target_card(host: CrookedUIFactory, state: StateScript, target: Dict
 	record_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_child(record_box)
 	record_box.add_child(host.label(record, 11, host.LIME if captures > 0 else (host.GOLD if revealed else host.MUTED), HORIZONTAL_ALIGNMENT_RIGHT))
-	if planet_unlocked and tier_available:
+	if planet_unlocked:
 		var open_target := host.action_button(t("CAREER_OPEN", "ABRIR"), Color(str(planet.accent)), true)
 		open_target.name = "CareerTargetAction_%s" % target_id
 		open_target.custom_minimum_size = Vector2(88, 48)
@@ -400,8 +400,9 @@ static func target_card(host: CrookedUIFactory, state: StateScript, target: Dict
 		open_target.pressed.connect(func():
 			host.view_mode = "board"
 			host.briefing_context = {}
-			if state.travel_to_planet(planet_id):
-				state.select_bounty(Content.get_target(target_id))
+			var offer := MissionRules.offer_for_target(state.player, Content.get_target(target_id))
+			if not offer.is_empty():
+				state.select_bounty(offer)
 		)
 		record_box.add_child(open_target)
 	return card

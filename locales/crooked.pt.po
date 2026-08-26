@@ -3045,13 +3045,13 @@ msgid "ACTION_BACK"
 msgstr "VOLTAR"
 
 msgid "GALAXY_SUBTITLE"
-msgstr "Planetas são capítulos. Combustível é uma opinião contábil."
+msgstr "Mundos conhecidos, distâncias e ocorrências da rede de mandados."
 
 msgid "GALAXY_STANDARD_SPEED"
 msgstr "O mapa calcula cada rota na velocidade burocrática padrão."
 
 msgid "GALAXY_TRANSPORT_BONUS"
-msgstr "-%d%% no tempo-base de todas as caçadas"
+msgstr "-%d%% no tempo de viagem de todos os contratos"
 
 msgid "GALAXY_OPEN_HANGAR"
 msgstr "ABRIR HANGAR"
@@ -3102,7 +3102,7 @@ msgid "MARKET_TRANSPORT_ALTERNATIVE"
 msgstr "ALTERNATIVA PERMANENTE · %s"
 
 msgid "MARKET_TRANSPORT_DETAIL"
-msgstr "-%d%% tempo de caça · ◈ %d"
+msgstr "-%d%% tempo de viagem · ◈ %d"
 
 msgid "MARKET_TRANSPORT_LOCK"
 msgstr " · após %d capítulos"
@@ -3138,13 +3138,13 @@ msgid "HANGAR_SUBTITLE"
 msgstr "Transportes permanentes para chegar antes da desculpa."
 
 msgid "HANGAR_FULL_DURATION"
-msgstr "As caçadas usam a duração completa da abordagem."
+msgstr "As viagens usam a duração interestelar completa."
 
 msgid "HANGAR_ACTIVE"
 msgstr "ATIVO · %s"
 
 msgid "HANGAR_ACTIVE_BONUS"
-msgstr "CAÇADAS %d%% MAIS RÁPIDAS · atrasos de incidentes não recebem desconto"
+msgstr "VIAGENS %d%% MAIS RÁPIDAS · perseguições e incidentes não recebem desconto"
 
 msgid "HANGAR_COMBAT_ALTERNATIVE"
 msgstr "ALTERNATIVA DE COMBATE · %d MELHORIAS"
@@ -3162,7 +3162,7 @@ msgid "HANGAR_VIEW_MARKET"
 msgstr "VER MERCADO"
 
 msgid "HANGAR_PERMANENT_BONUS"
-msgstr "-%d%% TEMPO DE CAÇA · PERMANENTE"
+msgstr "-%d%% TEMPO DE VIAGEM · PERMANENTE"
 
 msgid "HANGAR_UNLOCK_AFTER"
 msgstr "DESBLOQUEIA APÓS %d CAPÍTULOS"
@@ -3228,7 +3228,7 @@ msgid "CAREER_HUNTER_LEVEL"
 msgstr "CAÇADOR NÍVEL %d"
 
 msgid "CAREER_CAPTURE_SECTORS"
-msgstr "%d CAPTURAS · %d/%d SETORES"
+msgstr "%d CAPTURAS · %d/%d MUNDOS CONHECIDOS"
 
 msgid "CAREER_NEXT_LEVEL"
 msgstr "PRÓXIMO NÍVEL"
@@ -3255,7 +3255,7 @@ msgid "CAREER_CHOOSE_ROUTE"
 msgstr "ESCOLHER\nROTA"
 
 msgid "CAREER_PLANET_CAPTURES"
-msgstr "%d CAPTURAS · TIER %d/3"
+msgstr "%d CAPTURAS · ROTA-BASE %ds"
 
 msgid "CAREER_COMPLETED"
 msgstr "CONCLUÍDO"
@@ -3357,28 +3357,28 @@ msgid "CAREER_MILESTONE_REPEAT_CUSTOMER_DESCRIPTION"
 msgstr "Capture o mesmo alvo três vezes."
 
 msgid "CAREER_MILESTONE_SECTOR_OWNER_NAME"
-msgstr "DONO DO SETOR"
+msgstr "PRIMEIRA FRONTEIRA"
 
 msgid "CAREER_MILESTONE_SECTOR_OWNER_DESCRIPTION"
-msgstr "Conclua seu primeiro planeta."
+msgstr "Descubra seu segundo mundo de contratos."
 
 msgid "CAREER_MILESTONE_TRIPLE_FRONTIER_NAME"
 msgstr "TRÍPLICE FRONTEIRA"
 
 msgid "CAREER_MILESTONE_TRIPLE_FRONTIER_DESCRIPTION"
-msgstr "Conclua três planetas."
+msgstr "Descubra três mundos da rede."
 
 msgid "CAREER_MILESTONE_OMEGA_MECHANIC_NAME"
 msgstr "MECÂNICO DO APOCALIPSE"
 
 msgid "CAREER_MILESTONE_OMEGA_MECHANIC_DESCRIPTION"
-msgstr "Conclua quatro planetas."
+msgstr "Descubra quatro mundos da rede."
 
 msgid "CAREER_MILESTONE_HOUSE_BREAKER_NAME"
 msgstr "A CASA PERDEU"
 
 msgid "CAREER_MILESTONE_HOUSE_BREAKER_DESCRIPTION"
-msgstr "Conclua cinco planetas."
+msgstr "Descubra cinco mundos da rede."
 
 msgid "CAREER_MILESTONE_NOTHING_WASTED_NAME"
 msgstr "NADA SE PERDE"
@@ -3781,3 +3781,57 @@ msgstr "ESTADO LOCAL · REVISÃO %d · SEM CONFLITOS REMOTOS"
 
 msgid "SAVE_WARNING_ACCOUNT"
 msgstr "PROGRESSO AINDA NÃO SALVO · o vínculo local entre conta e personagem é inválido. Mantenha o jogo aberto e tente novamente."
+
+msgid "BOARD_INTERSTELLAR_SUBTITLE"
+msgstr "Três contratos. Três distâncias. Uma nave com manutenção questionável."
+
+msgid "BOARD_OFFER_HINT"
+msgstr "A REDE RENOVA OS TRÊS MANDADOS APÓS CADA CAPTURA"
+
+msgid "BOARD_NETWORK_LEVEL"
+msgstr "REDE DE MANDADOS · NÍVEL %d"
+
+msgid "BOARD_DISCOVERED_WORLDS"
+msgstr "%d/%d MUNDOS CONHECIDOS"
+
+msgid "BOARD_NEXT_WORLD"
+msgstr "PRÓXIMO DESTINO · %s NO NÍVEL %d"
+
+msgid "BOARD_ALL_WORLDS"
+msgstr "TODOS OS DESTINOS ATUAIS ESTÃO NA REDE"
+
+msgid "BOARD_ROLE_SAFE"
+msgstr "CONTRATO SEGURO"
+
+msgid "BOARD_ROLE_STANDARD"
+msgstr "CONTRATO EQUILIBRADO"
+
+msgid "BOARD_ROLE_DANGEROUS"
+msgstr "CONTRATO PERIGOSO"
+
+msgid "BOARD_MISSION_TIMING"
+msgstr "VIAGEM %s · PERSEGUIÇÃO %s"
+
+msgid "BOARD_TRANSPORT_SAVING"
+msgstr " · NAVE POUPA %s"
+
+msgid "HANGAR_UNLOCK_LEVEL"
+msgstr "DESBLOQUEIA NO NÍVEL %d"
+
+msgid "MARKET_TRANSPORT_LEVEL_LOCK"
+msgstr " · nível %d"
+
+msgid "GALAXY_WORLD_RECORD"
+msgstr "ROTA-BASE %s · %d CAPTURAS REGISTADAS"
+
+msgid "GALAXY_LEVEL_REQUIREMENT"
+msgstr "ENTRA NA REDE NO NÍVEL %d"
+
+msgid "GALAXY_NETWORK_AVAILABLE"
+msgstr "NA REDE"
+
+msgid "CAREER_VISITED"
+msgstr "VISITADO"
+
+msgid "CAREER_DISCOVERED"
+msgstr "DESCOBERTO"

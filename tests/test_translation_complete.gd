@@ -70,6 +70,7 @@ func run_test() -> void:
 	state.player.appearance = {"palette": "native", "eyes": "standard", "feature": "classic", "marking": "clean"}
 	state.player.hunter_name = "Nova"
 	state.player.completed_planets = ["dustball_prime"]
+	state.player.level = 4
 	state.player.challenge_floor = 0
 	state.phase = state.Phase.BOARD
 	var scene: Control = load("res://scenes/main.tscn").instantiate()

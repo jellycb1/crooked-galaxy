@@ -19,8 +19,8 @@ Inspect Bounties
 → Collect Loot
 → Equip Better Gear
 → Become Stronger
-→ Unlock Harder Bounties
-→ Travel to New Planets
+→ Raise Hunter Level
+→ Discover New Worlds and Harder Bounties
 
 The player should constantly feel that they are building a bounty hunting career.
 
@@ -50,11 +50,11 @@ The game can contain:
 
 The game should not become hard military sci-fi or generic realistic science fiction.
 
-3. PLANETS AS PROGRESSION
+3. PLANETS AS AN EXPANDING MISSION NETWORK
 
-Planets act as chapters.
+Planets are destinations, lore, visual identity and content pools rather than a mandatory linear career map. The bounty board always offers three different targets; as hunter level rises, new worlds and criminal families enter that rotating network. A destination's distance creates the travel portion of a mission and gives transport progression lasting value.
 
-Each new planet can introduce:
+Enemy combat statistics are fixed when an offer is created from its hunter-level band and risk role. They must never scale from currently equipped power: replacing equipment must make the same accepted offer genuinely easier. Planets can still introduce:
 
 * new species;
 * new bounty targets;
@@ -64,6 +64,8 @@ Each new planet can introduce:
 * new dungeon/event types;
 * new stories;
 * new mechanics.
+
+Planet archives, mastery and recorded captures preserve the feeling of exploring and completing content without forcing every hunter through the same sequential target chain. Independent ladders, special contracts and future events may use a specific world as context without turning the galaxy back into one vertical campaign.
 
 The galaxy should feel almost unlimited.
 

@@ -11,6 +11,7 @@ const ServerRulesScript = preload("res://scripts/server_rules.gd")
 const LocaleRulesScript = preload("res://scripts/locale_rules.gd")
 const MarketRulesScript = preload("res://scripts/market_rules.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
+const MissionRulesScript = preload("res://scripts/mission_rules.gd")
 const ChallengeRulesScript = preload("res://scripts/challenge_rules.gd")
 const AccountRulesScript = preload("res://scripts/account_rules.gd")
 const AccountServiceScript = preload("res://scripts/account_service.gd")
@@ -259,6 +260,8 @@ func select_bounty(bounty: Dictionary) -> void:
 	combat_summary = {}
 	combat_events = []
 	current_bounty = bounty.duplicate(true)
+	if bool(current_bounty.get("mission_offer", false)):
+		player.current_planet_id = str(current_bounty.get("planet_id", ContentDB.PLANET.id))
 	offered_approaches = ContentDB.contract_approaches()
 	phase = Phase.BRIEFING
 	save_game()
@@ -285,8 +288,7 @@ func start_challenge(stage_id: String) -> bool:
 func travel_to_planet(planet_id: String) -> bool:
 	if phase != Phase.BOARD:
 		return false
-	var completed: Array = player.get("completed_planets", [])
-	if not ContentDB.is_planet_unlocked(planet_id, completed):
+	if not MissionRulesScript.is_planet_available(planet_id, int(player.get("level", 1))):
 		return false
 	var planet := ContentDB.get_planet(planet_id)
 	player.current_planet_id = str(planet.id)
@@ -388,7 +390,7 @@ func acquire_or_equip_transport(transport_id: String) -> bool:
 func apply_offline_progress(now_unix: float) -> Dictionary:
 	var last_seen := float(player.get("last_seen_unix", now_unix))
 	var elapsed := maxf(0.0, now_unix - last_seen)
-	var rewards := CoreRules.offline_patrol_rewards(elapsed, player.get("completed_planets", []).size(), int(player.get("wins", 0)))
+	var rewards := CoreRules.offline_patrol_rewards(elapsed, MissionRulesScript.available_planets(int(player.get("level", 1))).size(), int(player.get("wins", 0)))
 	# A clock rollback must not move the settlement watermark backwards and turn
 	# the same interval into a future patrol payout when the clock catches up.
 	player.last_seen_unix = maxf(last_seen, now_unix)
@@ -509,7 +511,7 @@ func start_bounty(bounty: Dictionary) -> void:
 func start_hunt() -> void:
 	phase = Phase.HUNT
 	hunt_started_at = Time.get_unix_time_from_system()
-	hunt_ends_at = hunt_started_at + TransportRulesScript.effective_hunt_duration(player, float(current_bounty.duration))
+	hunt_ends_at = hunt_started_at + TransportRulesScript.effective_mission_duration(player, current_bounty)
 	hunt_event = ContentDB.random_hunt_event(rng, str(current_bounty.get("planet_id", ContentDB.PLANET.id)))
 	hunt_event_triggered = false
 	hunt_elapsed_before_event = 0.0
@@ -933,7 +935,10 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	last_notice = LocaleRulesScript.text("REWARD_NOTICE_PAID", "Contrato pago: %s", [" · ".join(notice_parts)])
 	last_notice_context = "reward_%s" % str(summary.loot_action)
 	phase = Phase.CHAPTER_COMPLETE if first_boss_capture else (Phase.BRIEFING if repeat_contract else Phase.BOARD)
-	current_bounty = ContentDB.get_target(target_id) if repeat_contract and not first_boss_capture else {}
+	if repeat_contract and not first_boss_capture:
+		current_bounty = MissionRulesScript.canonical_offer(completed_bounty) if bool(completed_bounty.get("mission_offer", false)) else ContentDB.get_target(target_id)
+	else:
+		current_bounty = {}
 	pending_loot = {}
 	combat_events.clear()
 	combat_summary = {}
@@ -1762,10 +1767,10 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 		sanitized.challenge_floor = 0
 		repaired = true
 	var current_planet_id := str(sanitized.current_planet_id)
-	if not known_planet_ids.has(current_planet_id) or not ContentDB.is_planet_unlocked(current_planet_id, clean_completed):
+	if not known_planet_ids.has(current_planet_id) or not MissionRulesScript.is_planet_available(current_planet_id, int(sanitized.get("level", 1))):
 		current_planet_id = str(ContentDB.PLANET.id)
 		for planet in ContentDB.PLANETS:
-			if ContentDB.is_planet_unlocked(str(planet.id), clean_completed):
+			if MissionRulesScript.is_planet_available(str(planet.id), int(sanitized.get("level", 1))):
 				current_planet_id = str(planet.id)
 		sanitized.current_planet_id = current_planet_id
 		repaired = true
@@ -1836,7 +1841,7 @@ func sanitize_loaded_account(loaded, character_id := "") -> Dictionary:
 func canonicalize_loaded_bounty(loaded: Dictionary) -> Dictionary:
 	if loaded.is_empty():
 		return {"bounty": {}, "repaired": false}
-	var canonical_target := ChallengeRulesScript.get_stage(str(loaded.get("id", ""))) if bool(loaded.get("challenge", false)) else {}
+	var canonical_target := MissionRulesScript.canonical_offer(loaded) if bool(loaded.get("mission_offer", false)) else (ChallengeRulesScript.get_stage(str(loaded.get("id", ""))) if bool(loaded.get("challenge", false)) else {})
 	for target in ContentDB.TARGETS:
 		if not canonical_target.is_empty():
 			break
@@ -2097,7 +2102,7 @@ func reconcile_loaded_phase() -> bool:
 			var now := Time.get_unix_time_from_system()
 			if hunt_started_at <= 0.0 or hunt_ends_at <= hunt_started_at:
 				hunt_started_at = now
-				hunt_ends_at = now + TransportRulesScript.effective_hunt_duration(player, float(current_bounty.duration))
+				hunt_ends_at = now + TransportRulesScript.effective_mission_duration(player, current_bounty)
 				repaired = true
 			elif hunt_started_at > now:
 				var saved_duration := maxf(0.1, hunt_ends_at - hunt_started_at)

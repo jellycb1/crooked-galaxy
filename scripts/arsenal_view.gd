@@ -7,6 +7,7 @@ const Content = preload("res://scripts/content_db.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
 const LocaleRules = preload("res://scripts/locale_rules.gd")
+const MissionRules = preload("res://scripts/mission_rules.gd")
 const INVENTORY_PAGE_SIZE := 12
 
 
@@ -69,7 +70,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 				"approach_name": str(readiness.get("approach", {}).get("name", "CONTRATO BASE")),
 				"odds": float(readiness.get("current_odds", 0.0)),
 			}
-			state.select_bounty(Content.get_target(target_id))
+			state.select_bounty(focused_target)
 		)
 		title_row.add_child(analyze)
 	var back := host.action_button(text("COMMON_BACK", "VOLTAR"), host.CYAN, true)
@@ -226,24 +227,18 @@ static func inventory_header(host: CrookedUIFactory, page_data: Dictionary, inve
 
 
 static func field_readiness(state: StateScript) -> Dictionary:
-	var planet_id := str(state.player.get("current_planet_id", Content.PLANET.id))
-	var tier := state.planet_tier(planet_id)
-	var current_target := Content.target_for_planet_tier(planet_id, tier)
-	var current_captures := int(state.player.get("captures_by_target", {}).get(str(current_target.get("id", "")), 0))
-	var target_is_available := not current_target.is_empty() and current_captures == 0
-	var target := current_target if target_is_available else Content.target_for_planet_tier(planet_id, mini(3, tier + 1))
+	var offers := MissionRules.board_offers(state.player)
+	if offers.is_empty():
+		return {}
+	var target: Dictionary = offers[mini(1, offers.size() - 1)]
 	var recovery_focus := false
 	if not state.combat_summary.is_empty() and not bool(state.combat_summary.get("won", true)):
 		var defeated_id := str(state.combat_summary.get("target_id", state.current_bounty.get("id", "")))
 		var defeated_target := Content.get_target(defeated_id)
-		if not defeated_target.is_empty() and str(defeated_target.get("planet_id", "")) == planet_id and int(defeated_target.get("chapter_tier", defeated_target.rank)) <= tier:
-			target = defeated_target
-			target_is_available = true
+		var recovery_offer := MissionRules.offer_for_target(state.player, defeated_target)
+		if not recovery_offer.is_empty():
+			target = recovery_offer
 			recovery_focus = true
-	if target.is_empty():
-		target = Content.target_for_planet_tier(planet_id, tier)
-	if target.is_empty():
-		return {}
 	var evaluations := ContractRules.evaluate_approaches(state.player, target, Content.contract_approaches())
 	var recommended_id := ContractRules.recommended_approach_id(evaluations, str(state.player.get("class_id", "")))
 	var contract := target
@@ -272,9 +267,9 @@ static func field_readiness(state: StateScript) -> Dictionary:
 		"power_odds": Rules.bounty_odds(power_player, contract),
 		"health_odds": Rules.bounty_odds(health_player, contract) if reinforced else Rules.bounty_odds(state.player, contract),
 		"can_reinforce": reinforced,
-		"target_available": target_is_available,
+		"target_available": true,
 		"recovery_focus": recovery_focus,
-		"planet_tier": tier,
+		"planet_tier": 0,
 	}
 
 
@@ -290,8 +285,6 @@ static func field_readiness_card(host: CrookedUIFactory, state: StateScript, rea
 		return card
 	var target: Dictionary = readiness.target
 	var target_context := text("ARSENAL_REVENGE", "REVANCHE") if bool(readiness.get("recovery_focus", false)) else (text("ARSENAL_CURRENT_WARRANT", "MANDADO ATUAL") if bool(readiness.target_available) else text("ARSENAL_NEXT_WARRANT", "PRÓXIMO MANDADO"))
-	if int(readiness.planet_tier) >= 3 and not bool(readiness.get("recovery_focus", false)):
-		target_context = text("ARSENAL_CHAPTER_BOSS", "CHEFE DO CAPÍTULO")
 	var target_label := host.label(text("ARSENAL_FIELD_TEST_TARGET", "TESTE DE CAMPO · %s: %s", [target_context, localized_content("target", target, "name").to_upper()]), 11, host.GOLD)
 	target_label.name = "FieldReadinessTarget"
 	box.add_child(target_label)

@@ -188,6 +188,7 @@ func _init() -> void:
 	check(restored_combat.combat_events.size() == 1 and int(restored_combat.combat_events[0].damage) == 0 and str(restored_combat.combat_events[0].quality) == "ACERTO", "restored combat rows normalize negative damage and unknown quality")
 
 	source.player.completed_planets = [ContentDB.PLANET.id]
+	source.player.level = 4
 	source.player.current_planet_id = "congelaria_sa"
 	source.player.captures_by_target = {"mayor_gold_dust": 1}
 	source.player.captures_by_planet = {ContentDB.PLANET.id: 10, "congelaria_sa": 4}
@@ -244,6 +245,7 @@ func _init() -> void:
 	offline.persistence_enabled = false
 	offline.player = offline.default_player()
 	offline.player.wins = 5
+	offline.player.level = 4
 	offline.player.completed_planets = [ContentDB.PLANET.id, "congelaria_sa"]
 	offline.player.credits = 0
 	offline.player.scrap = 0
@@ -325,7 +327,7 @@ func _init() -> void:
 	check(repaired.player.equipment_loadouts.size() == 2 and repaired.player.equipment_loadouts.all(func(loadout): return loadout is Dictionary), "damaged loadouts normalize to two usable slots")
 	check(int(repaired.player.scrap) == 0 and int(repaired.player.level) == 1 and int(repaired.player.base_power) == 1, "impossible negative progression values are clamped to canonical lower bounds")
 	check(int(repaired.player.capture_streak) == 4 and int(repaired.player.best_capture_streak) == 4, "best streak remains coherent with the active streak after repair")
-	check(str(repaired.player.current_planet_id) == "congelaria_sa" and repaired.player.completed_planets == ["dustball_prime"], "unknown and duplicate planet ids repair to the latest unlocked canonical route")
+	check(str(repaired.player.current_planet_id) == "dustball_prime" and repaired.player.completed_planets == ["dustball_prime"], "unknown and duplicate planet ids repair to a level-discovered canonical world")
 	check(repaired.player.captures_by_target == {"gloop": 0} and repaired.player.captures_by_planet == {"dustball_prime": 2}, "unknown capture records cannot affect progression or career milestones")
 	check(repaired.player.claimed_milestones == ["first_warrant"] and repaired.player.locked_item_ids.is_empty(), "unknown and duplicate milestone or item ids are removed")
 	check(str(repaired.player.equipment_loadouts[0].weapon_id).is_empty(), "loadouts cannot retain references to missing inventory")
