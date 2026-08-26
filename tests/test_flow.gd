@@ -295,13 +295,15 @@ func _init() -> void:
 	state.hunt_started_at = event_time - 3.0
 	state.hunt_ends_at = event_time + 3.0
 	check(state.update_hunt(), "mid-hunt threshold opens an incident")
-	check(state.phase == state.Phase.HUNT_EVENT, "hunt pauses for the incident")
+	check(state.phase == state.Phase.HUNT_EVENT, "mid-hunt incident opens without replacing the contract")
+	var incident_deadline: float = state.hunt_ends_at
 	var credits_for_event := int(state.player.credits)
 	state.player.credits = 0
 	check(not state.resolve_hunt_event("bribe"), "unaffordable event choice is rejected")
 	state.player.credits = credits_for_event
 	check(state.resolve_hunt_event("bribe"), "affordable event choice resolves")
 	check(state.phase == state.Phase.HUNT, "hunt resumes after the incident")
+	check(is_equal_approx(state.hunt_ends_at, incident_deadline), "a tactical incident choice never resets or pauses the original deadline")
 	check(int(state.player.credits) == credits_for_event - 8, "event cost is charged")
 	var paid_event_contract: Dictionary = state.current_bounty.duplicate(true)
 	var paid_event_reward: Dictionary = CoreRules.bounty_streak_reward(int(paid_event_contract.credits), int(state.player.capture_streak) + 1)
@@ -309,6 +311,20 @@ func _init() -> void:
 	check(state.current_bounty.defense == 3, "event consequence modifies the target")
 	check(state.current_bounty.has("hunt_event_result"), "event result is retained for feedback")
 	check(int(state.current_bounty.get("hunt_event_credit_cost", 0)) == 8, "paid incident cost remains attached to the live contract receipt")
+	var unattended = StateScript.new()
+	unattended.persistence_enabled = false
+	unattended.player = unattended.default_player()
+	unattended.start_bounty(Content.TARGETS[0].duplicate(true))
+	unattended.hunt_event = Content.HUNT_EVENTS[0].duplicate(true)
+	unattended.phase = unattended.Phase.HUNT_EVENT
+	unattended.hunt_event_triggered = true
+	unattended.hunt_started_at = Time.get_unix_time_from_system() - 10.0
+	unattended.hunt_ends_at = Time.get_unix_time_from_system() - 1.0
+	var unattended_credits := int(unattended.player.credits)
+	check(unattended.update_hunt() and unattended.phase == unattended.Phase.COMBAT, "an ignored incident reaches combat at the original wall-clock deadline")
+	check(not unattended.current_bounty.has("hunt_event_result") and int(unattended.player.credits) == unattended_credits, "ignoring an incident applies no hidden cost or consequence")
+	check(bool(unattended.combat_summary.arrived_from_hunt) and unattended.consume_mission_ready_feedback() and not unattended.consume_mission_ready_feedback(), "timer completion produces one transient ready signal")
+	unattended.free()
 	state.begin_combat()
 	state.enemy_hp = 9999
 	state.player_hp = 1

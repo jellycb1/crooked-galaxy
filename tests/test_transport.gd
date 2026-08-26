@@ -53,9 +53,9 @@ func _init() -> void:
 	state.hunt_event = ContentDB.HUNT_EVENTS[0].duplicate(true)
 	state.hunt_elapsed_before_event = 5.0
 	state.hunt_remaining_after_event = 4.0
-	var before_resolution := Time.get_unix_time_from_system()
+	var deadline_before_resolution: float = state.hunt_ends_at
 	check(state.resolve_hunt_event("detour"), "duration incident resolves during a transported hunt")
-	check(absf((state.hunt_ends_at - before_resolution) - 6.0) < 0.15, "incident delay remains fully additive rather than receiving a second speed discount")
+	check(absf(state.hunt_ends_at - deadline_before_resolution - 45.0) < 0.05, "incident delay extends the live deadline additively rather than pausing or receiving a second speed discount")
 
 	var malformed := state.default_player()
 	malformed.owned_transport_ids = ["licensed_junkbox", "executive_escape_yacht", "licensed_junkbox", "counterfeit_ship"]

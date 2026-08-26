@@ -32,7 +32,7 @@ func _init() -> void:
 	var combat := clean_state()
 	combat.select_bounty(ContentDB.TARGETS[0])
 	combat.choose_approach("quiet_net")
-	combat.begin_combat()
+	combat.begin_combat(true)
 	assert_clean_roundtrip(combat, combat.Phase.COMBAT, "combat")
 
 	var victory := clean_state()

@@ -110,9 +110,9 @@ func run_smoke_test() -> void:
 		incident_kinds[icon.kind] = true
 	check(incident_icons.size() == 3 and incident_kinds.size() == 3 and ["tactical", "detour", "risk"].all(func(kind): return incident_kinds.has(kind)), "incident choices carry the reusable tactical, detour, and risk visual grammar")
 	var incident_abandon := scene.find_child("HuntAbandonAction", true, false) as Button
-	check(incident_abandon != null and incident_abandon.text.contains("PERDER EMBALO ×2"), "paused incident preserves the same explicit abandonment consequence")
+	check(incident_abandon != null and incident_abandon.text.contains("PERDER EMBALO ×2"), "in-motion incident preserves the same explicit abandonment consequence")
 	var pause_status := scene.find_child("HuntEventPauseStatus", true, false) as Label
-	check(pause_status != null and pause_status.text.contains("PAUSADA EM") and pause_status.text.contains("RESTANTES"), "incident explains the paused hunt position and remaining time")
+	check(pause_status != null and pause_status.text.contains("ROTA EM CURSO") and pause_status.text.contains("RESTANTES") and pause_status.text.contains("IGNORAR"), "incident explains the live deadline and its safe no-choice outcome")
 	var incident_payments := scene.find_children("HuntChoicePayment_*", "Label", true, false)
 	check(incident_payments.size() == 3 and incident_payments.all(func(payment): return str(payment.text).contains("EMBALO") and str(payment.text).contains("INCLUÍDO")), "incident choices project streak-adjusted victory payments")
 	var paid_incident := scene.find_child("HuntChoicePayment_bribe", true, false) as Label
@@ -125,9 +125,10 @@ func run_smoke_test() -> void:
 	state.resolve_hunt_event("bribe")
 	await process_frame
 
-	state.begin_combat()
+	state.begin_combat(true)
 	await process_frame
 	check(state.player_hp > 0 and state.enemy_hp > 0, "combat screen initializes")
+	check(scene.find_child("CombatHuntComplete", true, false) != null, "timer-origin combat confirms that the target was located while Android feedback fires once")
 	check(scene.environment_context() == "combat", "combat resolves the original frontier-arena environment")
 	var combat_loadout := scene.find_child("CombatLoadoutSummary", true, false) as Label
 	check(combat_loadout != null and combat_loadout.text.contains("ARMA") and combat_loadout.text.contains("ARMADURA"), "combat portrait names the equipment values driving its visual loadout")

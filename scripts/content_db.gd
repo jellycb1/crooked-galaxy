@@ -492,8 +492,8 @@ const HUNT_EVENTS := [
 			{
 				"id": "detour",
 				"name": "PEGAR O DESVIO",
-				"effect_text": "+2s de caça, mas o alvo perde 12% de vida.",
-				"duration_add": 2.0,
+				"effect_text": "+45s de caça, mas o alvo perde 12% de vida.",
+				"duration_add": 45.0,
 				"health_mult": 0.88,
 				"result": "O desvio terminou atrás do alvo. Pela primeira vez, uma placa ajudou.",
 			},
@@ -534,8 +534,8 @@ const HUNT_EVENTS := [
 			{
 				"id": "wave",
 				"name": "MANDAR UM JOINHA",
-				"effect_text": "+1s de caça e +8% créditos pela publicidade.",
-				"duration_add": 1.0,
+				"effect_text": "+30s de caça e +8% créditos pela publicidade.",
+				"duration_add": 30.0,
 				"credits_mult": 1.08,
 				"result": "O joinha virou patrocínio. Ninguém sabe por quê.",
 			},
@@ -557,8 +557,8 @@ const HUNT_EVENTS := [
 			},
 			{
 				"id": "fake_badge", "name": "FALSIFICAR UM CRACHÁ",
-				"effect_text": "+2s de caça e +18% XP pela experiência corporativa.",
-				"duration_add": 2.0, "xp_mult": 1.18,
+				"effect_text": "+45s de caça e +18% XP pela experiência corporativa.",
+				"duration_add": 45.0, "xp_mult": 1.18,
 				"result": "Seu novo cargo é Vice-Caçador Sênior. Ninguém pediu referências.",
 			},
 			{
@@ -585,8 +585,8 @@ const HUNT_EVENTS := [
 			},
 			{
 				"id": "climb_shelf", "name": "ESCALAR A GELEIRA",
-				"effect_text": "+3s de caça e +20% XP por treinamento não solicitado.",
-				"duration_add": 3.0, "xp_mult": 1.20,
+				"effect_text": "+60s de caça e +20% XP por treinamento não solicitado.",
+				"duration_add": 60.0, "xp_mult": 1.20,
 				"result": "Você escalou a nova hierarquia glacial sem uma única reunião.",
 			},
 			{
@@ -613,8 +613,8 @@ const HUNT_EVENTS := [
 			},
 			{
 				"id": "declare_lungs", "name": "DECLARAR OS PULMÕES",
-				"effect_text": "+3s de caça e +20% XP por preencher anatomia em triplicado.",
-				"duration_add": 3.0, "xp_mult": 1.20,
+				"effect_text": "+60s de caça e +20% XP por preencher anatomia em triplicado.",
+				"duration_add": 60.0, "xp_mult": 1.20,
 				"result": "Seus pulmões agora constam como bagagem de mão regulamentar.",
 			},
 			{
@@ -641,8 +641,8 @@ const HUNT_EVENTS := [
 			},
 			{
 				"id": "tell_story", "name": "CONTAR UMA HISTÓRIA",
-				"effect_text": "+2s de caça e +18% XP pela terapia vegetal.",
-				"duration_add": 2.0, "xp_mult": 1.18,
+				"effect_text": "+45s de caça e +18% XP pela terapia vegetal.",
+				"duration_add": 45.0, "xp_mult": 1.18,
 				"result": "A trilha chorou seiva e indicou uma rota emocionalmente mais curta.",
 			},
 			{
@@ -669,8 +669,8 @@ const HUNT_EVENTS := [
 			},
 			{
 				"id": "follow_debris", "name": "SEGUIR OS DESTROÇOS",
-				"effect_text": "+3s de caça e +20% XP em arqueologia automotiva.",
-				"duration_add": 3.0, "xp_mult": 1.20,
+				"effect_text": "+60s de caça e +20% XP em arqueologia automotiva.",
+				"duration_add": 60.0, "xp_mult": 1.20,
 				"result": "Os destroços formaram uma seta, um imposto e depois outra seta.",
 			},
 			{
@@ -697,8 +697,8 @@ const HUNT_EVENTS := [
 			},
 			{
 				"id": "read_fine_print", "name": "LER AS LETRAS MIÚDAS",
-				"effect_text": "+2s de caça e +18% XP em direito de oficina.",
-				"duration_add": 2.0, "xp_mult": 1.18,
+				"effect_text": "+45s de caça e +18% XP em direito de oficina.",
+				"duration_add": 45.0, "xp_mult": 1.18,
 				"result": "Na cláusula 9001, o alvo aparece listado como defeito de fabricação.",
 			},
 			{
@@ -725,8 +725,8 @@ const HUNT_EVENTS := [
 			},
 			{
 				"id": "ride_spin", "name": "SEGUIR O GIRO",
-				"effect_text": "+3s de caça e +20% XP em física recreativa.",
-				"duration_add": 3.0, "xp_mult": 1.20,
+				"effect_text": "+60s de caça e +20% XP em física recreativa.",
+				"duration_add": 60.0, "xp_mult": 1.20,
 				"result": "Três voltas depois, você entende gravidade e desaprova a gerência.",
 			},
 			{
@@ -753,8 +753,8 @@ const HUNT_EVENTS := [
 			},
 			{
 				"id": "audit_odds", "name": "AUDITAR AS ODDS",
-				"effect_text": "+2s de caça e +18% XP por matemática hostil.",
-				"duration_add": 2.0, "xp_mult": 1.18,
+				"effect_text": "+45s de caça e +18% XP por matemática hostil.",
+				"duration_add": 45.0, "xp_mult": 1.18,
 				"result": "As contas fecham. O cassino abre outra planilha para contestar.",
 			},
 			{

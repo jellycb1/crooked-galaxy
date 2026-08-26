@@ -402,7 +402,7 @@ func run_mobile_audit() -> void:
 	state.phase = state.Phase.HUNT_EVENT
 	scene.render()
 	await process_frame
-	check(scene.hunt_timer.is_stopped(), "hunt refresh sleeps again while an incident awaits input")
+	check(not scene.hunt_timer.is_stopped(), "incident keeps the wall-clock hunt refresh active while input remains optional")
 	check_touch_targets(scene, "hunt incident")
 
 	state.player = state.default_player()

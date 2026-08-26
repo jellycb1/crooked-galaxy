@@ -15,6 +15,7 @@ const MissionRulesScript = preload("res://scripts/mission_rules.gd")
 const ChallengeRulesScript = preload("res://scripts/challenge_rules.gd")
 const AccountRulesScript = preload("res://scripts/account_rules.gd")
 const AccountServiceScript = preload("res://scripts/account_service.gd")
+const HuntTimingRulesScript = preload("res://scripts/hunt_timing_rules.gd")
 
 signal changed
 signal combat_event(message: String)
@@ -52,6 +53,7 @@ var afk_report: Dictionary = {}
 var save_warning := ""
 var save_recovery_required := false
 var onboarding_gate_enabled := false
+var mission_ready_feedback_pending := false
 var account_service = AccountServiceScript.new()
 
 
@@ -531,23 +533,22 @@ func cancel_briefing() -> void:
 
 
 func hunt_progress() -> float:
-	if phase != Phase.HUNT:
+	if phase != Phase.HUNT and phase != Phase.HUNT_EVENT:
 		return 0.0
-	var duration := maxf(0.1, hunt_ends_at - hunt_started_at)
-	return clampf(1.0 - (hunt_ends_at - Time.get_unix_time_from_system()) / duration, 0.0, 1.0)
+	return HuntTimingRulesScript.progress(Time.get_unix_time_from_system(), hunt_started_at, hunt_ends_at)
 
 
 func update_hunt() -> bool:
-	if phase != Phase.HUNT:
+	if phase != Phase.HUNT and phase != Phase.HUNT_EVENT:
 		return false
 	var now := Time.get_unix_time_from_system()
-	if now >= hunt_ends_at:
-		begin_combat()
+	if HuntTimingRulesScript.is_complete(now, hunt_ends_at):
+		begin_combat(true)
 		return true
-	if not hunt_event_triggered and hunt_progress() >= 0.45:
+	if phase == Phase.HUNT and not hunt_event_triggered and hunt_progress() >= 0.45:
 		hunt_event_triggered = true
 		hunt_elapsed_before_event = maxf(0.0, now - hunt_started_at)
-		hunt_remaining_after_event = maxf(0.1, hunt_ends_at - now)
+		hunt_remaining_after_event = maxf(0.1, HuntTimingRulesScript.remaining(now, hunt_ends_at))
 		phase = Phase.HUNT_EVENT
 		save_game()
 		changed.emit()
@@ -572,8 +573,18 @@ func resolve_hunt_event(choice_id: String) -> bool:
 		current_bounty = ContentDB.apply_hunt_choice(current_bounty, choice)
 		var duration_add := float(choice.get("duration_add", 0.0))
 		var now := Time.get_unix_time_from_system()
-		hunt_started_at = now - hunt_elapsed_before_event
-		hunt_ends_at = now + hunt_remaining_after_event + duration_add
+		if not HuntTimingRulesScript.interval_is_valid(hunt_started_at, hunt_ends_at):
+			# Compatibility for old paused-event saves and isolated fixtures. New
+			# incidents always retain their original wall-clock deadline.
+			hunt_started_at = now - maxf(0.0, hunt_elapsed_before_event)
+			hunt_ends_at = now + maxf(0.1, hunt_remaining_after_event)
+		# Incidents never pause the authoritative mission clock. A voluntary
+		# detour extends the existing deadline, while time spent deciding is real.
+		hunt_ends_at = HuntTimingRulesScript.extend_deadline(hunt_ends_at, duration_add)
+		hunt_remaining_after_event = HuntTimingRulesScript.remaining(now, hunt_ends_at)
+		if HuntTimingRulesScript.is_complete(now, hunt_ends_at):
+			begin_combat(true)
+			return true
 		phase = Phase.HUNT
 		save_game()
 		changed.emit()
@@ -581,7 +592,7 @@ func resolve_hunt_event(choice_id: String) -> bool:
 	return false
 
 
-func begin_combat() -> void:
+func begin_combat(arrived_from_hunt := false) -> void:
 	phase = Phase.COMBAT
 	player_hp = CoreRules.max_health(player)
 	enemy_hp = int(current_bounty.health)
@@ -603,6 +614,9 @@ func begin_combat() -> void:
 		"defense_bypassed": 0,
 		"target_max_health": int(current_bounty.health),
 	}
+	if arrived_from_hunt:
+		combat_summary.arrived_from_hunt = true
+	mission_ready_feedback_pending = arrived_from_hunt
 	var kit_origin := CoreRules.equipment_set_origin(player)
 	if not kit_origin.is_empty():
 		combat_summary.kit_origin = kit_origin
@@ -612,6 +626,13 @@ func begin_combat() -> void:
 	last_combat_won = false
 	save_game()
 	changed.emit()
+
+
+func consume_mission_ready_feedback() -> bool:
+	if not mission_ready_feedback_pending:
+		return false
+	mission_ready_feedback_pending = false
+	return true
 
 
 func combat_step() -> Dictionary:
@@ -1323,6 +1344,7 @@ func abandon_bounty() -> void:
 
 func reset_progress() -> void:
 	save_recovery_required = false
+	mission_ready_feedback_pending = false
 	account = {}
 	player = default_player()
 	phase = Phase.BOARD
@@ -1464,6 +1486,7 @@ func load_game() -> void:
 	afk_report = {}
 	save_warning = ""
 	save_recovery_required = false
+	mission_ready_feedback_pending = false
 	player = default_player()
 	account = {}
 	phase = Phase.BOARD
@@ -1583,8 +1606,8 @@ func load_game() -> void:
 	if int(offline_rewards.credits) > 0 or int(offline_rewards.scrap) > 0:
 		# Persist immediately so an abrupt close cannot claim the same patrol twice.
 		save_game()
-	if phase == Phase.HUNT and Time.get_unix_time_from_system() >= hunt_ends_at:
-		begin_combat()
+	if (phase == Phase.HUNT or phase == Phase.HUNT_EVENT) and Time.get_unix_time_from_system() >= hunt_ends_at:
+		begin_combat(true)
 	elif phase == Phase.COMBAT:
 		# Combat resumes safely from its saved health values.
 		player_hp = maxi(1, player_hp)
@@ -1918,6 +1941,8 @@ func canonicalize_loaded_combat_summary(loaded: Dictionary) -> Dictionary:
 		"defense_bypassed": maxi(0, int(loaded.get("defense_bypassed", 0))),
 		"target_max_health": target_max,
 	}
+	if bool(loaded.get("arrived_from_hunt", false)):
+		summary.arrived_from_hunt = true
 	var kit_origin := str(loaded.get("kit_origin", ""))
 	if ContentDB.PLANETS.any(func(planet): return str(planet.id) == kit_origin):
 		summary.kit_origin = kit_origin
@@ -2099,17 +2124,12 @@ func reconcile_loaded_phase() -> bool:
 		Phase.CHAPTER_COMPLETE:
 			phase_has_required_state = not chapter_completion.is_empty()
 	if phase_has_required_state:
-		if phase == Phase.HUNT:
+		if phase == Phase.HUNT or phase == Phase.HUNT_EVENT:
 			var now := Time.get_unix_time_from_system()
-			if hunt_started_at <= 0.0 or hunt_ends_at <= hunt_started_at:
-				hunt_started_at = now
-				hunt_ends_at = now + TransportRulesScript.effective_mission_duration(player, current_bounty)
-				repaired = true
-			elif hunt_started_at > now:
-				var saved_duration := maxf(0.1, hunt_ends_at - hunt_started_at)
-				hunt_started_at = now
-				hunt_ends_at = now + saved_duration
-				repaired = true
+			var interval := HuntTimingRulesScript.repaired_interval(now, hunt_started_at, hunt_ends_at, TransportRulesScript.effective_mission_duration(player, current_bounty))
+			hunt_started_at = float(interval.started_at)
+			hunt_ends_at = float(interval.ends_at)
+			repaired = bool(interval.repaired) or repaired
 		if phase == Phase.HUNT_EVENT:
 			if hunt_elapsed_before_event < 0.0 or hunt_remaining_after_event < 0.0:
 				hunt_elapsed_before_event = maxf(0.0, hunt_elapsed_before_event)

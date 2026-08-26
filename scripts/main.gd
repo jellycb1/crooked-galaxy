@@ -24,6 +24,7 @@ const LocaleRulesScript = preload("res://scripts/locale_rules.gd")
 const PlanetIconScript = preload("res://scripts/planet_icon.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const MissionRulesScript = preload("res://scripts/mission_rules.gd")
+const AndroidFeedbackScript = preload("res://scripts/android_feedback.gd")
 const HuntChoiceIconScript = preload("res://scripts/hunt_choice_icon.gd")
 const HubDestinationIconScript = preload("res://scripts/hub_destination_icon.gd")
 const NavigationDockScript = preload("res://scripts/navigation_dock.gd")
@@ -142,9 +143,9 @@ func set_lifecycle_suspension(reason: String, suspended: bool) -> void:
 			suspended_victory_time_left = maxf(0.05, victory_timer.time_left)
 			victory_timer.stop()
 		return
-	if GameState.phase == GameState.Phase.HUNT:
+	if GameState.phase == GameState.Phase.HUNT or GameState.phase == GameState.Phase.HUNT_EVENT:
 		on_hunt_timer()
-		if GameState.phase == GameState.Phase.HUNT and hunt_timer != null:
+		if (GameState.phase == GameState.Phase.HUNT or GameState.phase == GameState.Phase.HUNT_EVENT) and hunt_timer != null:
 			hunt_timer.start()
 	if GameState.phase == GameState.Phase.COMBAT and combat_timer != null:
 		combat_timer.start()
@@ -325,11 +326,13 @@ func render() -> void:
 			victory_timer.start()
 	else:
 		victory_timer.stop()
-	if GameState.phase == GameState.Phase.HUNT and not timed_actions_suspended:
+	if (GameState.phase == GameState.Phase.HUNT or GameState.phase == GameState.Phase.HUNT_EVENT) and not timed_actions_suspended:
 		if hunt_timer.is_stopped():
 			hunt_timer.start()
 	else:
 		hunt_timer.stop()
+	if GameState.phase == GameState.Phase.COMBAT and GameState.consume_mission_ready_feedback():
+		AndroidFeedbackScript.mission_ready(t("MISSION_READY_ANDROID", "Alvo localizado. O combate está pronto."))
 	call_deferred("restore_action_focus", previous_focus_name, current_generation)
 
 
@@ -1654,7 +1657,7 @@ func build_hunt_event() -> void:
 	heading_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	event_heading.add_child(heading_copy)
 	heading_copy.add_child(label(t("HUNT_EVENT_TITLE", "IMPREVISTO NA CAÇADA"), 17, CORAL))
-	heading_copy.add_child(label(t("HUNT_EVENT_PAUSED", "DECISÃO DE CAMPO · A CAÇA ESTÁ PAUSADA"), 11, MUTED))
+	heading_copy.add_child(label(t("HUNT_EVENT_PAUSED", "DECISÃO EM MOVIMENTO · A CAÇA CONTINUA"), 11, MUTED))
 	var field_test_record := field_test_record_label("IncidentFieldTestContext")
 	if field_test_record != null:
 		content.add_child(field_test_record)
@@ -1681,9 +1684,8 @@ func build_hunt_event() -> void:
 	var description := label(localized_content_field("hunt_event", event, "description"), 13, MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	incident_box.add_child(description)
-	var paused_duration := maxf(0.1, GameState.hunt_elapsed_before_event + GameState.hunt_remaining_after_event)
-	var paused_percent := roundi(100.0 * GameState.hunt_elapsed_before_event / paused_duration)
-	var pause_status := label(t("HUNT_EVENT_PAUSE_STATUS", "CAÇA PAUSADA EM %d%% · %ds RESTANTES APÓS A ESCOLHA", [paused_percent, ceili(GameState.hunt_remaining_after_event)]), 11, GOLD)
+	var remaining := maxi(0, ceili(GameState.hunt_ends_at - Time.get_unix_time_from_system()))
+	var pause_status := label(t("HUNT_EVENT_PAUSE_STATUS", "ROTA EM CURSO · %s RESTANTES · IGNORAR = SEM ALTERAÇÃO", [format_hunt_duration(remaining)]), 11, GOLD)
 	pause_status.name = "HuntEventPauseStatus"
 	incident_box.add_child(pause_status)
 
@@ -1771,6 +1773,10 @@ func build_combat() -> void:
 	dossier_copy.alignment = BoxContainer.ALIGNMENT_CENTER
 	dossier_row.add_child(dossier_copy)
 	dossier_copy.add_child(label(t("COMBAT_RIFT_COMBAT", "COMBATE DA FENDA") if challenge_combat else t("COMBAT_AUTOMATIC_ENCOUNTER", "ENCONTRO AUTOMÁTICO"), 10, MUTED))
+	if bool(GameState.combat_summary.get("arrived_from_hunt", false)):
+		var ready_status := label(t("COMBAT_HUNT_COMPLETE", "TEMPO CONCLUÍDO · ALVO LOCALIZADO"), 10, LIME)
+		ready_status.name = "CombatHuntComplete"
+		dossier_copy.add_child(ready_status)
 	dossier_copy.add_child(label(t("COMBAT_TURN_APPROACH", "TURNO %d · %s", [GameState.combat_round, approach_name]), 15, CORAL))
 	if not challenge_combat:
 		var combat_profile_id := EnemyProfileRulesScript.profile_id_for(GameState.current_bounty)
@@ -2050,9 +2056,15 @@ func fighter(title: String, character_id: String, hp: int, maximum: int, color: 
 
 
 func on_hunt_timer() -> void:
-	if GameState.phase != GameState.Phase.HUNT:
+	if GameState.phase != GameState.Phase.HUNT and GameState.phase != GameState.Phase.HUNT_EVENT:
 		return
 	if GameState.update_hunt():
+		return
+	if GameState.phase == GameState.Phase.HUNT_EVENT:
+		var event_status := find_child("HuntEventPauseStatus", true, false) as Label
+		if event_status:
+			var event_remaining := maxi(0, ceili(GameState.hunt_ends_at - Time.get_unix_time_from_system()))
+			event_status.text = t("HUNT_EVENT_PAUSE_STATUS", "ROTA EM CURSO · %s RESTANTES · IGNORAR = SEM ALTERAÇÃO", [format_hunt_duration(event_remaining)])
 		return
 	var progress := find_child("HuntProgress", true, false) as ProgressBar
 	var countdown := find_child("HuntCountdown", true, false) as Label

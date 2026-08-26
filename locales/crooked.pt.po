@@ -960,13 +960,13 @@ msgid "HUNT_EVENT_TITLE"
 msgstr "IMPREVISTO NA CAÇADA"
 
 msgid "HUNT_EVENT_PAUSED"
-msgstr "DECISÃO DE CAMPO · A CAÇA ESTÁ PAUSADA"
+msgstr "DECISÃO EM MOVIMENTO · A CAÇA CONTINUA"
 
 msgid "HUNT_EVENT_SIGNAL"
 msgstr "SINAL"
 
 msgid "HUNT_EVENT_PAUSE_STATUS"
-msgstr "CAÇA PAUSADA EM %d%% · %ds RESTANTES APÓS A ESCOLHA"
+msgstr "ROTA EM CURSO · %s RESTANTES · IGNORAR = SEM ALTERAÇÃO"
 
 msgid "HUNT_EVENT_VICTORY_PAYMENT"
 msgstr "VITÓRIA ◈ %d"
@@ -979,6 +979,12 @@ msgstr " · LÍQUIDO ◈ %d"
 
 msgid "HUNT_EVENT_CHOOSE"
 msgstr "ESCOLHER"
+
+msgid "MISSION_READY_ANDROID"
+msgstr "Alvo localizado. O combate está pronto."
+
+msgid "COMBAT_HUNT_COMPLETE"
+msgstr "TEMPO CONCLUÍDO · ALVO LOCALIZADO"
 
 msgid "HUNT_EVENT_MISSING_CREDITS"
 msgstr "FALTAM %d CR"
@@ -1002,7 +1008,7 @@ msgid "HUNT_EVENT_TOLL_DRONE_CHOICE_DETOUR_NAME"
 msgstr "PEGAR O DESVIO"
 
 msgid "HUNT_EVENT_TOLL_DRONE_CHOICE_DETOUR_EFFECT_TEXT"
-msgstr "+2s de caça, mas o alvo perde 12% de vida."
+msgstr "+45s de caça, mas o alvo perde 12% de vida."
 
 msgid "HUNT_EVENT_TOLL_DRONE_CHOICE_DETOUR_RESULT"
 msgstr "O desvio terminou atrás do alvo. Pela primeira vez, uma placa ajudou."
@@ -1044,7 +1050,7 @@ msgid "HUNT_EVENT_BOUNTY_STREAMER_CHOICE_WAVE_NAME"
 msgstr "MANDAR UM JOINHA"
 
 msgid "HUNT_EVENT_BOUNTY_STREAMER_CHOICE_WAVE_EFFECT_TEXT"
-msgstr "+1s de caça e +8% créditos pela publicidade."
+msgstr "+30s de caça e +8% créditos pela publicidade."
 
 msgid "HUNT_EVENT_BOUNTY_STREAMER_CHOICE_WAVE_RESULT"
 msgstr "O joinha virou patrocínio. Ninguém sabe por quê."
@@ -1068,7 +1074,7 @@ msgid "HUNT_EVENT_HEAT_INSPECTOR_CHOICE_FAKE_BADGE_NAME"
 msgstr "FALSIFICAR UM CRACHÁ"
 
 msgid "HUNT_EVENT_HEAT_INSPECTOR_CHOICE_FAKE_BADGE_EFFECT_TEXT"
-msgstr "+2s de caça e +18% XP pela experiência corporativa."
+msgstr "+45s de caça e +18% XP pela experiência corporativa."
 
 msgid "HUNT_EVENT_HEAT_INSPECTOR_CHOICE_FAKE_BADGE_RESULT"
 msgstr "Seu novo cargo é Vice-Caçador Sênior. Ninguém pediu referências."
@@ -1101,7 +1107,7 @@ msgid "HUNT_EVENT_CORPORATE_AVALANCHE_CHOICE_CLIMB_SHELF_NAME"
 msgstr "ESCALAR A GELEIRA"
 
 msgid "HUNT_EVENT_CORPORATE_AVALANCHE_CHOICE_CLIMB_SHELF_EFFECT_TEXT"
-msgstr "+3s de caça e +20% XP por treinamento não solicitado."
+msgstr "+60s de caça e +20% XP por treinamento não solicitado."
 
 msgid "HUNT_EVENT_CORPORATE_AVALANCHE_CHOICE_CLIMB_SHELF_RESULT"
 msgstr "Você escalou a nova hierarquia glacial sem uma única reunião."
@@ -1134,7 +1140,7 @@ msgid "HUNT_EVENT_SPORE_CUSTOMS_CHOICE_DECLARE_LUNGS_NAME"
 msgstr "DECLARAR OS PULMÕES"
 
 msgid "HUNT_EVENT_SPORE_CUSTOMS_CHOICE_DECLARE_LUNGS_EFFECT_TEXT"
-msgstr "+3s de caça e +20% XP por preencher anatomia em triplicado."
+msgstr "+60s de caça e +20% XP por preencher anatomia em triplicado."
 
 msgid "HUNT_EVENT_SPORE_CUSTOMS_CHOICE_DECLARE_LUNGS_RESULT"
 msgstr "Seus pulmões agora constam como bagagem de mão regulamentar."
@@ -1167,7 +1173,7 @@ msgid "HUNT_EVENT_SENTIENT_SHORTCUT_CHOICE_TELL_STORY_NAME"
 msgstr "CONTAR UMA HISTÓRIA"
 
 msgid "HUNT_EVENT_SENTIENT_SHORTCUT_CHOICE_TELL_STORY_EFFECT_TEXT"
-msgstr "+2s de caça e +18% XP pela terapia vegetal."
+msgstr "+45s de caça e +18% XP pela terapia vegetal."
 
 msgid "HUNT_EVENT_SENTIENT_SHORTCUT_CHOICE_TELL_STORY_RESULT"
 msgstr "A trilha chorou seiva e indicou uma rota emocionalmente mais curta."
@@ -1200,7 +1206,7 @@ msgid "HUNT_EVENT_MAGNETIC_STORM_CHOICE_FOLLOW_DEBRIS_NAME"
 msgstr "SEGUIR OS DESTROÇOS"
 
 msgid "HUNT_EVENT_MAGNETIC_STORM_CHOICE_FOLLOW_DEBRIS_EFFECT_TEXT"
-msgstr "+3s de caça e +20% XP em arqueologia automotiva."
+msgstr "+60s de caça e +20% XP em arqueologia automotiva."
 
 msgid "HUNT_EVENT_MAGNETIC_STORM_CHOICE_FOLLOW_DEBRIS_RESULT"
 msgstr "Os destroços formaram uma seta, um imposto e depois outra seta."
@@ -1233,7 +1239,7 @@ msgid "HUNT_EVENT_WARRANTY_GHOST_CHOICE_READ_FINE_PRINT_NAME"
 msgstr "LER AS LETRAS MIÚDAS"
 
 msgid "HUNT_EVENT_WARRANTY_GHOST_CHOICE_READ_FINE_PRINT_EFFECT_TEXT"
-msgstr "+2s de caça e +18% XP em direito de oficina."
+msgstr "+45s de caça e +18% XP em direito de oficina."
 
 msgid "HUNT_EVENT_WARRANTY_GHOST_CHOICE_READ_FINE_PRINT_RESULT"
 msgstr "Na cláusula 9001, o alvo aparece listado como defeito de fabricação."
@@ -1266,7 +1272,7 @@ msgid "HUNT_EVENT_GRAVITY_ROULETTE_CHOICE_RIDE_SPIN_NAME"
 msgstr "SEGUIR O GIRO"
 
 msgid "HUNT_EVENT_GRAVITY_ROULETTE_CHOICE_RIDE_SPIN_EFFECT_TEXT"
-msgstr "+3s de caça e +20% XP em física recreativa."
+msgstr "+60s de caça e +20% XP em física recreativa."
 
 msgid "HUNT_EVENT_GRAVITY_ROULETTE_CHOICE_RIDE_SPIN_RESULT"
 msgstr "Três voltas depois, você entende gravidade e desaprova a gerência."
@@ -1299,7 +1305,7 @@ msgid "HUNT_EVENT_LUCK_INSPECTOR_CHOICE_AUDIT_ODDS_NAME"
 msgstr "AUDITAR AS ODDS"
 
 msgid "HUNT_EVENT_LUCK_INSPECTOR_CHOICE_AUDIT_ODDS_EFFECT_TEXT"
-msgstr "+2s de caça e +18% XP por matemática hostil."
+msgstr "+45s de caça e +18% XP por matemática hostil."
 
 msgid "HUNT_EVENT_LUCK_INSPECTOR_CHOICE_AUDIT_ODDS_RESULT"
 msgstr "As contas fecham. O cassino abre outra planilha para contestar."

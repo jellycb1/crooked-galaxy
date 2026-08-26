@@ -960,13 +960,13 @@ msgid "HUNT_EVENT_TITLE"
 msgstr "HUNT INCIDENT"
 
 msgid "HUNT_EVENT_PAUSED"
-msgstr "FIELD DECISION · HUNT PAUSED"
+msgstr "DECISION IN MOTION · HUNT CONTINUES"
 
 msgid "HUNT_EVENT_SIGNAL"
 msgstr "SIGNAL"
 
 msgid "HUNT_EVENT_PAUSE_STATUS"
-msgstr "HUNT PAUSED AT %d%% · %ds REMAIN AFTER YOUR CHOICE"
+msgstr "ROUTE ACTIVE · %s LEFT · IGNORE = NO CHANGE"
 
 msgid "HUNT_EVENT_VICTORY_PAYMENT"
 msgstr "VICTORY ◈ %d"
@@ -979,6 +979,12 @@ msgstr " · NET ◈ %d"
 
 msgid "HUNT_EVENT_CHOOSE"
 msgstr "CHOOSE"
+
+msgid "MISSION_READY_ANDROID"
+msgstr "Target located. Combat is ready."
+
+msgid "COMBAT_HUNT_COMPLETE"
+msgstr "TIMER COMPLETE · TARGET LOCATED"
 
 msgid "HUNT_EVENT_MISSING_CREDITS"
 msgstr "NEED %d CR"
@@ -1002,7 +1008,7 @@ msgid "HUNT_EVENT_TOLL_DRONE_CHOICE_DETOUR_NAME"
 msgstr "TAKE THE DETOUR"
 
 msgid "HUNT_EVENT_TOLL_DRONE_CHOICE_DETOUR_EFFECT_TEXT"
-msgstr "+2s hunt time, but the target loses 12% health."
+msgstr "+45s hunt time, but the target loses 12% health."
 
 msgid "HUNT_EVENT_TOLL_DRONE_CHOICE_DETOUR_RESULT"
 msgstr "The detour ended behind the target. For once, a road sign helped."
@@ -1044,7 +1050,7 @@ msgid "HUNT_EVENT_BOUNTY_STREAMER_CHOICE_WAVE_NAME"
 msgstr "GIVE A THUMBS-UP"
 
 msgid "HUNT_EVENT_BOUNTY_STREAMER_CHOICE_WAVE_EFFECT_TEXT"
-msgstr "+1s hunt time and +8% credits from advertising."
+msgstr "+30s hunt time and +8% credits from advertising."
 
 msgid "HUNT_EVENT_BOUNTY_STREAMER_CHOICE_WAVE_RESULT"
 msgstr "The thumbs-up became a sponsorship. Nobody knows why."
@@ -1068,7 +1074,7 @@ msgid "HUNT_EVENT_HEAT_INSPECTOR_CHOICE_FAKE_BADGE_NAME"
 msgstr "FORGE A BADGE"
 
 msgid "HUNT_EVENT_HEAT_INSPECTOR_CHOICE_FAKE_BADGE_EFFECT_TEXT"
-msgstr "+2s hunt time and +18% XP for corporate experience."
+msgstr "+45s hunt time and +18% XP for corporate experience."
 
 msgid "HUNT_EVENT_HEAT_INSPECTOR_CHOICE_FAKE_BADGE_RESULT"
 msgstr "Your new title is Senior Deputy Hunter. Nobody asked for references."
@@ -1101,7 +1107,7 @@ msgid "HUNT_EVENT_CORPORATE_AVALANCHE_CHOICE_CLIMB_SHELF_NAME"
 msgstr "CLIMB THE GLACIER"
 
 msgid "HUNT_EVENT_CORPORATE_AVALANCHE_CHOICE_CLIMB_SHELF_EFFECT_TEXT"
-msgstr "+3s hunt time and +20% XP from unsolicited training."
+msgstr "+60s hunt time and +20% XP from unsolicited training."
 
 msgid "HUNT_EVENT_CORPORATE_AVALANCHE_CHOICE_CLIMB_SHELF_RESULT"
 msgstr "You climbed the new glacial hierarchy without a single meeting."
@@ -1134,7 +1140,7 @@ msgid "HUNT_EVENT_SPORE_CUSTOMS_CHOICE_DECLARE_LUNGS_NAME"
 msgstr "DECLARE YOUR LUNGS"
 
 msgid "HUNT_EVENT_SPORE_CUSTOMS_CHOICE_DECLARE_LUNGS_EFFECT_TEXT"
-msgstr "+3s hunt time and +20% XP for filing anatomy in triplicate."
+msgstr "+60s hunt time and +20% XP for filing anatomy in triplicate."
 
 msgid "HUNT_EVENT_SPORE_CUSTOMS_CHOICE_DECLARE_LUNGS_RESULT"
 msgstr "Your lungs are now registered as regulation carry-on luggage."
@@ -1167,7 +1173,7 @@ msgid "HUNT_EVENT_SENTIENT_SHORTCUT_CHOICE_TELL_STORY_NAME"
 msgstr "TELL A STORY"
 
 msgid "HUNT_EVENT_SENTIENT_SHORTCUT_CHOICE_TELL_STORY_EFFECT_TEXT"
-msgstr "+2s hunt time and +18% XP for botanical therapy."
+msgstr "+45s hunt time and +18% XP for botanical therapy."
 
 msgid "HUNT_EVENT_SENTIENT_SHORTCUT_CHOICE_TELL_STORY_RESULT"
 msgstr "The trail cried sap and pointed out an emotionally shorter route."
@@ -1200,7 +1206,7 @@ msgid "HUNT_EVENT_MAGNETIC_STORM_CHOICE_FOLLOW_DEBRIS_NAME"
 msgstr "FOLLOW THE DEBRIS"
 
 msgid "HUNT_EVENT_MAGNETIC_STORM_CHOICE_FOLLOW_DEBRIS_EFFECT_TEXT"
-msgstr "+3s hunt time and +20% XP in automotive archaeology."
+msgstr "+60s hunt time and +20% XP in automotive archaeology."
 
 msgid "HUNT_EVENT_MAGNETIC_STORM_CHOICE_FOLLOW_DEBRIS_RESULT"
 msgstr "The debris formed an arrow, a tax bill, then another arrow."
@@ -1233,7 +1239,7 @@ msgid "HUNT_EVENT_WARRANTY_GHOST_CHOICE_READ_FINE_PRINT_NAME"
 msgstr "READ THE FINE PRINT"
 
 msgid "HUNT_EVENT_WARRANTY_GHOST_CHOICE_READ_FINE_PRINT_EFFECT_TEXT"
-msgstr "+2s hunt time and +18% XP in workshop law."
+msgstr "+45s hunt time and +18% XP in workshop law."
 
 msgid "HUNT_EVENT_WARRANTY_GHOST_CHOICE_READ_FINE_PRINT_RESULT"
 msgstr "Clause 9001 lists the target as a manufacturing defect."
@@ -1266,7 +1272,7 @@ msgid "HUNT_EVENT_GRAVITY_ROULETTE_CHOICE_RIDE_SPIN_NAME"
 msgstr "RIDE THE SPIN"
 
 msgid "HUNT_EVENT_GRAVITY_ROULETTE_CHOICE_RIDE_SPIN_EFFECT_TEXT"
-msgstr "+3s hunt time and +20% XP in recreational physics."
+msgstr "+60s hunt time and +20% XP in recreational physics."
 
 msgid "HUNT_EVENT_GRAVITY_ROULETTE_CHOICE_RIDE_SPIN_RESULT"
 msgstr "Three spins later, you understand gravity and disapprove of management."
@@ -1299,7 +1305,7 @@ msgid "HUNT_EVENT_LUCK_INSPECTOR_CHOICE_AUDIT_ODDS_NAME"
 msgstr "AUDIT THE ODDS"
 
 msgid "HUNT_EVENT_LUCK_INSPECTOR_CHOICE_AUDIT_ODDS_EFFECT_TEXT"
-msgstr "+2s hunt time and +18% XP for hostile mathematics."
+msgstr "+45s hunt time and +18% XP for hostile mathematics."
 
 msgid "HUNT_EVENT_LUCK_INSPECTOR_CHOICE_AUDIT_ODDS_RESULT"
 msgstr "The numbers balance. The casino opens another spreadsheet to dispute them."

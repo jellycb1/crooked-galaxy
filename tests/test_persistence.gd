@@ -155,7 +155,7 @@ func _init() -> void:
 	restored_event.load_game()
 	check(restored_event.phase == restored_event.Phase.HUNT_EVENT, "mid-hunt incident survives save and load")
 	check(str(restored_event.hunt_event.id) == "bounty_streamer", "incident content is restored")
-	check(is_equal_approx(restored_event.hunt_remaining_after_event, 5.0), "paused hunt time is restored")
+	check(is_equal_approx(restored_event.hunt_remaining_after_event, 5.0), "incident compatibility timing metadata is restored")
 	check(not bool(restored_event.current_bounty.field_test_context.overridden) and str(restored_event.current_bounty.field_test_context.tested_approach_id) == "quiet_net", "confirmed field-test route survives an interrupted hunt")
 	var event_credits_before := int(restored_event.player.credits)
 	check(restored_event.resolve_hunt_event("jam_signal"), "restored incident can atomically apply its paid choice")
