@@ -840,11 +840,19 @@ func bounty_offer_selector(bounty: Dictionary, offer_index: int, selected: bool)
 	var accent := GOLD if selected else Color(str(destination.accent))
 	var selector := action_button(localized_content_field("target", bounty, "name"), accent, true)
 	selector.name = "BoardOfferSelector_%d" % offer_index
-	selector.custom_minimum_size = Vector2(0, 116)
+	selector.custom_minimum_size = Vector2(0, 128)
 	selector.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	selector.tooltip_text = "%s · %s" % [localized_content_field("target", bounty, "name"), localized_content_field("planet", destination, "name")]
 	for theme_color in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
 		selector.add_theme_color_override(theme_color, Color.TRANSPARENT)
+	if selected:
+		var selected_style := box_style(Color("#33290f"), 14)
+		selected_style.border_width_left = 3
+		selected_style.border_width_top = 3
+		selected_style.border_width_right = 3
+		selected_style.border_width_bottom = 3
+		selected_style.border_color = GOLD
+		selector.add_theme_stylebox_override("normal", selected_style)
 
 	var inset := MarginContainer.new()
 	inset.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -863,13 +871,28 @@ func bounty_offer_selector(bounty: Dictionary, offer_index: int, selected: bool)
 	portrait.name = "BoardOfferPortrait_%d" % offer_index
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	copy.add_child(portrait)
+	var target_name := label(localized_content_field("target", bounty, "name"), 9, GOLD if selected else INK, HORIZONTAL_ALIGNMENT_CENTER)
+	target_name.name = "BoardOfferTarget_%d" % offer_index
+	target_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	target_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	copy.add_child(target_name)
 	var planet_name := label(localized_content_field("planet", destination, "name").to_upper(), 9, accent, HORIZONTAL_ALIGNMENT_CENTER)
 	planet_name.name = "BoardOfferPlanet_%d" % offer_index
 	planet_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	planet_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	copy.add_child(planet_name)
+	var odds := CoreRules.bounty_odds(GameState.player, bounty)
+	var odds_color := LIME if odds >= 0.72 else (GOLD if odds >= 0.42 else CORAL)
+	var role_id := str(bounty.get("mission_role", "standard"))
+	var role_short := t("BOARD_ROLE_SAFE_SHORT", "ROTINA") if role_id == "safe" else (t("BOARD_ROLE_DANGEROUS_SHORT", "ALTO VALOR") if role_id == "dangerous" else t("BOARD_ROLE_STANDARD_SHORT", "PRIORIDADE"))
+	var comparison := label("%s%s · %d%%" % ["◆ " if selected else "", role_short, roundi(odds * 100.0)], 9, odds_color, HORIZONTAL_ALIGNMENT_CENTER)
+	comparison.name = "BoardOfferOdds_%d" % offer_index
+	comparison.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	comparison.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	copy.add_child(comparison)
 	var duration := TransportRulesScript.effective_mission_duration(GameState.player, bounty)
-	var summary := label("◈ %d · %s" % [int(bounty.credits), format_hunt_duration(duration)], 10, INK, HORIZONTAL_ALIGNMENT_CENTER)
+	var payout := CoreRules.bounty_streak_reward(int(bounty.credits), int(GameState.player.get("capture_streak", 0)) + 1)
+	var summary := label("◈ %d · %s" % [int(payout.credits), format_hunt_duration(duration)], 10, INK, HORIZONTAL_ALIGNMENT_CENTER)
 	summary.name = "BoardOfferSummary_%d" % offer_index
 	summary.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	summary.mouse_filter = Control.MOUSE_FILTER_IGNORE

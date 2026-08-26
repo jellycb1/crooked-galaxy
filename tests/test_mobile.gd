@@ -253,6 +253,7 @@ func run_mobile_audit() -> void:
 	scene.render()
 	await process_frame
 	check(scene.find_children("BoardOfferSelector_*", "Button", true, false).size() == 3 and scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "established mobile hunters compare three tickets above one dossier")
+	check(scene.find_children("BoardOfferTarget_*", "Label", true, false).size() == 3 and scene.find_children("BoardOfferOdds_*", "Label", true, false).size() == 3 and scene.find_children("BoardOfferSummary_*", "Label", true, false).size() == 3, "mobile mission tickets retain target, risk, reward, and time comparison")
 	check_touch_targets(scene, "compact mission selector")
 	check(scene.find_children("PrimaryNav_*", "Button", true, false).size() == 5, "board exposes a stable five-destination game navigation dock")
 	check(["contracts", "arsenal", "hunter", "galaxy", "menu"].all(func(destination):

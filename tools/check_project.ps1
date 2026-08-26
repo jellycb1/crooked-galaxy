@@ -27,6 +27,8 @@ New-Item -ItemType Directory -Path $LogRoot -Force | Out-Null
 $Tests = @(
     "test_core.gd",
 	"test_mission_rules.gd",
+	"test_mission_pacing.gd",
+	"test_mission_network_compatibility.gd",
 	"test_performance_hotpaths.gd",
     "test_attributes.gd",
     "test_classes.gd",

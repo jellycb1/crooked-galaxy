@@ -18,9 +18,15 @@ func run() -> void:
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
-	for mode in ["board", "arsenal", "market", "hangar", "career", "career_archive", "galaxy", "attributes", "challenges", "board", "arsenal"]:
-		Rules.clear_bounty_odds_cache()
-		scene.view_mode = "career" if mode == "career_archive" else mode
+	for mode in ["board", "arsenal", "market", "hangar", "career", "career_archive", "galaxy", "attributes", "challenges", "board_network", "board_network_warm", "arsenal"]:
+		if mode != "board_network_warm":
+			Rules.clear_bounty_odds_cache()
+		if mode == "board_network" or mode == "board_network_warm":
+			state.player.wins = 7
+			state.player.level = 4
+		if mode == "board_network_warm":
+			scene.selected_board_offer_index = 1
+		scene.view_mode = "board" if mode.begins_with("board_network") else ("career" if mode == "career_archive" else mode)
 		if mode == "career" or mode == "career_archive":
 			scene.career_section = "archive" if mode == "career_archive" else "progress"
 		var started := Time.get_ticks_usec()

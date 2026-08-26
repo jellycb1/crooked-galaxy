@@ -20,6 +20,17 @@ func run_focus_audit() -> void:
 	root.add_child(scene)
 	await settle_focus()
 	check_screen_focus(scene, "bounty board")
+	state.player.wins = 1
+	scene.render()
+	await settle_focus()
+	var second_offer := scene.find_child("BoardOfferSelector_1", true, false) as Button
+	check(second_offer != null, "established board exposes the second mission ticket to controller focus")
+	if second_offer != null:
+		second_offer.grab_focus()
+		second_offer.pressed.emit()
+		await settle_focus()
+		var restored_offer_focus := root.get_viewport().gui_get_focus_owner()
+		check(scene.selected_board_offer_index == 1 and restored_offer_focus != null and str(restored_offer_focus.name) == "BoardOfferSelector_1", "ticket selection replaces the dossier and restores focus to the same compact choice")
 
 	for view_mode in ["galaxy", "career", "arsenal", "market", "attributes", "classes"]:
 		scene.view_mode = view_mode

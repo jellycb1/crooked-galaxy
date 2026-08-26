@@ -40,7 +40,34 @@ func _init() -> void:
 							role_ranges[str(offer.mission_role)].append(float(evaluation.odds))
 							break
 			print("    20-cycle recommended ranges · safe %s · standard %s · dangerous %s" % [range_text(role_ranges.safe), range_text(role_ranges.standard), range_text(role_ranges.dangerous)])
+	print_progression_timeline()
 	quit(0)
+
+
+static func print_progression_timeline() -> void:
+	var state := StateScript.new()
+	state.persistence_enabled = false
+	var player := state.default_player()
+	state.free()
+	var elapsed := 0.0
+	var known_worlds := Missions.available_planets(int(player.level)).size()
+	print("\nSTANDARD-OFFER WORLD DISCOVERY · no transport")
+	for _capture in 150:
+		var offers := Missions.board_offers(player)
+		if offers.size() < 2:
+			break
+		var offer: Dictionary = offers[1]
+		elapsed += Transport.effective_mission_duration(player, offer)
+		player.xp = int(player.xp) + int(offer.xp)
+		player.wins = int(player.wins) + 1
+		while int(player.xp) >= Rules.xp_needed(int(player.level)):
+			player.xp = int(player.xp) - Rules.xp_needed(int(player.level))
+			player.level = int(player.level) + 1
+		var next_worlds := Missions.available_planets(int(player.level)).size()
+		if next_worlds > known_worlds:
+			var planet := Missions.available_planets(int(player.level))[next_worlds - 1]
+			print("  %s · level %d · win %d · cumulative base wait %ds" % [str(planet.id), int(player.level), int(player.wins), roundi(elapsed)])
+			known_worlds = next_worlds
 
 
 static func representative_player(level: int, policy: Dictionary) -> Dictionary:
