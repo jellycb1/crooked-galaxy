@@ -234,9 +234,12 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 	var armor_power := int(player.get("armor", {}).get("power", 0))
 	var opening_damage := player_opening_damage(player)
 	var damage_reduction := player_damage_reduction(player)
-	var attack_roll_bonus := roundi((cunning_roll_bonus(player) + ClassRulesScript.specialization_attack_roll_bonus(player, BASE_ATTRIBUTE_VALUE)) * 1000.0)
+	var cunning_bonus := cunning_roll_bonus(player)
+	var class_attack_bonus := ClassRulesScript.specialization_attack_roll_bonus(player, BASE_ATTRIBUTE_VALUE)
+	var attack_roll_bonus := roundi((cunning_bonus + class_attack_bonus) * 1000.0)
 	var counter_damage := player_counter_damage(player, 12)
-	var evasion_chance := roundi(player_evasion_chance(player) * 1000.0)
+	var evasion_probability := player_evasion_chance(player)
+	var evasion_chance := roundi(evasion_probability * 1000.0)
 	var defense_bypass := player_defense_bypass(player)
 	var follow_up_ratio := roundi(equipment_trait_total(player, "follow_up_damage_ratio") * 1000.0)
 	var follow_up_threshold := roundi(equipment_trait_total(player, "follow_up_roll_threshold") * 1000.0)
@@ -251,6 +254,24 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 	var cache_key := "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d" % [hunter_health, hunter_power, armor_power, opening_damage, damage_reduction, attack_roll_bonus, counter_damage, evasion_chance, defense_bypass, follow_up_ratio, follow_up_threshold, target_power, target_defense, target_health, damage_reduction_piercing, opening_damage_multiplier, attack_roll_bonus_multiplier, defense_bypass_multiplier, counter_damage_multiplier]
 	if bounty_odds_cache.has(cache_key):
 		return float(bounty_odds_cache[cache_key])
+	# Everything below is invariant for all trials except the two random rolls and
+	# the round cadence. Precomputing it avoids repeating class lookups, attribute
+	# dictionaries, and nine-slot equipment scans tens of thousands of times on a
+	# single UI request. The simulation keeps the same seed, trials, and arithmetic.
+	var attack_multiplier := float(attack_roll_bonus_multiplier) / 1000.0
+	var effective_target_defense := maxi(0, target_defense - roundi(float(ClassRulesScript.specialization_defense_bypass(player, BASE_ATTRIBUTE_VALUE)) * float(defense_bypass_multiplier) / 1000.0))
+	var effective_opening_damage := roundi(float(opening_damage) * float(opening_damage_multiplier) / 1000.0)
+	var effective_damage_reduction := roundi(float(damage_reduction) * (1.0 - float(damage_reduction_piercing) / 1000.0))
+	var enemy_defense := armor_power + 3
+	var class_effects: Dictionary = ClassRulesScript.get_definition(str(player.get("class_id", ""))).get("effects", {})
+	var class_follow_up_threshold := float(class_effects.get("follow_up_roll_threshold", 2.0))
+	var class_follow_up_ratio := maxf(0.0, float(class_effects.get("follow_up_damage_ratio", 0.0)))
+	var equipment_follow_up_ratio := float(follow_up_ratio) / 1000.0
+	var equipment_follow_up_threshold := float(follow_up_threshold) / 1000.0
+	var counter_damage_by_round: Array[int] = []
+	counter_damage_by_round.resize(101)
+	for round_number in range(1, 101):
+		counter_damage_by_round[round_number] = player_counter_damage(player, round_number)
 	var rng := RandomNumberGenerator.new()
 	# Builds facing the same target share the exact roll stream. This common-random
 	# comparison prevents a real upgrade from displaying lower odds due to sample noise.
@@ -263,19 +284,28 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 		while player_hp > 0 and enemy_hp > 0 and rounds < 100:
 			rounds += 1
 			var player_roll := rng.randf()
-			var primary_damage := player_attack_damage(player, target_defense, player_roll, rounds, float(opening_damage_multiplier) / 1000.0, float(attack_roll_bonus_multiplier) / 1000.0, float(defense_bypass_multiplier) / 1000.0)
+			var adjusted_roll := clampf(player_roll + cunning_bonus + class_attack_bonus * attack_multiplier, 0.0, 1.0)
+			var primary_damage := damage_roll(hunter_power, effective_target_defense, adjusted_roll)
+			if rounds == 1:
+				primary_damage += effective_opening_damage
 			enemy_hp -= primary_damage
 			if enemy_hp <= 0:
 				wins += 1
 				break
-			var adjusted_roll := player_attack_roll(player, player_roll, float(attack_roll_bonus_multiplier) / 1000.0)
-			enemy_hp -= player_follow_up_damage(player, adjusted_roll, primary_damage)
+			var follow_up_damage := 0
+			if adjusted_roll >= class_follow_up_threshold:
+				follow_up_damage += maxi(1, roundi(float(primary_damage) * class_follow_up_ratio))
+			if equipment_follow_up_ratio > 0.0 and equipment_follow_up_threshold > 0.0 and adjusted_roll >= equipment_follow_up_threshold:
+				follow_up_damage += maxi(1, roundi(float(primary_damage) * equipment_follow_up_ratio))
+			enemy_hp -= follow_up_damage
 			if enemy_hp <= 0:
 				wins += 1
 				break
-			player_hp -= enemy_attack_damage(player, target_power, rng.randf(), float(damage_reduction_piercing) / 1000.0)
+			var enemy_roll := rng.randf()
+			if enemy_roll >= evasion_probability:
+				player_hp -= maxi(1, damage_roll(target_power, enemy_defense, enemy_roll) - effective_damage_reduction)
 			if player_hp > 0:
-				enemy_hp -= roundi(float(player_counter_damage(player, rounds)) * float(counter_damage_multiplier) / 1000.0)
+				enemy_hp -= roundi(float(counter_damage_by_round[rounds]) * float(counter_damage_multiplier) / 1000.0)
 				if enemy_hp <= 0:
 					wins += 1
 					break

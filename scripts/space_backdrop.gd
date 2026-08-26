@@ -4,6 +4,8 @@ extends Control
 var stars: Array[Dictionary] = []
 var planet_id := "dustball_prime":
 	set(value):
+		if planet_id == value:
+			return
 		planet_id = value
 		queue_redraw()
 

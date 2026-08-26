@@ -11,6 +11,7 @@ const CONTEXT_PATHS := {
 var texture_rect: TextureRect
 var scrim: ColorRect
 var loaded_context := ""
+var texture_cache: Dictionary = {}
 
 
 func _ready() -> void:
@@ -40,12 +41,15 @@ func show_context(context: String, planet_id := "") -> void:
 		visible = false
 		return
 	if context != loaded_context:
-		var texture := ResourceLoader.load(str(CONTEXT_PATHS[context]), "", ResourceLoader.CACHE_MODE_IGNORE) as Texture2D
+		var texture := texture_cache.get(context) as Texture2D
+		if texture == null:
+			texture = ResourceLoader.load(str(CONTEXT_PATHS[context]), "", ResourceLoader.CACHE_MODE_REUSE) as Texture2D
 		if texture == null:
 			texture_rect.texture = null
 			loaded_context = ""
 			visible = false
 			return
+		texture_cache[context] = texture
 		texture_rect.texture = texture
 		loaded_context = context
 	texture_rect.modulate = Color.WHITE.lerp(planet_tint(planet_id), 0.14)
