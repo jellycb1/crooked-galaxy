@@ -9,6 +9,8 @@ Generated with the built-in OpenAI image-generation workflow. No reference image
 | `assets/backgrounds/arsenal_workshop.png` | Arsenal, equipment recovery | Ramshackle mechanic bay; tool racks, coils and armor stands around a dark central workbench; orange/cyan lighting. |
 | `assets/backgrounds/frontier_arena.png` | Combat, victory | Empty landing-pad duel arena; scrap barricades, desert settlement and damaged freighter; violet dusk with warm hazard lights. |
 | `assets/classes/orbit_gunslinger_character_v1.png` | Orbit Gunslinger class choice and dossier | Species-neutral space-western hunter; navy patched coat, mustard scarf, sealed cyan visor, compact ray pistol; bold ink and cel shading on genuine transparency. |
+| `assets/classes/warrant_breaker_character_v1.png` | Warrant Breaker class choice and dossier | Species-neutral breach specialist; broad burgundy scrap armor, coral sealed visor, reinforced gauntlets and magnetic hammer; genuine transparency. |
+| `assets/classes/contract_hacker_character_v1.png` | Contract Hacker class choice and dossier | Fully sealed intrusion specialist; narrow hooded silhouette, cyan decoder, teal armor, probe and acidic-lime cabling; genuine transparency. |
 
 ## Production constraints
 
@@ -19,4 +21,4 @@ Generated with the built-in OpenAI image-generation workflow. No reference image
 - Environment detail remains near the frame; central contrast is controlled by `EnvironmentBackdrop` scrims.
 - Source PNGs are tracked production content and must remain included in both desktop and Android pack inspection.
 - Class illustrations use genuine transparency and remain separate from the player's modular species, appearance, and equipment portrait.
-- The first class illustration is an intentional vertical slice. Unillustrated classes keep their original vector emblems until equivalent assets meet the same silhouette and readability bar.
+- All three initial classes now have approved illustrations. Future or unavailable class art fails closed to the original vector emblem.

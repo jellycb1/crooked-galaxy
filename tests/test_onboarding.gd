@@ -87,6 +87,10 @@ func run_test() -> void:
 	scene.class_draft = "orbit_gunslinger"
 	scene.render()
 	check(scene.find_child("OnboardingClassPreviewArt", true, false) != null, "the illustrated Orbit Gunslinger owns the first production class-art vertical slice")
+	for class_id in ["warrant_breaker", "contract_hacker"]:
+		scene.class_draft = class_id
+		scene.render()
+		check(scene.find_child("OnboardingClassPreviewArt", true, false) != null, "initial class '%s' participates in the illustrated roster" % class_id)
 	scene.class_draft = ""
 	scene.render()
 	check_onboarding_touch_targets(scene, "class")

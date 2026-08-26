@@ -755,6 +755,17 @@ func capture() -> void:
 	if save_frame("ui_classes.png") != OK:
 		quit(1)
 		return
+	for class_capture in [
+		{"id": "warrant_breaker", "file": "ui_classes_breaker.png"},
+		{"id": "contract_hacker", "file": "ui_classes_hacker.png"},
+	]:
+		scene.class_draft = str(class_capture.id)
+		scene.render()
+		await process_frame
+		await process_frame
+		if save_frame(str(class_capture.file)) != OK:
+			quit(1)
+			return
 	scene.class_draft = ""
 	state.player.class_id = "orbit_gunslinger"
 	scene.view_mode = "attributes"

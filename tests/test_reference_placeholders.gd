@@ -37,10 +37,14 @@ func run() -> void:
 		icon.free()
 	var factory = UIConsumerScript.new()
 	root.add_child(factory)
-	var class_art := factory.class_illustration("orbit_gunslinger", 160)
-	check(class_art != null and class_art.texture != null and class_art.texture.get_height() <= 1024, "original transparent class art resolves at a mobile-bounded import size")
-	if class_art != null:
-		class_art.free()
+	for class_id in ["warrant_breaker", "orbit_gunslinger", "contract_hacker"]:
+		var class_art := factory.class_illustration(class_id, 160)
+		var source: Texture2D = null
+		if class_art != null and class_art.texture is AtlasTexture:
+			source = (class_art.texture as AtlasTexture).atlas
+		check(source != null and source.get_height() <= 1024, "original transparent class art resolves at a mobile-bounded import size for '%s'" % class_id)
+		if class_art != null:
+			class_art.free()
 	factory.free()
 	var frame = PortraitFrameScript.new()
 	frame.configure(Color("#ffc857"))

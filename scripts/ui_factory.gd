@@ -10,7 +10,9 @@ const EquipmentPresentationScript = preload("res://scripts/equipment_presentatio
 const UILocaleRulesScript = preload("res://scripts/locale_rules.gd")
 
 const CLASS_ILLUSTRATION_PATHS := {
+	"warrant_breaker": "res://assets/classes/warrant_breaker_character_v1.png",
 	"orbit_gunslinger": "res://assets/classes/orbit_gunslinger_character_v1.png",
+	"contract_hacker": "res://assets/classes/contract_hacker_character_v1.png",
 }
 
 const INK := Color("#f4f2ff")

@@ -32,7 +32,7 @@ Class illustration and personal avatar have different jobs. Class art sells an a
 - **Pistoleiro Orbital** — tall coat-and-hat silhouette, visible sidearm, agile asymmetry, mustard gold and cyan targeting accent.
 - **Hacker de Contratos** — narrow layered silhouette, articulated tech rig, projected intrusion tools, cyan with acidic lime accent.
 
-The Orbit Gunslinger asset is the first production vertical slice. It validates the rendering bar and UI scale before the other two illustrations are commissioned. Until then, their vector emblems remain intentional fallbacks, not pretend final character art.
+The Orbit Gunslinger established the production vertical slice. Warrant Breaker and Contract Hacker now complete the initial trio at the same runtime scale: broad/coral, tall/gold and narrow/cyan silhouettes remain distinguishable before details are read. Vector emblems remain intentional fallbacks for future classes or unavailable raster resources.
 
 ## UI composition
 

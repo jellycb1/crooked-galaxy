@@ -18,7 +18,12 @@ func _init() -> void:
 	check(portrait.custom_minimum_size == Vector2(80, 80), "factory builds consistently sized portraits")
 	var illustrated_class := factory.class_illustration("orbit_gunslinger", 140)
 	check(illustrated_class != null and illustrated_class.texture is AtlasTexture and illustrated_class.custom_minimum_size == Vector2(119, 140), "factory resolves a readable upper-body crop from the illustrated class slice")
-	check(factory.class_illustration("warrant_breaker", 140) == null, "classes without approved illustrations fail closed to their vector emblem")
+	for class_id in ["warrant_breaker", "orbit_gunslinger", "contract_hacker"]:
+		var class_art := factory.class_illustration(class_id, 140)
+		check(class_art != null and class_art.texture is AtlasTexture, "initial class '%s' resolves approved illustrated art" % class_id)
+		if class_art != null:
+			class_art.free()
+	check(factory.class_illustration("future_class", 140) == null, "future classes without approved illustrations fail closed to their vector emblem")
 	var equipment := factory.equipment_chip({"name": "Arma Teste", "slot": "weapon", "power": 5, "integrity_upgrades": 2})
 	check(equipment is PanelContainer and equipment.get_child_count() == 1, "factory builds reinforced equipment chips")
 	var card := factory.panel(VBoxContainer.new(), factory.PANEL, 12, 10)
