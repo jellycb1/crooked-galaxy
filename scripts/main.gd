@@ -6,6 +6,7 @@ const CombatBackdropScript = preload("res://scripts/combat_backdrop.gd")
 const SoundFXScript = preload("res://scripts/sound_fx.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
 const ClassRulesScript = preload("res://scripts/class_rules.gd")
+const EnemyProfileRulesScript = preload("res://scripts/enemy_profile_rules.gd")
 const CareerRulesScript = preload("res://scripts/career_rules.gd")
 const ArsenalView = preload("res://scripts/arsenal_view.gd")
 const RewardViewScript = preload("res://scripts/reward_view.gd")
@@ -639,7 +640,7 @@ func localized_combat_action(raw: String, actor: String = "player") -> String:
 
 func localized_combat_effect(raw: String) -> String:
 	var translated_parts: Array[String] = []
-	var effect_keys := {"EMBOSCADA": "COMBAT_EFFECT_AMBUSH", "INVASÃO": "COMBAT_EFFECT_BREACH", "INSTABILIDADE": "COMBAT_EFFECT_INSTABILITY", "INTERFERÊNCIA": "COMBAT_EFFECT_INTERFERENCE", "MIRA ORBITAL": "COMBAT_EFFECT_ORBITAL_AIM", "AMORTECEDOR": "COMBAT_EFFECT_DAMPENER", "CASCO DURO": "COMBAT_EFFECT_HARD_SHELL", "RUPTURA": "COMBAT_EFFECT_BREACHING", "SOBRECARGA": "COMBAT_EFFECT_OVERLOAD", "RAJADA ORBITAL": "COMBAT_EFFECT_ORBITAL_BURST", "CONTRA-ATAQUE": "COMBAT_EFFECT_COUNTER", "EVASÃO ORBITAL": "COMBAT_EFFECT_ORBITAL_EVASION"}
+	var effect_keys := {"EMBOSCADA": "COMBAT_EFFECT_AMBUSH", "INVASÃO": "COMBAT_EFFECT_BREACH", "INSTABILIDADE": "COMBAT_EFFECT_INSTABILITY", "INTERFERÊNCIA": "COMBAT_EFFECT_INTERFERENCE", "MIRA ORBITAL": "COMBAT_EFFECT_ORBITAL_AIM", "AMORTECEDOR": "COMBAT_EFFECT_DAMPENER", "CASCO DURO": "COMBAT_EFFECT_HARD_SHELL", "RUPTURA": "COMBAT_EFFECT_BREACHING", "SOBRECARGA": "COMBAT_EFFECT_OVERLOAD", "RAJADA TÁTICA": "COMBAT_EFFECT_TACTICAL_BURST", "RAJADA ORBITAL": "COMBAT_EFFECT_ORBITAL_BURST", "CONTRA-ATAQUE": "COMBAT_EFFECT_COUNTER", "EVASÃO TÁTICA": "COMBAT_EFFECT_TACTICAL_EVASION", "EVASÃO ORBITAL": "COMBAT_EFFECT_ORBITAL_EVASION"}
 	for part in raw.split(" · "):
 		var translated := part
 		for prefix in effect_keys:
@@ -1361,6 +1362,18 @@ func build_briefing() -> void:
 	var flavor := label(t("BRIEFING_FLAVOR", "O alvo é o mesmo. A quantidade de problemas é uma escolha sua."), 14, MUTED)
 	flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	target_copy.add_child(flavor)
+	var profile_id := EnemyProfileRulesScript.profile_id_for(bounty)
+	var profile := EnemyProfileRulesScript.profile_for(bounty)
+	if not profile.is_empty():
+		var profile_card := panel(VBoxContainer.new(), Color("#14263de8"), 12, 8)
+		profile_card.name = "BriefingEnemyProfile"
+		var profile_copy := profile_card.get_child(0) as VBoxContainer
+		profile_copy.add_child(label(t("ENEMY_PROFILE_%s_TITLE" % profile_id.to_upper(), str(profile.title)), 11, CORAL))
+		var profile_summary := label(t("ENEMY_PROFILE_%s_SUMMARY" % profile_id.to_upper(), str(profile.summary)), 10, MUTED)
+		profile_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		profile_copy.add_child(profile_summary)
+		profile_copy.add_child(label(t("ENEMY_PROFILE_RESPONSE", "RESPOSTA · %s", [t("ENEMY_PROFILE_%s_RESPONSE" % profile_id.to_upper(), str(profile.response))]), 10, LIME))
+		content.add_child(profile_card)
 
 	content.add_child(label(t("BRIEFING_COMPARE", "COMPARE E ESCOLHA A ROTA"), 17, GOLD))
 	var recommendation_hint := label(t("BRIEFING_HINT", "BUILD mostra sua chance atual; RECOMENDADO equilibra risco, retorno e tempo."), 11, MUTED)
@@ -1675,6 +1688,13 @@ func build_combat() -> void:
 	dossier_row.add_child(dossier_copy)
 	dossier_copy.add_child(label(t("COMBAT_RIFT_COMBAT", "COMBATE DA FENDA") if challenge_combat else t("COMBAT_AUTOMATIC_ENCOUNTER", "ENCONTRO AUTOMÁTICO"), 10, MUTED))
 	dossier_copy.add_child(label(t("COMBAT_TURN_APPROACH", "TURNO %d · %s", [GameState.combat_round, approach_name]), 15, CORAL))
+	if not challenge_combat:
+		var combat_profile_id := EnemyProfileRulesScript.profile_id_for(GameState.current_bounty)
+		var combat_profile := EnemyProfileRulesScript.profile_for(GameState.current_bounty)
+		if not combat_profile.is_empty():
+			var combat_profile_label := label(t("COMBAT_ENEMY_PROFILE", "PERFIL · %s", [t("ENEMY_PROFILE_%s_TITLE" % combat_profile_id.to_upper(), str(combat_profile.title))]), 9, CYAN)
+			combat_profile_label.name = "CombatEnemyProfile"
+			dossier_copy.add_child(combat_profile_label)
 	if GameState.current_bounty.has("hunt_event_result"):
 		var incident_summary := label(t("COMBAT_INCIDENT", "INCIDENTE · %s", [localized_hunt_result(GameState.current_bounty)]), 10, GOLD)
 		incident_summary.name = "CombatIncidentSummary"

@@ -1349,6 +1349,12 @@ msgstr "CONTRA-ATAQUE %s"
 msgid "COMBAT_EFFECT_ORBITAL_EVASION"
 msgstr "EVASÃO ORBITAL"
 
+msgid "COMBAT_EFFECT_TACTICAL_BURST"
+msgstr "RAJADA TÁTICA %s"
+
+msgid "COMBAT_EFFECT_TACTICAL_EVASION"
+msgstr "EVASÃO TÁTICA"
+
 msgid "COMBAT_IDLE_NARRATIVE"
 msgstr "Os dois lados avaliam suas escolhas de vida..."
 
@@ -2466,13 +2472,13 @@ msgid "ITEM_TRAIT_COUNTERWEIGHT_SERVOS_NAME"
 msgstr "SERVOS DE CONTRAPESO"
 
 msgid "ITEM_TRAIT_COUNTERWEIGHT_SERVOS_DESCRIPTION"
-msgstr "-1 dano recebido por golpe."
+msgstr "-1 dano por golpe e +1 contra-ataque a cada 4 turnos."
 
 msgid "ITEM_TRAIT_QUICKDRAW_BUS_NAME"
 msgstr "BARRAMENTO DE SAQUE"
 
 msgid "ITEM_TRAIT_QUICKDRAW_BUS_DESCRIPTION"
-msgstr "+1 poder e +2 dano de abertura."
+msgstr "+1 poder, +2 abertura e rajada de 5% em tiro perfeito."
 
 msgid "ITEM_TRAIT_REFLEX_ARCHIVE_NAME"
 msgstr "ARQUIVO DE REFLEXOS"
@@ -2484,13 +2490,76 @@ msgid "ITEM_TRAIT_ILLEGAL_ADRENALINE_NAME"
 msgstr "ADRENALINA ILEGAL"
 
 msgid "ITEM_TRAIT_ILLEGAL_ADRENALINE_DESCRIPTION"
-msgstr "+1 poder e +6 integridade."
+msgstr "+1 poder, +6 integridade e +1% esquiva."
 
 msgid "ITEM_TRAIT_NULL_SYNAPSE_NAME"
 msgstr "SINAPSE NULA"
 
 msgid "ITEM_TRAIT_NULL_SYNAPSE_DESCRIPTION"
-msgstr "+2 poder de combate."
+msgstr "+2 poder e ignora 1 defesa."
+
+msgid "ENEMY_PROFILE_TRAINING_TITLE"
+msgstr "ALVO DE FRONTEIRA"
+
+msgid "ENEMY_PROFILE_TRAINING_SUMMARY"
+msgstr "Sem contramedidas especiais. Compare Poder, vida e risco da rota."
+
+msgid "ENEMY_PROFILE_TRAINING_RESPONSE"
+msgstr "QUALQUER BUILD COERENTE"
+
+msgid "ENEMY_PROFILE_PLATED_TITLE"
+msgstr "BLINDAGEM IMPROVISADA"
+
+msgid "ENEMY_PROFILE_PLATED_SUMMARY"
+msgstr "Amortece 15% da abertura, mas amplifica ferramentas que ignoram defesa."
+
+msgid "ENEMY_PROFILE_PLATED_RESPONSE"
+msgstr "PODER SUSTENTADO · SOBRECARGA"
+
+msgid "ENEMY_PROFILE_RECKLESS_TITLE"
+msgstr "PRESSÃO IMPRUDENTE"
+
+msgid "ENEMY_PROFILE_RECKLESS_SUMMARY"
+msgstr "Perfura 15% da mitigação e deixa espaço para retaliações."
+
+msgid "ENEMY_PROFILE_RECKLESS_RESPONSE"
+msgstr "VIDA · ESQUIVA · CONTRA-ATAQUE"
+
+msgid "ENEMY_PROFILE_ELUSIVE_TITLE"
+msgstr "ASSINATURA EVASIVA"
+
+msgid "ENEMY_PROFILE_ELUSIVE_SUMMARY"
+msgstr "Interfere com 30% dos bônus de mira; dano garantido ganha valor."
+
+msgid "ENEMY_PROFILE_ELUSIVE_RESPONSE"
+msgstr "ABERTURA · PODER BRUTO"
+
+msgid "ENEMY_PROFILE_ELITE_TITLE"
+msgstr "MANDADO DE ELITE"
+
+msgid "ENEMY_PROFILE_ELITE_SUMMARY"
+msgstr "Sem fraqueza única. Exige uma build completa e uma rota consciente."
+
+msgid "ENEMY_PROFILE_ELITE_RESPONSE"
+msgstr "BUILD MISTA · KIT PLANETÁRIO"
+
+msgid "ENEMY_PROFILE_RESPONSE"
+msgstr "RESPOSTA · %s"
+
+msgid "COMBAT_ENEMY_PROFILE"
+msgstr "PERFIL · %s"
+
+msgid "EQUIPMENT_DELTA_COUNTER"
+msgstr "%+d CONTRA-ATAQUE"
+
+msgid "EQUIPMENT_DELTA_EVASION"
+msgstr "%+.1f%% ESQUIVA"
+
+msgid "EQUIPMENT_DELTA_BYPASS"
+msgstr "%+d SOBRECARGA"
+
+msgid "EQUIPMENT_DELTA_BURST"
+msgstr "%+.0f%% RAJADA"
 
 msgid "REWARD_NOTICE_CREDITS"
 msgstr "+%d créditos"

@@ -86,6 +86,10 @@ static func equipment_deltas(player: Dictionary, item: Dictionary) -> Dictionary
 		"health": CoreRules.max_health(simulated) - CoreRules.max_health(player),
 		"opening_damage": CoreRules.player_opening_damage(simulated) - CoreRules.player_opening_damage(player),
 		"damage_reduction": CoreRules.player_damage_reduction(simulated) - CoreRules.player_damage_reduction(player),
+		"counter_damage": CoreRules.player_counter_damage(simulated, 12) - CoreRules.player_counter_damage(player, 12),
+		"evasion_chance": CoreRules.player_evasion_chance(simulated) - CoreRules.player_evasion_chance(player),
+		"defense_bypass": CoreRules.player_defense_bypass(simulated) - CoreRules.player_defense_bypass(player),
+		"follow_up_ratio": CoreRules.equipment_trait_total(simulated, "follow_up_damage_ratio") - CoreRules.equipment_trait_total(player, "follow_up_damage_ratio"),
 		"set_bonus": CoreRules.equipment_set_bonus_power(simulated) - CoreRules.equipment_set_bonus_power(player),
 		"upgrade": CoreRules.is_upgrade_for_player(player, item),
 	}
@@ -102,6 +106,14 @@ static func equipment_delta_text(player: Dictionary, item: Dictionary) -> String
 		parts.append(LocaleRules.text("EQUIPMENT_DELTA_AMBUSH", "%+d EMBOSCADA", [int(deltas.opening_damage)]))
 	if int(deltas.damage_reduction) != 0:
 		parts.append(LocaleRules.text("EQUIPMENT_DELTA_REDUCTION", "%+d REDUÇÃO", [int(deltas.damage_reduction)]))
+	if int(deltas.counter_damage) != 0:
+		parts.append(LocaleRules.text("EQUIPMENT_DELTA_COUNTER", "%+d CONTRA-ATAQUE", [int(deltas.counter_damage)]))
+	if not is_zero_approx(float(deltas.evasion_chance)):
+		parts.append(LocaleRules.text("EQUIPMENT_DELTA_EVASION", "%+.1f%% ESQUIVA", [float(deltas.evasion_chance) * 100.0]))
+	if int(deltas.defense_bypass) != 0:
+		parts.append(LocaleRules.text("EQUIPMENT_DELTA_BYPASS", "%+d SOBRECARGA", [int(deltas.defense_bypass)]))
+	if not is_zero_approx(float(deltas.follow_up_ratio)):
+		parts.append(LocaleRules.text("EQUIPMENT_DELTA_BURST", "%+.0f%% RAJADA", [float(deltas.follow_up_ratio) * 100.0]))
 	if int(deltas.set_bonus) > 0:
 		parts.append(LocaleRules.text("EQUIPMENT_DELTA_ACTIVATE_KIT", "ATIVA KIT +%d PODER / +%d VIDA", [CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS]))
 	elif int(deltas.set_bonus) < 0:

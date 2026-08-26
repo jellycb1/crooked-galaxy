@@ -2,6 +2,7 @@ class_name CoreRules
 extends RefCounted
 
 const ClassRulesScript = preload("res://scripts/class_rules.gd")
+const EnemyProfileRulesScript = preload("res://scripts/enemy_profile_rules.gd")
 
 const INTEGRITY_HEALTH_PER_LEVEL := 8
 const MAX_INTEGRITY_UPGRADES := 5
@@ -85,6 +86,39 @@ static func item_damage_reduction(item: Dictionary) -> int:
 	return int(item.get("trait", {}).get("damage_reduction", 0))
 
 
+static func equipment_trait_total(player: Dictionary, key: String) -> float:
+	var total := 0.0
+	for slot in EQUIPMENT_SLOTS:
+		total += float(player.get(slot, {}).get("trait", {}).get(key, 0.0))
+	return total
+
+
+static func player_evasion_chance(player: Dictionary) -> float:
+	return minf(0.20, ClassRulesScript.specialization_evasion_chance(player, BASE_ATTRIBUTE_VALUE) + equipment_trait_total(player, "evasion_chance_bonus"))
+
+
+static func player_defense_bypass(player: Dictionary) -> int:
+	return ClassRulesScript.specialization_defense_bypass(player, BASE_ATTRIBUTE_VALUE) + roundi(equipment_trait_total(player, "defense_bypass_bonus"))
+
+
+static func player_counter_damage(player: Dictionary, round_number: int) -> int:
+	var damage := ClassRulesScript.specialization_counter_damage(player, BASE_ATTRIBUTE_VALUE, round_number)
+	var equipment_damage := roundi(equipment_trait_total(player, "counter_damage_bonus"))
+	var equipment_cadence := roundi(equipment_trait_total(player, "counter_every_rounds"))
+	if equipment_damage > 0 and equipment_cadence > 0 and round_number > 0 and round_number % equipment_cadence == 0:
+		damage += equipment_damage
+	return damage
+
+
+static func player_follow_up_damage(player: Dictionary, adjusted_roll: float, base_damage: int) -> int:
+	var damage := ClassRulesScript.specialization_follow_up_damage(player, adjusted_roll, base_damage)
+	var equipment_ratio := equipment_trait_total(player, "follow_up_damage_ratio")
+	var equipment_threshold := equipment_trait_total(player, "follow_up_roll_threshold")
+	if equipment_ratio > 0.0 and equipment_threshold > 0.0 and adjusted_roll >= equipment_threshold:
+		damage += maxi(1, roundi(float(base_damage) * equipment_ratio))
+	return damage
+
+
 static func player_opening_damage(player: Dictionary) -> int:
 	var equipment_bonus := 0
 	for slot in EQUIPMENT_SLOTS:
@@ -130,11 +164,13 @@ static func equipment_set_bonus_health(player: Dictionary) -> int:
 
 
 static func equipment_score(item: Dictionary) -> int:
-	return item_combat_power(item) * 6 + item_health_bonus(item) + item_opening_damage(item) * 2 + item_damage_reduction(item) * 10
+	var trait_data: Dictionary = item.get("trait", {})
+	var tactical := int(trait_data.get("counter_damage_bonus", 0)) * 8 + roundi(float(trait_data.get("evasion_chance_bonus", 0.0)) * 500.0) + int(trait_data.get("defense_bypass_bonus", 0)) * 6 + roundi(float(trait_data.get("follow_up_damage_ratio", 0.0)) * 40.0)
+	return item_combat_power(item) * 6 + item_health_bonus(item) + item_opening_damage(item) * 2 + item_damage_reduction(item) * 10 + tactical
 
 
 static func player_build_score(player: Dictionary) -> int:
-	return player_power(player) * 6 + max_health(player) + player_opening_damage(player) * 2 + player_damage_reduction(player) * 10
+	return player_power(player) * 6 + max_health(player) + player_opening_damage(player) * 2 + player_damage_reduction(player) * 10 + player_counter_damage(player, 12) * 8 + roundi(player_evasion_chance(player) * 500.0) + player_defense_bypass(player) * 6 + roundi(equipment_trait_total(player, "follow_up_damage_ratio") * 40.0)
 
 
 static func damage_roll(power: int, defense: int, roll: float) -> int:
@@ -158,7 +194,7 @@ static func enemy_attack_damage(player: Dictionary, target_power: int, roll: flo
 static func enemy_attack_breakdown(player: Dictionary, target_power: int, roll: float, damage_reduction_piercing := 0.0) -> Dictionary:
 	var defense := int(player.get("armor", {}).get("power", 0)) + 3
 	var raw_damage := damage_roll(target_power, defense, roll)
-	if roll < ClassRulesScript.specialization_evasion_chance(player, BASE_ATTRIBUTE_VALUE):
+	if roll < player_evasion_chance(player):
 		return {"raw_damage": raw_damage, "damage": 0, "prevented": raw_damage, "base_reduction": player_damage_reduction(player), "effective_reduction": 0, "dodged": true}
 	var base_reduction := player_damage_reduction(player)
 	var effective_reduction := roundi(float(base_reduction) * (1.0 - clampf(float(damage_reduction_piercing), 0.0, 1.0)))
@@ -199,18 +235,20 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 	var opening_damage := player_opening_damage(player)
 	var damage_reduction := player_damage_reduction(player)
 	var attack_roll_bonus := roundi((cunning_roll_bonus(player) + ClassRulesScript.specialization_attack_roll_bonus(player, BASE_ATTRIBUTE_VALUE)) * 1000.0)
-	var counter_damage := ClassRulesScript.specialization_counter_damage(player, BASE_ATTRIBUTE_VALUE, 3)
-	var evasion_chance := roundi(ClassRulesScript.specialization_evasion_chance(player, BASE_ATTRIBUTE_VALUE) * 1000.0)
-	var defense_bypass := ClassRulesScript.specialization_defense_bypass(player, BASE_ATTRIBUTE_VALUE)
+	var counter_damage := player_counter_damage(player, 12)
+	var evasion_chance := roundi(player_evasion_chance(player) * 1000.0)
+	var defense_bypass := player_defense_bypass(player)
+	var follow_up_ratio := roundi(equipment_trait_total(player, "follow_up_damage_ratio") * 1000.0)
+	var follow_up_threshold := roundi(equipment_trait_total(player, "follow_up_roll_threshold") * 1000.0)
 	var target_power := int(target.get("power", 1))
 	var target_defense := int(target.get("defense", 0))
 	var target_health := int(target.get("health", 1))
-	var damage_reduction_piercing := roundi(clampf(float(target.get("damage_reduction_piercing", 0.0)), 0.0, 1.0) * 1000.0)
-	var opening_damage_multiplier := roundi(maxf(0.0, float(target.get("opening_damage_multiplier", 1.0))) * 1000.0)
-	var attack_roll_bonus_multiplier := roundi(maxf(0.0, float(target.get("attack_roll_bonus_multiplier", 1.0))) * 1000.0)
-	var defense_bypass_multiplier := roundi(maxf(0.0, float(target.get("defense_bypass_multiplier", 1.0))) * 1000.0)
-	var counter_damage_multiplier := roundi(maxf(0.0, float(target.get("counter_damage_multiplier", 1.0))) * 1000.0)
-	var cache_key := "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d" % [hunter_health, hunter_power, armor_power, opening_damage, damage_reduction, attack_roll_bonus, counter_damage, evasion_chance, defense_bypass, target_power, target_defense, target_health, damage_reduction_piercing, opening_damage_multiplier, attack_roll_bonus_multiplier, defense_bypass_multiplier, counter_damage_multiplier]
+	var damage_reduction_piercing := roundi(clampf(EnemyProfileRulesScript.modifier(target, "damage_reduction_piercing", 0.0), 0.0, 1.0) * 1000.0)
+	var opening_damage_multiplier := roundi(maxf(0.0, EnemyProfileRulesScript.modifier(target, "opening_damage_multiplier", 1.0)) * 1000.0)
+	var attack_roll_bonus_multiplier := roundi(maxf(0.0, EnemyProfileRulesScript.modifier(target, "attack_roll_bonus_multiplier", 1.0)) * 1000.0)
+	var defense_bypass_multiplier := roundi(maxf(0.0, EnemyProfileRulesScript.modifier(target, "defense_bypass_multiplier", 1.0)) * 1000.0)
+	var counter_damage_multiplier := roundi(maxf(0.0, EnemyProfileRulesScript.modifier(target, "counter_damage_multiplier", 1.0)) * 1000.0)
+	var cache_key := "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d" % [hunter_health, hunter_power, armor_power, opening_damage, damage_reduction, attack_roll_bonus, counter_damage, evasion_chance, defense_bypass, follow_up_ratio, follow_up_threshold, target_power, target_defense, target_health, damage_reduction_piercing, opening_damage_multiplier, attack_roll_bonus_multiplier, defense_bypass_multiplier, counter_damage_multiplier]
 	if bounty_odds_cache.has(cache_key):
 		return float(bounty_odds_cache[cache_key])
 	var rng := RandomNumberGenerator.new()
@@ -231,13 +269,13 @@ static func bounty_odds(player: Dictionary, target: Dictionary) -> float:
 				wins += 1
 				break
 			var adjusted_roll := player_attack_roll(player, player_roll, float(attack_roll_bonus_multiplier) / 1000.0)
-			enemy_hp -= ClassRulesScript.specialization_follow_up_damage(player, adjusted_roll, primary_damage)
+			enemy_hp -= player_follow_up_damage(player, adjusted_roll, primary_damage)
 			if enemy_hp <= 0:
 				wins += 1
 				break
 			player_hp -= enemy_attack_damage(player, target_power, rng.randf(), float(damage_reduction_piercing) / 1000.0)
 			if player_hp > 0:
-				enemy_hp -= roundi(float(ClassRulesScript.specialization_counter_damage(player, BASE_ATTRIBUTE_VALUE, rounds)) * float(counter_damage_multiplier) / 1000.0)
+				enemy_hp -= roundi(float(player_counter_damage(player, rounds)) * float(counter_damage_multiplier) / 1000.0)
 				if enemy_hp <= 0:
 					wins += 1
 					break

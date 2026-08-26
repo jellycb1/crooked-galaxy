@@ -785,13 +785,13 @@ const ITEM_TRAITS := {
 	],
 	"rig": [
 		{"id": "smuggler_harness", "name": "ARNÊS DE CONTRABANDO", "description": "+10 de integridade máxima.", "power_bonus": 0, "health_bonus": 10},
-		{"id": "counterweight_servos", "name": "SERVOS DE CONTRAPESO", "description": "-1 dano recebido por golpe.", "power_bonus": 0, "health_bonus": 0, "damage_reduction": 1},
-		{"id": "quickdraw_bus", "name": "BARRAMENTO DE SAQUE", "description": "+1 poder e +2 dano de abertura.", "power_bonus": 1, "health_bonus": 0, "opening_damage_bonus": 2},
+		{"id": "counterweight_servos", "name": "SERVOS DE CONTRAPESO", "description": "-1 dano por golpe e +1 contra-ataque a cada 4 turnos.", "power_bonus": 0, "health_bonus": 0, "damage_reduction": 1, "counter_damage_bonus": 1, "counter_every_rounds": 4},
+		{"id": "quickdraw_bus", "name": "BARRAMENTO DE SAQUE", "description": "+1 poder, +2 abertura e rajada de 5% em tiro perfeito.", "power_bonus": 1, "health_bonus": 0, "opening_damage_bonus": 2, "follow_up_roll_threshold": 0.99, "follow_up_damage_ratio": 0.05},
 	],
 	"implant": [
 		{"id": "reflex_archive", "name": "ARQUIVO DE REFLEXOS", "description": "+3 dano de abertura.", "power_bonus": 0, "health_bonus": 0, "opening_damage_bonus": 3},
-		{"id": "illegal_adrenaline", "name": "ADRENALINA ILEGAL", "description": "+1 poder e +6 integridade.", "power_bonus": 1, "health_bonus": 6},
-		{"id": "null_synapse", "name": "SINAPSE NULA", "description": "+2 poder de combate.", "power_bonus": 2, "health_bonus": 0},
+		{"id": "illegal_adrenaline", "name": "ADRENALINA ILEGAL", "description": "+1 poder, +6 integridade e +1% esquiva.", "power_bonus": 1, "health_bonus": 6, "evasion_chance_bonus": 0.01},
+		{"id": "null_synapse", "name": "SINAPSE NULA", "description": "+2 poder e ignora 1 defesa.", "power_bonus": 2, "health_bonus": 0, "defense_bypass_bonus": 1},
 	],
 }
 

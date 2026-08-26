@@ -28,6 +28,7 @@ $Tests = @(
     "test_core.gd",
     "test_attributes.gd",
     "test_classes.gd",
+	"test_tactical_profiles.gd",
 	"test_onboarding.gd",
 	"test_account_boundary.gd",
 	"test_simulation_builds.gd",

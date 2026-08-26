@@ -73,7 +73,7 @@ const STAGES := [
 		"title": "ANDAR 4 · CLÍNICA REVOGADA",
 		"description": "Remove lembranças embaraçosas e deixa apenas a fatura do procedimento.",
 		"anomaly_id": "volatile_opening",
-		"power": 84, "defense": 34, "health": 680, "credits": 216, "xp": 244,
+		"power": 84, "defense": 34, "health": 665, "credits": 216, "xp": 244,
 		"attacks": ["Débito Craniano", "Amnésia Parcelada", "Sinapse Predatória"],
 		"reward": {"name": "Nódulo de Memória Contrabandeada", "description": "Lembra os erros do inimigo antes que ele consiga repeti-los.", "slot": "implant", "power": 1, "rarity": "Comum", "trait_id": "reflex_archive"},
 	},

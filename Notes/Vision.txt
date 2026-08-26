@@ -166,6 +166,8 @@ A new player cannot inspect or accept bounties until all four stages are complet
 
 The three initial classes and eight initial species are the launch design baseline, while the unlimited setting may add new identities later. The eight initial species are visual and narrative identity only: species must never alter attributes, combat formulas, loot, economy or progression. The universal nine-slot inventory remains independent of both class and species.
 
+Enemy families should create readable, class-neutral build questions rather than merely increasing numbers. Their strengths and weaknesses must be visible before combat, and universal equipment should let every current or future class respond in more than one coherent way.
+
 FIRST PRODUCT GOAL
 
 The first playable version should prove one thing:

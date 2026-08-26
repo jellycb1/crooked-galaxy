@@ -1349,6 +1349,12 @@ msgstr "COUNTERATTACK %s"
 msgid "COMBAT_EFFECT_ORBITAL_EVASION"
 msgstr "ORBITAL EVASION"
 
+msgid "COMBAT_EFFECT_TACTICAL_BURST"
+msgstr "TACTICAL BURST %s"
+
+msgid "COMBAT_EFFECT_TACTICAL_EVASION"
+msgstr "TACTICAL EVASION"
+
 msgid "COMBAT_IDLE_NARRATIVE"
 msgstr "Both sides reconsider their life choices..."
 
@@ -2466,13 +2472,13 @@ msgid "ITEM_TRAIT_COUNTERWEIGHT_SERVOS_NAME"
 msgstr "COUNTERWEIGHT SERVOS"
 
 msgid "ITEM_TRAIT_COUNTERWEIGHT_SERVOS_DESCRIPTION"
-msgstr "-1 damage taken per hit."
+msgstr "-1 damage per hit and +1 counterattack every 4 rounds."
 
 msgid "ITEM_TRAIT_QUICKDRAW_BUS_NAME"
 msgstr "QUICKDRAW BUS"
 
 msgid "ITEM_TRAIT_QUICKDRAW_BUS_DESCRIPTION"
-msgstr "+1 power and +2 opening damage."
+msgstr "+1 power, +2 opening damage, and a 5% perfect-shot burst."
 
 msgid "ITEM_TRAIT_REFLEX_ARCHIVE_NAME"
 msgstr "REFLEX ARCHIVE"
@@ -2484,13 +2490,76 @@ msgid "ITEM_TRAIT_ILLEGAL_ADRENALINE_NAME"
 msgstr "ILLEGAL ADRENALINE"
 
 msgid "ITEM_TRAIT_ILLEGAL_ADRENALINE_DESCRIPTION"
-msgstr "+1 power and +6 integrity."
+msgstr "+1 power, +6 integrity, and +1% evasion."
 
 msgid "ITEM_TRAIT_NULL_SYNAPSE_NAME"
 msgstr "NULL SYNAPSE"
 
 msgid "ITEM_TRAIT_NULL_SYNAPSE_DESCRIPTION"
-msgstr "+2 combat power."
+msgstr "+2 power and bypasses 1 defense."
+
+msgid "ENEMY_PROFILE_TRAINING_TITLE"
+msgstr "FRONTIER TARGET"
+
+msgid "ENEMY_PROFILE_TRAINING_SUMMARY"
+msgstr "No special countermeasures. Compare Power, health, and route risk."
+
+msgid "ENEMY_PROFILE_TRAINING_RESPONSE"
+msgstr "ANY COHERENT BUILD"
+
+msgid "ENEMY_PROFILE_PLATED_TITLE"
+msgstr "IMPROVISED PLATING"
+
+msgid "ENEMY_PROFILE_PLATED_SUMMARY"
+msgstr "Dampens 15% of opening damage but amplifies defense-bypass tools."
+
+msgid "ENEMY_PROFILE_PLATED_RESPONSE"
+msgstr "SUSTAINED POWER · OVERLOAD"
+
+msgid "ENEMY_PROFILE_RECKLESS_TITLE"
+msgstr "RECKLESS PRESSURE"
+
+msgid "ENEMY_PROFILE_RECKLESS_SUMMARY"
+msgstr "Pierces 15% of mitigation and leaves room for retaliation."
+
+msgid "ENEMY_PROFILE_RECKLESS_RESPONSE"
+msgstr "HEALTH · EVASION · COUNTERATTACK"
+
+msgid "ENEMY_PROFILE_ELUSIVE_TITLE"
+msgstr "ELUSIVE SIGNATURE"
+
+msgid "ENEMY_PROFILE_ELUSIVE_SUMMARY"
+msgstr "Disrupts 30% of aim bonuses; guaranteed damage gains value."
+
+msgid "ENEMY_PROFILE_ELUSIVE_RESPONSE"
+msgstr "OPENING DAMAGE · RAW POWER"
+
+msgid "ENEMY_PROFILE_ELITE_TITLE"
+msgstr "ELITE WARRANT"
+
+msgid "ENEMY_PROFILE_ELITE_SUMMARY"
+msgstr "No single weakness. Requires a complete build and a deliberate route."
+
+msgid "ENEMY_PROFILE_ELITE_RESPONSE"
+msgstr "MIXED BUILD · PLANETARY KIT"
+
+msgid "ENEMY_PROFILE_RESPONSE"
+msgstr "RESPONSE · %s"
+
+msgid "COMBAT_ENEMY_PROFILE"
+msgstr "PROFILE · %s"
+
+msgid "EQUIPMENT_DELTA_COUNTER"
+msgstr "%+d COUNTERATTACK"
+
+msgid "EQUIPMENT_DELTA_EVASION"
+msgstr "%+.1f%% EVASION"
+
+msgid "EQUIPMENT_DELTA_BYPASS"
+msgstr "%+d OVERLOAD"
+
+msgid "EQUIPMENT_DELTA_BURST"
+msgstr "%+.0f%% BURST"
 
 msgid "REWARD_NOTICE_CREDITS"
 msgstr "+%d credits"
