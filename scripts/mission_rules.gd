@@ -9,6 +9,15 @@ const ROLES := [
 	{"id": "dangerous", "pressure_mult": 1.12, "reward_mult": 1.15},
 ]
 
+# New hunters learn the loop with shorter journeys. The reduction depends only
+# on the snapshotted mission level, so accepted contracts remain deterministic.
+const EARLY_TRAVEL_BANDS := [
+	{"minimum_level": 13, "multiplier": 1.00},
+	{"minimum_level": 8, "multiplier": 0.80},
+	{"minimum_level": 4, "multiplier": 0.60},
+	{"minimum_level": 1, "multiplier": 0.40},
+]
+
 
 static func available_planets(level: int) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
@@ -56,6 +65,21 @@ static func targets_for_planet(planet_id: String) -> Array[Dictionary]:
 	return result
 
 
+static func travel_multiplier(mission_level: int) -> float:
+	for band in EARLY_TRAVEL_BANDS:
+		if mission_level >= int(band.minimum_level):
+			return float(band.multiplier)
+	return 0.40
+
+
+static func mission_travel_duration(planet: Dictionary, mission_level: int) -> float:
+	return float(planet.get("travel_duration", 300.0)) * travel_multiplier(mission_level)
+
+
+static func starter_travel_discount(mission_level: int) -> float:
+	return 1.0 - travel_multiplier(mission_level)
+
+
 static func scale_offer(template: Dictionary, planet: Dictionary, player_level: int, role: Dictionary, offer_index: int) -> Dictionary:
 	var mission_level := maxi(1, player_level)
 	return scale_offer_level(template, planet, mission_level, role, offer_index)
@@ -80,7 +104,9 @@ static func scale_offer_level(template: Dictionary, planet: Dictionary, mission_
 	offer["credits"] = maxi(1, roundi((32.0 + 1.35 * mission_level * mission_level) * reward_mult))
 	offer["xp"] = maxi(1, roundi((36.0 + 7.0 * mission_level) * reward_mult))
 	offer["loot_power"] = int(offer.power)
-	offer["travel_duration"] = float(planet.get("travel_duration", 30.0))
+	offer["base_travel_duration"] = float(planet.get("travel_duration", 300.0))
+	offer["travel_duration"] = mission_travel_duration(planet, mission_level)
+	offer["starter_travel_discount"] = starter_travel_discount(mission_level)
 	offer["pursuit_duration"] = 20.0 + minf(100.0, float(mission_level) * 4.0)
 	offer["duration"] = ceili(float(offer.travel_duration) + float(offer.pursuit_duration))
 	return offer

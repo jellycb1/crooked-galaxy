@@ -17,13 +17,16 @@ func _init() -> void:
 	check(starter.map(func(offer): return str(offer.mission_role)) == ["safe", "standard", "dangerous"], "the board exposes safe, standard, and dangerous bands")
 	check(starter.all(func(offer): return int(offer.mission_level) == 1), "all role pressure is anchored to the same snapshotted hunter level")
 	check(int(starter[0].power) < int(starter[1].power) and int(starter[1].power) < int(starter[2].power), "all three roles remain genuinely ordered at the level-one floor")
-	check(float(starter[0].travel_duration) == 30.0 and float(starter[0].pursuit_duration) > 0.0, "travel and pursuit are independent timing axes")
+	check(float(starter[0].base_travel_duration) == 300.0 and float(starter[0].travel_duration) == 120.0 and float(starter[0].pursuit_duration) > 0.0, "starter acceleration preserves the five-minute base route while travel and pursuit remain independent")
+	check(is_equal_approx(float(starter[0].starter_travel_discount), 0.60), "levels one to three expose the strongest starter travel reduction")
+	var expected_travel_multipliers := {1: 0.40, 4: 0.60, 8: 0.80, 13: 1.00, 19: 1.00, 50: 1.00, 100: 1.00}
 	for checkpoint_level in [1, 4, 8, 13, 19, 50, 100]:
 		state.player.level = checkpoint_level
 		state.player.wins = 0
 		var checkpoint_offers := MissionRules.board_offers(state.player)
 		check(int(checkpoint_offers[0].power) < int(checkpoint_offers[1].power) and int(checkpoint_offers[1].power) < int(checkpoint_offers[2].power), "role pressure remains ordered at level %d" % checkpoint_level)
 		check(int(checkpoint_offers[1].xp) < CoreRules.xp_needed(checkpoint_level), "one balanced warrant cannot trigger runaway leveling at level %d" % checkpoint_level)
+		check(is_equal_approx(MissionRules.travel_multiplier(checkpoint_level), float(expected_travel_multipliers[checkpoint_level])), "starter travel multiplier changes at the intended level %d threshold" % checkpoint_level)
 
 	state.player.level = 19
 	state.player.wins = 7
@@ -50,9 +53,9 @@ func _init() -> void:
 	state.player.owned_transport_ids = ["executive_escape_yacht"]
 	state.player.active_transport_id = "executive_escape_yacht"
 	var route := mature[2]
-	var expected_saved := float(route.travel_duration) * 0.40
+	var expected_saved := float(route.travel_duration) * 0.50
 	check(is_equal_approx(TransportRules.mission_saved_seconds(state.player, route), expected_saved), "transport savings apply to planetary travel")
-	check(is_equal_approx(TransportRules.effective_mission_duration(state.player, route), float(route.pursuit_duration) + float(route.travel_duration) * 0.60), "transport never discounts pursuit time")
+	check(is_equal_approx(TransportRules.effective_mission_duration(state.player, route), float(route.pursuit_duration) + float(route.travel_duration) * 0.50), "transport never discounts pursuit time")
 
 	state.free()
 	if failures == 0:

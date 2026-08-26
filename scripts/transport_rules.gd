@@ -40,9 +40,9 @@ const DEFINITIONS := [
 	{
 		"id": "executive_escape_yacht",
 		"name": "IATE DE FUGA EXECUTIVA",
-		"tagline": "Quarenta por cento menos tempo para negar tudo.",
+		"tagline": "Cinquenta por cento menos tempo para negar tudo.",
 		"description": "Sala de crise, minibar e compartimento fiscal vendidos separadamente.",
-		"speed_bonus": 0.40,
+		"speed_bonus": 0.50,
 		"price": 15000,
 		"required_level": 13,
 		"symbol": "◆",

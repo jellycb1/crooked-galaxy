@@ -265,7 +265,7 @@ static func planet_card(host: CrookedUIFactory, state: StateScript, planet: Dict
 	progress.add_theme_stylebox_override("background", host.box_style(Color("#071025"), 4))
 	progress.add_theme_stylebox_override("fill", host.box_style(accent if unlocked else host.MUTED.darkened(0.35), 4))
 	copy.add_child(progress)
-	copy.add_child(host.label(t("CAREER_PLANET_CAPTURES", "%d CAPTURAS · ROTA-BASE %ds", [captures, roundi(float(planet.get("travel_duration", 0.0)))]), 10, host.MUTED))
+	copy.add_child(host.label(t("CAREER_PLANET_CAPTURES", "%d CAPTURAS · ROTA-BASE %s", [captures, format_duration(float(planet.get("travel_duration", 0.0)))]), 10, host.MUTED))
 	var status: String = t("CAREER_VISITED", "VISITADO") if visited else (t("CAREER_DISCOVERED", "DESCOBERTO") if unlocked else t("GALAXY_LOCKED", "BLOQUEADO"))
 	var status_copy := VBoxContainer.new()
 	status_copy.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -273,6 +273,13 @@ static func planet_card(host: CrookedUIFactory, state: StateScript, planet: Dict
 	status_copy.add_child(host.label("✓" if visited else ("→" if unlocked else "×"), 20, host.LIME if visited else (host.GOLD if unlocked else host.MUTED), HORIZONTAL_ALIGNMENT_CENTER))
 	status_copy.add_child(host.label(status, 9, host.LIME if visited else (host.GOLD if unlocked else host.MUTED), HORIZONTAL_ALIGNMENT_RIGHT))
 	return card
+
+
+static func format_duration(seconds: float) -> String:
+	var rounded := maxi(0, ceili(seconds))
+	if rounded >= 60:
+		return "%dmin %02ds" % [rounded / 60, rounded % 60]
+	return "%ds" % rounded
 
 
 static func challenge_progress_card(host: CrookedUIFactory, state: StateScript) -> PanelContainer:

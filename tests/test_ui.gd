@@ -51,6 +51,7 @@ func run_smoke_test() -> void:
 	check(scene.find_child("NextWarrantProgress", true, false) != null, "board keeps the next-warrant objective above the contract list")
 	check(scene.find_child("BoardTutorialOfferHint", true, false) != null and scene.find_child("BoardOfferSelectors", true, false) == null, "the first capture presents one guided warrant instead of a false three-way choice")
 	check(scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "the tutorial expands exactly one mission dossier")
+	check(scene.find_children("StarterTravelAcceleration_*", "Label", true, false).size() == 1, "the opening dossier explains its temporary starter travel acceleration")
 
 	var bounty: Dictionary = ContentDB.TARGETS[0].duplicate(true)
 	state.player.wins = 4

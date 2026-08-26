@@ -53,6 +53,15 @@ func _init() -> void:
 	check(int(repaired.current_bounty.power) == int(canonical.power) and int(repaired.current_bounty.health) == int(canonical.health) and int(repaired.current_bounty.credits) == int(canonical.credits), "tampered network combat and economy fields rebuild from canonical mission metadata")
 
 	repaired.choose_approach("quiet_net")
+	var legacy_interval_start := Time.get_unix_time_from_system()
+	repaired.hunt_started_at = legacy_interval_start
+	repaired.hunt_ends_at = legacy_interval_start + 30.0
+	repaired.save_game()
+	var active_legacy_timer := StateScript.new()
+	active_legacy_timer.save_path = test_save
+	active_legacy_timer.load_game()
+	check(active_legacy_timer.phase == active_legacy_timer.Phase.HUNT and is_equal_approx(active_legacy_timer.hunt_ends_at - active_legacy_timer.hunt_started_at, 30.0), "a valid hunt already in progress keeps its persisted deadline when route tuning changes")
+	active_legacy_timer.free()
 	repaired.hunt_started_at = -10.0
 	repaired.hunt_ends_at = -20.0
 	repaired.save_game()

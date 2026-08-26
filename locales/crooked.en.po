@@ -3192,7 +3192,7 @@ msgid "TRANSPORT_REPO_INTERCEPTOR_TAGLINE"
 msgstr "Faster than a legal appeal."
 
 msgid "TRANSPORT_EXECUTIVE_ESCAPE_YACHT_TAGLINE"
-msgstr "Forty percent less time to deny everything."
+msgstr "Fifty percent less time to deny everything."
 
 msgid "CAREER_TITLE"
 msgstr "HUNTER CAREER"
@@ -3255,7 +3255,7 @@ msgid "CAREER_CHOOSE_ROUTE"
 msgstr "CHOOSE\nROUTE"
 
 msgid "CAREER_PLANET_CAPTURES"
-msgstr "%d CAPTURES · BASE ROUTE %ds"
+msgstr "%d CAPTURES · BASE ROUTE %s"
 
 msgid "CAREER_COMPLETED"
 msgstr "COMPLETE"
@@ -3835,6 +3835,9 @@ msgstr "TRAVEL %s · PURSUIT %s"
 
 msgid "BOARD_TRANSPORT_SAVING"
 msgstr " · SHIP SAVES %s"
+
+msgid "BOARD_STARTER_TRAVEL_ACCELERATION"
+msgstr "STARTER ACCELERATION ACTIVE · TRAVEL -%d%%"
 
 msgid "HANGAR_UNLOCK_LEVEL"
 msgstr "UNLOCKS AT LEVEL %d"

@@ -40,6 +40,10 @@ func _init() -> void:
 	state.player.level = 4
 	check(state.acquire_or_equip_transport("cloned_warp_taxi"), "hunter level unlocks the next transport")
 	check(is_equal_approx(TransportRulesScript.effective_hunt_duration(state.player, 20.0), 16.0), "equipped warp taxi removes exactly twenty percent")
+	state.player.level = 13
+	check(state.acquire_or_equip_transport("executive_escape_yacht"), "mature hunter can acquire the fastest transport")
+	check(is_equal_approx(TransportRulesScript.effective_hunt_duration(state.player, 20.0), 10.0), "executive yacht removes exactly fifty percent from travel-compatible legacy timers")
+	state.acquire_or_equip_transport("cloned_warp_taxi")
 
 	state.current_bounty = ContentDB.TARGETS[0].duplicate(true)
 	state.current_bounty.duration = 20

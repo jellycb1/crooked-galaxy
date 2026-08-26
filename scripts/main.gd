@@ -1395,6 +1395,11 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 		var timing_label := label(timing, 10, LIME if saved > 0.5 else MUTED)
 		timing_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		box.add_child(timing_label)
+		var starter_discount := float(bounty.get("starter_travel_discount", 0.0))
+		if starter_discount > 0.001:
+			var acceleration := label(t("BOARD_STARTER_TRAVEL_ACCELERATION", "ACELERAÇÃO INICIAL ATIVA · VIAGEM -%d%%", [roundi(starter_discount * 100.0)]), 10, CYAN)
+			acceleration.name = "StarterTravelAcceleration_%s" % str(bounty.id)
+			box.add_child(acceleration)
 	return card
 
 

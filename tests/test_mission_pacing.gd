@@ -41,6 +41,10 @@ func _init() -> void:
 	check(in_range(discovery, 4, 35, 75, 13), "the fourth world anchors the middle-career window")
 	check(in_range(discovery, 5, 60, 115, 19), "the fifth world remains a meaningful long-career discovery")
 	check(float(discovery[2].seconds) < float(discovery[3].seconds) and float(discovery[3].seconds) < float(discovery[4].seconds) and float(discovery[4].seconds) < float(discovery[5].seconds), "cumulative mission time grows monotonically across world discoveries")
+	check(seconds_in_range(discovery, 2, 1100.0, 1300.0), "Congelaria enters after roughly twenty minutes of standard base waits")
+	check(seconds_in_range(discovery, 3, 5200.0, 5600.0), "Micelia enters after roughly ninety minutes of standard base waits")
+	check(seconds_in_range(discovery, 4, 15000.0, 16500.0), "Ferro-Velho enters after roughly four and a half hours of standard base waits")
+	check(seconds_in_range(discovery, 5, 36000.0, 39000.0), "Cassino enters after roughly ten hours of standard base waits")
 
 	finish()
 
@@ -50,6 +54,13 @@ func in_range(discovery: Dictionary, world_count: int, minimum_wins: int, maximu
 		return false
 	var record: Dictionary = discovery[world_count]
 	return int(record.wins) >= minimum_wins and int(record.wins) <= maximum_wins and int(record.level) == expected_level
+
+
+func seconds_in_range(discovery: Dictionary, world_count: int, minimum_seconds: float, maximum_seconds: float) -> bool:
+	if not discovery.has(world_count):
+		return false
+	var seconds := float(discovery[world_count].seconds)
+	return seconds >= minimum_seconds and seconds <= maximum_seconds
 
 
 func finish() -> void:

@@ -104,7 +104,7 @@ func run_mobile_audit() -> void:
 	scene.render()
 	await process_frame
 	check(find_label_with_text(scene, "GALACTIC MAP") != null and find_label_with_text(scene, "Known worlds, distances, and incidents in the warrant network.") != null and find_label_with_text(scene, "IN TRANSIT · LICENSED FLYING JUNKBOX") != null and find_label_with_text(scene, "-10% from travel time on every contract") != null and (scene.find_child("GalaxyHangarAction", true, false) as Button).text == "OPEN HANGAR", "English galaxy header covers discovery and active transport timing")
-	check(find_label_with_text(scene, "DUSTBALL PRIME") != null and find_label_with_text(scene, "FREEZERIA INC.") != null and find_label_with_text(scene, "MYCELIA 404") != null and find_label_with_text(scene, "BASE ROUTE 30s · 7 RECORDED CAPTURES") != null and find_label_with_text(scene, "ON NETWORK") != null and find_label_with_text(scene, "LOCKED") != null, "English galaxy cards cover localized identity, distance, records, and level discovery")
+	check(find_label_with_text(scene, "DUSTBALL PRIME") != null and find_label_with_text(scene, "FREEZERIA INC.") != null and find_label_with_text(scene, "MYCELIA 404") != null and find_label_with_text(scene, "BASE ROUTE 5min 00s · 7 RECORDED CAPTURES") != null and find_label_with_text(scene, "ON NETWORK") != null and find_label_with_text(scene, "LOCKED") != null, "English galaxy cards cover localized identity, distance, records, and level discovery")
 	state.player = player_before_english_galaxy
 	state.last_notice = ""
 	state.last_notice_context = ""

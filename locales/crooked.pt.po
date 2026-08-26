@@ -3192,7 +3192,7 @@ msgid "TRANSPORT_REPO_INTERCEPTOR_TAGLINE"
 msgstr "Mais rápido que a contestação judicial."
 
 msgid "TRANSPORT_EXECUTIVE_ESCAPE_YACHT_TAGLINE"
-msgstr "Quarenta por cento menos tempo para negar tudo."
+msgstr "Cinquenta por cento menos tempo para negar tudo."
 
 msgid "CAREER_TITLE"
 msgstr "CARREIRA DE CAÇADOR"
@@ -3255,7 +3255,7 @@ msgid "CAREER_CHOOSE_ROUTE"
 msgstr "ESCOLHER\nROTA"
 
 msgid "CAREER_PLANET_CAPTURES"
-msgstr "%d CAPTURAS · ROTA-BASE %ds"
+msgstr "%d CAPTURAS · ROTA-BASE %s"
 
 msgid "CAREER_COMPLETED"
 msgstr "CONCLUÍDO"
@@ -3835,6 +3835,9 @@ msgstr "VIAGEM %s · PERSEGUIÇÃO %s"
 
 msgid "BOARD_TRANSPORT_SAVING"
 msgstr " · NAVE POUPA %s"
+
+msgid "BOARD_STARTER_TRAVEL_ACCELERATION"
+msgstr "ACELERAÇÃO INICIAL ATIVA · VIAGEM -%d%%"
 
 msgid "HANGAR_UNLOCK_LEVEL"
 msgstr "DESBLOQUEIA NO NÍVEL %d"
