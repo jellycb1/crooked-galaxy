@@ -49,6 +49,17 @@ func _init() -> void:
 	check(str(readiness.approach.id) == "quiet_net" and str(readiness.contract.approach.id) == "quiet_net", "field test uses the same viable approach recommendation as the briefing")
 	check(float(readiness.current_odds) == CoreRules.bounty_odds(state.player, readiness.contract), "field test odds use the applied contract rather than the canonical target")
 	check(float(readiness.power_odds) >= float(readiness.current_odds) and float(readiness.health_odds) >= float(readiness.current_odds), "field test projections are monotonic for real upgrades")
+	var player_before_warmup := JSON.stringify(state.player)
+	CoreRules.clear_bounty_odds_cache()
+	var warmup_complete := false
+	var warmup_steps := ContentDB.contract_approaches().size() + 2 + ArsenalScript.workshop_projection_candidates(state).size()
+	for step in warmup_steps:
+		warmup_complete = ArsenalScript.warm_field_readiness_step(state, step)
+		check(warmup_complete == (step == warmup_steps - 1), "field readiness warmup completes only after its final bounded estimate")
+	var warmed_estimate_count := CoreRules.bounty_odds_cache.size()
+	ArsenalScript.field_readiness(state)
+	check(warmed_estimate_count > 0 and CoreRules.bounty_odds_cache.size() == warmed_estimate_count, "incremental field warmup covers every estimate used by the first Arsenal visit")
+	check(JSON.stringify(state.player) == player_before_warmup, "incremental field warmup never mutates player state")
 	state.player.captures_by_target = {"gloop": 3}
 	state.player.captures_by_planet = {"dustball_prime": 3}
 	var unlocked_readiness := ArsenalScript.field_readiness(state)

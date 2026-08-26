@@ -13,6 +13,7 @@ var scrim: ColorRect
 var loaded_context := ""
 var loaded_planet := ""
 var texture_cache: Dictionary = {}
+var threaded_contexts: Dictionary = {}
 
 
 func _ready() -> void:
@@ -47,7 +48,14 @@ func show_context(context: String, planet_id := "") -> void:
 	if context != loaded_context:
 		var texture := texture_cache.get(context) as Texture2D
 		if texture == null:
-			texture = ResourceLoader.load(str(CONTEXT_PATHS[context]), "", ResourceLoader.CACHE_MODE_REUSE) as Texture2D
+			var path := str(CONTEXT_PATHS[context])
+			if threaded_contexts.has(context):
+				var status := ResourceLoader.load_threaded_get_status(path)
+				if status == ResourceLoader.THREAD_LOAD_IN_PROGRESS or status == ResourceLoader.THREAD_LOAD_LOADED:
+					texture = ResourceLoader.load_threaded_get(path) as Texture2D
+				threaded_contexts.erase(context)
+			if texture == null:
+				texture = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_REUSE) as Texture2D
 		if texture == null:
 			texture_rect.texture = null
 			loaded_context = ""
@@ -61,6 +69,18 @@ func show_context(context: String, planet_id := "") -> void:
 	texture_rect.modulate = Color.WHITE.lerp(planet_tint(planet_id), 0.14)
 	scrim.color = Color(0.015, 0.025, 0.075, 0.72 if context == "world" or context == "workshop" else (0.52 if context == "combat" else 0.60))
 	visible = true
+
+
+func prefetch_context(context: String) -> void:
+	if not CONTEXT_PATHS.has(context) or texture_cache.has(context) or threaded_contexts.has(context):
+		return
+	var path := str(CONTEXT_PATHS[context])
+	if ResourceLoader.has_cached(path):
+		return
+	# One worker is enough for a single portrait texture and avoids stealing main
+	# thread time on modest Android CPUs. show_context() consumes this exact request.
+	if ResourceLoader.load_threaded_request(path, "Texture2D", false, ResourceLoader.CACHE_MODE_REUSE) == OK:
+		threaded_contexts[context] = true
 
 
 func planet_tint(planet_id: String) -> Color:

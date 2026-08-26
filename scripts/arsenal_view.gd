@@ -229,6 +229,38 @@ static func inventory_header(host: CrookedUIFactory, page_data: Dictionary, inve
 
 
 static func field_readiness(state: StateScript) -> Dictionary:
+	var target_context := field_readiness_target_context(state)
+	if target_context.is_empty():
+		return {}
+	var target: Dictionary = target_context.target
+	var recovery_focus := bool(target_context.recovery_focus)
+	var evaluations := ContractRules.evaluate_approaches(state.player, target, Content.contract_approaches())
+	var recommended_id := ContractRules.recommended_approach_id(evaluations, str(state.player.get("class_id", "")))
+	var contract := target
+	for evaluation in evaluations:
+		if str(evaluation.id) == recommended_id:
+			contract = evaluation.preview
+			break
+	var power_player := field_readiness_projection_player(state.player, "power")
+	var health_player := field_readiness_projection_player(state.player, "health")
+	var reinforced := not health_player.is_empty()
+	if not reinforced:
+		health_player = state.player
+	return {
+		"target": target,
+		"contract": contract,
+		"approach": contract.get("approach", {}),
+		"current_odds": Rules.bounty_odds(state.player, contract),
+		"power_odds": Rules.bounty_odds(power_player, contract),
+		"health_odds": Rules.bounty_odds(health_player, contract),
+		"can_reinforce": reinforced,
+		"target_available": true,
+		"recovery_focus": recovery_focus,
+		"planet_tier": 0,
+	}
+
+
+static func field_readiness_target_context(state: StateScript) -> Dictionary:
 	var offers := MissionRules.board_offers(state.player)
 	if offers.is_empty():
 		return {}
@@ -241,38 +273,58 @@ static func field_readiness(state: StateScript) -> Dictionary:
 		if not recovery_offer.is_empty():
 			target = recovery_offer
 			recovery_focus = true
-	var evaluations := ContractRules.evaluate_approaches(state.player, target, Content.contract_approaches())
+	return {"target": target, "recovery_focus": recovery_focus}
+
+
+static func field_readiness_projection_player(player: Dictionary, kind: String) -> Dictionary:
+	var projected := player.duplicate(true)
+	if kind == "power":
+		var powered_weapon: Dictionary = projected.get("weapon", {}).duplicate(true)
+		powered_weapon.power = int(powered_weapon.get("power", 0)) + 1
+		projected.weapon = powered_weapon
+		return projected
+	for slot in ["weapon", "armor"]:
+		var candidate: Dictionary = projected.get(slot, {}).duplicate(true)
+		if Rules.can_upgrade_integrity(candidate):
+			candidate.integrity_upgrades = int(candidate.get("integrity_upgrades", 0)) + 1
+			projected[slot] = candidate
+			return projected
+	return {}
+
+
+static func warm_field_readiness_step(state: StateScript, step: int) -> bool:
+	# The board has several idle frames before the player can reach the Arsenal.
+	# Warm one deterministic estimate per frame so low-end phones never pay the
+	# complete analysis spike on a navigation tap. Every result feeds the normal
+	# bounded CoreRules cache; no parallel state or permanent resource is retained.
+	var target_context := field_readiness_target_context(state)
+	if target_context.is_empty():
+		return true
+	var target: Dictionary = target_context.target
+	var approaches := Content.contract_approaches()
+	if step < approaches.size():
+		Rules.bounty_odds(state.player, Content.apply_approach(target, approaches[step]))
+		return false
+	var evaluations := ContractRules.evaluate_approaches(state.player, target, approaches)
 	var recommended_id := ContractRules.recommended_approach_id(evaluations, str(state.player.get("class_id", "")))
 	var contract := target
 	for evaluation in evaluations:
 		if str(evaluation.id) == recommended_id:
 			contract = evaluation.preview
 			break
-	var power_player := state.player.duplicate(true)
-	var powered_weapon: Dictionary = power_player.get("weapon", {}).duplicate(true)
-	powered_weapon.power = int(powered_weapon.get("power", 0)) + 1
-	power_player.weapon = powered_weapon
-	var health_player := state.player.duplicate(true)
-	var reinforced := false
-	for slot in ["weapon", "armor"]:
-		var candidate: Dictionary = health_player.get(slot, {}).duplicate(true)
-		if Rules.can_upgrade_integrity(candidate):
-			candidate.integrity_upgrades = int(candidate.get("integrity_upgrades", 0)) + 1
-			health_player[slot] = candidate
-			reinforced = true
-			break
-	return {
-		"target": target,
-		"contract": contract,
-		"approach": contract.get("approach", {}),
-		"current_odds": Rules.bounty_odds(state.player, contract),
-		"power_odds": Rules.bounty_odds(power_player, contract),
-		"health_odds": Rules.bounty_odds(health_player, contract) if reinforced else Rules.bounty_odds(state.player, contract),
-		"can_reinforce": reinforced,
-		"target_available": true,
-		"recovery_focus": recovery_focus,
-		"planet_tier": 0,
-	}
+	if step == approaches.size():
+		Rules.bounty_odds(field_readiness_projection_player(state.player, "power"), contract)
+		return false
+	if step == approaches.size() + 1:
+		var health_player := field_readiness_projection_player(state.player, "health")
+		Rules.bounty_odds(health_player if not health_player.is_empty() else state.player, contract)
+		return workshop_projection_candidates(state).is_empty()
+	var projections := workshop_projection_candidates(state)
+	var projection_index := step - approaches.size() - 2
+	if projection_index >= projections.size():
+		return true
+	Rules.bounty_odds(projections[projection_index].player, contract)
+	return projection_index == projections.size() - 1
 
 
 static func field_readiness_card(host: CrookedUIFactory, state: StateScript, readiness: Dictionary = {}) -> PanelContainer:
@@ -324,9 +376,36 @@ static func recommended_workshop_action(state: StateScript, readiness: Dictionar
 	var target: Dictionary = readiness.contract
 	var current_odds := float(readiness.current_odds)
 	var current_score := Rules.player_build_score(state.player)
-	var scrap := int(state.player.get("scrap", 0))
 	var best: Dictionary = {}
 	var best_value := -1.0
+	for candidate in workshop_projection_candidates(state):
+		var slot := str(candidate.slot)
+		var kind := str(candidate.kind)
+		var cost := int(candidate.cost)
+		var simulated: Dictionary = candidate.player
+		var item: Dictionary = state.player[slot]
+		var projected_odds := Rules.bounty_odds(simulated, target)
+		var odds_gain := maxf(0.0, projected_odds - current_odds)
+		var score_gain := maxf(0.0, Rules.player_build_score(simulated) - current_score)
+		var value := odds_gain / float(cost) + score_gain / float(cost) * 0.00001
+		if value > best_value:
+			best_value = value
+			best = {
+				"slot": slot,
+				"kind": kind,
+				"cost": cost,
+				"odds": projected_odds,
+				"current_odds": current_odds,
+				"odds_gain": odds_gain,
+				"score_gain": score_gain,
+				"item_name": EquipmentPresentation.localized_item_field(item, "name") if not item.is_empty() else host_slot_fallback(slot),
+			}
+	return best
+
+
+static func workshop_projection_candidates(state: StateScript) -> Array[Dictionary]:
+	var candidates: Array[Dictionary] = []
+	var scrap := int(state.player.get("scrap", 0))
 	for slot in ["weapon", "armor"]:
 		var item: Dictionary = state.player[slot]
 		var actions := [{"kind": "power", "cost": Rules.equipment_upgrade_cost(item)}]
@@ -343,23 +422,8 @@ static func recommended_workshop_action(state: StateScript, readiness: Dictionar
 			else:
 				simulated_item.integrity_upgrades = int(simulated_item.get("integrity_upgrades", 0)) + 1
 			simulated[slot] = simulated_item
-			var projected_odds := Rules.bounty_odds(simulated, target)
-			var odds_gain := maxf(0.0, projected_odds - current_odds)
-			var score_gain := maxf(0.0, Rules.player_build_score(simulated) - current_score)
-			var value := odds_gain / float(cost) + score_gain / float(cost) * 0.00001
-			if value > best_value:
-				best_value = value
-				best = {
-					"slot": slot,
-					"kind": action.kind,
-					"cost": cost,
-					"odds": projected_odds,
-					"current_odds": current_odds,
-					"odds_gain": odds_gain,
-					"score_gain": score_gain,
-					"item_name": EquipmentPresentation.localized_item_field(item, "name") if not item.is_empty() else host_slot_fallback(slot),
-				}
-	return best
+			candidates.append({"slot": slot, "kind": str(action.kind), "cost": cost, "player": simulated})
+	return candidates
 
 
 static func host_slot_fallback(slot: String) -> String:

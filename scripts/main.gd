@@ -35,6 +35,7 @@ var navigation_dock: PanelContainer
 var hunt_timer: Timer
 var combat_timer: Timer
 var victory_timer: Timer
+var arsenal_warmup_timer: Timer
 var last_combat_message := ""
 var combat_fast := false
 var sound_fx: Node
@@ -203,6 +204,12 @@ func build_shell() -> void:
 	hunt_timer.timeout.connect(on_hunt_timer)
 	add_child(hunt_timer)
 
+	arsenal_warmup_timer = Timer.new()
+	arsenal_warmup_timer.one_shot = true
+	arsenal_warmup_timer.wait_time = 0.001
+	arsenal_warmup_timer.timeout.connect(on_arsenal_warmup_timer)
+	add_child(arsenal_warmup_timer)
+
 
 func apply_safe_area() -> void:
 	if not safe_container:
@@ -336,6 +343,7 @@ func render() -> void:
 			build_chapter_complete()
 	update_primary_navigation()
 	restore_session_scroll(current_generation)
+	schedule_arsenal_warmup(current_generation)
 	if GameState.phase == GameState.Phase.COMBAT and not timed_actions_suspended:
 		if combat_timer.is_stopped():
 			combat_timer.start()
@@ -354,6 +362,31 @@ func render() -> void:
 	if GameState.phase == GameState.Phase.COMBAT and GameState.consume_mission_ready_feedback():
 		AndroidFeedbackScript.mission_ready(t("MISSION_READY_ANDROID", "Alvo localizado. O combate está pronto."))
 	call_deferred("restore_action_focus", previous_focus_name, current_generation)
+
+
+func schedule_arsenal_warmup(expected_generation: int) -> void:
+	if GameState.phase != GameState.Phase.BOARD or view_mode != "board" or GameState.requires_onboarding() or GameState.save_recovery_required:
+		if arsenal_warmup_timer != null:
+			arsenal_warmup_timer.stop()
+		return
+	arsenal_warmup_timer.set_meta("generation", expected_generation)
+	arsenal_warmup_timer.set_meta("step", 0)
+	arsenal_warmup_timer.start()
+
+
+func on_arsenal_warmup_timer() -> void:
+	var expected_generation := int(arsenal_warmup_timer.get_meta("generation", -1))
+	var step := int(arsenal_warmup_timer.get_meta("step", 0))
+	if expected_generation != render_generation or not is_inside_tree() or timed_actions_suspended:
+		return
+	if GameState.phase != GameState.Phase.BOARD or view_mode != "board":
+		return
+	if ArsenalView.warm_field_readiness_step(GameState, step):
+		if environment_backdrop != null:
+			environment_backdrop.prefetch_context("workshop")
+		return
+	arsenal_warmup_timer.set_meta("step", step + 1)
+	arsenal_warmup_timer.start()
 
 
 func restore_session_scroll(expected_generation: int) -> void:

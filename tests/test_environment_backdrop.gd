@@ -27,8 +27,15 @@ func run() -> void:
 	backdrop.show_context("world")
 	check(backdrop.visible and backdrop.texture_rect.texture != null, "original galaxy and career environment is runtime-ready")
 	check(maxi(backdrop.texture_rect.texture.get_width(), backdrop.texture_rect.texture.get_height()) <= 1280, "galaxy environment stays within the Android-first texture budget")
+	backdrop.prefetch_context("workshop")
+	var workshop_path := str(backdrop.CONTEXT_PATHS.workshop)
+	var prefetch_frames := 0
+	while backdrop.threaded_contexts.has("workshop") and ResourceLoader.load_threaded_get_status(workshop_path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS and prefetch_frames < 120:
+		prefetch_frames += 1
+		await process_frame
 	backdrop.show_context("workshop")
 	check(backdrop.visible and backdrop.texture_rect.texture != null, "original arsenal environment is runtime-ready")
+	check(not backdrop.threaded_contexts.has("workshop"), "arsenal consumes its bounded background request instead of starting a second load")
 	check(maxi(backdrop.texture_rect.texture.get_width(), backdrop.texture_rect.texture.get_height()) <= 1280, "arsenal environment stays within the Android-first texture budget")
 	backdrop.show_context("combat")
 	check(backdrop.visible and backdrop.texture_rect.texture != null, "original combat environment is runtime-ready")
