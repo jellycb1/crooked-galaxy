@@ -592,12 +592,13 @@ func combat_step() -> Dictionary:
 	var round_events: Array[Dictionary] = []
 	var player_roll := rng.randf()
 	var opening_multiplier := float(current_bounty.get("opening_damage_multiplier", 1.0))
-	var player_damage := CoreRules.player_attack_damage(player, int(current_bounty.defense), player_roll, combat_round, opening_multiplier)
+	var roll_bonus_multiplier := float(current_bounty.get("attack_roll_bonus_multiplier", 1.0))
+	var player_damage := CoreRules.player_attack_damage(player, int(current_bounty.defense), player_roll, combat_round, opening_multiplier, roll_bonus_multiplier)
 	var player_event := {
 		"actor": "player",
 		"action": ContentDB.player_attack(rng),
 		"damage": player_damage,
-		"quality": combat_quality(CoreRules.player_attack_roll(player, player_roll)),
+		"quality": combat_quality(CoreRules.player_attack_roll(player, player_roll, roll_bonus_multiplier)),
 	}
 	var opening_bonus := CoreRules.player_opening_damage(player) if combat_round == 1 else 0
 	var player_effects: Array[String] = []
@@ -615,7 +616,7 @@ func combat_step() -> Dictionary:
 		player_effects.append("INTERFERÊNCIA -%d" % opening_dampened)
 	var class_roll_bonus := ClassRules.specialization_attack_roll_bonus(player, CoreRules.BASE_ATTRIBUTE_VALUE)
 	if class_roll_bonus > 0.0:
-		player_effects.append("MIRA ORBITAL +%.1f%%" % (class_roll_bonus * 100.0))
+		player_effects.append("MIRA ORBITAL +%.1f%%" % (class_roll_bonus * roll_bonus_multiplier * 100.0))
 	if not player_effects.is_empty():
 		player_event.effect = " · ".join(player_effects)
 	round_events.append(player_event)

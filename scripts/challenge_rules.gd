@@ -6,23 +6,26 @@ const UNLOCK_PLANET_ID := "dustball_prime"
 const ANOMALY_PROFILES := {
 	"volatile_opening": {
 		"name": "CÂMARA VOLÁTIL",
-		"description": "A primeira troca sobrecarrega emboscadas; amortecedores continuam quase íntegros.",
+		"description": "A primeira troca sobrecarrega emboscadas, mas a turbulência atravessa quase todos os amortecedores.",
 		"opening_damage_multiplier": 2.5,
-		"damage_reduction_piercing": 0.65,
+		"damage_reduction_piercing": 0.85,
+		"attack_roll_bonus_multiplier": 1.0,
 		"favored_axis": "ABERTURA",
 	},
 	"armor_rupture": {
 		"name": "FALHA DE CONTENÇÃO",
-		"description": "A ruptura atravessa quase toda mitigação; integridade e poder sustentado ganham valor.",
-		"opening_damage_multiplier": 1.0,
-		"damage_reduction_piercing": 0.9,
-		"favored_axis": "INTEGRIDADE",
+		"description": "A ruptura dissipa ataques de abertura e desvia sistemas de mira; poder sustentado e casco reforçado ganham valor.",
+		"opening_damage_multiplier": 0.5,
+		"damage_reduction_piercing": 0.75,
+		"attack_roll_bonus_multiplier": 0.30,
+		"favored_axis": "PODER SUSTENTADO",
 	},
 	"inertial_anchor": {
 		"name": "ÂNCORA INERCIAL",
-		"description": "Metade da mitigação funciona e a abertura retém carga moderada; builds mistas atravessam o combate longo.",
-		"opening_damage_multiplier": 1.5,
+		"description": "Metade da mitigação funciona e sistemas de mira permanecem estáveis; builds mistas atravessam o combate longo.",
+		"opening_damage_multiplier": 1.0,
 		"damage_reduction_piercing": 0.5,
+		"attack_roll_bonus_multiplier": 5.0,
 		"favored_axis": "BUILD MISTA",
 	},
 }
@@ -34,7 +37,7 @@ const STAGES := [
 		"title": "ANDAR 1 · TRIAGEM ILEGAL",
 		"description": "Ainda fiscaliza uma fronteira apagada dos mapas e cobra juros desde o colapso.",
 		"anomaly_id": "volatile_opening",
-		"power": 37, "defense": 13, "health": 321, "credits": 118, "xp": 145,
+		"power": 36, "defense": 13, "health": 321, "credits": 118, "xp": 145,
 		"attacks": ["Carimbo Cinético", "Taxa Retroativa", "Scanner de Contrabando"],
 		"reward": {"name": "Cinto de Lacres Rompidos", "description": "Redistribui peso, munição e responsabilidade jurídica.", "slot": "rig", "power": 1, "rarity": "Comum", "trait_id": "smuggler_harness"},
 	},
@@ -74,7 +77,7 @@ const STAGES := [
 		"title": "ANDAR 5 · CARTÓRIO CAUSAL",
 		"description": "Registra futuros possíveis e multa qualquer realidade que saia sem autenticação.",
 		"anomaly_id": "armor_rupture",
-		"power": 125, "defense": 37, "health": 825, "credits": 258, "xp": 292,
+		"power": 122, "defense": 37, "health": 825, "credits": 258, "xp": 292,
 		"attacks": ["Firma Reconhecida", "Cláusula Improvável", "Penhora do Futuro"],
 		"reward": {"name": "Córtex de Cálculo Clandestino", "description": "Prevê três resultados e escolhe o menos documentado.", "slot": "implant", "power": 1, "rarity": "Raro", "trait_id": "illegal_adrenaline"},
 	},
@@ -116,6 +119,7 @@ static func stage_at(index: int) -> Dictionary:
 	stage["anomaly"] = anomaly
 	stage["damage_reduction_piercing"] = float(anomaly.damage_reduction_piercing)
 	stage["opening_damage_multiplier"] = float(anomaly.opening_damage_multiplier)
+	stage["attack_roll_bonus_multiplier"] = float(anomaly.attack_roll_bonus_multiplier)
 	stage["duration"] = 0
 	stage["planet_id"] = UNLOCK_PLANET_ID
 	stage["scrap_reward"] = 0

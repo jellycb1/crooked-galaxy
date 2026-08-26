@@ -16,7 +16,7 @@ const DEFINITIONS := [
 		"preferred_approach": "premium_warrant",
 		"route_style": "PRESSÃO CORPORATIVA",
 		"approach_affinity": 1.18,
-		"effects": {"power_per_primary_points": 2, "base_damage_reduction": 1, "damage_reduction_per_primary_points": 2},
+		"effects": {"power_per_primary_points": 3, "base_damage_reduction": 1, "damage_reduction_per_primary_points": 2},
 	},
 	{
 		"id": "orbit_gunslinger",

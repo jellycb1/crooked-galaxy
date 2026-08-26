@@ -20,6 +20,7 @@ func _init() -> void:
 	var maximum_class_spread := 0.0
 	var maximum_campaign_delta := 0.0
 	var maximum_campaign_safe_delta := 0.0
+	var favorable_floors := {"warrant_breaker": 0, "orbit_gunslinger": 0, "contract_hacker": 0}
 	for stage_index in Challenge.STAGES.size():
 		var checkpoint: Dictionary = CHECKPOINTS[stage_index]
 		var stage := Challenge.stage_at(stage_index)
@@ -46,8 +47,12 @@ func _init() -> void:
 			print("  %-30s odds=%3d%% (sem Fenda %3d%%) · campanha +%2d pp · poder=%d/vida=%d/abertura=%d/redução=%d" % [str(policy.name), roundi(odds * 100.0), roundi(bare_odds * 100.0), roundi(campaign_delta * 100.0), Rules.player_power(player), Rules.max_health(player), Rules.player_opening_damage(player), Rules.player_damage_reduction(player)])
 		var spread := maximum(class_odds) - minimum(class_odds)
 		maximum_class_spread = maxf(maximum_class_spread, spread)
-		print("  SPREAD · %d pontos percentuais" % roundi(spread * 100.0))
+		var best_index := class_odds.find(maximum(class_odds))
+		var favorable_class := str(Builds.POLICIES[best_index].class_id)
+		favorable_floors[favorable_class] = int(favorable_floors[favorable_class]) + 1
+		print("  SPREAD · %d pontos percentuais · VANTAGEM %s" % [roundi(spread * 100.0), str(Builds.POLICIES[best_index].name)])
 	print("\nLIMITES · maior spread=%d pp · rota segura=+%d pp · qualquer rota=+%d pp" % [roundi(maximum_class_spread * 100.0), roundi(maximum_campaign_safe_delta * 100.0), roundi(maximum_campaign_delta * 100.0)])
+	print("IDENTIDADE · Quebra-Mandados=%d · Pistoleiro=%d · Hacker=%d pisos favoráveis" % [int(favorable_floors.warrant_breaker), int(favorable_floors.orbit_gunslinger), int(favorable_floors.contract_hacker)])
 	quit(0)
 
 

@@ -3330,7 +3330,7 @@ msgid "RIFT_ANOMALY_VOLATILE_OPENING_NAME"
 msgstr "VOLATILE CHAMBER"
 
 msgid "RIFT_ANOMALY_VOLATILE_OPENING_DESCRIPTION"
-msgstr "The first exchange overloads ambushes; dampeners remain nearly intact."
+msgstr "The first exchange overloads ambushes, but turbulence pierces nearly every dampener."
 
 msgid "RIFT_ANOMALY_VOLATILE_OPENING_FAVORED_AXIS"
 msgstr "OPENING"
@@ -3339,16 +3339,16 @@ msgid "RIFT_ANOMALY_ARMOR_RUPTURE_NAME"
 msgstr "CONTAINMENT FAILURE"
 
 msgid "RIFT_ANOMALY_ARMOR_RUPTURE_DESCRIPTION"
-msgstr "The rupture crosses almost all mitigation; integrity and sustained power gain value."
+msgstr "The rupture dissipates opening attacks and deflects targeting systems; sustained power and reinforced hulls gain value."
 
 msgid "RIFT_ANOMALY_ARMOR_RUPTURE_FAVORED_AXIS"
-msgstr "INTEGRITY"
+msgstr "SUSTAINED POWER"
 
 msgid "RIFT_ANOMALY_INERTIAL_ANCHOR_NAME"
 msgstr "INERTIAL ANCHOR"
 
 msgid "RIFT_ANOMALY_INERTIAL_ANCHOR_DESCRIPTION"
-msgstr "Half the mitigation works and the opening retains moderate charge; mixed builds endure the long fight."
+msgstr "Half the mitigation works and targeting systems remain stable; mixed builds endure the long fight."
 
 msgid "RIFT_ANOMALY_INERTIAL_ANCHOR_FAVORED_AXIS"
 msgstr "MIXED BUILD"

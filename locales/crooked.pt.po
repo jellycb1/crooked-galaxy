@@ -3330,7 +3330,7 @@ msgid "RIFT_ANOMALY_VOLATILE_OPENING_NAME"
 msgstr "CÂMARA VOLÁTIL"
 
 msgid "RIFT_ANOMALY_VOLATILE_OPENING_DESCRIPTION"
-msgstr "A primeira troca sobrecarrega emboscadas; amortecedores continuam quase íntegros."
+msgstr "A primeira troca sobrecarrega emboscadas, mas a turbulência atravessa quase todos os amortecedores."
 
 msgid "RIFT_ANOMALY_VOLATILE_OPENING_FAVORED_AXIS"
 msgstr "ABERTURA"
@@ -3339,16 +3339,16 @@ msgid "RIFT_ANOMALY_ARMOR_RUPTURE_NAME"
 msgstr "FALHA DE CONTENÇÃO"
 
 msgid "RIFT_ANOMALY_ARMOR_RUPTURE_DESCRIPTION"
-msgstr "A ruptura atravessa quase toda mitigação; integridade e poder sustentado ganham valor."
+msgstr "A ruptura dissipa ataques de abertura e desvia sistemas de mira; poder sustentado e casco reforçado ganham valor."
 
 msgid "RIFT_ANOMALY_ARMOR_RUPTURE_FAVORED_AXIS"
-msgstr "INTEGRIDADE"
+msgstr "PODER SUSTENTADO"
 
 msgid "RIFT_ANOMALY_INERTIAL_ANCHOR_NAME"
 msgstr "ÂNCORA INERCIAL"
 
 msgid "RIFT_ANOMALY_INERTIAL_ANCHOR_DESCRIPTION"
-msgstr "Metade da mitigação funciona e a abertura retém carga moderada; builds mistas atravessam o combate longo."
+msgstr "Metade da mitigação funciona e sistemas de mira permanecem estáveis; builds mistas atravessam o combate longo."
 
 msgid "RIFT_ANOMALY_INERTIAL_ANCHOR_FAVORED_AXIS"
 msgstr "BUILD MISTA"

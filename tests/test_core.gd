@@ -57,6 +57,12 @@ func test_power_and_health() -> void:
 	check(int(anomaly_breakdown.base_reduction) == 2 and int(anomaly_breakdown.effective_reduction) == 1, "class-neutral rupture can partially pierce mitigation")
 	check(Rules.player_attack_damage(tactical_player, 4, 0.5, 1, 2.0) == raw_player_damage + 10, "class-neutral instability can amplify opening damage")
 	check(Rules.player_attack_damage(tactical_player, 4, 0.5, 1, 0.5) == raw_player_damage + 3, "anomaly profiles can dampen opening damage without removing the base strike")
+	var precise_player := tactical_player.duplicate(true)
+	precise_player.attributes = Rules.default_attributes()
+	precise_player.attributes.cunning = 20
+	precise_player.attributes.dexterity = 12
+	precise_player.class_id = "orbit_gunslinger"
+	check(Rules.player_attack_roll(precise_player, 0.5, 0.0) < Rules.player_attack_roll(precise_player, 0.5), "anomaly interference can suppress class precision without removing universal cunning")
 	check(Rules.equipment_score({"trait": {"opening_damage_bonus": 5}}) == 10, "opening damage participates in equipment comparison")
 	check(Rules.equipment_score({"trait": {"damage_reduction": 2}}) == 20, "damage reduction participates in equipment comparison")
 	var kit_player := {

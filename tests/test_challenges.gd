@@ -56,9 +56,12 @@ func run_audit() -> void:
 	var anchor_reduction := CoreRules.enemy_attack_breakdown(reduction_probe, 48, 0.5, float(anchor_profile.damage_reduction_piercing))
 	check(volatile_opening_damage > rupture_opening_damage, "volatile chambers amplify opening gear more than containment failures")
 	check(int(anchor_reduction.prevented) > int(rupture_reduction.prevented), "inertial anchors preserve more mitigation than containment failures")
+	check(float(rupture_profile.attack_roll_bonus_multiplier) < float(anchor_profile.attack_roll_bonus_multiplier), "containment failures disrupt precision more than inertial anchors")
 	check(CoreRules.max_health(health_probe) == CoreRules.max_health(profile_probe) + 14, "integrity gear remains fully active when mitigation is mostly pierced")
 	var maximum_campaign_safe_delta := 0.0
 	var maximum_campaign_route_delta := 0.0
+	var expected_favored_classes := ["contract_hacker", "warrant_breaker", "orbit_gunslinger", "contract_hacker", "warrant_breaker", "orbit_gunslinger"]
+	var favorable_floor_counts := {"warrant_breaker": 0, "orbit_gunslinger": 0, "contract_hacker": 0}
 	for stage_index in Challenge.STAGES.size():
 		var checkpoint: Dictionary = Simulator.CHECKPOINTS[stage_index]
 		var class_odds: Array[float] = []
@@ -73,10 +76,16 @@ func run_audit() -> void:
 				maximum_campaign_route_delta = maxf(maximum_campaign_route_delta, route_delta)
 				if approach_index == 0:
 					maximum_campaign_safe_delta = maxf(maximum_campaign_safe_delta, route_delta)
+		var best_odds: float = float(class_odds.max())
+		var favored_index: int = class_odds.find(best_odds)
+		var favored_class := str(Builds.POLICIES[favored_index].class_id)
+		favorable_floor_counts[favored_class] = int(favorable_floor_counts[favored_class]) + 1
+		check(favored_class == str(expected_favored_classes[stage_index]), "floor %d favors its intended class identity (%s)" % [stage_index + 1, favored_class])
 		class_odds.sort()
 		var class_spread := float(class_odds[2]) - float(class_odds[0])
 		check(float(class_odds[0]) >= 0.40 and float(class_odds[2]) <= 0.90, "floor %d stays aspirational but viable across all prototype classes (%d-%d%%)" % [stage_index + 1, roundi(float(class_odds[0]) * 100.0), roundi(float(class_odds[2]) * 100.0)])
-		check(class_spread <= 0.35, "floor %d class spread remains bounded at %d percentage points" % [stage_index + 1, roundi(class_spread * 100.0)])
+		check(class_spread <= 0.30, "floor %d class spread remains bounded at %d percentage points" % [stage_index + 1, roundi(class_spread * 100.0)])
+	check(favorable_floor_counts.values().all(func(count): return int(count) == 2), "each prototype class owns exactly two favorable Fenda matchups")
 	check(maximum_campaign_safe_delta <= 0.05, "Fenda rewards do not become mandatory for campaign recovery routes")
 	check(maximum_campaign_route_delta <= 0.25, "Fenda rewards improve risky campaign routes without erasing their risk")
 	var canonical_stage: Dictionary = state.canonicalize_loaded_bounty(Challenge.stage_at(1))

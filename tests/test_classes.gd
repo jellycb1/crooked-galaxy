@@ -32,8 +32,8 @@ func run_classes_test() -> void:
 		var unassigned: Dictionary = state.default_player()
 		var specialized: Dictionary = unassigned.duplicate(true)
 		var primary := str(definition.primary_attribute)
-		unassigned.attributes[primary] = 12
-		specialized.attributes[primary] = 12
+		unassigned.attributes[primary] = 13
+		specialized.attributes[primary] = 13
 		specialized.class_id = str(definition.id)
 		check(Rules.player_power(specialized) == Rules.player_power(unassigned) + 1, "%s gains the documented primary-stat specialization" % str(definition.name))
 
