@@ -11,6 +11,8 @@ const LocaleRules = preload("res://scripts/locale_rules.gd")
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
+	if not host.career_section in ["progress", "archive"]:
+		host.career_section = "progress"
 	var title_row := HBoxContainer.new()
 	content.add_child(title_row)
 	var titles := VBoxContainer.new()
@@ -37,20 +39,22 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		claim_all.pressed.connect(state.claim_all_career_milestones)
 		content.add_child(claim_all)
 	var objective := CareerRulesScript.next_mastery_objective(state.player, Content.TARGETS)
-	if not objective.is_empty():
+	if host.career_section == "progress" and not objective.is_empty():
 		content.add_child(mastery_directive_card(host, state, objective))
 
 	var section_nav := HBoxContainer.new()
 	section_nav.name = "CareerSectionNav"
 	section_nav.add_theme_constant_override("separation", 8)
 	content.add_child(section_nav)
-	var progress_jump := host.action_button(t("CAREER_PROGRESS", "PROGRESSO"), host.CYAN, true)
+	var progress_jump := host.action_button(t("CAREER_PROGRESS", "PROGRESSO"), host.CYAN, host.career_section != "progress")
 	progress_jump.name = "CareerProgressJump"
 	progress_jump.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	progress_jump.pressed.connect(func(): select_section(host, "progress"))
 	section_nav.add_child(progress_jump)
-	var archive_jump := host.action_button(t("CAREER_WANTED_COUNT", "PROCURADOS · %d", [Content.TARGETS.size()]), host.GOLD, true)
+	var archive_jump := host.action_button(t("CAREER_WANTED_COUNT", "PROCURADOS · %d", [Content.TARGETS.size()]), host.GOLD, host.career_section != "archive")
 	archive_jump.name = "CareerArchiveJump"
 	archive_jump.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	archive_jump.pressed.connect(func(): select_section(host, "archive"))
 	section_nav.add_child(archive_jump)
 
 	var scroller := ScrollContainer.new()
@@ -62,27 +66,39 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", 10)
 	scroller.add_child(list)
-	var progress_heading := host.label(t("CAREER_PLANET_PROGRESS", "PROGRESSO PLANETÁRIO"), 13, host.MUTED)
-	list.add_child(progress_heading)
-	for planet in Content.PLANETS:
-		list.add_child(planet_card(host, state, planet))
-	list.add_child(host.label(t("CAREER_PARALLEL_PROGRESS", "PROGRESSO PARALELO"), 13, host.MUTED))
-	list.add_child(challenge_progress_card(host, state))
-	list.add_child(host.label(t("CAREER_MILESTONES", "MARCOS DA CARREIRA"), 13, host.MUTED))
-	for milestone in state.career_milestones():
-		list.add_child(milestone_card(host, state, milestone))
-	var archive_heading := host.label(t("CAREER_WANTED_ARCHIVE", "ARQUIVO DE PROCURADOS · PLANETA ATUAL PRIMEIRO"), 13, host.MUTED)
-	archive_heading.name = "WantedArchiveHeading"
-	list.add_child(archive_heading)
-	for target in ordered_archive_targets(state):
-		list.add_child(target_card(host, state, target))
+	if host.career_section == "archive":
+		var archive_heading := host.label(t("CAREER_WANTED_ARCHIVE", "ARQUIVO DE PROCURADOS · PLANETA ATUAL PRIMEIRO"), 13, host.MUTED)
+		archive_heading.name = "WantedArchiveHeading"
+		list.add_child(archive_heading)
+		for target in ordered_archive_targets(state):
+			list.add_child(target_card(host, state, target))
+	else:
+		var progress_heading := host.label(t("CAREER_PLANET_PROGRESS", "PROGRESSO PLANETÁRIO"), 13, host.MUTED)
+		progress_heading.name = "CareerProgressHeading"
+		list.add_child(progress_heading)
+		for planet in Content.PLANETS:
+			list.add_child(planet_card(host, state, planet))
+		list.add_child(host.label(t("CAREER_PARALLEL_PROGRESS", "PROGRESSO PARALELO"), 13, host.MUTED))
+		list.add_child(challenge_progress_card(host, state))
+		list.add_child(host.label(t("CAREER_MILESTONES", "MARCOS DA CARREIRA"), 13, host.MUTED))
+		for milestone in state.career_milestones():
+			list.add_child(milestone_card(host, state, milestone))
 	scroller.get_v_scroll_bar().value_changed.connect(func(value: float):
 		host.career_scroll_position = roundi(value)
 	)
 	if host.career_scroll_position > 0:
 		restore_scroll_position(host, scroller, host.career_scroll_position)
-	progress_jump.pressed.connect(func(): scroll_to_section(host, scroller, progress_heading))
-	archive_jump.pressed.connect(func(): scroll_to_section(host, scroller, archive_heading))
+	host.career_section_switch_pending = false
+
+
+static func select_section(host: CrookedUIFactory, section: String) -> void:
+	if host.career_section == section:
+		return
+	host.career_section = section
+	host.career_scroll_position = 0
+	host.career_section_switch_pending = true
+	if host.has_method("render"):
+		host.call("render")
 
 
 static func restore_scroll_position(host: CrookedUIFactory, scroller: ScrollContainer, position: int) -> void:
@@ -100,17 +116,6 @@ static func restore_scroll_position(host: CrookedUIFactory, scroller: ScrollCont
 			host.career_scroll_position = scroller.scroll_vertical
 		, CONNECT_ONE_SHOT)
 	, CONNECT_ONE_SHOT)
-
-
-static func scroll_to_section(host: CrookedUIFactory, scroller: ScrollContainer, heading: Control) -> void:
-	var scroll_bar := scroller.get_v_scroll_bar()
-	# The scrollbar page can briefly report zero during a responsive relayout.
-	# The visible container height is already authoritative at button-press time.
-	var visible_page := maxf(scroll_bar.page, scroller.size.y)
-	var maximum := maxi(0, roundi(scroll_bar.max_value - visible_page))
-	var position := clampi(roundi(heading.position.y), 0, maximum)
-	host.career_scroll_position = position
-	scroller.scroll_vertical = position
 
 
 static func ordered_archive_targets(state: StateScript) -> Array[Dictionary]:

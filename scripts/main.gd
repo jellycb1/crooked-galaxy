@@ -239,7 +239,9 @@ func render() -> void:
 	# old scroll viewport and emits a misleading clamped value during teardown.
 	var old_career_scroll := content.find_child("CareerScroll", false, false) as ScrollContainer
 	if old_career_scroll != null:
-		career_scroll_position = old_career_scroll.scroll_vertical
+		# A section change intentionally starts its independent list at the top.
+		# Otherwise teardown would overwrite the reset with the previous tab's offset.
+		career_scroll_position = 0 if career_section_switch_pending else old_career_scroll.scroll_vertical
 		old_career_scroll.get_v_scroll_bar().set_block_signals(true)
 		content.remove_child(old_career_scroll)
 		old_career_scroll.queue_free()

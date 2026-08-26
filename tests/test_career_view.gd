@@ -34,7 +34,10 @@ func _init() -> void:
 	check(host.find_child("MasteryDirective", true, false) != null, "isolated career turns archive data into a repeat objective")
 	var mastery_action := host.find_child("MasteryDirectiveAction", true, false) as Button
 	check(mastery_action != null and mastery_action.text == "ESCOLHER\nROTA", "mastery objective truthfully links to route selection")
-	check(host.find_child("CareerTarget_gloop", true, false) != null, "isolated career preserves wanted records")
+	check(host.find_child("CareerTarget_gloop", true, false) == null, "progress section does not build the offscreen wanted archive")
+	mastery_action.pressed.emit()
+	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "gloop", "mastery directive opens the recommended target briefing directly")
+	state.cancel_briefing()
 	var dustball_archive := CareerViewScript.ordered_archive_targets(state)
 	check(dustball_archive.size() == Content.TARGETS.size(), "active-first archive preserves all wanted records")
 	check(str(dustball_archive[0].id) == "gloop", "career archive starts with the active planet")
@@ -42,21 +45,22 @@ func _init() -> void:
 	for target in dustball_archive:
 		archived_ids[str(target.id)] = true
 	check(archived_ids.size() == Content.TARGETS.size(), "active-first archive does not duplicate wanted records")
+	var archive_jump := host.find_child("CareerArchiveJump", true, false) as Button
+	check(not archive_jump.pressed.get_connections().is_empty(), "wanted archive tab is wired to replace the long career ledger")
+	host.career_section = "archive"
+	clear_children(content)
+	CareerViewScript.build(host, content, state)
+	check(host.find_child("CareerTarget_gloop", true, false) != null and host.find_child("CareerPlanet_dustball_prime", true, false) == null, "wanted section builds records without hidden progression cards")
 	var archive_target_action := host.find_child("CareerTargetAction_gloop", true, false) as Button
 	check(archive_target_action != null and archive_target_action.text == "ABRIR", "available archive records link back to their contract")
 	check(host.find_child("CareerTargetAction_baron_boom", true, false) == null, "captured but currently locked archive records do not bypass sequential progression")
-	var archive_jump := host.find_child("CareerArchiveJump", true, false) as Button
-	check(not archive_jump.pressed.get_connections().is_empty(), "wanted archive shortcut is wired to skip the long career ledger")
 	archive_target_action.pressed.emit()
 	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "gloop", "archive record opens its available target briefing directly")
 	state.cancel_briefing()
-	mastery_action.pressed.emit()
-	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "gloop", "mastery directive opens the recommended target briefing directly")
-	state.cancel_briefing()
 	state.player.completed_planets = ["dustball_prime"]
 	state.player.current_planet_id = "congelaria_sa"
-	for child in content.get_children():
-		child.free()
+	host.career_section = "progress"
+	clear_children(content)
 	CareerViewScript.build(host, content, state)
 	var challenge_card := host.find_child("CareerChallengeProgress", true, false) as PanelContainer
 	check(challenge_card != null and find_text(challenge_card).contains("PRÓXIMO: DRONE DA ALFÂNDEGA MORTA"), "career names the next independent challenge after unlock")
@@ -66,6 +70,9 @@ func _init() -> void:
 	challenge_action.pressed.emit()
 	check(host.view_mode == "challenges", "career challenge route opens the independent ladder")
 	check(str(CareerViewScript.ordered_archive_targets(state)[0].id) == "auditor_frost", "changing planets moves that chapter's warrants to the front without filtering history")
+	host.career_section = "archive"
+	clear_children(content)
+	CareerViewScript.build(host, content, state)
 	var cross_planet_action := host.find_child("CareerTargetAction_auditor_frost", true, false) as Button
 	check(cross_planet_action != null, "archive exposes targets on unlocked completed routes")
 	cross_planet_action.pressed.emit()
@@ -73,8 +80,7 @@ func _init() -> void:
 	state.cancel_briefing()
 	state.last_notice = "2 marcos resgatados: +110 créditos · +2 sucata."
 	state.last_notice_context = "career"
-	for child in content.get_children():
-		child.free()
+	clear_children(content)
 	CareerViewScript.build(host, content, state)
 	var receipt := host.find_child("CareerClaimReceipt", true, false) as PanelContainer
 	check(receipt != null, "career renders its own exact milestone receipt")
@@ -103,3 +109,8 @@ func find_text(node: Node) -> String:
 	for child in node.get_children():
 		result += find_text(child)
 	return result
+
+
+func clear_children(node: Node) -> void:
+	for child in node.get_children():
+		child.free()

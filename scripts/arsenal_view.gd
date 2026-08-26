@@ -132,7 +132,7 @@ static func build_equipped_section(host: CrookedUIFactory, content: VBoxContaine
 	content.add_child(set_label)
 	content.add_child(universal_equipment_grid(host, state))
 	content.add_child(field_readiness_card(host, state, readiness))
-	var workshop_recommendation := recommended_workshop_action(state)
+	var workshop_recommendation := recommended_workshop_action(state, readiness)
 	content.add_child(workshop_recommendation_card(host, state, workshop_recommendation, readiness))
 	var equipped_row := VBoxContainer.new()
 	equipped_row.name = "EquippedWorkbench"
@@ -321,8 +321,9 @@ static func readiness_color(host: CrookedUIFactory, odds: float) -> Color:
 	return host.LIME if odds >= 0.72 else (host.GOLD if odds >= 0.42 else host.CORAL)
 
 
-static func recommended_workshop_action(state: StateScript) -> Dictionary:
-	var readiness := field_readiness(state)
+static func recommended_workshop_action(state: StateScript, readiness: Dictionary = {}) -> Dictionary:
+	if readiness.is_empty():
+		readiness = field_readiness(state)
 	if readiness.is_empty():
 		return {}
 	var target: Dictionary = readiness.contract

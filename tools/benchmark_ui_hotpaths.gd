@@ -18,9 +18,11 @@ func run() -> void:
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
-	for mode in ["board", "arsenal", "market", "hangar", "career", "galaxy", "attributes", "challenges", "board", "arsenal"]:
+	for mode in ["board", "arsenal", "market", "hangar", "career", "career_archive", "galaxy", "attributes", "challenges", "board", "arsenal"]:
 		Rules.clear_bounty_odds_cache()
-		scene.view_mode = mode
+		scene.view_mode = "career" if mode == "career_archive" else mode
+		if mode == "career" or mode == "career_archive":
+			scene.career_section = "archive" if mode == "career_archive" else "progress"
 		var started := Time.get_ticks_usec()
 		scene.render()
 		var elapsed := Time.get_ticks_usec() - started
