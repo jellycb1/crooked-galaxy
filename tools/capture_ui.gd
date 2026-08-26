@@ -119,6 +119,15 @@ func capture() -> void:
 	if save_frame("ui_board.png") != OK:
 		quit(1)
 		return
+	state.player.wins = 7
+	state.player.level = 4
+	state.player.xp = 55
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_board_choices.png") != OK:
+		quit(1)
+		return
 	scene.board_section = "destinations"
 	scene.render()
 	await process_frame

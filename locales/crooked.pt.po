@@ -3786,7 +3786,13 @@ msgid "BOARD_INTERSTELLAR_SUBTITLE"
 msgstr "Três contratos. Rotas diferentes. Uma nave com manutenção questionável."
 
 msgid "BOARD_OFFER_HINT"
-msgstr "A REDE RENOVA OS TRÊS MANDADOS APÓS CADA CAPTURA"
+msgstr "ESCOLHA UM MANDADO · A REDE RENOVA AS TRÊS OFERTAS APÓS CADA CAPTURA"
+
+msgid "BOARD_TUTORIAL_OFFER_HINT"
+msgstr "PRIMEIRO MANDADO · CONCLUA A CAPTURA PARA ABRIR A REDE DE TRÊS CONTRATOS"
+
+msgid "BOARD_TUTORIAL_SUBTITLE"
+msgstr "Seu primeiro alvo. Uma captura para entrar na rede."
 
 msgid "REWARD_NETWORK_REFRESH"
 msgstr "REDE PRONTA · TRÊS NOVOS MANDADOS AO VOLTAR AO QUADRO"

@@ -248,6 +248,12 @@ func run_mobile_audit() -> void:
 	var header_character := scene.find_child("HeaderCharacterAction", true, false) as Button
 	check(header_character != null and header_character.size.y >= 48.0, "header character card remains a mobile touch target")
 	check(scene.find_child("BountyScroll", true, false) != null and scene.find_child("BoardHubGrid", true, false) == null, "bounty board opens directly on contracts without competing destination actions")
+	check(scene.find_child("BoardTutorialOfferHint", true, false) != null and scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "fresh mobile hunters see one guided dossier")
+	state.player.wins = 1
+	scene.render()
+	await process_frame
+	check(scene.find_children("BoardOfferSelector_*", "Button", true, false).size() == 3 and scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "established mobile hunters compare three tickets above one dossier")
+	check_touch_targets(scene, "compact mission selector")
 	check(scene.find_children("PrimaryNav_*", "Button", true, false).size() == 5, "board exposes a stable five-destination game navigation dock")
 	check(["contracts", "arsenal", "hunter", "galaxy", "menu"].all(func(destination):
 		var icon := scene.find_child("PrimaryNavIcon_%s" % destination, true, false) as Control

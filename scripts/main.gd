@@ -45,6 +45,7 @@ var render_generation := 0
 var lifecycle_suspensions: Dictionary = {}
 var timed_actions_suspended := false
 var suspended_victory_time_left := 0.0
+var selected_board_offer_index := 0
 
 
 func _ready() -> void:
@@ -678,7 +679,8 @@ func build_board() -> void:
 	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title_box)
 	title_box.add_child(label(t("BOARD_TITLE", "QUADRO DE PROCURADOS"), 24, INK))
-	var subtitle := label(t("BOARD_INTERSTELLAR_SUBTITLE", "Três contratos. Rotas diferentes. Uma nave com manutenção questionável."), 15, MUTED)
+	var subtitle_text := t("BOARD_TUTORIAL_SUBTITLE", "Seu primeiro alvo. Uma captura para entrar na rede.") if int(GameState.player.get("wins", 0)) <= 0 else t("BOARD_INTERSTELLAR_SUBTITLE", "Três contratos. Rotas diferentes. Uma nave com manutenção questionável.")
+	var subtitle := label(subtitle_text, 15, MUTED)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title_box.add_child(subtitle)
 	var xp_needed := CoreRules.xp_needed(int(GameState.player.level))
@@ -804,13 +806,77 @@ func build_board_bounties() -> void:
 	list.add_theme_constant_override("separation", 14)
 	scroller.add_child(list)
 	var board_bounties := MissionRulesScript.board_offers(GameState.player)
-	if board_bounties.size() > 1:
-		var choice_hint := label(t("BOARD_OFFER_HINT", "A REDE RENOVA OS TRÊS MANDADOS APÓS CADA CAPTURA"), 11, MUTED)
+	var first_contract := int(GameState.player.get("wins", 0)) <= 0
+	if first_contract:
+		selected_board_offer_index = 0
+		var tutorial_hint := label(t("BOARD_TUTORIAL_OFFER_HINT", "PRIMEIRO MANDADO · CONCLUA A CAPTURA PARA ABRIR A REDE DE TRÊS CONTRATOS"), 11, CYAN)
+		tutorial_hint.name = "BoardTutorialOfferHint"
+		tutorial_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		list.add_child(tutorial_hint)
+	elif board_bounties.size() > 1:
+		selected_board_offer_index = clampi(selected_board_offer_index, 0, board_bounties.size() - 1)
+		var choice_hint := label(t("BOARD_OFFER_HINT", "ESCOLHA UM MANDADO · A REDE RENOVA AS TRÊS OFERTAS APÓS CADA CAPTURA"), 11, MUTED)
 		choice_hint.name = "BoardChoiceHint"
 		choice_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		list.add_child(choice_hint)
-	for bounty in board_bounties:
-		list.add_child(bounty_card(bounty))
+		var selectors := GridContainer.new()
+		selectors.name = "BoardOfferSelectors"
+		selectors.columns = board_bounties.size()
+		selectors.add_theme_constant_override("h_separation", 8)
+		list.add_child(selectors)
+		for offer_index in board_bounties.size():
+			selectors.add_child(bounty_offer_selector(board_bounties[offer_index], offer_index, offer_index == selected_board_offer_index))
+	if not board_bounties.is_empty():
+		list.add_child(bounty_card(board_bounties[0] if first_contract else board_bounties[selected_board_offer_index]))
+
+
+func select_board_offer(offer_index: int) -> void:
+	selected_board_offer_index = maxi(0, offer_index)
+	render()
+
+
+func bounty_offer_selector(bounty: Dictionary, offer_index: int, selected: bool) -> Button:
+	var destination := ContentDB.get_planet(str(bounty.get("planet_id", ContentDB.PLANET.id)))
+	var accent := GOLD if selected else Color(str(destination.accent))
+	var selector := action_button(localized_content_field("target", bounty, "name"), accent, true)
+	selector.name = "BoardOfferSelector_%d" % offer_index
+	selector.custom_minimum_size = Vector2(0, 116)
+	selector.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	selector.tooltip_text = "%s · %s" % [localized_content_field("target", bounty, "name"), localized_content_field("planet", destination, "name")]
+	for theme_color in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
+		selector.add_theme_color_override(theme_color, Color.TRANSPARENT)
+
+	var inset := MarginContainer.new()
+	inset.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	inset.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	inset.add_theme_constant_override("margin_left", 5)
+	inset.add_theme_constant_override("margin_right", 5)
+	inset.add_theme_constant_override("margin_top", 6)
+	inset.add_theme_constant_override("margin_bottom", 6)
+	selector.add_child(inset)
+	var copy := VBoxContainer.new()
+	copy.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	copy.alignment = BoxContainer.ALIGNMENT_CENTER
+	copy.add_theme_constant_override("separation", 1)
+	inset.add_child(copy)
+	var portrait := character_portrait(str(bounty.id), 42)
+	portrait.name = "BoardOfferPortrait_%d" % offer_index
+	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	copy.add_child(portrait)
+	var planet_name := label(localized_content_field("planet", destination, "name").to_upper(), 9, accent, HORIZONTAL_ALIGNMENT_CENTER)
+	planet_name.name = "BoardOfferPlanet_%d" % offer_index
+	planet_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	planet_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	copy.add_child(planet_name)
+	var duration := TransportRulesScript.effective_mission_duration(GameState.player, bounty)
+	var summary := label("◈ %d · %s" % [int(bounty.credits), format_hunt_duration(duration)], 10, INK, HORIZONTAL_ALIGNMENT_CENTER)
+	summary.name = "BoardOfferSummary_%d" % offer_index
+	summary.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	summary.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	copy.add_child(summary)
+	var selector_index := offer_index
+	selector.pressed.connect(func(): select_board_offer(selector_index))
+	return selector
 
 
 func board_hub_action(title: String, detail: String, color: Color, icon_kind: String, node_name: String, callback: Callable) -> Button:

@@ -49,14 +49,24 @@ func run_smoke_test() -> void:
 	check(scene.environment_context() == "world", "attributes resolve the original frontier-world environment")
 	scene.view_mode = "board"
 	check(scene.find_child("NextWarrantProgress", true, false) != null, "board keeps the next-warrant objective above the contract list")
+	check(scene.find_child("BoardTutorialOfferHint", true, false) != null and scene.find_child("BoardOfferSelectors", true, false) == null, "the first capture presents one guided warrant instead of a false three-way choice")
+	check(scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "the tutorial expands exactly one mission dossier")
 
 	var bounty: Dictionary = ContentDB.TARGETS[0].duplicate(true)
+	state.player.wins = 4
 	state.player.captures_by_target = {"gloop": 3}
 	state.player.reputation = 1
 	state.player.capture_streak = 2
 	scene.render()
 	await process_frame
-	check(scene.find_child("BoardChoiceHint", true, false) != null, "expanded board explains the primary-versus-repeat choice")
+	check(scene.find_child("BoardChoiceHint", true, false) != null, "expanded board explains the renewable three-offer choice")
+	check(scene.find_children("BoardOfferSelector_*", "Button", true, false).size() == 3 and scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "the normal board keeps three compact choices and one expanded dossier")
+	var initial_dossier_name := str(scene.find_children("BountyCard_*", "PanelContainer", true, false)[0].name)
+	(scene.find_child("BoardOfferSelector_1", true, false) as Button).pressed.emit()
+	await process_frame
+	check(scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1 and str(scene.find_children("BountyCard_*", "PanelContainer", true, false)[0].name) != initial_dossier_name, "selecting another compact ticket replaces rather than stacks the expanded dossier")
+	(scene.find_child("BoardOfferSelector_0", true, false) as Button).pressed.emit()
+	await process_frame
 	check(scene.find_child("BountyRole_gloop", true, false) != null and scene.find_child("BountyAction_gloop", true, false).text == "ANALISAR ABORDAGENS", "known targets retain mastery while the new board presents a fresh level-banded contract")
 	check(scene.find_child("BountyMastery_gloop", true, false) != null, "bounty cards expose target mastery progress")
 	check(scene.find_child("MasteryRoute_gloop", true, false) != null, "bounty board preserves the career mastery recommendation")
@@ -354,19 +364,19 @@ func run_smoke_test() -> void:
 	scene.board_section = "bounties"
 	check(state.travel_to_planet("congelaria_sa"), "UI state can travel to an unlocked planet")
 	await process_frame
-	check(scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 3, "interplanetary board remains complete after selecting the second discovered world")
+	check(scene.find_children("BoardOfferSelector_*", "Button", true, false).size() == 3 and scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "interplanetary board remains complete and compact after selecting the second discovered world")
 	state.player.completed_planets.append("congelaria_sa")
 	check(state.travel_to_planet("micelia_404"), "UI state can enter the third unlocked planet")
 	await process_frame
-	check(scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 3, "interplanetary board remains complete after selecting the third discovered world")
+	check(scene.find_children("BoardOfferSelector_*", "Button", true, false).size() == 3 and scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "interplanetary board remains complete and compact after selecting the third discovered world")
 	state.player.completed_planets.append("micelia_404")
 	check(state.travel_to_planet("ferro_velho_omega"), "UI state can enter the fourth unlocked planet")
 	await process_frame
-	check(scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 3, "interplanetary board remains complete after selecting the fourth discovered world")
+	check(scene.find_children("BoardOfferSelector_*", "Button", true, false).size() == 3 and scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "interplanetary board remains complete and compact after selecting the fourth discovered world")
 	state.player.completed_planets.append("ferro_velho_omega")
 	check(state.travel_to_planet("cassino_quasar"), "UI state can enter the fifth unlocked planet")
 	await process_frame
-	check(scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 3, "interplanetary board remains complete after selecting the fifth discovered world")
+	check(scene.find_children("BoardOfferSelector_*", "Button", true, false).size() == 3 and scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "interplanetary board remains complete and compact after selecting the fifth discovered world")
 	scene.view_mode = "galaxy"
 	scene.render()
 	await process_frame
