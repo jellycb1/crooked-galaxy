@@ -8,6 +8,7 @@ const StateScript = preload("res://scripts/game_state.gd")
 const AttributeIconScript = preload("res://scripts/attribute_icon.gd")
 const EquipmentPresentation = preload("res://scripts/equipment_presentation.gd")
 const LocaleRules = preload("res://scripts/locale_rules.gd")
+const UIDesignSystem = preload("res://scripts/ui_design_system.gd")
 
 const DEFINITIONS := [
 	{"id": "strength", "name": "FORÇA", "description": "Potência muscular, impacto e armas pesadas."},
@@ -37,16 +38,24 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var titles := VBoxContainer.new()
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(titles)
-	titles.add_child(host.label(text("HUNTER_TITLE", "CAÇADOR"), 25, host.INK))
-	titles.add_child(host.label(text("HUNTER_SUBTITLE", "EQUIPAMENTO · STATUS · ATRIBUTOS"), 11, host.MUTED))
-	var back := host.action_button(text("COMMON_BACK", "VOLTAR"), host.CYAN, true)
-	back.custom_minimum_size = Vector2(112, 48)
+	titles.add_child(host.scene_title(text("HUNTER_TITLE", "CAÇADOR")))
+	titles.add_child(host.readable_caption(text("HUNTER_SUBTITLE", "PERSONAGEM · EQUIPAMENTO · ATRIBUTOS")))
+	var back := host.secondary_action(text("COMMON_BACK", "VOLTAR"), host.CYAN)
+	back.custom_minimum_size.x = 150
 	back.pressed.connect(func():
 		host.attribute_draft = {}
+		host.hunter_section = "profile"
 		host.view_mode = "board"
 		host.call("render")
 	)
 	title_row.add_child(back)
+
+	var tabs := HBoxContainer.new()
+	tabs.name = "HunterSectionTabs"
+	tabs.add_theme_constant_override("separation", 10)
+	content.add_child(tabs)
+	tabs.add_child(hunter_section_tab(host, "profile", text("HUNTER_TAB_PROFILE", "EQUIPAMENTO"), host.CYAN))
+	tabs.add_child(hunter_section_tab(host, "attributes", text("HUNTER_TAB_ATTRIBUTES", "ATRIBUTOS"), host.GOLD))
 
 	var drafted := draft_total(host.attribute_draft)
 	var available := maxi(0, int(state.player.get("stat_points", 0)) - drafted)
@@ -62,22 +71,25 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 
 	var class_id := str(state.player.get("class_id", ClassRulesScript.UNASSIGNED_ID))
 	var class_definition := ClassRulesScript.get_definition(class_id)
-	sheet.add_child(hunter_profile(host, state, class_id, class_definition))
+	if host.hunter_section == "profile":
+		sheet.add_child(hunter_profile(host, state, class_id, class_definition))
+		return
 
-	var point_panel := host.panel(HBoxContainer.new(), host.PANEL_LIGHT, 16, 12)
+	var point_panel := host.panel(HBoxContainer.new(), host.PANEL_LIGHT, 16, 18)
+	point_panel.name = "HunterAttributePointPanel"
 	sheet.add_child(point_panel)
 	var point_row := point_panel.get_child(0) as HBoxContainer
 	point_row.add_theme_constant_override("separation", 12)
 	var point_copy := VBoxContainer.new()
 	point_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	point_row.add_child(point_copy)
-	point_copy.add_child(host.label(text("HUNTER_POINTS_AVAILABLE", "PONTOS DISPONÍVEIS"), 12, host.MUTED))
-	var point_value := host.label(str(available), 28, host.GOLD)
+	point_copy.add_child(host.readable_caption(text("HUNTER_POINTS_AVAILABLE", "PONTOS DISPONÍVEIS")))
+	var point_value := host.label(str(available), UIDesignSystem.FONT_DISPLAY, host.GOLD)
 	point_value.name = "AttributePoints"
 	point_copy.add_child(point_value)
-	point_row.add_child(host.label(text("HUNTER_POINTS_PER_LEVEL", "+%d POR NÍVEL", [Rules.ATTRIBUTE_POINTS_PER_LEVEL]), 13, host.LIME, HORIZONTAL_ALIGNMENT_RIGHT))
+	point_row.add_child(host.label(text("HUNTER_POINTS_PER_LEVEL", "+%d POR NÍVEL", [Rules.ATTRIBUTE_POINTS_PER_LEVEL]), UIDesignSystem.FONT_CAPTION, host.LIME, HORIZONTAL_ALIGNMENT_RIGHT))
 
-	var section_title := host.label(text("HUNTER_STATUS_ATTRIBUTES", "STATUS E ATRIBUTOS"), 17, host.INK)
+	var section_title := host.label(text("HUNTER_STATUS_ATTRIBUTES", "STATUS E ATRIBUTOS"), UIDesignSystem.FONT_SECTION_TITLE, host.INK)
 	section_title.name = "HunterAttributeHeading"
 	sheet.add_child(section_title)
 	var list := VBoxContainer.new()
@@ -90,7 +102,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 8)
 	content.add_child(actions)
-	var discard := host.action_button(text("HUNTER_DISCARD_DRAFT", "DESCARTAR RASCUNHO"), host.CORAL, true)
+	var discard := host.secondary_action(text("HUNTER_DISCARD_DRAFT", "DESCARTAR RASCUNHO"), host.CORAL)
 	discard.name = "DiscardAttributes"
 	discard.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	discard.disabled = drafted <= 0
@@ -99,7 +111,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		host.call("render")
 	)
 	actions.add_child(discard)
-	var confirm := host.action_button(text("HUNTER_CONFIRM_POINTS", "CONFIRMAR · %d", [drafted]), host.LIME, true)
+	var confirm := host.primary_action(text("HUNTER_CONFIRM_POINTS", "CONFIRMAR · %d", [drafted]), host.LIME)
 	confirm.name = "ConfirmAttributes"
 	confirm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	confirm.disabled = drafted <= 0
@@ -111,43 +123,56 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	actions.add_child(confirm)
 
 
+static func hunter_section_tab(host: CrookedUIFactory, section_id: String, title: String, accent: Color) -> Button:
+	var selected := host.hunter_section == section_id
+	var tab := host.primary_action(title, accent) if selected else host.secondary_action(title, accent)
+	tab.name = "HunterTab_%s" % section_id
+	tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tab.custom_minimum_size.y = 76
+	tab.pressed.connect(func():
+		host.hunter_section = section_id
+		host.call("render")
+	)
+	return tab
+
+
 static func hunter_profile(host: CrookedUIFactory, state: StateScript, class_id: String, class_definition: Dictionary) -> PanelContainer:
-	var profile := host.panel(VBoxContainer.new(), Color("#0b1430e8"), 18, 10)
+	var profile := host.focal_scene_panel(VBoxContainer.new())
 	profile.name = "HunterProfile"
 	var box := profile.get_child(0) as VBoxContainer
-	box.add_theme_constant_override("separation", 7)
+	box.add_theme_constant_override("separation", 16)
 
 	var identity := HBoxContainer.new()
 	identity.name = "HunterClassSummary"
-	identity.add_theme_constant_override("separation", 8)
+	identity.add_theme_constant_override("separation", 14)
 	box.add_child(identity)
 	var reference_icon := class_reference_icon(host, class_id)
 	if reference_icon != null:
-		reference_icon.custom_minimum_size = Vector2(42, 42)
+		reference_icon.custom_minimum_size = Vector2(72, 72)
 		identity.add_child(reference_icon)
 	var identity_copy := VBoxContainer.new()
 	identity_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	identity.add_child(identity_copy)
 	var hunter_name := str(state.player.get("hunter_name", ""))
 	if not hunter_name.is_empty():
-		var hunter_name_label := host.label(hunter_name.to_upper(), 17, host.INK)
+		var hunter_name_label := host.label(hunter_name.to_upper(), UIDesignSystem.FONT_SECTION_TITLE, host.INK)
 		hunter_name_label.name = "HunterName"
 		identity_copy.add_child(hunter_name_label)
-	identity_copy.add_child(host.label(ClassRulesScript.class_name_for(class_id), 13 if not hunter_name.is_empty() else 17, host.GOLD if not class_definition.is_empty() else host.CORAL))
+	identity_copy.add_child(host.label(ClassRulesScript.class_name_for(class_id), 21 if not hunter_name.is_empty() else 28, host.GOLD if not class_definition.is_empty() else host.CORAL))
 	var identity_detail := text("HUNTER_IDENTITY_LEVEL", "%s · NÍVEL %d", [SpeciesRulesScript.species_name_for(str(state.player.get("species_id", ""))).to_upper(), int(state.player.get("level", 1))])
 	if not class_definition.is_empty():
 		identity_detail += text("HUNTER_PRIMARY_SUFFIX", " · PRINCIPAL %s", [localized_class_field(class_definition, "primary_name")])
-	identity_copy.add_child(host.label(identity_detail, 10, host.MUTED))
+	identity_copy.add_child(host.readable_caption(identity_detail))
 	var class_mechanic_text := ClassRulesScript.combat_identity_text(state.player, Rules.BASE_ATTRIBUTE_VALUE)
 	if not class_mechanic_text.is_empty():
-		var class_mechanic := host.label(class_mechanic_text, 10, host.CYAN)
+		var class_mechanic := host.readable_caption(class_mechanic_text, host.CYAN)
 		class_mechanic.name = "HunterClassMechanic"
 		class_mechanic.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		identity_copy.add_child(class_mechanic)
 
 	var showcase := HBoxContainer.new()
 	showcase.alignment = BoxContainer.ALIGNMENT_CENTER
-	showcase.add_theme_constant_override("separation", 10)
+	showcase.add_theme_constant_override("separation", 16)
 	box.add_child(showcase)
 	showcase.add_child(equipment_slot(host, state.player.get("weapon", {}), "weapon"))
 	var portrait_column := VBoxContainer.new()
@@ -155,7 +180,7 @@ static func hunter_profile(host: CrookedUIFactory, state: StateScript, class_id:
 	portrait_column.size_flags_stretch_ratio = 1.35
 	portrait_column.alignment = BoxContainer.ALIGNMENT_CENTER
 	showcase.add_child(portrait_column)
-	var portrait: Control = host.call("framed_hunter_portrait", 154.0)
+	var portrait: Control = host.call("framed_hunter_portrait", 240.0)
 	portrait.name = "HunterProfilePortrait"
 	portrait.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	portrait_column.add_child(portrait)
@@ -163,32 +188,32 @@ static func hunter_profile(host: CrookedUIFactory, state: StateScript, class_id:
 	var secondary_grid := GridContainer.new()
 	secondary_grid.name = "HunterUniversalEquipment"
 	secondary_grid.columns = 4
-	secondary_grid.add_theme_constant_override("h_separation", 6)
-	secondary_grid.add_theme_constant_override("v_separation", 6)
+	secondary_grid.add_theme_constant_override("h_separation", 8)
+	secondary_grid.add_theme_constant_override("v_separation", 8)
 	box.add_child(secondary_grid)
 	for slot_id in Rules.EQUIPMENT_SLOTS:
 		if slot_id == "weapon" or slot_id == "armor":
 			continue
 		secondary_grid.add_child(compact_equipment_slot(host, state.player.get(slot_id, {}), slot_id))
 	var kit_origin := Rules.equipment_set_origin(state.player)
-	var portrait_caption := host.center_label(text("HUNTER_PLANETARY_KIT_ACTIVE", "KIT PLANETÁRIO ATIVO") if not kit_origin.is_empty() else text("HUNTER_LOADOUT_EQUIPPED", "LOADOUT EQUIPADO"), 9, host.GOLD if not kit_origin.is_empty() else host.MUTED)
+	var portrait_caption := host.center_label(text("HUNTER_PLANETARY_KIT_ACTIVE", "KIT PLANETÁRIO ATIVO") if not kit_origin.is_empty() else text("HUNTER_LOADOUT_EQUIPPED", "LOADOUT EQUIPADO"), UIDesignSystem.FONT_CAPTION, host.GOLD if not kit_origin.is_empty() else host.MUTED)
 	box.add_child(portrait_caption)
 
 	var metrics := HBoxContainer.new()
 	metrics.name = "HunterCombatStatus"
-	metrics.add_theme_constant_override("separation", 6)
+	metrics.add_theme_constant_override("separation", 8)
 	box.add_child(metrics)
-	metrics.add_child(host.metric_chip(text("COMMON_POWER", "PODER"), str(Rules.player_power(state.player)), host.GOLD))
-	metrics.add_child(host.metric_chip(text("COMMON_HEALTH", "VIDA"), str(Rules.max_health(state.player)), host.LIME))
-	metrics.add_child(host.metric_chip(text("HUNTER_OPENING", "ABERTURA"), "+%d" % Rules.player_opening_damage(state.player), host.CYAN))
-	metrics.add_child(host.metric_chip(text("HUNTER_REDUCTION", "REDUÇÃO"), "-%d" % Rules.player_damage_reduction(state.player), host.CORAL))
+	metrics.add_child(hunter_metric_chip(host, text("COMMON_POWER", "PODER"), str(Rules.player_power(state.player)), host.GOLD))
+	metrics.add_child(hunter_metric_chip(host, text("COMMON_HEALTH", "VIDA"), str(Rules.max_health(state.player)), host.LIME))
+	metrics.add_child(hunter_metric_chip(host, text("HUNTER_OPENING", "ABERTURA"), "+%d" % Rules.player_opening_damage(state.player), host.CYAN))
+	metrics.add_child(hunter_metric_chip(host, text("HUNTER_REDUCTION", "REDUÇÃO"), "-%d" % Rules.player_damage_reduction(state.player), host.CORAL))
 
 	var profile_actions := HBoxContainer.new()
 	profile_actions.add_theme_constant_override("separation", 8)
 	box.add_child(profile_actions)
-	var choose_class := host.action_button(text("NAV_CLASS", "CLASSE"), host.CYAN, true)
+	var choose_class := host.secondary_action(text("NAV_CLASS", "CLASSE"), host.CYAN)
 	choose_class.name = "ChooseClassAction"
-	choose_class.custom_minimum_size = Vector2(0, 48)
+	choose_class.custom_minimum_size.x = 0
 	choose_class.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	choose_class.pressed.connect(func():
 		host.class_draft = ""
@@ -196,9 +221,9 @@ static func hunter_profile(host: CrookedUIFactory, state: StateScript, class_id:
 		host.call("render")
 	)
 	profile_actions.add_child(choose_class)
-	var arsenal := host.action_button(text("NAV_ARSENAL", "ARSENAL"), host.GOLD, true)
+	var arsenal := host.secondary_action(text("NAV_ARSENAL", "ARSENAL"), host.GOLD)
 	arsenal.name = "HunterArsenalAction"
-	arsenal.custom_minimum_size = Vector2(0, 48)
+	arsenal.custom_minimum_size.x = 0
 	arsenal.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	arsenal.pressed.connect(func():
 		host.attribute_draft = {}
@@ -210,39 +235,53 @@ static func hunter_profile(host: CrookedUIFactory, state: StateScript, class_id:
 	return profile
 
 
+static func hunter_metric_chip(host: CrookedUIFactory, title: String, value: String, color: Color) -> PanelContainer:
+	var chip := host.panel(VBoxContainer.new(), Color("#09132acc"), 12, 10)
+	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var box := chip.get_child(0) as VBoxContainer
+	box.add_child(host.center_label(title, UIDesignSystem.FONT_CAPTION, host.MUTED))
+	box.add_child(host.center_label(value, UIDesignSystem.FONT_EMPHASIS, color))
+	return chip
+
+
 static func equipment_slot(host: CrookedUIFactory, item_value: Variant, slot_id: String) -> PanelContainer:
 	var item: Dictionary = item_value if item_value is Dictionary else {}
 	var slot_title := EquipmentPresentation.localized_slot(slot_id).to_upper()
-	var slot := host.panel(VBoxContainer.new(), Color("#090f25"), 13, 8)
+	var slot := host.panel(VBoxContainer.new(), Color("#090f25"), 13, 10)
 	slot.name = "HunterEquipment_%s" % slot_id
-	slot.custom_minimum_size = Vector2(88, 0)
+	slot.custom_minimum_size = Vector2(112, 0)
 	slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	slot.size_flags_stretch_ratio = 0.9
 	var box := slot.get_child(0) as VBoxContainer
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation", 2)
-	box.add_child(host.center_label(slot_title, 10, host.MUTED))
+	box.add_child(host.center_label(slot_title, UIDesignSystem.FONT_CAPTION, host.MUTED))
 	var icon_item := item.duplicate(true)
 	icon_item.slot = slot_id
-	var icon := host.equipment_icon(icon_item, 62)
+	var icon := host.equipment_icon(icon_item, 82)
 	box.add_child(icon)
-	box.add_child(host.center_label(text("HUNTER_SLOT_POWER", "+%d PODER", [int(item.get("power", 0))]), 10, host.GOLD))
+	box.add_child(host.center_label(text("HUNTER_SLOT_POWER", "+%d PODER", [int(item.get("power", 0))]), UIDesignSystem.FONT_CAPTION, host.GOLD))
 	slot.tooltip_text = "%s · %s" % [slot_title, EquipmentPresentation.localized_item_field(item, "name") if not item.is_empty() else text("HUNTER_EMPTY_SLOT", "SLOT VAZIO")]
 	return slot
 
 
 static func compact_equipment_slot(host: CrookedUIFactory, item_value: Variant, slot_id: String) -> PanelContainer:
 	var item: Dictionary = item_value if item_value is Dictionary else {}
-	var slot := host.panel(VBoxContainer.new(), Color("#090f25"), 7, 5)
+	var slot := host.panel(VBoxContainer.new(), Color("#090f25"), 9, 8)
 	slot.name = "HunterEquipment_%s" % slot_id
 	slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var box := slot.get_child(0) as VBoxContainer
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_child(host.center_label(EquipmentPresentation.localized_slot(slot_id).to_upper(), 8, host.MUTED))
+	var slot_label := host.center_label(EquipmentPresentation.localized_slot(slot_id).to_upper(), UIDesignSystem.FONT_CAPTION, host.MUTED)
+	slot_label.name = "HunterEquipmentLabel_%s" % slot_id
+	slot_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	box.add_child(slot_label)
 	var icon_item := item.duplicate(true)
 	icon_item.slot = slot_id
-	box.add_child(host.equipment_icon(icon_item, 42))
-	box.add_child(host.center_label("+%d" % int(item.get("power", 0)) if not item.is_empty() else text("HUNTER_EMPTY", "VAZIO"), 9, host.GOLD if not item.is_empty() else host.MUTED))
+	box.add_child(host.equipment_icon(icon_item, 54))
+	var power_label := host.center_label("+%d" % int(item.get("power", 0)) if not item.is_empty() else text("HUNTER_EMPTY", "VAZIO"), UIDesignSystem.FONT_CAPTION, host.GOLD if not item.is_empty() else host.MUTED)
+	power_label.name = "HunterEquipmentPower_%s" % slot_id
+	box.add_child(power_label)
 	slot.tooltip_text = "%s · %s" % [EquipmentPresentation.localized_slot(slot_id), EquipmentPresentation.localized_item_field(item, "name") if not item.is_empty() else text("HUNTER_EMPTY_SLOT", "SLOT VAZIO")]
 	return slot
 static func class_reference_icon(host: CrookedUIFactory, class_id: String) -> Control:
@@ -257,12 +296,12 @@ static func attribute_card(host: CrookedUIFactory, state: StateScript, definitio
 	var attribute_id := str(definition.id)
 	var draft_amount := int(host.attribute_draft.get(attribute_id, 0))
 	var value := Rules.attribute_value(state.player, attribute_id) + draft_amount
-	var card := host.panel(HBoxContainer.new(), host.PANEL, 15, 10)
+	var card := host.panel(HBoxContainer.new(), host.PANEL, 15, 14)
 	card.name = "Attribute_%s" % attribute_id
 	var row := card.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 12)
 	var value_stack := VBoxContainer.new()
-	value_stack.custom_minimum_size = Vector2(54, 0)
+	value_stack.custom_minimum_size = Vector2(72, 0)
 	value_stack.alignment = BoxContainer.ALIGNMENT_CENTER
 	value_stack.add_theme_constant_override("separation", 0)
 	row.add_child(value_stack)
@@ -271,16 +310,18 @@ static func attribute_card(host: CrookedUIFactory, state: StateScript, definitio
 	glyph.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	glyph.configure(attribute_id)
 	value_stack.add_child(glyph)
-	var value_label := host.center_label(str(value), 18, host.GOLD if draft_amount > 0 else host.INK)
+	var value_label := host.center_label(str(value), UIDesignSystem.FONT_EMPHASIS, host.GOLD if draft_amount > 0 else host.INK)
 	value_stack.add_child(value_label)
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	copy.add_child(host.label(attribute_name(attribute_id, str(definition.name)).to_upper(), 16, host.CYAN))
-	copy.add_child(host.label(attribute_effect(attribute_id, value), 10, host.LIME))
-	var add := host.action_button("+1", host.GOLD, true)
+	copy.add_child(host.label(attribute_name(attribute_id, str(definition.name)).to_upper(), UIDesignSystem.FONT_BODY, host.CYAN))
+	var effect := host.readable_caption(attribute_effect(attribute_id, value), host.LIME)
+	effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	copy.add_child(effect)
+	var add := host.secondary_action("+1", host.GOLD)
 	add.name = "AttributeAdd_%s" % attribute_id
-	add.custom_minimum_size = Vector2(72, 48)
+	add.custom_minimum_size = Vector2(88, 76)
 	add.disabled = available <= 0
 	var captured_id := attribute_id
 	add.pressed.connect(func(): add_to_draft(host, state, captured_id))

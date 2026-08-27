@@ -1,5 +1,7 @@
 extends SceneTree
 
+const UIDesignSystem = preload("res://scripts/ui_design_system.gd")
+
 var failures := 0
 
 
@@ -117,8 +119,12 @@ func run_mobile_audit() -> void:
 	scene.view_mode = "attributes"
 	scene.render()
 	await process_frame
-	check(find_label_with_text(scene, "HUNTER") != null and find_label_with_text(scene, "EQUIPMENT · STATS · ATTRIBUTES") != null and find_label_with_text(scene, "STARWORN · LEVEL 1") != null and find_label_with_text(scene, "ORBIT GUNSLINGER") != null and find_label_with_text(scene, "AVAILABLE POINTS") != null, "English catalog covers hunter identity, equipment overview, and spendable status points")
-	check(["STRENGTH", "VITALITY", "DEXTERITY", "INTELLIGENCE", "CUNNING"].all(func(attribute_name): return find_label_with_text(scene, attribute_name) != null) and find_label_with_text(scene, "UNIVERSAL BONUS") != null, "English hunter sheet covers all five attributes and their live mechanical effects")
+	check(find_label_with_text(scene, "HUNTER") != null and find_label_with_text(scene, "EQUIPMENT · STATS · ATTRIBUTES") != null and find_label_with_text(scene, "STARWORN · LEVEL 1") != null and find_label_with_text(scene, "ORBIT GUNSLINGER") != null and (scene.find_child("HunterTab_attributes", true, false) as Button).text == "ATTRIBUTES", "English catalog covers hunter identity, equipment overview, and the dedicated attribute route")
+	(scene.find_child("HunterTab_attributes", true, false) as Button).pressed.emit()
+	await process_frame
+	check(find_label_with_text(scene, "AVAILABLE POINTS") != null and ["STRENGTH", "VITALITY", "DEXTERITY", "INTELLIGENCE", "CUNNING"].all(func(attribute_name): return find_label_with_text(scene, attribute_name) != null) and find_label_with_text(scene, "UNIVERSAL BONUS") != null, "English attribute section covers spendable points and all five live mechanical effects")
+	(scene.find_child("HunterTab_profile", true, false) as Button).pressed.emit()
+	await process_frame
 	(scene.find_child("ChooseClassAction", true, false) as Button).pressed.emit()
 	await process_frame
 	check(find_label_with_text(scene, "HUNTER CLASS") != null and find_label_with_text(scene, "INITIAL CLASSES · FREE SWITCHING") != null and find_label_with_text(scene, "WARRANT BREAKER") != null and find_label_with_text(scene, "CONTRACT HACKER") != null and find_label_with_text(scene, "CONTRACT STYLE") != null and (scene.find_child("ConfirmClass", true, false) as Button).text == "CONFIRM CLASS", "English catalog covers the complete three-class comparison and confirmation surface")
@@ -126,7 +132,10 @@ func run_mobile_audit() -> void:
 	scene.arsenal_section = "equipped"
 	scene.render()
 	await process_frame
-	check(find_label_with_text(scene, "ARSENAL") != null and find_label_with_text(scene, "BUILD AND UPGRADES") != null and find_label_with_text(scene, "WORKSHOP") != null and find_label_with_text(scene, "UNIVERSAL SHEET") != null and find_label_with_text(scene, "FIELD TEST") != null and find_label_with_text(scene, "Training Zapper") != null and find_label_with_text(scene, "Questionable Space Jacket") != null, "English equipped arsenal covers starter gear, universal slots, workshop economy, and field-test guidance")
+	check(find_label_with_text(scene, "ARSENAL") != null and find_label_with_text(scene, "BUILD AND UPGRADES") != null and find_label_with_text(scene, "UNIVERSAL SHEET") != null and scene.find_child("UniversalSlot_weapon", true, false) != null and scene.find_child("UniversalSlot_armor", true, false) != null and (scene.find_child("ArsenalTab_workshop", true, false) as Button).text == "WORKSHOP", "English equipped arsenal focuses on universal slots while exposing the dedicated workshop")
+	(scene.find_child("ArsenalTab_workshop", true, false) as Button).pressed.emit()
+	await process_frame
+	check(find_label_with_text(scene, "FIELD TEST") != null and scene.find_child("Upgrade_weapon", true, false) != null, "English workshop isolates field guidance and upgrade actions")
 	(scene.find_child("ArsenalTab_inventory", true, false) as Button).pressed.emit()
 	await process_frame
 	check(find_label_with_text(scene, "BACKPACK · 30 ITEMS") != null and (scene.find_child("InventoryFilter_all", true, false) as Button).text == "ALL" and (scene.find_child("InventorySort", true, false) as Button).text.contains("SORT") and find_label_with_text(scene, "Pocket Deatomizer") != null and find_label_with_text(scene, "COMMON · WEAPON") != null, "English backpack covers catalog identity, rarity, slots, filters, sorting, paging, and item comparison")
@@ -197,7 +206,10 @@ func run_mobile_audit() -> void:
 	await process_frame
 	check(find_label_with_text(scene, "HUNT INCIDENT") != null and find_label_with_text(scene, "D-7 Drone Toll") != null and find_label_with_text(scene, "The drone reveals weak points: -18% target defense.") != null and (scene.find_child("HuntChoice_detour", true, false) as Button).text == "CHOOSE", "English catalog covers the complete live incident decision")
 	var english_ignore := scene.find_child("HuntEventIgnoreAction", true, false) as Button
+	var english_abandon := scene.find_child("HuntAbandonAction", true, false) as Button
+	var english_choice := scene.find_child("HuntChoice_detour", true, false) as Button
 	check(english_ignore != null and english_ignore.text == "IGNORE · CONTINUE ROUTE" and english_ignore.custom_minimum_size.y >= 48.0, "incident exposes a localized touch-safe neutral exit")
+	check(english_ignore != null and english_abandon != null and english_choice != null and english_ignore.get_theme_font_size("font_size") >= UIDesignSystem.FONT_CAPTION and english_abandon.get_theme_font_size("font_size") >= UIDesignSystem.FONT_CAPTION and english_choice.get_theme_font_size("font_size") >= UIDesignSystem.FONT_CAPTION, "incident decisions preserve the Android typography floor")
 	(scene.find_child("HuntChoice_detour", true, false) as Button).pressed.emit()
 	await process_frame
 	check(find_label_with_text(scene, "The detour ended behind the target. For once, a road sign helped.") != null, "English incident result survives the committed choice and resumed hunt")
@@ -249,6 +261,12 @@ func run_mobile_audit() -> void:
 	check_touch_targets(scene, "bounty board")
 	var header_character := scene.find_child("HeaderCharacterAction", true, false) as Button
 	check(header_character != null and header_character.size.y >= 48.0, "header character card remains a mobile touch target")
+	var board_header := scene.find_child("BountyBoardHeader", true, false) as VBoxContainer
+	var board_ledger := scene.find_child("HeaderResourceStrip", true, false) as PanelContainer
+	var board_xp := scene.find_child("BoardXpStatus", true, false) as Label
+	var safe_right := scene.get_viewport_rect().size.x - float(scene.safe_container.get_theme_constant("margin_right"))
+	check(board_header != null and board_header.global_position.x + board_header.size.x <= safe_right + 0.5 and board_ledger != null and board_ledger.size.x <= board_header.size.x, "board identity and resource ledger remain inside the Android safe width")
+	check(board_xp != null and board_xp.global_position.x + board_xp.size.x <= safe_right + 0.5, "board XP status remains visible inside the Android safe width")
 	check(scene.find_child("BountyScroll", true, false) != null and scene.find_child("BoardHubGrid", true, false) == null, "bounty board opens directly on contracts without competing destination actions")
 	check(scene.find_child("BoardTutorialOfferHint", true, false) != null and scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "fresh mobile hunters see one guided dossier")
 	state.player.wins = 1
@@ -270,18 +288,23 @@ func run_mobile_audit() -> void:
 		menu_action.pressed.emit()
 		await process_frame
 	var board_hub_grid := scene.find_child("BoardHubGrid", true, false) as GridContainer
-	check(board_hub_grid != null and board_hub_grid.columns == 2 and board_hub_grid.get_child_count() == 5, "secondary menu uses a readable two-column mobile grid for five destinations")
+	check(board_hub_grid != null and board_hub_grid.columns == 2 and board_hub_grid.get_child_count() == 4, "secondary menu groups four game destinations in a balanced two-column mobile grid")
 	check(scene.find_children("PrimaryNav_*", "Button", true, false).size() == 5 and scene.find_children("PrimaryNavIcon_*", "Control", true, false).size() == 5, "rapid menu navigation replaces the dock atomically without stale or missing items")
 	var updated_contract_icon := scene.find_child("PrimaryNavIcon_contracts", true, false) as Control
 	check(updated_contract_icon != null and updated_contract_icon.get_instance_id() == stable_contract_icon_id, "primary navigation updates selection in place instead of rebuilding mobile CanvasItems")
-	check(scene.find_children("BoardHubIcon_*", "Control", true, false).size() == 5, "every secondary service has a scalable navigation icon")
+	check(scene.find_children("BoardHubIcon_*", "Control", true, false).size() == 5, "every secondary service, including the full-width system action, has a scalable navigation icon")
 	check(scene.find_children("BoardHubTitle_*", "Label", true, false).size() == 5 and scene.find_children("BoardHubDetail_*", "Label", true, false).size() == 5, "secondary services pair readable location names with concise functional descriptions")
+	check(scene.find_children("BoardHubTitle_*", "Label", true, false).all(func(hub_title): return (hub_title as Label).get_theme_font_size("font_size") >= 18) and scene.find_children("BoardHubDetail_*", "Label", true, false).all(func(hub_detail): return (hub_detail as Label).get_theme_font_size("font_size") >= 18), "secondary service labels meet the physical Android readability floor")
 	var settings_action := scene.find_child("BoardSettingsAction", true, false) as Button
 	check(settings_action != null, "settings live in the secondary menu instead of the equipment inventory")
 	if settings_action != null:
 		settings_action.pressed.emit()
 		await process_frame
 	check(scene.view_mode == "settings" and scene.find_child("SettingsPanel", true, false) != null, "settings open as a dedicated game surface")
+	check(["SettingsExperienceDescription", "SettingsAccountDescription", "SettingsAccountRevision", "SoundPreferenceActionDescription", "MotionPreferenceActionDescription"].all(func(node_name):
+		var copy := scene.find_child(node_name, true, false) as Label
+		return copy != null and copy.get_theme_font_size("font_size") >= 18
+	), "settings explanatory text remains readable at the 450x800 Android presentation size")
 	check(scene.find_child("ArsenalSectionTabs", true, false) == null, "dedicated settings do not inherit arsenal navigation")
 	check(scene.android_back_action() == "menu", "Android Back returns dedicated settings to the service menu")
 	scene.open_frontier_menu()
@@ -386,6 +409,9 @@ func run_mobile_audit() -> void:
 	scene.view_mode = "attributes"
 	scene.render()
 	await process_frame
+	await process_frame
+	check_touch_targets(scene, "hunter profile")
+	(scene.find_child("HunterTab_attributes", true, false) as Button).pressed.emit()
 	await process_frame
 	check_touch_targets(scene, "attributes")
 	check(scene.find_child("AttributeScroll", true, false) != null and scene.find_children("AttributeAdd_*", "Button", true, false).size() == 5, "all five attributes remain reachable in the portrait scroller")

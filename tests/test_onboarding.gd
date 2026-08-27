@@ -2,6 +2,7 @@ extends SceneTree
 
 const Species = preload("res://scripts/species_rules.gd")
 const Locales = preload("res://scripts/locale_rules.gd")
+const UIDesignSystem = preload("res://scripts/ui_design_system.gd")
 
 var failures := 0
 var state
@@ -77,6 +78,11 @@ func run_test() -> void:
 	var english := scene.find_child("OnboardingLanguage_en", true, false) as Button
 	check(portuguese != null and portuguese.disabled and english != null and not english.disabled and not english.text.contains("EM TRADUÇÃO"), "login offers both complete languages and marks only the active one selected")
 	check(scene.find_child("OnboardingServer_international_1", true, false) != null and scene.find_child("OnboardingServerSelected", true, false) != null, "login binds the first account world to International 1")
+	var server_dossier := scene.find_child("OnboardingServer_international_1", true, false) as PanelContainer
+	check(server_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "login introduces the illustrated focal language before character creation")
+	var progress := scene.find_child("OnboardingProgress", true, false) as Label
+	var session_description := scene.find_child("OnboardingSessionDescription", true, false) as Label
+	check(progress != null and progress.get_theme_font_size("font_size") >= UIDesignSystem.FONT_CAPTION and session_description != null and session_description.get_theme_font_size("font_size") >= UIDesignSystem.FONT_CAPTION, "login guidance uses the Android-readable caption token")
 	check_onboarding_touch_targets(scene, "login")
 	var login := scene.find_child("OnboardingLoginAction", true, false) as Button
 	login.pressed.emit()
@@ -84,6 +90,8 @@ func run_test() -> void:
 	check(state.onboarding_step() == "class" and str(state.account.server_id) == "international_1" and str(state.account.locale_id) == "pt" and TranslationServer.get_locale().begins_with("pt") and not state.account.has("password"), "local login applies language and stores server identity without credentials")
 	check(scene.find_children("OnboardingClass_*", "PanelContainer", true, false).size() == 3, "mandatory class step shows the complete initial trio")
 	check(scene.find_child("OnboardingClassPreview", true, false) != null and scene.find_child("OnboardingClassPreviewName", true, false) != null, "class choice owns a live archetype preview before confirmation")
+	var class_preview := scene.find_child("OnboardingClassPreview", true, false) as PanelContainer
+	check(class_preview.get_theme_stylebox("panel") is StyleBoxTexture, "class onboarding reserves the illustrated frame for its live preview")
 	scene.class_draft = "orbit_gunslinger"
 	scene.render()
 	check(scene.find_child("OnboardingClassPreviewIcon", true, false) != null, "the Orbit Gunslinger preview uses its deliberate vector emblem while replacement art is unapproved")
@@ -112,6 +120,8 @@ func run_test() -> void:
 	check(scene.find_children("OnboardingSpecies_*", "PanelContainer", true, false).size() == 8, "species step exposes all eight visual origins")
 	check(scene.find_children("OnboardingSpeciesIcon_*", "Control", true, false).size() == 8, "every initial species has an original scalable emblem")
 	check(scene.find_child("OnboardingSpeciesPreviewPortrait", true, false) != null and scene.find_child("OnboardingSpeciesPreviewName", true, false) != null, "species choice previews the assembled hunter before confirmation")
+	var species_preview := scene.find_child("OnboardingSpeciesPreview", true, false) as PanelContainer
+	check(species_preview.get_theme_stylebox("panel") is StyleBoxTexture, "species onboarding keeps the same focused preview hierarchy")
 	var species_scroll := scene.find_child("OnboardingScroll", true, false) as ScrollContainer
 	var fixed_species_confirm := scene.find_child("OnboardingSpeciesConfirm", true, false) as Button
 	check(fixed_species_confirm != null and fixed_species_confirm.get_parent() != species_scroll.get_child(0), "species confirmation stays outside the long scrolling roster")
@@ -170,6 +180,7 @@ func run_test() -> void:
 	var name_input := scene.find_child("OnboardingNameInput", true, false) as LineEdit
 	var name_confirm := scene.find_child("OnboardingNameConfirm", true, false) as Button
 	check(name_input != null and name_confirm != null and name_confirm.disabled, "empty hunter names cannot finish creation")
+	check(name_input != null and name_input.get_theme_font_size("font_size") >= UIDesignSystem.FONT_BODY, "hunter naming uses the Android body-text token")
 	check_onboarding_touch_targets(scene, "name")
 	name_input.text = "  Nova   Vex  "
 	name_input.text_changed.emit(name_input.text)
@@ -207,7 +218,7 @@ func check_onboarding_touch_targets(scene: Control, step: String) -> void:
 	for candidate in scene.find_children("*", "Button", true, false):
 		var button := candidate as Button
 		if button.visible:
-			check(button.custom_minimum_size.y >= 48.0, "%s action '%s' remains a mobile touch target" % [step, str(button.name)])
+			check(UIDesignSystem.is_safe_touch_target(button.custom_minimum_size.y), "%s action '%s' remains a physical Android touch target" % [step, str(button.name)])
 
 
 func finish() -> void:

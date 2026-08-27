@@ -8,6 +8,7 @@ const StateScript = preload("res://scripts/game_state.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
 const LocaleRules = preload("res://scripts/locale_rules.gd")
 const MissionRules = preload("res://scripts/mission_rules.gd")
+const UIDesignSystem = preload("res://scripts/ui_design_system.gd")
 const INVENTORY_PAGE_SIZE := 12
 
 
@@ -48,19 +49,20 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var titles := VBoxContainer.new()
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(titles)
-	titles.add_child(host.label(text("ARSENAL_TITLE", "ARSENAL"), 26, host.INK))
+	titles.add_child(host.scene_title(text("ARSENAL_TITLE", "ARSENAL")))
 	var subtitle_text := text("ARSENAL_BUILD_UPGRADES", "BUILD E MELHORIAS")
 	if host.arsenal_section == "inventory":
 		subtitle_text = text("ARSENAL_BACKPACK_COUNT", "MOCHILA · %d ITENS", [state.player.inventory.size()])
-	var subtitle := host.label(subtitle_text, 11, host.MUTED)
+	elif host.arsenal_section == "workshop":
+		subtitle_text = text("ARSENAL_WORKSHOP_SUBTITLE", "TESTE DE CAMPO · MELHORIAS")
+	var subtitle := host.readable_caption(subtitle_text)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	titles.add_child(subtitle)
-	if host.arsenal_section == "equipped" and not readiness.is_empty() and bool(readiness.target_available):
+	if host.arsenal_section == "workshop" and not readiness.is_empty() and bool(readiness.target_available):
 		var focused_target: Dictionary = readiness.target
-		var analyze := host.action_button(text("ARSENAL_CHOOSE_ROUTE", "ESCOLHER ROTA"), host.LIME, true)
+		var analyze := host.secondary_action(text("ARSENAL_CHOOSE_ROUTE", "ESCOLHER ROTA"), host.LIME)
 		analyze.name = "FieldReadinessAction"
-		analyze.custom_minimum_size = Vector2(150, 48)
-		analyze.add_theme_font_size_override("font_size", 12)
+		analyze.custom_minimum_size.x = 180
 		var target_id := str(focused_target.id)
 		analyze.pressed.connect(func():
 			host.view_mode = "board"
@@ -73,8 +75,8 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 			state.select_bounty(focused_target)
 		)
 		title_row.add_child(analyze)
-	var back := host.action_button(text("COMMON_BACK", "VOLTAR"), host.CYAN, true)
-	back.custom_minimum_size = Vector2(96, 48)
+	var back := host.secondary_action(text("COMMON_BACK", "VOLTAR"), host.CYAN)
+	back.custom_minimum_size.x = 150
 	back.pressed.connect(func():
 		host.view_mode = "board"
 		host.board_section = "bounties"
@@ -85,6 +87,8 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	match host.arsenal_section:
 		"inventory":
 			build_inventory_section(host, content, state)
+		"workshop":
+			build_workshop_section(host, content, state, readiness)
 		_:
 			build_equipped_section(host, content, state, readiness)
 
@@ -95,15 +99,15 @@ static func section_tabs(host: CrookedUIFactory) -> HBoxContainer:
 	tabs.add_theme_constant_override("separation", 8)
 	for definition in [
 		{"id": "equipped", "text": text("ARSENAL_EQUIPPED", "EQUIPADO"), "color": host.GOLD},
+		{"id": "workshop", "text": text("ARSENAL_WORKSHOP_TAB", "OFICINA"), "color": host.LIME},
 		{"id": "inventory", "text": text("ARSENAL_BACKPACK", "MOCHILA"), "color": host.CYAN},
 	]:
 		var section := str(definition.id)
 		var selected := host.arsenal_section == section
-		var tab := host.action_button(str(definition.text), definition.color, not selected)
+		var tab := host.primary_action(str(definition.text), definition.color) if selected else host.secondary_action(str(definition.text), definition.color)
 		tab.name = "ArsenalTab_%s" % section
 		tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		tab.custom_minimum_size = Vector2(0, 48)
-		tab.add_theme_font_size_override("font_size", 13)
+		tab.custom_minimum_size = Vector2(0, 76)
 		tab.pressed.connect(func():
 			host.arsenal_section = section
 			host.call("render")
@@ -113,35 +117,59 @@ static func section_tabs(host: CrookedUIFactory) -> HBoxContainer:
 
 
 static func build_equipped_section(host: CrookedUIFactory, content: VBoxContainer, state: StateScript, readiness: Dictionary) -> void:
-
+	var section := scrollable_section(content, "EquippedScroll")
 	var notice_context := str(state.last_notice_context)
 	if notice_context == "workshop" or notice_context.begins_with("reward_"):
 		var notice_title := text("ARSENAL_WORKSHOP_LOG", "REGISTRO DA OFICINA") if notice_context == "workshop" else text("ARSENAL_CONTRACT_RECEIPT", "RECIBO DE CONTRATO")
-		var notice := host.label("%s · %s" % [notice_title, state.last_notice], 11, host.LIME)
+		var notice := host.readable_caption("%s · %s" % [notice_title, state.last_notice], host.LIME)
 		notice.name = "WorkshopNotice"
 		notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		content.add_child(notice)
-	content.add_child(host.label(text("ARSENAL_WORKSHOP_STATUS", "OFICINA · %d SUCATA · PODER TOTAL %d", [int(state.player.get("scrap", 0)), Rules.player_power(state.player)]), 14, host.GOLD))
+		section.add_child(notice)
+	section.add_child(host.readable_body(text("ARSENAL_WORKSHOP_STATUS", "OFICINA · %d SUCATA · PODER TOTAL %d", [int(state.player.get("scrap", 0)), Rules.player_power(state.player)]), host.GOLD))
 	var set_origin := Rules.equipment_set_origin(state.player)
 	var set_text := text("ARSENAL_KIT_INACTIVE", "KIT PLANETÁRIO · INATIVO · combine arma e armadura da mesma origem")
 	var set_color := host.MUTED
 	if not set_origin.is_empty():
 		set_text = text("ARSENAL_KIT_ACTIVE", "KIT PLANETÁRIO · %s · +%d PODER · +%d VIDA", [localized_content("planet", Content.get_planet(set_origin), "name").to_upper(), Rules.PLANETARY_KIT_POWER_BONUS, Rules.PLANETARY_KIT_HEALTH_BONUS])
 		set_color = host.LIME
-	var set_label := host.label(set_text, 12, set_color)
+	var set_label := host.readable_caption(set_text, set_color)
 	set_label.name = "PlanetaryKitStatus"
-	content.add_child(set_label)
-	content.add_child(universal_equipment_grid(host, state))
-	content.add_child(field_readiness_card(host, state, readiness))
+	section.add_child(set_label)
+	section.add_child(universal_equipment_grid(host, state))
+	section.add_child(loadout_toolbar(host, state))
+
+
+static func build_workshop_section(host: CrookedUIFactory, content: VBoxContainer, state: StateScript, readiness: Dictionary) -> void:
+	var section := scrollable_section(content, "WorkshopScroll")
+	var notice_context := str(state.last_notice_context)
+	if notice_context == "workshop" or notice_context.begins_with("reward_"):
+		var notice_title := text("ARSENAL_WORKSHOP_LOG", "REGISTRO DA OFICINA") if notice_context == "workshop" else text("ARSENAL_CONTRACT_RECEIPT", "RECIBO DE CONTRATO")
+		var notice := host.readable_caption("%s · %s" % [notice_title, state.last_notice], host.LIME)
+		notice.name = "WorkshopNotice"
+		section.add_child(notice)
+	section.add_child(host.readable_body(text("ARSENAL_WORKSHOP_STATUS", "OFICINA · %d SUCATA · PODER TOTAL %d", [int(state.player.get("scrap", 0)), Rules.player_power(state.player)]), host.GOLD))
+	section.add_child(field_readiness_card(host, state, readiness))
 	var workshop_recommendation := recommended_workshop_action(state, readiness)
-	content.add_child(workshop_recommendation_card(host, state, workshop_recommendation, readiness))
+	section.add_child(workshop_recommendation_card(host, state, workshop_recommendation, readiness))
 	var equipped_row := VBoxContainer.new()
 	equipped_row.name = "EquippedWorkbench"
 	equipped_row.add_theme_constant_override("separation", 8)
-	content.add_child(equipped_row)
+	section.add_child(equipped_row)
 	equipped_row.add_child(workshop_upgrade_card(host, state, "weapon", workshop_recommendation))
 	equipped_row.add_child(workshop_upgrade_card(host, state, "armor", workshop_recommendation))
-	content.add_child(loadout_toolbar(host, state))
+
+
+static func scrollable_section(content: VBoxContainer, node_name: String) -> VBoxContainer:
+	var scroller := ScrollContainer.new()
+	scroller.name = node_name
+	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	content.add_child(scroller)
+	var sheet := VBoxContainer.new()
+	sheet.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sheet.add_theme_constant_override("separation", 12)
+	scroller.add_child(sheet)
+	return sheet
 
 
 static func build_inventory_section(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
@@ -162,8 +190,8 @@ static func build_inventory_section(host: CrookedUIFactory, content: VBoxContain
 	if visible_items.is_empty():
 		var empty := host.panel(VBoxContainer.new(), host.PANEL, 24, 24)
 		var empty_box := empty.get_child(0) as VBoxContainer
-		empty_box.add_child(host.center_label(text("ARSENAL_FILTER_EMPTY", "Nenhuma peça neste filtro."), 18, host.MUTED))
-		empty_box.add_child(host.center_label(text("ARSENAL_FILTER_EMPTY_HINT", "Outros compartimentos talvez estejam menos vazios."), 14, host.MUTED))
+		empty_box.add_child(host.center_label(text("ARSENAL_FILTER_EMPTY", "Nenhuma peça neste filtro."), UIDesignSystem.FONT_BODY, host.MUTED))
+		empty_box.add_child(host.center_label(text("ARSENAL_FILTER_EMPTY_HINT", "Outros compartimentos talvez estejam menos vazios."), UIDesignSystem.FONT_CAPTION, host.MUTED))
 		list.add_child(empty)
 	else:
 		for item in visible_items:
@@ -194,14 +222,14 @@ static func inventory_header(host: CrookedUIFactory, page_data: Dictionary, inve
 	var row := HBoxContainer.new()
 	row.name = "InventoryPager"
 	row.add_theme_constant_override("separation", 8)
-	var summary := host.label(text("ARSENAL_ITEM_COUNT", "ITENS · %d / %d", [int(page_data.filtered_count), inventory_count]), 13, host.MUTED)
+	var summary := host.label(text("ARSENAL_ITEM_COUNT", "ITENS · %d / %d", [int(page_data.filtered_count), inventory_count]), UIDesignSystem.FONT_CAPTION, host.MUTED)
 	summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(summary)
 	if int(page_data.page_count) <= 1:
 		return row
 	var previous := host.action_button("‹", host.CYAN, true)
 	previous.name = "InventoryPagePrevious"
-	previous.custom_minimum_size = Vector2(48, 48)
+	previous.custom_minimum_size = Vector2(UIDesignSystem.TOUCH_TARGET_MIN, UIDesignSystem.TOUCH_TARGET_MIN)
 	previous.tooltip_text = text("ARSENAL_PREVIOUS_PAGE", "Página anterior do inventário")
 	previous.disabled = int(page_data.page) <= 0
 	previous.pressed.connect(func():
@@ -210,13 +238,13 @@ static func inventory_header(host: CrookedUIFactory, page_data: Dictionary, inve
 		host.call("render")
 	)
 	row.add_child(previous)
-	var status := host.center_label("%d / %d" % [int(page_data.page) + 1, int(page_data.page_count)], 12, host.GOLD)
+	var status := host.center_label("%d / %d" % [int(page_data.page) + 1, int(page_data.page_count)], UIDesignSystem.FONT_CAPTION, host.GOLD)
 	status.name = "InventoryPageStatus"
-	status.custom_minimum_size = Vector2(54, 48)
+	status.custom_minimum_size = Vector2(64, UIDesignSystem.TOUCH_TARGET_MIN)
 	row.add_child(status)
 	var next := host.action_button("›", host.CYAN, true)
 	next.name = "InventoryPageNext"
-	next.custom_minimum_size = Vector2(48, 48)
+	next.custom_minimum_size = Vector2(UIDesignSystem.TOUCH_TARGET_MIN, UIDesignSystem.TOUCH_TARGET_MIN)
 	next.tooltip_text = text("ARSENAL_NEXT_PAGE", "Próxima página do inventário")
 	next.disabled = int(page_data.page) >= int(page_data.page_count) - 1
 	next.pressed.connect(func():
@@ -330,27 +358,28 @@ static func warm_field_readiness_step(state: StateScript, step: int) -> bool:
 static func field_readiness_card(host: CrookedUIFactory, state: StateScript, readiness: Dictionary = {}) -> PanelContainer:
 	if readiness.is_empty():
 		readiness = field_readiness(state)
-	var card := host.panel(VBoxContainer.new(), Color("#13233e"), 12, 10)
+	var card := host.panel(VBoxContainer.new(), Color("#13233e"), 16, 14)
 	card.name = "FieldReadiness"
 	var box := card.get_child(0) as VBoxContainer
-	box.add_theme_constant_override("separation", 7)
+	box.add_theme_constant_override("separation", 10)
 	if readiness.is_empty():
-		box.add_child(host.label(text("ARSENAL_FIELD_TEST_UNAVAILABLE", "TESTE DE CAMPO INDISPONÍVEL"), 11, host.MUTED))
+		box.add_child(host.label(text("ARSENAL_FIELD_TEST_UNAVAILABLE", "TESTE DE CAMPO INDISPONÍVEL"), UIDesignSystem.FONT_CAPTION, host.MUTED))
 		return card
 	var target: Dictionary = readiness.target
 	var target_context := text("ARSENAL_REVENGE", "REVANCHE") if bool(readiness.get("recovery_focus", false)) else (text("ARSENAL_CURRENT_WARRANT", "MANDADO ATUAL") if bool(readiness.target_available) else text("ARSENAL_NEXT_WARRANT", "PRÓXIMO MANDADO"))
-	var target_label := host.label(text("ARSENAL_FIELD_TEST_TARGET", "TESTE DE CAMPO · %s: %s", [target_context, localized_content("target", target, "name").to_upper()]), 11, host.GOLD)
+	var target_label := host.label(text("ARSENAL_FIELD_TEST_TARGET", "TESTE DE CAMPO · %s: %s", [target_context, localized_content("target", target, "name").to_upper()]), UIDesignSystem.FONT_CAPTION, host.GOLD)
+	target_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	target_label.name = "FieldReadinessTarget"
 	box.add_child(target_label)
 	if bool(readiness.get("recovery_focus", false)):
 		var route_diagnosis_text := localized_field_defeat(state.combat_summary.get("field_test_context", {}))
 		if not route_diagnosis_text.is_empty():
-			var route_diagnosis := host.label(route_diagnosis_text, 10, host.GOLD)
+			var route_diagnosis := host.label(route_diagnosis_text, UIDesignSystem.FONT_CAPTION, host.GOLD)
 			route_diagnosis.name = "FieldReadinessRecoveryRoute"
 			route_diagnosis.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			box.add_child(route_diagnosis)
 	var metrics := HBoxContainer.new()
-	metrics.add_theme_constant_override("separation", 7)
+	metrics.add_theme_constant_override("separation", 10)
 	box.add_child(metrics)
 	metrics.add_child(host.metric_chip(text("ARSENAL_NOW", "AGORA"), "%d%%" % roundi(float(readiness.current_odds) * 100.0), readiness_color(host, float(readiness.current_odds))))
 	metrics.add_child(host.metric_chip(text("ARSENAL_PLUS_POWER", "+1 PODER"), "%d%%" % roundi(float(readiness.power_odds) * 100.0), readiness_color(host, float(readiness.power_odds))))
@@ -358,7 +387,8 @@ static func field_readiness_card(host: CrookedUIFactory, state: StateScript, rea
 	metrics.add_child(host.metric_chip(health_title, "%d%%" % roundi(float(readiness.health_odds) * 100.0), readiness_color(host, float(readiness.health_odds))))
 	var approach: Dictionary = readiness.get("approach", {})
 	var approach_name := localized_content("approach", approach, "name").to_upper() if not approach.is_empty() else text("COMMON_BASE_CONTRACT", "CONTRATO BASE")
-	var approach_label := host.label(text("ARSENAL_TESTED_APPROACH", "ABORDAGEM TESTADA · %s · incidentes ainda podem alterar as chances", [approach_name]), 9, host.MUTED)
+	var approach_label := host.label(text("ARSENAL_TESTED_APPROACH", "ABORDAGEM TESTADA · %s · incidentes ainda podem alterar as chances", [approach_name]), UIDesignSystem.FONT_CAPTION, host.MUTED)
+	approach_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	approach_label.name = "FieldReadinessApproach"
 	box.add_child(approach_label)
 	return card
@@ -433,25 +463,25 @@ static func host_slot_fallback(slot: String) -> String:
 static func workshop_recommendation_card(host: CrookedUIFactory, state: StateScript, recommendation: Dictionary, readiness: Dictionary = {}) -> PanelContainer:
 	# The 48 px action defines this strip's height; compact vertical padding preserves
 	# a full inventory touch row in the 450x800 Android viewport.
-	var card := host.panel(HBoxContainer.new(), Color("#19233a"), 12, 6)
+	var card := host.panel(HBoxContainer.new(), Color("#19233a"), 16, 12)
 	card.name = "WorkshopRecommendation"
 	var row := card.get_child(0) as HBoxContainer
-	row.add_theme_constant_override("separation", 10)
+	row.add_theme_constant_override("separation", 12)
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	copy.add_theme_constant_override("separation", 2)
+	copy.add_theme_constant_override("separation", 5)
 	row.add_child(copy)
 	if recommendation.is_empty():
-		copy.add_child(host.label(text("ARSENAL_NEXT_INVESTMENT", "PRÓXIMO INVESTIMENTO"), 10, host.GOLD))
-		var unavailable := host.label(text("ARSENAL_NO_AFFORDABLE_UPGRADE", "Nenhuma melhoria está ao alcance da sucata atual."), 11, host.MUTED)
+		copy.add_child(host.label(text("ARSENAL_NEXT_INVESTMENT", "PRÓXIMO INVESTIMENTO"), UIDesignSystem.FONT_CAPTION, host.GOLD))
+		var unavailable := host.label(text("ARSENAL_NO_AFFORDABLE_UPGRADE", "Nenhuma melhoria está ao alcance da sucata atual."), UIDesignSystem.FONT_BODY, host.MUTED)
 		unavailable.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		copy.add_child(unavailable)
 		return card
 	var slot := str(recommendation.slot)
 	var kind := str(recommendation.kind)
 	var action_name := text("ARSENAL_PLUS_POWER", "+1 PODER") if kind == "power" else text("ARSENAL_HEALTH_GAIN", "+%d VIDA", [Rules.INTEGRITY_HEALTH_PER_LEVEL])
-	copy.add_child(host.label(text("ARSENAL_BEST_INVESTMENT", "MELHOR INVESTIMENTO · %s", [EquipmentPresentation.localized_slot(slot).to_upper()]), 10, host.GOLD))
-	var item_line := host.label("%s · %s" % [str(recommendation.item_name), action_name], 12, host.INK)
+	copy.add_child(host.label(text("ARSENAL_BEST_INVESTMENT", "MELHOR INVESTIMENTO · %s", [EquipmentPresentation.localized_slot(slot).to_upper()]), UIDesignSystem.FONT_CAPTION, host.GOLD))
+	var item_line := host.label("%s · %s" % [str(recommendation.item_name), action_name], UIDesignSystem.FONT_BODY, host.INK)
 	item_line.custom_minimum_size = Vector2.ZERO
 	item_line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	copy.add_child(item_line)
@@ -460,10 +490,12 @@ static func workshop_recommendation_card(host: CrookedUIFactory, state: StateScr
 	var impact := text("ARSENAL_TEST_IMPACT", "%d%% → %d%% no teste", [current_percent, projected_percent])
 	if projected_percent == current_percent:
 		impact = text("ARSENAL_ODDS_CAPPED", "chance já no limite · impacto de build +%d", [maxi(1, roundi(float(recommendation.get("score_gain", 1.0))))])
-	copy.add_child(host.label(text("ARSENAL_SCRAP_IMPACT", "%d sucata · %s", [int(recommendation.cost), impact]), 9, host.LIME))
+	copy.add_child(host.label(text("ARSENAL_SCRAP_IMPACT", "%d sucata · %s", [int(recommendation.cost), impact]), UIDesignSystem.FONT_CAPTION, host.LIME))
 	var apply := host.action_button(text("ARSENAL_APPLY", "APLICAR"), host.LIME, true)
 	apply.name = "RecommendedWorkshopAction"
-	apply.custom_minimum_size = Vector2(96, 48)
+	apply.custom_minimum_size = Vector2(132, UIDesignSystem.SECONDARY_ACTION_HEIGHT)
+	apply.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
+	apply.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	apply.tooltip_text = text("ARSENAL_APPLY_TOOLTIP", "Executa a melhoria com o melhor ganho projetado por sucata.")
 	if kind == "power":
 		apply.pressed.connect(func(): state.upgrade_equipped(slot))
@@ -490,8 +522,8 @@ static func inventory_toolbar(host: CrookedUIFactory, state: StateScript) -> VBo
 		var filter_button := host.action_button(str(definition.text), host.CYAN if selected else host.MUTED, not selected)
 		filter_button.name = "InventoryFilter_%s" % mode
 		filter_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		filter_button.custom_minimum_size = Vector2(0, 44)
-		filter_button.add_theme_font_size_override("font_size", 10)
+		filter_button.custom_minimum_size = Vector2(0, 72)
+		filter_button.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 		filter_button.pressed.connect(func():
 			host.inventory_filter = mode
 			host.inventory_page = 0
@@ -505,8 +537,8 @@ static func inventory_toolbar(host: CrookedUIFactory, state: StateScript) -> VBo
 	var sort := host.action_button(text("ARSENAL_SORT", "ORDEM · %s", [text("ARSENAL_RARITY", "RARIDADE") if host.inventory_sort == "rarity" else text("COMMON_POWER", "PODER")]), host.GOLD, true)
 	sort.name = "InventorySort"
 	sort.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	sort.custom_minimum_size = Vector2(0, 44)
-	sort.add_theme_font_size_override("font_size", 10)
+	sort.custom_minimum_size = Vector2(0, 72)
+	sort.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 	sort.pressed.connect(func():
 		host.inventory_sort = "rarity" if host.inventory_sort == "power" else "power"
 		host.inventory_page = 0
@@ -519,30 +551,30 @@ static func inventory_toolbar(host: CrookedUIFactory, state: StateScript) -> VBo
 	recycle.name = "RecycleInferior"
 	recycle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	recycle.disabled = int(preview.count) <= 0
-	recycle.custom_minimum_size = Vector2(0, 46)
-	recycle.add_theme_font_size_override("font_size", 10)
+	recycle.custom_minimum_size = Vector2(0, 72)
+	recycle.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 	recycle.tooltip_text = text("ARSENAL_RECYCLE_BULK_TOOLTIP", "Recicla apenas peças comuns sem modificações ou investimento que não superam o efeito atual.")
 	recycle.pressed.connect(state.recycle_inferior_inventory)
 	utility_row.add_child(recycle)
 	return toolbar
 
 
-static func loadout_toolbar(host: CrookedUIFactory, state: StateScript) -> HBoxContainer:
-	var row := HBoxContainer.new()
+static func loadout_toolbar(host: CrookedUIFactory, state: StateScript) -> VBoxContainer:
+	var row := VBoxContainer.new()
 	row.name = "LoadoutToolbar"
-	row.add_theme_constant_override("separation", 8)
+	row.add_theme_constant_override("separation", 10)
 	for index in 2:
 		var loadouts: Array = state.player.get("equipment_loadouts", [])
 		var loadout: Dictionary = loadouts[index] if index < loadouts.size() else {}
 		var weapon := state.inventory_item_by_id(str(loadout.get("weapon_id", "")))
 		var armor := state.inventory_item_by_id(str(loadout.get("armor_id", "")))
 		var ready := not weapon.is_empty() and not armor.is_empty()
-		var card := host.panel(VBoxContainer.new(), Color("#0d1530"), 11, 9)
+		var card := host.panel(VBoxContainer.new(), Color("#0d1530"), 11, 12)
 		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		card.custom_minimum_size = Vector2.ZERO
 		row.add_child(card)
 		var box := card.get_child(0) as VBoxContainer
-		box.add_child(host.label(text("ARSENAL_LOADOUT", "LOADOUT · %s", [state.loadout_name(index)]), 10, host.GOLD))
+		box.add_child(host.label(text("ARSENAL_LOADOUT", "LOADOUT · %s", [state.loadout_name(index)]), UIDesignSystem.FONT_CAPTION, host.GOLD))
 		var saved_count := 0
 		for slot in Rules.EQUIPMENT_SLOTS:
 			if not str(loadout.get("%s_id" % slot, "")).is_empty():
@@ -550,26 +582,24 @@ static func loadout_toolbar(host: CrookedUIFactory, state: StateScript) -> HBoxC
 		var weapon_name := EquipmentPresentation.localized_item_field(weapon, "name") if not weapon.is_empty() else text("ARSENAL_NOT_SAVED", "não salvo")
 		var armor_name := EquipmentPresentation.localized_item_field(armor, "name") if not armor.is_empty() else text("ARSENAL_NOT_SAVED", "não salvo")
 		var summary := text("ARSENAL_LOADOUT_SUMMARY", "%d/%d PEÇAS · %s / %s", [saved_count, Rules.EQUIPMENT_SLOTS.size(), weapon_name, armor_name])
-		var summary_label := host.label(summary, 9, host.MUTED)
+		var summary_label := host.label(summary, UIDesignSystem.FONT_CAPTION, host.MUTED)
 		summary_label.custom_minimum_size = Vector2.ZERO
 		summary_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		box.add_child(summary_label)
 		var actions := HBoxContainer.new()
 		actions.add_theme_constant_override("separation", 5)
 		box.add_child(actions)
-		var save := host.action_button(text("ARSENAL_SAVE", "SALVAR"), host.CYAN, true)
+		var save := host.secondary_action(text("ARSENAL_SAVE", "SALVAR"), host.CYAN)
 		save.name = "SaveLoadout_%d" % index
 		save.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		save.custom_minimum_size = Vector2(0, 44)
-		save.add_theme_font_size_override("font_size", 9)
+		save.custom_minimum_size.x = 0
 		save.pressed.connect(func(): state.save_equipment_loadout(index))
 		actions.add_child(save)
-		var apply := host.action_button(text("ARSENAL_USE", "USAR"), host.LIME if ready else host.MUTED, true)
+		var apply := host.secondary_action(text("ARSENAL_USE", "USAR"), host.LIME if ready else host.MUTED)
 		apply.name = "ApplyLoadout_%d" % index
 		apply.disabled = not ready
 		apply.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		apply.custom_minimum_size = Vector2(0, 44)
-		apply.add_theme_font_size_override("font_size", 9)
+		apply.custom_minimum_size.x = 0
 		apply.pressed.connect(func(): state.apply_equipment_loadout(index))
 		actions.add_child(apply)
 	return row
@@ -588,15 +618,15 @@ static func inventory_item_card(host: CrookedUIFactory, state: StateScript, item
 	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	details.custom_minimum_size = Vector2.ZERO
 	row.add_child(details)
-	var item_name := host.label(EquipmentPresentation.localized_item_field(item, "name"), 16, host.INK)
+	var item_name := host.label(EquipmentPresentation.localized_item_field(item, "name"), UIDesignSystem.FONT_BODY, host.INK)
 	item_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	details.add_child(item_name)
-	var stat_line := host.label(text("ARSENAL_ITEM_STATS", "%s · %s · +%d poder", [EquipmentPresentation.localized_rarity(str(item.rarity)), EquipmentPresentation.localized_slot(str(item.slot)), int(item.power)]), 13, Color(str(item.color)))
+	var stat_line := host.label(text("ARSENAL_ITEM_STATS", "%s · %s · +%d poder", [EquipmentPresentation.localized_rarity(str(item.rarity)), EquipmentPresentation.localized_slot(str(item.slot)), int(item.power)]), UIDesignSystem.FONT_CAPTION, Color(str(item.color)))
 	stat_line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	details.add_child(stat_line)
 	var origin_id := str(item.get("origin_planet_id", ""))
 	if not origin_id.is_empty():
-		var origin_line := host.label(text("REWARD_ORIGIN", "ORIGEM · %s", [localized_content("planet", Content.get_planet(origin_id), "name").to_upper()]), 10, host.CYAN)
+		var origin_line := host.label(text("REWARD_ORIGIN", "ORIGEM · %s", [localized_content("planet", Content.get_planet(origin_id), "name").to_upper()]), UIDesignSystem.FONT_CAPTION, host.CYAN)
 		origin_line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		details.add_child(origin_line)
 	if Rules.has_workshop_investment(item):
@@ -605,9 +635,9 @@ static func inventory_item_card(host: CrookedUIFactory, state: StateScript, item
 			workshop_parts.append(text("ARSENAL_CALIBRATIONS", "%d calib.", [int(item.power_upgrades)]))
 		if int(item.get("integrity_upgrades", 0)) > 0:
 			workshop_parts.append(text("ARSENAL_REINFORCEMENTS", "%d reforços · +%d vida", [int(item.integrity_upgrades), int(item.integrity_upgrades) * Rules.INTEGRITY_HEALTH_PER_LEVEL]))
-		details.add_child(host.label(text("ARSENAL_WORKSHOP_ITEM", "◇ OFICINA · %s", [" · ".join(workshop_parts)]), 11, host.CYAN))
+		details.add_child(host.label(text("ARSENAL_WORKSHOP_ITEM", "◇ OFICINA · %s", [" · ".join(workshop_parts)]), UIDesignSystem.FONT_CAPTION, host.CYAN))
 	if item.has("trait"):
-		var trait_line := host.label("◆ %s · %s" % [EquipmentPresentation.localized_trait_field(item.trait, "name"), EquipmentPresentation.localized_trait_field(item.trait, "description")], 11, host.GOLD)
+		var trait_line := host.label("◆ %s · %s" % [EquipmentPresentation.localized_trait_field(item.trait, "name"), EquipmentPresentation.localized_trait_field(item.trait, "description")], UIDesignSystem.FONT_CAPTION, host.GOLD)
 		trait_line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		details.add_child(trait_line)
 	var current: Dictionary = state.player[str(item.slot)]
@@ -616,7 +646,7 @@ static func inventory_item_card(host: CrookedUIFactory, state: StateScript, item
 	simulated[str(item.slot)] = item
 	var score_difference := Rules.player_build_score(simulated) - Rules.player_build_score(state.player)
 	var comparison_text := text("ARSENAL_EQUIPPED", "EQUIPADO") if equipped else EquipmentPresentation.equipment_delta_text(state.player, item)
-	var status := host.label(comparison_text, 11, host.LIME if score_difference > 0 or equipped else (host.GOLD if score_difference == 0 else host.MUTED))
+	var status := host.label(comparison_text, UIDesignSystem.FONT_CAPTION, host.LIME if score_difference > 0 or equipped else (host.GOLD if score_difference == 0 else host.MUTED))
 	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	details.add_child(status)
 	if not equipped:
@@ -624,21 +654,22 @@ static func inventory_item_card(host: CrookedUIFactory, state: StateScript, item
 		buttons.add_theme_constant_override("separation", 6)
 		row.add_child(buttons)
 		var equip_button := host.action_button(text("ARSENAL_EQUIP", "EQUIPAR"), host.CYAN, true)
-		equip_button.custom_minimum_size = Vector2(88, 46)
+		equip_button.custom_minimum_size = Vector2(128, 72)
+		equip_button.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 		var item_id := str(item.id)
 		equip_button.pressed.connect(func(): state.equip_from_inventory(item_id))
 		buttons.add_child(equip_button)
 		var manually_locked: bool = state.player.get("locked_item_ids", []).has(item_id)
 		var lock_button := host.action_button(text("ARSENAL_UNLOCK", "LIBERAR") if manually_locked else text("ARSENAL_PROTECT", "PROTEGER"), host.GOLD, true)
 		lock_button.name = "Lock_%s" % item_id
-		lock_button.custom_minimum_size = Vector2(88, 40)
-		lock_button.add_theme_font_size_override("font_size", 10)
+		lock_button.custom_minimum_size = Vector2(128, 72)
+		lock_button.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 		lock_button.pressed.connect(func(): state.toggle_item_lock(item_id))
 		buttons.add_child(lock_button)
 		var scrap_button := host.action_button(text("ARSENAL_RECYCLE_ITEM", "RECICLAR +%d", [Rules.salvage_value(item)]), host.CORAL, true)
 		scrap_button.name = "Scrap_%s" % item_id
-		scrap_button.custom_minimum_size = Vector2(88, 44)
-		scrap_button.add_theme_font_size_override("font_size", 11)
+		scrap_button.custom_minimum_size = Vector2(128, 72)
+		scrap_button.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 		scrap_button.disabled = state.is_item_protected(item_id)
 		scrap_button.pressed.connect(func(): state.scrap_item(item_id))
 		buttons.add_child(scrap_button)
@@ -654,30 +685,30 @@ static func workshop_upgrade_card(host: CrookedUIFactory, state: StateScript, sl
 	var integrity_level := int(item.get("integrity_upgrades", 0))
 	var calibration_level := int(item.get("power_upgrades", 0))
 	var integrity_available := Rules.can_upgrade_integrity(item)
-	var card := host.panel(HBoxContainer.new(), Color("#0d1530"), 12, 9)
+	var card := host.panel(HBoxContainer.new(), Color("#0d1530"), 16, 14)
 	card.name = "EquippedSlot_%s" % slot
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card.custom_minimum_size = Vector2.ZERO
 	var row := card.get_child(0) as HBoxContainer
-	row.add_theme_constant_override("separation", 10)
-	var icon := host.equipment_icon(item, 58)
+	row.add_theme_constant_override("separation", 12)
+	var icon := host.equipment_icon(item, 72)
 	icon.name = "EquippedWorkbenchIcon_%s" % slot
 	row.add_child(icon)
 	var box := VBoxContainer.new()
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_child(box)
-	box.add_child(host.label(EquipmentPresentation.localized_slot(slot).to_upper(), 10, host.MUTED))
-	var item_label := host.label("%s · +%d" % [EquipmentPresentation.localized_item_field(item, "name"), int(item.power)], 13, host.INK)
+	box.add_child(host.label(EquipmentPresentation.localized_slot(slot).to_upper(), UIDesignSystem.FONT_CAPTION, host.MUTED))
+	var item_label := host.label("%s · +%d" % [EquipmentPresentation.localized_item_field(item, "name"), int(item.power)], UIDesignSystem.FONT_BODY, host.INK)
 	item_label.custom_minimum_size = Vector2.ZERO
 	item_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	box.add_child(item_label)
-	var workshop_status := host.label(text("ARSENAL_UPGRADE_STATUS", "CAL %d · REF %d/%d · +%d VIDA", [calibration_level, integrity_level, Rules.MAX_INTEGRITY_UPGRADES, integrity_level * Rules.INTEGRITY_HEALTH_PER_LEVEL]), 9, host.CYAN if calibration_level > 0 or integrity_level > 0 else host.MUTED)
+	var workshop_status := host.label(text("ARSENAL_UPGRADE_STATUS", "CAL %d · REF %d/%d · +%d VIDA", [calibration_level, integrity_level, Rules.MAX_INTEGRITY_UPGRADES, integrity_level * Rules.INTEGRITY_HEALTH_PER_LEVEL]), UIDesignSystem.FONT_CAPTION, host.CYAN if calibration_level > 0 or integrity_level > 0 else host.MUTED)
 	workshop_status.custom_minimum_size = Vector2.ZERO
 	workshop_status.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	box.add_child(workshop_status)
 	if item.has("trait"):
-		var trait_label := host.label("◆ %s" % EquipmentPresentation.localized_trait_field(item.trait, "name"), 10, host.GOLD)
+		var trait_label := host.label("◆ %s" % EquipmentPresentation.localized_trait_field(item.trait, "name"), UIDesignSystem.FONT_CAPTION, host.GOLD)
 		trait_label.custom_minimum_size = Vector2.ZERO
 		trait_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		box.add_child(trait_label)
@@ -690,8 +721,9 @@ static func workshop_upgrade_card(host: CrookedUIFactory, state: StateScript, sl
 		improve.tooltip_text = text("ARSENAL_RECOMMENDED_TOOLTIP", "Melhor ganho projetado por sucata contra o alvo do teste de campo.")
 	improve.name = "Upgrade_%s" % slot
 	improve.disabled = not power_affordable
-	improve.custom_minimum_size = Vector2(122, 40)
-	improve.add_theme_font_size_override("font_size", 10)
+	improve.custom_minimum_size = Vector2(168, UIDesignSystem.SECONDARY_ACTION_HEIGHT)
+	improve.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
+	improve.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	improve.pressed.connect(func(): state.upgrade_equipped(slot))
 	actions.add_child(improve)
 	var reinforce_text := text("ARSENAL_REINFORCE_HEALTH", "+%d VIDA · %d", [Rules.INTEGRITY_HEALTH_PER_LEVEL, integrity_cost]) if integrity_available else text("ARSENAL_MAX_INTEGRITY", "INTEGRIDADE MÁX.")
@@ -701,24 +733,25 @@ static func workshop_upgrade_card(host: CrookedUIFactory, state: StateScript, sl
 		reinforce.tooltip_text = text("ARSENAL_RECOMMENDED_TOOLTIP", "Melhor ganho projetado por sucata contra o alvo do teste de campo.")
 	reinforce.name = "Reinforce_%s" % slot
 	reinforce.disabled = not integrity_affordable or not integrity_available
-	reinforce.custom_minimum_size = Vector2(122, 40)
-	reinforce.add_theme_font_size_override("font_size", 10)
+	reinforce.custom_minimum_size = Vector2(168, UIDesignSystem.SECONDARY_ACTION_HEIGHT)
+	reinforce.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
+	reinforce.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	reinforce.pressed.connect(func(): state.reinforce_equipped(slot))
 	actions.add_child(reinforce)
 	return card
 
 
 static func universal_equipment_grid(host: CrookedUIFactory, state: StateScript) -> PanelContainer:
-	var card := host.panel(VBoxContainer.new(), Color("#0b1430e8"), 11, 8)
+	var card := host.illustrated_panel(VBoxContainer.new(), 8)
 	card.name = "UniversalEquipmentCard"
 	var box := card.get_child(0) as VBoxContainer
 	box.add_theme_constant_override("separation", 7)
 	var heading := HBoxContainer.new()
 	box.add_child(heading)
-	var title := host.label(text("ARSENAL_UNIVERSAL_SHEET", "FICHA UNIVERSAL"), 12, host.CYAN)
+	var title := host.label(text("ARSENAL_UNIVERSAL_SHEET", "FICHA UNIVERSAL"), UIDesignSystem.FONT_EMPHASIS, host.CYAN)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_child(title)
-	heading.add_child(host.label(text("ARSENAL_EQUIPPED_COUNT", "%d / %d EQUIPADOS", [Rules.equipped_item_count(state.player), Rules.EQUIPMENT_SLOTS.size()]), 10, host.GOLD))
+	heading.add_child(host.label(text("ARSENAL_EQUIPPED_COUNT", "%d / %d EQUIPADOS", [Rules.equipped_item_count(state.player), Rules.EQUIPMENT_SLOTS.size()]), UIDesignSystem.FONT_CAPTION, host.GOLD))
 	var active_secondary: Array[String] = []
 	for slot_id in Content.loot_slots_for_planet(str(state.player.get("current_planet_id", "dustball_prime"))):
 		if slot_id != "weapon" and slot_id != "armor" and not active_secondary.has(slot_id):
@@ -729,31 +762,31 @@ static func universal_equipment_grid(host: CrookedUIFactory, state: StateScript)
 		for slot_id in active_secondary:
 			active_names.append(EquipmentPresentation.localized_slot(slot_id).to_upper())
 		drop_status = text("ARSENAL_FRONTIER_DROPS", "DROPS NESTA FRONTEIRA · %s", [" · ".join(active_names)])
-	var progression := host.label(drop_status, 9, host.LIME if not active_secondary.is_empty() else host.MUTED)
+	var progression := host.readable_caption(drop_status, host.LIME if not active_secondary.is_empty() else host.MUTED)
 	progression.name = "SecondaryEquipmentProgression"
 	progression.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(progression)
 	var grid := GridContainer.new()
 	grid.name = "UniversalEquipmentGrid"
-	grid.columns = 3
-	grid.add_theme_constant_override("h_separation", 6)
-	grid.add_theme_constant_override("v_separation", 6)
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 8)
+	grid.add_theme_constant_override("v_separation", 8)
 	box.add_child(grid)
 	for slot_id in Rules.EQUIPMENT_SLOTS:
 		var item: Dictionary = state.player.get(slot_id, {})
-		var slot_panel := host.panel(HBoxContainer.new(), Color("#090f25"), 7, 5)
+		var slot_panel := host.panel(HBoxContainer.new(), Color("#090f25"), 9, 8)
 		slot_panel.name = "UniversalSlot_%s" % slot_id
 		slot_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var row := slot_panel.get_child(0) as HBoxContainer
 		row.add_theme_constant_override("separation", 5)
 		var icon_item := item.duplicate(true)
 		icon_item.slot = slot_id
-		row.add_child(host.equipment_icon(icon_item, 34))
+		row.add_child(host.equipment_icon(icon_item, 46))
 		var copy := VBoxContainer.new()
 		copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(copy)
-		copy.add_child(host.label(EquipmentPresentation.localized_slot(slot_id).to_upper(), 8, host.MUTED))
-		var value := host.label("+%d" % int(item.get("power", 0)) if not item.is_empty() else text("HUNTER_EMPTY", "VAZIO"), 10, host.GOLD if not item.is_empty() else host.MUTED)
+		copy.add_child(host.label(EquipmentPresentation.localized_slot(slot_id).to_upper(), UIDesignSystem.FONT_CAPTION, host.MUTED))
+		var value := host.label("+%d" % int(item.get("power", 0)) if not item.is_empty() else text("HUNTER_EMPTY", "VAZIO"), UIDesignSystem.FONT_CAPTION, host.GOLD if not item.is_empty() else host.MUTED)
 		value.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		copy.add_child(value)
 		slot_panel.tooltip_text = EquipmentPresentation.localized_item_field(item, "name") if not item.is_empty() else text("ARSENAL_FUTURE_LOOT_SLOT", "Espaço reservado para loot futuro")

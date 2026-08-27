@@ -1,6 +1,7 @@
 extends SceneTree
 
 const OUTPUT_DIR := "res://builds"
+const LEGACY_CAPTURE_FILES := ["ui_arsenal_settings.png"]
 
 
 func _init() -> void:
@@ -24,6 +25,7 @@ func capture() -> void:
 	await process_frame
 	await process_frame
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
+	prune_legacy_captures()
 	state.persistence_enabled = true
 	state.account = {}
 	state.player = state.default_player()
@@ -128,6 +130,14 @@ func capture() -> void:
 	if save_frame("ui_board_choices.png") != OK:
 		quit(1)
 		return
+	scene.board_details_open = true
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_board_details.png") != OK:
+		quit(1)
+		return
+	scene.board_details_open = false
 	scene.board_section = "destinations"
 	scene.render()
 	await process_frame
@@ -224,6 +234,13 @@ func capture() -> void:
 	await process_frame
 	await process_frame
 	if save_frame("ui_arsenal_equipped_en.png") != OK:
+		quit(1)
+		return
+	scene.arsenal_section = "workshop"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_arsenal_workshop_en.png") != OK:
 		quit(1)
 		return
 	scene.arsenal_section = "inventory"
@@ -578,6 +595,7 @@ func capture() -> void:
 		quit(1)
 		return
 	scene.view_mode = "arsenal"
+	scene.arsenal_section = "workshop"
 	scene.render()
 	await process_frame
 	await process_frame
@@ -673,11 +691,19 @@ func capture() -> void:
 	state.apply_equipment_loadout(0)
 	state.player.captures_by_target = {"gloop": 3}
 	state.player.captures_by_planet = {ContentDB.PLANET.id: 3}
+	scene.arsenal_section = "equipped"
 	scene.view_mode = "arsenal"
 	scene.render()
 	await process_frame
 	await process_frame
 	if save_frame("ui_arsenal.png") != OK:
+		quit(1)
+		return
+	scene.arsenal_section = "workshop"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_arsenal_workshop.png") != OK:
 		quit(1)
 		return
 	scene.arsenal_section = "inventory"
@@ -736,6 +762,7 @@ func capture() -> void:
 	state.last_notice_context = ""
 	state.player.stat_points = 6
 	scene.attribute_draft = {"vitality": 1, "cunning": 1}
+	scene.hunter_section = "attributes"
 	scene.view_mode = "attributes"
 	scene.render()
 	await process_frame
@@ -768,6 +795,7 @@ func capture() -> void:
 			return
 	scene.class_draft = ""
 	state.player.class_id = "orbit_gunslinger"
+	scene.hunter_section = "profile"
 	scene.view_mode = "attributes"
 	scene.render()
 	await process_frame
@@ -1158,6 +1186,16 @@ func capture() -> void:
 	await create_timer(0.5).timeout
 	print("Captured mandatory login/class/species/name onboarding, primary UI and destinations, market, transport hangar/briefing/hunt identity, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, three Fenda anomaly profiles, career, wanted archive, arsenal filters/paging, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
+
+
+func prune_legacy_captures() -> void:
+	for filename in LEGACY_CAPTURE_FILES:
+		var path := "%s/%s" % [OUTPUT_DIR, filename]
+		var absolute_path := ProjectSettings.globalize_path(path)
+		if FileAccess.file_exists(absolute_path):
+			var error := DirAccess.remove_absolute(absolute_path)
+			if error != OK:
+				printerr("Unable to remove obsolete generated capture %s: %s" % [path, error_string(error)])
 
 
 func save_frame(filename: String) -> Error:

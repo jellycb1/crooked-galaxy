@@ -18,6 +18,14 @@ Generated with the built-in OpenAI image-generation workflow. No reference image
 - Environment detail remains near the frame; central contrast is controlled by `EnvironmentBackdrop` scrims.
 - Source PNGs are tracked production content and must remain included in both desktop and Android pack inspection.
 
+## Reference-informed original interface asset
+
+| Asset | Runtime context | Production record |
+| --- | --- | --- |
+| `assets/ui/panel_frame_space.png` | Focused dossiers and previews; reusable `StyleBoxTexture` source | Generated from an original Crooked Galaxy navy/steel/brass/coral/cyan specification after inspecting local UI study references. Reference roles were limited to dark-center hierarchy, thin warm trim, hand-painted edge rhythm, and corner restraint; no fantasy vine, thorn, wood, ornament, exact frame path, text, logo, or reference asset was copied. The displayed direction was explicitly approved on 2026-08-26. The approved draft was then processed deterministically to remove only the exterior black connected to the canvas edge, crop the frame, preserve the opaque navy center, and resize it to 660×124 RGBA. |
+
+Technical validation: genuine transparent corners, 9-slice margins of 48/20/48/20 logical pixels, shared immutable factory styles, and complete 450×800 captures for class detail, mandatory onboarding previews, selected mandate, contract briefing, hunter profile, universal arsenal kit, active hangar transport, hunt incident, victory, normal/Rift reward, chapter conclusion, career summary, and current/locked Rift dossiers. Supporting cards, repeated rows, settings, and commerce retain code-native navy/steel styling so the illustrated frame remains a focused hierarchy marker.
+
 ## Rejected experiments
 
 The class illustrations introduced in versions 0.34.0-0.35.0 were rejected on 2026-08-26. Although original and technically valid, their sealed helmets, semi-realistic anatomy, tactical material detail, and serious mood contradicted the humorous caricature-led direction. They were removed from runtime and production assets; Git history retains them for postmortem comparison only. Vector class emblems remain the deliberate fallback until a replacement passes `Notes/ASSET_GENERATION_RULES.md`.

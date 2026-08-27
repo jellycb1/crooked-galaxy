@@ -8,6 +8,8 @@ const EquipmentIconScript = preload("res://scripts/equipment_icon.gd")
 const TransportIconScript = preload("res://scripts/transport_icon.gd")
 const EquipmentPresentationScript = preload("res://scripts/equipment_presentation.gd")
 const UILocaleRulesScript = preload("res://scripts/locale_rules.gd")
+const UIDesignSystem = preload("res://scripts/ui_design_system.gd")
+const ILLUSTRATED_PANEL_TEXTURE = preload("res://assets/ui/panel_frame_space.png")
 
 const INK := Color("#f4f2ff")
 const MUTED := Color("#9da8c8")
@@ -17,6 +19,8 @@ const GOLD := Color("#ffc857")
 const CORAL := Color("#ff6f7d")
 const PANEL := Color("#111a38")
 const PANEL_LIGHT := Color("#18264b")
+const DEEP := Color("#071126")
+const STEEL_EDGE := Color("#55708f73")
 
 var view_mode := "board"
 var inventory_filter := "all"
@@ -24,6 +28,8 @@ var inventory_sort := "power"
 var inventory_page := 0
 var arsenal_section := "equipped"
 var board_section := "bounties"
+var board_details_open := false
+var hunter_section := "profile"
 var briefing_context: Dictionary = {}
 var career_section := "progress"
 var career_scroll_position := 0
@@ -38,6 +44,9 @@ var species_draft := ""
 var appearance_draft: Dictionary = {}
 var locale_draft := ""
 var server_draft := ""
+var _support_style_cache: Dictionary = {}
+var _illustrated_style_cache: Dictionary = {}
+var _button_style_cache: Dictionary = {}
 
 
 func reset_transient_navigation() -> void:
@@ -47,6 +56,8 @@ func reset_transient_navigation() -> void:
 	inventory_page = 0
 	arsenal_section = "equipped"
 	board_section = "bounties"
+	board_details_open = false
+	hunter_section = "profile"
 	briefing_context = {}
 	career_section = "progress"
 	career_scroll_position = 0
@@ -72,14 +83,36 @@ func reset_session_scroll(node_name: String, property_name: String) -> void:
 
 func panel(child: Control, color: Color, radius: int, margin: int) -> PanelContainer:
 	var container := PanelContainer.new()
-	var style := box_style(color, radius)
-	style.content_margin_left = margin
-	style.content_margin_right = margin
-	style.content_margin_top = margin
-	style.content_margin_bottom = margin
+	var style := cached_support_box_style(color, radius, margin)
 	container.add_theme_stylebox_override("panel", style)
 	container.add_child(child)
 	return container
+
+
+func illustrated_panel(child: Control, margin: int = 22) -> PanelContainer:
+	var container := PanelContainer.new()
+	container.add_theme_stylebox_override("panel", cached_illustrated_box_style(margin))
+	container.add_child(child)
+	return container
+
+
+func cached_illustrated_box_style(margin: int) -> StyleBoxTexture:
+	if _illustrated_style_cache.has(margin):
+		return _illustrated_style_cache[margin] as StyleBoxTexture
+	var style := StyleBoxTexture.new()
+	style.texture = ILLUSTRATED_PANEL_TEXTURE
+	style.texture_margin_left = 48.0
+	style.texture_margin_top = 20.0
+	style.texture_margin_right = 48.0
+	style.texture_margin_bottom = 20.0
+	style.content_margin_left = margin
+	style.content_margin_top = margin
+	style.content_margin_right = margin
+	style.content_margin_bottom = margin
+	style.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	style.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	_illustrated_style_cache[margin] = style
+	return style
 
 
 func box_style(color: Color, radius: int) -> StyleBoxFlat:
@@ -89,6 +122,45 @@ func box_style(color: Color, radius: int) -> StyleBoxFlat:
 	style.corner_radius_top_right = radius
 	style.corner_radius_bottom_left = radius
 	style.corner_radius_bottom_right = radius
+	return style
+
+
+func support_box_style(color: Color, radius: int) -> StyleBoxFlat:
+	var style := box_style(color, radius)
+	style.border_color = STEEL_EDGE
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	return style
+
+
+func cached_support_box_style(color: Color, radius: int, margin: int) -> StyleBoxFlat:
+	var key := "%s:%d:%d" % [color.to_html(true), radius, margin]
+	if _support_style_cache.has(key):
+		return _support_style_cache[key] as StyleBoxFlat
+	var style := support_box_style(color, radius)
+	style.content_margin_left = margin
+	style.content_margin_right = margin
+	style.content_margin_top = margin
+	style.content_margin_bottom = margin
+	_support_style_cache[key] = style
+	return style
+
+
+func button_box_style(fill: Color, accent: Color, radius: int, border_width: int) -> StyleBoxFlat:
+	var key := "%s:%s:%d:%d" % [fill.to_html(true), accent.to_html(true), radius, border_width]
+	if _button_style_cache.has(key):
+		return _button_style_cache[key] as StyleBoxFlat
+	var style := box_style(fill, radius)
+	style.border_color = accent
+	style.border_width_left = border_width
+	style.border_width_top = border_width
+	style.border_width_right = border_width
+	style.border_width_bottom = border_width
+	style.content_margin_left = 12
+	style.content_margin_right = 12
+	_button_style_cache[key] = style
 	return style
 
 
@@ -112,30 +184,64 @@ func action_button(text_value: String, color: Color, outline := false) -> Button
 	button.text = text_value
 	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	button.focus_mode = Control.FOCUS_ALL
-	button.custom_minimum_size = Vector2(0, 62)
-	button.add_theme_font_size_override("font_size", 17)
-	button.add_theme_color_override("font_color", color if outline else Color("#07101c"))
-	button.add_theme_color_override("font_hover_color", Color("#07101c"))
-	button.add_theme_color_override("font_focus_color", INK if outline else Color("#07101c"))
-	button.add_theme_stylebox_override("normal", box_style(Color("#00000000") if outline else color, 14))
-	button.add_theme_stylebox_override("hover", box_style(color.lightened(0.12), 14))
-	button.add_theme_stylebox_override("pressed", box_style(color.darkened(0.14), 14))
-	var focus := box_style(Color("#ffffff18"), 14)
-	focus.border_width_left = 3
-	focus.border_width_top = 3
-	focus.border_width_right = 3
-	focus.border_width_bottom = 3
-	focus.border_color = color.lightened(0.2)
-	button.add_theme_stylebox_override("focus", focus)
-	if outline:
-		var normal := box_style(Color("#00000000"), 14)
-		normal.border_width_left = 2
-		normal.border_width_top = 2
-		normal.border_width_right = 2
-		normal.border_width_bottom = 2
-		normal.border_color = color
-		button.add_theme_stylebox_override("normal", normal)
+	button.custom_minimum_size = Vector2(0, UIDesignSystem.TOUCH_TARGET_MIN)
+	button.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
+	button.add_theme_color_override("font_color", color if outline else DEEP)
+	button.add_theme_color_override("font_hover_color", INK if outline else DEEP)
+	button.add_theme_color_override("font_pressed_color", INK if outline else DEEP)
+	button.add_theme_color_override("font_focus_color", INK if outline else DEEP)
+	button.add_theme_color_override("font_disabled_color", MUTED.darkened(0.22))
+	var normal_fill := Color("#09152be8") if outline else color
+	var normal_border := color if outline else color.darkened(0.48)
+	button.add_theme_stylebox_override("normal", button_box_style(normal_fill, normal_border, 12, 2))
+	var hover_fill := Color("#172b4d") if outline else color.lightened(0.08)
+	button.add_theme_stylebox_override("hover", button_box_style(hover_fill, color.lightened(0.12), 12, 2))
+	var pressed_fill := Color("#071126") if outline else color.darkened(0.13)
+	button.add_theme_stylebox_override("pressed", button_box_style(pressed_fill, color, 12, 2))
+	button.add_theme_stylebox_override("focus", button_box_style(Color("#16284d"), GOLD, 12, 3))
+	button.add_theme_stylebox_override("disabled", button_box_style(Color("#091126cc"), STEEL_EDGE.darkened(0.2), 12, 1))
 	return button
+
+
+## Rebuild-only components. Existing screens keep their current measurements
+## until they are deliberately migrated; new/rebuilt screens must use these
+## helpers so 450x800 readability is enforced at the component boundary.
+func scene_title(text_value: String) -> Label:
+	var result := label(text_value, UIDesignSystem.FONT_SCREEN_TITLE, INK)
+	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	return result
+
+
+func readable_body(text_value: String, color: Color = INK) -> Label:
+	var result := label(text_value, UIDesignSystem.FONT_BODY, color)
+	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	return result
+
+
+func readable_caption(text_value: String, color: Color = MUTED) -> Label:
+	var result := label(text_value, UIDesignSystem.FONT_CAPTION, color)
+	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	return result
+
+
+func primary_action(text_value: String, color: Color) -> Button:
+	var button := action_button(text_value, color)
+	button.custom_minimum_size.y = UIDesignSystem.PRIMARY_ACTION_HEIGHT
+	button.add_theme_font_size_override("font_size", UIDesignSystem.FONT_EMPHASIS)
+	return button
+
+
+func secondary_action(text_value: String, color: Color) -> Button:
+	var button := action_button(text_value, color, true)
+	button.custom_minimum_size.y = UIDesignSystem.SECONDARY_ACTION_HEIGHT
+	button.add_theme_font_size_override("font_size", UIDesignSystem.FONT_BODY)
+	return button
+
+
+func focal_scene_panel(child: Control) -> PanelContainer:
+	var result := illustrated_panel(child, UIDesignSystem.FOCAL_PANEL_PADDING)
+	result.custom_minimum_size.y = UIDesignSystem.FOCAL_PANEL_MIN_HEIGHT
+	return result
 
 
 func character_portrait(character_id: String, dimension: float, equipment_profile: Dictionary = {}) -> Control:
@@ -199,8 +305,12 @@ func stat_chip(title: String, value: String, color: Color) -> PanelContainer:
 	var chip := panel(VBoxContainer.new(), PANEL, 12, 11)
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var box := chip.get_child(0) as VBoxContainer
-	box.add_child(label(title, 11, MUTED, HORIZONTAL_ALIGNMENT_CENTER))
-	box.add_child(label(value, 16, color, HORIZONTAL_ALIGNMENT_CENTER))
+	var title_label := label(title, UIDesignSystem.FONT_CAPTION, MUTED, HORIZONTAL_ALIGNMENT_CENTER)
+	title_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	box.add_child(title_label)
+	var value_label := label(value, UIDesignSystem.FONT_BODY, color, HORIZONTAL_ALIGNMENT_CENTER)
+	value_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	box.add_child(value_label)
 	return chip
 
 
@@ -208,8 +318,12 @@ func metric_chip(title: String, value: String, color: Color) -> PanelContainer:
 	var chip := panel(VBoxContainer.new(), Color("#0a1025"), 9, 7)
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var box := chip.get_child(0) as VBoxContainer
-	box.add_child(label(title, 10, MUTED, HORIZONTAL_ALIGNMENT_CENTER))
-	box.add_child(label(value, 13, color, HORIZONTAL_ALIGNMENT_CENTER))
+	var title_label := label(title, UIDesignSystem.FONT_CAPTION, MUTED, HORIZONTAL_ALIGNMENT_CENTER)
+	title_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	box.add_child(title_label)
+	var value_label := label(value, UIDesignSystem.FONT_BODY, color, HORIZONTAL_ALIGNMENT_CENTER)
+	value_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	box.add_child(value_label)
 	return chip
 
 
@@ -217,10 +331,16 @@ func equipment_chip(item: Dictionary) -> PanelContainer:
 	var chip := panel(VBoxContainer.new(), Color("#0d1530"), 12, 10)
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var box := chip.get_child(0) as VBoxContainer
-	box.add_child(label(slot_name(str(item.slot)).to_upper(), 11, MUTED))
-	box.add_child(label("%s  ·  +%d" % [EquipmentPresentationScript.localized_item_field(item, "name"), int(item.power)], 13, INK))
+	var slot_label := label(slot_name(str(item.slot)).to_upper(), UIDesignSystem.FONT_CAPTION, MUTED)
+	slot_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	box.add_child(slot_label)
+	var item_label := label("%s  ·  +%d" % [EquipmentPresentationScript.localized_item_field(item, "name"), int(item.power)], UIDesignSystem.FONT_BODY, INK)
+	item_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	box.add_child(item_label)
 	if int(item.get("integrity_upgrades", 0)) > 0:
-		box.add_child(label(UILocaleRulesScript.text("EQUIPMENT_INTEGRITY", "REFORÇO +%d VIDA", [int(item.integrity_upgrades) * CoreRules.INTEGRITY_HEALTH_PER_LEVEL]), 10, CYAN))
+		var integrity_label := label(UILocaleRulesScript.text("EQUIPMENT_INTEGRITY", "REFORÇO +%d VIDA", [int(item.integrity_upgrades) * CoreRules.INTEGRITY_HEALTH_PER_LEVEL]), UIDesignSystem.FONT_CAPTION, CYAN)
+		integrity_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		box.add_child(integrity_label)
 	return chip
 
 

@@ -88,6 +88,8 @@ func _init() -> void:
 	host.add_child(content)
 	HangarViewScript.build(host, content, state)
 	check(host.find_child("HangarScroll", true, false) != null, "hangar renderer provides a portrait-safe scroller")
+	var hangar_status := host.find_child("HangarStatus", true, false) as PanelContainer
+	check(hangar_status != null and hangar_status.get_theme_stylebox("panel") is StyleBoxTexture, "the active transport owns Hangar's illustrated status frame")
 	check(host.find_children("HangarTransport_*", "PanelContainer", true, false).size() == 4, "hangar renders every launch transport once")
 	check(host.find_children("HangarTransportIcon_*", "Control", true, false).size() == 4, "every launch transport renders an original scalable silhouette")
 	check(host.find_children("HangarAction_*", "Button", true, false).size() == 4, "every transport owns an explicit transaction action")

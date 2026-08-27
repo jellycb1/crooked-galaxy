@@ -43,10 +43,30 @@ The initial generated class trio was rejected because its serious tactical conce
 - Use environment art as atmosphere, not as a competitor for text.
 - At 450×800 physical captures, primary labels, character silhouette, and action must remain identifiable without zooming.
 
+### Approved illustrated panel language
+
+- Primary dossier/detail panels may use the approved hand-painted space-frontier frame: a quiet near-black navy center, dark blue-steel outer lip, thin aged-brass inner line, and restrained coral/cyan corner markers.
+- Decorative identity stays in the corners. The middle of every edge and at least 70% of the center remain calm, uniform, and safe for 9-slice stretching and localized text.
+- Slight dents, uneven line weight, and one deliberately crooked fitting provide personality; realistic grime, dense bolts, circuitry, holographic glow, and ornamental clutter do not.
+- Illustrated frames are hierarchy markers, not universal card chrome. Use them for the focused panel or decisive dossier on a screen while compact selectors and supporting facts remain simpler.
+- The first validated use is the class-detail dossier in `builds/ui_classes.png`, where the frame preserves every line of copy at the physical 450×800 target.
+
+### Interface identity hierarchy
+
+- **Focal dossier** — one illustrated navy/steel/brass frame identifies the subject or decision that owns the screen: selected mandate, contract target, hunter loadout, arsenal kit, active transport, captured reward, or onboarding preview.
+- **Supporting card** — compact dark-navy fill with a one-pixel blue-steel edge. Semantic fills may tint alerts, receipts, and special states, but the shared edge keeps them in the same material family.
+- **Action** — primary actions may use a solid semantic color; secondary actions sit on a calm navy surface with a two-pixel semantic edge. Controls must never float transparently over detailed environments.
+- **Persistent navigation** — the dock is a steel-and-aged-brass structure. Destination colors identify icons and active states instead of filling entire cells with neon color.
+- **Repeated content** — inventory items, transports, routes, attributes, settings, and archive rows use supporting cards, never the illustrated frame. Repetition must strengthen rhythm rather than multiply decoration.
+
+The hierarchy has been checked across login, class/species/appearance/name onboarding, mandates, briefing, hunt incidents, combat, victory, hunter, classes, arsenal, hangar, market, normal/Rift rewards, chapter conclusions, settings, career, and the Rift at 450×800. The illustrated frame is deliberately absent from ordinary settings and repeated commerce/list rows. The complete coverage matrix and physical-only follow-up are recorded in `Notes/UI_IDENTITY_AUDIT_2026-08-26.md`.
+
 ## Asset and performance contract
 
 - Runtime art is original production content; study references stay outside runtime.
 - Portrait textures use alpha, no baked panel or background.
 - Imported raster art is capped to the smallest resolution that survives its maximum display size; the current class slice is capped at 1024 px on its longest edge.
+- Reusable interface frames are stored at logical-viewport scale and rendered through `StyleBoxTexture`; the approved panel is 660×124 RGBA and expands without scaling its corner identity.
+- Identical support, action, focal-frame, and navigation styles share immutable resources within the active UI host; any screen-specific mutation must duplicate the shared style first.
 - Load large class art only on screens that display it, reuse Godot's resource cache, and keep procedural/vector fallbacks.
 - New art follows the mandatory gate in `Notes/ASSET_GENERATION_RULES.md`: one off-runtime draft, explicit user approval, then a 450×800 physical capture and technical checks before integration or expansion.

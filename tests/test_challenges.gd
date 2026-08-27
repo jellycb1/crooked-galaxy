@@ -124,9 +124,11 @@ func run_audit() -> void:
 	await process_frame
 	check(scene.find_child("ChallengeProgressTrack", true, false) != null, "unlocked ladder renders persistent floor progress")
 	check(scene.find_child("ChallengeCurrentDossier", true, false) != null and scene.find_child("ChallengeRewardPreview", true, false) != null, "current enemy and unique reward share one readable dossier")
+	var challenge_dossier := scene.find_child("ChallengeCurrentDossier", true, false) as PanelContainer
+	check(challenge_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "the current Rift enemy uses the approved focal frame")
 	check(scene.find_child("ChallengeAnomalyRule", true, false) != null, "challenge dossier exposes its class-neutral anomaly profile before entry")
 	var enter := scene.find_child("ChallengeEnterAction", true, false) as Button
-	check(enter != null and enter.size.y >= 48.0, "challenge entry remains an Android touch target")
+	check(enter != null and enter.size.y >= 48.0 and enter.get_parent() == scene.content, "challenge entry remains a fixed Android action outside the evidence scroller")
 	scene.queue_free()
 	await process_frame
 	finish()

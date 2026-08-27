@@ -452,7 +452,8 @@ func on_primary_navigation(destination_id: String) -> void:
 			board_section = "bounties"
 		"arsenal":
 			view_mode = "arsenal"
-			arsenal_section = "equipped"
+			var failed_contract := not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true))
+			arsenal_section = "workshop" if GameState.last_notice_context.begins_with("reward_") or failed_contract else "equipped"
 		"hunter":
 			view_mode = "attributes"
 		"galaxy":
@@ -547,8 +548,11 @@ func restore_action_focus(previous_focus_name: String, expected_generation: int)
 
 
 func build_header() -> void:
-	if GameState.phase == GameState.Phase.BOARD and view_mode == "attributes":
+	if GameState.phase == GameState.Phase.BOARD and (view_mode == "attributes" or view_mode == "classes"):
 		build_character_header()
+		return
+	if GameState.phase == GameState.Phase.BOARD and view_mode != "attributes" and view_mode != "classes":
+		build_bounty_board_header()
 		return
 	var planet := active_planet()
 	var top := HBoxContainer.new()
@@ -558,21 +562,22 @@ func build_header() -> void:
 	var identity := VBoxContainer.new()
 	identity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(identity)
-	identity.add_child(label("CROOKED GALAXY", 26, CYAN))
+	identity.add_child(label("CROOKED GALAXY", UIDesignSystem.FONT_SECTION_TITLE, CYAN))
 	var location_row := HBoxContainer.new()
 	location_row.add_theme_constant_override("separation", 10)
 	identity.add_child(location_row)
-	var location := label(localized_content_field("planet", planet, "name").to_upper(), 13, Color(str(planet.accent)))
+	var location := label(localized_content_field("planet", planet, "name").to_upper(), UIDesignSystem.FONT_CAPTION, Color(str(planet.accent)))
 	location.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	location_row.add_child(location)
 	var server_short := ServerRulesScript.short_name_for(str(GameState.account.get("server_id", "")))
-	var build_version := label("%s · v%s" % [server_short, str(ProjectSettings.get_setting("application/config/version", "dev"))], 11, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
+	var build_version := label("%s · v%s" % [server_short, str(ProjectSettings.get_setting("application/config/version", "dev"))], UIDesignSystem.FONT_CAPTION, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
 	build_version.name = "BuildVersion"
 	location_row.add_child(build_version)
 
 	var character_badge := Button.new()
 	character_badge.name = "HeaderCharacterAction"
-	character_badge.custom_minimum_size = Vector2(124, 60)
+	character_badge.custom_minimum_size = Vector2(156, UIDesignSystem.TOUCH_TARGET_MIN)
+	character_badge.clip_contents = true
 	character_badge.focus_mode = Control.FOCUS_ALL
 	character_badge.tooltip_text = t("HEADER_HUNTER_TOOLTIP", "Abrir classe e atributos")
 	character_badge.add_theme_stylebox_override("normal", box_style(PANEL_LIGHT, 14))
@@ -595,7 +600,7 @@ func build_header() -> void:
 	badge_row.add_theme_constant_override("separation", 5)
 	badge_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	badge_margin.add_child(badge_row)
-	var header_portrait := framed_hunter_portrait(42)
+	var header_portrait := framed_hunter_portrait(40)
 	header_portrait.name = "HeaderHunterPortrait"
 	badge_row.add_child(header_portrait)
 	var badge_copy := VBoxContainer.new()
@@ -603,11 +608,14 @@ func build_header() -> void:
 	badge_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	badge_copy.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	badge_row.add_child(badge_copy)
-	var hunter_name := str(GameState.player.get("hunter_name", ""))
-	if not hunter_name.is_empty():
-		badge_copy.add_child(label(hunter_name.to_upper(), 9, CYAN, HORIZONTAL_ALIGNMENT_CENTER))
-	badge_copy.add_child(label(t("HEADER_LEVEL", "NÍVEL %d", [int(GameState.player.level)]), 10, GOLD, HORIZONTAL_ALIGNMENT_CENTER))
-	badge_copy.add_child(label(t("HEADER_POWER", "PODER %d", [CoreRules.player_power(GameState.player)]), 11, INK, HORIZONTAL_ALIGNMENT_CENTER))
+	var level_label := label(t("HEADER_LEVEL", "NÍVEL %d", [int(GameState.player.level)]), UIDesignSystem.FONT_CAPTION, GOLD, HORIZONTAL_ALIGNMENT_CENTER)
+	level_label.name = "HeaderCharacterLevel"
+	level_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	badge_copy.add_child(level_label)
+	var power_label := label(t("HEADER_POWER", "PODER %d", [CoreRules.player_power(GameState.player)]), UIDesignSystem.FONT_CAPTION, INK, HORIZONTAL_ALIGNMENT_CENTER)
+	power_label.name = "HeaderCharacterPower"
+	power_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	badge_copy.add_child(power_label)
 
 	var ledger := panel(HBoxContainer.new(), Color("#09132a"), 9, 6)
 	ledger.name = "HeaderResourceStrip"
@@ -620,13 +628,93 @@ func build_header() -> void:
 	content.add_child(ledger)
 
 
-func header_resource_cell(node_name: String, title: String, value: String, color: Color) -> VBoxContainer:
-	var cell := VBoxContainer.new()
+func build_bounty_board_header() -> void:
+	var planet := active_planet()
+	var top := VBoxContainer.new()
+	top.name = "BountyBoardHeader"
+	top.custom_minimum_size.y = 122
+	top.add_theme_constant_override("separation", 6)
+	content.add_child(top)
+	var identity_row := HBoxContainer.new()
+	identity_row.name = "BountyBoardIdentityRow"
+	identity_row.custom_minimum_size.y = 72
+	identity_row.add_theme_constant_override("separation", 10)
+	top.add_child(identity_row)
+
+	var character_badge := Button.new()
+	character_badge.name = "HeaderCharacterAction"
+	character_badge.custom_minimum_size = Vector2(134, 72)
+	character_badge.focus_mode = Control.FOCUS_ALL
+	character_badge.tooltip_text = t("HEADER_HUNTER_TOOLTIP", "Abrir classe e atributos")
+	character_badge.add_theme_stylebox_override("normal", bordered_box_style(Color("#0b1630e8"), 16, Color("#536b87"), 1))
+	character_badge.add_theme_stylebox_override("hover", bordered_box_style(Color("#172b4d"), 16, CYAN, 2))
+	character_badge.add_theme_stylebox_override("pressed", bordered_box_style(Color("#071126"), 16, CYAN, 2))
+	character_badge.add_theme_stylebox_override("focus", bordered_box_style(Color("#16284d"), 16, GOLD, 3))
+	character_badge.pressed.connect(func():
+		attribute_draft = {}
+		view_mode = "attributes"
+		render()
+	)
+	identity_row.add_child(character_badge)
+	var badge_margin := MarginContainer.new()
+	badge_margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	for side in ["left", "top", "right", "bottom"]:
+		badge_margin.add_theme_constant_override("margin_%s" % side, 8)
+	badge_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	character_badge.add_child(badge_margin)
+	var badge_row := HBoxContainer.new()
+	badge_row.add_theme_constant_override("separation", 8)
+	badge_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge_margin.add_child(badge_row)
+	var header_portrait := framed_hunter_portrait(54)
+	header_portrait.name = "HeaderHunterPortrait"
+	badge_row.add_child(header_portrait)
+	var badge_copy := VBoxContainer.new()
+	badge_copy.alignment = BoxContainer.ALIGNMENT_CENTER
+	badge_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	badge_copy.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge_row.add_child(badge_copy)
+	var hunter_name := str(GameState.player.get("hunter_name", "CAÇADOR"))
+	badge_copy.add_child(label(hunter_name.to_upper(), UIDesignSystem.FONT_CAPTION, CYAN))
+	badge_copy.add_child(label(t("HEADER_LEVEL", "NÍVEL %d", [int(GameState.player.level)]), UIDesignSystem.FONT_CAPTION, GOLD))
+
+	var identity := VBoxContainer.new()
+	identity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	identity.alignment = BoxContainer.ALIGNMENT_CENTER
+	identity_row.add_child(identity)
+	identity.add_child(label("CROOKED GALAXY", UIDesignSystem.FONT_EMPHASIS, INK, HORIZONTAL_ALIGNMENT_CENTER))
+	identity.add_child(label(localized_content_field("planet", planet, "name").to_upper(), UIDesignSystem.FONT_CAPTION, Color(str(planet.accent)), HORIZONTAL_ALIGNMENT_CENTER))
+	var server_short := ServerRulesScript.short_name_for(str(GameState.account.get("server_id", "")))
+	var build_version := label("%s · v%s" % [server_short, str(ProjectSettings.get_setting("application/config/version", "dev"))], UIDesignSystem.FONT_CAPTION, MUTED, HORIZONTAL_ALIGNMENT_CENTER)
+	build_version.name = "BuildVersion"
+	identity.add_child(build_version)
+
+	var ledger := panel(GridContainer.new(), Color("#09132ae8"), 12, 5)
+	ledger.name = "HeaderResourceStrip"
+	ledger.custom_minimum_size = Vector2(0, 44)
+	ledger.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var stats := ledger.get_child(0) as GridContainer
+	stats.columns = 4
+	stats.add_theme_constant_override("h_separation", 4)
+	stats.add_theme_constant_override("v_separation", 0)
+	stats.add_child(header_resource_cell("HeaderCredits", t("RESOURCE_CREDITS", "CRÉDITOS"), str(GameState.player.credits), GOLD, true))
+	stats.add_child(header_resource_cell("HeaderScrap", t("RESOURCE_SCRAP", "SUCATA"), str(GameState.player.get("scrap", 0)), CORAL, true))
+	stats.add_child(header_resource_cell("HeaderReputation", t("RESOURCE_RANK", "RANK"), str(int(GameState.player.reputation) + 1), LIME, true))
+	stats.add_child(header_resource_cell("HeaderWins", t("RESOURCE_WINS", "VITÓRIAS"), str(GameState.player.wins), CYAN, true))
+	top.add_child(ledger)
+
+
+func header_resource_cell(node_name: String, title: String, value: String, color: Color, rebuild_scale := false) -> BoxContainer:
+	var cell: BoxContainer = VBoxContainer.new() if rebuild_scale else HBoxContainer.new()
 	cell.name = node_name
 	cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	cell.add_theme_constant_override("separation", 0)
-	cell.add_child(label(title, 9, MUTED, HORIZONTAL_ALIGNMENT_CENTER))
-	cell.add_child(label(value, 13, color, HORIZONTAL_ALIGNMENT_CENTER))
+	cell.add_theme_constant_override("separation", 4 if not rebuild_scale else 0)
+	var title_label := label(title, UIDesignSystem.FONT_CAPTION, MUTED, HORIZONTAL_ALIGNMENT_CENTER)
+	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cell.add_child(title_label)
+	var value_label := label(value, UIDesignSystem.FONT_BODY, color, HORIZONTAL_ALIGNMENT_CENTER)
+	value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cell.add_child(value_label)
 	return cell
 
 
@@ -639,10 +727,10 @@ func build_character_header() -> void:
 	var identity := VBoxContainer.new()
 	identity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(identity)
-	identity.add_child(label("CROOKED GALAXY", 22, CYAN))
-	identity.add_child(label(localized_content_field("planet", planet, "name").to_upper(), 11, Color(str(planet.accent))))
+	identity.add_child(label("CROOKED GALAXY", UIDesignSystem.FONT_BODY, CYAN))
+	identity.add_child(label(localized_content_field("planet", planet, "name").to_upper(), UIDesignSystem.FONT_CAPTION, Color(str(planet.accent))))
 	var server_short := ServerRulesScript.short_name_for(str(GameState.account.get("server_id", "")))
-	var build_version := label("%s · v%s" % [server_short, str(ProjectSettings.get_setting("application/config/version", "dev"))], 10, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
+	var build_version := label("%s · v%s" % [server_short, str(ProjectSettings.get_setting("application/config/version", "dev"))], UIDesignSystem.FONT_CAPTION, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
 	build_version.name = "BuildVersion"
 	build_version.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	top.add_child(build_version)
@@ -763,14 +851,14 @@ func build_board() -> void:
 	var title_box := VBoxContainer.new()
 	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title_box)
-	title_box.add_child(label(t("BOARD_TITLE", "QUADRO DE PROCURADOS"), 24, INK))
+	title_box.add_child(scene_title(t("BOARD_TITLE", "QUADRO DE PROCURADOS")))
 	var subtitle_text := t("BOARD_TUTORIAL_SUBTITLE", "Seu primeiro alvo. Uma captura para entrar na rede.") if int(GameState.player.get("wins", 0)) <= 0 else t("BOARD_INTERSTELLAR_SUBTITLE", "Três contratos. Rotas diferentes. Uma nave com manutenção questionável.")
-	var subtitle := label(subtitle_text, 15, MUTED)
+	var subtitle := readable_caption(subtitle_text)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title_box.add_child(subtitle)
 	var xp_needed := CoreRules.xp_needed(int(GameState.player.level))
 	var xp_text := "XP %d/%d" % [int(GameState.player.xp), xp_needed]
-	var xp_label := label(xp_text, 13, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
+	var xp_label := label(xp_text, UIDesignSystem.FONT_CAPTION, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
 	xp_label.name = "BoardXpStatus"
 	xp_label.custom_minimum_size = Vector2(88, 0)
 	title_row.add_child(xp_label)
@@ -779,30 +867,39 @@ func build_board() -> void:
 
 func build_frontier_menu() -> void:
 	var title_row := HBoxContainer.new()
-	title_row.add_theme_constant_override("separation", 10)
+	title_row.add_theme_constant_override("separation", 14)
 	content.add_child(title_row)
 	var title_box := VBoxContainer.new()
 	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_box.add_theme_constant_override("separation", 4)
 	title_row.add_child(title_box)
-	title_box.add_child(label(t("MENU_TITLE", "MENU DA FRONTEIRA"), 24, INK))
-	var subtitle := label(t("MENU_SUBTITLE", "Serviços, carreira e preferências do caçador."), 13, MUTED)
-	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	title_box.add_child(subtitle)
+	title_box.add_child(scene_title(t("MENU_TITLE", "MENU DA FRONTEIRA")))
+	title_box.add_child(readable_caption(t("MENU_SUBTITLE", "Serviços, carreira e preferências do caçador.")))
 	var menu_marker: Control = HubDestinationIconScript.new()
 	menu_marker.name = "FrontierMenuMarker"
 	menu_marker.configure("menu", CYAN)
+	menu_marker.custom_minimum_size = Vector2(58, 58)
 	title_row.add_child(menu_marker)
 
-	var section_label := label(t("MENU_SECTION", "SERVIÇOS E PROGRESSO"), 12, CYAN)
+	var section_label := label(t("MENU_SECTION", "SERVIÇOS E PROGRESSO"), UIDesignSystem.FONT_CAPTION, CYAN)
 	section_label.name = "FrontierMenuSection"
 	content.add_child(section_label)
+	var menu_scroll := ScrollContainer.new()
+	menu_scroll.name = "FrontierMenuScroll"
+	menu_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	menu_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	content.add_child(menu_scroll)
+	var menu_body := VBoxContainer.new()
+	menu_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	menu_body.add_theme_constant_override("separation", 14)
+	menu_scroll.add_child(menu_body)
 
 	var hub_grid := GridContainer.new()
 	hub_grid.name = "BoardHubGrid"
 	hub_grid.columns = 2
 	hub_grid.add_theme_constant_override("h_separation", 10)
 	hub_grid.add_theme_constant_override("v_separation", 10)
-	content.add_child(hub_grid)
+	menu_body.add_child(hub_grid)
 	var active_transport := TransportRulesScript.active_transport(GameState.player)
 	hub_grid.add_child(board_hub_action(t("MENU_MARKET", "MERCADO"), t("MENU_MARKET_DETAIL", "ARMAS E ARMADURAS"), GOLD, "market", "BoardMarketAction", func():
 		view_mode = "market"
@@ -825,35 +922,39 @@ func build_frontier_menu() -> void:
 		view_mode = "challenges"
 		render()
 	))
-	hub_grid.add_child(board_hub_action(t("SETTINGS_TITLE", "AJUSTES"), t("MENU_SETTINGS_DETAIL", "ÁUDIO E MOVIMENTO"), MUTED, "settings", "BoardSettingsAction", func():
+	var settings_action := board_hub_action(t("SETTINGS_TITLE", "AJUSTES"), t("MENU_SETTINGS_DETAIL", "ÁUDIO E MOVIMENTO"), MUTED, "settings", "BoardSettingsAction", func():
 		view_mode = "settings"
 		render()
-	))
+	)
+	var system_label := label(t("SETTINGS_TITLE", "AJUSTES").to_upper(), UIDesignSystem.FONT_CAPTION, MUTED)
+	system_label.name = "FrontierSystemSection"
+	menu_body.add_child(system_label)
+	menu_body.add_child(settings_action)
 	var hub_divider := reference_ui_decoration("hub_divider", 12.0)
 	if hub_divider != null:
-		content.add_child(hub_divider)
-	var status := panel(HBoxContainer.new(), Color("#0d1530"), 14, 11)
+		menu_body.add_child(hub_divider)
+	var status := panel(HBoxContainer.new(), Color("#0d1530"), 16, 14)
 	status.name = "BoardDestinationStatus"
 	var status_row := status.get_child(0) as HBoxContainer
-	status_row.add_theme_constant_override("separation", 10)
+	status_row.add_theme_constant_override("separation", 14)
 	var planet_icon: Control = PlanetIconScript.new()
 	planet_icon.name = "FrontierMenuPlanetIcon"
-	planet_icon.custom_minimum_size = Vector2(50, 50)
+	planet_icon.custom_minimum_size = Vector2(66, 66)
 	planet_icon.configure(active_planet(), true, true)
 	status_row.add_child(planet_icon)
 	var status_box := VBoxContainer.new()
 	status_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	status_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	status_box.add_child(label(t("MENU_CURRENT_POSITION", "POSIÇÃO ATUAL"), 10, MUTED))
-	status_box.add_child(label(localized_content_field("planet", active_planet(), "name").to_upper(), 14, GOLD))
+	status_box.add_child(label(t("MENU_CURRENT_POSITION", "POSIÇÃO ATUAL"), UIDesignSystem.FONT_CAPTION, MUTED))
+	status_box.add_child(label(localized_content_field("planet", active_planet(), "name").to_upper(), UIDesignSystem.FONT_BODY, GOLD))
 	var transport_text := t("MENU_NO_TRANSPORT", "SEM TRANSPORTE ATIVO") if active_transport.is_empty() else t("MENU_IN_TRANSIT", "EM TRÂNSITO · %s", [localized_content_field("transport", active_transport, "name").to_upper()])
-	status_box.add_child(label(transport_text, 10, MUTED))
+	status_box.add_child(label(transport_text, UIDesignSystem.FONT_CAPTION, MUTED))
 	status_row.add_child(status_box)
 	if not active_transport.is_empty():
-		var active_transport_icon := transport_icon(active_transport, 48)
+		var active_transport_icon := transport_icon(active_transport, 62)
 		active_transport_icon.name = "FrontierMenuTransportIcon"
 		status_row.add_child(active_transport_icon)
-	content.add_child(status)
+	menu_body.add_child(status)
 
 
 func build_board_bounties() -> void:
@@ -880,27 +981,26 @@ func build_board_bounties() -> void:
 		var streak_notice := notice_banner(t("BOARD_STREAK", "EMBALO ×%d · próximo contrato recebe +%d%% de créditos · derrota ou abandono encerra a sequência", [streak, int(next_reward.bonus_percent)]), GOLD)
 		streak_notice.name = "StreakNotice"
 		content.add_child(streak_notice)
-	content.add_child(rank_progress_panel())
-
 	var scroller := ScrollContainer.new()
 	scroller.name = "BountyScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	content.add_child(scroller)
 	var list := VBoxContainer.new()
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	list.add_theme_constant_override("separation", 14)
+	list.add_theme_constant_override("separation", UIDesignSystem.SECTION_GAP)
 	scroller.add_child(list)
 	var board_bounties := MissionRulesScript.board_offers(GameState.player)
 	var first_contract := int(GameState.player.get("wins", 0)) <= 0
 	if first_contract:
 		selected_board_offer_index = 0
-		var tutorial_hint := label(t("BOARD_TUTORIAL_OFFER_HINT", "PRIMEIRO MANDADO · CONCLUA A CAPTURA PARA ABRIR A REDE DE TRÊS CONTRATOS"), 11, CYAN)
+		var tutorial_hint := readable_caption(t("BOARD_TUTORIAL_OFFER_HINT", "PRIMEIRO MANDADO · CONCLUA A CAPTURA PARA ABRIR A REDE DE TRÊS CONTRATOS"), CYAN)
 		tutorial_hint.name = "BoardTutorialOfferHint"
 		tutorial_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		list.add_child(tutorial_hint)
 	elif board_bounties.size() > 1:
 		selected_board_offer_index = clampi(selected_board_offer_index, 0, board_bounties.size() - 1)
-		var choice_hint := label(t("BOARD_OFFER_HINT", "ESCOLHA UM MANDADO · A REDE RENOVA AS TRÊS OFERTAS APÓS CADA CAPTURA"), 11, MUTED)
+		var choice_hint := readable_caption(t("BOARD_OFFER_HINT", "ESCOLHA UM MANDADO · TRÊS ROTAS, UMA CAÇADA"))
 		choice_hint.name = "BoardChoiceHint"
 		choice_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		list.add_child(choice_hint)
@@ -917,6 +1017,7 @@ func build_board_bounties() -> void:
 
 func select_board_offer(offer_index: int) -> void:
 	selected_board_offer_index = maxi(0, offer_index)
+	board_details_open = false
 	render()
 
 
@@ -925,7 +1026,7 @@ func bounty_offer_selector(bounty: Dictionary, offer_index: int, selected: bool)
 	var accent := GOLD if selected else Color(str(destination.accent))
 	var selector := action_button(localized_content_field("target", bounty, "name"), accent, true)
 	selector.name = "BoardOfferSelector_%d" % offer_index
-	selector.custom_minimum_size = Vector2(0, 128)
+	selector.custom_minimum_size = Vector2(0, 204)
 	selector.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	selector.tooltip_text = "%s · %s" % [localized_content_field("target", bounty, "name"), localized_content_field("planet", destination, "name")]
 	for theme_color in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
@@ -952,16 +1053,19 @@ func bounty_offer_selector(bounty: Dictionary, offer_index: int, selected: bool)
 	copy.alignment = BoxContainer.ALIGNMENT_CENTER
 	copy.add_theme_constant_override("separation", 1)
 	inset.add_child(copy)
-	var portrait := character_portrait(str(bounty.id), 42)
+	var portrait := character_portrait(str(bounty.id), 58)
 	portrait.name = "BoardOfferPortrait_%d" % offer_index
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	copy.add_child(portrait)
-	var target_name := label(localized_content_field("target", bounty, "name"), 9, GOLD if selected else INK, HORIZONTAL_ALIGNMENT_CENTER)
+	var target_name := label(localized_content_field("target", bounty, "name"), UIDesignSystem.FONT_BODY, GOLD if selected else INK, HORIZONTAL_ALIGNMENT_CENTER)
 	target_name.name = "BoardOfferTarget_%d" % offer_index
-	target_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	target_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	target_name.max_lines_visible = 2
+	target_name.custom_minimum_size.y = 46
+	target_name.clip_text = true
 	target_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	copy.add_child(target_name)
-	var planet_name := label(localized_content_field("planet", destination, "name").to_upper(), 9, accent, HORIZONTAL_ALIGNMENT_CENTER)
+	var planet_name := label(localized_content_field("planet", destination, "name").to_upper(), UIDesignSystem.FONT_CAPTION, accent, HORIZONTAL_ALIGNMENT_CENTER)
 	planet_name.name = "BoardOfferPlanet_%d" % offer_index
 	planet_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	planet_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -970,14 +1074,14 @@ func bounty_offer_selector(bounty: Dictionary, offer_index: int, selected: bool)
 	var odds_color := LIME if odds >= 0.72 else (GOLD if odds >= 0.42 else CORAL)
 	var role_id := str(bounty.get("mission_role", "standard"))
 	var role_short := t("BOARD_ROLE_SAFE_SHORT", "ROTINA") if role_id == "safe" else (t("BOARD_ROLE_DANGEROUS_SHORT", "ALTO VALOR") if role_id == "dangerous" else t("BOARD_ROLE_STANDARD_SHORT", "PRIORIDADE"))
-	var comparison := label("%s%s · %d%%" % ["◆ " if selected else "", role_short, roundi(odds * 100.0)], 9, odds_color, HORIZONTAL_ALIGNMENT_CENTER)
+	var comparison := label("%s%s · %d%%" % ["◆ " if selected else "", role_short, roundi(odds * 100.0)], UIDesignSystem.FONT_CAPTION, odds_color, HORIZONTAL_ALIGNMENT_CENTER)
 	comparison.name = "BoardOfferOdds_%d" % offer_index
 	comparison.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	comparison.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	copy.add_child(comparison)
 	var duration := TransportRulesScript.effective_mission_duration(GameState.player, bounty)
 	var payout := CoreRules.bounty_streak_reward(int(bounty.credits), int(GameState.player.get("capture_streak", 0)) + 1)
-	var summary := label("◈ %d · %s" % [int(payout.credits), format_hunt_duration(duration)], 10, INK, HORIZONTAL_ALIGNMENT_CENTER)
+	var summary := label("◈ %d · %s" % [int(payout.credits), format_hunt_duration(duration)], UIDesignSystem.FONT_CAPTION, INK, HORIZONTAL_ALIGNMENT_CENTER)
 	summary.name = "BoardOfferSummary_%d" % offer_index
 	summary.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	summary.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -990,7 +1094,7 @@ func bounty_offer_selector(bounty: Dictionary, offer_index: int, selected: bool)
 func board_hub_action(title: String, detail: String, color: Color, icon_kind: String, node_name: String, callback: Callable) -> Button:
 	var button := action_button(title, color, true)
 	button.name = node_name
-	button.custom_minimum_size = Vector2(0, 82)
+	button.custom_minimum_size = Vector2(0, 104)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.tooltip_text = "%s · %s" % [title.capitalize(), detail.capitalize()]
 	for theme_color in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
@@ -998,29 +1102,30 @@ func board_hub_action(title: String, detail: String, color: Color, icon_kind: St
 	var inset := MarginContainer.new()
 	inset.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	inset.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	inset.add_theme_constant_override("margin_left", 8)
-	inset.add_theme_constant_override("margin_right", 8)
-	inset.add_theme_constant_override("margin_top", 8)
-	inset.add_theme_constant_override("margin_bottom", 8)
+	inset.add_theme_constant_override("margin_left", 12)
+	inset.add_theme_constant_override("margin_right", 12)
+	inset.add_theme_constant_override("margin_top", 10)
+	inset.add_theme_constant_override("margin_bottom", 10)
 	button.add_child(inset)
 	var row := HBoxContainer.new()
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_theme_constant_override("separation", 7)
+	row.add_theme_constant_override("separation", 10)
 	inset.add_child(row)
 	var icon: Control = HubDestinationIconScript.new()
 	icon.name = "BoardHubIcon_%s" % icon_kind
 	icon.configure(icon_kind, color)
+	icon.custom_minimum_size = Vector2(56, 56)
 	row.add_child(icon)
 	var copy := VBoxContainer.new()
 	copy.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	copy.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_child(copy)
-	var title_label := label(title, 14, color)
+	var title_label := label(title, UIDesignSystem.FONT_BODY, color)
 	title_label.name = "BoardHubTitle_%s" % icon_kind
 	title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	copy.add_child(title_label)
-	var detail_label := label(detail, 11, INK)
+	var detail_label := label(detail, UIDesignSystem.FONT_CAPTION, INK)
 	detail_label.name = "BoardHubDetail_%s" % icon_kind
 	detail_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -1055,8 +1160,8 @@ func rank_progress_panel() -> PanelContainer:
 	box.add_child(row)
 	var level := int(GameState.player.get("level", 1))
 	var available := MissionRulesScript.available_planets(level)
-	row.add_child(label(t("BOARD_NETWORK_LEVEL", "REDE DE MANDADOS · NÍVEL %d", [level]), 12, CYAN))
-	var discovered := label(t("BOARD_DISCOVERED_WORLDS", "%d/%d MUNDOS CONHECIDOS", [available.size(), ContentDB.PLANETS.size()]), 12, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
+	row.add_child(label(t("BOARD_NETWORK_LEVEL", "REDE DE MANDADOS · NÍVEL %d", [level]), UIDesignSystem.FONT_CAPTION, CYAN))
+	var discovered := label(t("BOARD_DISCOVERED_WORLDS", "%d/%d MUNDOS CONHECIDOS", [available.size(), ContentDB.PLANETS.size()]), UIDesignSystem.FONT_CAPTION, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
 	discovered.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(discovered)
 	var next_planet: Dictionary = {}
@@ -1068,14 +1173,14 @@ func rank_progress_panel() -> PanelContainer:
 	var progress_max := level
 	if not next_planet.is_empty():
 		progress_max = int(next_planet.unlock_level)
-		box.add_child(label(t("BOARD_NEXT_WORLD", "PRÓXIMO DESTINO · %s NO NÍVEL %d", [localized_content_field("planet", next_planet, "name").to_upper(), progress_max]), 10, MUTED))
+		box.add_child(readable_caption(t("BOARD_NEXT_WORLD", "PRÓXIMO DESTINO · %s NO NÍVEL %d", [localized_content_field("planet", next_planet, "name").to_upper(), progress_max])))
 	else:
-		box.add_child(label(t("BOARD_ALL_WORLDS", "TODOS OS DESTINOS ATUAIS ESTÃO NA REDE"), 10, LIME))
+		box.add_child(readable_caption(t("BOARD_ALL_WORLDS", "TODOS OS DESTINOS ATUAIS ESTÃO NA REDE"), LIME))
 	var progress := ProgressBar.new()
 	progress.max_value = maxi(1, progress_max)
 	progress.value = progress_value
 	progress.show_percentage = false
-	progress.custom_minimum_size = Vector2(0, 9)
+	progress.custom_minimum_size = Vector2(0, 14)
 	progress.add_theme_stylebox_override("background", box_style(PANEL_LIGHT, 5))
 	progress.add_theme_stylebox_override("fill", box_style(GOLD, 5))
 	box.add_child(progress)
@@ -1084,40 +1189,42 @@ func rank_progress_panel() -> PanelContainer:
 
 func build_galaxy_map() -> void:
 	var title_row := HBoxContainer.new()
+	title_row.add_theme_constant_override("separation", 14)
 	content.add_child(title_row)
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.add_theme_constant_override("separation", 4)
 	title_row.add_child(copy)
-	copy.add_child(label(t("GALAXY_TITLE", "MAPA GALÁCTICO"), 27, INK))
-	copy.add_child(label(t("GALAXY_SUBTITLE", "Mundos conhecidos, distâncias e ocorrências da rede de mandados."), 14, MUTED))
-	var back := action_button(t("ACTION_BACK", "VOLTAR"), CYAN, true)
-	back.custom_minimum_size = Vector2(120, 48)
+	copy.add_child(scene_title(t("GALAXY_TITLE", "MAPA GALÁCTICO")))
+	copy.add_child(readable_caption(t("GALAXY_SUBTITLE", "Mundos conhecidos, distâncias e ocorrências da rede de mandados.")))
+	var back := secondary_action(t("ACTION_BACK", "VOLTAR"), CYAN)
+	back.custom_minimum_size.x = 118
 	back.pressed.connect(func():
 		view_mode = "board"
 		render()
 	)
 	title_row.add_child(back)
 	var active_transport := TransportRulesScript.active_transport(GameState.player)
-	var transport_status := panel(HBoxContainer.new(), Color("#173356"), 14, 12)
+	var transport_status := panel(HBoxContainer.new(), Color("#173356"), 16, 14)
 	transport_status.name = "GalaxyTransportStatus"
 	var transport_row := transport_status.get_child(0) as HBoxContainer
-	transport_row.add_theme_constant_override("separation", 10)
+	transport_row.add_theme_constant_override("separation", 14)
 	var transport_copy := VBoxContainer.new()
 	transport_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if active_transport.is_empty():
-		transport_copy.add_child(label(t("MENU_NO_TRANSPORT", "SEM TRANSPORTE ATIVO"), 13, GOLD))
-		transport_copy.add_child(label(t("GALAXY_STANDARD_SPEED", "O mapa calcula cada rota na velocidade burocrática padrão."), 11, MUTED))
+		transport_copy.add_child(label(t("MENU_NO_TRANSPORT", "SEM TRANSPORTE ATIVO"), UIDesignSystem.FONT_BODY, GOLD))
+		transport_copy.add_child(readable_caption(t("GALAXY_STANDARD_SPEED", "O mapa calcula cada rota na velocidade burocrática padrão.")))
 	else:
-		var map_icon := transport_icon(active_transport, 54)
+		var map_icon := transport_icon(active_transport, 72)
 		map_icon.name = "GalaxyTransportIcon"
 		transport_row.add_child(map_icon)
-		transport_copy.add_child(label(t("MENU_IN_TRANSIT", "EM TRÂNSITO · %s", [localized_content_field("transport", active_transport, "name").to_upper()]), 13, Color(str(active_transport.color))))
-		transport_copy.add_child(label(t("GALAXY_TRANSPORT_BONUS", "-%d%% no tempo de viagem de todos os contratos", [roundi(float(active_transport.speed_bonus) * 100.0)]), 11, LIME))
+		transport_copy.add_child(label(t("MENU_IN_TRANSIT", "EM TRÂNSITO · %s", [localized_content_field("transport", active_transport, "name").to_upper()]), UIDesignSystem.FONT_BODY, Color(str(active_transport.color))))
+		transport_copy.add_child(readable_caption(t("GALAXY_TRANSPORT_BONUS", "-%d%% no tempo de viagem de todos os contratos", [roundi(float(active_transport.speed_bonus) * 100.0)]), LIME))
 	transport_row.add_child(transport_copy)
-	var open_hangar := action_button(t("GALAXY_OPEN_HANGAR", "ABRIR HANGAR"), CYAN, true)
+	var open_hangar := secondary_action(t("GALAXY_OPEN_HANGAR", "ABRIR HANGAR"), CYAN)
 	open_hangar.name = "GalaxyHangarAction"
-	open_hangar.custom_minimum_size = Vector2(118, 48)
-	open_hangar.add_theme_font_size_override("font_size", 10)
+	open_hangar.custom_minimum_size.x = 138
+	open_hangar.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 	open_hangar.pressed.connect(func():
 		view_mode = "hangar"
 		render()
@@ -1127,6 +1234,7 @@ func build_galaxy_map() -> void:
 	var route_scroll := ScrollContainer.new()
 	route_scroll.name = "GalaxyScroll"
 	route_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	route_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	content.add_child(route_scroll)
 	var route := VBoxContainer.new()
 	route.name = "GalaxyRoutes"
@@ -1144,45 +1252,49 @@ func planet_card(planet: Dictionary) -> PanelContainer:
 	var visited := GameState.planet_capture_count(planet_id) > 0
 	var accent := Color(str(planet.accent))
 	var card_fill := Color("#173356") if current else (Color("#121d3d") if visited else (PANEL_LIGHT if unlocked else Color("#0b1228")))
-	var card := panel(VBoxContainer.new(), card_fill, 18, 12)
+	var card := panel(VBoxContainer.new(), card_fill, 18, 15)
 	card.name = "GalaxyPlanet_%s" % planet_id
 	if current:
-		var current_style := card.get_theme_stylebox("panel") as StyleBoxFlat
+		# Support styles are shared across cards; duplicate before adding the
+		# destination-specific selected edge.
+		var current_style := card.get_theme_stylebox("panel").duplicate() as StyleBoxFlat
 		current_style.border_color = accent
 		current_style.border_width_left = 2
 		current_style.border_width_top = 2
 		current_style.border_width_right = 2
 		current_style.border_width_bottom = 2
+		card.add_theme_stylebox_override("panel", current_style)
 	var box := card.get_child(0) as VBoxContainer
-	box.add_theme_constant_override("separation", 5)
+	box.add_theme_constant_override("separation", 8)
 	var heading := HBoxContainer.new()
-	heading.add_theme_constant_override("separation", 8)
+	heading.add_theme_constant_override("separation", 12)
 	box.add_child(heading)
 	var destination_icon := PlanetIconScript.new()
 	destination_icon.name = "GalaxyPlanetIcon_%s" % planet_id
 	destination_icon.configure(planet, unlocked, current)
+	destination_icon.custom_minimum_size = Vector2(70, 70)
 	heading.add_child(destination_icon)
 	var names := VBoxContainer.new()
 	names.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_child(names)
-	names.add_child(label(localized_content_field("planet", planet, "name").to_upper(), 19, accent if unlocked else MUTED))
+	names.add_child(label(localized_content_field("planet", planet, "name").to_upper(), UIDesignSystem.FONT_BODY, accent if unlocked else MUTED))
 	var context_text := localized_content_field("planet", planet, "subtitle")
 	var context_color := MUTED
 	if unlocked:
 		context_text = t("GALAXY_WORLD_RECORD", "ROTA-BASE %s · %d CAPTURAS REGISTADAS", [format_hunt_duration(float(planet.get("travel_duration", 0.0))), GameState.planet_capture_count(planet_id)])
 		context_color = LIME if visited else GOLD
-		var progress := label(context_text, 11, context_color)
+		var progress := label(context_text, UIDesignSystem.FONT_CAPTION, context_color)
 		progress.name = "GalaxyPlanetProgress_%s" % planet_id
 		progress.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		names.add_child(progress)
 	else:
 		context_text = t("GALAXY_LEVEL_REQUIREMENT", "ENTRA NA REDE NO NÍVEL %d", [int(planet.get("unlock_level", 1))])
-		var requirement_label := label(context_text, 11, MUTED)
+		var requirement_label := label(context_text, UIDesignSystem.FONT_CAPTION, MUTED)
 		requirement_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		names.add_child(requirement_label)
 	var route_status := t("GALAXY_NETWORK_AVAILABLE", "NA REDE") if unlocked else t("GALAXY_LOCKED", "BLOQUEADO")
-	var status := label(route_status, 11, accent if unlocked else CORAL, HORIZONTAL_ALIGNMENT_RIGHT)
-	status.custom_minimum_size = Vector2(82, 0)
+	var status := label(route_status, UIDesignSystem.FONT_CAPTION, accent if unlocked else CORAL, HORIZONTAL_ALIGNMENT_RIGHT)
+	status.custom_minimum_size = Vector2(92, 0)
 	status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	heading.add_child(status)
 	return card
@@ -1213,24 +1325,27 @@ func build_hangar() -> void:
 
 
 func onboarding_banner() -> PanelContainer:
-	var banner := panel(HBoxContainer.new(), Color("#173356"), 15, 15)
+	var banner := panel(HBoxContainer.new(), Color("#10264be8"), 16, UIDesignSystem.SUPPORT_PANEL_PADDING)
 	banner.name = "FirstHunterOnboarding"
 	var row := banner.get_child(0) as HBoxContainer
-	row.add_theme_constant_override("separation", 14)
+	row.add_theme_constant_override("separation", UIDesignSystem.CONTROL_GAP)
 	var class_pending := str(GameState.player.get("class_id", "")).is_empty()
-	row.add_child(center_label("!" if class_pending else "1", 30, GOLD if class_pending else CYAN))
+	var marker := center_label("!" if class_pending else "1", UIDesignSystem.FONT_DISPLAY, GOLD if class_pending else CYAN)
+	marker.custom_minimum_size.x = 58
+	row.add_child(marker)
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_child(copy)
-	copy.add_child(label(t("BOARD_DEFINE_STYLE", "DEFINA SEU ESTILO") if class_pending else t("BOARD_FIRST_JOB", "PRIMEIRO TRABALHO"), 14, GOLD if class_pending else CYAN))
-	var message := label(t("BOARD_DEFINE_STYLE_DESCRIPTION", "Escolha como seu caçador prefere resolver contratos. A troca continua gratuita durante os testes.") if class_pending else t("BOARD_FIRST_JOB_DESCRIPTION", "Aceite Gloop. A primeira captura ensina o ciclo e garante seu primeiro loot."), 12 if class_pending else 14, INK)
+	copy.add_child(label(t("BOARD_DEFINE_STYLE", "DEFINA SEU ESTILO") if class_pending else t("BOARD_FIRST_JOB", "PRIMEIRO TRABALHO"), UIDesignSystem.FONT_BODY, GOLD if class_pending else CYAN))
+	var message := readable_caption(t("BOARD_DEFINE_STYLE_DESCRIPTION", "Escolha como prefere resolver contratos. A troca continua gratuita durante os testes.") if class_pending else t("BOARD_FIRST_JOB_DESCRIPTION", "Capture Gloop para aprender o ciclo e receber o primeiro loot."), INK)
 	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	message.max_lines_visible = 2
 	copy.add_child(message)
 	if class_pending:
-		var choose_class := action_button(t("BOARD_CHOOSE_CLASS", "ESCOLHER\nCLASSE"), GOLD, true)
+		var choose_class := secondary_action(t("BOARD_CHOOSE_CLASS", "ESCOLHER CLASSE"), GOLD)
 		choose_class.name = "OnboardingClassAction"
-		choose_class.custom_minimum_size = Vector2(112, 48)
-		choose_class.add_theme_font_size_override("font_size", 10)
+		choose_class.custom_minimum_size.x = 190
 		choose_class.pressed.connect(func():
 			view_mode = "classes"
 			render()
@@ -1243,15 +1358,15 @@ func notice_banner(message: String, color: Color, dismiss_callback := Callable()
 	var banner := panel(HBoxContainer.new(), Color("#16363b"), 14, 13)
 	var row := banner.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 12)
-	row.add_child(label("!" if color == CORAL else "✓", 23, color))
-	var message_label := label(message, 14, INK)
+	row.add_child(label("!" if color == CORAL else "✓", UIDesignSystem.FONT_EMPHASIS, color))
+	var message_label := label(message, UIDesignSystem.FONT_CAPTION, INK)
 	message_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	row.add_child(message_label)
 	if dismiss_callback.is_valid():
-		var dismiss := action_button(t("COMMON_OK", "OK"), color, true)
+		var dismiss := secondary_action(t("COMMON_OK", "OK"), color)
 		dismiss.name = "BoardNoticeDismiss"
-		dismiss.custom_minimum_size = Vector2(62, 44)
+		dismiss.custom_minimum_size.x = 96
 		dismiss.pressed.connect(dismiss_callback)
 		row.add_child(dismiss)
 	return banner
@@ -1262,15 +1377,15 @@ func save_warning_banner() -> PanelContainer:
 	banner.name = "SaveWarningBanner"
 	var row := banner.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 10)
-	var message := label(GameState.save_warning, 12, INK)
+	var message := label(GameState.save_warning, UIDesignSystem.FONT_CAPTION, INK)
 	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	message.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(message)
 	var recovery_required := GameState.save_recovery_required
 	var retry := action_button(t("SAVE_START_FRESH", "INICIAR\nNOVO SAVE") if recovery_required else t("SAVE_RETRY", "TENTAR\nNOVAMENTE"), CORAL, true)
 	retry.name = "StartFreshSaveAction" if recovery_required else "RetrySaveAction"
-	retry.custom_minimum_size = Vector2(112, 48)
-	retry.add_theme_font_size_override("font_size", 10)
+	retry.custom_minimum_size = Vector2(132, 72)
+	retry.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 	retry.pressed.connect(GameState.start_fresh_after_corruption if recovery_required else GameState.retry_save)
 	row.add_child(retry)
 	return banner
@@ -1288,11 +1403,11 @@ func combat_summary_panel(won: bool) -> PanelContainer:
 	var report_header := HBoxContainer.new()
 	report_header.add_theme_constant_override("separation", 8)
 	box.add_child(report_header)
-	var verdict := center_label("✓" if won else "×", 18, LIME if won else CORAL)
+	var verdict := center_label("✓" if won else "×", UIDesignSystem.FONT_BODY, LIME if won else CORAL)
 	verdict.name = "CombatReportVerdict"
 	verdict.custom_minimum_size = Vector2(28, 28)
 	report_header.add_child(verdict)
-	var report_heading := label(report_title, 13, LIME if won else CORAL)
+	var report_heading := label(report_title, UIDesignSystem.FONT_CAPTION, LIME if won else CORAL)
 	report_heading.name = "CombatReportTitle"
 	report_heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	report_heading.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -1327,7 +1442,7 @@ func combat_summary_panel(won: bool) -> PanelContainer:
 	if not kit_origin.is_empty():
 		effects.append(t("COMBAT_EVIDENCE_KIT", "kit %s", [localized_content_field("planet", ContentDB.get_planet(kit_origin), "name")]))
 	var evidence_text := t("COMBAT_ACTIVE_BUILD", "BUILD ATIVA · %s", [" · ".join(effects)]) if not effects.is_empty() else t("COMBAT_NO_EFFECTS", "SEM EFEITOS TÁTICOS · modificações e kits podem mudar o próximo confronto")
-	var evidence := label(evidence_text, 11, GOLD if not effects.is_empty() else MUTED)
+	var evidence := label(evidence_text, UIDesignSystem.FONT_CAPTION, GOLD if not effects.is_empty() else MUTED)
 	evidence.name = "CombatBuildEvidence"
 	evidence.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(evidence)
@@ -1338,25 +1453,24 @@ func combat_summary_panel(won: bool) -> PanelContainer:
 			var tested := "%s %d%%" % [localized_approach_name(str(field_context.get("tested_approach_id", "")), str(field_context.get("tested_approach_name", "CONTRATO BASE"))).to_upper(), roundi(float(field_context.get("tested_odds", 0.0)) * 100.0)]
 			route_diagnosis_text = t("COMBAT_OVERRIDE_DEFEAT", "OVERRIDE DERROTADO · TESTADA %s → ESCOLHIDA %s · REAVALIE A ROTA", [tested, localized_approach_name(str(field_context.get("chosen_approach_id", "")), str(field_context.get("chosen_approach_name", "CONTRATO BASE"))).to_upper()]) if bool(field_context.get("overridden", false)) else t("COMBAT_TESTED_ROUTE_FAILED", "ROTA TESTADA TAMBÉM FALHOU · %s · REFORCE A BUILD OU REVEJA O INCIDENTE", [tested])
 		if not route_diagnosis_text.is_empty():
-			var route_diagnosis := label(route_diagnosis_text, 11, GOLD)
+			var route_diagnosis := label(route_diagnosis_text, UIDesignSystem.FONT_CAPTION, GOLD)
 			route_diagnosis.name = "DefeatFieldTestDiagnosis"
 			route_diagnosis.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			box.add_child(route_diagnosis)
 		var remaining := int(summary.get("enemy_hp_remaining", 0))
-		var diagnosis := label(t("COMBAT_DEFEAT_DIAGNOSIS", "O alvo conservou %d HP. Compare as odds, ative um kit ou invista na oficina antes da revanche.", [remaining]), 12, INK)
+		var diagnosis := label(t("COMBAT_DEFEAT_DIAGNOSIS", "O alvo conservou %d HP. Compare as odds, ative um kit ou invista na oficina antes da revanche.", [remaining]), UIDesignSystem.FONT_CAPTION, INK)
 		diagnosis.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		box.add_child(diagnosis)
 		var lost_streak := int(summary.get("lost_streak", 0))
 		if lost_streak > 0:
-			var streak_loss := label(t("COMBAT_STREAK_LOST", "EMBALO ×%d ENCERRADO · a próxima captura recomeça em ×1", [lost_streak]), 11, CORAL)
+			var streak_loss := label(t("COMBAT_STREAK_LOST", "EMBALO ×%d ENCERRADO · a próxima captura recomeça em ×1", [lost_streak]), UIDesignSystem.FONT_CAPTION, CORAL)
 			streak_loss.name = "DefeatStreakLoss"
 			streak_loss.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			box.add_child(streak_loss)
-		var workshop := action_button(t("COMBAT_OPEN_WORKSHOP", "ABRIR OFICINA E TESTAR BUILD"), CYAN, true)
+		var workshop := secondary_action(t("COMBAT_OPEN_WORKSHOP", "ABRIR OFICINA E TESTAR BUILD"), CYAN)
 		workshop.name = "DefeatWorkshopAction"
-		workshop.custom_minimum_size = Vector2(0, 44)
 		workshop.pressed.connect(func():
-			arsenal_section = "equipped"
+			arsenal_section = "workshop"
 			view_mode = "arsenal"
 			render()
 		)
@@ -1370,20 +1484,20 @@ func afk_return_banner(include_recovery := false) -> PanelContainer:
 	banner.name = "AfkReturnBanner"
 	var row := banner.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 12)
-	row.add_child(center_label("AFK", 24, CYAN))
+	row.add_child(center_label("AFK", UIDesignSystem.FONT_EMPHASIS, CYAN))
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	copy.add_child(label(t("AFK_PATROL_COMPLETE", "PATRULHA CONCLUÍDA · %s", [format_duration(int(report.minutes))]), 13, CYAN))
-	copy.add_child(label(t("AFK_PATROL_REWARD", "+%d créditos · +%d sucata%s", [int(report.credits), int(report.scrap), t("AFK_CAP", " · LIMITE 8H") if bool(report.capped) else ""]), 14, INK))
+	copy.add_child(label(t("AFK_PATROL_COMPLETE", "PATRULHA CONCLUÍDA · %s", [format_duration(int(report.minutes))]), UIDesignSystem.FONT_CAPTION, CYAN))
+	copy.add_child(label(t("AFK_PATROL_REWARD", "+%d créditos · +%d sucata%s", [int(report.credits), int(report.scrap), t("AFK_CAP", " · LIMITE 8H") if bool(report.capped) else ""]), UIDesignSystem.FONT_BODY, INK))
 	if include_recovery:
-		var recovery := label(GameState.last_notice, 10, LIME)
+		var recovery := label(GameState.last_notice, UIDesignSystem.FONT_CAPTION, LIME)
 		recovery.name = "AfkRecoveryNotice"
 		recovery.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		copy.add_child(recovery)
-	var dismiss := action_button(t("COMMON_OK", "OK"), CYAN, true)
+	var dismiss := secondary_action(t("COMMON_OK", "OK"), CYAN)
 	dismiss.name = "AfkDismiss"
-	dismiss.custom_minimum_size = Vector2(62, 44)
+	dismiss.custom_minimum_size.x = 96
 	dismiss.pressed.connect(func(): GameState.dismiss_afk_report(include_recovery))
 	row.add_child(dismiss)
 	return banner
@@ -1396,23 +1510,27 @@ func format_duration(minutes: int) -> String:
 
 
 func bounty_card(bounty: Dictionary) -> PanelContainer:
-	var card := panel(VBoxContainer.new(), PANEL, 18, 20)
+	var card := focal_scene_panel(VBoxContainer.new())
 	card.name = "BountyCard_%s" % str(bounty.id)
 	var box := card.get_child(0) as VBoxContainer
-	box.add_theme_constant_override("separation", 10)
+	box.add_theme_constant_override("separation", UIDesignSystem.SECTION_GAP)
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 16)
+	row.add_theme_constant_override("separation", 24)
 	box.add_child(row)
 
-	row.add_child(character_portrait(str(bounty.id), 88))
+	var target_portrait := character_portrait(str(bounty.id), 220)
+	target_portrait.name = "BountyPortrait_%s" % str(bounty.id)
+	row.add_child(target_portrait)
 
 	var details := VBoxContainer.new()
 	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	details.alignment = BoxContainer.ALIGNMENT_CENTER
+	details.add_theme_constant_override("separation", 5)
 	row.add_child(details)
 	var destination := ContentDB.get_planet(str(bounty.get("planet_id", ContentDB.PLANET.id)))
 	var role_id := str(bounty.get("mission_role", "standard"))
 	var role_text := t("BOARD_ROLE_SAFE", "MANDADO DE ROTINA") if role_id == "safe" else (t("BOARD_ROLE_DANGEROUS", "MANDADO DE ALTO VALOR") if role_id == "dangerous" else t("BOARD_ROLE_STANDARD", "MANDADO PRIORITÁRIO"))
-	var mission_role := label("%s · %s" % [role_text, localized_content_field("planet", destination, "name").to_upper()], 11, Color(str(destination.accent)))
+	var mission_role := readable_caption("%s · %s" % [role_text, localized_content_field("planet", destination, "name").to_upper()], Color(str(destination.accent)))
 	mission_role.name = "BountyRole_%s" % str(bounty.id)
 	details.add_child(mission_role)
 	var board_reason := str(bounty.get("board_reason", ""))
@@ -1427,64 +1545,92 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 		board_reason = t("BOARD_RECURRING_MAX", "CONTRATO RECORRENTE · PERÍCIA MÁX.") if repeat_next < 0 else t("BOARD_MASTERY_ROUTE", "ROTA DE PERÍCIA · FALTAM %d", [maxi(0, repeat_next - repeat_captures)])
 	if not board_reason.is_empty():
 		var role_color := CORAL if str(bounty.get("board_role", "")) == "primary" else CYAN
-		var role := label(board_reason, 12, role_color)
+		var role := readable_caption(board_reason, role_color)
 		role.name = "BountyRole_%s" % str(bounty.id)
 		details.add_child(role)
 	elif bool(bounty.get("boss", false)):
-		details.add_child(label(t("BOARD_CHAPTER_BOSS", "CHEFE DO CAPÍTULO"), 12, GOLD))
-	details.add_child(label(localized_content_field("target", bounty, "name"), 21, GOLD if bool(bounty.get("boss", false)) else INK))
-	details.add_child(label(localized_content_field("target", bounty, "title"), 14, CORAL))
+		details.add_child(readable_caption(t("BOARD_CHAPTER_BOSS", "CHEFE DO CAPÍTULO"), GOLD))
+	details.add_child(label(localized_content_field("target", bounty, "name"), UIDesignSystem.FONT_SCREEN_TITLE, GOLD if bool(bounty.get("boss", false)) else INK))
+	var target_title := readable_body(localized_content_field("target", bounty, "title"), CORAL)
+	target_title.max_lines_visible = 2
+	details.add_child(target_title)
+	var description := readable_body(localized_content_field("target", bounty, "description"), MUTED)
+	description.max_lines_visible = 3
+	description.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	details.add_child(description)
+
 	var captures: Dictionary = GameState.player.get("captures_by_target", {})
 	var capture_count := int(captures.get(str(bounty.id), 0))
 	var mastery_level := CoreRules.target_mastery_level(capture_count)
-	if capture_count > 0:
-		var next_requirement := CoreRules.target_mastery_next_requirement(mastery_level)
-		var mastery_progress := t("COMMON_MAX", "MÁX.") if next_requirement < 0 else "%d/%d" % [capture_count, next_requirement]
-		var mastery_label := label(t("BOARD_MASTERY_PROGRESS", "CAPTURAS %d · PERÍCIA %d/3 · %s", [capture_count, mastery_level, mastery_progress]), 11, LIME)
-		mastery_label.name = "BountyMastery_%s" % str(bounty.id)
-		details.add_child(mastery_label)
-	var mastery_objective := CareerRulesScript.next_mastery_objective(GameState.player, ContentDB.TARGETS)
-	if not mastery_objective.is_empty() and str(mastery_objective.target.id) == str(bounty.id):
-		var remaining_captures := int(mastery_objective.remaining)
-		var route_label := label(t("BOARD_MASTERY_CAPTURES_PLURAL", "ROTA DE PERÍCIA · FALTAM %d CAPTURAS", [remaining_captures]) if remaining_captures != 1 else t("BOARD_MASTERY_CAPTURE_SINGULAR", "ROTA DE PERÍCIA · FALTA 1 CAPTURA"), 11, GOLD)
-		route_label.name = "MasteryRoute_%s" % str(bounty.id)
-		details.add_child(route_label)
-	var description := label(localized_content_field("target", bounty, "description"), 14, MUTED)
-	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	details.add_child(description)
-
 	var odds := CoreRules.bounty_odds(GameState.player, bounty)
 	var payout := CoreRules.bounty_streak_reward(int(bounty.credits), int(GameState.player.get("capture_streak", 0)) + 1)
-	var footer := HBoxContainer.new()
-	footer.add_theme_constant_override("separation", 10)
+	var footer := panel(HBoxContainer.new(), Color("#09132acc"), 12, 14)
+	footer.name = "BountyDecisionSummary_%s" % str(bounty.id)
 	box.add_child(footer)
+	var footer_row := footer.get_child(0) as HBoxContainer
+	footer_row.add_theme_constant_override("separation", 12)
 	var hunt_duration := TransportRulesScript.effective_mission_duration(GameState.player, bounty)
-	footer.add_child(label("◈ %d%s   ✦ %d XP   %s" % [int(payout.credits), t("BOARD_STREAK_SUFFIX", " +EMBALO") if int(payout.bonus_credits) > 0 else "", int(bounty.xp), format_hunt_duration(hunt_duration)], 15, GOLD))
+	var payout_summary := readable_body("◈ %d%s   ✦ %d XP   %s" % [int(payout.credits), t("BOARD_STREAK_SUFFIX", " +EMBALO") if int(payout.bonus_credits) > 0 else "", int(bounty.xp), format_hunt_duration(hunt_duration)], GOLD)
+	payout_summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	footer_row.add_child(payout_summary)
 	var risk_text := localized_risk(odds)
 	var risk_color := LIME if odds >= 0.72 else (GOLD if odds >= 0.42 else CORAL)
-	var risk := label("%s · %d%%" % [risk_text, roundi(odds * 100.0)], 14, risk_color, HORIZONTAL_ALIGNMENT_RIGHT)
-	risk.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	footer.add_child(risk)
-	var hunt := action_button(t("BOARD_REPEAT_HUNT", "REPETIR CAÇADA") if is_repeat else t("BOARD_ANALYZE_APPROACHES", "ANALISAR ABORDAGENS"), GOLD if is_repeat else CYAN)
+	footer_row.add_child(label("%s · %d%%" % [risk_text, roundi(odds * 100.0)], UIDesignSystem.FONT_BODY, risk_color, HORIZONTAL_ALIGNMENT_RIGHT))
+
+	var actions := HBoxContainer.new()
+	actions.name = "BountyPrimaryActions_%s" % str(bounty.id)
+	actions.add_theme_constant_override("separation", UIDesignSystem.CONTROL_GAP)
+	box.add_child(actions)
+	var hunt := primary_action(t("BOARD_REPEAT_HUNT", "REPETIR CAÇADA") if is_repeat else t("BOARD_ANALYZE_APPROACHES", "ANALISAR ABORDAGENS"), GOLD if is_repeat else CYAN)
 	hunt.name = "BountyAction_%s" % str(bounty.id)
+	hunt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hunt.pressed.connect(func():
 		briefing_context = {}
+		board_details_open = false
 		GameState.select_bounty(bounty)
 	)
-	box.add_child(hunt)
-	if bool(bounty.get("mission_offer", false)):
-		var saved := TransportRulesScript.mission_saved_seconds(GameState.player, bounty)
-		var timing := t("BOARD_MISSION_TIMING", "VIAGEM %s · PERSEGUIÇÃO %s", [format_hunt_duration(float(bounty.get("travel_duration", 0.0))), format_hunt_duration(float(bounty.get("pursuit_duration", 0.0)))])
-		if saved > 0.5:
-			timing += t("BOARD_TRANSPORT_SAVING", " · NAVE POUPA %s", [format_hunt_duration(saved)])
-		var timing_label := label(timing, 10, LIME if saved > 0.5 else MUTED)
-		timing_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		box.add_child(timing_label)
-		var starter_discount := float(bounty.get("starter_travel_discount", 0.0))
-		if starter_discount > 0.001:
-			var acceleration := label(t("BOARD_STARTER_TRAVEL_ACCELERATION", "ACELERAÇÃO INICIAL ATIVA · VIAGEM -%d%%", [roundi(starter_discount * 100.0)]), 10, CYAN)
-			acceleration.name = "StarterTravelAcceleration_%s" % str(bounty.id)
-			box.add_child(acceleration)
+	actions.add_child(hunt)
+	var detail_action := secondary_action(t("COMMON_HIDE_DETAILS", "FECHAR DETALHES") if board_details_open else t("COMMON_DETAILS", "DETALHES"), GOLD)
+	detail_action.name = "BountyDetailsAction_%s" % str(bounty.id)
+	detail_action.custom_minimum_size.x = 190
+	detail_action.pressed.connect(func():
+		board_details_open = not board_details_open
+		render()
+	)
+	actions.add_child(detail_action)
+
+	if board_details_open:
+		var secondary := panel(VBoxContainer.new(), Color("#09132ae8"), 14, UIDesignSystem.SUPPORT_PANEL_PADDING)
+		secondary.name = "BountySecondaryDetails"
+		var secondary_box := secondary.get_child(0) as VBoxContainer
+		secondary_box.add_theme_constant_override("separation", 8)
+		secondary_box.add_child(readable_caption(t("BOARD_DETAILS_TITLE", "FICHA DO MANDADO"), CYAN))
+		secondary_box.add_child(rank_progress_panel())
+		if capture_count > 0:
+			var next_requirement := CoreRules.target_mastery_next_requirement(mastery_level)
+			var mastery_progress := t("COMMON_MAX", "MÁX.") if next_requirement < 0 else "%d/%d" % [capture_count, next_requirement]
+			var mastery_label := readable_caption(t("BOARD_MASTERY_PROGRESS", "CAPTURAS %d · PERÍCIA %d/3 · %s", [capture_count, mastery_level, mastery_progress]), LIME)
+			mastery_label.name = "BountyMastery_%s" % str(bounty.id)
+			secondary_box.add_child(mastery_label)
+		var mastery_objective := CareerRulesScript.next_mastery_objective(GameState.player, ContentDB.TARGETS)
+		if not mastery_objective.is_empty() and str(mastery_objective.target.id) == str(bounty.id):
+			var remaining_captures := int(mastery_objective.remaining)
+			var route_label := readable_caption(t("BOARD_MASTERY_CAPTURES_PLURAL", "ROTA DE PERÍCIA · FALTAM %d CAPTURAS", [remaining_captures]) if remaining_captures != 1 else t("BOARD_MASTERY_CAPTURE_SINGULAR", "ROTA DE PERÍCIA · FALTA 1 CAPTURA"), GOLD)
+			route_label.name = "MasteryRoute_%s" % str(bounty.id)
+			secondary_box.add_child(route_label)
+		if bool(bounty.get("mission_offer", false)):
+			var saved := TransportRulesScript.mission_saved_seconds(GameState.player, bounty)
+			var timing := t("BOARD_MISSION_TIMING", "VIAGEM %s · PERSEGUIÇÃO %s", [format_hunt_duration(float(bounty.get("travel_duration", 0.0))), format_hunt_duration(float(bounty.get("pursuit_duration", 0.0)))])
+			if saved > 0.5:
+				timing += t("BOARD_TRANSPORT_SAVING", " · NAVE POUPA %s", [format_hunt_duration(saved)])
+			var timing_label := readable_caption(timing, LIME if saved > 0.5 else MUTED)
+			secondary_box.add_child(timing_label)
+			var starter_discount := float(bounty.get("starter_travel_discount", 0.0))
+			if starter_discount > 0.001:
+				var acceleration := readable_caption(t("BOARD_STARTER_TRAVEL_ACCELERATION", "ACELERAÇÃO INICIAL ATIVA · VIAGEM -%d%%", [roundi(starter_discount * 100.0)]), CYAN)
+				acceleration.name = "StarterTravelAcceleration_%s" % str(bounty.id)
+				secondary_box.add_child(acceleration)
+		box.add_child(secondary)
 	return card
 
 
@@ -1499,9 +1645,11 @@ func build_briefing() -> void:
 	var bounty := GameState.current_bounty
 	var evaluations := ContractRules.evaluate_approaches(GameState.player, bounty, GameState.offered_approaches)
 	var recommended_id := ContractRules.recommended_approach_id(evaluations, str(GameState.player.get("class_id", "")))
-	var target_row := HBoxContainer.new()
+	var target_dossier := illustrated_panel(HBoxContainer.new(), 10)
+	target_dossier.name = "BriefingTargetDossier"
+	content.add_child(target_dossier)
+	var target_row := target_dossier.get_child(0) as HBoxContainer
 	target_row.add_theme_constant_override("separation", 18)
-	content.add_child(target_row)
 	target_row.add_child(character_portrait(str(bounty.id), 82))
 	var target_copy := VBoxContainer.new()
 	target_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1512,56 +1660,59 @@ func build_briefing() -> void:
 		var briefing_transport := transport_icon(active_transport, 46)
 		briefing_transport.name = "BriefingTransportIcon"
 		target_row.add_child(briefing_transport)
-	target_copy.add_child(label(t("BRIEFING_TITLE", "BRIEFING DO CONTRATO"), 15, CYAN))
-	target_copy.add_child(label(localized_content_field("target", bounty, "name"), 26, INK))
+	target_copy.add_child(label(t("BRIEFING_TITLE", "BRIEFING DO CONTRATO"), UIDesignSystem.FONT_CAPTION, CYAN))
+	target_copy.add_child(label(localized_content_field("target", bounty, "name"), UIDesignSystem.FONT_SECTION_TITLE, INK))
 	if str(briefing_context.get("target_id", "")) == str(bounty.id) and str(briefing_context.get("approach_id", "")) == recommended_id:
-		var tested_context := label(t("BRIEFING_TESTED_BUILD", "BUILD TESTADA · %s · %d%% · RECOMENDAÇÃO CONFIRMADA", [localized_approach_name(str(briefing_context.get("approach_id", "")), str(briefing_context.get("approach_name", "CONTRATO BASE"))).to_upper(), roundi(float(briefing_context.get("odds", 0.0)) * 100.0)]), 11, LIME)
+		var tested_context := label(t("BRIEFING_TESTED_BUILD", "BUILD TESTADA · %s · %d%% · RECOMENDAÇÃO CONFIRMADA", [localized_approach_name(str(briefing_context.get("approach_id", "")), str(briefing_context.get("approach_name", "CONTRATO BASE"))).to_upper(), roundi(float(briefing_context.get("odds", 0.0)) * 100.0)]), UIDesignSystem.FONT_CAPTION, LIME)
 		tested_context.name = "BriefingFieldTestContext"
 		target_copy.add_child(tested_context)
 	var kit_origin := CoreRules.equipment_set_origin(GameState.player)
 	if not kit_origin.is_empty():
 		var kit_planet := ContentDB.get_planet(kit_origin)
-		target_copy.add_child(label(t("BRIEFING_PLANETARY_KIT", "KIT PLANETÁRIO · %s · +%d PODER · +%d VIDA", [localized_content_field("planet", kit_planet, "name").to_upper(), CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS]), 12, GOLD))
+		target_copy.add_child(label(t("BRIEFING_PLANETARY_KIT", "KIT PLANETÁRIO · %s · +%d PODER · +%d VIDA", [localized_content_field("planet", kit_planet, "name").to_upper(), CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS]), UIDesignSystem.FONT_CAPTION, GOLD))
 	var target_captures := int(GameState.player.get("captures_by_target", {}).get(str(bounty.id), 0))
 	var target_mastery := CoreRules.target_mastery_level(target_captures)
 	if target_mastery > 0:
-		var mastery_label := label(t("BRIEFING_MASTERY", "PERÍCIA %d/3 · +%d%% RARO · +%d%% ÉPICO", [target_mastery, target_mastery * 5, target_mastery * 2]), 12, LIME)
+		var mastery_label := label(t("BRIEFING_MASTERY", "PERÍCIA %d/3 · +%d%% RARO · +%d%% ÉPICO", [target_mastery, target_mastery * 5, target_mastery * 2]), UIDesignSystem.FONT_CAPTION, LIME)
 		mastery_label.name = "BriefingMastery"
 		target_copy.add_child(mastery_label)
-	var flavor := label(t("BRIEFING_FLAVOR", "O alvo é o mesmo. A quantidade de problemas é uma escolha sua."), 14, MUTED)
-	flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	target_copy.add_child(flavor)
+	target_dossier.tooltip_text = "%s\n%s" % [
+		t("BRIEFING_FLAVOR", "O alvo é o mesmo. A quantidade de problemas é uma escolha sua."),
+		t("BRIEFING_HINT", "BUILD = chance atual · RECOMENDADO = risco + retorno + tempo."),
+	]
 	var profile_id := EnemyProfileRulesScript.profile_id_for(bounty)
 	var profile := EnemyProfileRulesScript.profile_for(bounty)
+	var deferred_profile_card: PanelContainer = null
 	if not profile.is_empty():
+		var tactical_response := label(t("ENEMY_PROFILE_RESPONSE", "RESPOSTA · %s", [t("ENEMY_PROFILE_%s_RESPONSE" % profile_id.to_upper(), str(profile.response))]), UIDesignSystem.FONT_CAPTION, LIME)
+		tactical_response.name = "BriefingTacticalResponse"
+		tactical_response.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		target_copy.add_child(tactical_response)
 		var profile_card := panel(VBoxContainer.new(), Color("#14263de8"), 12, 8)
 		profile_card.name = "BriefingEnemyProfile"
 		var profile_copy := profile_card.get_child(0) as VBoxContainer
-		profile_copy.add_child(label(t("ENEMY_PROFILE_%s_TITLE" % profile_id.to_upper(), str(profile.title)), 11, CORAL))
-		var profile_summary := label(t("ENEMY_PROFILE_%s_SUMMARY" % profile_id.to_upper(), str(profile.summary)), 10, MUTED)
+		profile_copy.add_child(label(t("ENEMY_PROFILE_%s_TITLE" % profile_id.to_upper(), str(profile.title)), UIDesignSystem.FONT_BODY, CORAL))
+		var profile_summary := label(t("ENEMY_PROFILE_%s_SUMMARY" % profile_id.to_upper(), str(profile.summary)), UIDesignSystem.FONT_CAPTION, MUTED)
 		profile_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		profile_copy.add_child(profile_summary)
-		profile_copy.add_child(label(t("ENEMY_PROFILE_RESPONSE", "RESPOSTA · %s", [t("ENEMY_PROFILE_%s_RESPONSE" % profile_id.to_upper(), str(profile.response))]), 10, LIME))
-		content.add_child(profile_card)
+		profile_copy.add_child(label(t("ENEMY_PROFILE_RESPONSE", "RESPOSTA · %s", [t("ENEMY_PROFILE_%s_RESPONSE" % profile_id.to_upper(), str(profile.response))]), UIDesignSystem.FONT_CAPTION, LIME))
+		deferred_profile_card = profile_card
 
-	content.add_child(label(t("BRIEFING_COMPARE", "COMPARE E ESCOLHA A ROTA"), 17, GOLD))
-	var recommendation_hint := label(t("BRIEFING_HINT", "BUILD mostra sua chance atual; RECOMENDADO equilibra risco, retorno e tempo."), 11, MUTED)
-	recommendation_hint.name = "BriefingRecommendationHint"
-	recommendation_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	content.add_child(recommendation_hint)
 	var scroller := ScrollContainer.new()
 	scroller.name = "BriefingScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	content.add_child(scroller)
 	var list := VBoxContainer.new()
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	list.add_theme_constant_override("separation", 12)
+	list.add_theme_constant_override("separation", 0)
 	scroller.add_child(list)
 	for index in GameState.offered_approaches.size():
 		list.add_child(approach_card(GameState.offered_approaches[index], evaluations[index], recommended_id))
-	var cancel := action_button(t("BRIEFING_BACK", "VOLTAR AO QUADRO"), CORAL, true)
+	if deferred_profile_card != null:
+		list.add_child(deferred_profile_card)
+	var cancel := secondary_action(t("BRIEFING_BACK", "VOLTAR AO QUADRO"), CORAL)
 	cancel.name = "BriefingCancel"
-	cancel.custom_minimum_size = Vector2(0, 48)
 	cancel.pressed.connect(func():
 		briefing_context = {}
 		GameState.cancel_briefing()
@@ -1573,14 +1724,14 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 	var preview: Dictionary = evaluation.preview
 	var color := Color(str(approach.color))
 	var is_recommended := str(approach.id) == recommended_id
-	var card := panel(VBoxContainer.new(), Color("#172744") if is_recommended else PANEL, 13, 10)
+	var card := panel(VBoxContainer.new(), Color("#172744") if is_recommended else PANEL, 13, 4)
 	card.name = "ApproachCard_%s" % str(approach.id)
 	if is_recommended:
 		var recommended_style := box_style(Color("#172744"), 13)
-		recommended_style.content_margin_left = 10
-		recommended_style.content_margin_right = 10
-		recommended_style.content_margin_top = 10
-		recommended_style.content_margin_bottom = 10
+		recommended_style.content_margin_left = 4
+		recommended_style.content_margin_right = 4
+		recommended_style.content_margin_top = 4
+		recommended_style.content_margin_bottom = 4
 		recommended_style.border_width_left = 2
 		recommended_style.border_width_top = 2
 		recommended_style.border_width_right = 2
@@ -1588,27 +1739,31 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 		recommended_style.border_color = LIME
 		card.add_theme_stylebox_override("panel", recommended_style)
 	var box := card.get_child(0) as VBoxContainer
-	box.add_theme_constant_override("separation", 5)
+	box.add_theme_constant_override("separation", 1)
 	var heading := HBoxContainer.new()
 	box.add_child(heading)
 	var translated_name := localized_content_field("approach", approach, "name")
-	var route_name := label(translated_name.to_upper(), 16, color)
+	var route_name := label(translated_name.to_upper(), UIDesignSystem.FONT_BODY, color)
 	route_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_child(route_name)
 	if is_recommended:
-		var recommendation := label(localized_recommendation(str(approach.id)), 9, LIME, HORIZONTAL_ALIGNMENT_RIGHT)
+		var recommendation := label(localized_recommendation(str(approach.id)), UIDesignSystem.FONT_CAPTION, LIME, HORIZONTAL_ALIGNMENT_RIGHT)
 		recommendation.name = "RecommendedApproach_%s" % str(approach.id)
 		heading.add_child(recommendation)
 	var odds := float(evaluation.odds)
 	var risk_text := localized_risk(odds)
 	var risk_color := LIME if odds >= 0.72 else (GOLD if odds >= 0.42 else CORAL)
-	var route_summary := label(t("BRIEFING_RISK_SUMMARY", "%s · RISCO %s", [localized_content_field("approach", approach, "tag"), risk_text]), 11, risk_color)
+	var route_summary := label(t("BRIEFING_RISK_SUMMARY", "%s · RISCO %s", [localized_content_field("approach", approach, "tag"), risk_text]), UIDesignSystem.FONT_CAPTION, risk_color)
 	route_summary.name = "ApproachBuildRisk_%s" % str(approach.id)
+	route_summary.custom_minimum_size = Vector2.ZERO
+	route_summary.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	box.add_child(route_summary)
-	var description := label(localized_content_field("approach", approach, "description"), 11, INK)
+	var description := label(localized_content_field("approach", approach, "description"), UIDesignSystem.FONT_CAPTION, INK)
 	description.name = "ApproachDescription_%s" % str(approach.id)
-	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	description.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	description.tooltip_text = description.text
 	box.add_child(description)
+	card.tooltip_text = description.text
 	var benefits: Array[String] = []
 	if int(evaluation.get("streak_bonus", 0)) > 0:
 		benefits.append(t("BRIEFING_STREAK_INCLUDED", "EMBALO +%d%% INCLUÍDO", [int(evaluation.streak_bonus_percent)]))
@@ -1616,9 +1771,7 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 	if scrap_reward > 0:
 		benefits.append(t("BRIEFING_SCRAP_REWARD", "+%d SUCATA NA VITÓRIA", [scrap_reward]))
 	if not benefits.is_empty():
-		var bonus_summary := label(" · ".join(benefits), 10, GOLD if scrap_reward > 0 else CYAN)
-		bonus_summary.name = "ApproachBonusSummary_%s" % str(approach.id)
-		box.add_child(bonus_summary)
+		route_summary.text += " · %s" % " · ".join(benefits)
 	var metrics := HBoxContainer.new()
 	metrics.add_theme_constant_override("separation", 8)
 	box.add_child(metrics)
@@ -1628,8 +1781,8 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 	metrics.add_child(briefing_metric_chip(t("COMMON_CREDITS", "CRÉDITOS"), "◈ %d" % int(evaluation.credits), GOLD, "ApproachCredits_%s" % str(approach.id)))
 	metrics.add_child(briefing_metric_chip("XP", str(int(preview.xp)), CYAN, "ApproachXp_%s" % str(approach.id)))
 	var choose := action_button(t("BRIEFING_CHOOSE", "ESCOLHER · %s", [translated_name.to_upper()]), color)
-	choose.custom_minimum_size = Vector2(0, 48)
-	choose.add_theme_font_size_override("font_size", 13)
+	choose.custom_minimum_size = Vector2(0, UIDesignSystem.TOUCH_TARGET_MIN)
+	choose.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 	var approach_id := str(approach.id)
 	choose.name = "ChooseApproach_%s" % approach_id
 	choose.pressed.connect(func():
@@ -1645,11 +1798,11 @@ func briefing_metric_chip(title: String, value: String, color: Color, node_name:
 	var chip := panel(VBoxContainer.new(), Color("#0a1025"), 7, 4)
 	chip.name = node_name
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	chip.custom_minimum_size = Vector2(0, 32)
+	chip.custom_minimum_size = Vector2(0, 44)
 	var box := chip.get_child(0) as VBoxContainer
 	box.add_theme_constant_override("separation", 0)
-	box.add_child(label(title, 9, MUTED, HORIZONTAL_ALIGNMENT_CENTER))
-	box.add_child(label(value, 12, color, HORIZONTAL_ALIGNMENT_CENTER))
+	box.add_child(label(title, UIDesignSystem.FONT_CAPTION, MUTED, HORIZONTAL_ALIGNMENT_CENTER))
+	box.add_child(label(value, UIDesignSystem.FONT_BODY, color, HORIZONTAL_ALIGNMENT_CENTER))
 	return chip
 
 
@@ -1664,7 +1817,7 @@ func field_test_record_label(node_name: String) -> Label:
 	if bool(context.overridden):
 		text_value = t("HUNT_FIELD_TEST_OVERRIDDEN", "ROTA TESTADA SUBSTITUÍDA · %s %d%% → %s", [tested_name, roundi(float(context.tested_odds) * 100.0), chosen_name])
 		text_color = GOLD
-	var result := center_label(text_value, 13, text_color)
+	var result := center_label(text_value, UIDesignSystem.FONT_CAPTION, text_color)
 	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	result.name = node_name
 	return result
@@ -1673,12 +1826,12 @@ func field_test_record_label(node_name: String) -> Label:
 func build_hunt() -> void:
 	var bounty := GameState.current_bounty
 	content.add_spacer(false)
-	content.add_child(center_label(t("HUNT_TITLE", "CAÇADA EM ANDAMENTO"), 19, CYAN))
+	content.add_child(center_label(t("HUNT_TITLE", "CAÇADA EM ANDAMENTO"), UIDesignSystem.FONT_EMPHASIS, CYAN))
 	content.add_child(character_portrait(str(bounty.id), 150))
-	content.add_child(center_label(localized_content_field("target", bounty, "name"), 30, INK))
+	content.add_child(center_label(localized_content_field("target", bounty, "name"), UIDesignSystem.FONT_SECTION_TITLE, INK))
 	var approach: Dictionary = bounty.get("approach", {})
 	if not approach.is_empty():
-		content.add_child(center_label(localized_content_field("approach", approach, "name").to_upper(), 16, Color(str(approach.color))))
+		content.add_child(center_label(localized_content_field("approach", approach, "name").to_upper(), UIDesignSystem.FONT_BODY, Color(str(approach.color))))
 	var transport := TransportRulesScript.active_transport(GameState.player)
 	if not transport.is_empty():
 		var transport_row := HBoxContainer.new()
@@ -1688,12 +1841,12 @@ func build_hunt() -> void:
 		var hunt_transport := transport_icon(transport, 46)
 		hunt_transport.name = "HuntTransportIcon"
 		transport_row.add_child(hunt_transport)
-		transport_row.add_child(label(t("HUNT_TRANSPORT", "%s · -%d%% TEMPO", [localized_content_field("transport", transport, "name"), roundi(float(transport.speed_bonus) * 100.0)]), 12, Color(str(transport.color))))
+		transport_row.add_child(label(t("HUNT_TRANSPORT", "%s · -%d%% TEMPO", [localized_content_field("transport", transport, "name"), roundi(float(transport.speed_bonus) * 100.0)]), UIDesignSystem.FONT_CAPTION, Color(str(transport.color))))
 		content.add_child(transport_row)
 	var field_test_record := field_test_record_label("HuntFieldTestContext")
 	if field_test_record != null:
 		content.add_child(field_test_record)
-	content.add_child(center_label(t("HUNT_FLAVOR", "Seguindo sinais, subornando robôs e fingindo ter um plano."), 16, MUTED))
+	content.add_child(center_label(t("HUNT_FLAVOR", "Seguindo sinais, subornando robôs e fingindo ter um plano."), UIDesignSystem.FONT_CAPTION, MUTED))
 	if bounty.has("hunt_event_result"):
 		content.add_child(notice_banner(localized_hunt_result(bounty), GOLD))
 
@@ -1701,13 +1854,13 @@ func build_hunt() -> void:
 	var progress_row := HBoxContainer.new()
 	progress_row.name = "HuntProgressStatus"
 	progress_row.add_theme_constant_override("separation", 8)
-	progress_row.add_child(label(t("HUNT_DEPARTURE", "PARTIDA"), 10, MUTED))
+	progress_row.add_child(label(t("HUNT_DEPARTURE", "PARTIDA"), UIDesignSystem.FONT_CAPTION, MUTED))
 	var stage_text := t("HUNT_LEAVING_SECTOR", "SAINDO DO SETOR") if progress_value < 0.25 else (t("HUNT_TRACKING_SIGNAL", "RASTREANDO SINAL") if progress_value < 0.8 else t("HUNT_CONTACT_IMMINENT", "CONTATO IMINENTE"))
-	var stage := label("%s · %d%%" % [stage_text, roundi(progress_value * 100.0)], 11, CYAN, HORIZONTAL_ALIGNMENT_CENTER)
+	var stage := label("%s · %d%%" % [stage_text, roundi(progress_value * 100.0)], UIDesignSystem.FONT_CAPTION, CYAN, HORIZONTAL_ALIGNMENT_CENTER)
 	stage.name = "HuntProgressStage"
 	stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	progress_row.add_child(stage)
-	progress_row.add_child(label(t("HUNT_TARGET", "ALVO"), 10, GOLD, HORIZONTAL_ALIGNMENT_RIGHT))
+	progress_row.add_child(label(t("HUNT_TARGET", "ALVO"), UIDesignSystem.FONT_CAPTION, GOLD, HORIZONTAL_ALIGNMENT_RIGHT))
 	content.add_child(progress_row)
 	var progress := ProgressBar.new()
 	progress.name = "HuntProgress"
@@ -1719,11 +1872,11 @@ func build_hunt() -> void:
 	content.add_child(progress)
 
 	var remaining := maxi(0, ceili(GameState.hunt_ends_at - Time.get_unix_time_from_system()))
-	var countdown := center_label(t("HUNT_COUNTDOWN", "ALVO LOCALIZADO EM %ds", [remaining]), 18, GOLD)
+	var countdown := center_label(t("HUNT_COUNTDOWN", "ALVO LOCALIZADO EM %ds", [remaining]), UIDesignSystem.FONT_CAPTION, GOLD)
 	countdown.name = "HuntCountdown"
 	content.add_child(countdown)
 	content.add_spacer(false)
-	var abandon := action_button(abandon_contract_text(), CORAL, true)
+	var abandon := secondary_action(abandon_contract_text(), CORAL)
 	abandon.name = "HuntAbandonAction"
 	abandon.pressed.connect(GameState.abandon_bounty)
 	content.add_child(abandon)
@@ -1738,12 +1891,12 @@ func build_hunt_event() -> void:
 	var heading_copy := VBoxContainer.new()
 	heading_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	event_heading.add_child(heading_copy)
-	heading_copy.add_child(label(t("HUNT_EVENT_TITLE", "IMPREVISTO NA CAÇADA"), 17, CORAL))
-	heading_copy.add_child(label(t("HUNT_EVENT_PAUSED", "DECISÃO EM MOVIMENTO · A CAÇA CONTINUA"), 11, MUTED))
+	heading_copy.add_child(label(t("HUNT_EVENT_TITLE", "IMPREVISTO NA CAÇADA"), UIDesignSystem.FONT_EMPHASIS, CORAL))
+	heading_copy.add_child(label(t("HUNT_EVENT_PAUSED", "DECISÃO EM MOVIMENTO · A CAÇA CONTINUA"), UIDesignSystem.FONT_CAPTION, MUTED))
 	var field_test_record := field_test_record_label("IncidentFieldTestContext")
 	if field_test_record != null:
 		content.add_child(field_test_record)
-	var incident := panel(HBoxContainer.new(), Color("#18264b"), 18, 16)
+	var incident := illustrated_panel(HBoxContainer.new(), 18)
 	incident.name = "HuntEventDossier"
 	content.add_child(incident)
 	var incident_row := incident.get_child(0) as HBoxContainer
@@ -1751,23 +1904,23 @@ func build_hunt_event() -> void:
 	var symbol := str(event.get("symbol", "?!"))
 	var signal_panel := panel(VBoxContainer.new(), Color("#08142d"), 14, 10)
 	signal_panel.name = "HuntEventSignal"
-	signal_panel.custom_minimum_size = Vector2(86, 86)
+	signal_panel.custom_minimum_size = Vector2(96, 96)
 	var signal_box := signal_panel.get_child(0) as VBoxContainer
 	signal_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	signal_box.add_child(center_label(t("HUNT_EVENT_SIGNAL", "SINAL"), 10, MUTED))
-	signal_box.add_child(center_label(symbol, 30, accent))
+	signal_box.add_child(center_label(t("HUNT_EVENT_SIGNAL", "SINAL"), UIDesignSystem.FONT_CAPTION, MUTED))
+	signal_box.add_child(center_label(symbol, UIDesignSystem.FONT_SCREEN_TITLE, accent))
 	incident_row.add_child(signal_panel)
 	var incident_box := VBoxContainer.new()
 	incident_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	incident_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	incident_box.add_theme_constant_override("separation", 4)
 	incident_row.add_child(incident_box)
-	incident_box.add_child(label(localized_content_field("hunt_event", event, "title"), 22, INK))
-	var description := label(localized_content_field("hunt_event", event, "description"), 13, MUTED)
+	incident_box.add_child(label(localized_content_field("hunt_event", event, "title"), UIDesignSystem.FONT_EMPHASIS, INK))
+	var description := label(localized_content_field("hunt_event", event, "description"), UIDesignSystem.FONT_CAPTION, MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	incident_box.add_child(description)
 	var remaining := maxi(0, ceili(GameState.hunt_ends_at - Time.get_unix_time_from_system()))
-	var pause_status := label(t("HUNT_EVENT_PAUSE_STATUS", "ROTA EM CURSO · %s RESTANTES · IGNORAR = SEM ALTERAÇÃO", [format_hunt_duration(remaining)]), 11, GOLD)
+	var pause_status := label(t("HUNT_EVENT_PAUSE_STATUS", "ROTA EM CURSO · %s RESTANTES · IGNORAR = SEM ALTERAÇÃO", [format_hunt_duration(remaining)]), UIDesignSystem.FONT_CAPTION, GOLD)
 	pause_status.name = "HuntEventPauseStatus"
 	incident_box.add_child(pause_status)
 
@@ -1781,18 +1934,18 @@ func build_hunt_event() -> void:
 	footer_actions.name = "HuntEventFooterActions"
 	footer_actions.add_theme_constant_override("separation", 8)
 	content.add_child(footer_actions)
-	var ignore := action_button(t("HUNT_EVENT_IGNORE", "IGNORAR · CONTINUAR ROTA"), CYAN, true)
+	var ignore := secondary_action(t("HUNT_EVENT_IGNORE", "IGNORAR · CONTINUAR ROTA"), CYAN)
 	ignore.name = "HuntEventIgnoreAction"
 	ignore.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	ignore.custom_minimum_size = Vector2(0, 48)
-	ignore.add_theme_font_size_override("font_size", 11)
+	ignore.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
+	ignore.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	ignore.pressed.connect(GameState.ignore_hunt_event)
 	footer_actions.add_child(ignore)
-	var abandon := action_button(abandon_contract_text(), CORAL, true)
+	var abandon := secondary_action(abandon_contract_text(), CORAL)
 	abandon.name = "HuntAbandonAction"
 	abandon.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	abandon.custom_minimum_size = Vector2(0, 48)
-	abandon.add_theme_font_size_override("font_size", 11)
+	abandon.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
+	abandon.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	abandon.pressed.connect(GameState.abandon_bounty)
 	footer_actions.add_child(abandon)
 
@@ -1806,7 +1959,7 @@ func hunt_choice_card(choice: Dictionary, accent: Color, event_id: String = "") 
 	var kind := hunt_choice_kind(choice)
 	var choice_color := GOLD if kind == "tactical" else (CYAN if kind == "detour" else CORAL)
 	var card_fill := Color("#181d38") if kind == "tactical" else (Color("#10213d") if kind == "detour" else Color("#25162f"))
-	var card := panel(HBoxContainer.new(), card_fill, 13, 11)
+	var card := panel(HBoxContainer.new(), card_fill, 16, 14)
 	var row := card.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 10)
 	var decision_icon: Control = HuntChoiceIconScript.new()
@@ -1816,8 +1969,8 @@ func hunt_choice_card(choice: Dictionary, accent: Color, event_id: String = "") 
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
-	copy.add_child(label(localized_hunt_choice_field(event_id, choice, "name"), 15, choice_color))
-	var effect := label(localized_hunt_choice_field(event_id, choice, "effect_text"), 13, MUTED)
+	copy.add_child(label(localized_hunt_choice_field(event_id, choice, "name"), UIDesignSystem.FONT_BODY, choice_color))
+	var effect := label(localized_hunt_choice_field(event_id, choice, "effect_text"), UIDesignSystem.FONT_CAPTION, MUTED)
 	effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(effect)
 	var projected_contract := ContentDB.apply_hunt_choice(GameState.current_bounty, choice)
@@ -1828,15 +1981,16 @@ func hunt_choice_card(choice: Dictionary, accent: Color, event_id: String = "") 
 	var choice_cost := int(choice.get("credit_cost", 0))
 	if choice_cost > 0:
 		payment_text += t("HUNT_EVENT_NET_PAYMENT", " · LÍQUIDO ◈ %d", [int(projected_payment.credits) - choice_cost])
-	var payment := label(payment_text, 11, choice_color)
+	var payment := label(payment_text, UIDesignSystem.FONT_CAPTION, choice_color)
 	payment.name = "HuntChoicePayment_%s" % str(choice.id)
 	copy.add_child(payment)
 	var affordable := GameState.can_afford_hunt_choice(choice)
 	var missing_credits := maxi(0, choice_cost - int(GameState.player.credits))
 	var choice_text := t("HUNT_EVENT_CHOOSE", "ESCOLHER") if affordable else t("HUNT_EVENT_MISSING_CREDITS", "FALTAM %d CR", [missing_credits])
-	var choose := action_button(choice_text, choice_color, true)
-	choose.custom_minimum_size = Vector2(122, 48)
-	choose.add_theme_font_size_override("font_size", 13)
+	var choose := secondary_action(choice_text, choice_color)
+	choose.custom_minimum_size.x = 130
+	choose.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
+	choose.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	choose.disabled = not affordable
 	var choice_id := str(choice.id)
 	choose.name = "HuntChoice_%s" % choice_id
@@ -1858,39 +2012,51 @@ func build_combat() -> void:
 	var challenge_combat := bool(GameState.current_bounty.get("challenge", false))
 	var approach_name := t("COMBAT_DIRECT_INCURSION", "INCURSÃO DIRETA") if challenge_combat else localized_content_field("approach", approach, "name").to_upper()
 	var combat_payment := CoreRules.bounty_streak_reward(int(GameState.current_bounty.credits), int(GameState.player.get("capture_streak", 0)) + 1)
-	var dossier := panel(HBoxContainer.new(), Color("#111a31e8"), 14, 10)
+	var dossier := panel(VBoxContainer.new(), Color("#111a31e8"), 14, 10)
 	dossier.name = "CombatContractDossier"
-	var dossier_row := dossier.get_child(0) as HBoxContainer
-	dossier_row.add_theme_constant_override("separation", 10)
+	var dossier_row := dossier.get_child(0) as VBoxContainer
+	dossier_row.add_theme_constant_override("separation", 6)
 	var dossier_copy := VBoxContainer.new()
 	dossier_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	dossier_copy.custom_minimum_size = Vector2.ZERO
 	dossier_copy.alignment = BoxContainer.ALIGNMENT_CENTER
 	dossier_row.add_child(dossier_copy)
-	dossier_copy.add_child(label(t("COMBAT_RIFT_COMBAT", "COMBATE DA FENDA") if challenge_combat else t("COMBAT_AUTOMATIC_ENCOUNTER", "ENCONTRO AUTOMÁTICO"), 10, MUTED))
+	var encounter_type := label(t("COMBAT_RIFT_COMBAT", "COMBATE DA FENDA") if challenge_combat else t("COMBAT_AUTOMATIC_ENCOUNTER", "ENCONTRO AUTOMÁTICO"), UIDesignSystem.FONT_CAPTION, MUTED)
+	encounter_type.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	dossier_copy.add_child(encounter_type)
 	if bool(GameState.combat_summary.get("arrived_from_hunt", false)):
-		var ready_status := label(t("COMBAT_HUNT_COMPLETE", "TEMPO CONCLUÍDO · ALVO LOCALIZADO"), 10, LIME)
+		var ready_status := label(t("COMBAT_HUNT_COMPLETE", "TEMPO CONCLUÍDO · ALVO LOCALIZADO"), UIDesignSystem.FONT_CAPTION, LIME)
 		ready_status.name = "CombatHuntComplete"
 		dossier_copy.add_child(ready_status)
-	dossier_copy.add_child(label(t("COMBAT_TURN_APPROACH", "TURNO %d · %s", [GameState.combat_round, approach_name]), 15, CORAL))
+	var turn_approach := label(t("COMBAT_TURN_APPROACH", "TURNO %d · %s", [GameState.combat_round, approach_name]), UIDesignSystem.FONT_BODY, CORAL)
+	turn_approach.name = "CombatTurnApproach"
+	turn_approach.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	dossier_copy.add_child(turn_approach)
 	if not challenge_combat:
 		var combat_profile_id := EnemyProfileRulesScript.profile_id_for(GameState.current_bounty)
 		var combat_profile := EnemyProfileRulesScript.profile_for(GameState.current_bounty)
 		if not combat_profile.is_empty():
-			var combat_profile_label := label(t("COMBAT_ENEMY_PROFILE", "PERFIL · %s", [t("ENEMY_PROFILE_%s_TITLE" % combat_profile_id.to_upper(), str(combat_profile.title))]), 9, CYAN)
+			var combat_profile_label := label(t("COMBAT_ENEMY_PROFILE", "PERFIL · %s", [t("ENEMY_PROFILE_%s_TITLE" % combat_profile_id.to_upper(), str(combat_profile.title))]), UIDesignSystem.FONT_CAPTION, CYAN)
 			combat_profile_label.name = "CombatEnemyProfile"
+			combat_profile_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 			dossier_copy.add_child(combat_profile_label)
 	if GameState.current_bounty.has("hunt_event_result"):
-		var incident_summary := label(t("COMBAT_INCIDENT", "INCIDENTE · %s", [localized_hunt_result(GameState.current_bounty)]), 10, GOLD)
+		var incident_receipt := t("COMBAT_INCIDENT", "INCIDENTE · %s", [localized_hunt_result(GameState.current_bounty)])
+		var incident_preview := incident_receipt if incident_receipt.length() <= 52 else incident_receipt.left(51).strip_edges() + "…"
+		var incident_summary := label(incident_preview, UIDesignSystem.FONT_CAPTION, GOLD)
 		incident_summary.name = "CombatIncidentSummary"
-		incident_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		incident_summary.custom_minimum_size = Vector2(0, 20)
+		incident_summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		incident_summary.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		incident_summary.tooltip_text = incident_receipt
 		dossier_copy.add_child(incident_summary)
 	var payment_status := metric_chip(t("COMBAT_REWARD", "RECOMPENSA") if challenge_combat else t("COMBAT_PAYMENT", "PAGAMENTO"), "◈ %d" % int(GameState.current_bounty.credits if challenge_combat else combat_payment.credits), GOLD)
 	payment_status.name = "CombatPaymentStatus"
-	payment_status.custom_minimum_size = Vector2(104, 0)
-	payment_status.size_flags_horizontal = Control.SIZE_SHRINK_END
+	payment_status.custom_minimum_size = Vector2.ZERO
+	payment_status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if not challenge_combat and int(combat_payment.bonus_credits) > 0:
 		var payment_box := payment_status.get_child(0) as VBoxContainer
-		var streak_bonus := label(t("COMBAT_MOMENTUM", "EMBALO +%d", [int(combat_payment.bonus_credits)]), 9, LIME, HORIZONTAL_ALIGNMENT_CENTER)
+		var streak_bonus := label(t("COMBAT_MOMENTUM", "EMBALO +%d", [int(combat_payment.bonus_credits)]), UIDesignSystem.FONT_CAPTION, LIME, HORIZONTAL_ALIGNMENT_CENTER)
 		streak_bonus.name = "CombatPaymentStreakBonus"
 		payment_box.add_child(streak_bonus)
 	dossier_row.add_child(payment_status)
@@ -1899,11 +2065,19 @@ func build_combat() -> void:
 	if field_test_record != null:
 		content.add_child(field_test_record)
 	var stage := PanelContainer.new()
+	stage.name = "CombatArenaStage"
 	stage.clip_contents = true
 	stage.custom_minimum_size = Vector2(0, 450)
-	stage.add_theme_stylebox_override("panel", box_style(PANEL, 18))
+	stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var stage_style := bordered_box_style(PANEL, 18, Color("#8a7046"), 2)
+	stage_style.content_margin_left = 3
+	stage_style.content_margin_top = 3
+	stage_style.content_margin_right = 3
+	stage_style.content_margin_bottom = 3
+	stage.add_theme_stylebox_override("panel", stage_style)
 	content.add_child(stage)
 	var backdrop: Control = CombatBackdropScript.new()
+	backdrop.name = "CombatBackdrop"
 	backdrop.events = GameState.combat_events
 	backdrop.planet_id = str(GameState.current_bounty.get("planet_id", ContentDB.PLANET.id))
 	stage.add_child(backdrop)
@@ -1914,6 +2088,8 @@ func build_combat() -> void:
 	stage_margin.add_theme_constant_override("margin_bottom", 14)
 	stage.add_child(stage_margin)
 	var stage_box := VBoxContainer.new()
+	stage_box.custom_minimum_size = Vector2.ZERO
+	stage_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stage_box.add_theme_constant_override("separation", 6)
 	stage_margin.add_child(stage_box)
 	var player_health_ratio := clampf(float(GameState.player_hp) / float(maxi(1, CoreRules.max_health(GameState.player))), 0.0, 1.0)
@@ -1927,8 +2103,10 @@ func build_combat() -> void:
 	elif health_gap <= -0.08:
 		pressure_text = t("COMBAT_PRESSURE_TARGET", "DO ALVO")
 		pressure_color = CORAL
-	var advantage := center_label(t("COMBAT_RELATIVE_HEALTH", "VIDA RELATIVA · VOCÊ %d%% · ALVO %d%% · PRESSÃO %s", [roundi(player_health_ratio * 100.0), roundi(enemy_health_ratio * 100.0), pressure_text]), 12, pressure_color)
+	var advantage := center_label(t("COMBAT_RELATIVE_HEALTH", "VIDA RELATIVA · VOCÊ %d%% · ALVO %d%% · PRESSÃO %s", [roundi(player_health_ratio * 100.0), roundi(enemy_health_ratio * 100.0), pressure_text]), UIDesignSystem.FONT_CAPTION, pressure_color)
 	advantage.name = "CombatAdvantage"
+	advantage.custom_minimum_size = Vector2.ZERO
+	advantage.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	stage_box.add_child(advantage)
 	var pressure_track := HBoxContainer.new()
 	pressure_track.name = "CombatPressureTrack"
@@ -1955,7 +2133,7 @@ func build_combat() -> void:
 	event_row.add_theme_constant_override("separation", 8)
 	stage_box.add_child(event_row)
 	if GameState.combat_events.is_empty():
-		event_row.add_child(center_label(t("COMBAT_SENSORS_LOCKED", "SENSORES TRAVADOS · ARMAS CARREGADAS"), 14, GOLD))
+		event_row.add_child(center_label(t("COMBAT_SENSORS_LOCKED", "SENSORES TRAVADOS · ARMAS CARREGADAS"), UIDesignSystem.FONT_CAPTION, GOLD))
 	else:
 		for event in GameState.combat_events:
 			event_row.add_child(combat_event_chip(event))
@@ -1965,7 +2143,7 @@ func build_combat() -> void:
 	arena.add_theme_constant_override("separation", 20)
 	stage_box.add_child(arena)
 	arena.add_child(fighter(t("COMBAT_YOU", "VOCÊ"), "hunter", GameState.player_hp, CoreRules.max_health(GameState.player), CYAN))
-	arena.add_child(center_label("VS", 28, GOLD))
+	arena.add_child(center_label("VS", UIDesignSystem.FONT_SECTION_TITLE, GOLD))
 	arena.add_child(fighter(localized_content_field("target", GameState.current_bounty, "name"), str(GameState.current_bounty.id), GameState.enemy_hp, int(GameState.current_bounty.health), CORAL))
 
 	var log_panel := panel(VBoxContainer.new(), PANEL, 18, 14)
@@ -1987,23 +2165,110 @@ func build_combat() -> void:
 	if not GameState.combat_events.is_empty():
 		turn_heading_text = t("COMBAT_LAST_TURN", "ÚLTIMO TURNO · VOCÊ %d DANO · ALVO %d DANO", [player_turn_damage, enemy_turn_damage])
 		turn_heading_color = LIME if turn_balance > 0 else (CORAL if turn_balance < 0 else GOLD)
-	var turn_heading := label(turn_heading_text, 13, turn_heading_color)
+	var turn_heading := label(turn_heading_text, UIDesignSystem.FONT_CAPTION, turn_heading_color)
 	turn_heading.name = "CombatTurnBalance"
 	log_box.add_child(turn_heading)
 	var message := localized_combat_narrative()
-	var log_label := label(message, 16, INK)
+	var log_label := label(message, UIDesignSystem.FONT_BODY, INK)
 	log_label.name = "CombatTurnNarrative"
 	log_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	log_box.add_child(log_label)
-	var speed := action_button(t("COMBAT_SPEED", "VELOCIDADE · %s", ["2×" if combat_fast else "1×"]), CYAN, true)
+	var speed := secondary_action(t("COMBAT_SPEED", "VELOCIDADE · %s", ["2×" if combat_fast else "1×"]), CYAN)
 	speed.name = "CombatSpeedAction"
-	speed.custom_minimum_size = Vector2(0, 46)
-	speed.pressed.connect(func():
-		combat_fast = not combat_fast
-		combat_timer.wait_time = 0.34 if combat_fast else 0.72
-		render()
-	)
+	speed.pressed.connect(toggle_combat_speed)
 	content.add_child(speed)
+
+
+func toggle_combat_speed() -> void:
+	combat_fast = not combat_fast
+	combat_timer.wait_time = 0.34 if combat_fast else 0.72
+	var speed := find_child("CombatSpeedAction", true, false) as Button
+	if speed != null:
+		speed.text = t("COMBAT_SPEED", "VELOCIDADE · %s", ["2×" if combat_fast else "1×"])
+
+
+func refresh_combat_view() -> bool:
+	if GameState.phase != GameState.Phase.COMBAT:
+		return false
+	var stage := find_child("CombatArenaStage", true, false) as PanelContainer
+	var turn_approach := find_child("CombatTurnApproach", true, false) as Label
+	var event_row := find_child("CombatEventRow", true, false) as HBoxContainer
+	var advantage := find_child("CombatAdvantage", true, false) as Label
+	if stage == null or turn_approach == null or event_row == null or advantage == null:
+		return false
+
+	var challenge_combat := bool(GameState.current_bounty.get("challenge", false))
+	var approach: Dictionary = GameState.current_bounty.get("approach", {})
+	var approach_name := t("COMBAT_DIRECT_INCURSION", "INCURSÃO DIRETA") if challenge_combat else localized_content_field("approach", approach, "name").to_upper()
+	turn_approach.text = t("COMBAT_TURN_APPROACH", "TURNO %d · %s", [GameState.combat_round, approach_name])
+
+	var player_maximum := CoreRules.max_health(GameState.player)
+	var enemy_maximum := maxi(1, int(GameState.current_bounty.health))
+	var player_health_ratio := clampf(float(GameState.player_hp) / float(maxi(1, player_maximum)), 0.0, 1.0)
+	var enemy_health_ratio := clampf(float(GameState.enemy_hp) / float(enemy_maximum), 0.0, 1.0)
+	var pressure_text := t("COMBAT_PRESSURE_BALANCED", "EQUILIBRADA")
+	var pressure_color := GOLD
+	var health_gap := player_health_ratio - enemy_health_ratio
+	if health_gap >= 0.08:
+		pressure_text = t("COMBAT_PRESSURE_YOURS", "SUA")
+		pressure_color = LIME
+	elif health_gap <= -0.08:
+		pressure_text = t("COMBAT_PRESSURE_TARGET", "DO ALVO")
+		pressure_color = CORAL
+	advantage.text = t("COMBAT_RELATIVE_HEALTH", "VIDA RELATIVA · VOCÊ %d%% · ALVO %d%% · PRESSÃO %s", [roundi(player_health_ratio * 100.0), roundi(enemy_health_ratio * 100.0), pressure_text])
+	advantage.add_theme_color_override("font_color", pressure_color)
+	var pressure_total := player_health_ratio + enemy_health_ratio
+	var player_share := 0.5 if pressure_total <= 0.0 else player_health_ratio / pressure_total
+	var player_pressure := find_child("CombatPressurePlayer", true, false) as ColorRect
+	var enemy_pressure := find_child("CombatPressureEnemy", true, false) as ColorRect
+	if player_pressure != null:
+		player_pressure.size_flags_stretch_ratio = maxf(0.05, player_share)
+	if enemy_pressure != null:
+		enemy_pressure.size_flags_stretch_ratio = maxf(0.05, 1.0 - player_share)
+
+	refresh_fighter_health("hunter", GameState.player_hp, player_maximum, CYAN)
+	refresh_fighter_health(str(GameState.current_bounty.id), GameState.enemy_hp, enemy_maximum, CORAL)
+	var backdrop := find_child("CombatBackdrop", true, false)
+	if backdrop != null:
+		backdrop.set("events", GameState.combat_events)
+		backdrop.queue_redraw()
+	for child in event_row.get_children():
+		event_row.remove_child(child)
+		child.free()
+	if GameState.combat_events.is_empty():
+		event_row.add_child(center_label(t("COMBAT_SENSORS_LOCKED", "SENSORES TRAVADOS · ARMAS CARREGADAS"), UIDesignSystem.FONT_CAPTION, GOLD))
+	else:
+		for event in GameState.combat_events:
+			event_row.add_child(combat_event_chip(event))
+
+	var player_turn_damage := 0
+	var enemy_turn_damage := 0
+	for event in GameState.combat_events:
+		if str(event.get("actor", "")) == "player":
+			player_turn_damage += int(event.get("damage", 0))
+		else:
+			enemy_turn_damage += int(event.get("damage", 0))
+	var turn_heading := find_child("CombatTurnBalance", true, false) as Label
+	if turn_heading != null:
+		var turn_balance := player_turn_damage - enemy_turn_damage
+		turn_heading.text = t("COMBAT_NEXT_TURN", "PRÓXIMO TURNO · ARMAS PRONTAS") if GameState.combat_events.is_empty() else t("COMBAT_LAST_TURN", "ÚLTIMO TURNO · VOCÊ %d DANO · ALVO %d DANO", [player_turn_damage, enemy_turn_damage])
+		turn_heading.add_theme_color_override("font_color", MUTED if GameState.combat_events.is_empty() else (LIME if turn_balance > 0 else (CORAL if turn_balance < 0 else GOLD)))
+	var narrative := find_child("CombatTurnNarrative", true, false) as Label
+	if narrative != null:
+		narrative.text = localized_combat_narrative()
+	return true
+
+
+func refresh_fighter_health(character_id: String, hp: int, maximum: int, color: Color) -> void:
+	var health := find_child("CombatHealthBar_%s" % character_id, true, false) as ProgressBar
+	if health != null:
+		health.max_value = maximum
+		health.value = hp
+	var health_label := find_child("CombatHealth_%s" % character_id, true, false) as Label
+	if health_label != null:
+		var health_percent := roundi(clampf(float(hp) / float(maxi(1, maximum)), 0.0, 1.0) * 100.0)
+		health_label.text = "%d / %d HP · %d%%" % [hp, maximum, health_percent]
+		health_label.add_theme_color_override("font_color", color)
 
 
 func combat_event_chip(event: Dictionary) -> PanelContainer:
@@ -2011,22 +2276,32 @@ func combat_event_chip(event: Dictionary) -> PanelContainer:
 	var color := CYAN if player_action else CORAL
 	var chip := panel(VBoxContainer.new(), Color("#0a1025cc"), 10, 8)
 	chip.name = "CombatEventPlayer" if player_action else "CombatEventEnemy"
+	chip.custom_minimum_size = Vector2.ZERO
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var box := chip.get_child(0) as VBoxContainer
-	box.add_child(label(localized_combat_action(str(event.get("action", t("COMBAT_HIT", "GOLPE"))), "player" if player_action else "enemy").to_upper(), 12, color, HORIZONTAL_ALIGNMENT_CENTER))
+	var action_label := label(localized_combat_action(str(event.get("action", t("COMBAT_HIT", "GOLPE"))), "player" if player_action else "enemy").to_upper(), UIDesignSystem.FONT_CAPTION, color, HORIZONTAL_ALIGNMENT_CENTER)
+	action_label.custom_minimum_size = Vector2.ZERO
+	action_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	box.add_child(action_label)
 	var raw_quality := str(event.get("quality", "ACERTO"))
 	var quality := t("COMBAT_QUALITY_CRITICAL", "CRÍTICO") if raw_quality == "CRÍTICO" else (t("COMBAT_QUALITY_GRAZE", "DE RASPÃO") if raw_quality == "DE RASPÃO" else t("COMBAT_QUALITY_HIT", "ACERTO"))
 	var quality_color := GOLD if raw_quality == "CRÍTICO" else (MUTED if raw_quality == "DE RASPÃO" else INK)
-	box.add_child(label(t("COMBAT_DAMAGE_QUALITY", "%d DANO · %s", [int(event.get("damage", 0)), quality]), 13, quality_color, HORIZONTAL_ALIGNMENT_CENTER))
+	var quality_label := label(t("COMBAT_DAMAGE_QUALITY", "%d DANO · %s", [int(event.get("damage", 0)), quality]), UIDesignSystem.FONT_CAPTION, quality_color, HORIZONTAL_ALIGNMENT_CENTER)
+	quality_label.custom_minimum_size = Vector2.ZERO
+	quality_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	box.add_child(quality_label)
 	if event.has("effect"):
-		box.add_child(label(localized_combat_effect(str(event.effect)), 10, LIME if player_action else CYAN, HORIZONTAL_ALIGNMENT_CENTER))
+		var effect_label := label(localized_combat_effect(str(event.effect)), UIDesignSystem.FONT_CAPTION, LIME if player_action else CYAN, HORIZONTAL_ALIGNMENT_CENTER)
+		effect_label.custom_minimum_size = Vector2.ZERO
+		effect_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		box.add_child(effect_label)
 	return chip
 
 
 func build_victory() -> void:
 	var challenge_victory := bool(GameState.current_bounty.get("challenge", false))
 	content.add_spacer(false)
-	var stamp := panel(HBoxContainer.new(), Color("#173f3c"), 18, 18)
+	var stamp := illustrated_panel(HBoxContainer.new(), 18)
 	stamp.name = "VictoryDossier"
 	content.add_child(stamp)
 	var dossier := stamp.get_child(0) as HBoxContainer
@@ -2036,12 +2311,12 @@ func build_victory() -> void:
 	stamp_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stamp_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	dossier.add_child(stamp_box)
-	stamp_box.add_child(label(t("VICTORY_INCURSION_COMPLETE", "INCURSÃO CONCLUÍDA") if challenge_victory else t("VICTORY_WARRANT_EXECUTED", "MANDADO EXECUTADO"), 12, MUTED))
-	stamp_box.add_child(label(t("VICTORY_FLOOR_CLEAR", "ANDAR LIMPO") if challenge_victory else t("VICTORY_TARGET_CAPTURED", "ALVO CAPTURADO"), 28, LIME))
-	stamp_box.add_child(label(localized_content_field("target", GameState.current_bounty, "name"), 20, INK))
+	stamp_box.add_child(label(t("VICTORY_INCURSION_COMPLETE", "INCURSÃO CONCLUÍDA") if challenge_victory else t("VICTORY_WARRANT_EXECUTED", "MANDADO EXECUTADO"), UIDesignSystem.FONT_CAPTION, MUTED))
+	stamp_box.add_child(label(t("VICTORY_FLOOR_CLEAR", "ANDAR LIMPO") if challenge_victory else t("VICTORY_TARGET_CAPTURED", "ALVO CAPTURADO"), UIDesignSystem.FONT_SECTION_TITLE, LIME))
+	stamp_box.add_child(label(localized_content_field("target", GameState.current_bounty, "name"), UIDesignSystem.FONT_BODY, INK))
 	if not GameState.combat_events.is_empty():
 		var final_event: Dictionary = GameState.combat_events[0]
-		var final_blow := label(t("VICTORY_FINAL_BLOW", "GOLPE FINAL · %s · %d DANO", [localized_combat_action(str(final_event.action), str(final_event.get("actor", "player"))).to_upper(), int(final_event.damage)]), 11, GOLD)
+		var final_blow := label(t("VICTORY_FINAL_BLOW", "GOLPE FINAL · %s · %d DANO", [localized_combat_action(str(final_event.action), str(final_event.get("actor", "player"))).to_upper(), int(final_event.damage)]), UIDesignSystem.FONT_CAPTION, GOLD)
 		final_blow.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		stamp_box.add_child(final_blow)
 	var field_test_record := field_test_record_label("VictoryFieldTestContext")
@@ -2056,26 +2331,27 @@ func build_victory() -> void:
 	var incident_cost := maxi(0, int(GameState.current_bounty.get("hunt_event_credit_cost", 0)))
 	if incident_cost > 0:
 		payment_text += t("VICTORY_NET_AFTER_COST", " · SALDO +%d APÓS CUSTO", [int(victory_payment.credits) - incident_cost])
-	var payment_card := panel(HBoxContainer.new(), Color("#19263d"), 12, 10)
+	var payment_card := panel(HBoxContainer.new(), Color("#19263d"), 16, 13)
 	payment_card.name = "VictoryPaymentCard"
 	var payment_row := payment_card.get_child(0) as HBoxContainer
 	payment_row.add_theme_constant_override("separation", 10)
-	var payment_stamp := center_label("◈", 22, GOLD)
+	var payment_stamp := center_label("◈", UIDesignSystem.FONT_EMPHASIS, GOLD)
 	payment_stamp.custom_minimum_size = Vector2(32, 32)
 	payment_row.add_child(payment_stamp)
 	var payment_copy := VBoxContainer.new()
 	payment_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	payment_row.add_child(payment_copy)
-	var payment := label(payment_text, 12, GOLD)
+	var payment := label(payment_text, UIDesignSystem.FONT_BODY, GOLD)
 	payment.name = "VictoryPayment"
 	payment.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	payment_copy.add_child(payment)
-	payment_copy.add_child(label(t("VICTORY_AUTHENTICATING", "Autenticando pagamento e sacudindo os bolsos do alvo..."), 11, MUTED))
+	var payment_explanation := label(t("VICTORY_AUTHENTICATING", "Autenticando pagamento e sacudindo os bolsos do alvo..."), UIDesignSystem.FONT_CAPTION, MUTED)
+	payment_explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	payment_copy.add_child(payment_explanation)
 	content.add_child(payment_card)
 	content.add_spacer(false)
-	var open_reward := action_button(t("VICTORY_OPEN_REWARD", "ABRIR RECOMPENSA"), LIME)
+	var open_reward := primary_action(t("VICTORY_OPEN_REWARD", "ABRIR RECOMPENSA"), LIME)
 	open_reward.name = "OpenRewardAction"
-	open_reward.custom_minimum_size = Vector2(0, 48)
 	open_reward.pressed.connect(GameState.open_reward)
 	content.add_child(open_reward)
 
@@ -2088,7 +2364,7 @@ func build_chapter_complete() -> void:
 	var completion := GameState.chapter_completion
 	var target: Dictionary = completion.get("target", {})
 	var planet: Dictionary = completion.get("planet", ContentDB.PLANET)
-	var chapter := panel(VBoxContainer.new(), Color("#302541"), 24, 24)
+	var chapter := illustrated_panel(VBoxContainer.new(), 24)
 	chapter.name = "ChapterComplete"
 	content.add_child(chapter)
 	var box := chapter.get_child(0) as VBoxContainer
@@ -2096,12 +2372,12 @@ func build_chapter_complete() -> void:
 	box.add_theme_constant_override("separation", 9)
 	var planet_name := localized_content_field("planet", planet, "name")
 	var target_name := localized_content_field("target", target, "name")
-	box.add_child(center_label(t("CHAPTER_COMPLETE_TITLE", "CAPÍTULO CONCLUÍDO"), 16, GOLD))
-	box.add_child(center_label(planet_name.to_upper(), 34, INK))
+	box.add_child(center_label(t("CHAPTER_COMPLETE_TITLE", "CAPÍTULO CONCLUÍDO"), UIDesignSystem.FONT_CAPTION, GOLD))
+	box.add_child(center_label(planet_name.to_upper(), UIDesignSystem.FONT_SCREEN_TITLE, INK))
 	box.add_child(character_portrait(str(target.get("id", "mayor_gold_dust")), 174))
-	box.add_child(center_label(t("CHAPTER_COMPLETE_FINAL_WARRANT", "MANDADO FINAL EXECUTADO"), 18, LIME))
-	box.add_child(center_label(target_name, 25, GOLD))
-	var verdict := center_label(localized_content_field("planet", planet, "completion_text"), 15, MUTED)
+	box.add_child(center_label(t("CHAPTER_COMPLETE_FINAL_WARRANT", "MANDADO FINAL EXECUTADO"), UIDesignSystem.FONT_CAPTION, LIME))
+	box.add_child(center_label(target_name, UIDesignSystem.FONT_EMPHASIS, GOLD))
+	var verdict := center_label(localized_content_field("planet", planet, "completion_text"), UIDesignSystem.FONT_CAPTION, MUTED)
 	verdict.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(verdict)
 	var stats := HBoxContainer.new()
@@ -2110,9 +2386,12 @@ func build_chapter_complete() -> void:
 	stats.add_child(metric_chip(t("COMMON_CAPTURES", "CAPTURAS"), str(completion.get("total_captures", GameState.player.wins)), CYAN))
 	stats.add_child(metric_chip(t("COMMON_REPUTATION", "REPUTAÇÃO"), t("COMMON_RANK_VALUE", "RANK %d", [int(GameState.player.reputation) + 1]), LIME))
 	stats.add_child(metric_chip(t("CHAPTER_COMPLETE_PAYMENT", "PAGAMENTO"), "◈ %d" % int(completion.get("credits", 0)), GOLD))
-	content.add_child(center_label(t("CHAPTER_COMPLETE_OPEN", "%s permanece aberto para novas caçadas e equipamento melhor.", [planet_name]), 14, MUTED))
+	var open_world := center_label(t("CHAPTER_COMPLETE_OPEN", "%s permanece aberto para novas caçadas e equipamento melhor.", [planet_name]), UIDesignSystem.FONT_CAPTION, MUTED)
+	open_world.name = "ChapterOpenWorld"
+	open_world.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	content.add_child(open_world)
 	content.add_spacer(false)
-	var continue_button := action_button(t("CHAPTER_COMPLETE_CONTINUE", "CONTINUAR CAÇANDO"), GOLD)
+	var continue_button := primary_action(t("CHAPTER_COMPLETE_CONTINUE", "CONTINUAR CAÇANDO"), GOLD)
 	continue_button.pressed.connect(GameState.continue_after_chapter)
 	content.add_child(continue_button)
 
@@ -2123,16 +2402,21 @@ func fighter(title: String, character_id: String, hp: int, maximum: int, color: 
 	fighter_box.custom_minimum_size = Vector2(242, 290)
 	fighter_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	fighter_box.add_child(character_portrait(character_id, 152, GameState.player if character_id == "hunter" else {}))
-	var name_label := center_label(title.to_upper(), 16, color)
+	var name_label := center_label(title.to_upper(), UIDesignSystem.FONT_BODY, color)
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	fighter_box.add_child(name_label)
 	if character_id == "hunter":
-		var loadout := center_label(t("COMBAT_LOADOUT", "BUILD · +%d ARMA · +%d ARMADURA", [int(GameState.player.weapon.power), int(GameState.player.armor.power)]), 11, CYAN)
+		var loadout := center_label(t("COMBAT_LOADOUT", "BUILD · +%d ARMA · +%d ARMADURA", [int(GameState.player.weapon.power), int(GameState.player.armor.power)]), UIDesignSystem.FONT_CAPTION, CYAN)
 		loadout.name = "CombatLoadoutSummary"
+		loadout.custom_minimum_size = Vector2.ZERO
+		loadout.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		fighter_box.add_child(loadout)
 		var kit_origin := CoreRules.equipment_set_origin(GameState.player)
 		if not kit_origin.is_empty():
-			fighter_box.add_child(center_label(t("COMBAT_KIT", "KIT %s · +%d PODER · +%d VIDA", [localized_content_field("planet", ContentDB.get_planet(kit_origin), "name").to_upper(), CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS]), 10, GOLD))
+			var kit_label := center_label(t("COMBAT_KIT", "KIT %s · +%d PODER · +%d VIDA", [localized_content_field("planet", ContentDB.get_planet(kit_origin), "name").to_upper(), CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS]), UIDesignSystem.FONT_CAPTION, GOLD)
+			kit_label.custom_minimum_size = Vector2.ZERO
+			kit_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			fighter_box.add_child(kit_label)
 	var health := ProgressBar.new()
 	health.name = "CombatHealthBar_%s" % character_id
 	health.max_value = maximum
@@ -2143,7 +2427,7 @@ func fighter(title: String, character_id: String, hp: int, maximum: int, color: 
 	health.add_theme_stylebox_override("fill", box_style(color, 10))
 	fighter_box.add_child(health)
 	var health_percent := roundi(clampf(float(hp) / float(maxi(1, maximum)), 0.0, 1.0) * 100.0)
-	var health_label := center_label("%d / %d HP · %d%%" % [hp, maximum, health_percent], 15, color)
+	var health_label := center_label("%d / %d HP · %d%%" % [hp, maximum, health_percent], UIDesignSystem.FONT_CAPTION, color)
 	health_label.name = "CombatHealth_%s" % character_id
 	fighter_box.add_child(health_label)
 	return fighter_box
@@ -2189,7 +2473,8 @@ func on_combat_timer() -> void:
 	if sound_fx:
 		sound_fx.play_combat(GameState.combat_events)
 	if not bool(result.get("finished", false)):
-		render()
+		if not refresh_combat_view():
+			render()
 	if bool(result.get("finished", false)) and not bool(result.get("won", false)):
 		show_defeat()
 

@@ -1,6 +1,7 @@
 extends SceneTree
 
 const Rules = preload("res://scripts/core_rules.gd")
+const UIDesignSystem = preload("res://scripts/ui_design_system.gd")
 
 var failures := 0
 
@@ -58,11 +59,17 @@ func run_attributes_test() -> void:
 	scene.render()
 	await process_frame
 	await process_frame
-	check(scene.find_children("Attribute_*", "PanelContainer", true, false).size() == 5, "the attribute hub renders all five agreed attributes")
-	check(scene.find_children("AttributeGlyph_*", "Control", true, false).size() == 5, "every attribute has a distinct compact visual glyph")
 	check(scene.find_child("HunterProfile", true, false) != null and scene.find_child("HunterProfilePortrait", true, false) != null, "the hunter sheet keeps the equipped character visually central")
+	var hunter_profile := scene.find_child("HunterProfile", true, false) as PanelContainer
+	check(hunter_profile.get_theme_stylebox("panel") is StyleBoxTexture, "hunter identity owns one illustrated equipment dossier")
 	check(scene.find_children("HunterEquipment_*", "PanelContainer", true, false).size() == Rules.EQUIPMENT_SLOTS.size(), "the hunter sheet shows the complete universal equipment contract")
+	var helmet_label := scene.find_child("HunterEquipmentLabel_helmet", true, false) as Label
+	check(helmet_label != null and helmet_label.get_theme_font_size("font_size") >= UIDesignSystem.FONT_CAPTION, "compact universal equipment labels remain readable on Android")
 	check(scene.find_child("HunterCombatStatus", true, false) != null and scene.find_child("HunterArsenalAction", true, false) != null, "the hunter sheet exposes combat status and an equipment-management route")
+	(scene.find_child("HunterTab_attributes", true, false) as Button).pressed.emit()
+	await process_frame
+	check(scene.find_children("Attribute_*", "PanelContainer", true, false).size() == 5, "the attribute section renders all five agreed attributes")
+	check(scene.find_children("AttributeGlyph_*", "Control", true, false).size() == 5, "every attribute has a distinct compact visual glyph")
 	var add_strength := scene.find_child("AttributeAdd_strength", true, false) as Button
 	check(add_strength != null and not add_strength.disabled, "an available point enables the mobile strength action")
 	if add_strength != null:
@@ -76,11 +83,13 @@ func run_attributes_test() -> void:
 		await process_frame
 	check(int(state.player.attributes.strength) == 11 and int(state.player.stat_points) == 1 and scene.attribute_draft.is_empty(), "confirmation commits once and clears the transient draft")
 	check(scene.android_back_action() == "board", "Android Back treats attributes as a safe secondary hub")
+	(scene.find_child("HunterTab_profile", true, false) as Button).pressed.emit()
+	await process_frame
 	var arsenal_action := scene.find_child("HunterArsenalAction", true, false) as Button
 	if arsenal_action != null:
 		arsenal_action.pressed.emit()
 		await process_frame
-	check(scene.view_mode == "arsenal" and scene.find_child("FieldReadiness", true, false) != null, "the hunter sheet opens full equipment management without changing the loadout")
+	check(scene.view_mode == "arsenal" and scene.arsenal_section == "equipped" and scene.find_child("UniversalEquipmentCard", true, false) != null and scene.find_child("FieldReadiness", true, false) == null, "the hunter sheet opens the focused equipped loadout without mixing workshop projections")
 
 	scene.free()
 	await process_frame

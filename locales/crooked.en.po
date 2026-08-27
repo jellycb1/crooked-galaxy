@@ -41,6 +41,9 @@ msgstr "FIRST WORLD · online connection is not active in this APK yet"
 msgid "COMMON_SELECTED"
 msgstr "SELECTED"
 
+msgid "ONB_ACTIVE_SELECTION"
+msgstr "ACTIVE"
+
 msgid "COMMON_CHOOSE"
 msgstr "CHOOSE"
 
@@ -663,7 +666,7 @@ msgid "BRIEFING_COMPARE"
 msgstr "COMPARE AND CHOOSE A ROUTE"
 
 msgid "BRIEFING_HINT"
-msgstr "BUILD shows your current odds; RECOMMENDED balances risk, return, and time."
+msgstr "BUILD = current odds · RECOMMENDED = risk + return + time."
 
 msgid "BRIEFING_BACK"
 msgstr "BACK TO BOARD"
@@ -3868,3 +3871,24 @@ msgstr "VISITED"
 
 msgid "CAREER_DISCOVERED"
 msgstr "DISCOVERED"
+
+msgid "COMMON_DETAILS"
+msgstr "DETAILS"
+
+msgid "COMMON_HIDE_DETAILS"
+msgstr "CLOSE DETAILS"
+
+msgid "BOARD_DETAILS_TITLE"
+msgstr "WARRANT FILE"
+
+msgid "HUNTER_TAB_PROFILE"
+msgstr "EQUIPMENT"
+
+msgid "HUNTER_TAB_ATTRIBUTES"
+msgstr "ATTRIBUTES"
+
+msgid "ARSENAL_WORKSHOP_TAB"
+msgstr "WORKSHOP"
+
+msgid "ARSENAL_WORKSHOP_SUBTITLE"
+msgstr "FIELD TEST · UPGRADES"

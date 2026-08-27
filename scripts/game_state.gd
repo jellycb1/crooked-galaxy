@@ -24,6 +24,7 @@ enum Phase { BOARD, HUNT, COMBAT, REWARD, VICTORY, BRIEFING, HUNT_EVENT, CHAPTER
 
 const SAVE_PATH := "user://crooked_galaxy_save.json"
 const SAVE_VERSION := SaveMigrationRules.CURRENT_VERSION
+const COMBAT_CHECKPOINT_INTERVAL := 5
 
 var player: Dictionary
 var account: Dictionary = {}
@@ -768,7 +769,12 @@ func combat_step() -> Dictionary:
 	if player_hp <= 0:
 		finish_combat(false)
 		return {"message": message, "finished": true, "won": false}
-	save_game()
+	# Combat can advance close to three rounds per second at 2x speed. Writing the
+	# complete JSON save on every round stalls some Android storage controllers.
+	# Phase changes, application pause, and quit still save immediately; this
+	# checkpoint only bounds recovery after an abrupt process kill.
+	if combat_round % COMBAT_CHECKPOINT_INTERVAL == 0:
+		save_game()
 	combat_event.emit(message)
 	return {"message": message, "finished": false}
 

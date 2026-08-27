@@ -21,7 +21,10 @@ func _init() -> void:
 	host.add_child(content)
 	CareerViewScript.build(host, content, state)
 
-	check(host.find_child("CareerSummary", true, false) != null, "isolated career builds its summary")
+	var career_summary := host.find_child("CareerSummary", true, false) as PanelContainer
+	check(career_summary != null, "isolated career builds its summary")
+	check(career_summary != null and career_summary.get_theme_stylebox("panel") is StyleBoxTexture, "career identity uses one illustrated summary above compact ledgers")
+	check(career_summary.find_children("*", "Label", true, false).all(func(summary_label): return (summary_label as Label).get_theme_font_size("font_size") >= 18), "career summary remains readable on the physical Android target")
 	check(host.find_child("CareerXpProgress", true, false) != null, "career summary makes next-level progress visual")
 	check(host.find_children("CareerPlanetIcon_*", "Control", true, false).size() == Content.PLANETS.size(), "career gives every destination a stable visual identity")
 	check(host.find_child("CareerClaimReceipt", true, false) == null, "career does not mislabel unrelated state as a milestone receipt")

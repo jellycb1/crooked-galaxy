@@ -3,6 +3,7 @@ extends SceneTree
 const Rules = preload("res://scripts/core_rules.gd")
 const Classes = preload("res://scripts/class_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
+const UIDesignSystem = preload("res://scripts/ui_design_system.gd")
 
 var failures := 0
 
@@ -128,6 +129,8 @@ func run_classes_test() -> void:
 	await process_frame
 	var board_class_action := scene.find_child("PrimaryNav_hunter", true, false) as Button
 	check(board_class_action != null and board_class_action.text == "CLASSE" and scene.find_child("PrimaryNavBadge_hunter", true, false) != null, "the primary navigation makes an unassigned class a concise pending action")
+	var hunter_badge := scene.find_child("PrimaryNavBadge_hunter", true, false) as Label
+	check(hunter_badge != null and hunter_badge.get_theme_font_size("font_size") >= UIDesignSystem.FONT_CAPTION and hunter_badge.size.y >= 30.0, "navigation alerts remain legible without changing dock hierarchy")
 	scene.view_mode = "attributes"
 	scene.render()
 	await process_frame
@@ -137,9 +140,12 @@ func run_classes_test() -> void:
 	await process_frame
 	check(scene.find_children("Class_*", "PanelContainer", true, false).size() == 3, "the class screen renders every initial archetype")
 	check(find_label_with_text(scene, "CLASSES INICIAIS") != null, "the selector clearly identifies the finalized initial roster")
-	check(scene.find_child("ClassDetail", true, false) != null and scene.find_child("ClassRouteProfile_warrant_breaker", true, false) != null, "the focused class sheet explains both build and contract identity")
+	var class_detail := scene.find_child("ClassDetail", true, false) as PanelContainer
+	check(class_detail != null and scene.find_child("ClassRouteProfile_warrant_breaker", true, false) != null, "the focused class sheet explains both build and contract identity")
+	check(class_detail != null and class_detail.get_theme_stylebox("panel") is StyleBoxTexture, "the focused class sheet uses the approved illustrated frame")
 	var breaker_impact := scene.find_child("ClassImpact_warrant_breaker", true, false) as Label
 	check(breaker_impact != null and breaker_impact.text.contains("-2 DANO/GOLPE"), "breaker sheet previews its live per-hit mitigation")
+	check(breaker_impact.get_theme_font_size("font_size") >= 18, "class build evidence remains readable on the physical Android target")
 	var first_class := scene.find_child("ClassSelect_warrant_breaker", true, false) as Button
 	check(first_class != null and not first_class.disabled and first_class.text == "ESCOLHER", "the default preview can still be explicitly drafted by an unassigned hunter")
 	var hacker_select := scene.find_child("ClassSelect_contract_hacker", true, false) as Button

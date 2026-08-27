@@ -39,8 +39,14 @@ func run_lifecycle_audit() -> void:
 	check(scene.combat_timer.is_stopped(), "focus return alone cannot override an active application suspension")
 	scene._notification(Node.NOTIFICATION_APPLICATION_RESUMED)
 	check(not scene.combat_timer.is_stopped(), "combat resumes only after every suspension reason clears")
+	# Resume may legitimately schedule one recovery-banner render. Let that frame
+	# settle before measuring only the automatic combat tick itself.
+	await process_frame
+	var render_generation_before_turn := int(scene.render_generation)
+	var arena_before_turn := scene.find_child("CombatArenaStage", true, false)
 	await create_timer(0.8).timeout
 	check(int(state.combat_round) > round_before, "resumed combat continues from the preserved round")
+	check(int(scene.render_generation) == render_generation_before_turn and scene.find_child("CombatArenaStage", true, false) == arena_before_turn, "automatic combat updates in place without rebuilding its arena")
 	check(not state.current_bounty.is_empty(), "lifecycle fixture retains its active contract before victory")
 
 	state.enemy_hp = 0

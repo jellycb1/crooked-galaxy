@@ -48,10 +48,17 @@ func run_smoke_test() -> void:
 	scene.view_mode = "attributes"
 	check(scene.environment_context() == "world", "attributes resolve the original frontier-world environment")
 	scene.view_mode = "board"
-	check(scene.find_child("NextWarrantProgress", true, false) != null, "board keeps the next-warrant objective above the contract list")
+	check(scene.find_child("NextWarrantProgress", true, false) == null and scene.find_child("BountyDetailsAction_gloop", true, false) != null, "board removes network telemetry from the default scene and offers deliberate details")
 	check(scene.find_child("BoardTutorialOfferHint", true, false) != null and scene.find_child("BoardOfferSelectors", true, false) == null, "the first capture presents one guided warrant instead of a false three-way choice")
 	check(scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "the tutorial expands exactly one mission dossier")
-	check(scene.find_children("StarterTravelAcceleration_*", "Label", true, false).size() == 1, "the opening dossier explains its temporary starter travel acceleration")
+	var tutorial_dossier := scene.find_children("BountyCard_*", "PanelContainer", true, false)[0] as PanelContainer
+	check(tutorial_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "the selected mandate owns the illustrated focal frame")
+	(scene.find_child("BountyDetailsAction_gloop", true, false) as Button).pressed.emit()
+	await process_frame
+	check(scene.find_child("BountySecondaryDetails", true, false) != null and scene.find_child("NextWarrantProgress", true, false) != null, "the selected mandate exposes network progress in its secondary sheet")
+	check(scene.find_children("StarterTravelAcceleration_*", "Label", true, false).size() == 1, "the opening detail sheet explains its temporary starter travel acceleration")
+	(scene.find_child("BountyDetailsAction_gloop", true, false) as Button).pressed.emit()
+	await process_frame
 
 	var bounty: Dictionary = ContentDB.TARGETS[0].duplicate(true)
 	state.player.wins = 4
@@ -70,23 +77,25 @@ func run_smoke_test() -> void:
 	check(scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1 and str(scene.find_children("BountyCard_*", "PanelContainer", true, false)[0].name) != initial_dossier_name, "selecting another compact ticket replaces rather than stacks the expanded dossier")
 	(scene.find_child("BoardOfferSelector_0", true, false) as Button).pressed.emit()
 	await process_frame
-	check(scene.find_child("BountyRole_gloop", true, false) != null and scene.find_child("BountyAction_gloop", true, false).text == "ANALISAR ABORDAGENS", "known targets retain mastery while the new board presents a fresh level-banded contract")
-	check(scene.find_child("BountyMastery_gloop", true, false) != null, "bounty cards expose target mastery progress")
-	check(scene.find_child("MasteryRoute_gloop", true, false) != null, "bounty board preserves the career mastery recommendation")
+	check(scene.find_child("BountyRole_gloop", true, false) != null and scene.find_child("BountyAction_gloop", true, false).text == "ANALISAR ABORDAGENS", "known targets retain their route while the new board presents a fresh level-banded contract")
+	(scene.find_child("BountyDetailsAction_gloop", true, false) as Button).pressed.emit()
+	await process_frame
+	check(scene.find_child("BountyMastery_gloop", true, false) != null, "bounty detail sheet exposes target mastery progress")
+	check(scene.find_child("MasteryRoute_gloop", true, false) != null, "bounty detail sheet preserves the career mastery recommendation")
 	(scene.find_child("BountyAction_gloop", true, false) as Button).pressed.emit()
 	await process_frame
 	check(str(state.current_bounty.id) == "gloop" and int(state.player.captures_by_target.gloop) == 3, "repeat action opens the prior target without mutating campaign progress")
 	check(scene.find_child("BriefingScroll", true, false) != null, "contract briefing renders")
+	var briefing_dossier := scene.find_child("BriefingTargetDossier", true, false) as PanelContainer
+	check(briefing_dossier != null and briefing_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "briefing keeps the target inside the same focal dossier language")
 	check(scene.find_child("BriefingFieldTestContext", true, false) == null, "ordinary board briefings do not claim a prior field test")
 	check(scene.find_child("BriefingMastery", true, false) != null, "briefing explains mastery loot bonuses")
 	check(scene.find_children("RecommendedApproach_*", "Label", true, false).size() == 1, "briefing renders exactly one dynamic recommendation")
-	check(scene.find_children("ApproachBonusSummary_*", "Label", true, false).size() == 3, "briefing keeps streak-adjusted payment concise on every route")
-	var recommendation_hint := scene.find_child("BriefingRecommendationHint", true, false) as Label
-	check(recommendation_hint != null and recommendation_hint.text.contains("BUILD") and recommendation_hint.text.contains("risco") and recommendation_hint.text.contains("retorno") and recommendation_hint.text.contains("tempo"), "briefing explains the recommendation's build, risk, return, and time basis")
+	check(briefing_dossier.tooltip_text.contains("BUILD") and briefing_dossier.tooltip_text.contains("risco") and briefing_dossier.tooltip_text.contains("retorno") and briefing_dossier.tooltip_text.contains("tempo"), "briefing keeps the recommendation basis in the target dossier while route cards show its metrics directly")
 	var route_buttons := scene.find_children("ChooseApproach_*", "Button", true, false)
 	check(route_buttons.size() == 3 and route_buttons.all(func(button): return str(button.text).contains("ESCOLHER · ") and not str(button.text).ends_with("SEGURO")), "each briefing action names the route it will confirm instead of repeating a shared risk tier")
-	var corporate_bonus := scene.find_child("ApproachBonusSummary_premium_warrant", true, false) as Label
-	check(corporate_bonus != null and corporate_bonus.text.contains("SUCATA NA VITÓRIA"), "briefing exposes the corporate workshop reward before commitment")
+	var corporate_risk := scene.find_child("ApproachBuildRisk_premium_warrant", true, false) as Label
+	check(corporate_risk != null and corporate_risk.text.contains("SUCATA NA VITÓRIA"), "briefing combines the corporate workshop reward with its risk summary before commitment")
 	check(scene.find_children("ApproachBuildRisk_*", "Label", true, false).size() == 3 and scene.find_children("ApproachBuild_*", "PanelContainer", true, false).size() == 3, "every route exposes explicit build odds and a risk reading in the same scan order")
 	state.choose_approach("quiet_net")
 	await process_frame
@@ -104,6 +113,8 @@ func run_smoke_test() -> void:
 	await process_frame
 	check(scene.find_child("HuntEventChoices", true, false) != null, "mid-hunt incident renders")
 	check(scene.find_child("HuntEventDossier", true, false) != null and scene.find_child("HuntEventSignal", true, false) != null, "incident leads with one illustrated field dossier before its decisions")
+	var incident_dossier := scene.find_child("HuntEventDossier", true, false) as PanelContainer
+	check(incident_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "incident identity uses the approved illustrated frame")
 	var incident_icons := scene.find_children("HuntChoiceIcon_*", "Control", true, false)
 	var incident_kinds := {}
 	for icon in incident_icons:
@@ -128,6 +139,12 @@ func run_smoke_test() -> void:
 	state.begin_combat(true)
 	await process_frame
 	check(state.player_hp > 0 and state.enemy_hp > 0, "combat screen initializes")
+	var compact_resources := scene.find_child("HeaderResourceStrip", true, false) as PanelContainer
+	check(compact_resources != null and compact_resources.find_children("*", "Label", true, false).all(func(resource_label): return (resource_label as Label).get_theme_font_size("font_size") >= 18), "timed phases keep the compact resource header readable on the physical Android target")
+	var contract_header_character := scene.find_child("HeaderCharacterAction", true, false) as Button
+	var contract_header_level := scene.find_child("HeaderCharacterLevel", true, false) as Label
+	var contract_header_power := scene.find_child("HeaderCharacterPower", true, false) as Label
+	check(contract_header_character != null and contract_header_level != null and contract_header_power != null and contract_header_level.global_position.x + contract_header_level.size.x <= contract_header_character.global_position.x + contract_header_character.size.x + 0.5 and contract_header_power.global_position.x + contract_header_power.size.x <= contract_header_character.global_position.x + contract_header_character.size.x + 0.5, "contract header keeps level and power inside the hunter card")
 	check(scene.find_child("CombatHuntComplete", true, false) != null, "timer-origin combat confirms that the target was located while Android feedback fires once")
 	check(scene.environment_context() == "combat", "combat resolves the original frontier-arena environment")
 	var combat_loadout := scene.find_child("CombatLoadoutSummary", true, false) as Label
@@ -136,12 +153,23 @@ func run_smoke_test() -> void:
 	var combat_payment_status := scene.find_child("CombatPaymentStatus", true, false) as PanelContainer
 	var combat_streak_bonus := scene.find_child("CombatPaymentStreakBonus", true, false) as Label
 	check(scene.find_child("CombatContractDossier", true, false) != null and combat_incident != null and combat_incident.text.contains("INCIDENTE") and combat_payment_status != null and combat_streak_bonus != null and combat_streak_bonus.text.contains("EMBALO"), "combat groups turn, chosen incident consequence, adjusted payout, and streak bonus into one contract dossier")
+	check(combat_incident.text.length() <= 52 and combat_incident.tooltip_text.length() >= combat_incident.text.length(), "long incident receipts use a stable one-line preview while preserving the complete report")
+	var combat_dossier := scene.find_child("CombatContractDossier", true, false) as PanelContainer
+	var safe_right := scene.get_viewport_rect().size.x - float(scene.safe_container.get_theme_constant("margin_right"))
+	check(combat_dossier != null and combat_dossier.global_position.x + combat_dossier.size.x <= safe_right + 0.5, "combat dossier cannot widen the mobile shell into the safe right margin")
+	for combat_control_name in ["HeaderCharacterAction", "CombatArenaStage", "CombatTurnReport", "CombatSpeedAction"]:
+		var combat_control := scene.find_child(combat_control_name, true, false) as Control
+		check(combat_control != null and combat_control.global_position.x + combat_control.size.x <= safe_right + 0.5, "%s remains inside the combat safe width" % combat_control_name)
 	var opening_advantage := scene.find_child("CombatAdvantage", true, false) as Label
 	check(opening_advantage != null and opening_advantage.text.contains("VOCÊ 100%") and opening_advantage.text.contains("ALVO 100%") and opening_advantage.text.contains("EQUILIBRADA"), "combat opens with an explicit relative-health reading")
 	check(scene.find_child("CombatPressureTrack", true, false) != null and scene.find_child("CombatPressurePlayer", true, false) != null and scene.find_child("CombatPressureEnemy", true, false) != null, "combat turns relative health into a persistent two-sided pressure strip")
+	var combat_stage := scene.find_child("CombatArenaStage", true, false) as PanelContainer
+	var combat_stage_style := combat_stage.get_theme_stylebox("panel") as StyleBoxFlat if combat_stage != null else null
+	check(combat_stage_style != null and combat_stage_style.border_width_top == 2, "the bespoke arena retains a material brass edge without obscuring combat")
 	state.combat_step()
-	scene.render()
+	check(scene.refresh_combat_view(), "combat turns refresh through the incremental mobile path")
 	await process_frame
+	check(scene.find_child("CombatArenaStage", true, false) == combat_stage, "incremental combat refresh preserves the expensive arena subtree")
 	check(state.combat_events.size() == 2, "combat action cards render")
 	var turn_balance := scene.find_child("CombatTurnBalance", true, false) as Label
 	var hunter_health := scene.find_child("CombatHealth_hunter", true, false) as Label
@@ -166,14 +194,20 @@ func run_smoke_test() -> void:
 	check(scene.find_child("CombatSummaryVictory", true, false) != null, "victory explains aggregate combat performance")
 	var class_evidence := scene.find_child("CombatBuildEvidence", true, false) as Label
 	check(class_evidence != null and class_evidence.text.contains("3 dano de rajada") and class_evidence.text.contains("1 ataques evitados"), "victory report quantifies class-exclusive follow-up and evasion contributions")
+	check(class_evidence.get_theme_font_size("font_size") >= 18, "victory build evidence remains readable at the physical Android target")
 	check(scene.find_child("VictoryDossier", true, false) != null and scene.find_child("VictoryPaymentCard", true, false) != null, "victory groups target, verdict, report, and payment into a coherent dossier")
+	var victory_dossier := scene.find_child("VictoryDossier", true, false) as PanelContainer
+	check(victory_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "victory uses the illustrated focal frame while receipts stay compact")
 	var victory_payment := scene.find_child("VictoryPayment", true, false) as Label
 	check(victory_payment != null and victory_payment.text.contains("EMBALO") and victory_payment.text.contains("SALDO"), "victory preserves the paid-incident payout receipt")
+	check(victory_payment.get_theme_font_size("font_size") >= 18, "victory payment receipt remains readable before opening loot")
 	var open_reward_action := scene.find_child("OpenRewardAction", true, false) as Button
 	check(open_reward_action != null and scene.victory_timer.wait_time >= 2.5, "victory allows an immediate reward while preserving a readable automatic pause")
 
 	state.open_reward()
 	await process_frame
+	var reward_dossier := scene.find_child("RewardPanel", true, false) as PanelContainer
+	check(reward_dossier != null and reward_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "loot reveal preserves the approved focal frame")
 	check(scene.find_child("RewardEquipmentIcon", true, false) != null, "reward presents loot with a slot- and origin-specific icon")
 	check(scene.find_child("RewardMastery", true, false) != null, "reward screen confirms applied target mastery")
 	check(scene.find_child("RewardMasteryProgress", true, false) != null, "reward screen counts the pending capture toward the next mastery")
@@ -312,10 +346,11 @@ func run_smoke_test() -> void:
 	await process_frame
 	check(scene.find_child("ArsenalSectionTabs", true, false) != null and scene.find_child("InventoryScroll", true, false) == null, "arsenal opens on a focused equipped-build section")
 	check(state.player.inventory.size() == 4, "arsenal receives claimed, replaced starter, spare, and inferior loot")
+	check(scene.find_child("UniversalEquipmentCard", true, false) != null and scene.find_child("LoadoutToolbar", true, false) != null and scene.find_child("SaveLoadout_0", true, false) != null and scene.find_child("Upgrade_weapon", true, false) == null, "equipped section focuses on the universal loadout without workshop controls")
+	(scene.find_child("ArsenalTab_workshop", true, false) as Button).pressed.emit()
+	await process_frame
 	check(scene.find_child("Upgrade_weapon", true, false) != null, "workshop renders equipment upgrades")
 	check(scene.find_child("Reinforce_weapon", true, false) != null, "workshop renders integrity reinforcement")
-	check(scene.find_child("LoadoutToolbar", true, false) != null, "arsenal renders equipment loadouts")
-	check(scene.find_child("SaveLoadout_0", true, false) != null, "arsenal can save the hunt loadout")
 	var backpack_tab := scene.find_child("ArsenalTab_inventory", true, false) as Button
 	backpack_tab.pressed.emit()
 	await process_frame
@@ -347,7 +382,11 @@ func run_smoke_test() -> void:
 	}
 	scene.render()
 	await process_frame
-	check(scene.find_child("ChapterComplete", true, false) != null, "planet completion screen renders")
+	var chapter_dossier := scene.find_child("ChapterComplete", true, false) as PanelContainer
+	check(chapter_dossier != null, "planet completion screen renders")
+	check(chapter_dossier != null and chapter_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "chapter completion uses the same illustrated climax language")
+	var chapter_open_world := scene.find_child("ChapterOpenWorld", true, false) as Label
+	check(chapter_open_world != null and chapter_open_world.get_theme_font_size("font_size") >= 18, "chapter completion keeps its continuing-world guidance readable")
 
 	state.phase = state.Phase.BOARD
 	state.player.completed_planets = [ContentDB.PLANET.id]

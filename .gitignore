@@ -6,6 +6,7 @@
 builds/*
 !builds/.gdignore
 logs/
+Notes/*.apk
 
 # Local Android signing material (the shared test key lives in GitHub Actions secrets)
 android/*.keystore

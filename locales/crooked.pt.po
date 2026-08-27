@@ -41,6 +41,9 @@ msgstr "PRIMEIRO MUNDO · conexão online ainda não ativa neste APK"
 msgid "COMMON_SELECTED"
 msgstr "SELECIONADO"
 
+msgid "ONB_ACTIVE_SELECTION"
+msgstr "ATIVO"
+
 msgid "COMMON_CHOOSE"
 msgstr "ESCOLHER"
 
@@ -663,7 +666,7 @@ msgid "BRIEFING_COMPARE"
 msgstr "COMPARE E ESCOLHA A ROTA"
 
 msgid "BRIEFING_HINT"
-msgstr "BUILD mostra sua chance atual; RECOMENDADO equilibra risco, retorno e tempo."
+msgstr "BUILD = chance atual · RECOMENDADO = risco + retorno + tempo."
 
 msgid "BRIEFING_BACK"
 msgstr "VOLTAR AO QUADRO"
@@ -3868,3 +3871,24 @@ msgstr "VISITADO"
 
 msgid "CAREER_DISCOVERED"
 msgstr "DESCOBERTO"
+
+msgid "COMMON_DETAILS"
+msgstr "DETALHES"
+
+msgid "COMMON_HIDE_DETAILS"
+msgstr "FECHAR DETALHES"
+
+msgid "BOARD_DETAILS_TITLE"
+msgstr "FICHA DO MANDADO"
+
+msgid "HUNTER_TAB_PROFILE"
+msgstr "EQUIPAMENTO"
+
+msgid "HUNTER_TAB_ATTRIBUTES"
+msgstr "ATRIBUTOS"
+
+msgid "ARSENAL_WORKSHOP_TAB"
+msgstr "OFICINA"
+
+msgid "ARSENAL_WORKSHOP_SUBTITLE"
+msgstr "TESTE DE CAMPO · MELHORIAS"

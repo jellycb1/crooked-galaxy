@@ -21,6 +21,10 @@ func _init() -> void:
 	host.add_child(content)
 
 	RewardScript.build(host, content, state)
+	var reward_scroll := host.find_child("RewardScroll", true, false) as ScrollContainer
+	check(reward_scroll != null and reward_scroll.size_flags_vertical == Control.SIZE_EXPAND_FILL, "reward evidence scrolls independently while decisions remain fixed")
+	var reward_panel := host.find_child("RewardPanel", true, false) as PanelContainer
+	check(reward_panel != null and reward_panel.get_theme_stylebox("panel") is StyleBoxTexture, "isolated reward renderer uses the approved illustrated loot dossier")
 	check(host.find_child("RewardLootHeader", true, false) != null and host.find_child("RewardEquipmentComparison", true, false) != null, "isolated reward separates loot identity from equipment comparison")
 	check(host.find_child("RewardContractReceipt", true, false) != null and host.find_child("RewardProgressPanel", true, false) != null, "isolated reward groups the contract receipt and progression evidence")
 	check(host.find_child("RewardProgressIcon_streak", true, false) != null and host.find_child("RewardProgressIcon_warrant", true, false) != null, "progress receipt gives streak and warrant distinct visual identities")
@@ -118,6 +122,14 @@ func _init() -> void:
 	var empty_slot_power := metric_value(host, "RewardEquippedPower")
 	var empty_slot_result := metric_value(host, "RewardEquipmentResult")
 	check(empty_slot_power == "+0" and empty_slot_result == "UPGRADE", "first secondary-slot drop compares safely against an empty universal equipment slot")
+
+	clear_content(content)
+	state.current_bounty = {"id": "rift_test", "challenge": true, "challenge_index": 0, "credits": 118, "xp": 145}
+	state.pending_loot = reward_item(4)
+	RewardScript.build(host, content, state)
+	var challenge_scroll := host.find_child("ChallengeRewardScroll", true, false) as ScrollContainer
+	check(challenge_scroll != null and challenge_scroll.size_flags_vertical == Control.SIZE_EXPAND_FILL, "Rift artifact evidence uses the same readable scrolling structure")
+	check(host.find_child("ChallengeRewardPanel", true, false) != null and host.find_child("ClaimChallengeReward", true, false) != null, "Rift artifact keeps its dossier and fixed return decision")
 
 	host.free()
 	state.free()

@@ -4,6 +4,7 @@ const FactoryScript = preload("res://scripts/ui_factory.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const ArsenalScript = preload("res://scripts/arsenal_view.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
+const UIDesignSystem = preload("res://scripts/ui_design_system.gd")
 
 var failures := 0
 
@@ -29,10 +30,18 @@ func _init() -> void:
 	host.add_child(content)
 	ArsenalScript.build(host, content, state)
 
-	check(host.find_child("ArsenalSectionTabs", true, false) != null and host.find_child("ArsenalTab_equipped", true, false) != null and host.find_child("ArsenalTab_inventory", true, false) != null and host.find_child("ArsenalTab_settings", true, false) == null, "isolated arsenal separates equipped gear from the backpack")
+	check(host.find_child("ArsenalSectionTabs", true, false) != null and host.find_child("ArsenalTab_equipped", true, false) != null and host.find_child("ArsenalTab_workshop", true, false) != null and host.find_child("ArsenalTab_inventory", true, false) != null and host.find_child("ArsenalTab_settings", true, false) == null, "isolated arsenal separates equipped gear, workshop, and backpack")
+	var universal_sheet := host.find_child("UniversalEquipmentCard", true, false) as PanelContainer
+	check(universal_sheet != null and universal_sheet.get_theme_stylebox("panel") is StyleBoxTexture, "the universal equipment sheet owns Arsenal's single illustrated focal frame")
 	check(host.find_child("InventoryScroll", true, false) == null, "equipped section does not compete with the backpack list")
+	check(host.find_child("LoadoutToolbar", true, false) is VBoxContainer, "isolated equipped section stacks persistent loadouts at full mobile width")
+	host.arsenal_section = "workshop"
+	clear_children(content)
+	ArsenalScript.build(host, content, state)
 	var workshop_notice := host.find_child("WorkshopNotice", true, false) as Label
 	check(workshop_notice != null and workshop_notice.text.contains("+6 sucata"), "isolated arsenal preserves the transaction that funded the workshop")
+	var readiness_target := host.find_child("FieldReadinessTarget", true, false) as Label
+	check(workshop_notice.get_theme_font_size("font_size") >= 18 and readiness_target != null and readiness_target.get_theme_font_size("font_size") >= 18, "workshop receipts and field-test context meet the Android readability floor")
 	check(host.find_child("Upgrade_weapon", true, false) != null and host.find_child("Reinforce_armor", true, false) != null, "isolated arsenal builds both workshop paths")
 	check(host.find_child("EquippedWorkbenchIcon_weapon", true, false) != null and host.find_child("EquippedWorkbenchIcon_armor", true, false) != null, "equipped workbench gives both slots immediate visual identity")
 	var recommended_buttons := host.find_children("*", "Button", true, false).filter(func(button): return str(button.text).begins_with("★"))
@@ -41,8 +50,12 @@ func _init() -> void:
 	var recommendation_card := host.find_child("WorkshopRecommendation", true, false) as PanelContainer
 	var recommendation_action := host.find_child("RecommendedWorkshopAction", true, false) as Button
 	check(recommendation_card != null and recommendation_action != null and recommendation_action.text == "APLICAR", "workshop elevates the best-value upgrade into one explicit primary action")
+	check(recommendation_action != null and recommendation_action.get_theme_font_size("font_size") >= UIDesignSystem.FONT_CAPTION, "workshop recommendation remains readable at the Android target")
+	var upgrade_weapon := host.find_child("Upgrade_weapon", true, false) as Button
+	var reinforce_weapon := host.find_child("Reinforce_weapon", true, false) as Button
+	check(upgrade_weapon != null and reinforce_weapon != null and upgrade_weapon.get_theme_font_size("font_size") >= UIDesignSystem.FONT_CAPTION and reinforce_weapon.get_theme_font_size("font_size") >= UIDesignSystem.FONT_CAPTION, "dense workshop actions retain the shared caption floor")
+	check(recommendation_action != null and UIDesignSystem.is_safe_touch_target(recommendation_action.custom_minimum_size.y) and UIDesignSystem.is_safe_touch_target(upgrade_weapon.custom_minimum_size.y) and UIDesignSystem.is_safe_touch_target(reinforce_weapon.custom_minimum_size.y), "every workshop transaction remains a safe physical Android touch target")
 	check(not recommendation.is_empty() and int(recommendation.cost) <= int(state.player.scrap) and recommendation.has("current_odds") and recommendation.has("score_gain"), "workshop recommendation carries an affordable, auditable impact projection")
-	check(host.find_child("LoadoutToolbar", true, false) != null, "isolated arsenal builds persistent loadouts")
 	check(host.find_child("FieldReadiness", true, false) != null, "isolated arsenal translates upgrades into next-warrant odds")
 	var readiness := ArsenalScript.field_readiness(state)
 	check(str(readiness.target.id) == "baron_boom", "field test selects the next planet-tier target")
@@ -121,8 +134,12 @@ func _init() -> void:
 	var late_base_odds := CoreRules.bounty_odds(late_state.player, late_readiness.target)
 	check(float(late_readiness.current_odds) <= late_base_odds and float(late_readiness.current_odds) == CoreRules.bounty_odds(late_state.player, late_readiness.contract), "late projection preserves the selected approach's exact risk without scaling from equipped power")
 	late_state.free()
+	host.arsenal_section = "equipped"
+	clear_children(content)
+	ArsenalScript.build(host, content, state)
 	var kit_status := host.find_child("PlanetaryKitStatus", true, false) as Label
 	check(kit_status != null and kit_status.text.contains("DUSTBALL PRIME") and kit_status.text.contains("+1 PODER") and kit_status.text.contains("+6 VIDA"), "arsenal exposes the active planetary kit")
+	check(kit_status.get_theme_font_size("font_size") >= 18, "equipped-kit status remains readable on the physical Android target")
 	check(ArsenalScript.filtered_inventory(host, state).size() == 2, "renderer receives inventory through explicit state")
 	host.inventory_filter = "weapon"
 	check(ArsenalScript.filtered_inventory(host, state).size() == 1, "renderer preserves host filter state")
@@ -147,7 +164,7 @@ func _init() -> void:
 	var next_page := host.find_child("InventoryPageNext", true, false) as Button
 	check(previous_page != null and not previous_page.disabled and next_page != null and next_page.disabled, "pager exposes correct boundary actions on the last page")
 	var arsenal_tabs := host.find_child("ArsenalSectionTabs", true, false) as HBoxContainer
-	check(arsenal_tabs != null and arsenal_tabs.get_child_count() == 2, "arsenal navigation contains only equipped gear and backpack")
+	check(arsenal_tabs != null and arsenal_tabs.get_child_count() == 3, "arsenal navigation separates equipped gear, workshop, and backpack")
 	check(host.find_child("ArsenalTab_settings", true, false) == null and host.find_child("AccessibilityPreferences", true, false) == null, "device settings no longer leak into equipment management")
 	state.last_notice = "Rota confirmada: Congelária S.A."
 	state.last_notice_context = "travel"
