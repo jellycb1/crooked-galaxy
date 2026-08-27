@@ -440,16 +440,38 @@ func run_mobile_audit() -> void:
 	await process_frame
 	state.choose_approach("quiet_net")
 	await process_frame
-	check(contract_dock != null and not contract_dock.is_visible_in_tree(), "active hunt keeps the navigation dock unavailable")
+	var hunt_deadline := int(state.hunt_ends_at)
+	check(contract_dock != null and contract_dock.is_visible_in_tree(), "active hunt keeps the primary navigation available")
+	check((scene.find_child("PrimaryNavCaption_contracts", true, false) as Label).text == "CAÇADA" and scene.find_child("PrimaryNavBadge_contracts", true, false) != null, "navigation marks the contract destination as an active background hunt")
 	check(scene.find_child("HuntTransportIcon", true, false) != null, "active hunt carries the transport silhouette and timing identity")
 	check(not scene.hunt_timer.is_stopped(), "hunt refresh wakes only for the timed hunt phase")
-	check(scene.android_back_action() == "guard_contract", "Android Back cannot accidentally abandon an active timed contract")
+	(scene.find_child("PrimaryNav_arsenal", true, false) as Button).pressed.emit()
+	await process_frame
+	check(state.phase == state.Phase.HUNT and int(state.hunt_ends_at) == hunt_deadline and scene.find_child("ArsenalSectionTabs", true, false) != null, "leaving the hunt opens another game surface without changing its persisted deadline")
+	check(not scene.hunt_timer.is_stopped(), "background navigation keeps the wall-clock hunt refresh alive")
+	check(scene.android_back_action() == "hunt", "Android Back from a background surface returns to the active hunt")
+	scene.handle_android_back_request()
+	await process_frame
+	check(scene.find_child("HuntTransportIcon", true, false) != null and int(state.hunt_ends_at) == hunt_deadline, "returning to the hunt restores its progress without restarting it")
+	check(scene.android_back_action() == "menu", "Android Back minimizes an active timed hunt instead of trapping or abandoning it")
+	scene.handle_android_back_request()
+	await process_frame
+	check(state.phase == state.Phase.HUNT and int(state.hunt_ends_at) == hunt_deadline and scene.find_child("FrontierMenuMarker", true, false) != null, "minimized hunt continues behind the frontier menu")
+	(scene.find_child("PrimaryNav_contracts", true, false) as Button).pressed.emit()
+	await process_frame
 	state.hunt_event = ContentDB.HUNT_EVENTS[0].duplicate(true)
 	state.phase = state.Phase.HUNT_EVENT
 	scene.render()
 	await process_frame
 	check(not scene.hunt_timer.is_stopped(), "incident keeps the wall-clock hunt refresh active while input remains optional")
 	check_touch_targets(scene, "hunt incident")
+	var minimize_incident := scene.find_child("HuntMinimizeAction", true, false) as Button
+	check(minimize_incident != null, "optional hunt incident has an explicit minimize action")
+	minimize_incident.pressed.emit()
+	await process_frame
+	check(state.phase == state.Phase.HUNT_EVENT and int(state.hunt_ends_at) == hunt_deadline and scene.find_child("FrontierMenuMarker", true, false) != null and contract_dock.is_visible_in_tree(), "incident can remain pending while the player uses the rest of the game")
+	(scene.find_child("PrimaryNav_contracts", true, false) as Button).pressed.emit()
+	await process_frame
 	check(scene.android_back_action() == "ignore_hunt_event", "Android Back closes an optional incident through the same neutral action")
 
 	state.player = state.default_player()

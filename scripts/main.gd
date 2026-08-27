@@ -89,8 +89,12 @@ func android_back_action() -> String:
 		if view_mode != "board":
 			return "board"
 		return "board_bounties" if board_section != "bounties" else "quit"
+	if is_active_hunt_phase() and view_mode != "hunt":
+		return "hunt"
 	if GameState.phase == GameState.Phase.HUNT_EVENT:
 		return "ignore_hunt_event"
+	if GameState.phase == GameState.Phase.HUNT:
+		return "menu"
 	if GameState.phase == GameState.Phase.BRIEFING:
 		return "cancel_briefing"
 	return "guard_contract"
@@ -111,6 +115,9 @@ func handle_android_back_request() -> void:
 			GameState.cancel_briefing()
 		"ignore_hunt_event":
 			GameState.ignore_hunt_event()
+		"hunt":
+			view_mode = "hunt"
+			render()
 		"quit":
 			if try_save_before_quit():
 				get_tree().quit()
@@ -237,7 +244,10 @@ func render() -> void:
 		environment_backdrop.show_context(environment_context(), str(GameState.player.get("current_planet_id", ContentDB.PLANET.id)))
 	if sound_fx:
 		sound_fx.enabled = bool(GameState.player.get("sound_enabled", true))
+	var prior_phase := previous_phase
 	var phase_changed := previous_phase >= 0 and previous_phase != GameState.phase
+	if phase_changed and GameState.phase == GameState.Phase.HUNT and prior_phase in [GameState.Phase.BOARD, GameState.Phase.BRIEFING]:
+		view_mode = "hunt"
 	if phase_changed and GameState.phase == GameState.Phase.COMBAT:
 		last_combat_message = ""
 	if phase_changed and (GameState.phase == GameState.Phase.HUNT or GameState.phase == GameState.Phase.HUNT_EVENT):
@@ -307,28 +317,12 @@ func render() -> void:
 		return
 	match GameState.phase:
 		GameState.Phase.BOARD:
-			if view_mode == "arsenal":
-				build_arsenal()
-			elif view_mode == "galaxy":
-				build_galaxy_map()
-			elif view_mode == "career":
-				build_career()
-			elif view_mode == "attributes":
-				build_attributes()
-			elif view_mode == "classes":
-				build_classes()
-			elif view_mode == "market":
-				build_market()
-			elif view_mode == "hangar":
-				build_hangar()
-			elif view_mode == "settings":
-				SettingsViewScript.build(self, content, GameState)
-			elif view_mode == "challenges":
-				ChallengeViewScript.build(self, content, GameState)
-			else:
-				build_board()
+			build_hub_surface()
 		GameState.Phase.HUNT:
-			build_hunt()
+			if view_mode == "hunt":
+				build_hunt()
+			else:
+				build_hub_surface()
 		GameState.Phase.COMBAT:
 			build_combat()
 		GameState.Phase.REWARD:
@@ -338,7 +332,10 @@ func render() -> void:
 		GameState.Phase.BRIEFING:
 			build_briefing()
 		GameState.Phase.HUNT_EVENT:
-			build_hunt_event()
+			if view_mode == "hunt":
+				build_hunt_event()
+			else:
+				build_hub_surface()
 		GameState.Phase.CHAPTER_COMPLETE:
 			build_chapter_complete()
 	update_primary_navigation()
@@ -392,7 +389,7 @@ func on_arsenal_warmup_timer() -> void:
 func restore_session_scroll(expected_generation: int) -> void:
 	var scroll_name := ""
 	var position := 0
-	if GameState.phase == GameState.Phase.BOARD:
+	if GameState.phase == GameState.Phase.BOARD or is_active_hunt_phase():
 		if view_mode == "market":
 			scroll_name = "MarketScroll"
 			position = market_scroll_position
@@ -448,8 +445,11 @@ func on_primary_navigation(destination_id: String) -> void:
 	class_draft = ""
 	match destination_id:
 		"contracts":
-			view_mode = "board"
-			board_section = "bounties"
+			if is_active_hunt_phase():
+				view_mode = "hunt"
+			else:
+				view_mode = "board"
+				board_section = "bounties"
 		"arsenal":
 			view_mode = "arsenal"
 			var failed_contract := not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true))
@@ -473,7 +473,8 @@ func open_frontier_menu() -> void:
 
 
 func update_primary_navigation() -> void:
-	if GameState.phase != GameState.Phase.BOARD or GameState.save_recovery_required:
+	var active_hunt := is_active_hunt_phase()
+	if (GameState.phase != GameState.Phase.BOARD and not active_hunt) or GameState.save_recovery_required or (GameState.phase == GameState.Phase.HUNT_EVENT and view_mode == "hunt"):
 		navigation_dock.hide_and_clear()
 		return
 	var active_id := "contracts"
@@ -487,6 +488,9 @@ func update_primary_navigation() -> void:
 		active_id = "menu"
 	var labels := {}
 	var badges := {}
+	if active_hunt:
+		labels.contracts = t("NAV_HUNT_ACTIVE", "CAÇADA")
+		badges.contracts = 1
 	var available_points := int(GameState.player.get("stat_points", 0))
 	if str(GameState.player.get("class_id", "")).is_empty():
 		labels.hunter = t("NAV_CLASS", "CLASSE")
@@ -509,7 +513,7 @@ func update_primary_navigation() -> void:
 func environment_context() -> String:
 	if GameState.requires_onboarding():
 		return "world"
-	if GameState.phase == GameState.Phase.BOARD:
+	if GameState.phase == GameState.Phase.BOARD or (is_active_hunt_phase() and view_mode != "hunt"):
 		if view_mode == "arsenal":
 			return "workshop"
 		if view_mode == "market":
@@ -525,6 +529,33 @@ func environment_context() -> String:
 	if GameState.phase == GameState.Phase.COMBAT or GameState.phase == GameState.Phase.VICTORY:
 		return "combat"
 	return "contracts"
+
+
+func is_active_hunt_phase() -> bool:
+	return GameState.phase == GameState.Phase.HUNT or GameState.phase == GameState.Phase.HUNT_EVENT
+
+
+func build_hub_surface() -> void:
+	if view_mode == "arsenal":
+		build_arsenal()
+	elif view_mode == "galaxy":
+		build_galaxy_map()
+	elif view_mode == "career":
+		build_career()
+	elif view_mode == "attributes":
+		build_attributes()
+	elif view_mode == "classes":
+		build_classes()
+	elif view_mode == "market":
+		build_market()
+	elif view_mode == "hangar":
+		build_hangar()
+	elif view_mode == "settings":
+		SettingsViewScript.build(self, content, GameState)
+	elif view_mode == "challenges":
+		ChallengeViewScript.build(self, content, GameState)
+	else:
+		build_board()
 
 
 func restore_action_focus(previous_focus_name: String, expected_generation: int) -> void:
@@ -1893,6 +1924,11 @@ func build_hunt_event() -> void:
 	event_heading.add_child(heading_copy)
 	heading_copy.add_child(label(t("HUNT_EVENT_TITLE", "IMPREVISTO NA CAÇADA"), UIDesignSystem.FONT_EMPHASIS, CORAL))
 	heading_copy.add_child(label(t("HUNT_EVENT_PAUSED", "DECISÃO EM MOVIMENTO · A CAÇA CONTINUA"), UIDesignSystem.FONT_CAPTION, MUTED))
+	var minimize := secondary_action(t("HUNT_MINIMIZE", "MINIMIZAR"), CYAN)
+	minimize.name = "HuntMinimizeAction"
+	minimize.custom_minimum_size.x = 164
+	minimize.pressed.connect(open_frontier_menu)
+	event_heading.add_child(minimize)
 	var field_test_record := field_test_record_label("IncidentFieldTestContext")
 	if field_test_record != null:
 		content.add_child(field_test_record)

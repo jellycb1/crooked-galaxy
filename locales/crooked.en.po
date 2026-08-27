@@ -3892,3 +3892,15 @@ msgstr "WORKSHOP"
 
 msgid "ARSENAL_WORKSHOP_SUBTITLE"
 msgstr "FIELD TEST · UPGRADES"
+
+msgid "ONB_SCROLL_UP"
+msgstr "UP"
+
+msgid "ONB_SCROLL_DOWN"
+msgstr "DOWN"
+
+msgid "NAV_HUNT_ACTIVE"
+msgstr "HUNT"
+
+msgid "HUNT_MINIMIZE"
+msgstr "MINIMIZE"

@@ -3892,3 +3892,15 @@ msgstr "OFICINA"
 
 msgid "ARSENAL_WORKSHOP_SUBTITLE"
 msgstr "TESTE DE CAMPO · MELHORIAS"
+
+msgid "ONB_SCROLL_UP"
+msgstr "SUBIR"
+
+msgid "ONB_SCROLL_DOWN"
+msgstr "DESCER"
+
+msgid "NAV_HUNT_ACTIVE"
+msgstr "CAÇADA"
+
+msgid "HUNT_MINIMIZE"
+msgstr "MINIMIZAR"

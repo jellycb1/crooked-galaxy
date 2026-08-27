@@ -27,6 +27,10 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	scroll.name = "OnboardingScroll"
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.scroll_deadzone = 8
+	if step in ["class", "species"]:
+		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
+		scroll.get_v_scroll_bar().custom_minimum_size.x = 24
 	content.add_child(scroll)
 	var stack := VBoxContainer.new()
 	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -291,6 +295,7 @@ static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: S
 		state.select_species(selected)
 	)
 	var content := stack.get_parent().get_parent() as VBoxContainer
+	content.add_child(species_scroll_controls(host, stack.get_parent() as ScrollContainer))
 	content.add_child(confirm)
 
 
@@ -403,6 +408,31 @@ static func choice_card(host: CrookedUIFactory, title: String, eyebrow: String, 
 	row.add_child(action)
 	card.set_meta("action", action)
 	return card
+
+
+static func species_scroll_controls(host: CrookedUIFactory, scroll: ScrollContainer) -> HBoxContainer:
+	var controls := HBoxContainer.new()
+	controls.name = "OnboardingSpeciesScrollControls"
+	controls.add_theme_constant_override("separation", 8)
+	var previous := host.secondary_action("▲  %s" % t("ONB_SCROLL_UP", "SUBIR"), host.CYAN)
+	previous.name = "OnboardingSpeciesScrollUp"
+	previous.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	previous.pressed.connect(func():
+		var step_size := maxi(240, roundi(scroll.size.y * 0.72))
+		scroll.scroll_vertical = maxi(0, scroll.scroll_vertical - step_size)
+		host.onboarding_scroll_position = scroll.scroll_vertical
+	)
+	controls.add_child(previous)
+	var next := host.secondary_action("%s  ▼" % t("ONB_SCROLL_DOWN", "DESCER"), host.CYAN)
+	next.name = "OnboardingSpeciesScrollDown"
+	next.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	next.pressed.connect(func():
+		var step_size := maxi(240, roundi(scroll.size.y * 0.72))
+		scroll.scroll_vertical += step_size
+		host.onboarding_scroll_position = scroll.scroll_vertical
+	)
+	controls.add_child(next)
+	return controls
 
 
 static func class_reference_icon(host: CrookedUIFactory, class_id: String, dimension: float) -> Control:

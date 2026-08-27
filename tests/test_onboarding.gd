@@ -125,6 +125,10 @@ func run_test() -> void:
 	var species_scroll := scene.find_child("OnboardingScroll", true, false) as ScrollContainer
 	var fixed_species_confirm := scene.find_child("OnboardingSpeciesConfirm", true, false) as Button
 	check(fixed_species_confirm != null and fixed_species_confirm.get_parent() != species_scroll.get_child(0), "species confirmation stays outside the long scrolling roster")
+	var species_scroll_up := scene.find_child("OnboardingSpeciesScrollUp", true, false) as Button
+	var species_scroll_down := scene.find_child("OnboardingSpeciesScrollDown", true, false) as Button
+	check(species_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_SHOW_ALWAYS and species_scroll.get_v_scroll_bar().custom_minimum_size.x >= 24, "species roster exposes a permanently visible, finger-sized vertical scroll rail")
+	check(species_scroll_up != null and species_scroll_down != null and species_scroll_down.get_parent().get_parent() != species_scroll.get_child(0), "species roster exposes fixed touch paging controls outside its scrolling content")
 	check_onboarding_touch_targets(scene, "species")
 	await process_frame
 	await process_frame
@@ -132,6 +136,12 @@ func run_test() -> void:
 	# enlarged-text Android layouts; the default 720x1280 test viewport fits it.
 	(species_scroll.get_child(0) as Control).custom_minimum_size.y = 1600
 	await process_frame
+	species_scroll_down.pressed.emit()
+	await process_frame
+	var paged_species_position := species_scroll.scroll_vertical
+	species_scroll_up.pressed.emit()
+	await process_frame
+	check(paged_species_position > 0 and species_scroll.scroll_vertical < paged_species_position, "species touch paging moves the roster down and back up without a drag gesture")
 	species_scroll.scroll_vertical = 160
 	await process_frame
 	(scene.find_child("OnboardingSpeciesAction_scraproot", true, false) as Button).pressed.emit()
