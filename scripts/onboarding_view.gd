@@ -9,6 +9,7 @@ const SpeciesIconScript = preload("res://scripts/species_icon.gd")
 const ServerRulesScript = preload("res://scripts/server_rules.gd")
 const LocaleRulesScript = preload("res://scripts/locale_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
+const TouchScrollContainerScript = preload("res://scripts/touch_scroll_container.gd")
 
 const STEP_INDEX := {"login": 1, "class": 2, "species": 3, "appearance": 4, "name": 5}
 
@@ -23,7 +24,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	progress.name = "OnboardingProgress"
 	brand.add_child(progress)
 
-	var scroll := ScrollContainer.new()
+	var scroll := TouchScrollContainerScript.new() as ScrollContainer
 	scroll.name = "OnboardingScroll"
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -48,6 +49,8 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 			build_appearance(host, stack, state)
 		"name":
 			build_name(host, stack, state)
+	if step in ["class", "species"]:
+		enable_touch_drag_scrolling(stack)
 	if step in ["class", "species", "appearance"]:
 		host.call_deferred("restore_onboarding_scroll", int(host.get("render_generation")))
 
@@ -295,7 +298,6 @@ static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: S
 		state.select_species(selected)
 	)
 	var content := stack.get_parent().get_parent() as VBoxContainer
-	content.add_child(species_scroll_controls(host, stack.get_parent() as ScrollContainer))
 	content.add_child(confirm)
 
 
@@ -410,29 +412,23 @@ static func choice_card(host: CrookedUIFactory, title: String, eyebrow: String, 
 	return card
 
 
-static func species_scroll_controls(host: CrookedUIFactory, scroll: ScrollContainer) -> HBoxContainer:
-	var controls := HBoxContainer.new()
-	controls.name = "OnboardingSpeciesScrollControls"
-	controls.add_theme_constant_override("separation", 8)
-	var previous := host.secondary_action("▲  %s" % t("ONB_SCROLL_UP", "SUBIR"), host.CYAN)
-	previous.name = "OnboardingSpeciesScrollUp"
-	previous.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	previous.pressed.connect(func():
-		var step_size := maxi(240, roundi(scroll.size.y * 0.72))
-		scroll.scroll_vertical = maxi(0, scroll.scroll_vertical - step_size)
-		host.onboarding_scroll_position = scroll.scroll_vertical
-	)
-	controls.add_child(previous)
-	var next := host.secondary_action("%s  ▼" % t("ONB_SCROLL_DOWN", "DESCER"), host.CYAN)
-	next.name = "OnboardingSpeciesScrollDown"
-	next.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	next.pressed.connect(func():
-		var step_size := maxi(240, roundi(scroll.size.y * 0.72))
-		scroll.scroll_vertical += step_size
-		host.onboarding_scroll_position = scroll.scroll_vertical
-	)
-	controls.add_child(next)
-	return controls
+static func enable_touch_drag_scrolling(root: Control) -> void:
+	# A ScrollContainer can distinguish a tap from a swipe only when the Controls
+	# below it let pointer events propagate. Choice cards used the default STOP
+	# filter, so Android delivered the gesture to the card/button but never to the
+	# scroller. Interactive descendants stay clickable while PASS lets the parent
+	# claim motion beyond scroll_deadzone and cancel the pending button press.
+	root.mouse_filter = Control.MOUSE_FILTER_PASS
+	for child in root.get_children():
+		if not child is Control:
+			continue
+		var control := child as Control
+		if child is Container or child is BaseButton:
+			control.mouse_filter = Control.MOUSE_FILTER_PASS
+		else:
+			control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if control.get_child_count() > 0:
+			enable_touch_drag_scrolling(control)
 
 
 static func class_reference_icon(host: CrookedUIFactory, class_id: String, dimension: float) -> Control:

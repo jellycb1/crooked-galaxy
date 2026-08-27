@@ -125,10 +125,8 @@ func run_test() -> void:
 	var species_scroll := scene.find_child("OnboardingScroll", true, false) as ScrollContainer
 	var fixed_species_confirm := scene.find_child("OnboardingSpeciesConfirm", true, false) as Button
 	check(fixed_species_confirm != null and fixed_species_confirm.get_parent() != species_scroll.get_child(0), "species confirmation stays outside the long scrolling roster")
-	var species_scroll_up := scene.find_child("OnboardingSpeciesScrollUp", true, false) as Button
-	var species_scroll_down := scene.find_child("OnboardingSpeciesScrollDown", true, false) as Button
 	check(species_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_SHOW_ALWAYS and species_scroll.get_v_scroll_bar().custom_minimum_size.x >= 24, "species roster exposes a permanently visible, finger-sized vertical scroll rail")
-	check(species_scroll_up != null and species_scroll_down != null and species_scroll_down.get_parent().get_parent() != species_scroll.get_child(0), "species roster exposes fixed touch paging controls outside its scrolling content")
+	check((scene.find_child("OnboardingSpeciesAction_synthetic", true, false) as Button).mouse_filter == Control.MOUSE_FILTER_PASS, "species actions propagate touch motion to their scrolling parent")
 	check_onboarding_touch_targets(scene, "species")
 	await process_frame
 	await process_frame
@@ -136,12 +134,26 @@ func run_test() -> void:
 	# enlarged-text Android layouts; the default 720x1280 test viewport fits it.
 	(species_scroll.get_child(0) as Control).custom_minimum_size.y = 1600
 	await process_frame
-	species_scroll_down.pressed.emit()
+	var touch_origin := species_scroll.global_position + Vector2(species_scroll.size.x * 0.5, minf(300.0, species_scroll.size.y * 0.72))
+	var touch_press := InputEventScreenTouch.new()
+	touch_press.index = 0
+	touch_press.position = touch_origin
+	touch_press.pressed = true
+	scene.get_viewport().push_input(touch_press, true)
 	await process_frame
-	var paged_species_position := species_scroll.scroll_vertical
-	species_scroll_up.pressed.emit()
+	var touch_drag := InputEventScreenDrag.new()
+	touch_drag.index = 0
+	touch_drag.position = touch_origin - Vector2(0, 220)
+	touch_drag.relative = Vector2(0, -220)
+	scene.get_viewport().push_input(touch_drag, true)
 	await process_frame
-	check(paged_species_position > 0 and species_scroll.scroll_vertical < paged_species_position, "species touch paging moves the roster down and back up without a drag gesture")
+	var touch_release := InputEventScreenTouch.new()
+	touch_release.index = 0
+	touch_release.position = touch_drag.position
+	touch_release.pressed = false
+	scene.get_viewport().push_input(touch_release, true)
+	await process_frame
+	check(species_scroll.scroll_vertical > 0, "dragging a finger upward over a species card scrolls the roster")
 	species_scroll.scroll_vertical = 160
 	await process_frame
 	(scene.find_child("OnboardingSpeciesAction_scraproot", true, false) as Button).pressed.emit()
