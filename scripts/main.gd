@@ -179,6 +179,7 @@ func build_shell() -> void:
 
 	safe_container = MarginContainer.new()
 	safe_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	safe_container.clip_contents = true
 	add_child(safe_container)
 	apply_safe_area()
 

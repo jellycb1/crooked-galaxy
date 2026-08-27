@@ -584,7 +584,8 @@ static func loadout_toolbar(host: CrookedUIFactory, state: StateScript) -> VBoxC
 		var summary := text("ARSENAL_LOADOUT_SUMMARY", "%d/%d PEÇAS · %s / %s", [saved_count, Rules.EQUIPMENT_SLOTS.size(), weapon_name, armor_name])
 		var summary_label := host.label(summary, UIDesignSystem.FONT_CAPTION, host.MUTED)
 		summary_label.custom_minimum_size = Vector2.ZERO
-		summary_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		summary_label.max_lines_visible = 2
 		box.add_child(summary_label)
 		var actions := HBoxContainer.new()
 		actions.add_theme_constant_override("separation", 5)
@@ -619,15 +620,18 @@ static func inventory_item_card(host: CrookedUIFactory, state: StateScript, item
 	details.custom_minimum_size = Vector2.ZERO
 	row.add_child(details)
 	var item_name := host.label(EquipmentPresentation.localized_item_field(item, "name"), UIDesignSystem.FONT_BODY, host.INK)
-	item_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	item_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	item_name.max_lines_visible = 2
 	details.add_child(item_name)
 	var stat_line := host.label(text("ARSENAL_ITEM_STATS", "%s · %s · +%d poder", [EquipmentPresentation.localized_rarity(str(item.rarity)), EquipmentPresentation.localized_slot(str(item.slot)), int(item.power)]), UIDesignSystem.FONT_CAPTION, Color(str(item.color)))
-	stat_line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	stat_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	stat_line.max_lines_visible = 2
 	details.add_child(stat_line)
 	var origin_id := str(item.get("origin_planet_id", ""))
 	if not origin_id.is_empty():
 		var origin_line := host.label(text("REWARD_ORIGIN", "ORIGEM · %s", [localized_content("planet", Content.get_planet(origin_id), "name").to_upper()]), UIDesignSystem.FONT_CAPTION, host.CYAN)
-		origin_line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		origin_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		origin_line.max_lines_visible = 2
 		details.add_child(origin_line)
 	if Rules.has_workshop_investment(item):
 		var workshop_parts: Array[String] = []
@@ -635,10 +639,14 @@ static func inventory_item_card(host: CrookedUIFactory, state: StateScript, item
 			workshop_parts.append(text("ARSENAL_CALIBRATIONS", "%d calib.", [int(item.power_upgrades)]))
 		if int(item.get("integrity_upgrades", 0)) > 0:
 			workshop_parts.append(text("ARSENAL_REINFORCEMENTS", "%d reforços · +%d vida", [int(item.integrity_upgrades), int(item.integrity_upgrades) * Rules.INTEGRITY_HEALTH_PER_LEVEL]))
-		details.add_child(host.label(text("ARSENAL_WORKSHOP_ITEM", "◇ OFICINA · %s", [" · ".join(workshop_parts)]), UIDesignSystem.FONT_CAPTION, host.CYAN))
+		var workshop_line := host.label(text("ARSENAL_WORKSHOP_ITEM", "◇ OFICINA · %s", [" · ".join(workshop_parts)]), UIDesignSystem.FONT_CAPTION, host.CYAN)
+		workshop_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		workshop_line.max_lines_visible = 2
+		details.add_child(workshop_line)
 	if item.has("trait"):
 		var trait_line := host.label("◆ %s · %s" % [EquipmentPresentation.localized_trait_field(item.trait, "name"), EquipmentPresentation.localized_trait_field(item.trait, "description")], UIDesignSystem.FONT_CAPTION, host.GOLD)
-		trait_line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		trait_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		trait_line.max_lines_visible = 3
 		details.add_child(trait_line)
 	var current: Dictionary = state.player[str(item.slot)]
 	var equipped := str(current.get("id", "")) == str(item.get("id", ""))
@@ -701,16 +709,19 @@ static func workshop_upgrade_card(host: CrookedUIFactory, state: StateScript, sl
 	box.add_child(host.label(EquipmentPresentation.localized_slot(slot).to_upper(), UIDesignSystem.FONT_CAPTION, host.MUTED))
 	var item_label := host.label("%s · +%d" % [EquipmentPresentation.localized_item_field(item, "name"), int(item.power)], UIDesignSystem.FONT_BODY, host.INK)
 	item_label.custom_minimum_size = Vector2.ZERO
-	item_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	item_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	item_label.max_lines_visible = 2
 	box.add_child(item_label)
 	var workshop_status := host.label(text("ARSENAL_UPGRADE_STATUS", "CAL %d · REF %d/%d · +%d VIDA", [calibration_level, integrity_level, Rules.MAX_INTEGRITY_UPGRADES, integrity_level * Rules.INTEGRITY_HEALTH_PER_LEVEL]), UIDesignSystem.FONT_CAPTION, host.CYAN if calibration_level > 0 or integrity_level > 0 else host.MUTED)
 	workshop_status.custom_minimum_size = Vector2.ZERO
-	workshop_status.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	workshop_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	workshop_status.max_lines_visible = 2
 	box.add_child(workshop_status)
 	if item.has("trait"):
 		var trait_label := host.label("◆ %s" % EquipmentPresentation.localized_trait_field(item.trait, "name"), UIDesignSystem.FONT_CAPTION, host.GOLD)
 		trait_label.custom_minimum_size = Vector2.ZERO
-		trait_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		trait_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		trait_label.max_lines_visible = 2
 		box.add_child(trait_label)
 	var actions := VBoxContainer.new()
 	actions.add_theme_constant_override("separation", 5)

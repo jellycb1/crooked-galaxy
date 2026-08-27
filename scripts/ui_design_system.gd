@@ -12,7 +12,7 @@ const LOGICAL_VIEWPORT := Vector2(720.0, 1280.0)
 const PHYSICAL_TARGET := Vector2(450.0, 800.0)
 const TARGET_SCALE := PHYSICAL_TARGET.x / LOGICAL_VIEWPORT.x
 
-const SAFE_MARGIN_X := 30
+const SAFE_MARGIN_X := 42
 const SAFE_MARGIN_TOP := 28
 const SAFE_MARGIN_BOTTOM := 24
 const SHELL_GAP := 16
@@ -99,4 +99,3 @@ static func composition_for(screen_id: String) -> Dictionary:
 
 static func validate_visible_action_count(action_count: int) -> bool:
 	return action_count >= 1 and action_count <= MAX_SIMULTANEOUS_PRIMARY_ACTIONS
-

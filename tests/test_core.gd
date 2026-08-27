@@ -116,7 +116,7 @@ func test_bounty_streak_rewards() -> void:
 	check(int(capped_patrol.minutes) == 480 and bool(capped_patrol.capped), "AFK rewards cap at eight hours")
 	check(int(Rules.offline_patrol_rewards(3600.0, 3, 0).credits) == 0, "AFK patrol requires a completed first bounty")
 	var safe_margins := Rules.safe_content_margins(Vector2(720, 1280), Vector2(1080, 2400), Rect2(0, 90, 1080, 2220))
-	check(int(safe_margins.x) == 30 and int(safe_margins.z) == 30, "safe-area calculation preserves base horizontal margins")
+	check(int(safe_margins.x) == 42 and int(safe_margins.z) == 42, "safe-area calculation preserves conservative Android horizontal margins")
 	check(int(safe_margins.y) == 48 and int(safe_margins.w) == 48, "safe-area calculation converts physical top and bottom insets")
 
 

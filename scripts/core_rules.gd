@@ -428,7 +428,7 @@ static func offline_patrol_rewards(elapsed_seconds: float, completed_planets: in
 	}
 
 
-static func safe_content_margins(viewport_size: Vector2, screen_size: Vector2, safe_rect: Rect2, base := Vector4(30.0, 28.0, 30.0, 24.0)) -> Vector4:
+static func safe_content_margins(viewport_size: Vector2, screen_size: Vector2, safe_rect: Rect2, base := Vector4(42.0, 28.0, 42.0, 24.0)) -> Vector4:
 	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0 or screen_size.x <= 0.0 or screen_size.y <= 0.0:
 		return base
 	var scale_x := viewport_size.x / screen_size.x

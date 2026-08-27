@@ -24,6 +24,12 @@ func run_text_audit() -> void:
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
+	# Exercise a conservative curved-screen gutter in addition to the regular
+	# 450x800 capture. Some Android vendors report no lateral cutout even though
+	# rounded glass still needs more breathing room than the desktop viewport.
+	scene.safe_container.add_theme_constant_override("margin_left", 54)
+	scene.safe_container.add_theme_constant_override("margin_right", 54)
+	await process_frame
 	await audit_scaled_screen(scene, "bounty board hub")
 
 	state.phase = state.Phase.BRIEFING
@@ -103,12 +109,16 @@ func run_text_audit() -> void:
 
 
 func audit_scaled_screen(scene: Control, context: String) -> void:
+	await process_frame
+	await process_frame
+	audit_label_geometry(scene, context)
 	for candidate in scene.content.find_children("*", "Control", true, false):
 		var control := candidate as Control
 		if (control is Label or control is Button) and control.has_theme_font_size_override("font_size"):
 			control.add_theme_font_size_override("font_size", ceili(float(control.get_theme_font_size("font_size")) * 1.25))
 	await process_frame
 	await process_frame
+	audit_label_geometry(scene, "%s · 125%% text" % context)
 	var viewport_size := scene.size
 	for candidate in scene.content.find_children("*", "Button", true, false):
 		var button := candidate as Button
@@ -118,6 +128,22 @@ func audit_scaled_screen(scene: Control, context: String) -> void:
 		check(button.size.y >= 40.0, "%s expanded action keeps its touch target: %s" % [context, button.name])
 		if not has_scroll_ancestor(button):
 			check(button.global_position.y >= -0.5 and button.global_position.y + button.size.y <= viewport_size.y + 0.5, "%s fixed action stays vertically visible: %s '%s' (y %.1f + h %.1f / %.1f)" % [context, button.name, button.text, button.global_position.y, button.size.y, viewport_size.y])
+
+
+func audit_label_geometry(scene: Control, context: String) -> void:
+	var safe_rect: Rect2 = scene.safe_container.get_global_rect()
+	for candidate in scene.find_children("*", "Label", true, false):
+		var text_label := candidate as Label
+		if not text_label.is_visible_in_tree() or text_label.text.strip_edges().is_empty():
+			continue
+		var rect := text_label.get_global_rect()
+		check(rect.position.x >= safe_rect.position.x - 0.5 and rect.end.x <= safe_rect.end.x + 0.5, "%s label control stays inside horizontal safe area: %s '%s' (x %.1f..%.1f / %.1f..%.1f)" % [context, text_label.name, text_label.text, rect.position.x, rect.end.x, safe_rect.position.x, safe_rect.end.x])
+		if text_label.autowrap_mode != TextServer.AUTOWRAP_OFF or text_label.clip_text or text_label.text_overrun_behavior != TextServer.OVERRUN_NO_TRIMMING:
+			continue
+		var font := text_label.get_theme_font("font")
+		var font_size := text_label.get_theme_font_size("font_size")
+		var required_width := font.get_multiline_string_size(text_label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+		check(required_width <= text_label.size.x + 1.0, "%s unwrapped label fits its control: %s '%s' (needs %.1f / has %.1f)" % [context, text_label.name, text_label.text, required_width, text_label.size.x])
 
 
 func has_scroll_ancestor(control: Control) -> bool:

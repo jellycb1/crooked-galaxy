@@ -128,7 +128,10 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 	reward_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	reward_row.add_child(reward_copy)
 	reward_copy.add_child(host.label(t("RIFT_UNIQUE_REWARD", "RECOMPENSA ÚNICA · %s", [EquipmentPresentation.localized_slot(str(reward.slot)).to_upper()]), UIDesignSystem.FONT_CAPTION, host.GOLD))
-	reward_copy.add_child(host.label(EquipmentPresentation.localized_item_field(reward, "name"), UIDesignSystem.FONT_BODY, host.INK))
+	var reward_name := host.label(EquipmentPresentation.localized_item_field(reward, "name"), UIDesignSystem.FONT_BODY, host.INK)
+	reward_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	reward_name.max_lines_visible = 2
+	reward_copy.add_child(reward_name)
 	if reward.has("trait"):
 		var effect := host.label("◆ %s · %s" % [EquipmentPresentation.localized_trait_field(reward.trait, "name"), EquipmentPresentation.localized_trait_field(reward.trait, "description")], UIDesignSystem.FONT_CAPTION, host.LIME)
 		effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
