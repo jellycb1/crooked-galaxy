@@ -1,6 +1,7 @@
 extends SceneTree
 
 const PortraitScript = preload("res://scripts/procedural_portrait.gd")
+const Catalog = preload("res://scripts/visual_asset_catalog.gd")
 
 var failures := 0
 
@@ -38,15 +39,21 @@ func run() -> void:
 		return unique
 	, []).size() == 8, "all eight species retain a distinct emblem accent")
 	var target_visuals := {}
+	var pending_user_art := 0
 	for target in ContentDB.TARGETS:
 		portrait.character_id = str(target.id)
 		var visual_id := portrait.visual_identity_id()
-		check(visual_id != "fallback", "target %s owns an authored procedural portrait" % str(target.id))
-		target_visuals[visual_id] = true
-	check(target_visuals.size() == ContentDB.TARGETS.size(), "every current target resolves a stable individual visual identity")
+		if str(target.get("visual_delivery", "")) == "pending_user_asset":
+			pending_user_art += 1
+			check(visual_id == "fallback" and not Catalog.asset_path("target_portrait", str(target.id)).is_empty(), "target %s keeps an explicit deterministic user-art delivery path" % str(target.id))
+		else:
+			check(visual_id != "fallback", "target %s owns an authored procedural portrait" % str(target.id))
+			target_visuals[visual_id] = true
+	check(target_visuals.size() == ContentDB.TARGETS.size() - pending_user_art, "every completed target resolves a stable individual visual identity")
+	check(pending_user_art == 4, "the level-50 pack records exactly four pending user-authored portraits")
 	portrait.queue_free()
 	if failures == 0:
-		print("PASS: hunter loadout and every target portrait resolve authored visual identities")
+		print("PASS: hunter loadout, completed portraits, and pending user-art boundaries are explicit")
 	quit(1 if failures > 0 else 0)
 
 

@@ -407,9 +407,16 @@ func run_smoke_test() -> void:
 	var planet_icons := scene.find_children("GalaxyPlanetIcon_*", "Control", true, false)
 	check(planet_icons.size() == ContentDB.PLANETS.size(), "every galaxy destination has a stable visual identity")
 	var planet_motifs := {}
+	var pending_planet_motifs := 0
 	for icon in planet_icons:
-		planet_motifs[icon.motif_id()] = true
-	check(not planet_motifs.has("unknown") and planet_motifs.size() == ContentDB.PLANETS.size(), "every canonical planet resolves a distinct visual motif")
+		var planet := ContentDB.get_planet(str(icon.planet_id))
+		if str(planet.get("visual_delivery", "")) == "pending_user_asset":
+			pending_planet_motifs += 1
+			check(icon.motif_id() == "unknown", "pending user-authored planets retain the generic visual fallback")
+		else:
+			planet_motifs[icon.motif_id()] = true
+	check(not planet_motifs.has("unknown") and planet_motifs.size() == ContentDB.PLANETS.size() - pending_planet_motifs, "every completed canonical planet resolves a distinct visual motif")
+	check(pending_planet_motifs == 1, "exactly one current planet records pending user-authored visuals")
 	check(scene.find_child("PrimaryNavBadge_galaxy", true, false) != null, "persistent unseen destinations produce a global Galaxy navigation badge")
 	scene.view_mode = "board"
 	scene.board_section = "bounties"

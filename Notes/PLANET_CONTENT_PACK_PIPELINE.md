@@ -1,6 +1,6 @@
 # Crooked Galaxy — pipeline modular de conteúdo planetário
 
-Estado: migração do catálogo atual concluída; os sete planetas foram extraídos sem alteração de comportamento.
+Estado: migração concluída e pipeline provado com um oitavo planeta original de nível 50.
 
 ## Objetivo
 
@@ -41,7 +41,7 @@ scripts/content/
 4. Substituir no `ContentDB` apenas os blocos equivalentes por constantes do pack.
 5. Adicionar teste de igualdade e âncoras de economia/combate.
 6. Executar testes de pack, conteúdo, missões, progressão, fluxo, tradução e persistência.
-7. Executar a suite completa antes de concluir a migração dos sete planetas atuais.
+7. Executar a suite completa antes de concluir qualquer migração ou novo pack.
 
 ## Regras para um planeta novo
 
@@ -68,5 +68,6 @@ Um pacote novo só entra no registry quando:
 | Cassino Quasar | `cassino_quasar.gd` | planeta, 4 alvos, 2 incidentes e 5 slots de equipamento | Migrado |
 | Aerópolis de Penhora | `aeropolis_penhora.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e rig | Migrado |
 | Arquivo Abissal N-9 | `arquivo_abissal_n9.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e implant | Migrado |
+| Verdântia Patenteada | `verdantia_patenteada.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e botas | Novo · nível 50 |
 
-O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. O próximo planeta pode, portanto, entrar por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves.
+O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Verdântia provou que um planeta novo pode entrar por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus quatro retratos e três ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos.

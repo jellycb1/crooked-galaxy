@@ -29,6 +29,6 @@ Foi simulado um termo quadrático apenas no XP necessário: `80 + 45 × (nível 
 
 ## Decisão ativa
 
-`q = 0,80` passa a ser a regra central: `80 + 45 × (nível − 1) + arredondar(0,80 × (nível − 1)²)`. A recalibração com os sete planetas atuais — incluindo a rota de 28 minutos do Arquivo Abissal — coloca o perfil de 160 combustível e rota mais barata no nível 300 no dia 360 e no nível 302 ao fim do ano. O jogador gratuito padrão termina no 153. Os desbloqueios iniciais continuam vivos: níveis 4/8/13/19/30 chegam aproximadamente nos dias 1/2/4/8/19; nível 50 no dia 51 e nível 100 no dia 175.
+`q = 0,80` passa a ser a regra central: `80 + 45 × (nível − 1) + arredondar(0,80 × (nível − 1)²)`. A recalibração com os oito planetas atuais — incluindo as rotas de 28 minutos do Arquivo Abissal e 32 minutos de Verdântia — coloca o perfil de 160 combustível e rota mais barata no nível 284 ao fim do ano. O jogador gratuito padrão termina no 144. Os desbloqueios iniciais continuam vivos: níveis 4/8/13/19/30 chegam aproximadamente nos dias 1/2/4/8/19; nível 50 no dia 51 e nível 100 no dia 193 para o perfil gratuito padrão.
 
 Esta é uma estimativa conservadora: os planetas futuros terão rotas maiores e reduzirão o número de caçadas possíveis. O coeficiente é representado por `4/5` em constantes centrais e protegido por testes nos níveis 1, 2, 10 e 100. Recompensas por missão, combustível, transportes e ofertas não mudaram.
