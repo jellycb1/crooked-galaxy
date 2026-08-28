@@ -20,8 +20,9 @@ const ResortHorizonteEventos = preload("res://scripts/content/packs/resort_horiz
 const TribunalClonesNaoAutorizados = preload("res://scripts/content/packs/tribunal_clones_nao_autorizados.gd")
 const MosteiroGravidadeReversa = preload("res://scripts/content/packs/mosteiro_gravidade_reversa.gd")
 const MercadoMemoriasUsadas = preload("res://scripts/content/packs/mercado_memorias_usadas.gd")
+const EstaleiroNaufragiosTemporais = preload("res://scripts/content/packs/estaleiro_naufragios_temporais.gd")
 
-const PACK_SCRIPTS := [DustballPrime, Congelaria, Micelia404, FerroVelhoOmega, CassinoQuasar, AeropolisPenhora, ArquivoAbissalN9, VerdantiaPatenteada, CaldeiraGarantia, CondominioLunar7, NecropoleSolarUmbral, CentralTempestades24h, MuseuAmanhaObsoleto, BibliotecaSilencioTaxado, ResortHorizonteEventos, TribunalClonesNaoAutorizados, MosteiroGravidadeReversa, MercadoMemoriasUsadas]
+const PACK_SCRIPTS := [DustballPrime, Congelaria, Micelia404, FerroVelhoOmega, CassinoQuasar, AeropolisPenhora, ArquivoAbissalN9, VerdantiaPatenteada, CaldeiraGarantia, CondominioLunar7, NecropoleSolarUmbral, CentralTempestades24h, MuseuAmanhaObsoleto, BibliotecaSilencioTaxado, ResortHorizonteEventos, TribunalClonesNaoAutorizados, MosteiroGravidadeReversa, MercadoMemoriasUsadas, EstaleiroNaufragiosTemporais]
 
 # This registry owns the deterministic public composition order. ContentDB
 # remains the stable facade consumed by gameplay, saves and tests.
@@ -45,9 +46,10 @@ const PLANETS := [
 	TribunalClonesNaoAutorizados.PLANET,
 	MosteiroGravidadeReversa.PLANET,
 	MercadoMemoriasUsadas.PLANET,
+	EstaleiroNaufragiosTemporais.PLANET,
 ]
-const TARGETS := DustballPrime.TARGETS + Congelaria.TARGETS + Micelia404.TARGETS + FerroVelhoOmega.TARGETS + CassinoQuasar.TARGETS + AeropolisPenhora.TARGETS + ArquivoAbissalN9.TARGETS + VerdantiaPatenteada.TARGETS + CaldeiraGarantia.TARGETS + CondominioLunar7.TARGETS + NecropoleSolarUmbral.TARGETS + CentralTempestades24h.TARGETS + MuseuAmanhaObsoleto.TARGETS + BibliotecaSilencioTaxado.TARGETS + ResortHorizonteEventos.TARGETS + TribunalClonesNaoAutorizados.TARGETS + MosteiroGravidadeReversa.TARGETS + MercadoMemoriasUsadas.TARGETS
-const HUNT_EVENTS := DustballPrime.EVENTS + Congelaria.EVENTS + Micelia404.EVENTS + FerroVelhoOmega.EVENTS + CassinoQuasar.EVENTS + AeropolisPenhora.EVENTS + ArquivoAbissalN9.EVENTS + VerdantiaPatenteada.EVENTS + CaldeiraGarantia.EVENTS + CondominioLunar7.EVENTS + NecropoleSolarUmbral.EVENTS + CentralTempestades24h.EVENTS + MuseuAmanhaObsoleto.EVENTS + BibliotecaSilencioTaxado.EVENTS + ResortHorizonteEventos.EVENTS + TribunalClonesNaoAutorizados.EVENTS + MosteiroGravidadeReversa.EVENTS + MercadoMemoriasUsadas.EVENTS
+const TARGETS := DustballPrime.TARGETS + Congelaria.TARGETS + Micelia404.TARGETS + FerroVelhoOmega.TARGETS + CassinoQuasar.TARGETS + AeropolisPenhora.TARGETS + ArquivoAbissalN9.TARGETS + VerdantiaPatenteada.TARGETS + CaldeiraGarantia.TARGETS + CondominioLunar7.TARGETS + NecropoleSolarUmbral.TARGETS + CentralTempestades24h.TARGETS + MuseuAmanhaObsoleto.TARGETS + BibliotecaSilencioTaxado.TARGETS + ResortHorizonteEventos.TARGETS + TribunalClonesNaoAutorizados.TARGETS + MosteiroGravidadeReversa.TARGETS + MercadoMemoriasUsadas.TARGETS + EstaleiroNaufragiosTemporais.TARGETS
+const HUNT_EVENTS := DustballPrime.EVENTS + Congelaria.EVENTS + Micelia404.EVENTS + FerroVelhoOmega.EVENTS + CassinoQuasar.EVENTS + AeropolisPenhora.EVENTS + ArquivoAbissalN9.EVENTS + VerdantiaPatenteada.EVENTS + CaldeiraGarantia.EVENTS + CondominioLunar7.EVENTS + NecropoleSolarUmbral.EVENTS + CentralTempestades24h.EVENTS + MuseuAmanhaObsoleto.EVENTS + BibliotecaSilencioTaxado.EVENTS + ResortHorizonteEventos.EVENTS + TribunalClonesNaoAutorizados.EVENTS + MosteiroGravidadeReversa.EVENTS + MercadoMemoriasUsadas.EVENTS + EstaleiroNaufragiosTemporais.EVENTS
 const STARTER_ITEM_CATALOG := DustballPrime.ITEMS
 const PLANET_ITEM_CATALOGS := {
 	"congelaria_sa": Congelaria.ITEMS,
@@ -67,6 +69,7 @@ const PLANET_ITEM_CATALOGS := {
 	"tribunal_clones_nao_autorizados": TribunalClonesNaoAutorizados.ITEMS,
 	"mosteiro_gravidade_reversa": MosteiroGravidadeReversa.ITEMS,
 	"mercado_memorias_usadas": MercadoMemoriasUsadas.ITEMS,
+	"estaleiro_naufragios_temporais": EstaleiroNaufragiosTemporais.ITEMS,
 }
 const SECONDARY_ITEM_CATALOGS := {
 	"congelaria_sa": Congelaria.SECONDARY_ITEMS,
@@ -86,6 +89,7 @@ const SECONDARY_ITEM_CATALOGS := {
 	"tribunal_clones_nao_autorizados": TribunalClonesNaoAutorizados.SECONDARY_ITEMS,
 	"mosteiro_gravidade_reversa": MosteiroGravidadeReversa.SECONDARY_ITEMS,
 	"mercado_memorias_usadas": MercadoMemoriasUsadas.SECONDARY_ITEMS,
+	"estaleiro_naufragios_temporais": EstaleiroNaufragiosTemporais.SECONDARY_ITEMS,
 }
 
 

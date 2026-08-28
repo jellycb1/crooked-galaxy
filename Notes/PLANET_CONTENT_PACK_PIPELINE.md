@@ -1,6 +1,6 @@
 # Crooked Galaxy — pipeline modular de conteúdo planetário
 
-Estado: migração concluída e pipeline continuado com dezoito planetas até ao nível 150.
+Estado: migração concluída e pipeline continuado com dezanove planetas até ao nível 160.
 
 ## Objetivo
 
@@ -79,5 +79,6 @@ Um pacote novo só entra no registry quando:
 | Tribunal de Clones Não Autorizados | `tribunal_clones_nao_autorizados.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e rigs | Novo · nível 130 |
 | Mosteiro da Gravidade Reversa | `mosteiro_gravidade_reversa.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e implantes | Novo · nível 140 |
 | Mercado de Memórias Usadas | `mercado_memorias_usadas.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e botas | Novo · nível 150 |
+| Estaleiro de Naufrágios Temporais | `estaleiro_naufragios_temporais.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e luvas | Novo · nível 160 |
 
-O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Os onze packs novos entre os níveis 50 e 150 provam que planetas entram por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus 44 retratos e 33 ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos.
+O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Os doze packs novos entre os níveis 50 e 160 provam que planetas entram por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus 48 retratos e 36 ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos.

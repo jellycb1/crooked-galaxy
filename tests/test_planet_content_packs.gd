@@ -21,16 +21,17 @@ const ResortHorizonte = preload("res://scripts/content/packs/resort_horizonte_ev
 const TribunalClones = preload("res://scripts/content/packs/tribunal_clones_nao_autorizados.gd")
 const MosteiroGravidade = preload("res://scripts/content/packs/mosteiro_gravidade_reversa.gd")
 const MercadoMemorias = preload("res://scripts/content/packs/mercado_memorias_usadas.gd")
+const EstaleiroTemporal = preload("res://scripts/content/packs/estaleiro_naufragios_temporais.gd")
 
 var failures := 0
 
 
 func _init() -> void:
 	check(Registry.validation_errors().is_empty(), "registered planet packs satisfy the complete content contract")
-	check(Registry.PACK_SCRIPTS.size() == 18, "the registry contains all eighteen current canonical planet packs")
-	check(Registry.PLANETS.size() == 18, "the registry composes all eighteen planets")
-	check(Registry.TARGETS.size() == 72, "the registry composes all 72 targets")
-	check(Registry.HUNT_EVENTS.size() == 36, "the registry composes all 36 hunt incidents")
+	check(Registry.PACK_SCRIPTS.size() == 19, "the registry contains all nineteen current canonical planet packs")
+	check(Registry.PLANETS.size() == 19, "the registry composes all nineteen planets")
+	check(Registry.TARGETS.size() == 76, "the registry composes all 76 targets")
+	check(Registry.HUNT_EVENTS.size() == 38, "the registry composes all 38 hunt incidents")
 	check(Registry.pack_for_planet("dustball_prime") == Dustball.PACK, "registry resolves the canonical Dustball pack")
 	check(Registry.pack_for_planet("congelaria_sa") == Congelaria.PACK, "registry resolves the canonical Congelaria pack")
 	check(Registry.pack_for_planet("micelia_404") == Micelia.PACK, "registry resolves the canonical Micelia pack")
@@ -49,6 +50,7 @@ func _init() -> void:
 	check(Registry.pack_for_planet("tribunal_clones_nao_autorizados") == TribunalClones.PACK, "registry resolves the canonical Unauthorized Clone Court pack")
 	check(Registry.pack_for_planet("mosteiro_gravidade_reversa") == MosteiroGravidade.PACK, "registry resolves the canonical Reverse Gravity Monastery pack")
 	check(Registry.pack_for_planet("mercado_memorias_usadas") == MercadoMemorias.PACK, "registry resolves the canonical Used Memory Market pack")
+	check(Registry.pack_for_planet("estaleiro_naufragios_temporais") == EstaleiroTemporal.PACK, "registry resolves the canonical Temporal Wreck Shipyard pack")
 	check(Registry.pack_for_planet("unknown").is_empty(), "unknown planet packs fail closed")
 	var detached := Registry.pack_for_planet("dustball_prime")
 	detached.planet.name = "MUTATED"
@@ -207,6 +209,14 @@ func _init() -> void:
 	check(Content.loot_slots_for_planet("mercado_memorias_usadas").count("boots") == 2, "level-150 loot deepens the universal boot slot")
 	check([MercadoMemorias.TARGETS[0].power, MercadoMemorias.TARGETS[3].power] == [1081, 1202], "level-150 combat anchors are explicit")
 	check(MercadoMemorias.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Used Memory Market target art remains explicitly assigned to the user asset pipeline")
+	check(Content.PLANETS[18] == EstaleiroTemporal.PLANET, "the level-160 planet follows Used Memory Market in canonical order")
+	check(Content.TARGETS.slice(72, 76) == EstaleiroTemporal.TARGETS, "ContentDB exposes all four Temporal Wreck Shipyard targets")
+	check(Content.HUNT_EVENTS.slice(36, 38) == EstaleiroTemporal.EVENTS, "ContentDB exposes both Temporal Wreck Shipyard incidents")
+	check(Content.PLANET_ITEM_CATALOGS.estaleiro_naufragios_temporais == EstaleiroTemporal.ITEMS, "Temporal Wreck Shipyard primary equipment remains canonical")
+	check(Content.SECONDARY_ITEM_CATALOGS.estaleiro_naufragios_temporais == EstaleiroTemporal.SECONDARY_ITEMS, "Temporal Wreck Shipyard glove catalog remains canonical")
+	check(Content.loot_slots_for_planet("estaleiro_naufragios_temporais").count("gloves") == 2, "level-160 loot deepens the universal glove slot")
+	check([EstaleiroTemporal.TARGETS[0].power, EstaleiroTemporal.TARGETS[3].power] == [1230, 1357], "level-160 combat anchors are explicit")
+	check(EstaleiroTemporal.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Temporal Wreck Shipyard target art remains explicitly assigned to the user asset pipeline")
 
 	var forged := Dustball.PACK.duplicate(true)
 	forged.targets.pop_back()
@@ -229,7 +239,7 @@ func _init() -> void:
 	check(not PackContract.is_valid(forged), "planet bosses are reserved for tier three")
 
 	if failures == 0:
-		print("PASS: all eighteen current planet packs preserve canonical content and slot progression")
+		print("PASS: all nineteen current planet packs preserve canonical content and slot progression")
 	quit(1 if failures > 0 else 0)
 
 
