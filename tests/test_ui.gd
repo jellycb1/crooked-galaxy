@@ -1,5 +1,7 @@
 extends SceneTree
 
+const MissionRules = preload("res://scripts/mission_rules.gd")
+
 var failures := 0
 
 
@@ -405,7 +407,9 @@ func run_smoke_test() -> void:
 	await process_frame
 	check(scene.find_child("GalaxyRoutes", true, false) != null, "galaxy map renders unlocked routes")
 	var planet_icons := scene.find_children("GalaxyPlanetIcon_*", "Control", true, false)
-	check(planet_icons.size() == ContentDB.PLANETS.size(), "every galaxy destination has a stable visual identity")
+	var visible_planets := ContentDB.PLANETS.slice(0, mini(ContentDB.PLANETS.size(), MissionRules.available_planets(int(state.player.level)).size() + 2))
+	check(planet_icons.size() == visible_planets.size(), "the galaxy renders unlocked routes plus exactly two future signals")
+	check(scene.find_child("GalaxyDistantSignals", true, false) != null, "distant locked content collapses into one lightweight discovery summary")
 	var planet_motifs := {}
 	var pending_planet_motifs := 0
 	for icon in planet_icons:
@@ -415,8 +419,8 @@ func run_smoke_test() -> void:
 			check(icon.motif_id() == "unknown", "pending user-authored planets retain the generic visual fallback")
 		else:
 			planet_motifs[icon.motif_id()] = true
-	check(not planet_motifs.has("unknown") and planet_motifs.size() == ContentDB.PLANETS.size() - pending_planet_motifs, "every completed canonical planet resolves a distinct visual motif")
-	check(pending_planet_motifs == 12, "exactly twelve current planets record pending user-authored visuals")
+	check(not planet_motifs.has("unknown") and planet_motifs.size() == visible_planets.size() - pending_planet_motifs, "every visible completed planet resolves a distinct visual motif")
+	check(pending_planet_motifs == visible_planets.filter(func(planet): return str(planet.get("visual_delivery", "")) == "pending_user_asset").size(), "visible pending planets retain the explicit user-art boundary")
 	check(scene.find_child("PrimaryNavBadge_galaxy", true, false) != null, "persistent unseen destinations produce a global Galaxy navigation badge")
 	scene.view_mode = "board"
 	scene.board_section = "bounties"

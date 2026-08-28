@@ -54,6 +54,7 @@ var operations_section := "daily"
 var last_hunt_remaining := -1
 var last_hunt_percent := -1
 const IDLE_BACKGROUND_PREFETCH := ["workshop", "world", "combat"]
+const GALAXY_LOCKED_PREVIEW_COUNT := 2
 
 
 func _ready() -> void:
@@ -1408,12 +1409,27 @@ func build_galaxy_map() -> void:
 	route.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	route.add_theme_constant_override("separation", 14)
 	route_scroll.add_child(route)
-	for planet in ContentDB.PLANETS:
+	var visible_planets := galaxy_visible_planets(int(GameState.player.get("level", 1)))
+	for planet in visible_planets:
 		route.add_child(planet_card(planet))
+	var concealed_count := ContentDB.PLANETS.size() - visible_planets.size()
+	if concealed_count > 0:
+		var distant_signals := panel(VBoxContainer.new(), Color("#0b1228"), 16, 12)
+		distant_signals.name = "GalaxyDistantSignals"
+		var signal_copy := distant_signals.get_child(0) as VBoxContainer
+		signal_copy.add_child(label(t("GALAXY_DISTANT_SIGNALS", "%d SINAIS DISTANTES", [concealed_count]), UIDesignSystem.FONT_BODY, MUTED))
+		signal_copy.add_child(readable_caption(t("GALAXY_DISTANT_SIGNALS_HINT", "Novas rotas serão decifradas à medida que a licença de caçador evolui.")))
+		route.add_child(distant_signals)
 	if not galaxy_focus_planet_id.is_empty():
 		var focused_planet_id := galaxy_focus_planet_id
 		galaxy_focus_planet_id = ""
 		get_tree().process_frame.connect(Callable(self, "focus_galaxy_planet").bind(render_generation, focused_planet_id, false), CONNECT_ONE_SHOT)
+
+
+func galaxy_visible_planets(level: int) -> Array:
+	var unlocked_count := MissionRulesScript.available_planets(level).size()
+	var visible_count := mini(ContentDB.PLANETS.size(), unlocked_count + GALAXY_LOCKED_PREVIEW_COUNT)
+	return ContentDB.PLANETS.slice(0, visible_count)
 
 
 func focus_galaxy_planet(expected_generation: int, planet_id: String, final_pass: bool) -> void:
