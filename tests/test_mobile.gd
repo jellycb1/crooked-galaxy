@@ -88,7 +88,7 @@ func run_mobile_audit() -> void:
 	scene.view_mode = "career"
 	scene.render()
 	await process_frame
-	check(find_label_with_text(scene, "HUNTER CAREER") != null and find_label_with_text(scene, "LEVEL 4 HUNTER") != null and find_label_with_text(scene, "7 CAPTURES · 2/11 KNOWN WORLDS") != null and find_label_with_text(scene, "NEXT LEVEL") != null and (scene.find_child("CareerProgressJump", true, false) as Button).text == "PROGRESS" and (scene.find_child("CareerArchiveJump", true, false) as Button).text == "WANTED · 44", "English career covers hunter progression, XP, discovered worlds, and section navigation")
+	check(find_label_with_text(scene, "HUNTER CAREER") != null and find_label_with_text(scene, "LEVEL 4 HUNTER") != null and find_label_with_text(scene, "7 CAPTURES · 2/12 KNOWN WORLDS") != null and find_label_with_text(scene, "NEXT LEVEL") != null and (scene.find_child("CareerProgressJump", true, false) as Button).text == "PROGRESS" and (scene.find_child("CareerArchiveJump", true, false) as Button).text == "WANTED · 48", "English career covers hunter progression, XP, discovered worlds, and section navigation")
 	check(find_label_with_text(scene, "NEXT MASTERY · GLOOP THE INCONVENIENT") != null and find_label_with_text(scene, "PLANETARY PROGRESS") != null and find_label_with_text(scene, "CLANDESTINE RIFT") != null and find_label_with_text(scene, "FIRST WARRANT") != null, "English career covers mastery direction, planetary ladder, parallel progress, and milestones")
 	state.claim_career_milestone("first_warrant")
 	await process_frame

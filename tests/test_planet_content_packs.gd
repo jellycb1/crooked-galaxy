@@ -14,16 +14,17 @@ const Verdantia = preload("res://scripts/content/packs/verdantia_patenteada.gd")
 const Caldeira = preload("res://scripts/content/packs/caldeira_garantia.gd")
 const CondominioLunar = preload("res://scripts/content/packs/condominio_lunar_7.gd")
 const NecropoleSolar = preload("res://scripts/content/packs/necropole_solar_umbral.gd")
+const CentralTempestades = preload("res://scripts/content/packs/central_tempestades_24h.gd")
 
 var failures := 0
 
 
 func _init() -> void:
 	check(Registry.validation_errors().is_empty(), "registered planet packs satisfy the complete content contract")
-	check(Registry.PACK_SCRIPTS.size() == 11, "the registry contains all eleven current canonical planet packs")
-	check(Registry.PLANETS.size() == 11, "the registry composes all eleven planets")
-	check(Registry.TARGETS.size() == 44, "the registry composes all 44 targets")
-	check(Registry.HUNT_EVENTS.size() == 22, "the registry composes all 22 hunt incidents")
+	check(Registry.PACK_SCRIPTS.size() == 12, "the registry contains all twelve current canonical planet packs")
+	check(Registry.PLANETS.size() == 12, "the registry composes all twelve planets")
+	check(Registry.TARGETS.size() == 48, "the registry composes all 48 targets")
+	check(Registry.HUNT_EVENTS.size() == 24, "the registry composes all 24 hunt incidents")
 	check(Registry.pack_for_planet("dustball_prime") == Dustball.PACK, "registry resolves the canonical Dustball pack")
 	check(Registry.pack_for_planet("congelaria_sa") == Congelaria.PACK, "registry resolves the canonical Congelaria pack")
 	check(Registry.pack_for_planet("micelia_404") == Micelia.PACK, "registry resolves the canonical Micelia pack")
@@ -35,6 +36,7 @@ func _init() -> void:
 	check(Registry.pack_for_planet("caldeira_garantia") == Caldeira.PACK, "registry resolves the canonical Warranty Caldera pack")
 	check(Registry.pack_for_planet("condominio_lunar_7") == CondominioLunar.PACK, "registry resolves the canonical Lunar Estate pack")
 	check(Registry.pack_for_planet("necropole_solar_umbral") == NecropoleSolar.PACK, "registry resolves the canonical Umbral Solar Necropolis pack")
+	check(Registry.pack_for_planet("central_tempestades_24h") == CentralTempestades.PACK, "registry resolves the canonical 24h Storm Center pack")
 	check(Registry.pack_for_planet("unknown").is_empty(), "unknown planet packs fail closed")
 	var detached := Registry.pack_for_planet("dustball_prime")
 	detached.planet.name = "MUTATED"
@@ -132,6 +134,15 @@ func _init() -> void:
 	check([NecropoleSolar.TARGETS[0].power, NecropoleSolar.TARGETS[3].power] == [392, 444], "level-80 combat anchors are explicit")
 	check(NecropoleSolar.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Solar Necropolis target art remains explicitly assigned to the user asset pipeline")
 
+	check(Content.PLANETS[11] == CentralTempestades.PLANET, "the level-90 planet follows Solar Necropolis in canonical order")
+	check(Content.TARGETS.slice(44, 48) == CentralTempestades.TARGETS, "ContentDB exposes all four Storm Center targets")
+	check(Content.HUNT_EVENTS.slice(22, 24) == CentralTempestades.EVENTS, "ContentDB exposes both Storm Center incidents")
+	check(Content.PLANET_ITEM_CATALOGS.central_tempestades_24h == CentralTempestades.ITEMS, "Storm Center primary equipment remains canonical")
+	check(Content.SECONDARY_ITEM_CATALOGS.central_tempestades_24h == CentralTempestades.SECONDARY_ITEMS, "Storm Center implant catalog remains canonical")
+	check(Content.loot_slots_for_planet("central_tempestades_24h") == ["weapon", "weapon", "weapon", "armor", "armor", "implant", "implant"], "Storm Center deepens implants without opening Rift-only slots")
+	check([CentralTempestades.TARGETS[0].power, CentralTempestades.TARGETS[3].power] == [457, 516], "level-90 combat anchors are explicit")
+	check(CentralTempestades.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Storm Center target art remains explicitly assigned to the user asset pipeline")
+
 	var forged := Dustball.PACK.duplicate(true)
 	forged.targets.pop_back()
 	check(not PackContract.is_valid(forged), "incomplete planet packs are rejected")
@@ -153,7 +164,7 @@ func _init() -> void:
 	check(not PackContract.is_valid(forged), "planet bosses are reserved for tier three")
 
 	if failures == 0:
-		print("PASS: all eleven current planet packs preserve canonical content and slot progression")
+		print("PASS: all twelve current planet packs preserve canonical content and slot progression")
 	quit(1 if failures > 0 else 0)
 
 

@@ -409,6 +409,8 @@ static func loot_slots_for_planet(planet_id: String) -> Array[String]:
 			return ["weapon", "weapon", "weapon", "armor", "armor", "helmet", "helmet"]
 		"necropole_solar_umbral":
 			return ["weapon", "weapon", "weapon", "armor", "armor", "rig", "rig"]
+		"central_tempestades_24h":
+			return ["weapon", "weapon", "weapon", "armor", "armor", "implant", "implant"]
 		_:
 			return ["weapon", "weapon", "weapon", "armor", "armor"]
 

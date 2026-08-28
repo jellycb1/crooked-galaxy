@@ -19,7 +19,7 @@ func _init() -> void:
 	check(YearOne.days_for_hunts(1825, 5) == 365 and YearOne.days_for_hunts(1825, 20) == 92, "pacing conversion exposes faster content consumption instead of treating five hunts as a cap")
 	check(MonetizationRules.DAILY_HUNT_FUEL == 100 and MonetizationRules.HUNT_FUEL_REFILL_AMOUNT == 20 and MonetizationRules.HUNT_FUEL_REFILL_COSTS == [1, 5, 20], "the year-one model uses the approved transparent fuel reserve and refill ladder")
 	check(YearOne.days_for_hunts(0, 0) == 0, "pacing conversion handles an empty horizon safely")
-	check(ContentDB.PLANETS.size() == 11 and ContentDB.TARGETS.size() == 44, "the audit distinguishes implemented planet packs from the launch catalog")
+	check(ContentDB.PLANETS.size() == 12 and ContentDB.TARGETS.size() == 48, "the audit distinguishes implemented planet packs from the launch catalog")
 	for index in ContentDB.PLANETS.size():
 		check(int(ContentDB.PLANETS[index].unlock_level) == levels[index], "implemented planet %d follows the year-one unlock contract" % (index + 1))
 

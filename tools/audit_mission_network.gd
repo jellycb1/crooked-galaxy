@@ -8,7 +8,7 @@ const Content = preload("res://scripts/content_db.gd")
 const Builds = preload("res://tools/simulation_builds.gd")
 const Transport = preload("res://scripts/transport_rules.gd")
 
-const CHECKPOINT_LEVELS := [1, 4, 8, 13, 19, 30, 40, 50, 60, 70, 80]
+const CHECKPOINT_LEVELS := [1, 4, 8, 13, 19, 30, 40, 50, 60, 70, 80, 90]
 
 
 func _init() -> void:
@@ -52,7 +52,7 @@ static func print_progression_timeline() -> void:
 	var elapsed := 0.0
 	var known_worlds := Missions.available_planets(int(player.level)).size()
 	print("\nSTANDARD-OFFER WORLD DISCOVERY · no transport")
-	for _capture in 700:
+	for _capture in 950:
 		var offers := Missions.board_offers(player)
 		if offers.size() < 2:
 			break

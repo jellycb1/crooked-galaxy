@@ -298,7 +298,7 @@ Todos são componentes pequenos e reutilizam o retrato do alvo e ícones globais
 
 ### 6.4 Incidentes de viagem
 
-Conteúdo atual: 22 incidentes, dois por cada um dos onze planetas de gameplay. Cada incidente contém três opções/ícones de escolha no código.
+Conteúdo atual: 24 incidentes, dois por cada um dos doze planetas de gameplay. Cada incidente contém três opções/ícones de escolha no código.
 
 Produção recomendada por incidente:
 
@@ -306,7 +306,7 @@ Produção recomendada por incidente:
 - 3 pictogramas de escolha podem reutilizar uma biblioteca comum;
 - 1 variação visual para resultado positivo/negativo feita por cor e efeitos, não por nova pintura.
 
-Meta de lançamento: 70 incidentes se mantivermos dois por cada um dos 35 planetas. Faltam 48 identidades de incidente para o catálogo anual.
+Meta de lançamento: 70 incidentes se mantivermos dois por cada um dos 35 planetas. Faltam 46 identidades de incidente para o catálogo anual.
 
 Para controlar custo, criar primeiro 12 pictogramas universais de decisão: atacar, negociar, hackear, fugir, investigar, reparar, arriscar, pagar, ajudar, roubar, esperar e improvisar.
 
@@ -318,10 +318,10 @@ Para controlar custo, criar primeiro 12 pictogramas universais de decisão: atac
 
 | Conteúdo | Atual | Meta de lançamento | Falta |
 | --- | ---: | ---: | ---: |
-| Planetas | 11 | 35 | 24 |
-| Alvos | 44 | 140 | 96 |
+| Planetas | 12 | 35 | 23 |
+| Alvos | 48 | 140 | 92 |
 | Alvos por planeta | 4 | 4 | — |
-| Incidentes | 22 | 70 recomendados | 48 |
+| Incidentes | 24 | 70 recomendados | 46 |
 
 Planetas atuais:
 
@@ -335,7 +335,8 @@ Planetas atuais:
 - Verdântia Patenteada (assets pendentes do utilizador);
 - Caldeira de Garantia (assets pendentes do utilizador);
 - Condomínio Lunar 7 (assets pendentes do utilizador);
-- Necrópole Solar Umbral (assets pendentes do utilizador).
+- Necrópole Solar Umbral (assets pendentes do utilizador);
+- Central de Tempestades 24h (assets pendentes do utilizador).
 
 ### 7.2 Pacote visual mínimo por planeta
 
@@ -952,11 +953,11 @@ Estas capturas são a matriz de validação. Não representam 102 ilustrações 
 | --- | ---: |
 | Ilustrações de classe | 3 |
 | Bases modulares de raça e camadas | aproximadamente 96 unidades |
-| Retratos dos 44 alvos atuais | 44 |
-| Habitats dos 11 planetas atuais | 11 |
-| Camadas de arena dos 11 planetas | 11 |
-| Medalhões dos 11 planetas atuais | 11 |
-| Incidentes atuais | 22 |
+| Retratos dos 48 alvos atuais | 48 |
+| Habitats dos 12 planetas atuais | 12 |
+| Camadas de arena dos 12 planetas | 12 |
+| Medalhões dos 12 planetas atuais | 12 |
+| Incidentes atuais | 24 |
 | Transportes | 4 |
 | NPCs de serviço | 5 |
 | Inimigos atuais da Fenda | 24 |
@@ -969,12 +970,12 @@ Estas capturas são a matriz de validação. Não representam 102 ilustrações 
 
 | Família | Meta total | Falta após conteúdo atual |
 | --- | ---: | ---: |
-| Habitats | 35 | 24 |
-| Arenas/camadas de chão | 35 | 24 |
-| Medalhões | 35 | 24 |
-| Alvos | 140 | 96 |
-| Incidentes | 70 | 48 |
-| Packs materiais planetários para equipamento | 35 | 24 packs |
+| Habitats | 35 | 23 |
+| Arenas/camadas de chão | 35 | 23 |
+| Medalhões | 35 | 23 |
+| Alvos | 140 | 92 |
+| Incidentes | 70 | 46 |
+| Packs materiais planetários para equipamento | 35 | 23 packs |
 
 Fenda, eventos sazonais e futuros transportes ainda não têm uma meta anual fechada. Devem usar templates escaláveis e receber orçamento separado.
 
@@ -1006,17 +1007,17 @@ Nada se expande antes de estes testes funcionarem juntos numa captura 450×800.
 
 ### Lote 2 — ciclo central atual
 
-1. onze habitats e medalhões;
-2. 44 alvos;
-3. 22 incidentes;
-4. onze arenas;
+1. doze habitats e medalhões;
+2. 48 alvos;
+3. 24 incidentes;
+4. doze arenas;
 5. VFX de combate;
 6. vitória, derrota e recompensa.
 
 ### Lote 3 — equipamento, economia e mobilidade
 
 1. kit modular de itens;
-2. packs visuais dos onze planetas;
+2. packs visuais dos doze planetas;
 3. quatro transportes;
 4. mercado e ícones premium;
 5. recibos e estados de compra.

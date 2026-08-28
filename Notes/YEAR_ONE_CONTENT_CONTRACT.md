@@ -4,11 +4,11 @@ Estado: fundação executável revista para a curva quadrática, 28 de agosto de
 
 ## Promessa mensurável
 
-O teto de produção conserva margem sobre o perfil mecanicamente mais rápido hoje possível: 160 unidades de combustível por dia e escolha sistemática da rota mais barata entre os três mandados. Nos onze planetas atuais, esse perfil completa 4 717 caçadas e termina o ano no nível 247. A rota adicional de 44 minutos reduz naturalmente a velocidade relativamente ao catálogo anterior. O catálogo até nível 320 permanece como margem de segurança para futuras alterações de rotas, XP e economia.
+O teto de produção conserva margem sobre o perfil mecanicamente mais rápido hoje possível: 160 unidades de combustível por dia e escolha sistemática da rota mais barata entre os três mandados. Nos doze planetas atuais, esse perfil completa 4 369 caçadas e termina o ano no nível 237. A rota adicional de 48 minutos reduz naturalmente a velocidade relativamente ao catálogo anterior. O catálogo até nível 320 permanece como margem de segurança para futuras alterações de rotas, XP e economia.
 
 Os cinco planetas iniciais mantêm os níveis 1, 4, 8, 13 e 19. A partir daí, um planeta é desbloqueado a cada dez níveis: 30, 40, 50 e assim sucessivamente até 320. Isso define 35 planetas e, com quatro identidades de alvo por planeta, 140 alvos no catálogo completo de lançamento.
 
-O conteúdo de gameplay cobre agora onze planetas e 44 alvos até ao nível 80; faltam 24 habitats e 96 identidades para cumprir este eixo. Necrópole Solar Umbral continua o pipeline com uma estação funerária em torno de um sol morto, quatro alvos, dois incidentes, famílias de equipamento e tradução integral. Os assets visuais dos quatro packs mais recentes pertencem ao pipeline de entregas do utilizador e permanecem em fallback explícito.
+O conteúdo de gameplay cobre agora doze planetas e 48 alvos até ao nível 90; faltam 23 habitats e 92 identidades para cumprir este eixo. Central de Tempestades 24h continua o pipeline com um centro de atendimento meteorológico suspenso num gigante gasoso, quatro alvos, dois incidentes, famílias de equipamento e tradução integral. Os assets visuais dos cinco packs mais recentes pertencem ao pipeline de entregas do utilizador e permanecem em fallback explícito.
 
 ## Curva de progressão
 
@@ -18,12 +18,12 @@ Cinco caçadas padrão por dia continuam a ser uma referência comparável, não
 
 | Combustível/dia | Estratégia | Caçadas/dia | Nível no dia 365 | Dia nível 30 | Dia nível 100 | Dia nível 300 |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: |
-| 100 | Mandado padrão | 4,3 | 127 | 19 | 223 | — |
-| 100 | Rota mais barata | 8,1 | 189 | 11 | 111 | — |
-| 160 | Mandado padrão | 6,7 | 167 | 12 | 135 | — |
-| 160 | Rota mais barata | 12,9 | 247 | 7 | 68 | — |
+| 100 | Mandado padrão | 4,1 | 124 | 19 | 229 | — |
+| 100 | Rota mais barata | 7,6 | 181 | 11 | 111 | — |
+| 160 | Mandado padrão | 6,4 | 162 | 12 | 138 | — |
+| 160 | Rota mais barata | 12,0 | 237 | 7 | 68 | — |
 
-Esta projeção já incorpora as rotas de 28 minutos do Arquivo Abissal, 32 minutos de Verdântia, 36 minutos de Caldeira, 40 minutos do Condomínio Lunar e 44 minutos da Necrópole Solar. Futuros planetas tendem a aumentar a duração média e reduzir o número de caçadas na mesma reserva; o nível 320 continua um teto de segurança de produção, não uma promessa de que todo jogador verá cada planeta no primeiro ano.
+Esta projeção já incorpora as rotas de 28 minutos do Arquivo Abissal, 32 minutos de Verdântia, 36 minutos de Caldeira, 40 minutos do Condomínio Lunar, 44 minutos da Necrópole Solar e 48 minutos da Central de Tempestades. Futuros planetas tendem a aumentar a duração média e reduzir o número de caçadas na mesma reserva; o nível 320 continua um teto de segurança de produção, não uma promessa de que todo jogador verá cada planeta no primeiro ano.
 
 ## Comportamento da rede de missões
 
