@@ -24,6 +24,8 @@ A simulação de 365 dias com os seis planetas atuais e sem recargas pagas produ
 | Oferta padrão | 2 383 | 6,5 | 389 | 91,0 |
 | Rota disponível mais barata | 4 705 | 12,9 | 766 | 96,4 |
 
+Com as três recargas, a reserva total de 160 produz 3 924 caçadas/ano (10,8/dia, nível 631) na estratégia padrão e 7 569 (20,7/dia, nível 1 200) escolhendo sempre a rota disponível mais barata. Estes números usam a curva de XP linear da versão 0.48.0 e demonstram por que combustível, sozinho, não controla a velocidade de níveis.
+
 Isto não invalida os 100 pontos: confirma que a reserva limita o jogo e que os destinos criam escolhas reais. Porém, também demonstra que o catálogo até nível 300 não basta para quem esgota a reserva escolhendo rotas curtas. A cadência dos 27 planetas futuros deve aumentar custos de rota de forma controlada e a promessa anual deve ser reavaliada contra o jogador eficiente, não apenas contra cinco caçadas fixas.
 
 ## Limites
