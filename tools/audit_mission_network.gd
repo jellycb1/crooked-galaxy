@@ -8,7 +8,7 @@ const Content = preload("res://scripts/content_db.gd")
 const Builds = preload("res://tools/simulation_builds.gd")
 const Transport = preload("res://scripts/transport_rules.gd")
 
-const CHECKPOINT_LEVELS := [1, 4, 8, 13, 19, 30, 40, 50, 60, 70]
+const CHECKPOINT_LEVELS := [1, 4, 8, 13, 19, 30, 40, 50, 60, 70, 80]
 
 
 func _init() -> void:

@@ -15,12 +15,12 @@ Crooked Galaxy is Android-first, fully playable in Portuguese and English, and c
 - Eight cosmetic-only races with 81 appearance recipes each; race never changes mechanics.
 - Five attributes: Strength, Vitality, Dexterity, Intelligence, and Cunning.
 - One universal nine-slot equipment model for every current and future class.
-- Ten modular mission worlds through level 70, containing 40 targets and 20 incidents.
+- Eleven modular mission worlds through level 80, containing 44 targets and 22 incidents.
 - Three deterministic interplanetary warrant offers after the guided first capture.
 - Wall-clock hunts that continue while navigating other interfaces, suspending, closing, or reopening the game.
 - Permanent transports that reduce travel time only; fuel cost remains tied to base route length.
 - Automatic combat with class signatures, enemy profiles, build odds, tactical equipment, and persisted evidence.
-- Procedural item instances, three active rarities, planet kits, traits, workshop investment, two loadouts, protection, recycling, pagination, and a 680-series collection.
+- Procedural item instances, three active rarities, planet kits, traits, workshop investment, two loadouts, protection, recycling, pagination, and a 740-series collection.
 - Daily objectives, weekly Operations, target mastery, capture streaks, career milestones, and an eight-hour AFK patrol cap.
 - Two keyed Fenda Clandestina realities with twelve enemies each and one global entry per UTC day.
 - Local monetization simulation using Credits, Scrap, and Warp Chips; no real-money billing is integrated.
