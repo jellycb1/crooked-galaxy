@@ -57,7 +57,7 @@ Este documento cobre:
 | `assets/boot_splash.png` | Splash de arranque | `PROD` | Manter até existir uma ilustração de marca final aprovada. |
 | `assets/icon.svg` | Ícone base da aplicação | `CODE/TEMP` | Precisa de revisão final para loja e dispositivos. |
 
-Os antigos retratos de classe foram rejeitados e não fazem parte deste inventário como assets válidos. O rascunho `art_drafts/orbital_gunslinger_terran/...REJECTED.png` também não é produção.
+Os antigos retratos de classe foram rejeitados e não fazem parte deste inventário como assets válidos. O respetivo rascunho local foi removido; a decisão permanece documentada no histórico Git e em `ORIGINAL_VISUAL_ASSETS.md`.
 
 ---
 

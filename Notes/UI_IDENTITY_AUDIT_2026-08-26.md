@@ -2,7 +2,7 @@
 
 ## Status
 
-The current reachable interface is complete against the approved Crooked Galaxy hierarchy at the physical Android review size. This means visual consistency, readable information priority, stable mobile interaction, and test coverage; it does not claim that provisional character portraits are final production illustration.
+Archived completion snapshot. It records the 2026-08-26 validation pass; current visual authority lives in `VISUAL_DIRECTION.md`, `UI_ASSET_INVENTORY_PT.md`, and the executable UI tests.
 
 No new raster was generated in this pass. The explicitly approved `assets/ui/panel_frame_space.png` is reused as a 9-slice focal frame, while supporting components remain code-native.
 
@@ -32,7 +32,7 @@ No new raster was generated in this pass. The explicitly approved `assets/ui/pan
 - The capture tool removes the obsolete `ui_arsenal_settings.png` artifact from the former prototype settings surface without deleting unrelated captures.
 - PT/EN rendering, 125% text expansion, mobile safe areas, scrolling, Android Back, focus restoration and touch targets remain covered by the project suite.
 - Focal identity is asserted as `StyleBoxTexture` in renderer/integration tests. The combat arena separately asserts its two-pixel material edge.
-- A local 32.02 MB ARM64 inspection APK includes the approved UI frame and required original art, excludes proprietary study references, and passes package/version/API/signature validation. It remains under `builds/android` and was not published.
+- A local 32.02 MB ARM64 inspection APK included the approved UI frame and required original art, excluded proprietary study references, and passed package/version/API/signature validation. That regenerable inspection artifact is intentionally not retained.
 
 ## Performance result
 

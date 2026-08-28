@@ -49,7 +49,7 @@ The initial generated class trio was rejected because its serious tactical conce
 - Decorative identity stays in the corners. The middle of every edge and at least 70% of the center remain calm, uniform, and safe for 9-slice stretching and localized text.
 - Slight dents, uneven line weight, and one deliberately crooked fitting provide personality; realistic grime, dense bolts, circuitry, holographic glow, and ornamental clutter do not.
 - Illustrated frames are hierarchy markers, not universal card chrome. Use them for the focused panel or decisive dossier on a screen while compact selectors and supporting facts remain simpler.
-- The first validated use is the class-detail dossier in `builds/ui_classes.png`, where the frame preserves every line of copy at the physical 450×800 target.
+- The first validated use was the class-detail dossier at the physical 450×800 target. The capture harness reproduces that check; generated files under `builds/` are intentionally not retained.
 
 ### Interface identity hierarchy
 

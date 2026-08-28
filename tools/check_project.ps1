@@ -92,6 +92,16 @@ if ($Fast) {
 $SuiteStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 $Profile = if ($Fast) { "fast" } else { "full" }
 Write-Host "Crooked Galaxy $Profile checks using $GodotExe"
+$GlobalClassCache = Join-Path $ProjectRoot ".godot\global_script_class_cache.cfg"
+if (-not (Test-Path -LiteralPath $GlobalClassCache -PathType Leaf)) {
+	Write-Host "`n[cold project import]"
+	& $GodotExe --headless --editor --path $ProjectRoot --quit
+	if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $GlobalClassCache -PathType Leaf)) {
+		throw "Godot could not initialize the global script-class cache for a clean checkout."
+	}
+}
+Write-Host "`n[repository hygiene]"
+& (Join-Path $PSScriptRoot "check_repository_hygiene.ps1")
 Write-Host "`n[reference boundaries]"
 & (Join-Path $PSScriptRoot "check_reference_boundaries.ps1")
 foreach ($TestFile in $Tests) {

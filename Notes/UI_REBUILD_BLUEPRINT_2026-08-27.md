@@ -1,6 +1,6 @@
 # UI reconstruction blueprint
 
-Status: prepared for implementation. This document replaces the assumption that the current dashboard composition can be fixed through spacing and decoration alone.
+Status: archived implementation blueprint. Its reconstruction was completed; use `VISUAL_DIRECTION.md`, `UI_ASSET_INVENTORY_PT.md`, and the current UI tests as authority.
 
 ## Honest diagnosis
 

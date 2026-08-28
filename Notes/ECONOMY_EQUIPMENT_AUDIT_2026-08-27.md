@@ -1,5 +1,7 @@
 # Auditoria de economia e equipamento — 2026-08-27
 
+Estado: registo histórico de implementação. Para regras vigentes consultar `MONETIZATION_CONTRACT.md` e `EQUIPMENT_SYSTEM_CONTRACT.md`.
+
 ## Diagnóstico
 
 O projeto já possui três economias funcionais (Créditos, Sucata e tempo), mercado determinístico, nove espaços universais, reciclagem, proteção, loadouts, oficina e loot com raridade/modificadores. Essa base permite evoluir sem reescrever o ciclo central.

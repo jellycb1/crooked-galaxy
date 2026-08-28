@@ -394,7 +394,8 @@ The campaign simulator now selects each initial class and automatically spends e
 - `scenes/` — Godot scenes.
 - `scripts/` — gameplay state, deterministic rules, content, and interface.
 - `tests/` — headless deterministic tests.
-- `Notes/` — product vision and development rules.
+- `Notes/` — product vision, active contracts, and dated audits; `Notes/README.md` defines their authority.
+- `builds/` — ignored, regenerable exports and QA captures; only `.gdignore` is retained.
 - `References/` — external study material, excluded from Godot imports and every export by `.gdignore` plus executable pack checks.
 
 Content in `References/` is temporary test material, not Crooked Galaxy production content. Code, names, formulas, and original assets remain independently created.

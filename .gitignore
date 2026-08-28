@@ -1,10 +1,12 @@
 # Godot generated files
 .godot/
+.test_appdata/
 *.tmp
 
 # Local exports and runtime logs
 builds/*
 !builds/.gdignore
+artifacts/
 logs/
 Notes/*.apk
 

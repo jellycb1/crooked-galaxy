@@ -1,5 +1,7 @@
 # Crooked Galaxy — auditoria do estado atual
 
+Estado: snapshot histórico. Os Batches A–C recomendados neste relatório já foram executados; consultar `Notes/README.md`, os contratos ativos e o código para o estado vigente.
+
 Data: 28 de agosto de 2026.
 
 Escopo: produto, código, conteúdo, UI, Android, desempenho, monetização, conta/servidor e capacidade de expansão. Esta auditoria não cria nem altera assets visuais.
@@ -260,7 +262,7 @@ A sua ausência não é dívida imediata. Implementá-los agora desviaria trabal
 
 ## Inconsistências documentais encontradas
 
-1. `Notes/CROOKED_GALAXY_CODEX_MAX_AUTONOMY.txt` ainda permite criar placeholders procedurais, enquanto a nova regra do repositório proíbe Codex de criar ou editar assets visuais. `AGENTS.md` é a autoridade atual, mas o documento antigo deve ser corrigido num batch de documentação.
+1. Resolvido na auditoria de organização: o antigo `CROOKED_GALAXY_CODEX_MAX_AUTONOMY.txt`, que permitia placeholders procedurais e conflitava com `AGENTS.md`, foi removido. `AGENTS.md` permanece a única autoridade operacional do repositório.
 2. Registos antigos em `Notes/AUDIT_2026-08-23.md` descrevem fases em que referências eram incluídas no APK interno. O estado atual exclui-as. Esses trechos são históricos e não devem ser lidos como instrução vigente.
 3. Algumas capturas preservadas mostram versões anteriores como `v0.50.0`, enquanto o projeto está em `0.53.1`. As capturas continuam úteis para regressão, mas uma futura baseline visual deve ser regenerada antes da revisão final Android.
 
