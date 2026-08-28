@@ -25,6 +25,7 @@ func _init() -> void:
 	source.player.weapon.power_upgrades = 3
 	source.player.weapon.origin_planet_id = "dustball_prime"
 	source.player.armor.origin_planet_id = "dustball_prime"
+	source.player.helmet = {"id": "package_helmet", "name": "Capacete Afinado", "description": "Teste persistente.", "slot": "helmet", "power": 1, "rarity": "Raro", "color": "#58d9ff", "attribute_package_id": "reflex_tuning"}
 	source.player.locked_item_ids = ["starter_weapon"]
 	source.player.equipment_loadouts = [{"weapon_id": "starter_weapon", "armor_id": "starter_armor"}, {"weapon_id": "", "armor_id": ""}]
 	source.phase = source.Phase.VICTORY
@@ -63,6 +64,7 @@ func _init() -> void:
 	check(int(restored.player.weapon.integrity_upgrades) == 2, "equipment reinforcement survives save and load")
 	check(int(restored.player.weapon.power_upgrades) == 3, "power calibration history survives save and load")
 	check(CoreRules.equipment_set_origin(restored.player) == "dustball_prime", "planetary kit origin survives save and load")
+	check(str(restored.player.helmet.attribute_package_id) == "reflex_tuning", "canonical attribute packages survive save and load")
 	check(restored.player.locked_item_ids.has("starter_weapon"), "protected equipment ids survive save and load")
 	check(str(restored.player.equipment_loadouts[0].weapon_id) == "starter_weapon", "equipment loadouts survive save and load")
 	check(restored.phase == restored.Phase.VICTORY, "capture phase survives save and load")

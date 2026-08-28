@@ -3,6 +3,7 @@ extends RefCounted
 
 const ClassRulesScript = preload("res://scripts/class_rules.gd")
 const EnemyProfileRulesScript = preload("res://scripts/enemy_profile_rules.gd")
+const AttributePackageRulesScript = preload("res://scripts/attribute_package_rules.gd")
 
 const INTEGRITY_HEALTH_PER_LEVEL := 8
 const MAX_INTEGRITY_UPGRADES := 5
@@ -54,7 +55,7 @@ static func default_attributes() -> Dictionary:
 
 
 static func attribute_value(player: Dictionary, attribute_id: String) -> int:
-	return int(player.get("attributes", {}).get(attribute_id, BASE_ATTRIBUTE_VALUE))
+	return int(player.get("attributes", {}).get(attribute_id, BASE_ATTRIBUTE_VALUE)) + AttributePackageRulesScript.attribute_bonus(player, attribute_id)
 
 
 static func attribute_investment(player: Dictionary, attribute_id: String) -> int:
@@ -166,11 +167,16 @@ static func equipment_set_bonus_health(player: Dictionary) -> int:
 static func equipment_score(item: Dictionary) -> int:
 	var trait_data: Dictionary = item.get("trait", {})
 	var tactical := int(trait_data.get("counter_damage_bonus", 0)) * 8 + roundi(float(trait_data.get("evasion_chance_bonus", 0.0)) * 500.0) + int(trait_data.get("defense_bypass_bonus", 0)) * 6 + roundi(float(trait_data.get("follow_up_damage_ratio", 0.0)) * 40.0)
-	return item_combat_power(item) * 6 + item_health_bonus(item) + item_opening_damage(item) * 2 + item_damage_reduction(item) * 10 + tactical
+	return item_combat_power(item) * 6 + item_health_bonus(item) + item_opening_damage(item) * 2 + item_damage_reduction(item) * 10 + tactical + AttributePackageRulesScript.item_score(item)
+
+
+static func has_intrinsic_modifier(item: Dictionary) -> bool:
+	return item.has("trait") or item.has("attribute_package_id")
 
 
 static func player_build_score(player: Dictionary) -> int:
-	return player_power(player) * 6 + max_health(player) + player_opening_damage(player) * 2 + player_damage_reduction(player) * 10 + player_counter_damage(player, 12) * 8 + roundi(player_evasion_chance(player) * 500.0) + player_defense_bypass(player) * 6 + roundi(equipment_trait_total(player, "follow_up_damage_ratio") * 40.0)
+	var attack_accuracy := cunning_roll_bonus(player) + ClassRulesScript.specialization_attack_roll_bonus(player, BASE_ATTRIBUTE_VALUE)
+	return player_power(player) * 6 + max_health(player) + player_opening_damage(player) * 2 + player_damage_reduction(player) * 10 + player_counter_damage(player, 12) * 8 + roundi(player_evasion_chance(player) * 500.0) + player_defense_bypass(player) * 6 + roundi(equipment_trait_total(player, "follow_up_damage_ratio") * 40.0) + roundi(attack_accuracy * 500.0)
 
 
 static func damage_roll(power: int, defense: int, roll: float) -> int:
@@ -343,7 +349,7 @@ static func salvage_value(item: Dictionary) -> int:
 			multiplier = 2
 		"Épico":
 			multiplier = 4
-	var trait_bonus := 2 if item.has("trait") else 0
+	var trait_bonus := 2 if has_intrinsic_modifier(item) else 0
 	var calibration_recovery := int(item.get("power_upgrades", 0)) * 2
 	var integrity_level := int(item.get("integrity_upgrades", 0))
 	var integrity_recovery := integrity_level * (integrity_level + 2)

@@ -21,6 +21,8 @@ func _init() -> void:
 	var rarities := {"Comum": 0, "Raro": 0, "Épico": 0}
 	var qualities: Array[int] = []
 	var unique_instances := {}
+	var attribute_packages := 0
+	var ordinary_traits := 0
 	for career_index in CAREERS:
 		var state = StateScript.new()
 		state.persistence_enabled = false
@@ -38,8 +40,12 @@ func _init() -> void:
 			band_drops[band] += 1
 			rarities[str(item.rarity)] = int(rarities.get(str(item.rarity), 0)) + 1
 			qualities.append(int(item.quality))
-			var trait_id := str(item.get("trait", {}).get("id", "none"))
-			var identity := "%s|%s|%d|%s|%s" % [str(item.template_id), str(item.rarity), int(item.quality), str(item.variant_id), trait_id]
+			var modifier_id := str(item.get("trait", {}).get("id", item.get("attribute_package_id", "none")))
+			if item.has("attribute_package_id"):
+				attribute_packages += 1
+			elif item.has("trait"):
+				ordinary_traits += 1
+			var identity := "%s|%s|%d|%s|%s" % [str(item.template_id), str(item.rarity), int(item.quality), str(item.variant_id), modifier_id]
 			unique_instances[identity] = true
 			if Rules.is_upgrade_for_player(state.player, item):
 				band_upgrades[band] += 1
@@ -55,6 +61,7 @@ func _init() -> void:
 	print("RARITY · common=%s · rare=%s · epic=%s" % [percent(int(rarities.Comum), qualities.size()), percent(int(rarities.Raro), qualities.size()), percent(int(rarities.Épico), qualities.size())])
 	print("QUALITY · p10=%d · median=%d · p90=%d" % [percentile(qualities, 0.10), percentile(qualities, 0.50), percentile(qualities, 0.90)])
 	print("IDENTITY · %d unique combinations across %d drops" % [unique_instances.size(), qualities.size()])
+	print("MODIFIERS · traits=%s · attribute packages=%s" % [percent(ordinary_traits, qualities.size()), percent(attribute_packages, qualities.size())])
 	for band in band_drops.size():
 		var start := band * BAND_SIZE + 1
 		var finish := mini(CONTRACTS_PER_CAREER, start + BAND_SIZE - 1)

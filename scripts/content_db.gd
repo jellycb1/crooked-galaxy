@@ -3,6 +3,7 @@ extends RefCounted
 
 const CoreRulesScript = preload("res://scripts/core_rules.gd")
 const EquipmentGenerationRulesScript = preload("res://scripts/equipment_generation_rules.gd")
+const AttributePackageRulesScript = preload("res://scripts/attribute_package_rules.gd")
 
 static var procedural_collection_ids_cache: Array[String] = []
 static var procedural_collection_entries_cache: Array[Dictionary] = []
@@ -1163,8 +1164,13 @@ static func generate_loot(target: Dictionary, rng: RandomNumberGenerator, master
 	}
 	var rare_trait_chance := 0.85 if planet_id == "ferro_velho_omega" or planet_id == "cassino_quasar" else 0.65
 	if rarity == "Épico" or (rarity == "Raro" and rng.randf() < rare_trait_chance):
-		var traits: Array = ITEM_TRAITS[slot]
-		item.trait = traits[rng.randi_range(0, traits.size() - 1)].duplicate(true)
+		# Attribute packages replace an ordinary modification; they never stack
+		# with one on the same drop. Only secondary gear enters this first slice.
+		if AttributePackageRulesScript.is_eligible_slot(slot) and rng.randf() < 0.35:
+			item.attribute_package_id = str(AttributePackageRulesScript.package_for_index(rng.randi()).id)
+		else:
+			var traits: Array = ITEM_TRAITS[slot]
+			item.trait = traits[rng.randi_range(0, traits.size() - 1)].duplicate(true)
 	return item
 
 

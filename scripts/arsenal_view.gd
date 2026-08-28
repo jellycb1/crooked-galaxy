@@ -839,8 +839,9 @@ static func inventory_item_card(host: CrookedUIFactory, state: StateScript, item
 		workshop_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		workshop_line.max_lines_visible = 2
 		details.add_child(workshop_line)
-	if item.has("trait"):
-		var trait_line := host.label("◆ %s · %s" % [EquipmentPresentation.localized_trait_field(item.trait, "name"), EquipmentPresentation.localized_trait_field(item.trait, "description")], UIDesignSystem.FONT_CAPTION, host.GOLD)
+	var modifier_text := EquipmentPresentation.modifier_text(item)
+	if not modifier_text.is_empty():
+		var trait_line := host.label("◆ %s" % modifier_text, UIDesignSystem.FONT_CAPTION, host.GOLD)
 		trait_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		trait_line.max_lines_visible = 3
 		details.add_child(trait_line)
@@ -913,8 +914,9 @@ static func workshop_upgrade_card(host: CrookedUIFactory, state: StateScript, sl
 	workshop_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	workshop_status.max_lines_visible = 2
 	box.add_child(workshop_status)
-	if item.has("trait"):
-		var trait_label := host.label("◆ %s" % EquipmentPresentation.localized_trait_field(item.trait, "name"), UIDesignSystem.FONT_CAPTION, host.GOLD)
+	var modifier_text := EquipmentPresentation.modifier_text(item)
+	if not modifier_text.is_empty():
+		var trait_label := host.label("◆ %s" % modifier_text, UIDesignSystem.FONT_CAPTION, host.GOLD)
 		trait_label.custom_minimum_size = Vector2.ZERO
 		trait_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		trait_label.max_lines_visible = 2

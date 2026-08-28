@@ -119,8 +119,9 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	if effective_upgrade and comparison <= 0:
 		result_text = local_text("REWARD_BETTER_MOD", "MOD MELHOR")
 	comparison_row.add_child(reward_metric_chip(host, local_text("REWARD_RESULT", "RESULTADO"), result_text, host.LIME if effective_upgrade else host.MUTED, "RewardEquipmentResult"))
-	if item.has("trait"):
-		var trait_label := host.center_label("◆ %s · %s" % [localized_trait_field(item.trait, "name"), localized_trait_field(item.trait, "description")], UIDesignSystem.FONT_CAPTION, host.GOLD)
+	var modifier_text := EquipmentPresentation.modifier_text(item)
+	if not modifier_text.is_empty():
+		var trait_label := host.center_label("◆ %s" % modifier_text, UIDesignSystem.FONT_CAPTION, host.GOLD)
 		trait_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		box.add_child(trait_label)
 	var equipment_delta := host.center_label(EquipmentPresentation.equipment_delta_text(state.player, item), UIDesignSystem.FONT_CAPTION, host.LIME if effective_upgrade else host.MUTED)
@@ -302,8 +303,9 @@ static func build_challenge_reward(host: CrookedUIFactory, content: VBoxContaine
 	var description := host.label(localized_item_field(item, "description"), UIDesignSystem.FONT_CAPTION, host.MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(description)
-	if item.has("trait"):
-		var modification := host.center_label("◆ %s · %s" % [localized_trait_field(item.trait, "name"), localized_trait_field(item.trait, "description")], UIDesignSystem.FONT_CAPTION, host.GOLD)
+	var modifier_text := EquipmentPresentation.modifier_text(item)
+	if not modifier_text.is_empty():
+		var modification := host.center_label("◆ %s" % modifier_text, UIDesignSystem.FONT_CAPTION, host.GOLD)
 		modification.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		box.add_child(modification)
 	box.add_child(host.center_label(EquipmentPresentation.equipment_delta_text(state.player, item), UIDesignSystem.FONT_CAPTION, host.LIME if effective_upgrade else host.MUTED))

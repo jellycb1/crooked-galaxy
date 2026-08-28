@@ -52,7 +52,7 @@ static func item_price(item: Dictionary, planet_index: int, tier: int) -> int:
 			rarity_premium = 120
 		"Épico":
 			rarity_premium = 300
-	var trait_premium := 180 if item.has("trait") else 0
+	var trait_premium := 180 if Rules.has_intrinsic_modifier(item) else 0
 	return maxi(60, 45 + int(item.get("power", 1)) * 18 + maxi(0, planet_index) * 90 + maxi(0, tier) * 40 + rarity_premium + trait_premium)
 
 
@@ -67,7 +67,7 @@ static func ensure_minimum_rare(item: Dictionary) -> Dictionary:
 		promoted.color = "#58d9ff"
 		if str(promoted.get("slot", "")) == "weapon" or str(promoted.get("slot", "")) == "armor":
 			promoted.power = int(promoted.get("power", 1)) + 2
-	if not promoted.has("trait"):
+	if not Rules.has_intrinsic_modifier(promoted):
 		var traits: Array = Content.ITEM_TRAITS.get(str(promoted.get("slot", "")), [])
 		if not traits.is_empty():
 			promoted.trait = (traits[abs(int(promoted.get("generation_seed", 0))) % traits.size()] as Dictionary).duplicate(true)

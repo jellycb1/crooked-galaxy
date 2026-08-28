@@ -156,8 +156,9 @@ static func offer_card(host: CrookedUIFactory, state: StateScript, offer: Dictio
 	var description := host.label(EquipmentPresentation.localized_item_field(item, "description"), UIDesignSystem.FONT_CAPTION, host.MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(description)
-	if item.has("trait"):
-		var trait_label := host.label("◆ %s · %s" % [EquipmentPresentation.localized_trait_field(item.trait, "name"), EquipmentPresentation.localized_trait_field(item.trait, "description")], UIDesignSystem.FONT_CAPTION, host.GOLD)
+	var modifier_text := EquipmentPresentation.modifier_text(item)
+	if not modifier_text.is_empty():
+		var trait_label := host.label("◆ %s" % modifier_text, UIDesignSystem.FONT_CAPTION, host.GOLD)
 		trait_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		copy.add_child(trait_label)
 	var comparison := EquipmentPresentation.equipment_delta_text(state.player, item)

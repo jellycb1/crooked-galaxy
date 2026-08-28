@@ -2,6 +2,7 @@ class_name ClassRules
 extends RefCounted
 
 const LocaleRules = preload("res://scripts/locale_rules.gd")
+const AttributePackageRulesScript = preload("res://scripts/attribute_package_rules.gd")
 
 const UNASSIGNED_ID := ""
 const DEFINITIONS := [
@@ -180,22 +181,22 @@ static func specialization_preview(definition: Dictionary, attributes: Dictionar
 
 static func specialization_power(player: Dictionary, base_attribute_value: int) -> int:
 	var definition := get_definition(str(player.get("class_id", UNASSIGNED_ID)))
-	return int(specialization_preview(definition, player.get("attributes", {}), base_attribute_value).power)
+	return int(specialization_preview(definition, AttributePackageRulesScript.effective_attributes(player, base_attribute_value), base_attribute_value).power)
 
 
 static func specialization_opening_damage(player: Dictionary, base_attribute_value: int) -> int:
 	var definition := get_definition(str(player.get("class_id", UNASSIGNED_ID)))
-	return int(specialization_preview(definition, player.get("attributes", {}), base_attribute_value).opening_damage)
+	return int(specialization_preview(definition, AttributePackageRulesScript.effective_attributes(player, base_attribute_value), base_attribute_value).opening_damage)
 
 
 static func specialization_damage_reduction(player: Dictionary, base_attribute_value: int) -> int:
 	var definition := get_definition(str(player.get("class_id", UNASSIGNED_ID)))
-	return int(specialization_preview(definition, player.get("attributes", {}), base_attribute_value).damage_reduction)
+	return int(specialization_preview(definition, AttributePackageRulesScript.effective_attributes(player, base_attribute_value), base_attribute_value).damage_reduction)
 
 
 static func specialization_attack_roll_bonus(player: Dictionary, base_attribute_value: int) -> float:
 	var definition := get_definition(str(player.get("class_id", UNASSIGNED_ID)))
-	return float(specialization_preview(definition, player.get("attributes", {}), base_attribute_value).attack_roll_bonus)
+	return float(specialization_preview(definition, AttributePackageRulesScript.effective_attributes(player, base_attribute_value), base_attribute_value).attack_roll_bonus)
 
 
 static func specialization_counter_damage(player: Dictionary, base_attribute_value: int, round_number: int) -> int:
@@ -203,12 +204,12 @@ static func specialization_counter_damage(player: Dictionary, base_attribute_val
 	var every := maxi(0, int(definition.get("effects", {}).get("counter_every_rounds", 0)))
 	if every <= 0 or round_number <= 0 or round_number % every != 0:
 		return 0
-	return int(specialization_preview(definition, player.get("attributes", {}), base_attribute_value).counter_damage)
+	return int(specialization_preview(definition, AttributePackageRulesScript.effective_attributes(player, base_attribute_value), base_attribute_value).counter_damage)
 
 
 static func specialization_evasion_chance(player: Dictionary, base_attribute_value: int) -> float:
 	var definition := get_definition(str(player.get("class_id", UNASSIGNED_ID)))
-	return float(specialization_preview(definition, player.get("attributes", {}), base_attribute_value).evasion_chance)
+	return float(specialization_preview(definition, AttributePackageRulesScript.effective_attributes(player, base_attribute_value), base_attribute_value).evasion_chance)
 
 
 static func specialization_follow_up_damage(player: Dictionary, adjusted_roll: float, base_damage: int) -> int:
@@ -221,7 +222,7 @@ static func specialization_follow_up_damage(player: Dictionary, adjusted_roll: f
 
 static func specialization_defense_bypass(player: Dictionary, base_attribute_value: int) -> int:
 	var definition := get_definition(str(player.get("class_id", UNASSIGNED_ID)))
-	return int(specialization_preview(definition, player.get("attributes", {}), base_attribute_value).defense_bypass)
+	return int(specialization_preview(definition, AttributePackageRulesScript.effective_attributes(player, base_attribute_value), base_attribute_value).defense_bypass)
 
 
 static func combat_identity_text(player: Dictionary, base_attribute_value: int) -> String:
@@ -229,7 +230,7 @@ static func combat_identity_text(player: Dictionary, base_attribute_value: int) 
 	var definition := get_definition(class_id)
 	if definition.is_empty():
 		return ""
-	var preview := specialization_preview(definition, player.get("attributes", {}), base_attribute_value)
+	var preview := specialization_preview(definition, AttributePackageRulesScript.effective_attributes(player, base_attribute_value), base_attribute_value)
 	if int(preview.damage_reduction) > 0:
 		return LocaleRules.text("CLASS_IDENTITY_BREAKER", "CASCO DURO · -%d DANO/GOLPE · CONTRA-ATAQUE +%d A CADA 3 TURNOS", [int(preview.damage_reduction), int(preview.counter_damage)])
 	if float(preview.attack_roll_bonus) > 0.0:

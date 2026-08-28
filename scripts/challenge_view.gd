@@ -132,8 +132,9 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 	reward_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	reward_name.max_lines_visible = 2
 	reward_copy.add_child(reward_name)
-	if reward.has("trait"):
-		var effect := host.label("◆ %s · %s" % [EquipmentPresentation.localized_trait_field(reward.trait, "name"), EquipmentPresentation.localized_trait_field(reward.trait, "description")], UIDesignSystem.FONT_CAPTION, host.LIME)
+	var modifier_text := EquipmentPresentation.modifier_text(reward)
+	if not modifier_text.is_empty():
+		var effect := host.label("◆ %s" % modifier_text, UIDesignSystem.FONT_CAPTION, host.LIME)
 		effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		reward_copy.add_child(effect)
 	reward_copy.add_child(host.label(t("RIFT_REWARD_TOTAL", "◈ %d CRÉDITOS · %d XP", [int(stage.credits), int(stage.xp)]), UIDesignSystem.FONT_CAPTION, host.GOLD))

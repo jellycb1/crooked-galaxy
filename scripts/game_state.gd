@@ -20,6 +20,7 @@ const ChallengeRulesScript = preload("res://scripts/challenge_rules.gd")
 const AccountRulesScript = preload("res://scripts/account_rules.gd")
 const AccountServiceScript = preload("res://scripts/account_service.gd")
 const HuntTimingRulesScript = preload("res://scripts/hunt_timing_rules.gd")
+const AttributePackageRulesScript = preload("res://scripts/attribute_package_rules.gd")
 
 signal changed
 signal combat_event(message: String)
@@ -982,7 +983,7 @@ func can_recycle_reward(item: Dictionary) -> bool:
 	var slot := str(item.get("slot", ""))
 	if not CoreRules.is_equipment_slot(slot):
 		return false
-	return not item.has("trait") and not CoreRules.has_workshop_investment(item) and not CoreRules.is_upgrade_for_player(player, item)
+	return not CoreRules.has_intrinsic_modifier(item) and not CoreRules.has_workshop_investment(item) and not CoreRules.is_upgrade_for_player(player, item)
 
 
 func localized_item_field(item: Dictionary, field: String) -> String:
@@ -1283,7 +1284,7 @@ func inferior_recycle_preview() -> Dictionary:
 			continue
 		if is_item_protected(str(item.get("id", ""))):
 			continue
-		if item.has("trait"):
+		if CoreRules.has_intrinsic_modifier(item):
 			continue
 		if CoreRules.has_workshop_investment(item):
 			continue
@@ -1303,7 +1304,7 @@ func recycle_inferior_inventory() -> Dictionary:
 	for item in player.get("inventory", []):
 		var slot := str(item.get("slot", ""))
 		var is_equipped: bool = is_item_protected(str(item.get("id", "")))
-		var is_inferior: bool = CoreRules.is_equipment_slot(slot) and not item.has("trait") and not CoreRules.has_workshop_investment(item) and not CoreRules.is_upgrade_for_player(player, item)
+		var is_inferior: bool = CoreRules.is_equipment_slot(slot) and not CoreRules.has_intrinsic_modifier(item) and not CoreRules.has_workshop_investment(item) and not CoreRules.is_upgrade_for_player(player, item)
 		if is_equipped or not is_inferior:
 			retained.append(item)
 	player.inventory = retained
@@ -2276,7 +2277,7 @@ func loaded_equipment_is_safe(item: Dictionary, expected_slot: String) -> bool:
 		return false
 	if str(item.get("rarity", "")).is_empty() or str(item.get("color", "")).is_empty():
 		return false
-	return not item.has("trait") or item.trait is Dictionary
+	return (not item.has("trait") or item.trait is Dictionary) and (not item.has("attribute_package_id") or item.attribute_package_id is String)
 
 
 func sanitize_loaded_equipment(item: Dictionary) -> bool:
@@ -2339,6 +2340,11 @@ func sanitize_loaded_equipment(item: Dictionary) -> bool:
 			repaired = true
 		elif not payloads_equivalent(item.trait, canonical_trait):
 			item.trait = canonical_trait
+			repaired = true
+	if item.has("attribute_package_id"):
+		var package_id := str(item.attribute_package_id)
+		if not AttributePackageRulesScript.is_valid(package_id, str(item.slot)) or item.has("trait"):
+			item.erase("attribute_package_id")
 			repaired = true
 	return repaired
 

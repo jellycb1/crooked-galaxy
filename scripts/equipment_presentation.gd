@@ -5,6 +5,7 @@ const CoreRules = preload("res://scripts/core_rules.gd")
 const LocaleRules = preload("res://scripts/locale_rules.gd")
 const Content = preload("res://scripts/content_db.gd")
 const EquipmentGenerationRules = preload("res://scripts/equipment_generation_rules.gd")
+const AttributePackageRules = preload("res://scripts/attribute_package_rules.gd")
 
 
 static func localized_item_field(item: Dictionary, field: String) -> String:
@@ -35,6 +36,23 @@ static func variant_display_name(base_name: String, item: Dictionary) -> String:
 
 static func localized_trait_field(trait_data: Dictionary, field: String) -> String:
 	return LocaleRules.text("ITEM_TRAIT_%s_%s" % [str(trait_data.get("id", "")).to_upper(), field.to_upper()], str(trait_data.get(field, "")))
+
+
+static func attribute_package_text(item: Dictionary) -> String:
+	var definition := AttributePackageRules.definition_for(str(item.get("attribute_package_id", "")))
+	if definition.is_empty():
+		return ""
+	var package_id := str(definition.id).to_upper()
+	var name := LocaleRules.text("ATTRIBUTE_PACKAGE_%s_NAME" % package_id, str(definition.name))
+	var attribute_id := str(definition.attribute_id).to_upper()
+	var attribute_name := LocaleRules.text("ATTRIBUTE_%s" % attribute_id, attribute_id)
+	return LocaleRules.text("ATTRIBUTE_PACKAGE_EFFECT", "%s · +%d %s", [name, int(definition.bonus), attribute_name])
+
+
+static func modifier_text(item: Dictionary) -> String:
+	if item.has("trait"):
+		return "%s · %s" % [localized_trait_field(item.trait, "name"), localized_trait_field(item.trait, "description")]
+	return attribute_package_text(item)
 
 
 static func localized_rarity(rarity: String) -> String:
@@ -117,6 +135,7 @@ static func equipment_deltas(player: Dictionary, item: Dictionary) -> Dictionary
 		"evasion_chance": CoreRules.player_evasion_chance(simulated) - CoreRules.player_evasion_chance(player),
 		"defense_bypass": CoreRules.player_defense_bypass(simulated) - CoreRules.player_defense_bypass(player),
 		"follow_up_ratio": CoreRules.equipment_trait_total(simulated, "follow_up_damage_ratio") - CoreRules.equipment_trait_total(player, "follow_up_damage_ratio"),
+		"attack_accuracy": CoreRules.player_attack_roll(simulated, 0.0) - CoreRules.player_attack_roll(player, 0.0),
 		"set_bonus": CoreRules.equipment_set_bonus_power(simulated) - CoreRules.equipment_set_bonus_power(player),
 		"upgrade": CoreRules.is_upgrade_for_player(player, item),
 	}
@@ -141,6 +160,8 @@ static func equipment_delta_text(player: Dictionary, item: Dictionary) -> String
 		parts.append(LocaleRules.text("EQUIPMENT_DELTA_BYPASS", "%+d SOBRECARGA", [int(deltas.defense_bypass)]))
 	if not is_zero_approx(float(deltas.follow_up_ratio)):
 		parts.append(LocaleRules.text("EQUIPMENT_DELTA_BURST", "%+.0f%% RAJADA", [float(deltas.follow_up_ratio) * 100.0]))
+	if not is_zero_approx(float(deltas.attack_accuracy)):
+		parts.append(LocaleRules.text("EQUIPMENT_DELTA_ACCURACY", "%+.1f%% PRECISÃO", [float(deltas.attack_accuracy) * 100.0]))
 	if int(deltas.set_bonus) > 0:
 		parts.append(LocaleRules.text("EQUIPMENT_DELTA_ACTIVATE_KIT", "ATIVA KIT +%d PODER / +%d VIDA", [CoreRules.PLANETARY_KIT_POWER_BONUS, CoreRules.PLANETARY_KIT_HEALTH_BONUS]))
 	elif int(deltas.set_bonus) < 0:
