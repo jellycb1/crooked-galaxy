@@ -29,9 +29,9 @@ scripts/content/
 
 `planet_content_pack.gd` rejeita IDs inseguros, campos ausentes, alvos de outro planeta, tiers duplicados, boss ausente, incidentes incompletos, escolhas duplicadas e catálogos fora do contrato universal.
 
-`content_pack_registry.gd` garante unicidade entre pacotes e oferece uma fronteira única para composição futura.
+`content_pack_registry.gd` garante unicidade entre pacotes e é a fonte única da composição determinística de planetas, alvos, incidentes e catálogos de equipamento.
 
-`content_db.gd` continua a expor `PLANET`, `PLANETS`, `TARGETS`, `HUNT_EVENTS`, `ITEM_CATALOG`, `PLANET_ITEM_CATALOGS` e `SECONDARY_ITEM_CATALOGS`. Os sete pacotes apenas mudaram a origem dos dados; consumidores, resultados e saves não mudaram.
+`content_db.gd` continua a expor `PLANET`, `PLANETS`, `TARGETS`, `HUNT_EVENTS`, `ITEM_CATALOG`, `PLANET_ITEM_CATALOGS` e `SECONDARY_ITEM_CATALOGS` como constantes públicas. Agora essas constantes são aliases diretos da composição do registry; consumidores, ordem, resultados e saves não mudaram.
 
 ## Regras para migrar um planeta existente
 
@@ -69,4 +69,4 @@ Um pacote novo só entra no registry quando:
 | Aerópolis de Penhora | `aeropolis_penhora.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e rig | Migrado |
 | Arquivo Abissal N-9 | `arquivo_abissal_n9.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e implant | Migrado |
 
-O catálogo atual está totalmente modular. O próximo batch recomendado é auditar a composição manual que permanece em `ContentDB` e decidir se `PLANETS`, `TARGETS`, `HUNT_EVENTS` e os catálogos podem ser montados pelo registry sem perder constantes públicas, ordem determinística ou compatibilidade de saves. Essa decisão deve ser tomada antes de adicionar o oitavo planeta.
+O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. O próximo planeta pode, portanto, entrar por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves.

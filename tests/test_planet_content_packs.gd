@@ -17,6 +17,9 @@ var failures := 0
 func _init() -> void:
 	check(Registry.validation_errors().is_empty(), "registered planet packs satisfy the complete content contract")
 	check(Registry.PACK_SCRIPTS.size() == 7, "the registry contains all seven current canonical planet packs")
+	check(Registry.PLANETS.size() == 7, "the registry composes all seven planets")
+	check(Registry.TARGETS.size() == 28, "the registry composes all 28 targets")
+	check(Registry.HUNT_EVENTS.size() == 14, "the registry composes all 14 hunt incidents")
 	check(Registry.pack_for_planet("dustball_prime") == Dustball.PACK, "registry resolves the canonical Dustball pack")
 	check(Registry.pack_for_planet("congelaria_sa") == Congelaria.PACK, "registry resolves the canonical Congelaria pack")
 	check(Registry.pack_for_planet("micelia_404") == Micelia.PACK, "registry resolves the canonical Micelia pack")
@@ -30,7 +33,13 @@ func _init() -> void:
 	check(str(Registry.pack_for_planet("dustball_prime").planet.name) == "Dustball Prime", "registry callers cannot mutate canonical pack data")
 
 	check(Content.PLANET == Dustball.PLANET, "ContentDB preserves the public starter planet constant")
+	check(Content.PLANETS == Registry.PLANETS, "ContentDB exposes the registry's canonical planet composition")
+	check(Content.TARGETS == Registry.TARGETS, "ContentDB exposes the registry's canonical target composition")
+	check(Content.HUNT_EVENTS == Registry.HUNT_EVENTS, "ContentDB exposes the registry's canonical incident composition")
 	check(Content.ITEM_CATALOG == Dustball.ITEMS, "ContentDB preserves the starter item catalog")
+	check(Content.ITEM_CATALOG == Registry.STARTER_ITEM_CATALOG, "ContentDB exposes the registry's starter item catalog")
+	check(Content.PLANET_ITEM_CATALOGS == Registry.PLANET_ITEM_CATALOGS, "ContentDB exposes the registry's primary item catalogs")
+	check(Content.SECONDARY_ITEM_CATALOGS == Registry.SECONDARY_ITEM_CATALOGS, "ContentDB exposes the registry's secondary item catalogs")
 	check(Content.TARGETS.slice(0, 4) == Dustball.TARGETS, "ContentDB preserves all four starter targets in canonical order")
 	check(Content.HUNT_EVENTS.slice(0, 2) == Dustball.EVENTS, "ContentDB preserves both starter incidents in canonical order")
 	check([Content.TARGETS[0].power, Content.TARGETS[1].power, Content.TARGETS[2].power, Content.TARGETS[3].power] == [11, 16, 23, 28], "starter combat anchors remain unchanged")

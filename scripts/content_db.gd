@@ -4,60 +4,15 @@ extends RefCounted
 const CoreRulesScript = preload("res://scripts/core_rules.gd")
 const EquipmentGenerationRulesScript = preload("res://scripts/equipment_generation_rules.gd")
 const AttributePackageRulesScript = preload("res://scripts/attribute_package_rules.gd")
-const DustballPrimeContent = preload("res://scripts/content/packs/dustball_prime.gd")
-const CongelariaContent = preload("res://scripts/content/packs/congelaria_sa.gd")
-const Micelia404Content = preload("res://scripts/content/packs/micelia_404.gd")
-const FerroVelhoOmegaContent = preload("res://scripts/content/packs/ferro_velho_omega.gd")
-const CassinoQuasarContent = preload("res://scripts/content/packs/cassino_quasar.gd")
-const AeropolisPenhoraContent = preload("res://scripts/content/packs/aeropolis_penhora.gd")
-const ArquivoAbissalN9Content = preload("res://scripts/content/packs/arquivo_abissal_n9.gd")
+const ContentPackRegistry = preload("res://scripts/content/content_pack_registry.gd")
 
 static var procedural_collection_ids_cache: Array[String] = []
 static var procedural_collection_entries_cache: Array[Dictionary] = []
 
 
-const PLANET := DustballPrimeContent.PLANET
-
-const PLANETS := [
-	PLANET,
-	CongelariaContent.PLANET,
-	Micelia404Content.PLANET,
-	FerroVelhoOmegaContent.PLANET,
-	CassinoQuasarContent.PLANET,
-	AeropolisPenhoraContent.PLANET,
-	ArquivoAbissalN9Content.PLANET,
-]
-
-const TARGETS := [
-	DustballPrimeContent.TARGET_GLOOP,
-	DustballPrimeContent.TARGET_BARON_BOOM,
-	DustballPrimeContent.TARGET_MADAME_VACUUM,
-	DustballPrimeContent.TARGET_MAYOR_GOLD_DUST,
-	CongelariaContent.TARGET_AUDITOR_FROST,
-	CongelariaContent.TARGET_CHEF_COLDFLAME,
-	CongelariaContent.TARGET_EXECUTIVE_PENGUIN,
-	CongelariaContent.TARGET_DIRECTOR_KELVIN,
-	Micelia404Content.TARGET_LANDLORD_SPORE,
-	Micelia404Content.TARGET_COUNTESS_TRUFFLE,
-	Micelia404Content.TARGET_CAPTAIN_CHLOROPHYLL,
-	Micelia404Content.TARGET_MOTHER_MYCELIA,
-	FerroVelhoOmegaContent.TARGET_BOLT_COLLECTOR,
-	FerroVelhoOmegaContent.TARGET_DOCTOR_PATCHWORK,
-	FerroVelhoOmegaContent.TARGET_CRANE_KING,
-	FerroVelhoOmegaContent.TARGET_OMEGA_JUNKYARD,
-	CassinoQuasarContent.TARGET_DEALER_COMET,
-	CassinoQuasarContent.TARGET_DUCHESS_JACKPOT,
-	CassinoQuasarContent.TARGET_MISFORTUNE_AUDITOR,
-	CassinoQuasarContent.TARGET_HOUSE_ETERNAL,
-	AeropolisPenhoraContent.TARGET_COURIER_CUMULUS,
-	AeropolisPenhoraContent.TARGET_DUCHESS_LOW_PRESSURE,
-	AeropolisPenhoraContent.TARGET_ENGINEER_THUNDER,
-	AeropolisPenhoraContent.TARGET_STORM_BANK,
-	ArquivoAbissalN9Content.TARGET_EEL_COURIER,
-	ArquivoAbissalN9Content.TARGET_CORAL_LANDLADY,
-	ArquivoAbissalN9Content.TARGET_NOTARY_OCTOPUS,
-	ArquivoAbissalN9Content.TARGET_PROTOCOL_LEVIATHAN,
-]
+const PLANET := ContentPackRegistry.STARTER_PLANET
+const PLANETS := ContentPackRegistry.PLANETS
+const TARGETS := ContentPackRegistry.TARGETS
 
 const PLAYER_ATTACKS := [
 	"Ricochete de Plasma",
@@ -113,22 +68,7 @@ const CONTRACT_APPROACHES := [
 	},
 ]
 
-const HUNT_EVENTS := [
-	DustballPrimeContent.EVENT_TOLL_DRONE,
-	DustballPrimeContent.EVENT_BOUNTY_STREAMER,
-	CongelariaContent.EVENT_HEAT_INSPECTOR,
-	CongelariaContent.EVENT_CORPORATE_AVALANCHE,
-	Micelia404Content.EVENT_SPORE_CUSTOMS,
-	Micelia404Content.EVENT_SENTIENT_SHORTCUT,
-	FerroVelhoOmegaContent.EVENT_MAGNETIC_STORM,
-	FerroVelhoOmegaContent.EVENT_WARRANTY_GHOST,
-	CassinoQuasarContent.EVENT_GRAVITY_ROULETTE,
-	CassinoQuasarContent.EVENT_LUCK_INSPECTOR,
-	AeropolisPenhoraContent.EVENT_PRESSURE_TOLL,
-	AeropolisPenhoraContent.EVENT_LIGHTNING_STRIKE,
-	ArquivoAbissalN9Content.EVENT_BATHYAL_CUSTOMS,
-	ArquivoAbissalN9Content.EVENT_DECOMPRESSION_QUEUE,
-]
+const HUNT_EVENTS := ContentPackRegistry.HUNT_EVENTS
 
 const ITEM_TRAITS := {
 	"weapon": [
@@ -179,25 +119,9 @@ const ITEM_TRAITS := {
 }
 
 
-const ITEM_CATALOG := DustballPrimeContent.ITEMS
-
-const PLANET_ITEM_CATALOGS := {
-	"congelaria_sa": CongelariaContent.ITEMS,
-	"micelia_404": Micelia404Content.ITEMS,
-	"ferro_velho_omega": FerroVelhoOmegaContent.ITEMS,
-	"cassino_quasar": CassinoQuasarContent.ITEMS,
-	"aeropolis_penhora": AeropolisPenhoraContent.ITEMS,
-	"arquivo_abissal_n9": ArquivoAbissalN9Content.ITEMS,
-}
-
-const SECONDARY_ITEM_CATALOGS := {
-	"congelaria_sa": CongelariaContent.SECONDARY_ITEMS,
-	"micelia_404": Micelia404Content.SECONDARY_ITEMS,
-	"ferro_velho_omega": FerroVelhoOmegaContent.SECONDARY_ITEMS,
-	"cassino_quasar": CassinoQuasarContent.SECONDARY_ITEMS,
-	"aeropolis_penhora": AeropolisPenhoraContent.SECONDARY_ITEMS,
-	"arquivo_abissal_n9": ArquivoAbissalN9Content.SECONDARY_ITEMS,
-}
+const ITEM_CATALOG := ContentPackRegistry.STARTER_ITEM_CATALOG
+const PLANET_ITEM_CATALOGS := ContentPackRegistry.PLANET_ITEM_CATALOGS
+const SECONDARY_ITEM_CATALOGS := ContentPackRegistry.SECONDARY_ITEM_CATALOGS
 
 
 static func get_planet(planet_id: String) -> Dictionary:
