@@ -71,13 +71,13 @@ The repository checker automatically performs a one-time headless import when a 
 
 ## Validation
 
-Fast development gate, excluding only the exhaustive persistence matrix:
+Fast development gate, including the exhaustive semantic persistence matrix and representative durable file round-trips:
 
 ```powershell
 .\tools\check_fast.ps1
 ```
 
-Complete commit/release gate, including 1,659 persistence cases:
+Complete commit/release gate (currently the same behavioral authority under a release-oriented profile):
 
 ```powershell
 .\tools\check_project.ps1

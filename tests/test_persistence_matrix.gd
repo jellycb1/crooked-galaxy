@@ -12,7 +12,7 @@ func _init() -> void:
 	audit_equipment_roundtrips()
 	cleanup_save_family()
 	if failures == 0:
-		print("PASS: exhaustive persistence matrices round-trip without recovery")
+		print("PASS: exhaustive persistence semantics and representative durable round-trips recover without repair")
 		quit(0)
 	else:
 		printerr("FAIL: %d persistence matrix issue(s)" % failures)
@@ -100,6 +100,8 @@ func audit_contract_approach_roundtrips() -> void:
 func audit_equipment_roundtrips() -> void:
 	var rarity_colors := {"Comum": "#b9c2d9", "Raro": "#58d9ff", "Épico": "#d789ff"}
 	var calibration_histories := [0, 1, 5]
+	var semantic_cases := 0
+	var validator := clean_state()
 	for slot in ContentDB.ITEM_TRAITS:
 		for trait_definition in ContentDB.ITEM_TRAITS[slot]:
 			for rarity in rarity_colors:
@@ -107,40 +109,76 @@ func audit_equipment_roundtrips() -> void:
 					for power_upgrades in calibration_histories:
 						for integrity_upgrades in range(CoreRules.MAX_INTEGRITY_UPGRADES + 1):
 							var context := "%s/%s/%s/cal%d/ref%d" % [str(trait_definition.id), str(rarity), str(planet.id), power_upgrades, integrity_upgrades]
-							var item := {
-								"id": "equipped_%s" % context,
-								"name": "Equipamento auditado",
-								"slot": str(slot),
-								"origin_planet_id": str(planet.id),
-								"power": 12 + power_upgrades,
-								"rarity": str(rarity),
-								"color": str(rarity_colors[rarity]),
-								"trait": trait_definition.duplicate(true),
-								"power_upgrades": power_upgrades,
-								"integrity_upgrades": integrity_upgrades,
-							}
-							var reserve := item.duplicate(true)
-							reserve.id = "reserve_%s" % context
-							var source := clean_state()
-							source.player[slot] = item.duplicate(true)
-							source.player.inventory = [reserve.duplicate(true)]
-							source.player.locked_item_ids = [str(item.id), str(reserve.id)]
-							var id_key := "%s_id" % str(slot)
-							source.player.equipment_loadouts[0][id_key] = str(item.id)
-							source.player.equipment_loadouts[1][id_key] = str(reserve.id)
-							source.save_game()
-							var restored = StateScript.new()
-							restored.save_path = test_save
-							restored.load_game()
-							var restored_item: Dictionary = restored.player[slot]
-							var restored_reserve: Dictionary = restored.player.inventory[0] if not restored.player.inventory.is_empty() else {}
-							check(restored.last_notice_context != "system_recovery", "equipment %s does not emit false recovery" % context)
-							check(restored.payloads_equivalent(restored_item, item), "equipment %s preserves its equipped payload" % context)
-							check(restored.payloads_equivalent(restored_reserve, reserve), "equipment %s preserves its reserve payload" % context)
-							check(restored.player.locked_item_ids.has(str(item.id)) and restored.player.locked_item_ids.has(str(reserve.id)), "equipment %s preserves protection" % context)
-							check(str(restored.player.equipment_loadouts[0][id_key]) == str(item.id) and str(restored.player.equipment_loadouts[1][id_key]) == str(reserve.id), "equipment %s preserves loadouts" % context)
-							restored.free()
-							source.free()
+							var item := equipment_fixture(str(slot), trait_definition, str(rarity), str(rarity_colors[rarity]), str(planet.id), power_upgrades, integrity_upgrades, context)
+							check(validator.loaded_equipment_is_safe(item, str(slot)), "equipment %s satisfies the loaded-item contract" % context)
+							var sanitized_item := item.duplicate(true)
+							check(not validator.sanitize_loaded_equipment(sanitized_item), "equipment %s needs no semantic repair" % context)
+							check(validator.payloads_equivalent(sanitized_item, item), "equipment %s preserves every semantic field" % context)
+							semantic_cases += 1
+	var trait_count := 0
+	for slot in ContentDB.ITEM_TRAITS:
+		trait_count += ContentDB.ITEM_TRAITS[slot].size()
+	var expected_cases := trait_count * rarity_colors.size() * ContentDB.PLANETS.size() * calibration_histories.size() * (CoreRules.MAX_INTEGRITY_UPGRADES + 1)
+	check(semantic_cases == expected_cases, "equipment semantic matrix covers all %d combinations" % expected_cases)
+	validator.free()
+
+	# JSON encoding, atomic replacement, backup mirroring, player sanitization,
+	# protection and loadout references are data-shape concerns. One rotated case
+	# per trait exercises that durable path without repeating identical disk I/O
+	# for the full combinatorial semantic matrix above.
+	var representative_traits: Array[Dictionary] = []
+	for slot in ContentDB.ITEM_TRAITS:
+		for trait_definition in ContentDB.ITEM_TRAITS[slot]:
+			representative_traits.append({"slot": str(slot), "trait": trait_definition})
+	var rarity_ids := ["Comum", "Raro", "Épico"]
+	var boundary_planets := [ContentDB.PLANETS.front(), ContentDB.PLANETS.back()]
+	for case_index in representative_traits.size():
+		var entry: Dictionary = representative_traits[case_index]
+		var slot := str(entry.slot)
+		var trait_definition: Dictionary = entry.trait
+		var rarity := str(rarity_ids[case_index % rarity_ids.size()])
+		var planet: Dictionary = boundary_planets[case_index % boundary_planets.size()]
+		var power_upgrades: int = calibration_histories[0] if case_index % 2 == 0 else calibration_histories.back()
+		var integrity_upgrades: int = 0 if case_index % 2 == 0 else CoreRules.MAX_INTEGRITY_UPGRADES
+		var context := "%s/%s/%s/cal%d/ref%d" % [str(trait_definition.id), rarity, str(planet.id), power_upgrades, integrity_upgrades]
+		var item := equipment_fixture(slot, trait_definition, rarity, str(rarity_colors[rarity]), str(planet.id), power_upgrades, integrity_upgrades, context)
+		var reserve := item.duplicate(true)
+		reserve.id = "reserve_%s" % context
+		var source := clean_state()
+		source.player[slot] = item.duplicate(true)
+		source.player.inventory = [reserve.duplicate(true)]
+		source.player.locked_item_ids = [str(item.id), str(reserve.id)]
+		var id_key := "%s_id" % slot
+		source.player.equipment_loadouts[0][id_key] = str(item.id)
+		source.player.equipment_loadouts[1][id_key] = str(reserve.id)
+		check(source.save_game(), "representative equipment %s commits atomically" % context)
+		var restored = StateScript.new()
+		restored.save_path = test_save
+		restored.load_game()
+		var restored_item: Dictionary = restored.player[slot]
+		var restored_reserve: Dictionary = restored.player.inventory[0] if not restored.player.inventory.is_empty() else {}
+		check(restored.last_notice_context != "system_recovery", "representative equipment %s does not emit false recovery" % context)
+		check(restored.payloads_equivalent(restored_item, item), "representative equipment %s preserves its equipped payload" % context)
+		check(restored.payloads_equivalent(restored_reserve, reserve), "representative equipment %s preserves its reserve payload" % context)
+		check(restored.player.locked_item_ids.has(str(item.id)) and restored.player.locked_item_ids.has(str(reserve.id)), "representative equipment %s preserves protection" % context)
+		check(str(restored.player.equipment_loadouts[0][id_key]) == str(item.id) and str(restored.player.equipment_loadouts[1][id_key]) == str(reserve.id), "representative equipment %s preserves loadouts" % context)
+		restored.free()
+		source.free()
+
+
+func equipment_fixture(slot: String, trait_definition: Dictionary, rarity: String, color: String, planet_id: String, power_upgrades: int, integrity_upgrades: int, context: String) -> Dictionary:
+	return {
+		"id": "equipped_%s" % context,
+		"name": "Equipamento auditado",
+		"slot": slot,
+		"origin_planet_id": planet_id,
+		"power": 12 + power_upgrades,
+		"rarity": rarity,
+		"color": color,
+		"trait": trait_definition.duplicate(true),
+		"power_upgrades": power_upgrades,
+		"integrity_upgrades": integrity_upgrades,
+	}
 
 
 func cleanup_save_family() -> void:

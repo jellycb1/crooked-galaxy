@@ -86,10 +86,6 @@ $Tests = @(
     "test_mobile.gd"
 )
 
-if ($Fast) {
-    $Tests = @($Tests | Where-Object { $_ -ne "test_persistence_matrix.gd" })
-}
-
 $SuiteStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 $Profile = if ($Fast) { "fast" } else { "full" }
 Write-Host "Crooked Galaxy $Profile checks using $GodotExe"
