@@ -89,7 +89,7 @@ func _init() -> void:
 	check(ContentDB.procedural_collection_ids().size() >= 100 and ContentDB.procedural_collection_ids().all(func(id): return str(id).contains("::")), "finite template families expose a bounded multi-variant collection catalog")
 	check(ContentDB.procedural_collection_entries().size() * 5 == ContentDB.procedural_collection_ids().size(), "every collectible template exposes exactly the five canonical series variants")
 	check(ContentDB.procedural_collection_total() == ContentDB.procedural_collection_ids().size(), "hot collection counts avoid rebuilding or exposing the canonical identifier cache")
-	check(ContentDB.procedural_collection_total() == 1100, "seventeen authored planet packs expose the documented bounded 1100-series catalog")
+	check(ContentDB.procedural_collection_total() == 1160, "eighteen authored planet packs expose the documented bounded 1160-series catalog")
 	check(int(premium_omega_loot.power) == int(canonical_omega_loot.power), "contract danger does not inflate the dropped equipment tier")
 	check(str(ContentDB.target_for_planet_tier("dustball_prime", 1).id) == "baron_boom", "planet tier resolves the next warrant deterministically")
 	check(ContentDB.planet_tier_from_target_captures("dustball_prime", {"gloop": 9}) == 1, "farming the first warrant cannot skip sequential tiers")
@@ -173,6 +173,10 @@ func _init() -> void:
 	monastery_rng.seed = 1400140
 	var monastery_implant := ContentDB.generate_loot(ContentDB.TARGETS[64], monastery_rng, 3, "implant")
 	check(str(monastery_implant.slot) == "implant" and str(monastery_implant.origin_planet_id) == "mosteiro_gravidade_reversa" and not str(monastery_implant.name).is_empty(), "the level-140 pack produces canonical themed implant equipment")
+	var market_rng := RandomNumberGenerator.new()
+	market_rng.seed = 1500150
+	var market_boots := ContentDB.generate_loot(ContentDB.TARGETS[68], market_rng, 3, "boots")
+	check(str(market_boots.slot) == "boots" and str(market_boots.origin_planet_id) == "mercado_memorias_usadas" and not str(market_boots.name).is_empty(), "the level-150 pack produces canonical themed boot equipment")
 	for secondary_case in [
 		{"target": ContentDB.TARGETS[4], "slot": "helmet"},
 		{"target": ContentDB.TARGETS[8], "slot": "gloves"},

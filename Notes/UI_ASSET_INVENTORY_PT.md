@@ -298,7 +298,7 @@ Todos são componentes pequenos e reutilizam o retrato do alvo e ícones globais
 
 ### 6.4 Incidentes de viagem
 
-Conteúdo atual: 34 incidentes, dois por cada um dos dezassete planetas de gameplay. Cada incidente contém três opções/ícones de escolha no código.
+Conteúdo atual: 36 incidentes, dois por cada um dos dezoito planetas de gameplay. Cada incidente contém três opções/ícones de escolha no código.
 
 Produção recomendada por incidente:
 
@@ -958,11 +958,11 @@ Estas capturas são a matriz de validação. Não representam 102 ilustrações 
 | --- | ---: |
 | Ilustrações de classe | 3 |
 | Bases modulares de raça e camadas | aproximadamente 96 unidades |
-| Retratos dos 68 alvos atuais | 68 |
-| Habitats dos 17 planetas atuais | 17 |
-| Camadas de arena dos 17 planetas | 17 |
-| Medalhões dos 17 planetas atuais | 17 |
-| Incidentes atuais | 34 |
+| Retratos dos 72 alvos atuais | 72 |
+| Habitats dos 18 planetas atuais | 18 |
+| Camadas de arena dos 18 planetas | 18 |
+| Medalhões dos 18 planetas atuais | 18 |
+| Incidentes atuais | 36 |
 | Transportes | 4 |
 | NPCs de serviço | 5 |
 | Inimigos atuais da Fenda | 24 |
@@ -975,12 +975,12 @@ Estas capturas são a matriz de validação. Não representam 102 ilustrações 
 
 | Família | Meta total | Falta após conteúdo atual |
 | --- | ---: | ---: |
-| Habitats | 35 | 18 |
-| Arenas/camadas de chão | 35 | 18 |
-| Medalhões | 35 | 18 |
-| Alvos | 140 | 72 |
-| Incidentes | 70 | 36 |
-| Packs materiais planetários para equipamento | 35 | 18 packs |
+| Habitats | 35 | 17 |
+| Arenas/camadas de chão | 35 | 17 |
+| Medalhões | 35 | 17 |
+| Alvos | 140 | 68 |
+| Incidentes | 70 | 34 |
+| Packs materiais planetários para equipamento | 35 | 17 packs |
 
 Fenda, eventos sazonais e futuros transportes ainda não têm uma meta anual fechada. Devem usar templates escaláveis e receber orçamento separado.
 
@@ -1012,17 +1012,17 @@ Nada se expande antes de estes testes funcionarem juntos numa captura 450×800.
 
 ### Lote 2 — ciclo central atual
 
-1. dezassete habitats e medalhões;
-2. 68 alvos;
-3. 34 incidentes;
-4. dezassete arenas;
+1. dezoito habitats e medalhões;
+2. 72 alvos;
+3. 36 incidentes;
+4. dezoito arenas;
 5. VFX de combate;
 6. vitória, derrota e recompensa.
 
 ### Lote 3 — equipamento, economia e mobilidade
 
 1. kit modular de itens;
-2. packs visuais dos dezassete planetas;
+2. packs visuais dos dezoito planetas;
 3. quatro transportes;
 4. mercado e ícones premium;
 5. recibos e estados de compra.
