@@ -182,7 +182,22 @@ func run_audit() -> void:
 	var second_opening := Challenge.current_stage(state.player)
 	var second_reward := Challenge.reward_for(second_opening, ContentDB.ITEM_TRAITS)
 	check(str(second_opening.id).begins_with("frozen_verdict__") and int(second_opening.power) >= int(Challenge.STAGES[11].power), "the second reality owns canonical composite enemies and opens above the first reality finale")
-	check(str(second_reward.id).begins_with("frozen_verdict__") and str(second_reward.base_reward_id) == "rift_customs_drone_reward" and int(second_reward.power) == 2, "reality rewards remain unique while retaining their translated base identity")
+	check(str(second_reward.id).begins_with("frozen_verdict__") and str(second_reward.base_reward_id) == "rift_customs_drone_reward" and str(second_reward.localization_reward_id).begins_with("frozen_verdict__") and int(second_reward.power) == 2, "reality rewards remain unique while retaining mechanical lineage and their own localization identity")
+	check(str(second_opening.name) == "Oficial do Segundo Congelado" and str(second_opening.attacks[0]) == "Carimbo de Geada", "the second reality opens with its own authored enemy and combat vocabulary")
+	check(str(second_reward.name) == "Arnês do Prazo Suspenso" and str(second_reward.name) != str(Challenge.STAGES[0].reward.name), "the second reality owns a distinct collectible identity without changing its audited trait")
+	var first_names := Challenge.STAGES.map(func(stage): return str(stage.name))
+	var second_names: Array[String] = []
+	var second_reward_names: Array[String] = []
+	var unique_second_names := {}
+	var unique_second_rewards := {}
+	for identity_index in Challenge.STAGES.size():
+		var identity_stage := Challenge.stage_at(identity_index, "frozen_verdict")
+		second_names.append(str(identity_stage.name))
+		second_reward_names.append(str(identity_stage.reward.name))
+		unique_second_names[str(identity_stage.name)] = true
+		unique_second_rewards[str(identity_stage.reward.name)] = true
+	check(second_names.all(func(name): return not first_names.has(name)) and unique_second_names.size() == 12, "all twelve second-reality enemies are distinct from the first reality and from each other")
+	check(unique_second_rewards.size() == 12, "all twelve sealed second-reality artifacts have distinct authored identities")
 	scene.render()
 	await process_frame
 	check(scene.find_child("ChallengeRealityTab_dead_customs", true, false) != null and scene.find_child("ChallengeRealityTab_frozen_verdict", true, false) != null, "the Rift exposes only the two realities whose keys are owned")

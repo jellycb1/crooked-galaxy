@@ -182,7 +182,7 @@ static func t(key: String, fallback: String = "", values: Array = []) -> String:
 
 
 static func localized_stage_field(stage: Dictionary, field: String) -> String:
-	return t(LocaleRules.content_key("rift_stage", str(stage.get("base_stage_id", stage.get("id", ""))), field), str(stage.get(field, "")))
+	return t(LocaleRules.content_key("rift_stage", str(stage.get("localization_stage_id", stage.get("id", ""))), field), str(stage.get(field, "")))
 
 
 static func localized_anomaly_field(anomaly_id: String, anomaly: Dictionary, field: String) -> String:

@@ -597,5 +597,5 @@ static func t(key: String, fallback: String = "", values: Array = []) -> String:
 
 
 static func localized_content_field(prefix: String, definition: Dictionary, field: String) -> String:
-	var content_id := str(definition.get("base_stage_id", definition.get("id", ""))) if prefix == "rift_stage" else str(definition.get("id", ""))
+	var content_id := str(definition.get("localization_stage_id", definition.get("id", ""))) if prefix == "rift_stage" else str(definition.get("id", ""))
 	return t(LocaleRules.content_key(prefix, content_id, field), str(definition.get(field, "")))

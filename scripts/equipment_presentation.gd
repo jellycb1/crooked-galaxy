@@ -9,7 +9,8 @@ const AttributePackageRules = preload("res://scripts/attribute_package_rules.gd"
 
 
 static func localized_item_field(item: Dictionary, field: String) -> String:
-	var item_id := str(item.get("base_reward_id", item.get("id", "")))
+	var instance_id := str(item.get("id", ""))
+	var item_id := str(item.get("localization_reward_id", instance_id if instance_id.contains("__") else item.get("base_reward_id", instance_id)))
 	if str(item.get("challenge_origin", "")) == "fenda_clandestina":
 		return LocaleRules.text("RIFT_REWARD_%s_%s" % [item_id.trim_suffix("_reward").to_upper(), field.to_upper()], str(item.get(field, "")))
 	if item_id == "starter_weapon" or item_id == "starter_armor":

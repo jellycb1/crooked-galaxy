@@ -68,13 +68,16 @@ func run_test() -> void:
 				for field in ["name", "description"]:
 					var item_key := "ITEM_%s_%s_%d_%s" % [str(planet.id).to_upper(), slot.to_upper(), item_index, field.to_upper()]
 					check_catalog_key(pt_keys, en_keys, item_key, "planet item %s" % field)
-	for stage in Challenge.STAGES:
-		for field in ["name", "title", "description"]:
-			check_translation(Locales.content_key("rift_stage", str(stage.id), field), "Rift stage %s" % field)
-		for attack_index in 3:
-			check_translation("RIFT_STAGE_%s_ATTACK_%d" % [str(stage.id).to_upper(), attack_index], "Rift attack")
-		for field in ["name", "description"]:
-			check_translation("RIFT_REWARD_%s_%s" % [str(stage.id).to_upper(), field.to_upper()], "Rift reward %s" % field)
+	for reality in Challenge.REALITIES:
+		for stage_index in reality.stages.size():
+			var stage := Challenge.stage_at(stage_index, str(reality.id))
+			var localization_id := str(stage.get("localization_stage_id", stage.id))
+			for field in ["name", "title", "description"]:
+				check_translation(Locales.content_key("rift_stage", localization_id, field), "Rift stage %s" % field)
+			for attack_index in 3:
+				check_translation("RIFT_STAGE_%s_ATTACK_%d" % [localization_id.to_upper(), attack_index], "Rift attack")
+			for field in ["name", "description"]:
+				check_translation("RIFT_REWARD_%s_%s" % [str(stage.id).to_upper(), field.to_upper()], "Rift reward %s" % field)
 	for anomaly_id in Challenge.ANOMALY_PROFILES:
 		for field in ["name", "description", "favored_axis"]:
 			check_translation("RIFT_ANOMALY_%s_%s" % [str(anomaly_id).to_upper(), field.to_upper()], "Rift anomaly %s" % field)
@@ -112,6 +115,25 @@ func run_test() -> void:
 	scene.render()
 	await process_frame
 	check(has_label(scene, "ARTIFACT RECOVERED") and has_label(scene, "Broken Seal Rig") and has_label(scene, "RIFT RECEIPT"), "English Rift reward and transaction receipt render without fallback")
+
+	state.player.level = 100
+	state.player.rift_reality_keys = ["dead_customs_key", "frozen_verdict_key"]
+	state.player.selected_rift_reality_id = "frozen_verdict"
+	state.player.rift_reality_progress = {"dead_customs": 12, "frozen_verdict": 0}
+	state.phase = state.Phase.BOARD
+	scene.view_mode = "challenges"
+	scene.render()
+	await process_frame
+	check(has_label(scene, "Verdict of Frozen Time") and has_label(scene, "Officer of the Frozen Second") and has_label(scene, "FLOOR 1 · MOTIONLESS SUMMONS") and not has_label(scene, "Dead Customs Drone"), "English second reality renders its own enemy identity instead of recycled first-reality copy")
+	state.current_bounty = Challenge.stage_at(0, "frozen_verdict")
+	state.pending_loot = Challenge.reward_for(state.current_bounty, ContentDB.ITEM_TRAITS)
+	state.phase = state.Phase.REWARD
+	scene.render()
+	await process_frame
+	check(has_label(scene, "Suspended Deadline Harness") and not has_label(scene, "Broken Seal Rig"), "English victory reveals the distinct sealed artifact for the second reality")
+	var legacy_second_reward: Dictionary = state.pending_loot.duplicate(true)
+	legacy_second_reward.erase("localization_reward_id")
+	check(state.localized_item_field(legacy_second_reward, "name") == "Suspended Deadline Harness", "pre-update second-reality artifacts localize from their stable composite instance id")
 
 	for planet_index in ContentDB.PLANETS.size():
 		var planet: Dictionary = ContentDB.PLANETS[planet_index]

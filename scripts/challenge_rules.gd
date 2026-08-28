@@ -194,6 +194,85 @@ const STAGES := [
 	},
 ]
 
+# Authored identity layer for the second reality. Combat values, traits and
+# reward slots continue to inherit the audited twelve-floor envelope above;
+# only fiction and collectible identity change. Composite runtime IDs remain
+# unchanged, preserving interrupted schema-22/23 saves.
+const FROZEN_VERDICT_IDENTITIES := [
+	{
+		"name": "Oficial do Segundo Congelado", "title": "ANDAR 1 · INTIMAÇÃO IMÓVEL",
+		"description": "Entrega mandados num instante que nunca termina e cobra estacionamento desde antes do tempo parar.",
+		"attacks": ["Carimbo de Geada", "Prazo Suspenso", "Citação Imóvel"],
+		"reward": {"name": "Arnês do Prazo Suspenso", "description": "Mantém munição e desculpas legais preservadas fora do fluxo temporal."},
+	},
+	{
+		"name": "Júri dos Recursos Mudos", "title": "ANDAR 2 · SALA SEM DELIBERAÇÃO",
+		"description": "Doze vozes congeladas votam em silêncio e apresentam a fatura em coro.",
+		"attacks": ["Veredito Ressonante", "Objeção em Coro", "Silêncio Culpado"],
+		"reward": {"name": "Colete de Deliberação Térmica", "description": "Converte hesitação coletiva em estabilidade quase profissional."},
+	},
+	{
+		"name": "Carrasco do Cronómetro", "title": "ANDAR 3 · EXECUÇÃO ADIADA",
+		"description": "Afia o mesmo segundo há séculos e considera pontualidade uma circunstância agravante.",
+		"attacks": ["Lâmina de Ponteiro", "Contagem Condenatória", "Último Tique"],
+		"reward": {"name": "Plataforma do Último Tique", "description": "Distribui ferramentas pelo intervalo exato entre agora e tarde demais."},
+	},
+	{
+		"name": "Testemunha em Estase", "title": "ANDAR 4 · DEPOIMENTO PRESERVADO",
+		"description": "Recorda tudo perfeitamente porque nada novo acontece desde o início do interrogatório.",
+		"attacks": ["Memória Pericial", "Relato Imutável", "Contradição Criogénica"],
+		"reward": {"name": "Nódulo da Testemunha Fria", "description": "Arquiva detalhes comprometedores antes que a realidade possa alterá-los."},
+	},
+	{
+		"name": "Promotor de Ontem", "title": "ANDAR 5 · ACUSAÇÃO RETROATIVA",
+		"description": "Processa crimes que ainda não aconteceram usando precedentes que já foram apagados.",
+		"attacks": ["Culpa Anterior", "Precedente Congelado", "Alegação Retroativa"],
+		"reward": {"name": "Córtex de Precedentes Mortos", "description": "Prevê a acusação seguinte consultando decisões que o tempo recusou publicar."},
+	},
+	{
+		"name": "Glaciar de Sentenças", "title": "ANDAR 6 · ARQUIVO SOB ZERO",
+		"description": "Uma montanha de decisões acumuladas avança à velocidade judicial e com o mesmo peso.",
+		"attacks": ["Desabamento Jurídico", "Pena Perpétua", "Recurso Soterrado"],
+		"reward": {"name": "Interface da Pena Glacial", "description": "Liga o pensamento a jurisprudência suficientemente fria para não discutir."},
+	},
+	{
+		"name": "Relojoeiro da Condicional", "title": "ANDAR 7 · OFICINA DE PENAS",
+		"description": "Repara relógios de sentença e acrescenta meses sempre que sobra uma engrenagem.",
+		"attacks": ["Mola de Reincidência", "Liberdade Atrasada", "Pêndulo Penal"],
+		"reward": {"name": "Sinalizador de Hora Condicional", "description": "Marca a única janela em que fugir é tecnicamente uma questão de agenda."},
+	},
+	{
+		"name": "Fiança do Inverno Eterno", "title": "ANDAR 8 · CAUÇÃO CRIOGÉNICA",
+		"description": "Uma garantia viva que congela bens, contas e qualquer pessoa com aspeto de fiador.",
+		"attacks": ["Penhora Térmica", "Caução Predatória", "Avalista Congelado"],
+		"reward": {"name": "Isca de Fiador Improvável", "description": "Convence cobranças de que outra versão sua assinou toda a documentação."},
+	},
+	{
+		"name": "Magistrado do Zero Absoluto", "title": "ANDAR 9 · TRIBUNAL SEM MOVIMENTO",
+		"description": "Proibiu vibrações moleculares durante a audiência para evitar protestos excessivamente animados.",
+		"attacks": ["Martelo Entrópico", "Ordem de Imobilidade", "Desacato Molecular"],
+		"reward": {"name": "Assistente de Audiência Isotérmica", "description": "Encontra brechas legais onde até os átomos foram intimados a ficar quietos."},
+	},
+	{
+		"name": "Avalanche de Recursos", "title": "ANDAR 10 · INSTÂNCIA SUPERIOR",
+		"description": "Milhões de apelos rejeitados ganharam massa, inclinação e representação própria.",
+		"attacks": ["Recurso em Massa", "Precedente Descendente", "Soterramento Final"],
+		"reward": {"name": "Nó de Jurisdição Portátil", "description": "Mantém o caçador dentro da instância correta quando a lei começa a deslizar."},
+	},
+	{
+		"name": "Capataz do Último Minuto", "title": "ANDAR 11 · TURNO INTERMINÁVEL",
+		"description": "Obriga o último minuto do universo a fazer horas extra sem intervalo nem sindicato.",
+		"attacks": ["Hora Extra Eterna", "Ponto Recursivo", "Intervalo Negado"],
+		"reward": {"name": "Minuto que Recusa Descongelar", "description": "Devolve uma fração do turno sempre que o relógio tenta encerrar o expediente."},
+	},
+	{
+		"name": "Veredito que Nunca Degela", "title": "ANDAR 12 · SENTENÇA DO FIM",
+		"description": "A decisão final tornou-se consciente, declarou-se irrevogável e penhorou o futuro do universo.",
+		"attacks": ["Cláusula Criogénica", "Execução do Amanhã", "Trânsito em Julgado"],
+		"reward": {"name": "Prisma da Sentença Irrevogável", "description": "Divide uma decisão final em várias exceções úteis e legalmente luminosas."},
+	},
+]
+
 const FIRST_REALITY_ID := "dead_customs"
 const REALITIES := [
 	{
@@ -225,6 +304,7 @@ const REALITIES := [
 		"difficulty_multipliers": [1.23, 1.22, 1.21, 1.24, 1.19, 1.12, 1.13, 1.12, 1.09, 1.04, 0.97, 0.87],
 		"reward_power_bonus": 1,
 		"key_pity_hunts": 5,
+		"identity_stages": FROZEN_VERDICT_IDENTITIES,
 		"stages": STAGES,
 	},
 ]
@@ -342,6 +422,19 @@ static func stage_at(index: int, reality_id := FIRST_REALITY_ID) -> Dictionary:
 	stage["base_stage_id"] = base_stage_id
 	if reality_id != FIRST_REALITY_ID:
 		stage["id"] = "%s__%s" % [reality_id, base_stage_id]
+		var identities: Array = definition.get("identity_stages", [])
+		if index < identities.size():
+			var identity: Dictionary = identities[index]
+			for field in ["name", "title", "description", "attacks"]:
+				if identity.has(field):
+					stage[field] = identity[field] if field != "attacks" else identity[field].duplicate()
+			var identity_reward: Dictionary = identity.get("reward", {})
+			if not identity_reward.is_empty():
+				var authored_reward: Dictionary = stage.get("reward", {}).duplicate(true)
+				for field in ["name", "description"]:
+					if identity_reward.has(field):
+						authored_reward[field] = identity_reward[field]
+				stage.reward = authored_reward
 		for stat_key in ["power", "defense", "health"]:
 			stage[stat_key] = maxi(1, roundi(float(stage.get(stat_key, 1)) * stat_multiplier) + int(definition.get("%s_bonus" % stat_key, 0)))
 		var difficulty_multipliers: Array = definition.get("difficulty_multipliers", [])
@@ -351,6 +444,7 @@ static func stage_at(index: int, reality_id := FIRST_REALITY_ID) -> Dictionary:
 		stage.credits = maxi(1, roundi(float(stage.get("credits", 1)) * float(definition.get("credits_multiplier", stat_multiplier))))
 		stage.xp = maxi(1, roundi(float(stage.get("xp", 1)) * float(definition.get("xp_multiplier", stat_multiplier))))
 	stage["reward_power_bonus"] = int(definition.get("reward_power_bonus", 0))
+	stage["localization_stage_id"] = str(stage.id)
 	var anomaly := anomaly_profile(str(stage.get("anomaly_id", "")))
 	if anomaly.is_empty():
 		return {}
@@ -392,6 +486,7 @@ static func reward_for(stage: Dictionary, traits: Dictionary) -> Dictionary:
 	var item := {
 		"id": "%s_reward" % str(stage.id),
 		"base_reward_id": "%s_reward" % str(stage.get("base_stage_id", stage.id)),
+		"localization_reward_id": "%s_reward" % str(stage.get("localization_stage_id", stage.id)),
 		"name": str(definition.name),
 		"description": str(definition.description),
 		"slot": str(definition.slot),
