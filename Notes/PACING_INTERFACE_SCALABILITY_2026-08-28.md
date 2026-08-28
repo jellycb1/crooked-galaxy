@@ -2,6 +2,8 @@
 
 Estado: implementação validada, 28 de agosto de 2026.
 
+> Nota de continuidade: os números lineares de progressão abaixo documentam a decisão da versão 0.47.0. A curva quadrática ativa e o catálogo revisto estão em `XP_PACING_SIMULATION_2026-08-28.md` e `YEAR_ONE_CONTENT_CONTRACT.md`.
+
 ## Decisão de ritmo suportada por dados
 
 Cinco caçadas por dia continuam a ser o perfil de referência, mas não são um limite mecânico. A nova auditoria executável simula 5, 10, 20 e 40 caçadas diárias usando ofertas padrão e nenhum transporte. O nível 30 exige 137 contratos e o nível 300 exige 1 813. Assim, o catálogo contratado de 33 planetas dura aproximadamente 363 dias para 5 caçadas/dia, 182 para 10, 91 para 20 e 46 para 40.

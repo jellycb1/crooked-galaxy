@@ -89,11 +89,13 @@ func test_damage_boundaries() -> void:
 
 
 func test_level_progression() -> void:
+	check(Rules.xp_needed(1) == 80 and Rules.xp_needed(2) == 126, "the quadratic XP curve preserves the fast opening")
+	check(Rules.xp_needed(10) == 550 and Rules.xp_needed(100) == 12376, "the quadratic XP curve creates a deterministic long tail")
 	var player := {"level": 1, "xp": 0, "base_power": 10}
 	var gained := Rules.apply_xp(player, 210)
 	check(gained == 2, "XP can grant multiple levels")
 	check(player.level == 3, "level is incremented")
-	check(player.xp == 5, "overflow XP is retained")
+	check(player.xp == 4, "overflow XP is retained")
 	check(player.base_power == 14, "level raises base power")
 	check(int(player.stat_points) == 4, "each gained level also grants two distributable attribute points")
 	var no_patrol := Rules.offline_patrol_rewards(299.0, 3, 10)

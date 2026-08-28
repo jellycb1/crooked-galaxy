@@ -50,8 +50,8 @@ func _init() -> void:
 	for win in acquired_at_win.values():
 		latest_transport_win = maxi(latest_transport_win, int(win))
 	check(latest_transport_win >= 60 and latest_transport_win <= 100, "the final transport remains a long goal but arrives within the current world-discovery career")
-	check(int(player.level) >= 35 and int(player.level) <= 50, "two hundred standard contracts avoid level runaway")
-	check(int(player.credits) < 250000, "level-forty career wallet remains bounded before retention systems exist")
+	check(int(player.level) >= 30 and int(player.level) <= 40, "two hundred standard contracts follow the intended quadratic progression")
+	check(int(player.credits) < 250000, "level-thirty career wallet remains bounded before retention systems exist")
 	var daily_credit_total := 0
 	var daily_scrap_total := 0
 	for objective in state.daily_objectives():

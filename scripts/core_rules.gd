@@ -12,6 +12,8 @@ const PLANETARY_KIT_HEALTH_BONUS := 6
 const BOUNTY_ODDS_CACHE_LIMIT := 512
 const BASE_ATTRIBUTE_VALUE := 10
 const ATTRIBUTE_POINTS_PER_LEVEL := 2
+const XP_QUADRATIC_NUMERATOR := 4
+const XP_QUADRATIC_DENOMINATOR := 5
 const ATTRIBUTE_KEYS := ["strength", "vitality", "dexterity", "intelligence", "cunning"]
 const EQUIPMENT_SLOTS := ["weapon", "helmet", "armor", "gloves", "boots", "rig", "implant", "gadget", "relic"]
 const EQUIPMENT_SLOT_NAMES := {
@@ -216,7 +218,10 @@ static func enemy_attack_breakdown(player: Dictionary, target_power: int, roll: 
 
 
 static func xp_needed(level: int) -> int:
-	return 80 + maxi(0, level - 1) * 45
+	var offset := maxi(0, level - 1)
+	var quadratic_numerator := XP_QUADRATIC_NUMERATOR * offset * offset
+	var quadratic_xp := floori(float(quadratic_numerator) / float(XP_QUADRATIC_DENOMINATOR) + 0.5)
+	return 80 + offset * 45 + quadratic_xp
 
 
 static func apply_xp(player: Dictionary, amount: int) -> int:

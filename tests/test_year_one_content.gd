@@ -13,8 +13,8 @@ var failures := 0
 func _init() -> void:
 	var levels := YearOne.required_unlock_levels()
 	check(levels.slice(0, 5) == [1, 4, 8, 13, 19], "the launch contract preserves all five implemented discovery levels")
-	check(levels[-1] == 300 and levels.size() == 33, "ten-level expansion cadence covers the projected level-302 daily player")
-	check(YearOne.TOTAL_HUNTS == 1825 and YearOne.required_target_count() == 132, "the year-one catalog has an explicit 365-day, 132-target ceiling")
+	check(levels[-1] == YearOne.FINAL_YEAR_ONE_PLANET_LEVEL and levels.size() == 35, "ten-level expansion cadence covers the fuel-limited worst-case year")
+	check(YearOne.TOTAL_HUNTS == 1825 and YearOne.required_target_count() == 140, "the year-one catalog has an explicit 365-day, 140-target ceiling")
 	check(YearOne.PACING_AUDIT_DAILY_HUNTS == [5, 10, 20, 40], "the launch contract audits reference through high-intensity hunt profiles")
 	check(YearOne.days_for_hunts(1825, 5) == 365 and YearOne.days_for_hunts(1825, 20) == 92, "pacing conversion exposes faster content consumption instead of treating five hunts as a cap")
 	check(MonetizationRules.DAILY_HUNT_FUEL == 100 and MonetizationRules.HUNT_FUEL_REFILL_AMOUNT == 20 and MonetizationRules.HUNT_FUEL_REFILL_COSTS == [1, 5, 20], "the year-one model uses the approved transparent fuel reserve and refill ladder")
@@ -36,7 +36,7 @@ func _init() -> void:
 		var standard: Dictionary = offers[1]
 		player.wins = int(player.wins) + 1
 		CoreRules.apply_xp(player, int(standard.xp))
-	check(int(player.level) == YearOne.PROJECTED_YEAR_END_LEVEL, "five standard hunts per day project to the documented year-end level")
+	check(int(player.level) == YearOne.REFERENCE_YEAR_END_LEVEL, "five standard hunts per day project to the documented quadratic-curve year-end level")
 	check(seen_planets.size() == ContentDB.PLANETS.size() and seen_targets.size() == ContentDB.TARGETS.size(), "the current rotation keeps every implemented world and target discoverable during the year simulation")
 	state.free()
 	finish()

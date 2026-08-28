@@ -2,6 +2,8 @@
 
 Estado: sistema local completo para testes internos, 28 de agosto de 2026.
 
+> Nota de continuidade: as projeções lineares deste relatório preservam a auditoria da versão 0.48.0. A progressão ativa usa a curva quadrática documentada em `XP_PACING_SIMULATION_2026-08-28.md`.
+
 ## Contrato executável
 
 - Cada dia UTC começa com 100 unidades gratuitas de combustível.

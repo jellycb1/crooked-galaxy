@@ -6,15 +6,15 @@ const StateScript = preload("res://scripts/game_state.gd")
 const TransportRules = preload("res://scripts/transport_rules.gd")
 const MonetizationRules = preload("res://scripts/monetization_rules.gd")
 const YearOne = preload("res://scripts/year_one_content_rules.gd")
-const XP_MILESTONES := [4, 8, 13, 19, 30, 50, 100, 200, 300, 500]
+const XP_MILESTONES := [4, 8, 13, 19, 30, 50, 100, 200, 300, 320, 500]
 
 
 func _init() -> void:
 	var current_catalog := simulate_until_level(30)
-	var launch_catalog := simulate_until_level(300)
+	var launch_catalog := simulate_until_level(YearOne.FINAL_YEAR_ONE_PLANET_LEVEL)
 	print("Crooked Galaxy year-one pacing audit · standard offers · no transport")
 	print("  current final discovery · level 30 · %d hunts · %.1f route hours" % [int(current_catalog.hunts), float(current_catalog.elapsed_seconds) / 3600.0])
-	print("  launch final discovery · level 300 · %d hunts · %.1f route hours" % [int(launch_catalog.hunts), float(launch_catalog.elapsed_seconds) / 3600.0])
+	print("  launch final discovery · level %d · %d hunts · %.1f route hours" % [YearOne.FINAL_YEAR_ONE_PLANET_LEVEL, int(launch_catalog.hunts), float(launch_catalog.elapsed_seconds) / 3600.0])
 	for daily_hunts in YearOne.PACING_AUDIT_DAILY_HUNTS:
 		var year_result := simulate_hunts(YearOne.DAYS * int(daily_hunts))
 		print("  %2d/day · current catalog day %3d · launch catalog day %3d · year-end level %d · %.1f route hours/day" % [
@@ -29,7 +29,7 @@ func _init() -> void:
 	for daily_fuel in [MonetizationRules.DAILY_HUNT_FUEL, MonetizationRules.DAILY_HUNT_FUEL + MonetizationRules.HUNT_FUEL_REFILL_AMOUNT * MonetizationRules.MAX_HUNT_FUEL_REFILLS_PER_DAY]:
 		for strategy in ["standard", "cheapest"]:
 			var fuel_year := simulate_fuel_days(YearOne.DAYS, strategy, daily_fuel)
-			print("  fuel %3d · %-8s · %d hunts · %.1f/day · level %d · %.1f fuel/day · L30 D%s · L100 D%s · L300 D%s · L500 D%s" % [
+			print("  fuel %3d · %-8s · %d hunts · %.1f/day · level %d · %.1f fuel/day · L30 D%s · L100 D%s · L300 D%s · L320 D%s · L500 D%s" % [
 				daily_fuel,
 				strategy,
 				int(fuel_year.hunts),
@@ -39,6 +39,7 @@ func _init() -> void:
 				milestone_day_text(fuel_year, 30),
 				milestone_day_text(fuel_year, 100),
 				milestone_day_text(fuel_year, 300),
+				milestone_day_text(fuel_year, 320),
 				milestone_day_text(fuel_year, 500),
 			])
 	print("Candidate long-tail XP curves · +coefficient × (level-1)^2 XP required")
@@ -100,7 +101,7 @@ static func simulate_hunts(total_hunts: int) -> Dictionary:
 	return {"hunts": maxi(0, total_hunts), "level": int(player.level), "elapsed_seconds": elapsed_seconds}
 
 
-static func simulate_fuel_days(days: int, strategy: String, daily_fuel: int, quadratic_xp_coefficient := 0.0) -> Dictionary:
+static func simulate_fuel_days(days: int, strategy: String, daily_fuel: int, quadratic_xp_coefficient := -1.0) -> Dictionary:
 	var state := StateScript.new()
 	state.persistence_enabled = false
 	var player := state.default_player()
@@ -126,7 +127,10 @@ static func simulate_fuel_days(days: int, strategy: String, daily_fuel: int, qua
 			remaining -= cost
 			fuel_spent += cost
 			player.wins = int(player.wins) + 1
-			apply_projected_xp(player, int(selected.xp), quadratic_xp_coefficient)
+			if quadratic_xp_coefficient < 0.0:
+				CoreRules.apply_xp(player, int(selected.xp))
+			else:
+				apply_projected_xp(player, int(selected.xp), quadratic_xp_coefficient)
 			hunts += 1
 			for milestone in XP_MILESTONES:
 				if int(player.level) >= milestone and not milestone_days.has(milestone):
