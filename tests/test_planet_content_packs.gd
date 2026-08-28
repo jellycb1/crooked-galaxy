@@ -17,16 +17,17 @@ const NecropoleSolar = preload("res://scripts/content/packs/necropole_solar_umbr
 const CentralTempestades = preload("res://scripts/content/packs/central_tempestades_24h.gd")
 const MuseuAmanha = preload("res://scripts/content/packs/museu_amanha_obsoleto.gd")
 const BibliotecaSilencio = preload("res://scripts/content/packs/biblioteca_silencio_taxado.gd")
+const ResortHorizonte = preload("res://scripts/content/packs/resort_horizonte_eventos.gd")
 
 var failures := 0
 
 
 func _init() -> void:
 	check(Registry.validation_errors().is_empty(), "registered planet packs satisfy the complete content contract")
-	check(Registry.PACK_SCRIPTS.size() == 14, "the registry contains all fourteen current canonical planet packs")
-	check(Registry.PLANETS.size() == 14, "the registry composes all fourteen planets")
-	check(Registry.TARGETS.size() == 56, "the registry composes all 56 targets")
-	check(Registry.HUNT_EVENTS.size() == 28, "the registry composes all 28 hunt incidents")
+	check(Registry.PACK_SCRIPTS.size() == 15, "the registry contains all fifteen current canonical planet packs")
+	check(Registry.PLANETS.size() == 15, "the registry composes all fifteen planets")
+	check(Registry.TARGETS.size() == 60, "the registry composes all 60 targets")
+	check(Registry.HUNT_EVENTS.size() == 30, "the registry composes all 30 hunt incidents")
 	check(Registry.pack_for_planet("dustball_prime") == Dustball.PACK, "registry resolves the canonical Dustball pack")
 	check(Registry.pack_for_planet("congelaria_sa") == Congelaria.PACK, "registry resolves the canonical Congelaria pack")
 	check(Registry.pack_for_planet("micelia_404") == Micelia.PACK, "registry resolves the canonical Micelia pack")
@@ -41,6 +42,7 @@ func _init() -> void:
 	check(Registry.pack_for_planet("central_tempestades_24h") == CentralTempestades.PACK, "registry resolves the canonical 24h Storm Center pack")
 	check(Registry.pack_for_planet("museu_amanha_obsoleto") == MuseuAmanha.PACK, "registry resolves the canonical Museum of Obsolete Tomorrows pack")
 	check(Registry.pack_for_planet("biblioteca_silencio_taxado") == BibliotecaSilencio.PACK, "registry resolves the canonical Taxed Silence Library pack")
+	check(Registry.pack_for_planet("resort_horizonte_eventos") == ResortHorizonte.PACK, "registry resolves the canonical Event Horizon Resort pack")
 	check(Registry.pack_for_planet("unknown").is_empty(), "unknown planet packs fail closed")
 	var detached := Registry.pack_for_planet("dustball_prime")
 	detached.planet.name = "MUTATED"
@@ -165,6 +167,15 @@ func _init() -> void:
 	check([BibliotecaSilencio.TARGETS[0].power, BibliotecaSilencio.TARGETS[3].power] == [615, 692], "level-110 combat anchors are explicit")
 	check(BibliotecaSilencio.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Taxed Silence target art remains explicitly assigned to the user asset pipeline")
 
+	check(Content.PLANETS[14] == ResortHorizonte.PLANET, "the level-120 planet follows Taxed Silence in canonical order")
+	check(Content.TARGETS.slice(56, 60) == ResortHorizonte.TARGETS, "ContentDB exposes all four Event Horizon Resort targets")
+	check(Content.HUNT_EVENTS.slice(28, 30) == ResortHorizonte.EVENTS, "ContentDB exposes both Event Horizon Resort incidents")
+	check(Content.PLANET_ITEM_CATALOGS.resort_horizonte_eventos == ResortHorizonte.ITEMS, "Event Horizon Resort primary equipment remains canonical")
+	check(Content.SECONDARY_ITEM_CATALOGS.resort_horizonte_eventos == ResortHorizonte.SECONDARY_ITEMS, "Event Horizon Resort helmet catalog remains canonical")
+	check(Content.loot_slots_for_planet("resort_horizonte_eventos") == ["weapon", "weapon", "weapon", "armor", "armor", "helmet", "helmet"], "Event Horizon Resort deepens helmets without opening Rift-only slots")
+	check([ResortHorizonte.TARGETS[0].power, ResortHorizonte.TARGETS[3].power] == [712, 801], "level-120 combat anchors are explicit")
+	check(ResortHorizonte.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Event Horizon Resort target art remains explicitly assigned to the user asset pipeline")
+
 	var forged := Dustball.PACK.duplicate(true)
 	forged.targets.pop_back()
 	check(not PackContract.is_valid(forged), "incomplete planet packs are rejected")
@@ -186,7 +197,7 @@ func _init() -> void:
 	check(not PackContract.is_valid(forged), "planet bosses are reserved for tier three")
 
 	if failures == 0:
-		print("PASS: all fourteen current planet packs preserve canonical content and slot progression")
+		print("PASS: all fifteen current planet packs preserve canonical content and slot progression")
 	quit(1 if failures > 0 else 0)
 
 

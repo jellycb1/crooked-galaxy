@@ -51,9 +51,10 @@ func _init() -> void:
 	var seen_target_ids := {}
 	var previous_pairs := {}
 	state.player.level = int(ContentDB.PLANETS[-1].unlock_level)
-	# Eight passes across the complete current world catalog balance both the
-	# three destination slots and all four authored target tiers.
-	for cycle in ContentDB.PLANETS.size() * 8:
+	# Sixteen passes across the complete current world catalog balance both the
+	# three destination slots and all four authored target tiers as the catalog
+	# grows beyond the early least-common rotation periods.
+	for cycle in ContentDB.PLANETS.size() * 16:
 		state.player.wins = cycle
 		var rotating := MissionRules.board_offers(state.player)
 		var board_worlds := {}
