@@ -56,7 +56,11 @@ The game should not become hard military sci-fi or generic realistic science fic
 
 Planets are destinations, lore, visual identity and content pools rather than a mandatory linear career map. The bounty board always offers three different targets; as hunter level rises, new worlds and criminal families enter that rotating network. A destination's distance creates the travel portion of a mission and gives transport progression lasting value. The five initial base routes are 5, 8, 12, 16, and 20 minutes; later worlds extend that distance progression, currently reaching 40 minutes at level 70. Transparent starter acceleration scales travel to 40%, 60%, and 80% through levels 1–12 before the full route applies from level 13. Transports permanently reduce travel only by 10%, 20%, 30%, or 50%; pursuit remains additive. Hunt incidents are optional opportunities during the same authoritative wall-clock route: ignoring one has no consequence and never pauses arrival, while choosing an explicit detour may add its advertised duration.
 
-Enemy combat statistics are fixed when an offer is created from its hunter-level band and risk role. They must never scale from currently equipped power: replacing equipment must make the same accepted offer genuinely easier. Planets can still introduce:
+Enemy combat statistics are fixed when an offer is created from its hunter-level band and risk role. They must never scale from currently equipped power: replacing equipment must make the same accepted offer genuinely easier.
+
+The three contract approaches are a second, transparent risk/reward decision after choosing a warrant. Their early-game identities remain pronounced while their combined power, defense and health pressure blends into a bounded envelope from levels 20–30. From level 30 onward, every representative class cohort must retain at least two viable approaches at the 55% recommendation threshold, while at least one rotating offer keeps a visible risk gap. Approach balance reads only the immutable mission level or authored world unlock level, never current equipment. Contracts already accepted under an older balance version retain that exact route snapshot after an update.
+
+Planets can still introduce:
 
 * new species;
 * new bounty targets;

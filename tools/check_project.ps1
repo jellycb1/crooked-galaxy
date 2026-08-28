@@ -43,6 +43,7 @@ $Tests = @(
 	"test_account_boundary.gd",
 	"test_simulation_builds.gd",
     "test_balance_guards.gd",
+	"test_late_approach_cohorts.gd",
     "test_flow.gd",
     "test_ui.gd",
     "test_ui_factory.gd",

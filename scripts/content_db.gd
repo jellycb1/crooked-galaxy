@@ -21,9 +21,14 @@ const PLAYER_ATTACKS := [
 	"Cláusula de Perfuração",
 ]
 
+const CONTRACT_APPROACH_BALANCE_VERSION := 2
+const CONTRACT_APPROACH_LATE_BLEND_START := 20
+const CONTRACT_APPROACH_LATE_BLEND_END := 30
+
 const CONTRACT_APPROACHES := [
 	{
 		"id": "quiet_net",
+		"balance_version": CONTRACT_APPROACH_BALANCE_VERSION,
 		"name": "Rede Silenciosa",
 		"tag": "SEGURO · +XP",
 		"description": "Cerque o alvo, desligue as saídas e finja que tudo estava planejado.",
@@ -31,12 +36,16 @@ const CONTRACT_APPROACHES := [
 		"power_mult": 0.92,
 		"defense_mult": 0.85,
 		"health_mult": 1.0,
+		"late_power_mult": 0.86,
+		"late_defense_mult": 0.78,
+		"late_health_mult": 0.94,
 		"credits_mult": 0.90,
 		"xp_mult": 1.25,
 		"color": "#55e5ff",
 	},
 	{
 		"id": "hot_hatch",
+		"balance_version": CONTRACT_APPROACH_BALANCE_VERSION,
 		"name": "Entrada pela Escotilha",
 		"tag": "RÁPIDO · +35% CRÉDITOS",
 		"description": "Chegue antes do plano, chute a porta errada e cobre taxa de urgência.",
@@ -46,12 +55,16 @@ const CONTRACT_APPROACHES := [
 		"health_mult": 1.28,
 		"frontier_health_bonus": 0.22,
 		"planet_health_step": 0.03,
+		"late_power_mult": 0.90,
+		"late_defense_mult": 0.82,
+		"late_health_mult": 0.98,
 		"credits_mult": 1.35,
 		"xp_mult": 1.0,
 		"color": "#ff6f7d",
 	},
 	{
 		"id": "premium_warrant",
+		"balance_version": CONTRACT_APPROACH_BALANCE_VERSION,
 		"name": "Mandado Corporativo",
 		"tag": "LUCRO · +100% CR · +3 SUCATA",
 		"description": "A corporação paga muito mais e libera peças da oficina, desde que o alvo possa revidar muito mais.",
@@ -61,6 +74,9 @@ const CONTRACT_APPROACHES := [
 		"health_mult": 1.32,
 		"frontier_health_bonus": 0.32,
 		"planet_health_step": 0.02,
+		"late_power_mult": 0.98,
+		"late_defense_mult": 0.90,
+		"late_health_mult": 1.04,
 		"credits_mult": 2.0,
 		"xp_mult": 0.90,
 		"scrap_reward": 3,
@@ -200,6 +216,20 @@ static func contract_approaches() -> Array[Dictionary]:
 	return result
 
 
+static func canonical_loaded_approach(loaded: Dictionary) -> Dictionary:
+	for approach in CONTRACT_APPROACHES:
+		if str(approach.id) != str(loaded.get("id", "")):
+			continue
+		var result: Dictionary = approach.duplicate(true)
+		if int(loaded.get("balance_version", 1)) < CONTRACT_APPROACH_BALANCE_VERSION:
+			# Active contracts accepted before the late-game rebalance retain their
+			# original combat and timing snapshot after an update or restart.
+			for key in ["balance_version", "late_power_mult", "late_defense_mult", "late_health_mult"]:
+				result.erase(key)
+		return result
+	return {}
+
+
 static func get_target(target_id: String) -> Dictionary:
 	for target in TARGETS:
 		if str(target.get("id", "")) == target_id:
@@ -250,14 +280,26 @@ static func apply_approach(bounty: Dictionary, approach: Dictionary) -> Dictiona
 	# the first loot drops. The correction is intentionally isolated to Dustball
 	# so established planet balance and endpoint guard rails remain unchanged.
 	var frontier_pressure := float(approach.get("frontier_health_bonus", 0.0)) if planet_index == 0 else 0.0
+	var power_mult := float(approach.power_mult)
+	var defense_mult := float(approach.defense_mult)
 	var health_mult := float(approach.health_mult) + float(approach.get("planet_health_step", 0.0)) * planet_index + frontier_pressure
+	if int(approach.get("balance_version", 1)) >= CONTRACT_APPROACH_BALANCE_VERSION:
+		# Three independent pressure multipliers compound sharply in turn-based
+		# combat. Blend them toward a bounded late-game envelope using only the
+		# immutable mission level (or the destination's authored unlock level).
+		# Equipment is deliberately absent, so upgrades always improve real odds.
+		var balance_level := int(bounty.get("mission_level", get_planet(str(bounty.get("planet_id", PLANET.id))).get("unlock_level", 1)))
+		var late_blend := clampf(float(balance_level - CONTRACT_APPROACH_LATE_BLEND_START) / float(CONTRACT_APPROACH_LATE_BLEND_END - CONTRACT_APPROACH_LATE_BLEND_START), 0.0, 1.0)
+		power_mult = lerpf(power_mult, float(approach.get("late_power_mult", power_mult)), late_blend)
+		defense_mult = lerpf(defense_mult, float(approach.get("late_defense_mult", defense_mult)), late_blend)
+		health_mult = lerpf(health_mult, float(approach.get("late_health_mult", health_mult)), late_blend)
 	if bool(bounty.get("mission_offer", false)):
 		result["pursuit_duration"] = maxf(1.0, float(bounty.get("pursuit_duration", 1.0)) * float(approach.duration_mult))
 		result["duration"] = maxi(1, ceili(float(bounty.get("travel_duration", 0.0)) + float(result.pursuit_duration)))
 	else:
 		result["duration"] = maxi(1, ceili(float(bounty.duration) * float(approach.duration_mult)))
-	result["power"] = maxi(1, roundi(float(bounty.power) * float(approach.power_mult)))
-	result["defense"] = maxi(0, roundi(float(bounty.defense) * float(approach.defense_mult)))
+	result["power"] = maxi(1, roundi(float(bounty.power) * power_mult))
+	result["defense"] = maxi(0, roundi(float(bounty.defense) * defense_mult))
 	result["health"] = maxi(1, roundi(float(bounty.health) * health_mult))
 	result["credits"] = maxi(1, roundi(float(bounty.credits) * float(approach.credits_mult)))
 	result["xp"] = maxi(1, roundi(float(bounty.xp) * float(approach.xp_mult)))

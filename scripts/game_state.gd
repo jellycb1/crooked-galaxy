@@ -2521,10 +2521,9 @@ func canonicalize_loaded_bounty(loaded: Dictionary) -> Dictionary:
 	var bounty: Dictionary = canonical_target
 	var loaded_approach = loaded.get("approach", {})
 	if loaded_approach is Dictionary and not loaded_approach.is_empty():
-		for approach in ContentDB.contract_approaches():
-			if str(approach.id) == str(loaded_approach.get("id", "")):
-				bounty = ContentDB.apply_approach(bounty, approach)
-				break
+		var canonical_approach := ContentDB.canonical_loaded_approach(loaded_approach)
+		if not canonical_approach.is_empty():
+			bounty = ContentDB.apply_approach(bounty, canonical_approach)
 	var choice_id := str(loaded.get("hunt_event_choice_id", ""))
 	var result_text := str(loaded.get("hunt_event_result", ""))
 	if not choice_id.is_empty() or not result_text.is_empty():

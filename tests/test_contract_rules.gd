@@ -51,6 +51,17 @@ func _init() -> void:
 	check(override_defeat.contains("OVERRIDE DERROTADO") and override_defeat.contains("REAVALIE A ROTA"), "override defeat points recovery back toward route choice")
 	check(ContractRules.field_test_defeat_text({}).is_empty(), "ordinary defeats do not invent tested-route advice")
 
+	var late_target: Dictionary = Content.TARGETS[24]
+	var current_hot: Dictionary = Content.CONTRACT_APPROACHES[1].duplicate(true)
+	var legacy_hot: Dictionary = current_hot.duplicate(true)
+	for key in ["balance_version", "late_power_mult", "late_defense_mult", "late_health_mult"]:
+		legacy_hot.erase(key)
+	var restored_legacy := Content.canonical_loaded_approach(legacy_hot)
+	check(restored_legacy == legacy_hot, "a pre-rebalance accepted route restores the exact legacy approach definition")
+	check(Content.apply_approach(late_target, restored_legacy) == Content.apply_approach(late_target, legacy_hot), "a pre-rebalance active contract preserves its combat and reward snapshot")
+	check(Content.apply_approach(late_target, current_hot) != Content.apply_approach(late_target, legacy_hot), "new late contracts use the bounded route envelope without rewriting old contracts")
+	check(Content.canonical_loaded_approach({"id": "forged"}).is_empty(), "unknown persisted approaches still fail closed")
+
 	if failures == 0:
 		print("PASS: contract recommendations balance risk and return")
 		quit(0)

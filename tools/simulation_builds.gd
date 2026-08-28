@@ -32,6 +32,25 @@ const CONTROL_POLICY := {
 }
 
 
+static func representative_player(level: int, policy: Dictionary) -> Dictionary:
+	var player := {
+		"level": maxi(1, level),
+		"base_power": 10 + maxi(0, level - 1) * 2,
+		"attributes": Rules.default_attributes(),
+		"stat_points": maxi(0, level - 1) * Rules.ATTRIBUTE_POINTS_PER_LEVEL,
+		"weapon": {},
+		"armor": {},
+		"wins": 0,
+	}
+	if level > 1:
+		var prior_mission_power := 11 + maxi(0, level - 2) * 5
+		var gear_power := maxi(1, roundi(float(prior_mission_power) * 0.55))
+		player.weapon = {"id": "audit_weapon", "slot": "weapon", "power": gear_power}
+		player.armor = {"id": "audit_armor", "slot": "armor", "power": gear_power}
+	configure_player(player, policy)
+	return player
+
+
 static func selected_policies(requested_id: String = "") -> Array[Dictionary]:
 	var selected: Array[Dictionary] = []
 	if requested_id == str(CONTROL_POLICY.id):
