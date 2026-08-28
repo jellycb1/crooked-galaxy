@@ -61,6 +61,8 @@ var save_recovery_required := false
 var onboarding_gate_enabled := false
 var mission_ready_feedback_pending := false
 var account_service = AccountServiceScript.new()
+var _market_offer_cache_key := ""
+var _market_offer_cache: Array[Dictionary] = []
 
 
 func _ready() -> void:
@@ -332,7 +334,17 @@ func planet_tier(planet_id: String) -> int:
 func market_offers() -> Array[Dictionary]:
 	if normalize_daily_economy():
 		save_game()
-	return MarketRulesScript.offers(player)
+	var cache_key := "%s:%d:%d:%d:%s" % [
+		str(player.get("current_planet_id", ContentDB.PLANET.id)),
+		int(player.get("level", 1)),
+		int(player.get("market_cycle", 0)),
+		int(player.get("economy_day", -1)),
+		",".join(Array(player.get("market_purchased_offer_ids", [])).map(func(id): return str(id))),
+	]
+	if cache_key != _market_offer_cache_key:
+		_market_offer_cache.assign(MarketRulesScript.offers(player))
+		_market_offer_cache_key = cache_key
+	return _market_offer_cache.duplicate(true)
 
 
 func normalize_daily_economy(unix_time := -1.0) -> bool:

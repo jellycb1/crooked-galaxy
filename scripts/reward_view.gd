@@ -283,6 +283,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	claim.pressed.connect(func():
 		if unlocks_new_planet:
 			host.view_mode = "galaxy"
+			host.galaxy_focus_planet_id = str(new_planets[0].id)
 		state.claim_reward(effective_upgrade)
 	)
 	content.add_child(claim)

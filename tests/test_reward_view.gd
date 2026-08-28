@@ -69,7 +69,7 @@ func _init() -> void:
 	check(planet_unlock != null and planet_unlock.text.contains("CONGELÁRIA S.A."), "level-band reward names the destination before the player commits XP")
 	check(host.find_child("ClaimAndRepeat", true, false) == null and planet_action != null, "new destination replaces habitual repetition with one clear discovery action")
 	planet_action.pressed.emit()
-	check(host.view_mode == "galaxy" and int(state.player.level) == 4 and state.unseen_planets().size() == 1, "claim routes to the Galaxy while retaining the unseen discovery across the reward transaction")
+	check(host.view_mode == "galaxy" and str(host.galaxy_focus_planet_id) == "congelaria_sa" and int(state.player.level) == 4 and state.unseen_planets().size() == 1, "claim routes and focuses the new Galaxy card while retaining its unseen discovery receipt")
 	check(state.acknowledge_planet("congelaria_sa") and state.unseen_planets().is_empty(), "explicit Galaxy acknowledgement consumes the persistent discovery receipt")
 	state.player.level = 1
 	state.player.xp = 0

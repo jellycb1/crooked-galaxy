@@ -54,9 +54,20 @@ func _init() -> void:
 	clear_children(content)
 	CareerViewScript.build(host, content, state)
 	check(host.find_child("CareerTarget_gloop", true, false) != null and host.find_child("CareerPlanet_dustball_prime", true, false) == null, "wanted section builds records without hidden progression cards")
+	check(host.find_children("CareerTarget_*", "PanelContainer", true, false).size() == 4, "wanted archive builds only one planet page instead of the full year-one catalog")
+	var archive_next := host.find_child("CareerArchivePlanetNext", true, false) as Button
+	check(archive_next != null and archive_next.custom_minimum_size.y >= 48.0, "wanted archive planet pager is touch-safe")
 	var archive_target_action := host.find_child("CareerTargetAction_gloop", true, false) as Button
 	check(archive_target_action != null and archive_target_action.text == "ABRIR", "available archive records link back to their contract")
 	check(host.find_child("CareerTargetAction_baron_boom", true, false) != null, "discovered-world records can generate a current level-banded contract")
+	archive_next.pressed.emit()
+	clear_children(content)
+	CareerViewScript.build(host, content, state)
+	check(host.career_archive_planet_index == 1 and host.find_child("CareerTarget_auditor_frost", true, false) != null and host.find_child("CareerTarget_gloop", true, false) == null, "archive pager changes planet without constructing the previous page")
+	host.career_archive_planet_index = 0
+	clear_children(content)
+	CareerViewScript.build(host, content, state)
+	archive_target_action = host.find_child("CareerTargetAction_gloop", true, false) as Button
 	archive_target_action.pressed.emit()
 	check(state.phase == state.Phase.BRIEFING and str(state.current_bounty.id) == "gloop" and bool(state.current_bounty.get("mission_offer", false)), "archive record opens a scaled mission snapshot rather than the legacy canonical enemy")
 	state.cancel_briefing()

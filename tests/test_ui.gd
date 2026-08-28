@@ -410,6 +410,7 @@ func run_smoke_test() -> void:
 	for icon in planet_icons:
 		planet_motifs[icon.motif_id()] = true
 	check(not planet_motifs.has("unknown") and planet_motifs.size() == ContentDB.PLANETS.size(), "every canonical planet resolves a distinct visual motif")
+	check(scene.find_child("PrimaryNavBadge_galaxy", true, false) != null, "persistent unseen destinations produce a global Galaxy navigation badge")
 	scene.view_mode = "board"
 	scene.board_section = "bounties"
 	check(state.travel_to_planet("congelaria_sa"), "UI state can travel to an unlocked planet")
@@ -433,9 +434,21 @@ func run_smoke_test() -> void:
 	await process_frame
 	check(scene.find_children("BoardOfferSelector_*", "Button", true, false).size() == 3 and scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "level-30 expansion joins the same compact renewable mission network")
 	scene.view_mode = "galaxy"
+	scene.galaxy_scroll_position = 0
+	scene.galaxy_focus_planet_id = "aeropolis_penhora"
 	scene.render()
 	await process_frame
+	await process_frame
 	check(scene.find_child("GalaxyPlanetProgress_aeropolis_penhora", true, false) != null, "galaxy map names the active year-one expansion objective")
+	var focused_galaxy_scroll := scene.find_child("GalaxyScroll", true, false) as ScrollContainer
+	check(focused_galaxy_scroll != null and focused_galaxy_scroll.scroll_vertical > 0 and scene.galaxy_focus_planet_id.is_empty(), "Galaxy discovery focus scrolls a late-catalog planet into view without retaining a stale request")
+	var acknowledge_aeropolis := scene.find_child("GalaxyAcknowledge_aeropolis_penhora", true, false) as Button
+	check(acknowledge_aeropolis != null, "focused new destination exposes one explicit acknowledgement")
+	acknowledge_aeropolis.pressed.emit()
+	await process_frame
+	await process_frame
+	focused_galaxy_scroll = scene.find_child("GalaxyScroll", true, false) as ScrollContainer
+	check(focused_galaxy_scroll != null and focused_galaxy_scroll.scroll_vertical > 0 and scene.find_child("GalaxyAcknowledge_aeropolis_penhora", true, false) == null, "acknowledging a destination preserves its late-catalog Galaxy context while clearing only the new marker")
 	state.afk_report = {"minutes": 95, "credits": 380, "scrap": 6, "capped": false}
 	state.last_notice = "SAVE RECUPERADO: progresso válido preservado; registros inconsistentes foram isolados."
 	state.last_notice_context = "system_recovery"
@@ -458,6 +471,7 @@ func run_smoke_test() -> void:
 	await process_frame
 	check(state.last_notice.is_empty() and state.last_notice_context.is_empty(), "acknowledging standalone save recovery clears its transient notice")
 	state.player.wins = 1
+	state.player.current_planet_id = ContentDB.PLANET.id
 	state.player.captures_by_target = {"gloop": 1}
 	scene.view_mode = "career"
 	scene.render()

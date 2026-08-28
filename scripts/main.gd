@@ -293,6 +293,7 @@ func render() -> void:
 		{"name": "InventoryScroll", "property": "inventory_scroll_position"},
 		{"name": "CollectionScroll", "property": "collection_scroll_position"},
 		{"name": "DailyObjectivesScroll", "property": "daily_scroll_position"},
+		{"name": "GalaxyScroll", "property": "galaxy_scroll_position"},
 	]:
 		var remembered_scroll := content.find_child(str(scroll_definition.name), false, false) as ScrollContainer
 		if remembered_scroll != null:
@@ -428,6 +429,9 @@ func restore_session_scroll(expected_generation: int) -> void:
 		elif view_mode == "daily":
 			scroll_name = "DailyObjectivesScroll"
 			position = daily_scroll_position
+		elif view_mode == "galaxy" and galaxy_focus_planet_id.is_empty():
+			scroll_name = "GalaxyScroll"
+			position = galaxy_scroll_position
 	if scroll_name.is_empty() or position <= 0:
 		return
 	get_tree().process_frame.connect(Callable(self, "apply_session_scroll").bind(expected_generation, scroll_name, position, false), CONNECT_ONE_SHOT)
@@ -493,6 +497,9 @@ func on_primary_navigation(destination_id: String) -> void:
 			view_mode = "attributes"
 		"galaxy":
 			view_mode = "galaxy"
+			var unseen := GameState.unseen_planets()
+			if not unseen.is_empty():
+				galaxy_focus_planet_id = str(unseen[0].id)
 		"menu":
 			view_mode = "board"
 			board_section = "destinations"
@@ -544,6 +551,10 @@ func update_primary_navigation() -> void:
 		badges.arsenal = int(badges.get("arsenal", 0)) + collection_ready
 		if not labels.has("arsenal"):
 			labels.arsenal = t("NAV_SERIES", "SÉRIES")
+	var unseen_planets := GameState.unseen_planets()
+	if not unseen_planets.is_empty():
+		labels.galaxy = t("NAV_NEW_WORLD", "NOVO")
+		badges.galaxy = unseen_planets.size()
 	var ready_rewards := GameState.career_rewards_ready()
 	var daily_ready := GameState.daily_rewards_ready()
 	if ready_rewards + daily_ready > 0:
@@ -1251,6 +1262,7 @@ func rank_progress_panel() -> PanelContainer:
 		discovery.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 		discovery.pressed.connect(func():
 			view_mode = "galaxy"
+			galaxy_focus_planet_id = str(unseen[0].id)
 			render()
 		)
 		box.add_child(discovery)
@@ -1333,6 +1345,23 @@ func build_galaxy_map() -> void:
 	route_scroll.add_child(route)
 	for planet in ContentDB.PLANETS:
 		route.add_child(planet_card(planet))
+	if not galaxy_focus_planet_id.is_empty():
+		var focused_planet_id := galaxy_focus_planet_id
+		galaxy_focus_planet_id = ""
+		get_tree().process_frame.connect(Callable(self, "focus_galaxy_planet").bind(render_generation, focused_planet_id, false), CONNECT_ONE_SHOT)
+
+
+func focus_galaxy_planet(expected_generation: int, planet_id: String, final_pass: bool) -> void:
+	if expected_generation != render_generation or view_mode != "galaxy":
+		return
+	var scroll := content.find_child("GalaxyScroll", false, false) as ScrollContainer
+	var card := content.find_child("GalaxyPlanet_%s" % planet_id, true, false) as Control
+	if scroll == null or card == null:
+		return
+	scroll.ensure_control_visible(card)
+	galaxy_scroll_position = scroll.scroll_vertical
+	if not final_pass:
+		get_tree().process_frame.connect(Callable(self, "focus_galaxy_planet").bind(expected_generation, planet_id, true), CONNECT_ONE_SHOT)
 
 
 func planet_card(planet: Dictionary) -> PanelContainer:

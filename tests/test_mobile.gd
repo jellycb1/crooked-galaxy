@@ -419,6 +419,11 @@ func run_mobile_audit() -> void:
 	scene.render()
 	await process_frame
 	check_touch_targets(scene, "career navigation")
+	scene.career_section = "archive"
+	scene.render()
+	await process_frame
+	check_touch_targets(scene, "career archive planet paging")
+	check(scene.find_children("CareerTarget_*", "PanelContainer", true, false).size() == 4, "mobile wanted archive keeps one four-target planet page in memory")
 	state.player.completed_planets = ["dustball_prime"]
 	state.player.level = maxi(ChallengeRules.UNLOCK_LEVEL, int(state.player.get("level", 1)))
 	state.player.challenge_floor = 0

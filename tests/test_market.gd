@@ -18,8 +18,13 @@ func _init() -> void:
 	state.player = state.default_player()
 	var original: Dictionary = state.player.duplicate(true)
 	var offers := state.market_offers()
+	var cached_copy := state.market_offers()
+	var canonical_cached_name := str(cached_copy[0].item.name)
 	check(offers.size() == MarketRulesScript.OFFER_COUNT, "market always exposes the bounded three-offer board")
 	check(offers == MarketRulesScript.offers(state.player), "market stock is deterministic for the same planet, tier, and cycle")
+	offers[0].item.name = "Mutated UI copy"
+	check(str(state.market_offers()[0].item.name) == canonical_cached_name, "market stock cache returns isolated deterministic copies to every renderer")
+	offers = cached_copy
 	check(state.player == original, "generating market stock does not mutate player state")
 	var offer_ids: Array[String] = []
 	var slots: Array[String] = []

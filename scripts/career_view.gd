@@ -72,10 +72,16 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	section_nav.add_child(archive_jump)
 
 	if host.career_section == "archive":
-		var archive_heading := host.label(t("CAREER_WANTED_ARCHIVE", "ARQUIVO DE PROCURADOS · PLANETA ATUAL PRIMEIRO"), UIDesignSystem.FONT_CAPTION, host.MUTED)
+		var archive_planets := ordered_archive_planets(state)
+		host.career_archive_planet_index = clampi(host.career_archive_planet_index, 0, maxi(0, archive_planets.size() - 1))
+		var selected_planet: Dictionary = archive_planets[host.career_archive_planet_index] if not archive_planets.is_empty() else {}
+		var selected_targets := targets_for_archive_planet(selected_planet)
+		var archive_heading := host.label(t("CAREER_WANTED_ARCHIVE", "ARQUIVO DE PROCURADOS · %d REGISTOS", [Content.TARGETS.size()]), UIDesignSystem.FONT_CAPTION, host.MUTED)
 		archive_heading.name = "WantedArchiveHeading"
 		list.add_child(archive_heading)
-		for target in ordered_archive_targets(state):
+		if not selected_planet.is_empty():
+			list.add_child(archive_planet_navigation(host, state, archive_planets, selected_planet, selected_targets.size()))
+		for target in selected_targets:
 			list.add_child(target_card(host, state, target))
 	else:
 		var progress_heading := host.label(t("CAREER_PLANET_PROGRESS", "PROGRESSO PLANETÁRIO"), UIDesignSystem.FONT_CAPTION, host.MUTED)
@@ -102,6 +108,8 @@ static func select_section(host: CrookedUIFactory, section: String) -> void:
 	host.career_section = section
 	host.career_scroll_position = 0
 	host.career_section_switch_pending = true
+	if section == "archive":
+		host.career_archive_planet_index = 0
 	if host.has_method("render"):
 		host.call("render")
 
@@ -133,6 +141,65 @@ static func ordered_archive_targets(state: StateScript) -> Array[Dictionary]:
 		if str(target.get("planet_id", Content.PLANET.id)) != current_planet_id:
 			ordered.append(target)
 	return ordered
+
+
+static func ordered_archive_planets(state: StateScript) -> Array[Dictionary]:
+	var current_planet_id := str(state.player.get("current_planet_id", Content.PLANET.id))
+	var ordered: Array[Dictionary] = []
+	for planet in Content.PLANETS:
+		if str(planet.id) == current_planet_id:
+			ordered.append(planet)
+	for planet in Content.PLANETS:
+		if str(planet.id) != current_planet_id:
+			ordered.append(planet)
+	return ordered
+
+
+static func targets_for_archive_planet(planet: Dictionary) -> Array[Dictionary]:
+	var planet_id := str(planet.get("id", ""))
+	var result: Array[Dictionary] = []
+	for target in Content.TARGETS:
+		if str(target.get("planet_id", Content.PLANET.id)) == planet_id:
+			result.append(target)
+	return result
+
+
+static func archive_planet_navigation(host: CrookedUIFactory, state: StateScript, planets: Array[Dictionary], planet: Dictionary, record_count: int) -> PanelContainer:
+	var navigation := host.panel(HBoxContainer.new(), Color("#142541"), 12, 10)
+	navigation.name = "CareerArchivePlanetNavigation"
+	var row := navigation.get_child(0) as HBoxContainer
+	row.add_theme_constant_override("separation", 8)
+	var previous := host.secondary_action("‹", host.CYAN)
+	previous.name = "CareerArchivePlanetPrevious"
+	previous.custom_minimum_size = Vector2(UIDesignSystem.TOUCH_TARGET_MIN, UIDesignSystem.TOUCH_TARGET_MIN)
+	previous.disabled = host.career_archive_planet_index <= 0
+	previous.pressed.connect(func(): change_archive_planet(host, -1, planets.size()))
+	row.add_child(previous)
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_child(copy)
+	var unlocked := MissionRules.is_planet_available(str(planet.id), int(state.player.get("level", 1)))
+	copy.add_child(host.label(localized_content_field("planet", planet, "name").to_upper(), UIDesignSystem.FONT_BODY, Color(str(planet.accent)) if unlocked else host.MUTED, HORIZONTAL_ALIGNMENT_CENTER))
+	copy.add_child(host.label(t("CAREER_ARCHIVE_PAGE", "%d REGISTOS · %d/%d MUNDOS", [record_count, host.career_archive_planet_index + 1, planets.size()]), UIDesignSystem.FONT_CAPTION, host.MUTED, HORIZONTAL_ALIGNMENT_CENTER))
+	var next := host.secondary_action("›", host.CYAN)
+	next.name = "CareerArchivePlanetNext"
+	next.custom_minimum_size = Vector2(UIDesignSystem.TOUCH_TARGET_MIN, UIDesignSystem.TOUCH_TARGET_MIN)
+	next.disabled = host.career_archive_planet_index >= planets.size() - 1
+	next.pressed.connect(func(): change_archive_planet(host, 1, planets.size()))
+	row.add_child(next)
+	return navigation
+
+
+static func change_archive_planet(host: CrookedUIFactory, direction: int, planet_count: int) -> void:
+	var next_index := clampi(host.career_archive_planet_index + direction, 0, maxi(0, planet_count - 1))
+	if next_index == host.career_archive_planet_index:
+		return
+	host.career_archive_planet_index = next_index
+	host.career_scroll_position = 0
+	host.career_section_switch_pending = true
+	if host.has_method("render"):
+		host.call("render")
 
 
 static func career_claim_notice(state: StateScript) -> String:
