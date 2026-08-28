@@ -15,6 +15,8 @@ func _init() -> void:
 	state.phase = state.Phase.REWARD
 	state.current_bounty = ContentDB.TARGETS[0].duplicate(true)
 	state.pending_loot = reward_item(6)
+	state.pending_loot.template_id = "dustball_prime_weapon_00"
+	state.pending_loot.variant_id = "standard"
 	var host = FactoryScript.new()
 	root.add_child(host)
 	var content := VBoxContainer.new()
@@ -26,8 +28,12 @@ func _init() -> void:
 	var reward_panel := host.find_child("RewardPanel", true, false) as PanelContainer
 	check(reward_panel != null and reward_panel.get_theme_stylebox("panel") is StyleBoxTexture, "isolated reward renderer uses the approved illustrated loot dossier")
 	check(host.find_child("RewardLootHeader", true, false) != null and host.find_child("RewardEquipmentComparison", true, false) != null, "isolated reward separates loot identity from equipment comparison")
+	var collection_status := host.find_child("RewardCollectionStatus", true, false) as Label
+	check(collection_status != null and collection_status.text.contains("NOVA SÉRIE"), "reward decision previews permanent collection progress before equip, store, or recycle")
 	check(host.find_child("RewardContractReceipt", true, false) != null and host.find_child("RewardProgressPanel", true, false) != null, "isolated reward groups the contract receipt and progression evidence")
 	check(host.find_child("RewardProgressIcon_streak", true, false) != null and host.find_child("RewardProgressIcon_warrant", true, false) != null, "progress receipt gives streak and warrant distinct visual identities")
+	var daily_progress := host.find_child("RewardDailyProgress", true, false) as Label
+	check(host.find_child("RewardProgressIcon_daily", true, false) != null and daily_progress != null and daily_progress.text.contains("1/5") and daily_progress.text.contains("PAGAMENTO"), "reward preview teaches the first daily payment before claiming the hunt")
 	check(host.find_child("RewardNewPower", true, false) != null and host.find_child("RewardEquippedPower", true, false) != null and host.find_child("RewardEquipmentResult", true, false) != null, "equipment decision exposes new, equipped, and result metrics in one row")
 	check(host.find_child("RewardWarrantProgress", true, false) != null, "isolated reward renders next-warrant progress")
 	var next_hunt_impact := host.find_child("RewardNextHuntImpact", true, false) as Label

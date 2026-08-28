@@ -1,0 +1,55 @@
+# Crooked Galaxy — contrato de monetização
+
+Estado: direção aprovada para implementação. Os princípios e limites são fixos; valores numéricos continuam sujeitos a testes e telemetria.
+
+## Princípios inegociáveis
+
+- Free-to-play, sem anúncios, sem passe de temporada e sem subscrição obrigatória.
+- Monetização vende tempo, escolhas adicionais e conveniência; nunca vende vitória direta.
+- Não vender níveis, pontos de atributo, probabilidades de combate, classes superiores, espécies com bónus, equipamento exclusivo objetivamente superior ou rerolls após conhecer o resultado de um combate.
+- Não usar loot boxes. Toda compra mostra exatamente o que entrega.
+- Cosméticos podem ser complementares no futuro, mas não sustentam o modelo antes de existirem personagens modulares e locais onde outros jogadores os vejam.
+- Compras reais, saldos premium e limites diários serão autoritativos no servidor. A implementação local atual é apenas uma simulação de produto para testes internos.
+
+## Moedas
+
+- **Créditos:** moeda normal de jogo. Compra equipamento apresentado no mercado, transportes permanentes e outros sistemas de progressão normal.
+- **Sucata:** recurso de oficina, obtido sobretudo ao reciclar equipamento e dominar alvos.
+- **Fichas de Dobra / Warp Chips:** moeda premium. Pode ser comprada e também obtida em quantidades controladas ao jogar.
+
+O mercado nunca vende o item por Fichas de Dobra: a ficha compra uma nova seleção; o item continua a custar Créditos. Assim, a compra premium aumenta oportunidades sem prometer uma melhoria.
+
+## Fontes gratuitas de Fichas de Dobra
+
+- A primeira missão concluída em cada dia UTC concede 1 Ficha de Dobra.
+- Marcos vitalícios da coleção de equipamento concedem quantidades pequenas e predeterminadas. No catálogo inicial de 380 séries, a escada completa concede 37 Fichas no total; não reinicia e não depende de sorte paga.
+- Objetivos semanais, marcos, eventos e compensações poderão conceder fichas mais tarde.
+- O jogo deve mostrar claramente a fonte, o limite e o momento do próximo reset.
+- Objetivos diários normais não concedem Fichas: o turno inicial paga no máximo 85 Créditos e 8 Sucata por 1/3/5 caçadas normais, sem contar Fenda ou qualquer ação premium.
+
+## Escada de custos e limites
+
+Dentro de cada sistema e dia UTC, os três usos premium custam **1, 5 e 20** Fichas de Dobra. O quarto uso é bloqueado. A escalada é sempre mostrada antes da confirmação e reinicia no próximo dia UTC.
+
+Primeiras aplicações:
+
+1. **Mercado:** até três renovações por dia. A terceira seleção contém pelo menos um item Raro compatível, mas não garante que seja melhoria.
+2. **Combustível de caça:** reserva diária proposta de 100 unidades; missões consomem o equivalente aos seus minutos-base. Cada recarga concede 20. Este bloqueio só será ativado depois de testes de ritmo.
+3. **Reduções de tempo:** Células de Salto reduzem cinco minutos e devem existir também como recompensa jogável, com limite diário.
+4. **Fenda/Arena:** futuros saltos de cooldown podem usar a mesma escada, sempre limitados a três por dia.
+
+## Transportes e conveniência
+
+- Transportes de 10%, 20% e 30% continuam compráveis permanentemente com Créditos.
+- O transporte de 50% deve ser alcançável permanentemente no endgame; uma licença temporária premium de 14 dias pode existir como antecipação, nunca como exclusividade.
+- Espaços adicionais de personagem, loadout ou inventário podem ser vendidos apenas quando o espaço gratuito for confortável e não criar dor artificial.
+- Alterações de nome, aparência, espécie, classe ou respec podem ter custos normais/premium definidos quando esses fluxos forem finais.
+
+## Produtos futuros permitidos
+
+- Pacotes transparentes de Fichas de Dobra.
+- Um pacote inicial único, claramente descrito.
+- Pacotes ocasionais de evento com conteúdo direto conhecido.
+- Conveniências limitadas que respeitem os princípios acima.
+
+Não integrar faturação real antes de conta remota, recibos idempotentes, carteira e relógio de servidor, recuperação de compra e proteção contra repetição estarem implementados.

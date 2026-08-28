@@ -3,6 +3,7 @@ extends RefCounted
 
 const Rules = preload("res://scripts/core_rules.gd")
 const MarketRulesScript = preload("res://scripts/market_rules.gd")
+const MonetizationRulesScript = preload("res://scripts/monetization_rules.gd")
 const EquipmentPresentation = preload("res://scripts/equipment_presentation.gd")
 const SpendingGuidanceScript = preload("res://scripts/spending_guidance.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
@@ -24,6 +25,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var back := host.secondary_action(t("ACTION_BACK", "VOLTAR"), host.CYAN)
 	back.custom_minimum_size.x = 118
 	back.pressed.connect(func():
+		host.market_refresh_confirmation = false
 		host.call("open_frontier_menu")
 	)
 	title_row.add_child(back)
@@ -36,20 +38,34 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var info_copy := VBoxContainer.new()
 	info_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info_row.add_child(info_copy)
-	info_copy.add_child(host.label(t("MARKET_BALANCE", "SALDO · ◈ %d CRÉDITOS", [int(state.player.credits)]), UIDesignSystem.FONT_BODY, host.GOLD))
+	info_copy.add_child(host.label(t("MARKET_BALANCE", "SALDO · ◈ %d CRÉDITOS · ◆ %d FICHAS", [int(state.player.credits), int(state.player.get("warp_chips", 0))]), UIDesignSystem.FONT_BODY, host.GOLD))
 	var explanation := host.label(t("MARKET_PURCHASE_RULE", "Compras equipam melhorias automaticamente; alternativas vão para o inventário."), UIDesignSystem.FONT_CAPTION, host.MUTED)
 	explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info_copy.add_child(explanation)
-	var refresh := host.secondary_action(t("MARKET_REFRESH", "RENOVAR · ◈ %d", [refresh_cost]), host.CYAN if int(state.player.credits) >= refresh_cost else host.MUTED)
+	var refresh_rule := host.label(t("MARKET_REFRESH_RULE", "Renovações diárias custam 1/5/20 Fichas; a terceira garante pelo menos um Raro, nunca uma melhoria."), UIDesignSystem.FONT_CAPTION, host.MUTED)
+	refresh_rule.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info_copy.add_child(refresh_rule)
+	var daily_source_key := "MARKET_DAILY_FREE_READY" if MonetizationRulesScript.first_hunt_chip_available(state.player) else "MARKET_DAILY_FREE_CLAIMED"
+	var daily_source_fallback := "FONTE JOGÁVEL · primeira missão de hoje: +1 Ficha" if MonetizationRulesScript.first_hunt_chip_available(state.player) else "FONTE JOGÁVEL · recompensa diária recolhida"
+	var daily_source := host.label(t(daily_source_key, daily_source_fallback) + t("MARKET_DAILY_RESET", " · reinício 00:00 UTC"), UIDesignSystem.FONT_CAPTION, host.LIME if MonetizationRulesScript.first_hunt_chip_available(state.player) else host.MUTED)
+	daily_source.name = "MarketDailyChipStatus"
+	daily_source.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info_copy.add_child(daily_source)
+	var refresh_available := MonetizationRulesScript.can_refresh_market(state.player)
+	var can_afford_refresh := refresh_available and int(state.player.get("warp_chips", 0)) >= refresh_cost
+	var refresh_text := t("MARKET_REFRESH", "RENOVAR · ◆ %d · %d/3", [refresh_cost, MonetizationRulesScript.market_refresh_count(state.player) + 1]) if refresh_available else t("MARKET_REFRESH_LIMIT", "RENOVAÇÕES ESGOTADAS · 00:00 UTC")
+	var refresh := host.secondary_action(refresh_text, host.CYAN if can_afford_refresh else host.MUTED)
 	refresh.name = "MarketRefresh"
 	refresh.custom_minimum_size.x = 142
 	refresh.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
-	refresh.disabled = int(state.player.credits) < refresh_cost
+	refresh.disabled = not can_afford_refresh
 	refresh.pressed.connect(func():
-		host.reset_session_scroll("MarketScroll", "market_scroll_position")
-		state.refresh_market()
+		host.market_refresh_confirmation = true
+		host.call("render")
 	)
 	info_row.add_child(refresh)
+	if host.market_refresh_confirmation and can_afford_refresh:
+		content.add_child(refresh_confirmation_panel(host, state, refresh_cost))
 
 	var transport_goal := SpendingGuidanceScript.next_transport_goal(state.player)
 	var alternative := host.panel(HBoxContainer.new(), Color("#173356"), 16, 12)
@@ -82,6 +98,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	hangar_action.custom_minimum_size.x = 132
 	hangar_action.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 	hangar_action.pressed.connect(func():
+		host.market_refresh_confirmation = false
 		host.view_mode = "hangar"
 		host.call("render")
 	)
@@ -128,6 +145,14 @@ static func offer_card(host: CrookedUIFactory, state: StateScript, offer: Dictio
 	item_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(item_name)
 	copy.add_child(host.label(t("MARKET_ITEM_POWER", "%s · %s · +%d PODER", [EquipmentPresentation.localized_rarity(str(item.rarity)), EquipmentPresentation.localized_slot(str(item.slot)).to_upper(), int(item.power)]), UIDesignSystem.FONT_CAPTION, Color(str(item.color))))
+	var procedural_identity := EquipmentPresentation.procedural_identity_text(item)
+	if not procedural_identity.is_empty():
+		copy.add_child(host.label(procedural_identity, UIDesignSystem.FONT_CAPTION, host.CYAN))
+	var collection_state := EquipmentPresentation.collection_state(state.player, item)
+	if not collection_state.is_empty():
+		var collection_label := host.label(t("ITEM_COLLECTION_MARKET_NEW", "★ NOVA SÉRIE") if collection_state == "new" else t("ITEM_COLLECTION_PREVIEW_REGISTERED", "✓ SÉRIE JÁ REGISTADA"), UIDesignSystem.FONT_CAPTION, host.GOLD if collection_state == "new" else host.MUTED)
+		collection_label.name = "MarketCollectionStatus_%s" % str(offer.id)
+		copy.add_child(collection_label)
 	var description := host.label(EquipmentPresentation.localized_item_field(item, "description"), UIDesignSystem.FONT_CAPTION, host.MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(description)
@@ -150,6 +175,37 @@ static func offer_card(host: CrookedUIFactory, state: StateScript, offer: Dictio
 	buy.pressed.connect(func(): state.buy_market_offer(offer_id))
 	card_box.add_child(buy)
 	return card
+
+
+static func refresh_confirmation_panel(host: CrookedUIFactory, state: StateScript, refresh_cost: int) -> PanelContainer:
+	var panel := host.panel(VBoxContainer.new(), Color("#382344"), 15, 12)
+	panel.name = "MarketRefreshConfirmation"
+	var box := panel.get_child(0) as VBoxContainer
+	box.add_theme_constant_override("separation", 9)
+	var warning := host.label(t("MARKET_REFRESH_CONFIRMATION", "CONFIRMAR RENOVAÇÃO · gastar ◆ %d remove estas três ofertas e gera uma nova seleção.", [refresh_cost]), UIDesignSystem.FONT_CAPTION, host.INK)
+	warning.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(warning)
+	var actions := HBoxContainer.new()
+	actions.add_theme_constant_override("separation", 8)
+	box.add_child(actions)
+	var cancel := host.secondary_action(t("ACTION_CANCEL", "CANCELAR"), host.MUTED)
+	cancel.name = "MarketRefreshCancel"
+	cancel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cancel.pressed.connect(func():
+		host.market_refresh_confirmation = false
+		host.call("render")
+	)
+	actions.add_child(cancel)
+	var confirm := host.primary_action(t("MARKET_REFRESH_CONFIRM", "CONFIRMAR · ◆ %d", [refresh_cost]), host.CYAN)
+	confirm.name = "MarketRefreshConfirm"
+	confirm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	confirm.pressed.connect(func():
+		host.market_refresh_confirmation = false
+		host.reset_session_scroll("MarketScroll", "market_scroll_position")
+		state.refresh_market()
+	)
+	actions.add_child(confirm)
+	return panel
 
 
 static func t(key: String, fallback: String = "", values: Array = []) -> String:

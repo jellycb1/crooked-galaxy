@@ -288,13 +288,23 @@ func run_mobile_audit() -> void:
 		menu_action.pressed.emit()
 		await process_frame
 	var board_hub_grid := scene.find_child("BoardHubGrid", true, false) as GridContainer
-	check(board_hub_grid != null and board_hub_grid.columns == 2 and board_hub_grid.get_child_count() == 4, "secondary menu groups four game destinations in a balanced two-column mobile grid")
+	check(board_hub_grid != null and board_hub_grid.columns == 2 and board_hub_grid.get_child_count() == 6, "secondary menu groups six game destinations in a balanced two-column mobile grid")
 	check(scene.find_children("PrimaryNav_*", "Button", true, false).size() == 5 and scene.find_children("PrimaryNavIcon_*", "Control", true, false).size() == 5, "rapid menu navigation replaces the dock atomically without stale or missing items")
 	var updated_contract_icon := scene.find_child("PrimaryNavIcon_contracts", true, false) as Control
 	check(updated_contract_icon != null and updated_contract_icon.get_instance_id() == stable_contract_icon_id, "primary navigation updates selection in place instead of rebuilding mobile CanvasItems")
-	check(scene.find_children("BoardHubIcon_*", "Control", true, false).size() == 5, "every secondary service, including the full-width system action, has a scalable navigation icon")
-	check(scene.find_children("BoardHubTitle_*", "Label", true, false).size() == 5 and scene.find_children("BoardHubDetail_*", "Label", true, false).size() == 5, "secondary services pair readable location names with concise functional descriptions")
+	check(scene.find_children("BoardHubIcon_*", "Control", true, false).size() == 6, "every secondary service has a scalable navigation icon")
+	check(scene.find_children("BoardHubTitle_*", "Label", true, false).size() == 6 and scene.find_children("BoardHubDetail_*", "Label", true, false).size() == 6, "secondary services pair readable location names with concise functional descriptions")
 	check(scene.find_children("BoardHubTitle_*", "Label", true, false).all(func(hub_title): return (hub_title as Label).get_theme_font_size("font_size") >= 18) and scene.find_children("BoardHubDetail_*", "Label", true, false).all(func(hub_detail): return (hub_detail as Label).get_theme_font_size("font_size") >= 18), "secondary service labels meet the physical Android readability floor")
+	var daily_action := scene.find_child("BoardDailyAction", true, false) as Button
+	check(daily_action != null and daily_action.custom_minimum_size.y >= 48.0, "daily shift is a first-class mobile destination")
+	if daily_action != null:
+		daily_action.pressed.emit()
+		await process_frame
+	check(scene.view_mode == "daily" and scene.find_child("DailyObjectivesScroll", true, false) != null, "daily shift opens as a dedicated scrollable surface")
+	check(scene.find_children("DailyObjective_*", "PanelContainer", true, false).size() == 3, "all daily objectives remain reachable in one portrait scroller")
+	check(scene.android_back_action() == "menu", "Android Back returns the daily shift to the service menu")
+	scene.open_frontier_menu()
+	await process_frame
 	var settings_action := scene.find_child("BoardSettingsAction", true, false) as Button
 	check(settings_action != null, "settings live in the secondary menu instead of the equipment inventory")
 	if settings_action != null:
@@ -315,10 +325,16 @@ func run_mobile_audit() -> void:
 	await process_frame
 	var build_version := scene.find_child("BuildVersion", true, false) as Label
 	check(build_version != null and build_version.text.ends_with("v%s" % str(ProjectSettings.get_setting("application/config/version"))) and build_version.text.contains("INT-1"), "installed build version and active server remain visible in the compact header")
+	check(scene.find_child("HeaderWarpChips", true, false) != null, "premium balance remains visible in the persistent resource strip outside the market")
 	check(scene.hunt_timer.is_stopped(), "high-frequency hunt refresh stays asleep on the bounty board")
 	check(scene.android_back_action() == "quit" and scene.find_child("BountyScroll", true, false) != null, "Android Back exits only from the root contract view")
 
 	scene.view_mode = "arsenal"
+	scene.arsenal_section = "collection"
+	scene.render()
+	await process_frame
+	var collection_next := scene.find_child("CollectionPlanetNext", true, false) as Button
+	check(collection_next != null and collection_next.custom_minimum_size.y >= 48.0, "series planet navigation preserves a complete mobile touch target")
 	scene.arsenal_section = "inventory"
 	scene.render()
 	await process_frame
@@ -328,6 +344,7 @@ func run_mobile_audit() -> void:
 	await process_frame
 	check(scene.view_mode == "board" and state.phase == state.Phase.BOARD, "Android Back performs safe hub navigation without exiting")
 	state.player.credits = 99999
+	state.player.warp_chips = 99
 	scene.view_mode = "market"
 	scene.render()
 	await process_frame
@@ -339,8 +356,14 @@ func run_mobile_audit() -> void:
 	if refresh_market != null:
 		refresh_market.pressed.emit()
 		await process_frame
+	check(scene.find_child("MarketRefreshConfirmation", true, false) != null and int(state.player.warp_chips) == 99, "first premium-renewal touch opens confirmation without spending")
+	var confirm_market_refresh := scene.find_child("MarketRefreshConfirm", true, false) as Button
+	if confirm_market_refresh != null:
+		confirm_market_refresh.pressed.emit()
 		await process_frame
-	check(scene.market_scroll_position == 0 and (scene.find_child("MarketScroll", true, false) as ScrollContainer).scroll_vertical == 0, "replacing the complete market stock intentionally returns to its first offer")
+		await process_frame
+	check(int(state.player.warp_chips) == 98 and int(state.player.market_refresh_count) == 1, "explicit premium confirmation performs exactly one bounded renewal")
+	check(scene.market_scroll_position == 0 and (scene.find_child("MarketScroll", true, false) as ScrollContainer).scroll_vertical == 0, "confirmed stock replacement intentionally returns to its first offer")
 	var market_hangar_action := scene.find_child("MarketHangarAction", true, false) as Button
 	check(market_hangar_action != null, "market keeps the transport alternative one touch away")
 	check(scene.android_back_action() == "menu", "Android Back routes the market to its secondary menu parent")

@@ -4,6 +4,7 @@ extends RefCounted
 const CoreRules = preload("res://scripts/core_rules.gd")
 const LocaleRules = preload("res://scripts/locale_rules.gd")
 const Content = preload("res://scripts/content_db.gd")
+const EquipmentGenerationRules = preload("res://scripts/equipment_generation_rules.gd")
 
 
 static func localized_item_field(item: Dictionary, field: String) -> String:
@@ -18,8 +19,18 @@ static func localized_item_field(item: Dictionary, field: String) -> String:
 	for index in catalog.size():
 		if str(catalog[index].get("name", "")) == str(item.get("name", "")):
 			var key := "ITEM_%s_%s_%d_%s" % [planet_id.to_upper(), slot.to_upper(), index, field.to_upper()]
-			return LocaleRules.text(key, str(item.get(field, "")))
-	return str(item.get(field, ""))
+			var localized := LocaleRules.text(key, str(item.get(field, "")))
+			return variant_display_name(localized, item) if field == "name" else localized
+	var fallback := str(item.get(field, ""))
+	return variant_display_name(fallback, item) if field == "name" else fallback
+
+
+static func variant_display_name(base_name: String, item: Dictionary) -> String:
+	var variant_id := str(item.get("variant_id", "standard"))
+	if base_name.is_empty() or variant_id == "standard":
+		return base_name
+	var variant_name := LocaleRules.text("ITEM_VARIANT_%s" % variant_id.to_upper(), variant_id.to_upper())
+	return LocaleRules.text("ITEM_VARIANT_NAME", "%s · %s", [base_name, variant_name])
 
 
 static func localized_trait_field(trait_data: Dictionary, field: String) -> String:
@@ -35,6 +46,19 @@ static func localized_rarity(rarity: String) -> String:
 
 static func localized_slot(slot: String) -> String:
 	return LocaleRules.text("SLOT_%s" % slot.to_upper(), CoreRules.equipment_slot_name(slot))
+
+
+static func procedural_identity_text(item: Dictionary) -> String:
+	if not item.has("item_level") or not item.has("quality"):
+		return ""
+	return LocaleRules.text("EQUIPMENT_PROCEDURAL_IDENTITY", "NÍVEL %d · QUALIDADE %d", [int(item.item_level), int(item.quality)])
+
+
+static func collection_state(player: Dictionary, item: Dictionary) -> String:
+	var collection_id := EquipmentGenerationRules.collection_id(item)
+	if collection_id.is_empty():
+		return ""
+	return "registered" if player.get("discovered_item_variant_ids", []).has(collection_id) else "new"
 
 
 static func filtered_inventory(inventory: Array, slot_filter: String, sort_mode: String) -> Array:
@@ -62,6 +86,9 @@ static func inventory_item_before(a: Dictionary, b: Dictionary, sort_mode: Strin
 	var power_difference := CoreRules.equipment_score(a) - CoreRules.equipment_score(b)
 	if power_difference != 0:
 		return power_difference > 0
+	var quality_difference := int(a.get("quality", 0)) - int(b.get("quality", 0))
+	if quality_difference != 0:
+		return quality_difference > 0
 	return str(a.get("id", "")) < str(b.get("id", ""))
 
 

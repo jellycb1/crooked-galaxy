@@ -158,14 +158,26 @@ func _init() -> void:
 	host.arsenal_section = "inventory"
 	clear_children(content)
 	ArsenalScript.build(host, content, state)
+	check(host.find_child("EquipmentCollectionProgress", true, false) != null, "backpack exposes permanent procedural-series collection progress")
 	check(host.find_child("InventoryScroll", true, false) != null and host.find_child("Upgrade_weapon", true, false) == null, "backpack section reserves the screen for item management")
 	check(host.find_children("InventoryItem_*", "PanelContainer", true, false).size() == 6, "arsenal builds only the active page's item cards")
 	var previous_page := host.find_child("InventoryPagePrevious", true, false) as Button
 	var next_page := host.find_child("InventoryPageNext", true, false) as Button
 	check(previous_page != null and not previous_page.disabled and next_page != null and next_page.disabled, "pager exposes correct boundary actions on the last page")
 	var arsenal_tabs := host.find_child("ArsenalSectionTabs", true, false) as HBoxContainer
-	check(arsenal_tabs != null and arsenal_tabs.get_child_count() == 3, "arsenal navigation separates equipped gear, workshop, and backpack")
+	check(arsenal_tabs != null and arsenal_tabs.get_child_count() == 4, "arsenal navigation separates equipped gear, workshop, backpack, and series")
 	check(host.find_child("ArsenalTab_settings", true, false) == null and host.find_child("AccessibilityPreferences", true, false) == null, "device settings no longer leak into equipment management")
+	host.arsenal_section = "collection"
+	clear_children(content)
+	var first_collection_id := str(ContentDB.procedural_collection_ids()[0])
+	state.player.discovered_item_variant_ids = [first_collection_id]
+	ArsenalScript.build(host, content, state)
+	check(host.find_child("CollectionScroll", true, false) != null and host.find_child("EquipmentCollectionOverview", true, false) != null, "series tab opens a dedicated scrollable permanent catalog")
+	check(host.find_child("CollectionMilestones", true, false) != null and host.find_child("ClaimAllCollectionMilestones", true, false) != null, "series catalog exposes earned lifetime rewards without hiding the claim action")
+	check(host.find_children("CollectionMilestone_*", "HBoxContainer", true, false).size() == 1, "series catalog keeps only the next actionable milestone in the mobile layout")
+	var first_planet_family_count := ContentDB.procedural_collection_entries().filter(func(entry): return str(entry.planet_id) == str(ContentDB.PLANETS[0].id)).size()
+	check(host.find_children("CollectionPlanet_*", "PanelContainer", true, false).size() == 1 and host.find_child("CollectionPlanetNavigation", true, false) != null, "series catalog renders one navigable planet at a time for mobile performance")
+	check(host.find_children("CollectionFamily_*", "VBoxContainer", true, false).size() == first_planet_family_count, "series catalog exposes every discovered and missing family from the active planet")
 	state.last_notice = "Rota confirmada: Congelária S.A."
 	state.last_notice_context = "travel"
 	host.arsenal_section = "equipped"

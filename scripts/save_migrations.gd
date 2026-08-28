@@ -1,7 +1,7 @@
 class_name SaveMigrations
 extends RefCounted
 
-const CURRENT_VERSION := 15
+const CURRENT_VERSION := 19
 const BASE_ATTRIBUTE_VALUE := 10
 const ATTRIBUTE_POINTS_PER_LEVEL := 2
 
@@ -55,6 +55,18 @@ static func migrate(payload: Dictionary) -> Dictionary:
 			14:
 				migrated = migrate_v14_to_v15(migrated)
 				version = 15
+			15:
+				migrated = migrate_v15_to_v16(migrated)
+				version = 16
+			16:
+				migrated = migrate_v16_to_v17(migrated)
+				version = 17
+			17:
+				migrated = migrate_v17_to_v18(migrated)
+				version = 18
+			18:
+				migrated = migrate_v18_to_v19(migrated)
+				version = 19
 			_:
 				return {}
 		migrated.version = version
@@ -263,5 +275,49 @@ static func migrate_v14_to_v15(payload: Dictionary) -> Dictionary:
 		player.appearance = {"palette": "native", "eyes": "standard", "feature": "classic", "marking": "clean"}
 	elif not player.has("appearance"):
 		player.appearance = {}
+	migrated.player = player
+	return migrated
+
+
+static func migrate_v15_to_v16(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	var player: Dictionary = migrated.get("player", {})
+	if not player.has("warp_chips"):
+		player.warp_chips = 0
+	if not player.has("economy_day"):
+		player.economy_day = -1
+	if not player.has("market_refresh_count"):
+		player.market_refresh_count = 0
+	if not player.has("daily_hunt_chip_day"):
+		player.daily_hunt_chip_day = -1
+	migrated.player = player
+	return migrated
+
+
+static func migrate_v16_to_v17(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	var player: Dictionary = migrated.get("player", {})
+	if not player.has("discovered_item_variant_ids"):
+		player.discovered_item_variant_ids = []
+	migrated.player = player
+	return migrated
+
+
+static func migrate_v17_to_v18(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	var player: Dictionary = migrated.get("player", {})
+	if not player.has("claimed_collection_milestones"):
+		player.claimed_collection_milestones = []
+	migrated.player = player
+	return migrated
+
+
+static func migrate_v18_to_v19(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	var player: Dictionary = migrated.get("player", {})
+	if not player.has("daily_hunts_completed"):
+		player.daily_hunts_completed = 0
+	if not player.has("claimed_daily_objectives"):
+		player.claimed_daily_objectives = []
 	migrated.player = player
 	return migrated

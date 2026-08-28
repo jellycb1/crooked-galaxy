@@ -51,6 +51,8 @@ $Tests = @(
 	"test_android_feedback.gd",
     "test_arsenal_view.gd",
 	"test_market.gd",
+	"test_collection_rules.gd",
+	"test_daily_objectives.gd",
 	"test_transport.gd",
 	"test_challenges.gd",
 	"test_translation_complete.gd",

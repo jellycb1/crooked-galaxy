@@ -83,6 +83,12 @@ func _init() -> void:
 	premium_loot_rng.seed = 4417
 	var canonical_omega_loot := ContentDB.generate_loot(ContentDB.TARGETS[13], base_loot_rng)
 	var premium_omega_loot := ContentDB.generate_loot(omega_premium, premium_loot_rng)
+	check(not str(canonical_omega_loot.get("template_id", "")).is_empty() and int(canonical_omega_loot.get("item_level", 0)) >= 1, "generated equipment records its stable template family and item level")
+	check(int(canonical_omega_loot.get("quality", 0)) >= 1 and int(canonical_omega_loot.get("quality", 0)) <= 100 and not str(canonical_omega_loot.get("variant_id", "")).is_empty(), "generated equipment records bounded quality and a visual variant")
+	check(canonical_omega_loot.has("generation_seed"), "generated equipment persists a reproducible instance seed")
+	check(ContentDB.procedural_collection_ids().size() >= 100 and ContentDB.procedural_collection_ids().all(func(id): return str(id).contains("::")), "finite template families expose a bounded multi-variant collection catalog")
+	check(ContentDB.procedural_collection_entries().size() * 5 == ContentDB.procedural_collection_ids().size(), "every collectible template exposes exactly the five canonical series variants")
+	check(ContentDB.procedural_collection_total() == ContentDB.procedural_collection_ids().size(), "hot collection counts avoid rebuilding or exposing the canonical identifier cache")
 	check(int(premium_omega_loot.power) == int(canonical_omega_loot.power), "contract danger does not inflate the dropped equipment tier")
 	check(str(ContentDB.target_for_planet_tier("dustball_prime", 1).id) == "baron_boom", "planet tier resolves the next warrant deterministically")
 	check(ContentDB.planet_tier_from_target_captures("dustball_prime", {"gloop": 9}) == 1, "farming the first warrant cannot skip sequential tiers")

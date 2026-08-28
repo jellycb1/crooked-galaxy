@@ -18,7 +18,7 @@ func run() -> void:
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
-	for mode in ["board", "arsenal_cold", "arsenal_warm", "market_cold", "market_warm", "hangar", "career", "career_archive", "galaxy", "attributes", "challenges", "board_network_cold", "board_network_warm"]:
+	for mode in ["board", "arsenal_cold", "arsenal_warm", "arsenal_collection_cold", "arsenal_collection_warm", "market_cold", "market_warm", "market_confirmation", "hangar", "career", "career_archive", "daily", "galaxy", "attributes", "challenges", "board_network_cold", "board_network_warm"]:
 		if not mode.ends_with("_warm"):
 			Rules.clear_bounty_odds_cache()
 		if mode.begins_with("board_network"):
@@ -26,10 +26,15 @@ func run() -> void:
 			state.player.level = 4
 		if mode == "board_network_warm":
 			scene.selected_board_offer_index = 1
-		var base_mode: String = str(mode).trim_suffix("_cold").trim_suffix("_warm")
+		var base_mode: String = str(mode).trim_suffix("_cold").trim_suffix("_warm").trim_suffix("_collection").trim_suffix("_confirmation")
 		scene.view_mode = "board" if base_mode == "board_network" else ("career" if base_mode == "career_archive" else base_mode)
 		if mode == "career" or mode == "career_archive":
 			scene.career_section = "archive" if mode == "career_archive" else "progress"
+		if mode.begins_with("arsenal_collection"):
+			scene.arsenal_section = "collection"
+		if mode == "market_confirmation":
+			state.player.warp_chips = 99
+			scene.market_refresh_confirmation = true
 		var started := Time.get_ticks_usec()
 		scene.render()
 		var elapsed := Time.get_ticks_usec() - started

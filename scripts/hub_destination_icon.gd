@@ -64,6 +64,15 @@ func _draw() -> void:
 			draw_line(center + Vector2(11, 14), center + Vector2(5, 7), accent, 4.0, true)
 			draw_line(center + Vector2(-7, 2), center + Vector2(-1, 8), accent.lightened(0.35), 2.4, true)
 			draw_line(center + Vector2(-1, 8), center + Vector2(8, -6), accent.lightened(0.35), 2.4, true)
+		"daily":
+			var calendar := Rect2(center + Vector2(-12, -10), Vector2(24, 22))
+			draw_rect(calendar, accent.darkened(0.52), true)
+			draw_rect(calendar, accent, false, 2.0)
+			draw_line(center + Vector2(-12, -4), center + Vector2(12, -4), accent, 2.0, true)
+			draw_line(center + Vector2(-6, -14), center + Vector2(-6, -7), accent.lightened(0.3), 2.5, true)
+			draw_line(center + Vector2(6, -14), center + Vector2(6, -7), accent.lightened(0.3), 2.5, true)
+			draw_line(center + Vector2(-6, 4), center + Vector2(-1, 9), accent.lightened(0.35), 2.5, true)
+			draw_line(center + Vector2(-1, 9), center + Vector2(8, 0), accent.lightened(0.35), 2.5, true)
 		"hunter":
 			draw_circle(center + Vector2(0, -7), 6.5, accent.darkened(0.25))
 			draw_arc(center + Vector2(0, 9), 11.5, PI, TAU, 20, accent, 3.0, true)

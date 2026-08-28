@@ -178,6 +178,14 @@ Completing a bounty, receiving loot and becoming stronger should make the player
 
 Do not build the entire galaxy before this loop is fun.
 
+MONETIZATION GUARDRAILS
+
+Crooked Galaxy is free-to-play without advertisements, season passes, loot boxes or mandatory subscriptions. Monetization may sell bounded time reduction, additional choices and honest convenience, but never levels, attribute points, combat probability, victory, superior exclusive equipment, mechanically superior species/classes or post-result combat rerolls.
+
+Credits buy ordinary equipment and permanent progression. Scrap funds the workshop. Warp Chips are the premium currency and must also have controlled playable sources. Premium market refreshes sell another selection while the revealed item still costs Credits; they never guarantee an upgrade. Daily costs and limits must be visible before purchase. Real-money transactions require server-authoritative identity, wallet, time, receipts and idempotency; device-local builds are simulations only.
+
+Daily retention must reward the core bounty loop without becoming a compulsory checklist. The initial daily shift uses only ordinary completed hunts, caps at five, excludes premium actions and Fenda, and pays only bounded normal resources. It must remain possible to start another hunt without visiting or claiming the daily screen.
+
 REFERENCE MATERIAL
 
 Shakes & Fidget files may be stored in the reference project for internal study.

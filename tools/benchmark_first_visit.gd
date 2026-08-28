@@ -24,6 +24,9 @@ func run() -> void:
 	# single background request without relying on desktop frame timing.
 	for _frame in 15:
 		await process_frame
+	# A real player cannot navigate before this idle interval; it allows the
+	# staggered worker requests to begin without hiding their main-thread cost.
+	await create_timer(0.2).timeout
 	var prefetched_estimates := Rules.bounty_odds_cache.size()
 	scene.view_mode = "arsenal"
 	var first_visit_started := Time.get_ticks_usec()

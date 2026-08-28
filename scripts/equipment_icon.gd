@@ -33,10 +33,30 @@ func _draw() -> void:
 		"gadget": draw_gadget(ink, rarity, origin_color)
 		"relic": draw_relic(ink, rarity, origin_color)
 		_: draw_gadget(ink, rarity, origin_color)
+	draw_variant_mark(str(item.get("variant_id", "standard")), ink, rarity)
 	var investment := mini(5, int(item.get("power_upgrades", 0)) + int(item.get("integrity_upgrades", 0)))
 	for pip in investment:
 		draw_circle(Vector2(0.29 + float(pip) * 0.105, 0.88), 0.027, rarity)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+func draw_variant_mark(variant_id: String, ink: Color, accent: Color) -> void:
+	match variant_id:
+		"patched":
+			for offset in 3:
+				var x := 0.70 + float(offset) * 0.055
+				draw_line(Vector2(x, 0.74), Vector2(x + 0.035, 0.79), ink, 0.026, true)
+		"polished":
+			draw_arc(Vector2(0.50, 0.50), 0.37, PI * 1.08, PI * 1.48, 10, Color(accent, 0.9), 0.032, true)
+		"weathered":
+			draw_line(Vector2(0.18, 0.71), Vector2(0.31, 0.64), ink, 0.025, true)
+			draw_line(Vector2(0.23, 0.78), Vector2(0.37, 0.70), ink, 0.020, true)
+		"contraband":
+			var warning := PackedVector2Array([Vector2(0.77, 0.16), Vector2(0.88, 0.34), Vector2(0.66, 0.34)])
+			draw_colored_polygon(warning, accent)
+			var closed := warning.duplicate()
+			closed.append(warning[0])
+			draw_polyline(closed, ink, 0.025, true)
 
 
 func draw_weapon(ink: Color, rarity: Color, origin_color: Color) -> void:

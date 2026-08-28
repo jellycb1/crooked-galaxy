@@ -416,6 +416,9 @@ msgstr "POWER %d"
 msgid "RESOURCE_CREDITS"
 msgstr "CREDITS"
 
+msgid "RESOURCE_WARP_CHIPS"
+msgstr "CHIPS"
+
 msgid "RESOURCE_SCRAP"
 msgstr "SCRAP"
 
@@ -3096,13 +3099,19 @@ msgid "MARKET_SUBTITLE"
 msgstr "Planetary equipment. Provenance optional."
 
 msgid "MARKET_BALANCE"
-msgstr "BALANCE · ◈ %d CREDITS"
+msgstr "BALANCE · ◈ %d CREDITS · ◆ %d WARP CHIPS"
 
 msgid "MARKET_PURCHASE_RULE"
 msgstr "Upgrades equip automatically; alternatives go to the backpack."
 
 msgid "MARKET_REFRESH"
-msgstr "REFRESH · ◈ %d"
+msgstr "REFRESH · ◆ %d · %d/3"
+
+msgid "MARKET_REFRESH_LIMIT"
+msgstr "REFRESHES USED · BACK TOMORROW"
+
+msgid "MARKET_REFRESH_RULE"
+msgstr "Daily refreshes cost 1/5/20 Chips; the third guarantees at least one Rare, never an upgrade."
 
 msgid "MARKET_TRANSPORT_COMPLETE"
 msgstr "PERMANENT MOBILITY · COLLECTION COMPLETE"
@@ -3141,7 +3150,7 @@ msgid "MARKET_NOTICE_STORED"
 msgstr "Market: %s bought for %d credits and stored."
 
 msgid "MARKET_NOTICE_REFRESHED"
-msgstr "Market refreshed for %d credits. Provenance remains confidential."
+msgstr "Market refreshed for %d Warp Chips. Provenance remains confidential."
 
 msgid "HANGAR_TITLE"
 msgstr "QUESTIONABLE HANGAR"
@@ -3898,3 +3907,185 @@ msgstr "HUNT"
 
 msgid "HUNT_MINIMIZE"
 msgstr "MINIMIZE"
+
+msgid "REWARD_NOTICE_DAILY_WARP_CHIP"
+msgstr "First mission today: +%d Warp Chip"
+
+msgid "EQUIPMENT_PROCEDURAL_IDENTITY"
+msgstr "LEVEL %d · QUALITY %d"
+
+msgid "ITEM_VARIANT_NAME"
+msgstr "%s · %s"
+
+msgid "ITEM_VARIANT_PATCHED"
+msgstr "PATCHWORK SERIES"
+
+msgid "ITEM_VARIANT_POLISHED"
+msgstr "CHROME SERIES"
+
+msgid "ITEM_VARIANT_WEATHERED"
+msgstr "FRONTIER SERIES"
+
+msgid "ITEM_VARIANT_CONTRABAND"
+msgstr "CONTRABAND SERIES"
+
+msgid "ITEM_COLLECTION_NEW"
+msgstr "New series added to the collection."
+
+msgid "ARSENAL_COLLECTION_PROGRESS"
+msgstr "SERIES CATALOG · %d/%d"
+
+msgid "ARSENAL_COLLECTION_HINT"
+msgstr "Receiving, buying, or recycling a variant records it permanently."
+
+msgid "ITEM_VARIANT_STANDARD"
+msgstr "STANDARD SERIES"
+
+msgid "ARSENAL_COLLECTION"
+msgstr "SERIES"
+
+msgid "ARSENAL_COLLECTION_SUBTITLE"
+msgstr "PERMANENT SERIES CATALOG"
+
+msgid "ARSENAL_COLLECTION_PLANET"
+msgstr "%s · %d/%d"
+
+msgid "ARSENAL_COLLECTION_UNKNOWN"
+msgstr "UNKNOWN SERIES"
+
+msgid "ARSENAL_COLLECTION_FAMILY"
+msgstr "%s · %s · %d/5"
+
+msgid "ARSENAL_COLLECTION_FOUND"
+msgstr "RECORDED · %s"
+
+msgid "ARSENAL_COLLECTION_NONE"
+msgstr "NO VARIANTS RECORDED"
+
+msgid "ARSENAL_COLLECTION_MISSING"
+msgstr "MISSING · %s"
+msgid "COLLECTION_MILESTONES_TITLE"
+msgstr "ARCHIVE MILESTONES"
+
+msgid "COLLECTION_MILESTONES_SUMMARY"
+msgstr "ARCHIVE MILESTONES · %d/%d"
+
+msgid "COLLECTION_MILESTONE_CADENCE"
+msgstr "The archive shows the next milestone; completed rewards can be claimed together."
+
+msgid "NAV_SERIES"
+msgstr "SERIES"
+
+msgid "ITEM_COLLECTION_PREVIEW_NEW"
+msgstr "★ NEW SERIES · registered when claimed"
+
+msgid "ITEM_COLLECTION_PREVIEW_REGISTERED"
+msgstr "✓ SERIES ALREADY REGISTERED"
+
+msgid "ITEM_COLLECTION_MARKET_NEW"
+msgstr "★ NEW SERIES"
+
+msgid "MARKET_REFRESH_CONFIRMATION"
+msgstr "CONFIRM REFRESH · spending ◆ %d removes these three offers and generates a new selection."
+
+msgid "MARKET_REFRESH_CONFIRM"
+msgstr "CONFIRM · ◆ %d"
+
+msgid "MARKET_DAILY_FREE_READY"
+msgstr "PLAYABLE SOURCE · today's first mission: +1 Chip"
+
+msgid "MARKET_DAILY_FREE_CLAIMED"
+msgstr "PLAYABLE SOURCE · daily reward collected"
+
+msgid "MARKET_DAILY_RESET"
+msgstr " · resets 00:00 UTC"
+
+msgid "ACTION_CANCEL"
+msgstr "CANCEL"
+
+msgid "COLLECTION_PLANET_PAGE"
+msgstr "%s · %d/%d"
+
+msgid "ACTION_CLAIM"
+msgstr "CLAIM"
+
+msgid "COLLECTION_CLAIM_ALL"
+msgstr "CLAIM · %d"
+
+msgid "COLLECTION_MILESTONE_NAME"
+msgstr "ARCHIVIST · %d SERIES"
+
+msgid "COLLECTION_MILESTONE_DESCRIPTION"
+msgstr "Register %d distinct equipment series."
+
+msgid "COLLECTION_MILESTONE_PROGRESS"
+msgstr "%d/%d REGISTERED · +%d CHIPS"
+
+msgid "COLLECTION_NOTICE_CLAIMED"
+msgstr "Series milestone claimed: +%d Warp Chips."
+
+msgid "COLLECTION_NOTICE_ALL_CLAIMED"
+msgstr "%d series milestones claimed: +%d Warp Chips."
+
+msgid "MENU_DAILY"
+msgstr "SHIFT"
+
+msgid "MENU_DAILY_READY"
+msgstr "%d PAYMENTS AVAILABLE"
+
+msgid "MENU_DAILY_DETAIL"
+msgstr "%d/5 CONTRACTS TODAY"
+
+msgid "DAILY_TITLE"
+msgstr "DAILY SHIFT"
+
+msgid "DAILY_SUBTITLE"
+msgstr "Honest work, suspicious payments. Resets at 00:00 UTC."
+
+msgid "DAILY_PROGRESS"
+msgstr "SHIFT · %d CONTRACTS · %d/%d CLAIMED"
+
+msgid "DAILY_POLICY"
+msgstr "Objectives only use completed hunts; Rift and purchases do not count. This APK stores state locally."
+
+msgid "DAILY_CLAIM_ALL"
+msgstr "CLAIM SHIFT · %d"
+
+msgid "DAILY_OBJECTIVE_FIRST_CAPTURE_NAME"
+msgstr "FIRST CAPTURE"
+
+msgid "DAILY_OBJECTIVE_FIRST_CAPTURE_DESCRIPTION"
+msgstr "Complete 1 contract today."
+
+msgid "DAILY_OBJECTIVE_ACTIVE_SHIFT_NAME"
+msgstr "ACTIVE SHIFT"
+
+msgid "DAILY_OBJECTIVE_ACTIVE_SHIFT_DESCRIPTION"
+msgstr "Complete 3 contracts today."
+
+msgid "DAILY_OBJECTIVE_FULL_SHIFT_NAME"
+msgstr "HUNTER ON DUTY"
+
+msgid "DAILY_OBJECTIVE_FULL_SHIFT_DESCRIPTION"
+msgstr "Complete 5 contracts today."
+
+msgid "DAILY_OBJECTIVE_PROGRESS"
+msgstr "%d/%d CONTRACTS"
+
+msgid "DAILY_REWARD_SCRAP"
+msgstr "%d SCRAP"
+
+msgid "DAILY_REWARD"
+msgstr "PAYMENT · %s"
+
+msgid "DAILY_NOTICE_CLAIMED"
+msgstr "Daily objective claimed: +%d credits · +%d scrap."
+
+msgid "DAILY_NOTICE_ALL_CLAIMED"
+msgstr "%d daily objectives claimed: +%d credits · +%d scrap."
+
+msgid "REWARD_DAILY_PAYMENT_READY"
+msgstr "ON CLAIM · SHIFT %d/5 · PAYMENT UNLOCKED"
+
+msgid "REWARD_DAILY_PROGRESS"
+msgstr "ON CLAIM · SHIFT %d/5"

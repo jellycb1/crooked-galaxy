@@ -2,6 +2,10 @@ class_name ContentDB
 extends RefCounted
 
 const CoreRulesScript = preload("res://scripts/core_rules.gd")
+const EquipmentGenerationRulesScript = preload("res://scripts/equipment_generation_rules.gd")
+
+static var procedural_collection_ids_cache: Array[String] = []
+static var procedural_collection_entries_cache: Array[Dictionary] = []
 
 
 const PLANET := {
@@ -1121,13 +1125,13 @@ static func generate_loot(target: Dictionary, rng: RandomNumberGenerator, master
 	var available_slots := loot_slots_for_planet(planet_id)
 	var slot := forced_slot if available_slots.has(forced_slot) else choose_loot_slot(available_slots, rng.randf())
 	var catalog := item_catalog_for(planet_id, slot)
-	var definition: Dictionary = catalog[rng.randi_range(0, catalog.size() - 1)]
+	var catalog_index := rng.randi_range(0, catalog.size() - 1)
+	var definition: Dictionary = catalog[catalog_index]
 	var secondary_slot := slot != "weapon" and slot != "armor"
-	var base_power := 1 if secondary_slot else int(int(target.get("loot_power", target.power)) * rng.randf_range(0.36, 0.68))
+	var quality_roll := rng.randf()
+	var base_power := 1 if secondary_slot else int(int(target.get("loot_power", target.power)) * lerpf(0.36, 0.68, quality_roll))
 	# Secondary equipment creates lateral build choices instead of three extra
 	# weapon curves. Its progression lives in rare modifications, not target tier.
-	if secondary_slot:
-		rng.randf()
 	var rarity_roll := rng.randf()
 	var rarity_thresholds := CoreRulesScript.loot_rarity_thresholds(mastery_level)
 	var rarity := "Comum"
@@ -1141,12 +1145,18 @@ static func generate_loot(target: Dictionary, rng: RandomNumberGenerator, master
 		rarity = "Raro"
 		rarity_color = "#58d9ff"
 		bonus = 0 if secondary_slot else 2
+	var generation_seed := rng.randi()
 	var item := {
-		"id": "%s_%s_%d" % [target.id, slot, rng.randi()],
+		"id": "%s_%s_%d" % [target.id, slot, generation_seed],
 		"name": definition.name,
 		"description": definition.description,
 		"slot": slot,
 		"origin_planet_id": planet_id,
+		"template_id": EquipmentGenerationRulesScript.template_id(planet_id, slot, catalog_index),
+		"item_level": EquipmentGenerationRulesScript.item_level(target),
+		"quality": EquipmentGenerationRulesScript.quality_for_roll(quality_roll),
+		"variant_id": EquipmentGenerationRulesScript.variant_for_roll(generation_seed),
+		"generation_seed": generation_seed,
 		"power": maxi(1, base_power + bonus),
 		"rarity": rarity,
 		"color": rarity_color,
@@ -1183,6 +1193,50 @@ static func item_catalog_for(planet_id: String, slot: String) -> Array:
 		return core_family.get(slot, ITEM_CATALOG[slot])
 	var secondary_family: Dictionary = SECONDARY_ITEM_CATALOGS.get(planet_id, {})
 	return secondary_family.get(slot, [])
+
+
+static func procedural_collection_ids() -> Array[String]:
+	if not procedural_collection_ids_cache.is_empty():
+		return procedural_collection_ids_cache.duplicate()
+	var ids: Array[String] = []
+	for planet in PLANETS:
+		var planet_id := str(planet.id)
+		for slot in CoreRulesScript.EQUIPMENT_SLOTS:
+			var catalog := item_catalog_for(planet_id, slot)
+			for catalog_index in catalog.size():
+				var template := EquipmentGenerationRulesScript.template_id(planet_id, slot, catalog_index)
+				for variant_id in EquipmentGenerationRulesScript.VARIANT_IDS:
+					var collection_id := "%s::%s" % [template, str(variant_id)]
+					if not ids.has(collection_id):
+						ids.append(collection_id)
+	procedural_collection_ids_cache = ids
+	return ids.duplicate()
+
+
+static func procedural_collection_total() -> int:
+	if procedural_collection_ids_cache.is_empty():
+		procedural_collection_ids()
+	return procedural_collection_ids_cache.size()
+
+
+static func procedural_collection_entries() -> Array[Dictionary]:
+	if not procedural_collection_entries_cache.is_empty():
+		return procedural_collection_entries_cache.duplicate(true)
+	var entries: Array[Dictionary] = []
+	for planet in PLANETS:
+		var planet_id := str(planet.id)
+		for slot in CoreRulesScript.EQUIPMENT_SLOTS:
+			var catalog := item_catalog_for(planet_id, slot)
+			for catalog_index in catalog.size():
+				entries.append({
+					"template_id": EquipmentGenerationRulesScript.template_id(planet_id, slot, catalog_index),
+					"planet_id": planet_id,
+					"slot": slot,
+					"name": str(catalog[catalog_index].get("name", "")),
+					"description": str(catalog[catalog_index].get("description", "")),
+				})
+	procedural_collection_entries_cache = entries
+	return entries.duplicate(true)
 
 
 static func player_attack(rng: RandomNumberGenerator) -> String:

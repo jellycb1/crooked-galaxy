@@ -2,6 +2,7 @@ class_name ArsenalView
 extends RefCounted
 
 const EquipmentPresentation = preload("res://scripts/equipment_presentation.gd")
+const EquipmentGenerationRules = preload("res://scripts/equipment_generation_rules.gd")
 const Rules = preload("res://scripts/core_rules.gd")
 const Content = preload("res://scripts/content_db.gd")
 const StateScript = preload("res://scripts/game_state.gd")
@@ -55,6 +56,8 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		subtitle_text = text("ARSENAL_BACKPACK_COUNT", "MOCHILA · %d ITENS", [state.player.inventory.size()])
 	elif host.arsenal_section == "workshop":
 		subtitle_text = text("ARSENAL_WORKSHOP_SUBTITLE", "TESTE DE CAMPO · MELHORIAS")
+	elif host.arsenal_section == "collection":
+		subtitle_text = text("ARSENAL_COLLECTION_SUBTITLE", "CATÁLOGO PERMANENTE DE SÉRIES")
 	var subtitle := host.readable_caption(subtitle_text)
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	titles.add_child(subtitle)
@@ -89,6 +92,8 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 			build_inventory_section(host, content, state)
 		"workshop":
 			build_workshop_section(host, content, state, readiness)
+		"collection":
+			build_collection_section(host, content, state)
 		_:
 			build_equipped_section(host, content, state, readiness)
 
@@ -101,6 +106,7 @@ static func section_tabs(host: CrookedUIFactory) -> HBoxContainer:
 		{"id": "equipped", "text": text("ARSENAL_EQUIPPED", "EQUIPADO"), "color": host.GOLD},
 		{"id": "workshop", "text": text("ARSENAL_WORKSHOP_TAB", "OFICINA"), "color": host.LIME},
 		{"id": "inventory", "text": text("ARSENAL_BACKPACK", "MOCHILA"), "color": host.CYAN},
+		{"id": "collection", "text": text("ARSENAL_COLLECTION", "SÉRIES"), "color": host.CORAL},
 	]:
 		var section := str(definition.id)
 		var selected := host.arsenal_section == section
@@ -114,6 +120,182 @@ static func section_tabs(host: CrookedUIFactory) -> HBoxContainer:
 		)
 		tabs.add_child(tab)
 	return tabs
+
+
+static func build_collection_section(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
+	var section := scrollable_section(content, "CollectionScroll")
+	var progress := state.item_collection_progress()
+	var overview := host.panel(VBoxContainer.new(), Color("#173356"), 16, 14)
+	overview.name = "EquipmentCollectionOverview"
+	var overview_box := overview.get_child(0) as VBoxContainer
+	overview_box.add_child(host.label(text("ARSENAL_COLLECTION_PROGRESS", "CATÁLOGO DE SÉRIES · %d/%d", [int(progress.discovered), int(progress.total)]), UIDesignSystem.FONT_BODY, host.GOLD))
+	var overview_hint := host.label(text("ARSENAL_COLLECTION_HINT", "Receber, comprar ou reciclar uma variante regista-a permanentemente."), UIDesignSystem.FONT_CAPTION, host.MUTED)
+	overview_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	overview_box.add_child(overview_hint)
+	section.add_child(overview)
+	if state.last_notice_context == "collection" and not state.last_notice.is_empty():
+		var receipt := host.panel(VBoxContainer.new(), Color("#173f48"), 12, 10)
+		receipt.name = "CollectionClaimReceipt"
+		var receipt_text := host.label(str(state.last_notice), UIDesignSystem.FONT_CAPTION, host.LIME)
+		receipt_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		(receipt.get_child(0) as VBoxContainer).add_child(receipt_text)
+		section.add_child(receipt)
+	section.add_child(collection_milestones_panel(host, state))
+	var discovered: Array = state.player.get("discovered_item_variant_ids", [])
+	var entries := Content.procedural_collection_entries()
+	host.collection_planet_index = clampi(host.collection_planet_index, 0, Content.PLANETS.size() - 1)
+	section.add_child(collection_planet_navigation(host))
+	var planet: Dictionary = Content.PLANETS[host.collection_planet_index]
+	var planet_id := str(planet.id)
+	var planet_entries := entries.filter(func(entry): return str(entry.planet_id) == planet_id)
+	var planet_discovered := 0
+	for entry in planet_entries:
+		for variant_id in EquipmentGenerationRules.VARIANT_IDS:
+			if discovered.has("%s::%s" % [str(entry.template_id), str(variant_id)]):
+				planet_discovered += 1
+	var planet_panel := host.panel(VBoxContainer.new(), host.PANEL, 14, 12)
+	planet_panel.name = "CollectionPlanet_%s" % planet_id
+	var planet_box := planet_panel.get_child(0) as VBoxContainer
+	planet_box.add_theme_constant_override("separation", 8)
+	planet_box.add_child(host.label(text("ARSENAL_COLLECTION_PLANET", "%s · %d/%d", [localized_content("planet", planet, "name").to_upper(), planet_discovered, planet_entries.size() * EquipmentGenerationRules.VARIANT_IDS.size()]), UIDesignSystem.FONT_BODY, Color(str(planet.accent))))
+	for entry in planet_entries:
+		planet_box.add_child(collection_family_row(host, discovered, entry))
+	section.add_child(planet_panel)
+
+
+static func collection_planet_navigation(host: CrookedUIFactory) -> PanelContainer:
+	var panel := host.panel(HBoxContainer.new(), Color("#101d38"), 12, 10)
+	panel.name = "CollectionPlanetNavigation"
+	var row := panel.get_child(0) as HBoxContainer
+	row.add_theme_constant_override("separation", 8)
+	var previous := host.secondary_action("‹", host.CYAN)
+	previous.name = "CollectionPlanetPrevious"
+	previous.custom_minimum_size = Vector2(56, 48)
+	previous.disabled = host.collection_planet_index <= 0
+	previous.pressed.connect(func(): change_collection_planet(host, -1))
+	row.add_child(previous)
+	var planet: Dictionary = Content.PLANETS[host.collection_planet_index]
+	var status := host.center_label(text("COLLECTION_PLANET_PAGE", "%s · %d/%d", [localized_content("planet", planet, "name").to_upper(), host.collection_planet_index + 1, Content.PLANETS.size()]), UIDesignSystem.FONT_CAPTION, Color(str(planet.accent)))
+	status.name = "CollectionPlanetPage"
+	status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	row.add_child(status)
+	var next := host.secondary_action("›", host.CYAN)
+	next.name = "CollectionPlanetNext"
+	next.custom_minimum_size = Vector2(56, 48)
+	next.disabled = host.collection_planet_index >= Content.PLANETS.size() - 1
+	next.pressed.connect(func(): change_collection_planet(host, 1))
+	row.add_child(next)
+	return panel
+
+
+static func change_collection_planet(host: CrookedUIFactory, direction: int) -> void:
+	var next_index := clampi(host.collection_planet_index + direction, 0, Content.PLANETS.size() - 1)
+	if next_index == host.collection_planet_index:
+		return
+	host.collection_planet_index = next_index
+	host.reset_session_scroll("CollectionScroll", "collection_scroll_position")
+	if host.has_method("render"):
+		host.call("render")
+
+
+static func collection_milestones_panel(host: CrookedUIFactory, state: StateScript) -> PanelContainer:
+	var panel := host.panel(VBoxContainer.new(), Color("#152a42"), 14, 12)
+	panel.name = "CollectionMilestones"
+	var box := panel.get_child(0) as VBoxContainer
+	box.add_theme_constant_override("separation", 7)
+	var title_row := HBoxContainer.new()
+	title_row.add_theme_constant_override("separation", 8)
+	box.add_child(title_row)
+	var milestones := state.collection_milestones()
+	var claimed_count := milestones.filter(func(entry): return bool(entry.claimed)).size()
+	var heading := host.label(text("COLLECTION_MILESTONES_SUMMARY", "MARCOS DO ARQUIVO · %d/%d", [claimed_count, milestones.size()]), UIDesignSystem.FONT_BODY, host.GOLD)
+	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_row.add_child(heading)
+	var ready_count := state.collection_rewards_ready()
+	if ready_count > 0:
+		var claim_all := host.primary_action(text("COLLECTION_CLAIM_ALL", "RESGATAR · %d", [ready_count]), host.LIME)
+		claim_all.name = "ClaimAllCollectionMilestones"
+		claim_all.custom_minimum_size.x = 132
+		claim_all.pressed.connect(state.claim_all_collection_milestones)
+		title_row.add_child(claim_all)
+	var visible_milestones: Array[Dictionary] = []
+	for milestone in milestones:
+		if bool(milestone.complete) and not bool(milestone.claimed):
+			visible_milestones.append(milestone)
+			break
+	if visible_milestones.is_empty():
+		for milestone in milestones:
+			if not bool(milestone.claimed):
+				visible_milestones.append(milestone)
+				break
+	if visible_milestones.is_empty() and not milestones.is_empty():
+		visible_milestones.append(milestones.back())
+	for milestone in visible_milestones:
+		var milestone_row := HBoxContainer.new()
+		milestone_row.name = "CollectionMilestone_%s" % str(milestone.id)
+		milestone_row.add_theme_constant_override("separation", 8)
+		var status := "✓" if bool(milestone.claimed) else ("!" if bool(milestone.complete) else "·")
+		var status_label := host.center_label(status, UIDesignSystem.FONT_BODY, host.LIME if bool(milestone.claimed) else (host.GOLD if bool(milestone.complete) else host.MUTED))
+		status_label.custom_minimum_size = Vector2(28, 28)
+		milestone_row.add_child(status_label)
+		var copy := VBoxContainer.new()
+		copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		milestone_row.add_child(copy)
+		copy.add_child(host.label(str(milestone.name), UIDesignSystem.FONT_CAPTION, host.INK if bool(milestone.complete) else host.MUTED))
+		var progress_text := text("COLLECTION_MILESTONE_PROGRESS", "%d/%d REGISTADAS · +%d FICHAS", [mini(int(milestone.discovered), int(milestone.threshold)), int(milestone.threshold), int(milestone.warp_chips)])
+		var progress_label := host.label(progress_text, UIDesignSystem.FONT_CAPTION, host.LIME if bool(milestone.claimed) else host.MUTED)
+		progress_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		copy.add_child(progress_label)
+		if bool(milestone.complete) and not bool(milestone.claimed):
+			var claim := host.secondary_action(text("ACTION_CLAIM", "RESGATAR"), host.GOLD)
+			claim.name = "ClaimCollection_%s" % str(milestone.id)
+			claim.custom_minimum_size.x = 110
+			var milestone_id := str(milestone.id)
+			claim.pressed.connect(func(): state.claim_collection_milestone(milestone_id))
+			milestone_row.add_child(claim)
+		box.add_child(milestone_row)
+	var cadence_hint := host.label(text("COLLECTION_MILESTONE_CADENCE", "O arquivo mostra o próximo marco; recompensas concluídas podem ser resgatadas em conjunto."), UIDesignSystem.FONT_CAPTION, host.MUTED)
+	cadence_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(cadence_hint)
+	return panel
+
+
+static func collection_family_row(host: CrookedUIFactory, discovered: Array, entry: Dictionary) -> VBoxContainer:
+	var row := VBoxContainer.new()
+	row.name = "CollectionFamily_%s" % str(entry.template_id)
+	row.add_theme_constant_override("separation", 2)
+	var found_variants: Array[String] = []
+	var missing_variants: Array[String] = []
+	for variant_id in EquipmentGenerationRules.VARIANT_IDS:
+		var label_key := "ITEM_VARIANT_%s" % str(variant_id).to_upper()
+		var fallback := text("ITEM_VARIANT_STANDARD", "SÉRIE PADRÃO") if str(variant_id) == "standard" else str(variant_id).to_upper()
+		var variant_name := text(label_key, fallback)
+		if discovered.has("%s::%s" % [str(entry.template_id), str(variant_id)]):
+			found_variants.append(variant_name)
+		else:
+			missing_variants.append(variant_name)
+	var representative := {
+		"id": "collection_preview",
+		"name": str(entry.name),
+		"description": str(entry.description),
+		"slot": str(entry.slot),
+		"origin_planet_id": str(entry.planet_id),
+		"variant_id": "standard",
+	}
+	var family_name := EquipmentPresentation.localized_item_field(representative, "name") if not found_variants.is_empty() else text("ARSENAL_COLLECTION_UNKNOWN", "SÉRIE DESCONHECIDA")
+	var title := host.label(text("ARSENAL_COLLECTION_FAMILY", "%s · %s · %d/5", [family_name, EquipmentPresentation.localized_slot(str(entry.slot)).to_upper(), found_variants.size()]), UIDesignSystem.FONT_CAPTION, host.INK if not found_variants.is_empty() else host.MUTED)
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	row.add_child(title)
+	var status_text := text("ARSENAL_COLLECTION_FOUND", "REGISTADAS · %s", [", ".join(found_variants)]) if not found_variants.is_empty() else text("ARSENAL_COLLECTION_NONE", "NENHUMA VARIANTE REGISTADA")
+	var status := host.label(status_text, UIDesignSystem.FONT_CAPTION, host.LIME if not found_variants.is_empty() else host.MUTED)
+	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	row.add_child(status)
+	if not missing_variants.is_empty() and not found_variants.is_empty():
+		var missing := host.label(text("ARSENAL_COLLECTION_MISSING", "EM FALTA · %s", [", ".join(missing_variants)]), UIDesignSystem.FONT_CAPTION, host.MUTED)
+		missing.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		row.add_child(missing)
+	return row
 
 
 static func build_equipped_section(host: CrookedUIFactory, content: VBoxContainer, state: StateScript, readiness: Dictionary) -> void:
@@ -177,6 +359,15 @@ static func build_inventory_section(host: CrookedUIFactory, content: VBoxContain
 	var page_data := paginated_inventory(host, state)
 	var visible_items: Array = page_data.items
 	content.add_child(inventory_header(host, page_data, state.player.inventory.size()))
+	var collection := state.item_collection_progress()
+	var collection_panel := host.panel(VBoxContainer.new(), Color("#173356"), 12, 10)
+	collection_panel.name = "EquipmentCollectionProgress"
+	var collection_box := collection_panel.get_child(0) as VBoxContainer
+	collection_box.add_child(host.label(text("ARSENAL_COLLECTION_PROGRESS", "CATÁLOGO DE SÉRIES · %d/%d", [int(collection.discovered), int(collection.total)]), UIDesignSystem.FONT_CAPTION, host.GOLD))
+	var collection_hint := host.label(text("ARSENAL_COLLECTION_HINT", "Receber, comprar ou reciclar uma variante regista-a permanentemente."), UIDesignSystem.FONT_CAPTION, host.MUTED)
+	collection_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	collection_box.add_child(collection_hint)
+	content.add_child(collection_panel)
 	content.add_child(inventory_toolbar(host, state))
 	var scroller := ScrollContainer.new()
 	scroller.name = "InventoryScroll"
@@ -627,6 +818,11 @@ static func inventory_item_card(host: CrookedUIFactory, state: StateScript, item
 	stat_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	stat_line.max_lines_visible = 2
 	details.add_child(stat_line)
+	var procedural_identity := EquipmentPresentation.procedural_identity_text(item)
+	if not procedural_identity.is_empty():
+		var identity_line := host.label(procedural_identity, UIDesignSystem.FONT_CAPTION, host.CYAN)
+		identity_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		details.add_child(identity_line)
 	var origin_id := str(item.get("origin_planet_id", ""))
 	if not origin_id.is_empty():
 		var origin_line := host.label(text("REWARD_ORIGIN", "ORIGEM · %s", [localized_content("planet", Content.get_planet(origin_id), "name").to_upper()]), UIDesignSystem.FONT_CAPTION, host.CYAN)

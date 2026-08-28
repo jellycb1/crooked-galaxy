@@ -35,6 +35,13 @@ func _draw() -> void:
 			draw_line(center + Vector2(-4, -4), center + Vector2(4, -4), accent, 1.7, true)
 			draw_line(center + Vector2(-4, 1), center + Vector2(4, 1), accent, 1.7, true)
 			draw_circle(center + Vector2(0, 6), 1.8, accent)
+		"daily":
+			draw_rect(Rect2(center + Vector2(-8, -7), Vector2(16, 15)), accent, false, 2.0)
+			draw_line(center + Vector2(-8, -2), center + Vector2(8, -2), accent, 1.7, true)
+			draw_line(center + Vector2(-4, -10), center + Vector2(-4, -5), accent, 2.0, true)
+			draw_line(center + Vector2(4, -10), center + Vector2(4, -5), accent, 2.0, true)
+			draw_line(center + Vector2(-4, 3), center + Vector2(-1, 6), accent, 1.7, true)
+			draw_line(center + Vector2(-1, 6), center + Vector2(5, 0), accent, 1.7, true)
 		_:
 			draw_circle(center, 7.0, accent, false, 2.0)
 			draw_circle(center, 2.5, accent)

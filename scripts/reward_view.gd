@@ -5,6 +5,7 @@ const EquipmentPresentation = preload("res://scripts/equipment_presentation.gd")
 const Rules = preload("res://scripts/core_rules.gd")
 const Content = preload("res://scripts/content_db.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
+const DailyObjectiveRules = preload("res://scripts/daily_objective_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const RewardProgressIconScript = preload("res://scripts/reward_progress_icon.gd")
 const LocaleRules = preload("res://scripts/locale_rules.gd")
@@ -90,6 +91,15 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	loot_copy.add_theme_constant_override("separation", 1)
 	loot_header.add_child(loot_copy)
 	loot_copy.add_child(host.label("%s · %s" % [localized_rarity(str(item.rarity)), localized_slot(str(item.slot)).to_upper()], UIDesignSystem.FONT_CAPTION, Color(str(item.color))))
+	var procedural_identity := EquipmentPresentation.procedural_identity_text(item)
+	if not procedural_identity.is_empty():
+		loot_copy.add_child(host.label(procedural_identity, UIDesignSystem.FONT_CAPTION, host.CYAN))
+	var collection_state := EquipmentPresentation.collection_state(state.player, item)
+	if not collection_state.is_empty():
+		var collection_label := host.label(local_text("ITEM_COLLECTION_PREVIEW_NEW", "★ NOVA SÉRIE · será registada ao receber") if collection_state == "new" else local_text("ITEM_COLLECTION_PREVIEW_REGISTERED", "✓ SÉRIE JÁ REGISTADA"), UIDesignSystem.FONT_CAPTION, host.GOLD if collection_state == "new" else host.MUTED)
+		collection_label.name = "RewardCollectionStatus"
+		collection_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		loot_copy.add_child(collection_label)
 	var item_name := host.label(localized_item_field(item, "name"), UIDesignSystem.FONT_BODY, host.INK)
 	item_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	loot_copy.add_child(item_name)
@@ -137,6 +147,18 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var progress_box := VBoxContainer.new()
 	progress_box.name = "RewardProgressSummary"
 	progress_box.add_theme_constant_override("separation", 5)
+	# Preview the retention consequence before the player commits the reward. This
+	# keeps the daily system discoverable without interrupting the hunt flow.
+	var daily_before := state.daily_objectives()
+	var projected_player: Dictionary = state.player.duplicate(true)
+	projected_player.daily_hunts_completed = int(projected_player.get("daily_hunts_completed", 0)) + 1
+	var projected_hunts := mini(5, int(projected_player.daily_hunts_completed))
+	var ready_daily_before := daily_before.filter(func(entry): return bool(entry.complete) and not bool(entry.claimed)).size()
+	var unlocks_daily_payment := DailyObjectiveRules.rewards_ready(projected_player).size() > ready_daily_before
+	var daily_text := local_text("REWARD_DAILY_PAYMENT_READY", "AO RECEBER · TURNO %d/5 · PAGAMENTO LIBERADO", [projected_hunts]) if unlocks_daily_payment else local_text("REWARD_DAILY_PROGRESS", "AO RECEBER · TURNO %d/5", [projected_hunts])
+	var daily_label := host.center_label(daily_text, UIDesignSystem.FONT_CAPTION, host.GOLD if unlocks_daily_payment else host.CYAN)
+	daily_label.name = "RewardDailyProgress"
+	progress_box.add_child(reward_progress_row(host, "daily", daily_label, null, host.GOLD if unlocks_daily_payment else host.CYAN))
 	var previous_captures := int(state.player.get("captures_by_target", {}).get(str(state.current_bounty.id), 0))
 	var reward_mastery := Rules.target_mastery_level(previous_captures)
 	if reward_mastery > 0:
@@ -273,6 +295,9 @@ static func build_challenge_reward(host: CrookedUIFactory, content: VBoxContaine
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
 	copy.add_child(host.label("%s · %s" % [localized_rarity(str(item.rarity)), localized_slot(str(item.slot)).to_upper()], UIDesignSystem.FONT_CAPTION, Color(str(item.color))))
+	var procedural_identity := EquipmentPresentation.procedural_identity_text(item)
+	if not procedural_identity.is_empty():
+		copy.add_child(host.label(procedural_identity, UIDesignSystem.FONT_CAPTION, host.CYAN))
 	copy.add_child(host.label(localized_item_field(item, "name"), UIDesignSystem.FONT_BODY, host.INK))
 	var description := host.label(localized_item_field(item, "description"), UIDesignSystem.FONT_CAPTION, host.MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

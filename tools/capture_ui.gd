@@ -145,12 +145,30 @@ func capture() -> void:
 	if save_frame("ui_board_destinations.png") != OK:
 		quit(1)
 		return
+	state.player.daily_hunts_completed = 3
+	scene.view_mode = "daily"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_daily.png") != OK:
+		quit(1)
+		return
+	scene.open_frontier_menu()
+	await process_frame
+	await process_frame
 	TranslationServer.set_locale("en")
 	state.account.locale_id = "en"
 	scene.render()
 	await process_frame
 	await process_frame
 	if save_frame("ui_frontier_menu_en.png") != OK:
+		quit(1)
+		return
+	scene.view_mode = "daily"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_daily_en.png") != OK:
 		quit(1)
 		return
 	scene.view_mode = "settings"

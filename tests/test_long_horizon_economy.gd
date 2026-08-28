@@ -52,6 +52,13 @@ func _init() -> void:
 	check(latest_transport_win >= 60 and latest_transport_win <= 100, "the final transport remains a long goal but arrives within the current world-discovery career")
 	check(int(player.level) >= 35 and int(player.level) <= 50, "two hundred standard contracts avoid level runaway")
 	check(int(player.credits) < 250000, "level-forty career wallet remains bounded before retention systems exist")
+	var daily_credit_total := 0
+	var daily_scrap_total := 0
+	for objective in state.daily_objectives():
+		daily_credit_total += int(objective.credits)
+		daily_scrap_total += int(objective.scrap)
+	check(daily_credit_total == 85 and daily_scrap_total == 8, "one complete daily shift has a fixed auditable economic ceiling")
+	check(daily_credit_total < int(MarketRulesScript.offers(player)[0].price), "daily credits support progression without replacing late-game contract income")
 	state.free()
 	finish()
 

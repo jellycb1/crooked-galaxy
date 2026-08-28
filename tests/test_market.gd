@@ -7,6 +7,7 @@ const MarketViewScript = preload("res://scripts/market_view.gd")
 const SpendingGuidanceScript = preload("res://scripts/spending_guidance.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const CoreRulesScript = preload("res://scripts/core_rules.gd")
+const MonetizationRulesScript = preload("res://scripts/monetization_rules.gd")
 
 var failures := 0
 
@@ -51,6 +52,7 @@ func _init() -> void:
 	check(state.buy_market_offer(str(chosen.id)), "funded purchase succeeds on the board")
 	check(int(state.player.credits) == funded_before - int(chosen.price), "purchase removes the exact advertised price")
 	check(state.player.market_purchased_offer_ids.has(str(chosen.id)), "purchase is persisted against the deterministic offer id")
+	check(state.player.discovered_item_variant_ids.size() == 1, "buying market equipment records its procedural series in the permanent collection")
 	var bought_id := str(chosen.item.id)
 	var owns_item := str(state.player.weapon.get("id", "")) == bought_id or str(state.player.armor.get("id", "")) == bought_id
 	for item in state.player.inventory:
@@ -72,22 +74,36 @@ func _init() -> void:
 	cache_state.free()
 
 	state.phase = state.Phase.HUNT
-	check(not state.refresh_market(), "market cannot mutate credits during a contract")
+	state.player.warp_chips = 100
+	check(not state.refresh_market(), "market cannot mutate premium currency during a contract")
 	state.phase = state.Phase.BOARD
 	var old_cycle := int(state.player.market_cycle)
 	var refresh_cost := MarketRulesScript.refresh_cost(state.player)
-	state.player.credits = refresh_cost + 100
-	check(state.refresh_market(), "funded stock renewal succeeds on the board")
+	var credits_before_refresh := int(state.player.credits)
+	var chips_before_refresh := int(state.player.warp_chips)
+	check(refresh_cost == 1 and state.refresh_market(), "first funded stock renewal costs one Warp Chip on the board")
 	check(int(state.player.market_cycle) == old_cycle + 1 and state.player.market_purchased_offer_ids.is_empty(), "renewal advances stock and clears only old purchase marks")
-	check(int(state.player.credits) == 100, "renewal charges its exact advertised cost")
+	check(int(state.player.warp_chips) == chips_before_refresh - refresh_cost and int(state.player.credits) == credits_before_refresh, "renewal charges premium currency without consuming item-purchase credits")
 	check(str(state.market_offers()[0].id) != str(chosen.id), "renewal produces a distinct deterministic stock cycle")
+	check(MarketRulesScript.refresh_cost(state.player) == 5 and state.refresh_market(), "second renewal follows the visible five-chip step")
+	check(MarketRulesScript.refresh_cost(state.player) == 20 and state.refresh_market(), "third renewal follows the visible twenty-chip step")
+	var final_stock := state.market_offers()
+	check(final_stock.any(func(offer): return str(offer.item.rarity) == "Raro" or str(offer.item.rarity) == "Épico"), "third renewal guarantees at least one rare-compatible item without guaranteeing an upgrade")
+	var chips_after_limit := int(state.player.warp_chips)
+	check(MarketRulesScript.refresh_cost(state.player) == 0 and not state.refresh_market() and int(state.player.warp_chips) == chips_after_limit, "fourth daily renewal is blocked atomically")
+	var tomorrow := (int(state.player.economy_day) + 1) * int(MonetizationRulesScript.SECONDS_PER_DAY)
+	check(state.normalize_daily_economy(tomorrow) and int(state.player.market_refresh_count) == 0 and int(state.player.market_cycle) == 0, "next UTC day resets stock and its bounded refresh ladder")
 
 	var malformed := state.default_player()
 	malformed.market_cycle = 999999999
+	malformed.market_refresh_count = 999
 	malformed.market_purchased_offer_ids = ["not_a_market_offer"]
+	malformed.discovered_item_variant_ids = ["fake::contraband", "fake::contraband"]
 	var repaired: Dictionary = state.sanitize_loaded_player(malformed)
 	check(bool(repaired.repaired) and int(repaired.player.market_cycle) == 1000000, "save sanitizer bounds hostile market cycles")
+	check(int(repaired.player.market_refresh_count) == MonetizationRulesScript.MAX_MARKET_REFRESHES_PER_DAY, "save sanitizer bounds hostile daily premium counters")
 	check(repaired.player.market_purchased_offer_ids.is_empty(), "save sanitizer rejects malformed market purchase records")
+	check(repaired.player.discovered_item_variant_ids.is_empty(), "save sanitizer rejects unknown and duplicate collection records")
 
 	var market_save := "res://.godot/crooked_galaxy_market_test_%s.json" % OS.get_process_id()
 	remove_save_family(market_save)
@@ -110,6 +126,7 @@ func _init() -> void:
 
 	state.player = state.default_player()
 	state.player.credits = 99999
+	state.player.warp_chips = 99
 	var host = FactoryScript.new()
 	root.add_child(host)
 	var content := VBoxContainer.new()
@@ -118,12 +135,23 @@ func _init() -> void:
 	check(host.find_child("MarketScroll", true, false) != null, "market renderer provides a portrait-safe scroller")
 	check(host.find_children("MarketOffer_*", "PanelContainer", true, false).size() == 3, "market renderer shows exactly one bounded offer cycle")
 	check(host.find_children("MarketBuy_*", "Button", true, false).size() == 3, "every offer has a purchase action")
+	var daily_status := host.find_child("MarketDailyChipStatus", true, false) as Label
+	check(daily_status != null and daily_status.text.contains("+1") and daily_status.text.contains("00:00 UTC"), "market explains the playable premium source and exact UTC reset")
 	var refresh := host.find_child("MarketRefresh", true, false) as Button
 	check(refresh != null and refresh.custom_minimum_size.y >= 48.0, "renewal action preserves an Android-first touch target")
+	check(host.find_child("MarketRefreshConfirm", true, false) == null, "premium renewal never starts in a preconfirmed state")
 	var hangar_action := host.find_child("MarketHangarAction", true, false) as Button
 	check(hangar_action != null and hangar_action.custom_minimum_size.y >= 48.0, "market exposes a touch-safe route to the permanent transport alternative")
 	for button in host.find_children("MarketBuy_*", "Button", true, false):
 		check((button as Button).custom_minimum_size.y >= 48.0, "purchase action preserves an Android-first touch target")
+	for child in content.get_children():
+		child.free()
+	host.market_refresh_confirmation = true
+	MarketViewScript.build(host, content, state)
+	var confirm_refresh := host.find_child("MarketRefreshConfirm", true, false) as Button
+	var cancel_refresh := host.find_child("MarketRefreshCancel", true, false) as Button
+	check(host.find_child("MarketRefreshConfirmation", true, false) != null and confirm_refresh != null and cancel_refresh != null, "premium renewal requires a distinct confirm-or-cancel decision")
+	check(confirm_refresh.custom_minimum_size.y >= 48.0 and cancel_refresh.custom_minimum_size.y >= 48.0, "premium confirmation actions retain full Android touch targets")
 
 	host.free()
 	state.free()

@@ -302,7 +302,7 @@ func run_smoke_test() -> void:
 	scene.render()
 	await process_frame
 	var stored_arsenal_action := scene.find_child("PrimaryNav_arsenal", true, false) as Button
-	check(stored_arsenal_action != null and stored_arsenal_action.text == "ARSENAL" and scene.find_child("PrimaryNavBadge_arsenal", true, false) == null, "stored reward receipts keep the ordinary arsenal destination")
+	check(stored_arsenal_action != null and stored_arsenal_action.text == "SÉRIES" and scene.find_child("PrimaryNavBadge_arsenal", true, false) != null, "a stored new series surfaces its claimable collection reward without forging a field test")
 	scene.board_section = "bounties"
 	state.player.capture_streak = 1
 	state.last_notice = "Contrato pago: +34 créditos · +53 XP · Peça de Reserva guardada · Embalo ×1 iniciado: próxima captura +5%"
@@ -322,13 +322,13 @@ func run_smoke_test() -> void:
 	scene.render()
 	await process_frame
 	var unfunded_arsenal_action := scene.find_child("PrimaryNav_arsenal", true, false) as Button
-	check(unfunded_arsenal_action != null and unfunded_arsenal_action.text == "ARSENAL" and scene.find_child("PrimaryNavBadge_arsenal", true, false) == null, "equipped receipt without a funded calibration keeps the ordinary arsenal route")
+	check(unfunded_arsenal_action != null and unfunded_arsenal_action.text == "SÉRIES" and scene.find_child("PrimaryNavBadge_arsenal", true, false) != null, "equipped receipt without a funded calibration retains the claimable series route instead of pretending a field test")
 	state.last_notice = "Contrato pago: Recibo antigo equipado"
 	state.last_notice_context = "career"
 	scene.render()
 	await process_frame
 	var stale_arsenal_action := scene.find_child("PrimaryNav_arsenal", true, false) as Button
-	check(stale_arsenal_action != null and stale_arsenal_action.text == "ARSENAL" and scene.find_child("PrimaryNavBadge_arsenal", true, false) == null, "equipped-looking stale text cannot forge a contextual field-test action")
+	check(stale_arsenal_action != null and stale_arsenal_action.text == "SÉRIES" and scene.find_child("PrimaryNavBadge_arsenal", true, false) != null, "equipped-looking stale text cannot forge a field test while a real series reward remains actionable")
 	state.phase = state.Phase.REWARD
 	state.current_bounty = bounty.duplicate(true)
 	state.pending_loot = {"id": "ui_instant_scrap", "name": "Zapper Cansado", "slot": "weapon", "power": 0, "rarity": "Comum", "color": "#b9c2d9"}
@@ -355,6 +355,11 @@ func run_smoke_test() -> void:
 	backpack_tab.pressed.emit()
 	await process_frame
 	check(scene.arsenal_section == "inventory" and scene.find_child("InventoryScroll", true, false) != null and scene.find_child("Upgrade_weapon", true, false) == null, "backpack tab replaces workshop controls with the inventory list")
+	(scene.find_child("ArsenalTab_collection", true, false) as Button).pressed.emit()
+	await process_frame
+	check(scene.arsenal_section == "collection" and scene.find_child("CollectionScroll", true, false) != null and scene.find_child("InventoryScroll", true, false) == null, "series tab replaces item actions with the permanent collection catalog")
+	(scene.find_child("ArsenalTab_inventory", true, false) as Button).pressed.emit()
+	await process_frame
 	check(scene.find_child("Scrap_ui_spare", true, false) != null, "workshop renders recycling for spare loot")
 	check(scene.find_child("Lock_ui_spare", true, false) != null, "inventory renders manual item protection")
 	check(scene.find_child("InventoryFilter_weapon", true, false) != null, "arsenal renders slot filters")

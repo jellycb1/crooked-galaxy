@@ -17,6 +17,7 @@ const MarketViewScript = preload("res://scripts/market_view.gd")
 const HangarViewScript = preload("res://scripts/hangar_view.gd")
 const SettingsViewScript = preload("res://scripts/settings_view.gd")
 const ChallengeViewScript = preload("res://scripts/challenge_view.gd")
+const DailyObjectivesViewScript = preload("res://scripts/daily_objectives_view.gd")
 const ChallengeRulesScript = preload("res://scripts/challenge_rules.gd")
 const OnboardingViewScript = preload("res://scripts/onboarding_view.gd")
 const ServerRulesScript = preload("res://scripts/server_rules.gd")
@@ -50,6 +51,7 @@ var suspended_victory_time_left := 0.0
 var selected_board_offer_index := 0
 var last_hunt_remaining := -1
 var last_hunt_percent := -1
+const IDLE_BACKGROUND_PREFETCH := ["workshop", "world", "combat"]
 
 
 func _ready() -> void:
@@ -84,7 +86,7 @@ func android_back_action() -> String:
 	if GameState.requires_onboarding():
 		return "quit" if GameState.onboarding_step() == "login" else "guard_onboarding"
 	if GameState.phase == GameState.Phase.BOARD:
-		if view_mode == "market" or view_mode == "hangar" or view_mode == "career" or view_mode == "settings" or view_mode == "challenges":
+		if view_mode == "market" or view_mode == "hangar" or view_mode == "career" or view_mode == "daily" or view_mode == "settings" or view_mode == "challenges":
 			return "menu"
 		if view_mode != "board":
 			return "board"
@@ -233,6 +235,8 @@ func apply_safe_area() -> void:
 
 
 func render() -> void:
+	if view_mode != "market":
+		market_refresh_confirmation = false
 	var previous_focus_name := ""
 	var focus_owner := get_viewport().gui_get_focus_owner()
 	if focus_owner != null and content != null and content.is_ancestor_of(focus_owner):
@@ -287,6 +291,8 @@ func render() -> void:
 		{"name": "MarketScroll", "property": "market_scroll_position"},
 		{"name": "HangarScroll", "property": "hangar_scroll_position"},
 		{"name": "InventoryScroll", "property": "inventory_scroll_position"},
+		{"name": "CollectionScroll", "property": "collection_scroll_position"},
+		{"name": "DailyObjectivesScroll", "property": "daily_scroll_position"},
 	]:
 		var remembered_scroll := content.find_child(str(scroll_definition.name), false, false) as ScrollContainer
 		if remembered_scroll != null:
@@ -369,6 +375,8 @@ func schedule_arsenal_warmup(expected_generation: int) -> void:
 		return
 	arsenal_warmup_timer.set_meta("generation", expected_generation)
 	arsenal_warmup_timer.set_meta("step", 0)
+	arsenal_warmup_timer.set_meta("background_prefetch_index", -1)
+	arsenal_warmup_timer.wait_time = 0.001
 	arsenal_warmup_timer.start()
 
 
@@ -379,9 +387,23 @@ func on_arsenal_warmup_timer() -> void:
 		return
 	if GameState.phase != GameState.Phase.BOARD or view_mode != "board":
 		return
+	var background_prefetch_index := int(arsenal_warmup_timer.get_meta("background_prefetch_index", -1))
+	if background_prefetch_index >= 0:
+		if environment_backdrop != null and background_prefetch_index < IDLE_BACKGROUND_PREFETCH.size():
+			environment_backdrop.prefetch_context(str(IDLE_BACKGROUND_PREFETCH[background_prefetch_index]))
+		background_prefetch_index += 1
+		arsenal_warmup_timer.set_meta("background_prefetch_index", background_prefetch_index)
+		if background_prefetch_index < IDLE_BACKGROUND_PREFETCH.size():
+			arsenal_warmup_timer.start()
+		else:
+			arsenal_warmup_timer.wait_time = 0.001
+		return
 	if ArsenalView.warm_field_readiness_step(GameState, step):
 		if environment_backdrop != null:
 			environment_backdrop.prefetch_context("workshop")
+		arsenal_warmup_timer.set_meta("background_prefetch_index", 1)
+		arsenal_warmup_timer.wait_time = 0.05
+		arsenal_warmup_timer.start()
 		return
 	arsenal_warmup_timer.set_meta("step", step + 1)
 	arsenal_warmup_timer.start()
@@ -400,6 +422,12 @@ func restore_session_scroll(expected_generation: int) -> void:
 		elif view_mode == "arsenal" and arsenal_section == "inventory":
 			scroll_name = "InventoryScroll"
 			position = inventory_scroll_position
+		elif view_mode == "arsenal" and arsenal_section == "collection":
+			scroll_name = "CollectionScroll"
+			position = collection_scroll_position
+		elif view_mode == "daily":
+			scroll_name = "DailyObjectivesScroll"
+			position = daily_scroll_position
 	if scroll_name.is_empty() or position <= 0:
 		return
 	get_tree().process_frame.connect(Callable(self, "apply_session_scroll").bind(expected_generation, scroll_name, position, false), CONNECT_ONE_SHOT)
@@ -454,7 +482,13 @@ func on_primary_navigation(destination_id: String) -> void:
 		"arsenal":
 			view_mode = "arsenal"
 			var failed_contract := not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true))
-			arsenal_section = "workshop" if GameState.last_notice_context.begins_with("reward_") or failed_contract else "equipped"
+			var funded_field_test := GameState.last_notice_context == "reward_equipped" and int(GameState.player.get("scrap", 0)) >= mini(CoreRules.equipment_upgrade_cost(GameState.player.weapon), CoreRules.equipment_upgrade_cost(GameState.player.armor))
+			if failed_contract or funded_field_test:
+				arsenal_section = "workshop"
+			elif GameState.collection_rewards_ready() > 0:
+				arsenal_section = "collection"
+			else:
+				arsenal_section = "equipped"
 		"hunter":
 			view_mode = "attributes"
 		"galaxy":
@@ -485,7 +519,7 @@ func update_primary_navigation() -> void:
 		active_id = "hunter"
 	elif view_mode == "galaxy":
 		active_id = "galaxy"
-	elif view_mode == "market" or view_mode == "hangar" or view_mode == "career" or view_mode == "settings" or view_mode == "challenges" or board_section == "destinations":
+	elif view_mode == "market" or view_mode == "hangar" or view_mode == "career" or view_mode == "daily" or view_mode == "settings" or view_mode == "challenges" or board_section == "destinations":
 		active_id = "menu"
 	var labels := {}
 	var badges := {}
@@ -505,9 +539,15 @@ func update_primary_navigation() -> void:
 	if equipped_receipt and scrap >= cheapest_calibration:
 		labels.arsenal = t("NAV_TEST", "TESTAR")
 		badges.arsenal = 1
+	var collection_ready := GameState.collection_rewards_ready()
+	if collection_ready > 0:
+		badges.arsenal = int(badges.get("arsenal", 0)) + collection_ready
+		if not labels.has("arsenal"):
+			labels.arsenal = t("NAV_SERIES", "SÉRIES")
 	var ready_rewards := GameState.career_rewards_ready()
-	if ready_rewards > 0:
-		badges.menu = ready_rewards
+	var daily_ready := GameState.daily_rewards_ready()
+	if ready_rewards + daily_ready > 0:
+		badges.menu = ready_rewards + daily_ready
 	navigation_dock.configure(active_id, labels, badges)
 
 
@@ -525,7 +565,7 @@ func environment_context() -> String:
 			return "world"
 		if view_mode == "challenges":
 			return "combat"
-		if view_mode == "galaxy" or view_mode == "career" or view_mode == "attributes" or view_mode == "classes":
+		if view_mode == "galaxy" or view_mode == "career" or view_mode == "daily" or view_mode == "attributes" or view_mode == "classes":
 			return "world"
 	if GameState.phase == GameState.Phase.COMBAT or GameState.phase == GameState.Phase.VICTORY:
 		return "combat"
@@ -543,6 +583,8 @@ func build_hub_surface() -> void:
 		build_galaxy_map()
 	elif view_mode == "career":
 		build_career()
+	elif view_mode == "daily":
+		build_daily()
 	elif view_mode == "attributes":
 		build_attributes()
 	elif view_mode == "classes":
@@ -654,6 +696,7 @@ func build_header() -> void:
 	var stats := ledger.get_child(0) as HBoxContainer
 	stats.add_theme_constant_override("separation", 4)
 	stats.add_child(header_resource_cell("HeaderCredits", t("RESOURCE_CREDITS", "CRÉDITOS"), str(GameState.player.credits), GOLD))
+	stats.add_child(header_resource_cell("HeaderWarpChips", t("RESOURCE_WARP_CHIPS", "FICHAS"), str(GameState.player.get("warp_chips", 0)), Color("#d789ff")))
 	stats.add_child(header_resource_cell("HeaderScrap", t("RESOURCE_SCRAP", "SUCATA"), str(GameState.player.get("scrap", 0)), CORAL))
 	stats.add_child(header_resource_cell("HeaderReputation", t("RESOURCE_RANK", "RANK"), str(int(GameState.player.reputation) + 1), LIME))
 	stats.add_child(header_resource_cell("HeaderWins", t("RESOURCE_WINS", "VITÓRIAS"), str(GameState.player.wins), CYAN))
@@ -726,10 +769,11 @@ func build_bounty_board_header() -> void:
 	ledger.custom_minimum_size = Vector2(0, 44)
 	ledger.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var stats := ledger.get_child(0) as GridContainer
-	stats.columns = 4
+	stats.columns = 5
 	stats.add_theme_constant_override("h_separation", 4)
 	stats.add_theme_constant_override("v_separation", 0)
 	stats.add_child(header_resource_cell("HeaderCredits", t("RESOURCE_CREDITS", "CRÉDITOS"), str(GameState.player.credits), GOLD, true))
+	stats.add_child(header_resource_cell("HeaderWarpChips", t("RESOURCE_WARP_CHIPS", "FICHAS"), str(GameState.player.get("warp_chips", 0)), Color("#d789ff"), true))
 	stats.add_child(header_resource_cell("HeaderScrap", t("RESOURCE_SCRAP", "SUCATA"), str(GameState.player.get("scrap", 0)), CORAL, true))
 	stats.add_child(header_resource_cell("HeaderReputation", t("RESOURCE_RANK", "RANK"), str(int(GameState.player.reputation) + 1), LIME, true))
 	stats.add_child(header_resource_cell("HeaderWins", t("RESOURCE_WINS", "VITÓRIAS"), str(GameState.player.wins), CYAN, true))
@@ -954,14 +998,18 @@ func build_frontier_menu() -> void:
 		view_mode = "challenges"
 		render()
 	))
+	var daily_ready := GameState.daily_rewards_ready()
+	var daily_progress := clampi(int(GameState.player.get("daily_hunts_completed", 0)), 0, 5)
+	var daily_detail := t("MENU_DAILY_READY", "%d PAGAMENTOS DISPONÍVEIS", [daily_ready]) if daily_ready > 0 else t("MENU_DAILY_DETAIL", "%d/5 CONTRATOS HOJE", [daily_progress])
+	hub_grid.add_child(board_hub_action(t("MENU_DAILY", "TURNO"), daily_detail, GOLD, "daily", "BoardDailyAction", func():
+		view_mode = "daily"
+		render()
+	))
 	var settings_action := board_hub_action(t("SETTINGS_TITLE", "AJUSTES"), t("MENU_SETTINGS_DETAIL", "ÁUDIO E MOVIMENTO"), MUTED, "settings", "BoardSettingsAction", func():
 		view_mode = "settings"
 		render()
 	)
-	var system_label := label(t("SETTINGS_TITLE", "AJUSTES").to_upper(), UIDesignSystem.FONT_CAPTION, MUTED)
-	system_label.name = "FrontierSystemSection"
-	menu_body.add_child(system_label)
-	menu_body.add_child(settings_action)
+	hub_grid.add_child(settings_action)
 	var hub_divider := reference_ui_decoration("hub_divider", 12.0)
 	if hub_divider != null:
 		menu_body.add_child(hub_divider)
@@ -1334,6 +1382,10 @@ func planet_card(planet: Dictionary) -> PanelContainer:
 
 func build_career() -> void:
 	CareerViewScript.build(self, content, GameState)
+
+
+func build_daily() -> void:
+	DailyObjectivesViewScript.build(self, content, GameState)
 
 
 func build_arsenal() -> void:

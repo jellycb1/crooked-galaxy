@@ -83,6 +83,10 @@ func _init() -> void:
 	var legacy_identity := SaveMigrations.migrate({"version": 14, "player": {"species_id": "nebular_nomad", "hunter_name": "Nova"}})
 	check(str(legacy_identity.player.species_id) == "starworn", "schema fifteen maps a colliding provisional species ID to its finalized identity")
 	check(str(legacy_identity.player.appearance.palette) == "native" and str(legacy_identity.player.appearance.marking) == "clean", "established hunters receive a neutral complete cosmetic recipe")
+	check(int(legacy_identity.player.warp_chips) == 0 and int(legacy_identity.player.market_refresh_count) == 0 and int(legacy_identity.player.economy_day) == -1, "schema sixteen initializes a neutral local premium wallet and daily counters")
+	check(legacy_identity.player.discovered_item_variant_ids.is_empty(), "schema seventeen initializes the permanent equipment collection without inventing discoveries")
+	check(legacy_identity.player.claimed_collection_milestones.is_empty(), "schema eighteen initializes collection rewards without claiming premium currency")
+	check(int(legacy_identity.player.daily_hunts_completed) == 0 and legacy_identity.player.claimed_daily_objectives.is_empty(), "schema nineteen initializes daily activity without inventing completed objectives")
 	var interrupted_identity := SaveMigrations.migrate({"version": 14, "player": {"species_id": "cellar_mycelian", "hunter_name": ""}})
 	check(str(interrupted_identity.player.species_id) == "fungoid" and interrupted_identity.player.appearance.is_empty(), "interrupted creation resumes at customization after species migration")
 

@@ -416,6 +416,9 @@ msgstr "PODER %d"
 msgid "RESOURCE_CREDITS"
 msgstr "CRÉDITOS"
 
+msgid "RESOURCE_WARP_CHIPS"
+msgstr "FICHAS"
+
 msgid "RESOURCE_SCRAP"
 msgstr "SUCATA"
 
@@ -3096,13 +3099,19 @@ msgid "MARKET_SUBTITLE"
 msgstr "Equipamento planetário. Procedência opcional."
 
 msgid "MARKET_BALANCE"
-msgstr "SALDO · ◈ %d CRÉDITOS"
+msgstr "SALDO · ◈ %d CRÉDITOS · ◆ %d FICHAS"
 
 msgid "MARKET_PURCHASE_RULE"
 msgstr "Compras equipam melhorias automaticamente; alternativas vão para o inventário."
 
 msgid "MARKET_REFRESH"
-msgstr "RENOVAR · ◈ %d"
+msgstr "RENOVAR · ◆ %d · %d/3"
+
+msgid "MARKET_REFRESH_LIMIT"
+msgstr "RENOVAÇÕES ESGOTADAS · VOLTA AMANHÃ"
+
+msgid "MARKET_REFRESH_RULE"
+msgstr "Renovações diárias custam 1/5/20 Fichas; a terceira garante pelo menos um Raro, nunca uma melhoria."
 
 msgid "MARKET_TRANSPORT_COMPLETE"
 msgstr "MOBILIDADE PERMANENTE · COLEÇÃO COMPLETA"
@@ -3141,7 +3150,7 @@ msgid "MARKET_NOTICE_STORED"
 msgstr "Mercado: %s comprado por %d créditos e guardado."
 
 msgid "MARKET_NOTICE_REFRESHED"
-msgstr "Mercado renovado por %d créditos. A procedência continua confidencial."
+msgstr "Mercado renovado por %d Fichas de Dobra. A procedência continua confidencial."
 
 msgid "HANGAR_TITLE"
 msgstr "HANGAR DUVIDOSO"
@@ -3898,3 +3907,185 @@ msgstr "CAÇADA"
 
 msgid "HUNT_MINIMIZE"
 msgstr "MINIMIZAR"
+
+msgid "REWARD_NOTICE_DAILY_WARP_CHIP"
+msgstr "Primeira missão do dia: +%d Ficha de Dobra"
+
+msgid "EQUIPMENT_PROCEDURAL_IDENTITY"
+msgstr "NÍVEL %d · QUALIDADE %d"
+
+msgid "ITEM_VARIANT_NAME"
+msgstr "%s · %s"
+
+msgid "ITEM_VARIANT_PATCHED"
+msgstr "SÉRIE REMENDO"
+
+msgid "ITEM_VARIANT_POLISHED"
+msgstr "SÉRIE CROMADA"
+
+msgid "ITEM_VARIANT_WEATHERED"
+msgstr "SÉRIE FRONTEIRA"
+
+msgid "ITEM_VARIANT_CONTRABAND"
+msgstr "SÉRIE CONTRABANDO"
+
+msgid "ITEM_COLLECTION_NEW"
+msgstr "Nova série adicionada à coleção."
+
+msgid "ARSENAL_COLLECTION_PROGRESS"
+msgstr "CATÁLOGO DE SÉRIES · %d/%d"
+
+msgid "ARSENAL_COLLECTION_HINT"
+msgstr "Receber, comprar ou reciclar uma variante regista-a permanentemente."
+
+msgid "ITEM_VARIANT_STANDARD"
+msgstr "SÉRIE PADRÃO"
+
+msgid "ARSENAL_COLLECTION"
+msgstr "SÉRIES"
+
+msgid "ARSENAL_COLLECTION_SUBTITLE"
+msgstr "CATÁLOGO PERMANENTE DE SÉRIES"
+
+msgid "ARSENAL_COLLECTION_PLANET"
+msgstr "%s · %d/%d"
+
+msgid "ARSENAL_COLLECTION_UNKNOWN"
+msgstr "SÉRIE DESCONHECIDA"
+
+msgid "ARSENAL_COLLECTION_FAMILY"
+msgstr "%s · %s · %d/5"
+
+msgid "ARSENAL_COLLECTION_FOUND"
+msgstr "REGISTADAS · %s"
+
+msgid "ARSENAL_COLLECTION_NONE"
+msgstr "NENHUMA VARIANTE REGISTADA"
+
+msgid "ARSENAL_COLLECTION_MISSING"
+msgstr "EM FALTA · %s"
+msgid "COLLECTION_MILESTONES_TITLE"
+msgstr "MARCOS DO ARQUIVO"
+
+msgid "COLLECTION_MILESTONES_SUMMARY"
+msgstr "MARCOS DO ARQUIVO · %d/%d"
+
+msgid "COLLECTION_MILESTONE_CADENCE"
+msgstr "O arquivo mostra o próximo marco; recompensas concluídas podem ser resgatadas em conjunto."
+
+msgid "NAV_SERIES"
+msgstr "SÉRIES"
+
+msgid "ITEM_COLLECTION_PREVIEW_NEW"
+msgstr "★ NOVA SÉRIE · será registada ao receber"
+
+msgid "ITEM_COLLECTION_PREVIEW_REGISTERED"
+msgstr "✓ SÉRIE JÁ REGISTADA"
+
+msgid "ITEM_COLLECTION_MARKET_NEW"
+msgstr "★ NOVA SÉRIE"
+
+msgid "MARKET_REFRESH_CONFIRMATION"
+msgstr "CONFIRMAR RENOVAÇÃO · gastar ◆ %d remove estas três ofertas e gera uma nova seleção."
+
+msgid "MARKET_REFRESH_CONFIRM"
+msgstr "CONFIRMAR · ◆ %d"
+
+msgid "MARKET_DAILY_FREE_READY"
+msgstr "FONTE JOGÁVEL · primeira missão de hoje: +1 Ficha"
+
+msgid "MARKET_DAILY_FREE_CLAIMED"
+msgstr "FONTE JOGÁVEL · recompensa diária recolhida"
+
+msgid "MARKET_DAILY_RESET"
+msgstr " · reinício 00:00 UTC"
+
+msgid "ACTION_CANCEL"
+msgstr "CANCELAR"
+
+msgid "COLLECTION_PLANET_PAGE"
+msgstr "%s · %d/%d"
+
+msgid "ACTION_CLAIM"
+msgstr "RESGATAR"
+
+msgid "COLLECTION_CLAIM_ALL"
+msgstr "RESGATAR · %d"
+
+msgid "COLLECTION_MILESTONE_NAME"
+msgstr "ARQUIVISTA · %d SÉRIES"
+
+msgid "COLLECTION_MILESTONE_DESCRIPTION"
+msgstr "Registe %d séries de equipamento distintas."
+
+msgid "COLLECTION_MILESTONE_PROGRESS"
+msgstr "%d/%d REGISTADAS · +%d FICHAS"
+
+msgid "COLLECTION_NOTICE_CLAIMED"
+msgstr "Marco de séries resgatado: +%d Fichas de Dobra."
+
+msgid "COLLECTION_NOTICE_ALL_CLAIMED"
+msgstr "%d marcos de séries resgatados: +%d Fichas de Dobra."
+
+msgid "MENU_DAILY"
+msgstr "TURNO"
+
+msgid "MENU_DAILY_READY"
+msgstr "%d PAGAMENTOS DISPONÍVEIS"
+
+msgid "MENU_DAILY_DETAIL"
+msgstr "%d/5 CONTRATOS HOJE"
+
+msgid "DAILY_TITLE"
+msgstr "TURNO DIÁRIO"
+
+msgid "DAILY_SUBTITLE"
+msgstr "Trabalho honesto, pagamentos suspeitos. Reinício às 00:00 UTC."
+
+msgid "DAILY_PROGRESS"
+msgstr "TURNO · %d CONTRATOS · %d/%d RESGATADOS"
+
+msgid "DAILY_POLICY"
+msgstr "Objetivos usam apenas caçadas concluídas; Fenda e compras não contam. O estado deste APK é local."
+
+msgid "DAILY_CLAIM_ALL"
+msgstr "RESGATAR TURNO · %d"
+
+msgid "DAILY_OBJECTIVE_FIRST_CAPTURE_NAME"
+msgstr "PRIMEIRA CAPTURA"
+
+msgid "DAILY_OBJECTIVE_FIRST_CAPTURE_DESCRIPTION"
+msgstr "Conclua 1 contrato hoje."
+
+msgid "DAILY_OBJECTIVE_ACTIVE_SHIFT_NAME"
+msgstr "TURNO EM MOVIMENTO"
+
+msgid "DAILY_OBJECTIVE_ACTIVE_SHIFT_DESCRIPTION"
+msgstr "Conclua 3 contratos hoje."
+
+msgid "DAILY_OBJECTIVE_FULL_SHIFT_NAME"
+msgstr "CAÇADOR DE SERVIÇO"
+
+msgid "DAILY_OBJECTIVE_FULL_SHIFT_DESCRIPTION"
+msgstr "Conclua 5 contratos hoje."
+
+msgid "DAILY_OBJECTIVE_PROGRESS"
+msgstr "%d/%d CONTRATOS"
+
+msgid "DAILY_REWARD_SCRAP"
+msgstr "%d SUCATA"
+
+msgid "DAILY_REWARD"
+msgstr "PAGAMENTO · %s"
+
+msgid "DAILY_NOTICE_CLAIMED"
+msgstr "Objetivo diário resgatado: +%d créditos · +%d sucata."
+
+msgid "DAILY_NOTICE_ALL_CLAIMED"
+msgstr "%d objetivos diários resgatados: +%d créditos · +%d sucata."
+
+msgid "REWARD_DAILY_PAYMENT_READY"
+msgstr "AO RECEBER · TURNO %d/5 · PAGAMENTO LIBERADO"
+
+msgid "REWARD_DAILY_PROGRESS"
+msgstr "AO RECEBER · TURNO %d/5"

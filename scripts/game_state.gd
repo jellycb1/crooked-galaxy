@@ -10,6 +10,10 @@ const AppearanceRulesScript = preload("res://scripts/appearance_rules.gd")
 const ServerRulesScript = preload("res://scripts/server_rules.gd")
 const LocaleRulesScript = preload("res://scripts/locale_rules.gd")
 const MarketRulesScript = preload("res://scripts/market_rules.gd")
+const MonetizationRulesScript = preload("res://scripts/monetization_rules.gd")
+const EquipmentGenerationRulesScript = preload("res://scripts/equipment_generation_rules.gd")
+const CollectionRulesScript = preload("res://scripts/collection_rules.gd")
+const DailyObjectiveRulesScript = preload("res://scripts/daily_objective_rules.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const MissionRulesScript = preload("res://scripts/mission_rules.gd")
 const ChallengeRulesScript = preload("res://scripts/challenge_rules.gd")
@@ -70,6 +74,7 @@ func _ready() -> void:
 
 
 func default_player() -> Dictionary:
+	var today := MonetizationRulesScript.utc_day_id()
 	return {
 		"character_id": "",
 		"class_id": "",
@@ -79,6 +84,7 @@ func default_player() -> Dictionary:
 		"level": 1,
 		"xp": 0,
 		"credits": 25,
+		"warp_chips": 0,
 		"scrap": 0,
 		"scrap_recycled_total": 0,
 		"afk_credits_earned": 0,
@@ -89,6 +95,13 @@ func default_player() -> Dictionary:
 		"capture_streak": 0,
 		"best_capture_streak": 0,
 		"market_cycle": 0,
+		"market_refresh_count": 0,
+		"economy_day": today,
+		"daily_hunt_chip_day": -1,
+		"discovered_item_variant_ids": [],
+		"claimed_collection_milestones": [],
+		"daily_hunts_completed": 0,
+		"claimed_daily_objectives": [],
 		"market_purchased_offer_ids": [],
 		"owned_transport_ids": [],
 		"active_transport_id": "",
@@ -315,7 +328,136 @@ func planet_tier(planet_id: String) -> int:
 
 
 func market_offers() -> Array[Dictionary]:
+	if normalize_daily_economy():
+		save_game()
 	return MarketRulesScript.offers(player)
+
+
+func normalize_daily_economy(unix_time := -1.0) -> bool:
+	var today := MonetizationRulesScript.utc_day_id(unix_time)
+	if int(player.get("economy_day", -1)) == today:
+		return false
+	player.economy_day = today
+	player.market_cycle = 0
+	player.market_refresh_count = 0
+	player.market_purchased_offer_ids = []
+	player.daily_hunts_completed = 0
+	player.claimed_daily_objectives = []
+	return true
+
+
+func register_item_discovery(item: Dictionary) -> bool:
+	var collection_id := EquipmentGenerationRulesScript.collection_id(item)
+	if collection_id.is_empty():
+		return false
+	var discovered: Array = player.get("discovered_item_variant_ids", [])
+	if discovered.has(collection_id):
+		return false
+	discovered.append(collection_id)
+	player.discovered_item_variant_ids = discovered
+	return true
+
+
+func item_collection_progress() -> Dictionary:
+	return {
+		"discovered": player.get("discovered_item_variant_ids", []).size(),
+		"total": ContentDB.procedural_collection_total(),
+	}
+
+
+func collection_milestones() -> Array[Dictionary]:
+	return CollectionRulesScript.milestones(player, ContentDB.procedural_collection_total())
+
+
+func collection_rewards_ready() -> int:
+	return CollectionRulesScript.rewards_ready(player, ContentDB.procedural_collection_total()).size()
+
+
+func claim_collection_milestone(milestone_id: String) -> bool:
+	for milestone in collection_milestones():
+		if str(milestone.id) != milestone_id or not bool(milestone.complete) or bool(milestone.claimed):
+			continue
+		var claimed: Array = player.get("claimed_collection_milestones", []).duplicate()
+		claimed.append(milestone_id)
+		var warp_chips := int(milestone.warp_chips)
+		player.claimed_collection_milestones = claimed
+		player.warp_chips = int(player.get("warp_chips", 0)) + warp_chips
+		last_notice = LocaleRulesScript.text("COLLECTION_NOTICE_CLAIMED", "Marco de séries resgatado: +%d Fichas de Dobra.", [warp_chips])
+		last_notice_context = "collection"
+		save_game()
+		changed.emit()
+		return true
+	return false
+
+
+func claim_all_collection_milestones() -> Dictionary:
+	var ready := CollectionRulesScript.rewards_ready(player, ContentDB.procedural_collection_total())
+	if ready.is_empty():
+		return {"count": 0, "warp_chips": 0}
+	var claimed: Array = player.get("claimed_collection_milestones", []).duplicate()
+	var warp_chips := 0
+	for milestone in ready:
+		claimed.append(str(milestone.id))
+		warp_chips += int(milestone.warp_chips)
+	player.claimed_collection_milestones = claimed
+	player.warp_chips = int(player.get("warp_chips", 0)) + warp_chips
+	last_notice = LocaleRulesScript.text("COLLECTION_NOTICE_ALL_CLAIMED", "%d marcos de séries resgatados: +%d Fichas de Dobra.", [ready.size(), warp_chips])
+	last_notice_context = "collection"
+	save_game()
+	changed.emit()
+	return {"count": ready.size(), "warp_chips": warp_chips}
+
+
+func daily_objectives() -> Array[Dictionary]:
+	if normalize_daily_economy():
+		save_game()
+	return DailyObjectiveRulesScript.objectives(player)
+
+
+func daily_rewards_ready() -> int:
+	if normalize_daily_economy():
+		save_game()
+	return DailyObjectiveRulesScript.rewards_ready(player).size()
+
+
+func claim_daily_objective(objective_id: String) -> bool:
+	for objective in daily_objectives():
+		if str(objective.id) != objective_id or not bool(objective.complete) or bool(objective.claimed):
+			continue
+		var claimed: Array = player.get("claimed_daily_objectives", []).duplicate()
+		claimed.append(objective_id)
+		player.claimed_daily_objectives = claimed
+		player.credits = int(player.get("credits", 0)) + int(objective.credits)
+		player.scrap = int(player.get("scrap", 0)) + int(objective.scrap)
+		last_notice = LocaleRulesScript.text("DAILY_NOTICE_CLAIMED", "Objetivo diário resgatado: +%d créditos · +%d sucata.", [int(objective.credits), int(objective.scrap)])
+		last_notice_context = "daily"
+		save_game()
+		changed.emit()
+		return true
+	return false
+
+
+func claim_all_daily_objectives() -> Dictionary:
+	if normalize_daily_economy():
+		save_game()
+	var ready := DailyObjectiveRulesScript.rewards_ready(player)
+	if ready.is_empty():
+		return {"count": 0, "credits": 0, "scrap": 0}
+	var claimed: Array = player.get("claimed_daily_objectives", []).duplicate()
+	var credits := 0
+	var scrap := 0
+	for objective in ready:
+		claimed.append(str(objective.id))
+		credits += int(objective.credits)
+		scrap += int(objective.scrap)
+	player.claimed_daily_objectives = claimed
+	player.credits = int(player.get("credits", 0)) + credits
+	player.scrap = int(player.get("scrap", 0)) + scrap
+	last_notice = LocaleRulesScript.text("DAILY_NOTICE_ALL_CLAIMED", "%d objetivos diários resgatados: +%d créditos · +%d sucata.", [ready.size(), credits, scrap])
+	last_notice_context = "daily"
+	save_game()
+	changed.emit()
+	return {"count": ready.size(), "credits": credits, "scrap": scrap}
 
 
 func buy_market_offer(offer_id: String) -> bool:
@@ -335,12 +477,15 @@ func buy_market_offer(offer_id: String) -> bool:
 	var equipped := CoreRules.is_upgrade_for_player(player, item)
 	player.credits = int(player.credits) - price
 	player.market_purchased_offer_ids.append(offer_id)
+	var collection_new := register_item_discovery(item)
 	if equipped:
 		equip(item)
 	else:
 		player.inventory.append(item)
 	var item_name := localized_item_field(item, "name")
 	last_notice = LocaleRulesScript.text("MARKET_NOTICE_EQUIPPED", "Mercado: %s comprado por %d créditos e equipado.", [item_name, price]) if equipped else LocaleRulesScript.text("MARKET_NOTICE_STORED", "Mercado: %s comprado por %d créditos e guardado.", [item_name, price])
+	if collection_new:
+		last_notice += " " + LocaleRulesScript.text("ITEM_COLLECTION_NEW", "Nova série adicionada à coleção.")
 	last_notice_context = "market"
 	# A stored purchase changes wallet/inventory presentation but not the combat
 	# build. Retain expensive deterministic estimates unless the item auto-equips.
@@ -354,13 +499,15 @@ func buy_market_offer(offer_id: String) -> bool:
 func refresh_market() -> bool:
 	if phase != Phase.BOARD:
 		return false
+	normalize_daily_economy()
 	var cost := MarketRulesScript.refresh_cost(player)
-	if cost <= 0 or int(player.credits) < cost:
+	if cost <= 0 or not MonetizationRulesScript.can_refresh_market(player) or int(player.get("warp_chips", 0)) < cost:
 		return false
-	player.credits = int(player.credits) - cost
+	player.warp_chips = int(player.get("warp_chips", 0)) - cost
 	player.market_cycle = int(player.get("market_cycle", 0)) + 1
+	player.market_refresh_count = int(player.get("market_refresh_count", 0)) + 1
 	player.market_purchased_offer_ids = []
-	last_notice = LocaleRulesScript.text("MARKET_NOTICE_REFRESHED", "Mercado renovado por %d créditos. A procedência continua confidencial.", [cost])
+	last_notice = LocaleRulesScript.text("MARKET_NOTICE_REFRESHED", "Mercado renovado por %d Fichas de Dobra. A procedência continua confidencial.", [cost])
 	last_notice_context = "market"
 	save_game()
 	changed.emit()
@@ -884,6 +1031,8 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		"mastery_scrap": 0,
 		"recycled": false,
 		"xp": int(current_bounty.xp),
+		"warp_chips": 0,
+		"collection_new": false,
 		"levels": 0,
 		"rank_up": false,
 		"chapter_tier_up": false,
@@ -898,6 +1047,14 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	var completed_planet_id := str(completed_bounty.get("planet_id", ContentDB.PLANET.id))
 	var old_chapter_tier := 0 if network_mission else planet_tier(completed_planet_id)
 	player.credits = int(player.credits) + summary.credits
+	summary.collection_new = register_item_discovery(pending_loot)
+	normalize_daily_economy()
+	player.daily_hunts_completed = int(player.get("daily_hunts_completed", 0)) + 1
+	var reward_day := MonetizationRulesScript.utc_day_id()
+	if MonetizationRulesScript.first_hunt_chip_available(player, float(reward_day) * MonetizationRulesScript.SECONDS_PER_DAY):
+		player.daily_hunt_chip_day = reward_day
+		player.warp_chips = int(player.get("warp_chips", 0)) + MonetizationRulesScript.FREE_DAILY_HUNT_CHIPS
+		summary.warp_chips = MonetizationRulesScript.FREE_DAILY_HUNT_CHIPS
 	player.capture_streak = new_streak
 	player.best_capture_streak = maxi(int(player.get("best_capture_streak", 0)), new_streak)
 	summary.levels = CoreRules.apply_xp(player, summary.xp)
@@ -941,6 +1098,10 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		LocaleRulesScript.text("REWARD_NOTICE_CREDITS", "+%d créditos", [int(summary.credits)]),
 		LocaleRulesScript.text("REWARD_NOTICE_XP", "+%d XP", [int(summary.xp)]),
 	]
+	if int(summary.warp_chips) > 0:
+		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_DAILY_WARP_CHIP", "Primeira missão do dia: +%d Ficha de Dobra", [int(summary.warp_chips)]))
+	if bool(summary.collection_new):
+		notice_parts.append(LocaleRulesScript.text("ITEM_COLLECTION_NEW", "Nova série adicionada à coleção."))
 	if int(summary.incident_cost) > 0:
 		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_INCIDENT", "Incidente já pago: saldo +%d créditos", [int(summary.net_contract_credits)]))
 	if int(summary.contract_scrap) > 0:
@@ -1729,7 +1890,7 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	else:
 		repaired = true
 	sanitized.equipment_loadouts = clean_loadouts
-	for key in ["xp", "credits", "scrap", "scrap_recycled_total", "afk_credits_earned", "afk_scrap_earned", "career_credits_claimed", "career_scrap_claimed", "capture_streak", "best_capture_streak", "reputation", "wins", "stat_points", "challenge_floor"]:
+	for key in ["xp", "credits", "warp_chips", "scrap", "scrap_recycled_total", "afk_credits_earned", "afk_scrap_earned", "career_credits_claimed", "career_scrap_claimed", "capture_streak", "best_capture_streak", "reputation", "wins", "stat_points", "challenge_floor"]:
 		if int(sanitized[key]) < 0:
 			sanitized[key] = 0
 			repaired = true
@@ -1762,9 +1923,62 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	if not (market_cycle is int or market_cycle is float) or float(market_cycle) != float(int(market_cycle)) or int(market_cycle) < 0 or int(market_cycle) > 1000000:
 		sanitized.market_cycle = clampi(int(market_cycle) if market_cycle is int or market_cycle is float else 0, 0, 1000000)
 		repaired = true
+	var market_refresh_count := clampi(int(sanitized.get("market_refresh_count", 0)), 0, MonetizationRulesScript.MAX_MARKET_REFRESHES_PER_DAY)
+	if market_refresh_count != int(sanitized.get("market_refresh_count", 0)):
+		sanitized.market_refresh_count = market_refresh_count
+		repaired = true
+	for day_key in ["economy_day", "daily_hunt_chip_day"]:
+		var day_value = sanitized.get(day_key, -1)
+		if not (day_value is int or day_value is float) or float(day_value) != float(int(day_value)) or int(day_value) < -1:
+			sanitized[day_key] = -1
+			repaired = true
 	if not MarketRulesScript.purchase_records_are_safe(sanitized.get("market_purchased_offer_ids", [])):
 		sanitized.market_purchased_offer_ids = []
 		repaired = true
+	var known_collection_ids := {}
+	for collection_id in ContentDB.procedural_collection_ids():
+		known_collection_ids[collection_id] = true
+	var clean_discoveries: Array = []
+	var loaded_discoveries = sanitized.get("discovered_item_variant_ids", [])
+	if loaded_discoveries is Array:
+		for collection_id in loaded_discoveries:
+			var id := str(collection_id)
+			if known_collection_ids.has(id) and not clean_discoveries.has(id):
+				clean_discoveries.append(id)
+			else:
+				repaired = true
+	else:
+		repaired = true
+	sanitized.discovered_item_variant_ids = clean_discoveries
+	var valid_collection_milestones := CollectionRulesScript.valid_milestone_ids(ContentDB.procedural_collection_total())
+	var clean_collection_claims: Array = []
+	var loaded_collection_claims = sanitized.get("claimed_collection_milestones", [])
+	if loaded_collection_claims is Array:
+		for milestone_id in loaded_collection_claims:
+			var id := str(milestone_id)
+			if valid_collection_milestones.has(id) and not clean_collection_claims.has(id):
+				clean_collection_claims.append(id)
+			else:
+				repaired = true
+	else:
+		repaired = true
+	sanitized.claimed_collection_milestones = clean_collection_claims
+	var daily_hunts := clampi(int(sanitized.get("daily_hunts_completed", 0)), 0, 1000)
+	if daily_hunts != int(sanitized.get("daily_hunts_completed", 0)):
+		sanitized.daily_hunts_completed = daily_hunts
+		repaired = true
+	var clean_daily_claims: Array = []
+	var loaded_daily_claims = sanitized.get("claimed_daily_objectives", [])
+	if loaded_daily_claims is Array:
+		for objective_id in loaded_daily_claims:
+			var id := str(objective_id)
+			if DailyObjectiveRulesScript.valid_claim_ids().has(id) and not clean_daily_claims.has(id):
+				clean_daily_claims.append(id)
+			else:
+				repaired = true
+	else:
+		repaired = true
+	sanitized.claimed_daily_objectives = clean_daily_claims
 	if not ClassRules.is_valid(str(sanitized.get("class_id", ""))):
 		sanitized.class_id = ""
 		repaired = true
@@ -2094,6 +2308,25 @@ func sanitize_loaded_equipment(item: Dictionary) -> bool:
 		if not origin_is_known:
 			item.erase("origin_planet_id")
 			repaired = true
+	if item.has("template_id") and (not (item.template_id is String) or str(item.template_id).is_empty() or str(item.template_id).length() > 96):
+		item.erase("template_id")
+		repaired = true
+	if item.has("item_level"):
+		var clean_item_level := clampi(int(item.item_level), 1, 1000000)
+		if not (item.item_level is int or item.item_level is float) or clean_item_level != int(item.item_level):
+			item.item_level = clean_item_level
+			repaired = true
+	if item.has("quality"):
+		var clean_quality := clampi(int(item.quality), EquipmentGenerationRulesScript.MIN_QUALITY, EquipmentGenerationRulesScript.MAX_QUALITY)
+		if not (item.quality is int or item.quality is float) or clean_quality != int(item.quality):
+			item.quality = clean_quality
+			repaired = true
+	if item.has("variant_id") and not EquipmentGenerationRulesScript.variant_is_valid(str(item.variant_id)):
+		item.variant_id = "standard"
+		repaired = true
+	if item.has("generation_seed") and not (item.generation_seed is int or item.generation_seed is float):
+		item.generation_seed = 0
+		repaired = true
 	if item.has("trait"):
 		var canonical_trait := {}
 		var trait_id := str(item.trait.get("id", ""))

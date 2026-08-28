@@ -35,6 +35,13 @@ func _init() -> void:
 	check(bool(deltas.upgrade), "comparison recognizes a modified upgrade")
 	check(EquipmentPresentation.equipment_delta_text(player, stronger) == "▲ +1 PODER · +10 VIDA", "comparison text summarizes both effects")
 	check(EquipmentPresentation.equipment_delta_text(player, player.weapon) == "= MESMO EFEITO", "equal equipment has a stable summary")
+	check(EquipmentPresentation.procedural_identity_text({"item_level": 7, "quality": 83}) == "NÍVEL 7 · QUALIDADE 83", "procedural identity exposes stable level and roll quality")
+	check(EquipmentPresentation.procedural_identity_text(player.weapon).is_empty(), "legacy equipment remains readable without invented procedural metadata")
+	check(EquipmentPresentation.variant_display_name("Canhão de Recibos", {"variant_id": "contraband"}) == "Canhão de Recibos · SÉRIE CONTRABANDO", "procedural variants produce a localized collectible display name without mutating the base template")
+	var collectible := {"template_id": "dustball_prime_weapon_00", "variant_id": "contraband"}
+	check(EquipmentPresentation.collection_state({"discovered_item_variant_ids": []}, collectible) == "new", "undiscovered procedural variants are marked as new before a decision")
+	check(EquipmentPresentation.collection_state({"discovered_item_variant_ids": ["dustball_prime_weapon_00::contraband"]}, collectible) == "registered", "known procedural variants are distinguished from collection progress")
+	check(EquipmentPresentation.collection_state({}, player.weapon).is_empty(), "legacy equipment never invents collection status")
 	var ambush_weapon := {"slot": "weapon", "power": 5, "trait": {"opening_damage_bonus": 5}}
 	check(EquipmentPresentation.equipment_delta_text(player, ambush_weapon) == "▲ +5 EMBOSCADA", "comparison text exposes opening-shot effects")
 	var dampener_armor := {"slot": "armor", "power": 3, "trait": {"damage_reduction": 2}}
