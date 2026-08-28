@@ -343,6 +343,24 @@ Regenerate the tracked PNG boot splash from its SVG illustration and Godot-compo
 godot --path . --script res://tools/generate_boot_splash.gd
 ```
 
+### Visual asset delivery contract
+
+Visual art is supplied by the user or an external artist. Codex does not generate,
+edit, or substitute production artwork. Missing files retain the current
+code-native fallbacks until an approved delivery is explicitly integrated.
+
+The deterministic delivery paths, mobile texture budgets, current-content counts,
+and fallback ownership live in `scripts/visual_asset_catalog.gd`. Audit the current
+delivery status without creating or changing any visual asset:
+
+```powershell
+C:\Tools\Godot\Godot_v4.7.1-stable_win64_console.exe --headless --path . --log-file .godot\visual_asset_audit.log --script res://tools/audit_visual_asset_readiness.gd
+```
+
+Append `-- --missing` to print every missing destination path. The human-facing
+production inventory is `Notes/UI_ASSET_INVENTORY_PT.md`; every supplied raster
+still passes `Notes/ASSET_GENERATION_RULES.md` before runtime integration.
+
 Run the deterministic combat balance simulation:
 
 ```powershell

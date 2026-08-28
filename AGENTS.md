@@ -16,3 +16,20 @@ These rules override broad or earlier permission to generate assets autonomously
 
 Existing reference assets may be used as documented internal placeholders, but they must not be confused with newly approved original production art.
 
+## Visual asset authorship boundary
+
+Codex must not generate, draw, paint, edit, transform, or create visual assets for
+this project. Visual assets are supplied by the user or an external artist.
+
+Codex may:
+
+- inventory and specify required assets;
+- prepare code-native placeholders and procedural fallbacks;
+- define filenames, dimensions, anchors, masks, budgets, and import contracts;
+- inspect a supplied asset and report whether it meets the visual and technical gate;
+- integrate an exact user-supplied asset only after the user asks for integration.
+
+Preparing UI code, vector-like Godot drawing, layout, shaders, validation tools, and
+asset manifests is not permission to create substitute production artwork. If an
+implementation reaches a missing visual asset, preserve the existing fallback and
+record the missing deliverable instead of generating it.

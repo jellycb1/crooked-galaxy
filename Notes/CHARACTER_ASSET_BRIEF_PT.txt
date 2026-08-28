@@ -1,0 +1,659 @@
+CROOKED GALAXY — BRIEFING VISUAL DAS 3 CLASSES E 8 RAÇAS INICIAIS
+
+Estado: direção para criação dos assets iniciais de personagem.
+Objetivo: produzir personagens memoráveis, legíveis no Android e compatíveis com a identidade “Clean, organized, space RPG, 2D, hand-drawn, comedic sci-fi”.
+
+
+1. REGRA PRINCIPAL: RAÇA E CLASSE SÃO CAMADAS DIFERENTES
+
+Raça define:
+- anatomia;
+- rosto e expressão;
+- pele, carapaça, metal, flora ou energia;
+- olhos, antenas, barbatanas, folhas e outras características naturais;
+- identidade cultural visual.
+
+Classe define:
+- postura e linguagem corporal;
+- roupa e distribuição de volumes;
+- ferramenta ou arma principal;
+- acessórios tecnológicos;
+- atitude e fantasia de combate.
+
+Qualquer uma das oito raças pode pertencer a qualquer uma das três classes. A arte de seleção de classe pode usar um representante específico para vender imediatamente o arquétipo, mas esse representante não significa que a classe esteja limitada àquela raça. O retrato pessoal do jogador continuará a mostrar a raça e o equipamento escolhidos.
+
+
+2. LINGUAGEM VISUAL COMUM
+
+O estilo deve parecer desenhado por um ilustrador, não uma renderização 3D, fotografia pintada ou concept art militar.
+
+Características obrigatórias:
+- contorno escuro, espesso, confiante e ligeiramente irregular;
+- proporções caricaturadas e deliberadamente assimétricas;
+- cabeça, rosto, mãos e objeto principal maiores do que numa anatomia realista;
+- expressão facial imediatamente legível;
+- uma silhueta reconhecível mesmo reduzida para aproximadamente 120 px de altura;
+- grandes áreas de cor limpa;
+- luz simples e duas etapas de sombra tipo cel shading;
+- materiais usados, remendados e com pequenas imperfeições;
+- humor visual através da pose, equipamento ou expressão;
+- ficção científica misturada com fronteira espacial e sucata funcional.
+
+Cada personagem deve usar:
+- uma cor dominante;
+- uma cor secundária;
+- um único acento luminoso controlado;
+- sombras em azul-marinho ou violeta muito escuro, evitando preto fotográfico sem informação.
+
+Evitar:
+- anatomia heroica realista;
+- armadura militar moderna genérica;
+- fatos táticos simétricos;
+- capacetes que escondam toda a personalidade;
+- excesso de pequenos cabos, parafusos e riscos;
+- iluminação cinematográfica realista;
+- personagens sérios, imóveis e sem expressão;
+- neon em todas as superfícies;
+- copiar diretamente personagens, roupas ou formas reconhecíveis de Shakes & Fidget ou de qualquer outra propriedade.
+
+A inspiração de Shakes & Fidget deve permanecer na clareza da caricatura, leitura instantânea e humor — não na cópia literal do desenho.
+
+
+3. ESPECIFICAÇÃO GERAL DOS ASSETS
+
+Arte de classe:
+- um personagem de corpo inteiro por classe;
+- orientação vertical, vista frontal em três quartos;
+- fundo totalmente transparente;
+- pose dinâmica, mas sem cortar cabeça, mãos, arma ou pés;
+- personagem ocupa aproximadamente 85% da altura da tela;
+- manter a metade superior especialmente clara, pois a interface pode usar um recorte de busto;
+- sem texto, logótipo, moldura ou cenário incorporado;
+- fonte mestre recomendada: 2048 px no lado maior, preservada em camadas;
+- exportação de jogo: PNG RGBA, máximo de 1024 px no lado maior.
+
+Arte de raça:
+- um busto/base de personagem por raça, da cintura ou peito para cima;
+- vista frontal em três quartos consistente entre as oito raças;
+- expressão neutra com personalidade, nunca uma pose de manequim;
+- roupa-base simples de caçador espacial, sem arma ou classe dominante;
+- fundo transparente e sem moldura;
+- deixar livres e legíveis as zonas de cabeça, ombros e peito para futuras variações de equipamento;
+- fonte mestre recomendada: 1536–2048 px;
+- exportação de jogo: PNG RGBA, máximo de 1024 px no lado maior.
+
+Todos os corpos devem conservar pontos visuais compatíveis com equipamento universal:
+- cabeça/capacete;
+- peito/armadura;
+- mãos/luvas;
+- pés/botas;
+- costas/arnês;
+- zona lateral ou craniana para implante;
+- cinto para gadget;
+- amuleto ou encaixe para relíquia.
+
+
+4. AS TRÊS CLASSES
+
+
+4.1 QUEBRA-MANDADOS
+
+Fantasia:
+O caçador que abre uma porta, um cofre ou uma negociação usando exatamente a mesma ferramenta. É força, impacto, resistência e pressão corporativa sem subtileza.
+
+Representante recomendado para a primeira arte:
+Raiz-de-Sucata. A anatomia botânica enxertada com metal reforça a ideia de peso e improvisação. Um Terrano robusto também funcionaria, mas não deve parecer um soldado humano genérico.
+
+Silhueta:
+- muito larga e baixa;
+- centro de gravidade próximo do chão;
+- ombros grandes e desiguais;
+- pernas curtas ou fortemente fletidas;
+- mãos e antebraços exagerados;
+- ferramenta pesada criando uma segunda grande massa visual.
+
+Corpo e pose:
+- tronco inclinado ligeiramente para a frente;
+- um pé bem plantado e o outro preparado para avançar;
+- pose de quem acabou de atravessar uma parede e considera isso a entrada normal;
+- sorriso confiante, dentes cerrados divertidos ou expressão de satisfação destrutiva;
+- nunca uma pose militar de sentido.
+
+Roupa e armadura:
+- placas grandes de sucata com formas diferentes em cada ombro;
+- casaco curto ou colete grosso por baixo das placas;
+- cinto largo com ferramentas desnecessariamente pesadas;
+- uma manopla reforçada maior do que a outra;
+- joelheiras e botas de impacto visíveis;
+- reparações, soldas e remendos grandes, não microdetalhes.
+
+Ferramenta principal:
+- martelo de ruptura magnético, aríete portátil ou manoplas de demolição;
+- a ferramenta deve parecer usada tanto para cobrar dívidas como para reparar uma nave;
+- formato simples, largo e reconhecível quando pequeno;
+- manter a cabeça do martelo ou superfície de impacto completamente visível.
+
+Paleta recomendada:
+- dominante: bordô, vermelho ferrugem ou castanho avermelhado;
+- secundária: aço gasto e couro escuro;
+- acento: coral de perigo;
+- pequenos indicadores tecnológicos em ciano.
+
+Detalhes de personalidade:
+- um aviso de segurança usado como remendo sem texto legível;
+- contador de impactos preso ao pulso e claramente avariado;
+- um parafuso ou placa obviamente fora do lugar;
+- expressão que comunique “isto vai funcionar porque vai deixar de existir”.
+
+Não fazer:
+- tanque medieval espacial;
+- armadura integral sem rosto;
+- marine futurista realista;
+- silhueta alta, elegante ou simétrica;
+- martelo ornamentado como uma arma de fantasia nobre.
+
+
+4.2 PISTOLEIRO ORBITAL
+
+Fantasia:
+Um caçador de fronteira espacial que vence através de reflexos, ângulos improváveis e precisão em movimento. É a leitura mais imediata da fantasia principal de Crooked Galaxy.
+
+Representante recomendado para a primeira arte:
+Terrano. A familiaridade humana torna chapéu, expressão e atitude imediatamente legíveis, enquanto o equipamento espacial impede que pareça um cowboy terrestre comum.
+
+Silhueta:
+- alta, vertical e ágil;
+- casaco comprido abrindo em duas caudas assimétricas;
+- chapéu ou cobertura de cabeça larga;
+- uma perna reta e outra descontraída ou em movimento;
+- pistola claramente separada do corpo;
+- acessórios concentrados na cintura e num único antebraço.
+
+Corpo e pose:
+- peso apoiado numa perna;
+- tronco ligeiramente rodado;
+- arma apontada para baixo ou lateral, nunca diretamente para o observador;
+- mão livre próxima do coldre, moeda, cartucho ou comunicador;
+- sorriso enviesado, sobrancelha levantada ou olhar de quem já calculou o ricochete.
+
+Roupa:
+- chapéu de fronteira espacial torto, gasto e de aba assimétrica;
+- sobretudo ou casaco comprido remendado;
+- lenço ou gola larga;
+- camisa simples ou proteção torácica leve;
+- cinto utilitário com coldre grande;
+- botas robustas, mas mais leves do que as do Quebra-Mandados;
+- dispositivo de mira num pulso ou junto de um olho, sem esconder a expressão.
+
+Arma principal:
+- pistola de raios de grande silhueta;
+- mistura de revólver, ferramenta orbital e tecnologia reparada;
+- cano e empunhadura exagerados o suficiente para leitura em mobile;
+- uma pequena bobina ciano ou câmara luminosa;
+- evitar duas armas idênticas em pose perfeitamente simétrica.
+
+Paleta recomendada:
+- dominante: castanho quente, cobre ou couro;
+- secundária: azul-marinho ou azul de trabalho;
+- acento: amarelo-mostarda/dourado;
+- tecnologia e mira: ciano controlado;
+- lenço coral opcional.
+
+Detalhes de personalidade:
+- chapéu ligeiramente grande demais;
+- coldre adaptado várias vezes;
+- um cartucho ou célula de energia preso no lugar errado;
+- casaco com uma cauda mais curta do que a outra;
+- expressão divertida e autoconfiante, não agressiva.
+
+Não fazer:
+- cowboy terrestre histórico sem elementos espaciais;
+- pistoleiro sombrio e realista;
+- fato de combate justo e genérico;
+- pose frontal rígida com duas pistolas iguais;
+- rosto perfeito de modelo ou herói sério.
+
+
+4.3 HACKER DE CONTRATOS
+
+Fantasia:
+Um especialista que invade fechaduras, drones, sistemas jurídicos e a definição local de “propriedade”. Controla o início do combate, improvisa dispositivos e transforma burocracia em arma.
+
+Representante recomendado para a primeira arte:
+Sintético. Um corpo modular permite mostrar ferramentas integradas e inteligência visual sem esconder a expressão. Luz-Defeituosa é uma alternativa interessante, mas exigiria mais cuidado para não perder a silhueta.
+
+Silhueta:
+- estreita, angular e composta por várias camadas;
+- ombros pequenos;
+- cabeça inclinada e mãos muito ativas;
+- um arnês técnico ou mochila articulada criando assimetria nas costas;
+- cabos e ferramentas apenas em duas ou três formas grandes;
+- projeção holográfica concentrada numa mão.
+
+Corpo e pose:
+- inclinado para observar um dispositivo;
+- uma mão opera um decodificador e a outra segura uma sonda, chave ou cabo;
+- pés em posições diferentes, como se estivesse a trabalhar enquanto se desloca;
+- expressão de concentração divertida, curiosidade ou superioridade técnica;
+- parece sempre estar a alterar algo que não devia ter acesso.
+
+Roupa e equipamento:
+- capuz curto, gola alta ou proteção craniana aberta que preserve o rosto;
+- casaco em camadas, mais curto à frente e longo num dos lados;
+- luvas técnicas com dedos articulados;
+- arnês com um braço mecânico dobrável;
+- decodificador grande o suficiente para ser reconhecido;
+- pequenos módulos presos de forma improvisada, sem cobrir todo o corpo de tecnologia.
+
+Ferramenta principal:
+- decodificador/terminal portátil numa mão;
+- sonda de intrusão, chave energética ou pequeno drone na outra;
+- projeção com uma única forma clara: selo partido, circuito interrompido ou fechadura aberta;
+- holograma sem texto e sem dezenas de janelas minúsculas.
+
+Paleta recomendada:
+- dominante: azul-petróleo, teal escuro ou carvão azulado;
+- secundária: cinza técnico e tecido violeta muito escuro;
+- acento principal: ciano;
+- acento secundário muito restrito: verde-lima ácido.
+
+Detalhes de personalidade:
+- um cabo ligado a uma porta inexistente;
+- dispositivo com uma tampa de bateria incompatível;
+- pequeno drone que olha na direção errada;
+- expressão que comunique “tecnicamente, o contrato agora diz que isto é meu”.
+
+Não fazer:
+- hacker com capuz preto sem rosto;
+- operador cyberpunk coberto de neon;
+- fato militar selado;
+- dezenas de hologramas e código ilegível;
+- corpo simétrico e equipamento perfeitamente industrializado.
+
+
+5. AS OITO RAÇAS
+
+
+5.1 TERRANO
+
+Conceito:
+Humanos espalhados pela galáxia que sobrevivem através de adaptação, remendos e confiança excessiva.
+
+Anatomia:
+- humana, mas caricaturada;
+- cabeça e mãos ligeiramente maiores;
+- nariz, queixo, sobrancelhas e cabelo podem ter formas exageradas;
+- grande diversidade de rostos, tons de pele, idades e constituições.
+
+Rosto e expressão:
+- é a raça com maior amplitude de expressões familiares;
+- olhos, sobrancelhas e boca devem carregar personalidade;
+- cicatrizes, pensos, barba irregular e dentes imperfeitos são bem-vindos.
+
+Elementos visuais:
+- cabelo com grandes massas desenhadas, não fios realistas;
+- implantes pequenos, auscultador, penso ou marca de viagem;
+- roupa-base de tecido e couro espacial remendado.
+
+Paleta nativa:
+- peles humanas variadas;
+- castanhos, cobre, azul de trabalho e dourado quente.
+
+Customização:
+- olhos: tamanho e inclinação;
+- característica: cabelo, barba, prótese pequena ou cicatriz;
+- marcação: sardas, faixa pintada ou sinais de viagem.
+
+Evitar:
+- protagonista humano perfeito e genérico;
+- uniforme terrestre contemporâneo;
+- todos os Terranos com a mesma idade, cor ou formato facial.
+
+
+5.2 SINTÉTICO
+
+Conceito:
+Corpos artificiais modulares que continuaram a reparar-se e evoluir muito depois do fim da garantia.
+
+Anatomia:
+- estrutura humanoide para compatibilidade com equipamento;
+- cabeça formada por duas ou três placas grandes;
+- pescoço ou articulações visivelmente mecânicas;
+- uma peça substituída que não combina com o resto do corpo;
+- assimetria intencional entre olhos, braços ou painéis.
+
+Rosto e expressão:
+- dois olhos luminosos muito expressivos ou um visor curto com olhos desenhados;
+- boca mecânica simples, placa móvel ou luz que imita expressão;
+- nunca uma tela vazia sem emoção.
+
+Elementos visuais:
+- parafusos grandes e escassos;
+- etiquetas de manutenção sem texto legível;
+- remendos metálicos, soldas e uma tampa de acesso;
+- cabos apenas onde ajudam a silhueta.
+
+Paleta nativa:
+- aço azulado, cinza gasto e azul-marinho;
+- luz ciano;
+- uma peça de substituição em amarelo, coral ou cobre.
+
+Customização:
+- olhos: redondos, visor dividido ou lentes estreitas;
+- característica: antena, placa craniana, ouvido-rádio ou mandíbula modular;
+- marcação: faixa pintada, números abstratos ou placas de cores diferentes.
+
+Evitar:
+- androide branco e perfeitamente limpo;
+- robô militar ameaçador;
+- capacete humano com visor negro;
+- detalhes mecânicos tão densos que desapareçam no telemóvel.
+
+
+5.3 ASTRERRANTE
+
+Conceito:
+Viajantes esguios marcados por rotas estelares que só eles conseguem interpretar.
+
+Anatomia:
+- corpo alto e fino;
+- pescoço e dedos ligeiramente longos;
+- rosto angular com testa ampla;
+- orelhas, pequenas hastes ou apêndices apontando para trás;
+- postura leve, como se a gravidade fosse opcional.
+
+Rosto e expressão:
+- olhos grandes e escuros com uma pequena pupila luminosa;
+- expressão serena, curiosa ou distraída;
+- rosto continua legível e caricatural, evitando o “alien cinzento” genérico.
+
+Elementos visuais:
+- linhas luminosas que parecem mapas de constelações;
+- pequenas marcas orbitais na testa ou bochechas;
+- tecidos leves presos em pontos assimétricos;
+- acessórios de navegação artesanal.
+
+Paleta nativa:
+- violeta, azul-ardósia ou índigo;
+- marcações verde-lima suave ou ciano pálido;
+- tecido mostarda ou cobre como contraste.
+
+Customização:
+- olhos: largura e orientação;
+- característica: hastes cranianas, orelhas alongadas ou crista curta;
+- marcação: rota linear, pontos de constelação ou arco orbital.
+
+Evitar:
+- extraterrestre cinzento nu;
+- elfo espacial elegante e perfeito;
+- corpo sem expressão ou demasiado frágil para usar equipamento universal.
+
+
+5.4 FUNGOIDE
+
+Conceito:
+Uma colónia consciente que usa um único corpo, transporta muitas memórias e tem opiniões fortes sobre casacos.
+
+Anatomia:
+- corpo orgânico, arredondado e ligeiramente irregular;
+- cabeça pode ter chapéu fúngico, várias placas ou tufos de cogumelos;
+- braços de comprimentos discretamente diferentes;
+- pequenas formas fúngicas secundárias podem reagir com o rosto principal.
+
+Rosto e expressão:
+- dois olhos principais muito legíveis;
+- boca larga ou pequena abertura expressiva;
+- cogumelos menores podem funcionar como sobrancelhas, cabelo ou “plateia”.
+
+Elementos visuais:
+- textura sugerida por poucas manchas grandes;
+- esporos representados de forma controlada;
+- gola ou casaco muito bem cuidado contrastando com o corpo orgânico;
+- bolsas para nutrientes ou memórias.
+
+Paleta nativa:
+- verde musgo, creme, lilás e castanho húmido;
+- acento magenta/rosa;
+- sombras violetas profundas.
+
+Customização:
+- olhos: posição, largura ou número aparente de lentes principais;
+- característica: tipo de chapéu, crista, pequenos cogumelos ou guelras externas;
+- marcação: manchas, anéis ou faixa de esporos.
+
+Evitar:
+- monstro de terror infetado;
+- corpo coberto de textura fotográfica;
+- cogumelo infantil demasiado simples;
+- silhueta sem mãos ou pontos de equipamento reconhecíveis.
+
+
+5.5 ABISSAL
+
+Conceito:
+Anfíbios de mundos oceânicos que cresceram sob pressão suficiente para esmagar cargueiros.
+
+Anatomia:
+- corpo compacto e resistente;
+- pescoço curto;
+- mãos largas com membranas discretas;
+- guelras visíveis nas laterais do pescoço ou rosto;
+- orelhas transformadas em pequenas barbatanas;
+- pele lisa, não escamosa em excesso.
+
+Rosto e expressão:
+- olhos grandes adaptados à escuridão, com reflexo luminoso;
+- boca larga e expressão seca ou desconfiada;
+- rosto anfíbio amigavelmente estranho, não um monstro marinho horrível.
+
+Elementos visuais:
+- respirador compacto ou regulador de pressão;
+- gotas, pequenos tubos e fechos estanques;
+- barbatanas que não impeçam capacetes e arnês;
+- um detalhe bioluminescente controlado.
+
+Paleta nativa:
+- azul-petróleo, teal, azul profundo e cinza oceânico;
+- bioluminescência verde-água;
+- coral quente como pequeno contraste.
+
+Customização:
+- olhos: redondos, largos ou estreitos;
+- característica: barbatanas, guelras, pequenas hastes luminosas ou crista;
+- marcação: linhas de maré, pontos bioluminescentes ou faixa dorsal.
+
+Evitar:
+- criatura Lovecraftiana assustadora;
+- peixe humano coberto de escamas realistas;
+- capacete de mergulho que esconda toda a raça;
+- anatomia molhada sem formas de cor limpas.
+
+
+5.6 MOTHARI
+
+Conceito:
+Navegadores noturnos com olhos enormes, antenas sensíveis e asas que parecem mantos iridescentes.
+
+Anatomia:
+- humanoide leve, mas não frágil;
+- olhos muito grandes;
+- duas antenas com curvas diferentes;
+- pequeno colar de pelo;
+- asas dobradas para funcionarem como capa e não ocuparem toda a tela;
+- mãos compatíveis com luvas e armas.
+
+Rosto e expressão:
+- olhos carregam quase toda a emoção;
+- boca pequena, bico suave ou focinho muito curto;
+- antenas também participam da expressão;
+- atitude atenta, curiosa ou ligeiramente nervosa.
+
+Elementos visuais:
+- capa-asas com duas ou três grandes manchas;
+- gola macia contrastando com equipamento duro;
+- pequenos instrumentos de navegação noturna;
+- brilho iridescente muito restrito às asas ou olhos.
+
+Paleta nativa:
+- castanho-escuro, ameixa e creme;
+- cobre/laranja como acento;
+- reflexos ciano ou violeta nas asas.
+
+Customização:
+- olhos: largura, pupila e inclinação;
+- característica: formato das antenas, gola, pequenas orelhas ou borda das asas;
+- marcação: manchas grandes, faixa nas asas ou pontos simétricos imperfeitos.
+
+Evitar:
+- fada elegante;
+- inseto anatomicamente realista;
+- asas abertas gigantes que escondam a interface;
+- excesso de pelo ou padrões minúsculos.
+
+
+5.7 RAIZ-DE-SUCATA
+
+Conceito:
+Flora ambulante que substitui casca e espinhos por metal recuperado, tratando a sucata como prótese, armadura e memória.
+
+Nota essencial:
+Esta raça NÃO deve parecer um homem de madeira ou um golem feito de troncos. A experiência anterior mostrou que uma personagem de madeira rígida não representa bem a direção pretendida.
+
+Anatomia:
+- corpo vegetal flexível, carnudo e vivo;
+- volumes formados por folhas grossas, fibras, raízes e rebentos;
+- estrutura humanoide clara;
+- metal enxertado apenas em partes específicas;
+- uma perna, braço ou ombro pode ter reforço mecânico recuperado;
+- assimetria entre crescimento natural e prótese industrial.
+
+Rosto e expressão:
+- rosto macio formado por folhas, fibras ou casca fina;
+- olhos vivos e muito expressivos;
+- boca claramente desenhada;
+- folhas ou rebentos funcionam como cabelo e sobrancelhas.
+
+Elementos visuais:
+- uma placa de sucata incorporada no ombro;
+- cabos usados como trepadeiras orientadas;
+- parafusos grandes onde metal encontra tecido vegetal;
+- rebentos novos crescendo através de equipamento velho.
+
+Paleta nativa:
+- verde oliva, verde vivo e tecido vegetal creme;
+- metal ferrugem e aço gasto;
+- acento verde-lima;
+- pequenas flores coral opcionais.
+
+Customização:
+- olhos: formatos orgânicos diferentes;
+- característica: folhas, flores, espinhos suaves, raízes/cabelo ou prótese;
+- marcação: nervuras, manchas de líquen ou faixa de tinta sobre o metal.
+
+Evitar:
+- homem-árvore rígido;
+- textura de madeira cobrindo todo o corpo;
+- monstro elemental sem roupa ou rosto humanoide;
+- planta delicada sem capacidade visual para usar armadura.
+
+
+5.8 LUZ-DEFEITUOSA
+
+Conceito:
+Uma entidade de energia condensada que pisca, fragmenta e tem dificuldade em permanecer inteiramente no mesmo lugar.
+
+Anatomia:
+- corpo humanoide mantido por um casaco, arnês ou estrutura parcial;
+- cabeça e mãos são formas de energia com contornos interrompidos;
+- pequenos fragmentos flutuam próximos do corpo;
+- silhueta principal continua sólida e simples;
+- pés e mãos devem ter posição clara apesar da instabilidade.
+
+Rosto e expressão:
+- dois olhos muito gráficos dentro da luz;
+- boca ou linha facial simples e expressiva;
+- deslocamento ocasional de um olho ou fragmento cria humor;
+- emoção não pode depender apenas da intensidade do brilho.
+
+Elementos visuais:
+- contenção tecnológica em gola, pulsos e cintura;
+- um lado do corpo ligeiramente desalinhado;
+- formas prismáticas grandes em vez de ruído digital;
+- uma sombra sólida ou roupa escura para dar contraste à energia.
+
+Paleta nativa:
+- amarelo luminoso e creme;
+- sombras azul-violeta;
+- reflexos prismáticos ciano e magenta muito controlados;
+- estrutura de contenção azul-marinho.
+
+Customização:
+- olhos: forma, distância e desalinhamento;
+- característica: fragmentos, pequena coroa de energia, arco prismático ou falha lateral;
+- marcação: faixa interrompida, manchas prismáticas ou duplicação parcial do contorno.
+
+Evitar:
+- fantasma transparente sem volume;
+- holograma azul genérico;
+- ruído glitch cobrindo toda a personagem;
+- brilho tão forte que destrua rosto, roupa e contorno;
+- partículas pequenas demais para leitura no Android.
+
+
+6. COMO INTERPRETAR AS QUATRO CATEGORIAS DE CUSTOMIZAÇÃO
+
+O jogo possui quatro categorias cosméticas comuns. Elas devem existir em todas as raças, mas ser interpretadas segundo a anatomia de cada uma.
+
+PALETA
+- Nativa: as cores principais descritas neste documento.
+- Quente: desloca pele/material para cobre, coral, âmbar ou magenta quente.
+- Fria: desloca pele/material para azul, violeta, teal ou cinza frio.
+- A paleta não deve transformar uma raça noutra nem alterar o acento principal da identidade.
+
+OLHOS
+- Padrão: proporção base da raça.
+- Largos: olhos maiores ou mais abertos, aumentando curiosidade e comicidade.
+- Estreitos: olhos mais pequenos ou inclinados, aumentando foco e desconfiança.
+- Número e anatomia essenciais da raça permanecem reconhecíveis.
+
+CARACTERÍSTICA
+- Clássica: forma-base mais representativa.
+- Marcante: antenas, folhas, barbatanas, placas, cabelo ou fragmentos maiores.
+- Subtil: versão reduzida e mais discreta do mesmo elemento anatómico.
+
+MARCAÇÃO
+- Limpa: sem pintura ou padrão secundário dominante.
+- Faixa: uma linha larga, cicatriz, nervura, rota ou pintura que atravessa parte do rosto/corpo.
+- Manchas: poucos pontos ou formas grandes, nunca textura fina repetitiva.
+
+
+7. TESTE DE ACEITAÇÃO VISUAL
+
+Antes de integrar qualquer asset, confirmar:
+
+1. A silhueta identifica a classe ou raça sem texto?
+2. O rosto e a atitude continuam legíveis a aproximadamente 120 px?
+3. Existem assimetria, imperfeição e humor visual?
+4. Há apenas uma cor dominante, uma secundária e um acento luminoso?
+5. Cabeça, mãos, arma e pés estão completos e não cortados?
+6. O fundo é realmente transparente?
+7. O personagem parece desenhado à mão, e não uma renderização 3D ou concept art militar?
+8. A arte é original e não copia literalmente uma personagem conhecida?
+9. A raça continua compatível com as nove posições universais de equipamento?
+10. A classe comunica a sua fantasia através da pose e silhueta, não apenas através de texto?
+11. O asset continua organizado dentro da interface a 450×800?
+12. Nenhuma característica importante depende de microdetalhes invisíveis no Android?
+
+Se uma resposta for “não”, o asset ainda é um estudo e não deve ser integrado no APK.
+
+
+8. ORDEM RECOMENDADA DE PRODUÇÃO
+
+1. Produzir primeiro um único Pistoleiro Orbital Terrano como teste completo da linguagem visual.
+2. Validar o personagem isolado e dentro da seleção de classe a 450×800.
+3. Depois da aprovação, produzir Quebra-Mandados Raiz-de-Sucata e Hacker de Contratos Sintético.
+4. Criar as oito bases raciais com a mesma pose, escala e enquadramento.
+5. Produzir uma folha de comparação com as oito raças reduzidas ao tamanho real da interface.
+6. Só depois expandir paletas, olhos, características e marcações.
+
+Esta ordem evita produzir onze personagens completos numa direção que ainda possa ser rejeitada visualmente.

@@ -46,6 +46,7 @@ $Tests = @(
     "test_ui.gd",
     "test_ui_factory.gd",
     "test_reference_placeholders.gd",
+	"test_visual_asset_catalog.gd",
     "test_environment_backdrop.gd",
     "test_focus_navigation.gd",
     "test_motion_preferences.gd",

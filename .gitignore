@@ -21,3 +21,6 @@ Thumbs.db
 References/*
 !References/.gdignore
 internal_reference_assets/
+
+# Local visual-direction drafts are review artifacts, never runtime content.
+art_drafts/
