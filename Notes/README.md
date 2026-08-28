@@ -43,6 +43,7 @@ Quando dois documentos discordarem, aplica-se o documento de maior autoridade. V
 | `VISUAL_DIRECTION.md` | Identidade visual vigente e hierarquia da UI. |
 | `UI_ASSET_INVENTORY_PT.md` | Inventário mestre de assets ainda necessários. |
 | `CHARACTER_ASSET_BRIEF_PT.txt` | Especificação visual das classes e raças para o artista. |
+| `CHARACTER_AND_UI_ASSET_BRIEF_EN.txt` | Brief visual consolidado em inglês para personagens e todos os assets reutilizáveis da UI. |
 | `ASSET_GENERATION_RULES.md` | Gate de receção para material visual fornecido externamente; subordinado à proibição de autoria em `AGENTS.md`. |
 | `ORIGINAL_VISUAL_ASSETS.md` | Proveniência dos assets de produção existentes e experiências rejeitadas. |
 | `REFERENCE_PLACEHOLDERS.md` | Registro arquivado da remoção das antigas referências em runtime. |

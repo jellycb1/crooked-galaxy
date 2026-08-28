@@ -1,0 +1,448 @@
+CROOKED GALAXY — CHARACTER AND UI ART BRIEF
+
+Status: active English-language brief for the user or an external artist. It does not authorize Codex to create or modify visual assets.
+
+Purpose: describe the visual appearance of the three launch classes, eight launch species, and the complete reusable UI art set. The intended identity is clean and organized, 2D, hand-drawn, comedic space RPG with a worn frontier atmosphere.
+
+
+1. SHARED VISUAL IDENTITY
+
+Characters should use thick, confident, slightly irregular outlines, exaggerated and asymmetrical proportions, expressive faces, large readable props, broad areas of color, and simple cel-like shadows. They should feel illustrated rather than rendered, militaristic, or photorealistic.
+
+The UI should resemble a hand-built space bounty-hunter dossier: dark navy metal, worn brass, patched panels, crooked labels, stamped documents, and restrained cyan technology. Coral communicates danger, cyan communicates information, lime communicates success, and gold communicates currency or premium value. It should be orderly without becoming sterile.
+
+Species and class are separate layers. Species determines anatomy and natural appearance. Class determines silhouette, posture, clothing, tools, and attitude. Any species may belong to any class.
+
+
+2. THE THREE CLASSES
+
+WARRANT BREAKER
+
+A broad, heavy-set bounty hunter with a very low center of gravity, oversized hands, reinforced forearms, and mismatched scrap-metal armor. Large uneven shoulder plates, heavy boots, visible repairs, and a massive magnetic breaching hammer, portable ram, or demolition gauntlets create the silhouette. The character leans forward as though they have just walked through a wall and consider that a normal entrance. Rust red, burgundy, worn steel, dark leather, and small coral hazard accents dominate the design. Their expression should communicate cheerful destructive confidence, never disciplined military seriousness.
+
+ORBIT GUNSLINGER
+
+A tall, agile space-frontier hunter wearing a crooked wide-brimmed hat, an asymmetrical long coat, a scarf, utility belts, sturdy boots, and a large improvised ray pistol. The pose is relaxed and slightly turned, with the weight on one leg and the weapon pointed down or to the side. A sideways smile or raised eyebrow suggests they have already calculated an impossible ricochet. Warm leather brown, copper, navy blue, mustard gold, and restrained cyan technology define the palette. The design should feel like a space bounty hunter, not a historical Earth cowboy.
+
+CONTRACT HACKER
+
+A slender, angular hunter dressed in layered clothing with a short hood or open high collar, articulated gloves, an asymmetrical technical harness, and a folding mechanical arm or compact equipment pack. They operate a chunky decoder in one hand and an intrusion probe, small drone, or energy key in the other. Their posture is active and curious, as though they are modifying something they should not be able to access. Dark teal, charcoal blue, technical grey, cyan, and a very small acidic-lime accent define the look. The face must remain visible and expressive; avoid the anonymous black-hooded hacker stereotype.
+
+
+3. THE EIGHT SPECIES
+
+TERRAN
+
+Recognizably human, but strongly caricatured and imperfect. Terrans may have exaggerated noses, chins, eyebrows, hairstyles, hands, and facial shapes, with a broad variety of ages, builds, and skin tones. Uneven beards, scars, bandages, old implants, patched clothing, imperfect teeth, and highly expressive faces reinforce their adaptable space-frontier identity. They should never look like a perfect generic human protagonist.
+
+SYNTHETIC
+
+A modular humanoid machine assembled from two or three large head plates, visible mechanical joints, and replacement parts that do not perfectly match. Glowing eyes or a compact animated visor must remain highly expressive, supported by a simple mechanical mouth or movable face plate. Large but scarce screws, repair welds, access panels, maintenance marks, and one brightly colored replacement component make every Synthetic look as though it has survived long past its warranty. Avoid clean white androids and threatening military robots.
+
+STARWORN
+
+A tall, slender alien with a long neck, slightly elongated fingers, an angular face, and a light posture that suggests gravity is optional. Large dark eyes contain small luminous pupils, while constellation-like route markings cross the forehead and cheeks. Backward-pointing ears, short cranial stems, light asymmetrical fabrics, and handmade navigation ornaments complete the silhouette. The character should feel curious and cosmic without becoming a generic grey alien or perfect space elf.
+
+FUNGOID
+
+A rounded, irregular fungal being formed by a conscious colony. Its head may resemble a mushroom cap, layered fungal plates, or a cluster of smaller growths. Two clear main eyes and an expressive mouth define the face, while smaller mushrooms can act like eyebrows, hair, or a tiny audience reacting to events. Moss green, cream, lilac, damp brown, and magenta accents contrast humorously with an unusually well-kept coat. It should feel strange and personable, never infected or horrific.
+
+ABYSSAL
+
+A compact, sturdy amphibious species from high-pressure ocean worlds. Abyssals have smooth blue-green skin, a short neck, broad hands with subtle webbing, visible gills, small facial fins, and large darkness-adapted eyes. Their wide mouths naturally support dry, skeptical expressions. Pressure regulators, watertight fasteners, and a restrained bioluminescent detail reinforce their origin. They should be friendly-strange rather than monstrous, slimy, or covered in realistic scales.
+
+MOTHARI
+
+A light but capable nocturnal humanoid with enormous expressive eyes, two differently curved antennae, a soft neck ruff, and folded wings that resemble an iridescent cloak. Their small mouth and reactive antennae contribute to an attentive, curious, or slightly nervous personality. Dark brown, plum, cream, copper, and subtle cyan-violet reflections create a warm nocturnal palette. Avoid fairy elegance, realistic insect anatomy, and wings large enough to overwhelm the interface.
+
+SCRAPROOT
+
+A living botanical humanoid made from flexible leaves, fibers, roots, shoots, and soft plant tissue. It must not look like a wooden person or tree golem. Salvaged metal is grafted only into selected areas such as one shoulder, arm, or leg, creating an uneven mixture of natural growth and industrial prosthetics. Expressive eyes, a clear mouth, leaf-like hair, emerging sprouts, rusty plates, large bolts, and cables used like vines give the species a lively improvised appearance.
+
+GLITCHLIGHT
+
+A condensed-energy being held together by a dark coat, harness, and partial containment structure. Its head and hands are bright energy shapes with interrupted outlines, while a few large fragments float slightly out of alignment around the body. Two graphic eyes and a simple expressive mouth keep the face readable. Yellow-white energy, deep blue-violet shadows, and restrained cyan or magenta prism effects create an unstable but humorous silhouette. Avoid generic blue holograms, excessive digital noise, and brightness that erases the face or clothing.
+
+
+4. CORE INTERFACE KIT
+
+MAIN DOSSIER FRAME
+
+A large illustrated frame for important characters, mission briefings, rewards, and major decisions. It combines worn navy metal, brass corners, small bolts, paper-like inner surfaces, and subtle asymmetry.
+
+SUPPORTING PANEL
+
+A quieter dark metal panel for lists, descriptions, settings, and secondary information. It belongs to the same family as the dossier frame without competing with focal artwork.
+
+DANGER PANEL
+
+A damaged or warning-marked supporting panel using coral paint, hazard marks, scratched corners, or a small red warning light.
+
+SUCCESS AND RECEIPT PANEL
+
+A cleaner panel for rewards, purchases, completed objectives, and successful actions, using restrained cyan or lime illumination, official stamps, and receipt-like details.
+
+ITEM RARITY FRAMES
+
+Four reusable treatments: worn steel for Common, cyan or teal for Rare, rich violet for Epic, and gold or strange cosmic material for future Special items.
+
+PORTRAIT FRAMES
+
+Four treatments are required: normal, selected, locked or undiscovered, and boss or elite. Boss identity should come from a stronger damaged shape and threatening ornament rather than simply turning the frame red.
+
+DIVIDERS AND ORNAMENTS
+
+A small family of short, medium, and focal separators using brass bars, bolts, stamped corners, cables, or thin illuminated lines.
+
+BUTTONS AND CONTROLS
+
+Buttons should resemble physical controls attached to an improvised spacecraft console. Primary actions are bold and cyan-lit, secondary actions are darker, destructive actions use coral, and premium actions use gold. Selection, focus, locked, pressed, and disabled states are interface treatments, not separate paintings.
+
+
+5. GLOBAL ICON LIBRARY
+
+One coherent illustrated symbol set is required for Credits, Warp Chips, Fuel, Scrap, Experience, Level, Power, Health, Rift Key, Time, Locked Content, New Notification, Purchase Completed, Error or Unavailable, Server Connection, and Language or International Access.
+
+The symbols should use thick, slightly irregular lines and broad recognizable shapes. They should resemble signs stamped or painted onto machinery rather than clean corporate app icons. The language icon should use a globe or translation device, never national flags.
+
+
+6. MAIN NAVIGATION
+
+WARRANTS: a crooked wanted document, bounty seal, or stamped target dossier.
+
+ARSENAL: a weapon crossed with a repair tool, or an open equipment case.
+
+HUNTER: a recognizable hunter bust inside a simple badge.
+
+GALAXY: a planet with an uneven orbit and a small route marker.
+
+MENU: a compact ship-console panel, toolbox, or stack of service documents.
+
+Only one original icon is required for each destination. Active, locked, pressed, and notification states are created by the interface.
+
+
+7. LOGIN AND CHARACTER CREATION
+
+FINAL GAME LOGO
+
+A hand-drawn Crooked Galaxy title combining space-frontier lettering, slightly misaligned metal signage, and restrained cosmic glow. It should feel adventurous and humorous rather than militaristic.
+
+BOOT ILLUSTRATION
+
+A strong introductory image featuring a crooked station, bounty office, unreliable spacecraft, or distant hunter silhouette. It must establish the comedic space-frontier atmosphere immediately.
+
+LOGIN BACKGROUND
+
+An international spaceport or registration office filled with battered terminals, arrival boards, alien luggage, and bureaucratic machinery.
+
+ACCOUNT AND SERVER SYMBOL
+
+A hunter identification card connected to a distant server beacon.
+
+INTERNATIONAL 1 EMBLEM
+
+A neutral international badge combining a planet, orbital ring, and the number one, without representing a real-world nation.
+
+LANGUAGE SYMBOL
+
+A stylized globe, translation device, or speech bubbles orbiting a planet.
+
+RECONNECTION SYMBOL
+
+A broken orbital connection gradually reconnecting between two points.
+
+MAINTENANCE ILLUSTRATION
+
+A small comedic prop or scene, such as a robot repairing a server with the wrong tool or a terminal covered in improvised cables.
+
+UPDATE REQUIRED SYMBOL
+
+A data cartridge, download arrow, or spacecraft component being replaced.
+
+SAVE RECOVERY SYMBOL
+
+A protected hunter dossier, backup cartridge, or damaged file being restored inside a shield.
+
+CHARACTER CONFIRMATION PRESENTATION
+
+The completed hunter portrait displayed like an official but slightly questionable bounty-hunter licence, with class, species, and name visually assembled.
+
+The three class illustrations and eight modular species families described earlier are reused throughout character creation and the Hunter interface.
+
+
+8. WARRANT BOARD AND MISSIONS
+
+TARGET PORTRAITS
+
+Every target needs one canonical expressive portrait with a transparent background, a strong silhouette, a readable face, and one large prop connected to their profession or joke. The same portrait appears in the board, briefing, combat, archive, victory, rewards, and weekly operations. Damage, defeated, selected, and boss states should be overlays rather than separate paintings.
+
+Current requirement: 44 target portraits. First-year requirement: 140 target portraits.
+
+MISSION PRESSURE SYMBOLS
+
+Safe Warrant uses a shield, protected route, or cautious footprint. Standard Warrant uses a balanced target reticle or ordinary bounty seal. Dangerous Warrant uses a cracked skull, overloaded reticle, or hazard-stamped dossier.
+
+MISSION APPROACH SYMBOLS
+
+Corporate Pressure uses an official seal, aggressive contract stamp, or premium enforcement badge. Quick Entry uses a fast spacecraft, burning route line, or angled doorway. Quiet Network uses a concealed signal, broken camera, or intercepted connection.
+
+MISSION STATUS MARKS
+
+Reusable marks are needed for Boss, New Planet, Previously Captured Target, Active Mission, Incident Waiting, Combat Ready, Reward Ready, and Insufficient Fuel.
+
+
+9. PLANETS AND GALAXY
+
+Every planet requires one visual identity package:
+
+PLANET HABITAT: a vertical illustrated environment showing its architecture, atmosphere, inhabitants, industry, and central joke. The same artwork is reused behind the mission board and briefing.
+
+PLANET MEDAL: a simple circular emblem showing the planet's most recognizable feature.
+
+PLANET SILHOUETTE: a small readable planetary shape used on the galaxy map.
+
+COMBAT ARENA LAYER: a foreground or ground layer that transforms the habitat into a combat location without requiring a second complete painting.
+
+EQUIPMENT MATERIAL LANGUAGE: three or four recurring shapes, materials, colors, or ornaments that identify equipment originating from the planet.
+
+INCIDENT PROPS: at least two small illustrations showing local objects, creatures, vehicles, machines, or travel problems.
+
+Current requirement: 11 habitats, 11 arenas, 11 medals, and 22 incident illustrations. First-year requirement: 35 habitats, 35 arenas, 35 medals, and 70 incident illustrations.
+
+Galaxy routes, locked states, current location, completion, rewards, and unlock effects are created by the interface rather than painted into one fixed map.
+
+
+10. TRAVEL INCIDENTS
+
+Each incident needs one small focal illustration rather than a complete scene. Possible subjects include an illegal cargo pod, confused alien animal, broken toll machine, funeral spacecraft, drifting merchant, or suspicious distress beacon.
+
+A reusable choice-symbol library is required for Attack, Negotiate, Hack, Escape, Investigate, Repair, Risk, Pay, Help, Steal, Wait, and Improvise. Positive and negative results reuse the same illustration with different lighting, stamps, or effects.
+
+
+11. COMBAT EFFECTS
+
+A compact reusable set is needed for Normal Impact, Critical Impact, Energy Shot, Heavy Strike, Hack or Tactical Opening, Evasion, Block or Damage Reduction, Counterattack, Healing or Recovery, Status Effect, Rift Anomaly, and Defeat Burst.
+
+Effects should be bold, short, and readable without covering the screen in particles. Class identity may influence color, but all effects should share one visual language.
+
+
+12. VICTORY, DEFEAT, AND REWARDS
+
+CAPTURE STAMP
+
+A large crooked official stamp placed over a defeated target dossier.
+
+DEFEAT STAMP
+
+A damaged or rejected-contract seal that communicates failure while retaining the game's humor.
+
+LOOT CONTAINER
+
+A compact bounty crate, evidence case, confiscated package, or suspiciously repaired metal box.
+
+RARITY REVEALS
+
+Reusable light treatments for Common, Rare, Epic, and Special items.
+
+REWARD MARKS
+
+Small illustrated seals for New Item, Equipment Upgrade, Weaker Item, New Collection Entry, Recycled Item, Level Gained, Planet Unlocked, New System Unlocked, Chapter Completed, and Recovery Available.
+
+
+13. HUNTER INTERFACE
+
+HUNTER PORTRAIT FRAME
+
+A large character-focused frame with clear space around the head, torso, equipment, and status information.
+
+CLASS EMBLEMS
+
+Warrant Breaker uses a heavy breaching hammer or reinforced fist. Orbit Gunslinger uses a ray pistol, orbital reticle, or crooked bullet path. Contract Hacker uses a broken security seal, interrupted circuit, or opened energy lock.
+
+ATTRIBUTE ICONS
+
+Strength uses a reinforced fist, heavy impact, or bent metal. Vitality uses a durable heart, reinforced core, or pressure shield. Dexterity uses a precise crosshair, agile hand, or curved trajectory. Intelligence uses a decoder, circuit-brain, or illuminated tactical lens. Cunning uses a crooked card, hidden route, trick coin, or fox-like space badge.
+
+EQUIPMENT SLOT ICONS
+
+Nine clear silhouettes are required: Weapon, Helmet, Suit, Gloves, Boots, Technical Belt, Implant, Gadget, and Relic.
+
+HUNTER ACTIONS
+
+Compact symbols are required for Equip, Remove, Compare, Upgrade, and Inspect.
+
+
+14. EQUIPMENT AND INVENTORY
+
+The game should use a modular equipment kit rather than individually painted items. Each of the nine slots needs four main silhouettes, five interchangeable attachments, one material or color mask, planet-specific ornaments, rarity treatments, and modifier symbols. These pieces combine into thousands of related but non-identical items.
+
+Weapons, Helmets, Suits, Gloves, and Boots should have simplified wearable versions for the hunter portrait. Belts, Implants, Gadgets, and Relics may appear as smaller anchored details.
+
+Reusable equipment-trait symbols are needed for Opening Damage, Damage Reduction, Evasion, Accuracy, Counterattack, Defense Bypass, Extra Health, Extra Power, Critical Effect, Fuel or Travel Utility, Rift Resistance, and Collection or Workshop Improvement.
+
+
+15. ARSENAL AND WORKSHOP
+
+Compact symbols are needed for Equip, Remove, Compare, Upgrade Power, Reinforce Integrity, Recycle, Protect or Favorite, Locked Item, New Item, Improved Item, Loadout A, Loadout B, Sorting, Filters, Pagination, Successful Upgrade, and Failed or Unavailable Upgrade.
+
+The workshop environment remains the dominant illustration. These actions do not require separate large paintings.
+
+
+16. HANGAR AND TRANSPORT
+
+LICENSED FLYING TIN
+
+A tiny, badly repaired spacecraft held together by visible plates, cheap engines, and suspicious confidence.
+
+CLONED WARP TAXI
+
+A mass-produced taxi spacecraft with duplicated identification marks, bright commercial colors, and aftermarket warp components.
+
+REPOSSESSION INTERCEPTOR
+
+A fast, narrow pursuit craft using creditor markings, towing equipment, and aggressive forward geometry.
+
+EXECUTIVE ESCAPE YACHT
+
+An expensive but slightly tasteless luxury spacecraft designed to leave a collapsing business arrangement very quickly.
+
+Each transport needs one main side or three-quarter illustration. Locked, owned, active, and moving states reuse that art. Additional small hangar visuals include a ship platform or shadow, Speed Emblem, Buy, Select, Active Transport, Required Level, Time Saved, and Transport Comparison.
+
+
+17. MARKET AND MONETIZATION
+
+FINAL WARP CHIP
+
+A distinctive premium token combining a physical metal chip with a small warped-space core. It should look valuable and unusual while remaining clearly different from ordinary Credits.
+
+WARP CHIP PACKAGES
+
+Four to six increasingly large containers made from one family: loose chips, a small case, sealed cartridge, reinforced box, and larger vault-like container.
+
+VALUE SEAL
+
+A restrained gold recommendation badge that never resembles a false discount alarm.
+
+PURCHASE RECEIPT
+
+A clean official-looking receipt with a slightly crooked stamp and cyan confirmation light.
+
+SECURE PURCHASE SYMBOL
+
+A Warp Chip or payment cartridge protected by a shield or closed orbital ring.
+
+PLATFORM ERROR SYMBOL
+
+A broken payment terminal, rejected chip, or disconnected transaction cable.
+
+Compact market marks are required for Refresh Offers, Escalating Cost, Sold, Out of Stock, Insufficient Credits, Insufficient Warp Chips, Purchase Confirmed, Purchase Cancelled, Purchase Processing, Purchase Failed, and Restore Purchase. The store must look like part of the world rather than an intrusive advertisement.
+
+
+18. THE RIFT
+
+MAIN RIFT PORTAL
+
+A large tear in space-time surrounded by improvised containment machinery, warning plates, unstable energy, and fragments of other realities visible inside it.
+
+CORRUPTED RIFT FRAME
+
+A distorted version of the normal dossier frame with broken geometry, displaced corners, impossible shadows, and restrained anomalous light.
+
+REALITY KEYS
+
+Dead Universe Customs uses a dead bureaucratic seal transformed into a cosmic key. Frozen Time Verdict uses a frozen clock, judicial emblem, or suspended temporal mechanism.
+
+REALITY EMBLEMS
+
+One memorable symbol per reality, suitable for lists, progress, and completion.
+
+REALITY BACKGROUNDS
+
+Dead Universe Customs is an abandoned cosmic border office processing travelers from extinct universes. Frozen Time Verdict is a courthouse or judgment chamber trapped inside frozen time.
+
+RIFT ENEMIES
+
+Twenty-four surreal enemy portraits use the same readable character language as normal targets, but with stranger anatomy, temporal damage, dimensional corruption, or impossible bureaucratic equipment.
+
+RIFT REWARDS AND ANOMALIES
+
+Twenty-four special reward icons should use the modular equipment language and remain hidden until earned. A reusable anomaly-symbol family represents corrupted rules, enhanced enemies, restricted defenses, time distortion, and unstable reality.
+
+
+19. DAILY, WEEKLY, CAREER, AND AFK SYSTEMS
+
+DAILY OBJECTIVES
+
+Required symbols: Daily Emblem, Progress, Completed, Reward Available, Reward Claimed, UTC Reset Clock, and three reusable objective-family symbols.
+
+WEEKLY OPERATIONS
+
+Required visuals: Weekly Operations Emblem, milestones for 8, 20, and 35 hunts, Black Warrant Emblem, Weekly Completion Stamp, Next Rotation Indicator, and Weekly Reward Container.
+
+CAREER AND WANTED ARCHIVE
+
+Required marks: Career Progression Line, Normal Target, Captured Target, Boss Target, Completed Planet, Chapter Reward, Locked Archive, Registered Item Series, Collection Completion, and Mastery Seal. Existing target, planet, and equipment artwork should be reused.
+
+AFK RETURN
+
+The return summary reuses the global Time, Mission, XP, Credits, Unlock, and Reward Ready symbols. It does not require a unique illustration.
+
+
+20. MENU, SETTINGS, AND SUPPORT
+
+A quiet service-icon family is required for Account, Server, Language, Audio, Music, Vibration, Reduced Motion, Notifications, Text Size, Accessibility and Contrast, Help, Credits, Terms, Privacy, Support, Copy Player ID, Log Out, Delete Account, Game Version, and Connection Diagnostics.
+
+
+21. ERRORS AND RECOVERY
+
+A reusable family of eight semantic pictograms should cover Connection, Server, Warning, Error, Security, Storage, Purchase, and Update.
+
+Combined with clear text, these symbols represent offline mode, maintenance, timeout, expired sessions, authentication failure, invalid or occupied names, recovered saves, restored backups, insufficient storage, failed or pending purchases, outdated versions, content downloads, unsaved actions, daily limits, insufficient fuel, full inventory, missing resources, and destructive confirmation.
+
+
+22. INTERFACE NPCS
+
+WARRANT CLERK
+
+A tired but sharp bureaucrat surrounded by stamps, wanted files, and an overworked terminal.
+
+ARSENAL MECHANIC
+
+A heavily equipped repair specialist carrying an oversized tool and wearing visibly patched protective gear.
+
+CROOKED MARKET MERCHANT
+
+A charming, suspicious trader displaying questionable merchandise and smiling slightly too confidently.
+
+HANGAR MECHANIC OR PILOT
+
+A grease-covered spacecraft expert with flight goggles, diagnostic equipment, and strong opinions about unsafe engines.
+
+RIFT ARCHIVIST
+
+An eccentric scholar or guide protected by strange instruments, dimensional records, and equipment that reacts nervously to the portal.
+
+Each service NPC initially needs one expressive transparent bust. Additional emotional poses are not required for the first pass.
+
+
+23. FINAL LAUNCH PRESENTATION
+
+The final launch presentation requires a finished App Icon, Game Logo, Boot Splash, Store Banner or Feature Image, Promotional Character Composition, Key Art showing a hunter, target, planet, and spacecraft, Store Screenshots using the real interface, a Loading Indicator, and small legal or age-rating presentation elements where required.
+
+
+24. CONSOLIDATED FIRST PRODUCTION PHASE
+
+- 3 full class illustrations.
+- 8 modular species families, approximately 96 authored or derived layers in total.
+- 44 current target portraits.
+- 11 current planet habitat packages.
+- 22 current incident illustrations.
+- 4 transport illustrations.
+- 5 service NPC busts.
+- 24 current Rift enemy portraits.
+- 2 Rift backgrounds, 2 reality emblems, 2 keys, and the main portal.
+- A modular equipment kit for all 9 universal slots.
+- Approximately 50–65 essential interface symbols.
+- A compact reusable family of frames, stamps, reward marks, and combat effects.
+
+The first-year expansion target grows to 35 planets, 140 planetary targets, and approximately 70 travel incidents. Reusable interface states must continue to come from layout, color, overlays, and effects rather than multiplying painted assets.
