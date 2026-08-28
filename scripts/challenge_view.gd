@@ -17,13 +17,16 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 	heading_copy.add_theme_constant_override("separation", 4)
 	heading.add_child(heading_copy)
 	heading_copy.add_child(host.scene_title(t("RIFT_TITLE", "FENDA CLANDESTINA")))
-	heading_copy.add_child(host.readable_caption(t("RIFT_SUBTITLE", "Uma escada de inimigos fora da campanha planetária.")))
+	heading_copy.add_child(host.readable_caption(t("RIFT_SUBTITLE", "Uma chave abre cada realidade. Uma entrada atravessa a Fenda por dia.")))
 	var back := host.secondary_action(t("ACTION_BACK", "VOLTAR"), host.CYAN)
 	back.name = "ChallengeBack"
 	back.custom_minimum_size.x = 118
 	back.pressed.connect(func(): host.call("open_frontier_menu"))
 	heading.add_child(back)
-	var marker := host.metric_chip(t("RIFT_SECTOR", "SETOR"), t("RIFT_NULL", "NULO"), host.CORAL)
+	var key_count: int = state.player.get("rift_reality_keys", []).size()
+	if ChallengeRulesScript.is_unlocked(state.player) and not state.player.get("rift_reality_keys", []).has(str(ChallengeRulesScript.REALITIES[0].key_id)):
+		key_count += 1
+	var marker := host.metric_chip(t("RIFT_KEYS", "CHAVES"), "%d/%d" % [key_count, ChallengeRulesScript.REALITIES.size()], host.CORAL)
 	marker.name = "ChallengeMarker"
 	marker.custom_minimum_size.y = 52
 	content.add_child(marker)
@@ -41,7 +44,37 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 		content.add_child(locked)
 		return
 
-	var floor := ChallengeRulesScript.progress(state.player)
+	var status := state.rift_status()
+	var reality_id := str(status.reality_id)
+	var reality: Dictionary = status.reality
+	var floor := int(status.progress)
+	if state.player.get("rift_reality_keys", []).size() > 1:
+		var reality_tabs := VBoxContainer.new()
+		reality_tabs.name = "ChallengeRealityTabs"
+		reality_tabs.add_theme_constant_override("separation", 7)
+		content.add_child(reality_tabs)
+		for reality_definition in ChallengeRulesScript.REALITIES:
+			var candidate_id := str(reality_definition.id)
+			if not ChallengeRulesScript.has_reality_key(state.player, candidate_id):
+				continue
+			var candidate_floor := ChallengeRulesScript.progress(state.player, candidate_id)
+			var candidate_name := t(LocaleRules.content_key("rift_reality", candidate_id, "name"), str(reality_definition.name))
+			var tab_text := t("RIFT_REALITY_TAB", "%s · %d/12", [candidate_name.to_upper(), candidate_floor])
+			var tab := host.primary_action(tab_text, host.CORAL) if candidate_id == reality_id else host.secondary_action(tab_text, host.CYAN)
+			tab.name = "ChallengeRealityTab_%s" % candidate_id
+			tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			tab.disabled = candidate_id == reality_id
+			tab.pressed.connect(Callable(state, "select_rift_reality").bind(candidate_id))
+			reality_tabs.add_child(tab)
+	var reality_panel := host.panel(VBoxContainer.new(), Color("#17152b"), 15, 11)
+	reality_panel.name = "ChallengeRealityPanel"
+	var reality_copy := reality_panel.get_child(0) as VBoxContainer
+	reality_copy.add_child(host.center_label(t("RIFT_REALITY_LABEL", "REALIDADE ABERTA · CHAVE ESTABILIZADA"), UIDesignSystem.FONT_CAPTION, host.CORAL))
+	reality_copy.add_child(host.center_label(t(LocaleRules.content_key("rift_reality", reality_id, "name"), str(reality.name)), UIDesignSystem.FONT_EMPHASIS, host.INK))
+	var reality_description := host.center_label(t(LocaleRules.content_key("rift_reality", reality_id, "description"), str(reality.description)), UIDesignSystem.FONT_CAPTION, host.MUTED)
+	reality_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	reality_copy.add_child(reality_description)
+	content.add_child(reality_panel)
 	var track := GridContainer.new()
 	track.name = "ChallengeProgressTrack"
 	track.columns = 2
@@ -64,7 +97,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 		var complete_box := complete.get_child(0) as VBoxContainer
 		complete_box.add_child(host.center_label(t("RIFT_ARCHIVE_CLOSED", "ARQUIVO IMPOSSÍVEL ENCERRADO"), UIDesignSystem.FONT_CAPTION, host.LIME))
 		complete_box.add_child(host.center_label(t("RIFT_CLEARED", "FENDA LIMPA"), UIDesignSystem.FONT_SECTION_TITLE, host.INK))
-		var complete_copy := host.center_label(t("RIFT_COMPLETE_DESCRIPTION", "Os doze carcereiros foram removidos. Cinto técnico, implante, dispositivo e relíquia permanecem universais para todas as classes."), UIDesignSystem.FONT_CAPTION, host.MUTED)
+		var complete_copy := host.center_label(t("RIFT_COMPLETE_DESCRIPTION", "Os doze carcereiros desta realidade foram removidos. A chave e todos os artefatos descobertos permanecem no Arquivo."), UIDesignSystem.FONT_CAPTION, host.MUTED)
 		complete_copy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		complete_box.add_child(complete_copy)
 		content.add_child(complete)
@@ -76,7 +109,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 		notice.name = "ChallengeNotice"
 		content.add_child(notice)
 
-	var stage := ChallengeRulesScript.current_stage(state.player)
+	var stage := ChallengeRulesScript.current_stage(state.player, reality_id)
 	var scroller := ScrollContainer.new()
 	scroller.name = "ChallengeScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -121,34 +154,24 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 	anomaly_copy.add_child(host.center_label(t("RIFT_ANOMALY_VALUES", "MITIGAÇÃO IGNORADA %d%% · ABERTURA ×%.1f", [roundi(float(stage.damage_reduction_piercing) * 100.0), float(stage.opening_damage_multiplier)]), UIDesignSystem.FONT_CAPTION, host.MUTED))
 	stack.add_child(anomaly_panel)
 
-	var reward := ChallengeRulesScript.reward_for(stage, ContentDB.ITEM_TRAITS)
-	var reward_panel := host.panel(HBoxContainer.new(), Color("#10233b"), 16, 14)
-	reward_panel.name = "ChallengeRewardPreview"
-	var reward_row := reward_panel.get_child(0) as HBoxContainer
-	reward_row.add_theme_constant_override("separation", 10)
-	reward_row.add_child(host.equipment_icon(reward, 72))
-	var reward_copy := VBoxContainer.new()
-	reward_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	reward_row.add_child(reward_copy)
-	reward_copy.add_child(host.label(t("RIFT_UNIQUE_REWARD", "RECOMPENSA ÚNICA · %s", [EquipmentPresentation.localized_slot(str(reward.slot)).to_upper()]), UIDesignSystem.FONT_CAPTION, host.GOLD))
-	var reward_name := host.label(EquipmentPresentation.localized_item_field(reward, "name"), UIDesignSystem.FONT_BODY, host.INK)
-	reward_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	reward_name.max_lines_visible = 2
-	reward_copy.add_child(reward_name)
-	var modifier_text := EquipmentPresentation.modifier_text(reward)
-	if not modifier_text.is_empty():
-		var effect := host.label("◆ %s" % modifier_text, UIDesignSystem.FONT_CAPTION, host.LIME)
-		effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		reward_copy.add_child(effect)
-	reward_copy.add_child(host.label(t("RIFT_REWARD_TOTAL", "◈ %d CRÉDITOS · %d XP", [int(stage.credits), int(stage.xp)]), UIDesignSystem.FONT_CAPTION, host.GOLD))
-	stack.add_child(reward_panel)
+	var mystery := host.panel(VBoxContainer.new(), Color("#10233b"), 15, 12)
+	mystery.name = "ChallengeHiddenReward"
+	var mystery_copy := mystery.get_child(0) as VBoxContainer
+	mystery_copy.add_child(host.center_label(t("RIFT_REWARD_HIDDEN", "RECOMPENSA SELADA"), UIDesignSystem.FONT_CAPTION, host.GOLD))
+	var mystery_description := host.center_label(t("RIFT_REWARD_HIDDEN_DESCRIPTION", "A Fenda entrega equipamento e recursos superiores, mas só revela o conteúdo depois da vitória."), UIDesignSystem.FONT_CAPTION, host.INK)
+	mystery_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	mystery_copy.add_child(mystery_description)
+	stack.add_child(mystery)
 
-	var rules := host.center_label(t("RIFT_RULES", "Sem caça, incidentes ou repetição. Derrota não consome o embalo dos mandados."), UIDesignSystem.FONT_CAPTION, host.MUTED)
+	var rules := host.center_label(t("RIFT_RULES", "Uma entrada por dia · sem combustível · derrota mantém o inimigo atual e preserva o embalo dos mandados."), UIDesignSystem.FONT_CAPTION, host.MUTED)
 	rules.name = "ChallengeRulesNotice"
 	rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	stack.add_child(rules)
-	var enter := host.primary_action(t("RIFT_START", "INICIAR INCURSÃO · ANDAR %d", [floor + 1]), readiness_color)
+	var entry_available := bool(status.entry_available)
+	var enter_text := t("RIFT_START", "ENTRAR NA FENDA · INIMIGO %d/12", [floor + 1]) if entry_available else t("RIFT_ENTRY_USED", "ENTRADA USADA · REABRE ÀS 00:00 UTC")
+	var enter := host.primary_action(enter_text, readiness_color if entry_available else host.MUTED)
 	enter.name = "ChallengeEnterAction"
+	enter.disabled = not entry_available
 	var stage_id := str(stage.id)
 	enter.pressed.connect(func(): state.start_challenge(stage_id))
 	content.add_child(enter)
@@ -159,7 +182,7 @@ static func t(key: String, fallback: String = "", values: Array = []) -> String:
 
 
 static func localized_stage_field(stage: Dictionary, field: String) -> String:
-	return t(LocaleRules.content_key("rift_stage", str(stage.get("id", "")), field), str(stage.get(field, "")))
+	return t(LocaleRules.content_key("rift_stage", str(stage.get("base_stage_id", stage.get("id", ""))), field), str(stage.get(field, "")))
 
 
 static func localized_anomaly_field(anomaly_id: String, anomaly: Dictionary, field: String) -> String:

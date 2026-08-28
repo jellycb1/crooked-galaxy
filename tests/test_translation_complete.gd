@@ -102,9 +102,9 @@ func run_test() -> void:
 	scene.view_mode = "challenges"
 	scene.render()
 	await process_frame
-	check(has_label(scene, "CLANDESTINE RIFT") and has_label(scene, "FLOOR 1 · ILLEGAL SCREENING") and has_label(scene, "Dead Customs Drone") and has_label(scene, "VOLATILE CHAMBER") and has_label(scene, "Broken Seal Rig"), "English Rift dossier localizes enemy, anomaly, and unique reward")
+	check(has_label(scene, "CLANDESTINE RIFT") and has_label(scene, "Customs of the Dead Universe") and has_label(scene, "FLOOR 1 · ILLEGAL SCREENING") and has_label(scene, "Dead Customs Drone") and has_label(scene, "VOLATILE CHAMBER") and has_label(scene, "SEALED REWARD") and not has_label(scene, "Broken Seal Rig"), "English Rift dossier localizes the reality and current enemy while keeping the reward concealed")
 	var enter := scene.find_child("ChallengeEnterAction", true, false) as Button
-	check(enter != null and enter.text == "START INCURSION · FLOOR 1", "English Rift entry action is localized")
+	check(enter != null and enter.text == "ENTER THE RIFT · ENEMY 1/12", "English Rift daily entry action is localized")
 
 	state.current_bounty = Challenge.stage_at(0)
 	state.pending_loot = Challenge.reward_for(state.current_bounty, ContentDB.ITEM_TRAITS)

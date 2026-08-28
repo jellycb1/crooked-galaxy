@@ -116,6 +116,11 @@ func default_player() -> Dictionary:
 		"reputation": 0,
 		"wins": 0,
 		"challenge_floor": 0,
+		"rift_reality_keys": [],
+		"rift_reality_progress": {},
+		"selected_rift_reality_id": ChallengeRulesScript.FIRST_REALITY_ID,
+		"rift_entry_day": -1,
+		"rift_key_hunt_progress": {},
 		"base_power": 10,
 		"attributes": CoreRules.default_attributes(),
 		"stat_points": 0,
@@ -290,17 +295,75 @@ func select_bounty(bounty: Dictionary) -> void:
 	changed.emit()
 
 
-func start_challenge(stage_id: String) -> bool:
+func normalize_rift_foundation() -> bool:
+	var changed_state := false
+	var keys: Array = player.get("rift_reality_keys", []).duplicate()
+	for key_id in ChallengeRulesScript.initial_key_ids(player):
+		if not keys.has(key_id):
+			keys.append(key_id)
+			changed_state = true
+	player.rift_reality_keys = keys
+	var progress_by_reality: Dictionary = player.get("rift_reality_progress", {}).duplicate(true)
+	if keys.has(str(ChallengeRulesScript.REALITIES[0].key_id)) and not progress_by_reality.has(ChallengeRulesScript.FIRST_REALITY_ID):
+		progress_by_reality[ChallengeRulesScript.FIRST_REALITY_ID] = clampi(int(player.get("challenge_floor", 0)), 0, ChallengeRulesScript.STAGES.size())
+		changed_state = true
+	player.rift_reality_progress = progress_by_reality
+	var selected := ChallengeRulesScript.selected_reality_id(player)
+	if str(player.get("selected_rift_reality_id", "")) != selected:
+		player.selected_rift_reality_id = selected
+		changed_state = true
+	return changed_state
+
+
+func rift_status(unix_time := -1.0) -> Dictionary:
+	if normalize_rift_foundation():
+		save_game()
+	var reality_id := ChallengeRulesScript.selected_reality_id(player)
+	var reality := ChallengeRulesScript.reality_definition(reality_id)
+	return {
+		"unlocked": ChallengeRulesScript.is_unlocked(player),
+		"reality_id": reality_id,
+		"reality": reality,
+		"progress": ChallengeRulesScript.progress(player, reality_id),
+		"entry_available": ChallengeRulesScript.entry_available(player, unix_time),
+		"entry_day": int(player.get("rift_entry_day", -1)),
+	}
+
+
+func select_rift_reality(reality_id: String) -> bool:
+	if phase != Phase.BOARD or not ChallengeRulesScript.has_reality_key(player, reality_id):
+		return false
+	if str(player.get("selected_rift_reality_id", "")) == reality_id:
+		return true
+	player.selected_rift_reality_id = reality_id
+	last_notice = ""
+	last_notice_context = ""
+	save_game()
+	changed.emit()
+	return true
+
+
+func start_challenge(stage_id: String, unix_time := -1.0) -> bool:
 	if phase != Phase.BOARD or requires_onboarding() or not ChallengeRulesScript.is_unlocked(player):
 		return false
+	normalize_rift_foundation()
+	if not ChallengeRulesScript.entry_available(player, unix_time):
+		last_notice = LocaleRulesScript.text("RIFT_NOTICE_ENTRY_USED", "A entrada diária já foi consumida. A Fenda estabiliza novamente à meia-noite UTC.")
+		last_notice_context = "challenge_entry_used"
+		save_game()
+		changed.emit()
+		return false
 	var stage := ChallengeRulesScript.get_stage(stage_id)
-	if stage.is_empty() or int(stage.get("challenge_index", -1)) != ChallengeRulesScript.progress(player):
+	var reality_id := str(stage.get("reality_id", ""))
+	if stage.is_empty() or not ChallengeRulesScript.has_reality_key(player, reality_id) or int(stage.get("challenge_index", -1)) != ChallengeRulesScript.progress(player, reality_id):
 		return false
 	last_notice = ""
 	last_notice_context = ""
 	combat_summary = {}
 	combat_events = []
 	current_bounty = stage
+	player.selected_rift_reality_id = reality_id
+	player.rift_entry_day = MonetizationRulesScript.utc_day_id(unix_time)
 	offered_approaches = []
 	hunt_event = {}
 	begin_combat()
@@ -1064,7 +1127,7 @@ func can_recycle_reward(item: Dictionary) -> bool:
 
 
 func localized_item_field(item: Dictionary, field: String) -> String:
-	var item_id := str(item.get("id", ""))
+	var item_id := str(item.get("base_reward_id", item.get("id", "")))
 	if str(item.get("challenge_origin", "")) == "fenda_clandestina":
 		return LocaleRulesScript.text("RIFT_REWARD_%s_%s" % [item_id.trim_suffix("_reward").to_upper(), field.to_upper()], str(item.get(field, "")))
 	if item_id == "starter_weapon" or item_id == "starter_armor":
@@ -1083,7 +1146,8 @@ func localized_content_field(prefix: String, definition: Dictionary, field: Stri
 	if definition.is_empty():
 		return ""
 	var localized_prefix := "rift_stage" if prefix == "target" and bool(definition.get("challenge", false)) else prefix
-	return LocaleRulesScript.text(LocaleRulesScript.content_key(localized_prefix, str(definition.get("id", "")), field), str(definition.get(field, "")))
+	var content_id := str(definition.get("base_stage_id", definition.get("id", ""))) if localized_prefix == "rift_stage" else str(definition.get("id", ""))
+	return LocaleRulesScript.text(LocaleRulesScript.content_key(localized_prefix, content_id, field), str(definition.get(field, "")))
 
 
 func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := false) -> Dictionary:
@@ -1140,6 +1204,11 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	summary.levels = CoreRules.apply_xp(player, summary.xp)
 	summary.new_planets = MissionRulesScript.newly_available_planets(level_before_reward, int(player.get("level", 1)))
 	player.wins = int(player.wins) + 1
+	var rift_key_reality := ChallengeRulesScript.record_eligible_hunt_for_key(player)
+	if not rift_key_reality.is_empty():
+		summary.rift_key_id = str(rift_key_reality.key_id)
+		summary.rift_reality_id = str(rift_key_reality.id)
+		summary.rift_reality_name = LocaleRulesScript.text(LocaleRulesScript.content_key("rift_reality", str(rift_key_reality.id), "name"), str(rift_key_reality.name))
 	var captures: Dictionary = player.get("captures_by_target", {})
 	var target_id := str(completed_bounty.get("id", "unknown"))
 	var old_target_mastery := CoreRules.target_mastery_level(int(captures.get(target_id, 0)))
@@ -1181,6 +1250,8 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	]
 	if int(summary.warp_chips) > 0:
 		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_DAILY_WARP_CHIP", "Primeira missão do dia: +%d Ficha de Dobra", [int(summary.warp_chips)]))
+	if not str(summary.get("rift_key_id", "")).is_empty():
+		notice_parts.append(LocaleRulesScript.text("RIFT_KEY_DISCOVERED_NOTICE", "Chave da Fenda encontrada: %s", [str(summary.rift_reality_name)]))
 	if bool(summary.collection_new):
 		notice_parts.append(LocaleRulesScript.text("ITEM_COLLECTION_NEW", "Nova série adicionada à coleção."))
 	if int(summary.incident_cost) > 0:
@@ -1271,7 +1342,8 @@ func claim_challenge_reward(equip_item: bool, recycle_item: bool) -> Dictionary:
 	var completed_stage := current_bounty.duplicate(true)
 	var item := pending_loot.duplicate(true)
 	var stage_index := int(completed_stage.get("challenge_index", -1))
-	if stage_index != ChallengeRulesScript.progress(player):
+	var reality_id := str(completed_stage.get("reality_id", ChallengeRulesScript.FIRST_REALITY_ID))
+	if stage_index != ChallengeRulesScript.progress(player, reality_id):
 		return {}
 	var summary := {
 		"challenge": true,
@@ -1283,6 +1355,7 @@ func claim_challenge_reward(equip_item: bool, recycle_item: bool) -> Dictionary:
 		"loot_name": localized_item_field(item, "name"),
 		"loot_action": "recycled" if recycle_item else ("equipped" if equip_item else "stored"),
 		"challenge_floor": stage_index + 1,
+		"reality_id": reality_id,
 	}
 	player.credits = int(player.credits) + int(summary.credits)
 	summary.levels = CoreRules.apply_xp(player, int(summary.xp))
@@ -1294,7 +1367,11 @@ func claim_challenge_reward(equip_item: bool, recycle_item: bool) -> Dictionary:
 		player.inventory.append(item)
 		if equip_item:
 			equip(item)
-	player.challenge_floor = stage_index + 1
+	var progress_by_reality: Dictionary = player.get("rift_reality_progress", {}).duplicate(true)
+	progress_by_reality[reality_id] = stage_index + 1
+	player.rift_reality_progress = progress_by_reality
+	if reality_id == ChallengeRulesScript.FIRST_REALITY_ID:
+		player.challenge_floor = stage_index + 1
 	var notice_parts := [LocaleRulesScript.text("RIFT_NOTICE_FLOOR_CLEAR", "andar %d limpo", [stage_index + 1]), LocaleRulesScript.text("RIFT_NOTICE_CREDITS", "+%d créditos", [int(summary.credits)]), "+%d XP" % int(summary.xp)]
 	if recycle_item:
 		notice_parts.append(LocaleRulesScript.text("RIFT_NOTICE_RECYCLED", "%s reciclado: +%d sucata", [str(summary.loot_name), int(summary.scrap)]))
@@ -2044,11 +2121,69 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	if fuel_remaining != int(sanitized.get("hunt_fuel", MonetizationRulesScript.DAILY_HUNT_FUEL)):
 		sanitized.hunt_fuel = fuel_remaining
 		repaired = true
-	for day_key in ["economy_day", "daily_hunt_chip_day"]:
+	for day_key in ["economy_day", "daily_hunt_chip_day", "rift_entry_day"]:
 		var day_value = sanitized.get(day_key, -1)
 		if not (day_value is int or day_value is float) or float(day_value) != float(int(day_value)) or int(day_value) < -1:
 			sanitized[day_key] = -1
 			repaired = true
+	var valid_rift_keys: Array[String] = []
+	for reality in ChallengeRulesScript.REALITIES:
+		valid_rift_keys.append(str(reality.key_id))
+	var clean_rift_keys: Array = []
+	var loaded_rift_keys = sanitized.get("rift_reality_keys", [])
+	if loaded_rift_keys is Array:
+		for key_id in loaded_rift_keys:
+			var resolved_key := str(key_id)
+			if valid_rift_keys.has(resolved_key) and not clean_rift_keys.has(resolved_key):
+				clean_rift_keys.append(resolved_key)
+			else:
+				repaired = true
+	else:
+		repaired = true
+	for key_id in ChallengeRulesScript.initial_key_ids(sanitized):
+		if not clean_rift_keys.has(key_id):
+			clean_rift_keys.append(key_id)
+			# The first key is derived directly from hunter level. Treating this
+			# normalization as corruption would show a false recovery warning when
+			# an established save crosses the unlock boundary outside the Rift UI.
+	sanitized.rift_reality_keys = clean_rift_keys
+	var clean_rift_progress := {}
+	var loaded_rift_progress = sanitized.get("rift_reality_progress", {})
+	if loaded_rift_progress is Dictionary:
+		for reality in ChallengeRulesScript.REALITIES:
+			var reality_id := str(reality.id)
+			if not clean_rift_keys.has(str(reality.key_id)):
+				continue
+			var legacy_floor := int(sanitized.challenge_floor) if reality_id == ChallengeRulesScript.FIRST_REALITY_ID else 0
+			var clean_floor := clampi(int(loaded_rift_progress.get(reality_id, legacy_floor)), 0, reality.stages.size())
+			clean_rift_progress[reality_id] = clean_floor
+			if loaded_rift_progress.has(reality_id) and clean_floor != int(loaded_rift_progress[reality_id]):
+				repaired = true
+		for reality_id in loaded_rift_progress:
+			if not ChallengeRulesScript.reality_ids().has(str(reality_id)):
+				repaired = true
+	else:
+		repaired = true
+	sanitized.rift_reality_progress = clean_rift_progress
+	if clean_rift_progress.has(ChallengeRulesScript.FIRST_REALITY_ID):
+		sanitized.challenge_floor = int(clean_rift_progress[ChallengeRulesScript.FIRST_REALITY_ID])
+	var selected_reality := str(sanitized.get("selected_rift_reality_id", ChallengeRulesScript.FIRST_REALITY_ID))
+	var selected_requires_repair := not ChallengeRulesScript.reality_ids().has(selected_reality)
+	selected_requires_repair = selected_requires_repair or (not ChallengeRulesScript.has_reality_key(sanitized, selected_reality) and (selected_reality != ChallengeRulesScript.FIRST_REALITY_ID or ChallengeRulesScript.is_unlocked(sanitized)))
+	if selected_requires_repair:
+		sanitized.selected_rift_reality_id = ChallengeRulesScript.FIRST_REALITY_ID
+		repaired = true
+	var clean_key_hunt_progress := {}
+	var loaded_key_hunt_progress = sanitized.get("rift_key_hunt_progress", {})
+	if loaded_key_hunt_progress is Dictionary:
+		for reality_id in loaded_key_hunt_progress:
+			if ChallengeRulesScript.reality_ids().has(str(reality_id)):
+				clean_key_hunt_progress[str(reality_id)] = clampi(int(loaded_key_hunt_progress[reality_id]), 0, 1000)
+			else:
+				repaired = true
+	else:
+		repaired = true
+	sanitized.rift_key_hunt_progress = clean_key_hunt_progress
 	if not MarketRulesScript.purchase_records_are_safe(sanitized.get("market_purchased_offer_ids", [])):
 		sanitized.market_purchased_offer_ids = []
 		repaired = true

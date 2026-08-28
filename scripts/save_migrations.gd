@@ -3,7 +3,7 @@ extends RefCounted
 
 const Content = preload("res://scripts/content_db.gd")
 
-const CURRENT_VERSION := 21
+const CURRENT_VERSION := 22
 const BASE_ATTRIBUTE_VALUE := 10
 const ATTRIBUTE_POINTS_PER_LEVEL := 2
 
@@ -75,6 +75,9 @@ static func migrate(payload: Dictionary) -> Dictionary:
 			20:
 				migrated = migrate_v20_to_v21(migrated)
 				version = 21
+			21:
+				migrated = migrate_v21_to_v22(migrated)
+				version = 22
 			_:
 				return {}
 		migrated.version = version
@@ -354,5 +357,23 @@ static func migrate_v20_to_v21(payload: Dictionary) -> Dictionary:
 		player.hunt_fuel = 100
 	if not player.has("hunt_fuel_refill_count"):
 		player.hunt_fuel_refill_count = 0
+	migrated.player = player
+	return migrated
+
+
+static func migrate_v21_to_v22(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	var player: Dictionary = migrated.get("player", {})
+	var legacy_floor := clampi(int(player.get("challenge_floor", 0)), 0, 12)
+	if not player.has("rift_reality_keys"):
+		player.rift_reality_keys = ["dead_customs_key"] if int(player.get("level", 1)) >= 8 or legacy_floor > 0 else []
+	if not player.has("rift_reality_progress"):
+		player.rift_reality_progress = {"dead_customs": legacy_floor} if player.rift_reality_keys.has("dead_customs_key") else {}
+	if not player.has("selected_rift_reality_id"):
+		player.selected_rift_reality_id = "dead_customs"
+	if not player.has("rift_entry_day"):
+		player.rift_entry_day = -1
+	if not player.has("rift_key_hunt_progress"):
+		player.rift_key_hunt_progress = {}
 	migrated.player = player
 	return migrated

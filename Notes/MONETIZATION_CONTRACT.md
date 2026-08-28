@@ -36,7 +36,16 @@ Primeiras aplicações:
 1. **Mercado:** até três renovações por dia. A terceira seleção contém pelo menos um item Raro compatível, mas não garante que seja melhoria.
 2. **Combustível de caça:** reserva diária de 100 unidades; missões normais consomem o equivalente aos minutos da rota-base. Cada recarga concede 20 e segue a escada diária 1/5/20. O sistema está ativo no cliente de teste desde a versão 0.48.0; faturação e autoridade continuam locais e não representam uma loja real.
 3. **Reduções de tempo:** Células de Salto reduzem cinco minutos e devem existir também como recompensa jogável, com limite diário.
-4. **Fenda/Arena:** futuros saltos de cooldown podem usar a mesma escada, sempre limitados a três por dia.
+4. **Arena:** futuros saltos de cooldown podem usar a mesma escada, sempre limitados a três por dia e sem alterar probabilidades de vitória.
+
+## Fenda: limite de integridade comercial
+
+- A Fenda concede exatamente uma entrada global por dia UTC, partilhada por todas as realidades abertas. A entrada é consumida ao iniciar o combate, inclusive quando existe derrota.
+- Não se vende entrada adicional, repetição após derrota, salto de inimigo, alteração do inimigo, chave, probabilidade de vitória nem revelação antecipada da recompensa.
+- Cada realidade contém doze inimigos sequenciais e exige uma chave permanente. A primeira chave é descoberta ao atingir o nível 8; chaves seguintes entram apenas por caçadas normais depois de completar a realidade anterior e alcançar o nível exigido.
+- O contador oculto de uma chave tem proteção contra azar e não aceita Fichas de Dobra. Na segunda realidade, a chave surge no máximo após cinco caçadas elegíveis.
+- Antes da luta, o jogador vê somente o inimigo atual, as regras da anomalia e a promessa genérica de recompensa superior. Item, raridade, espaço, Créditos e XP permanecem selados até à vitória.
+- A Fenda não consome combustível e não avança Turno Diário, reputação, domínio de alvos ou embalo dos mandados. Assim, funciona como compromisso diário de build e não como multiplicador pago da progressão normal.
 
 ## Transportes e conveniência
 

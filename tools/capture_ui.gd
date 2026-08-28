@@ -358,6 +358,17 @@ func capture() -> void:
 	if save_frame("ui_challenge_en.png") != OK:
 		quit(1)
 		return
+	state.player.level = 100
+	state.player.rift_reality_keys = ["dead_customs_key", "frozen_verdict_key"]
+	state.player.rift_reality_progress = {"dead_customs": 12, "frozen_verdict": 2}
+	state.player.selected_rift_reality_id = "frozen_verdict"
+	state.player.rift_entry_day = -1
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_challenge_realities_en.png") != OK:
+		quit(1)
+		return
 	state.current_bounty = ChallengeRules.stage_at(0)
 	state.pending_loot = ChallengeRules.reward_for(state.current_bounty, ContentDB.ITEM_TRAITS)
 	state.phase = state.Phase.REWARD

@@ -23,7 +23,7 @@ static func localized_content(prefix: String, definition: Dictionary, field: Str
 
 
 static func localized_item_field(item: Dictionary, field: String) -> String:
-	var item_id := str(item.get("id", ""))
+	var item_id := str(item.get("base_reward_id", item.get("id", "")))
 	if str(item.get("challenge_origin", "")) == "fenda_clandestina":
 		return local_text("RIFT_REWARD_%s_%s" % [item_id.trim_suffix("_reward").to_upper(), field.to_upper()], str(item.get(field, "")))
 	var planet_id := str(item.get("origin_planet_id", Content.PLANET.id))

@@ -446,8 +446,9 @@ static func format_duration(seconds: float) -> String:
 
 
 static func challenge_progress_card(host: CrookedUIFactory, state: StateScript) -> PanelContainer:
-	var unlocked := ChallengeRulesScript.is_unlocked(state.player)
-	var floor := ChallengeRulesScript.progress(state.player)
+	var rift_status := state.rift_status()
+	var unlocked := bool(rift_status.unlocked)
+	var floor := int(rift_status.progress)
 	var total := ChallengeRulesScript.STAGES.size()
 	var complete := floor >= total
 	var accent: Color = host.CORAL if unlocked else host.MUTED
@@ -475,7 +476,7 @@ static func challenge_progress_card(host: CrookedUIFactory, state: StateScript) 
 	if complete:
 		detail = t("CAREER_RIFT_COMPLETE", "%d/%d ANDARES · ARQUIVO CONCLUÍDO", [floor, total])
 	elif unlocked:
-		var stage := ChallengeRulesScript.current_stage(state.player)
+		var stage := ChallengeRulesScript.current_stage(state.player, str(rift_status.reality_id))
 		detail = t("CAREER_RIFT_NEXT", "%d/%d LIMPOS · PRÓXIMO: %s", [floor, total, localized_content_field("rift_stage", stage, "name").to_upper()])
 	var detail_label := host.label(detail, UIDesignSystem.FONT_CAPTION, host.MUTED)
 	detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -596,4 +597,5 @@ static func t(key: String, fallback: String = "", values: Array = []) -> String:
 
 
 static func localized_content_field(prefix: String, definition: Dictionary, field: String) -> String:
-	return t(LocaleRules.content_key(prefix, str(definition.get("id", "")), field), str(definition.get(field, "")))
+	var content_id := str(definition.get("base_stage_id", definition.get("id", ""))) if prefix == "rift_stage" else str(definition.get("id", ""))
+	return t(LocaleRules.content_key(prefix, content_id, field), str(definition.get(field, "")))

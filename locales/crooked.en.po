@@ -3465,7 +3465,40 @@ msgid "RIFT_STAGE_RIFT_NULL_WARDEN_NAME"
 msgstr "Null Sector Warden"
 
 msgid "RIFT_SUBTITLE"
-msgstr "An enemy ladder outside the planetary campaign."
+msgstr "One key opens each reality. One entry crosses the Rift per day."
+
+msgid "RIFT_KEY"
+msgstr "KEY"
+
+msgid "RIFT_KEY_FOUND"
+msgstr "FOUND"
+
+msgid "RIFT_KEYS"
+msgstr "KEYS"
+
+msgid "RIFT_KEY_MISSING"
+msgstr "MISSING"
+
+msgid "RIFT_REALITY_LABEL"
+msgstr "OPEN REALITY · KEY STABILIZED"
+
+msgid "RIFT_REALITY_DEAD_CUSTOMS_NAME"
+msgstr "Customs of the Dead Universe"
+
+msgid "RIFT_REALITY_DEAD_CUSTOMS_DESCRIPTION"
+msgstr "An office trapped between the universe's final second and a debt that refuses to expire."
+
+msgid "RIFT_REALITY_FROZEN_VERDICT_NAME"
+msgstr "Verdict of Frozen Time"
+
+msgid "RIFT_REALITY_FROZEN_VERDICT_DESCRIPTION"
+msgstr "A reality where the final judgment stopped the clock without suspending the sentence."
+
+msgid "RIFT_REALITY_TAB"
+msgstr "%s · %d/12"
+
+msgid "RIFT_KEY_DISCOVERED_NOTICE"
+msgstr "Rift key found: %s"
 
 msgid "RIFT_SECTOR"
 msgstr "SECTOR"
@@ -3492,7 +3525,7 @@ msgid "RIFT_CLEARED"
 msgstr "RIFT CLEARED"
 
 msgid "RIFT_COMPLETE_DESCRIPTION"
-msgstr "All twelve wardens were removed. Technical rigs, implants, gadgets, and relics remain universal across every class."
+msgstr "All twelve wardens of this reality were removed. Its key and every discovered artifact remain in the Archive."
 
 msgid "COMMON_CHANCE"
 msgstr "CHANCE"
@@ -3510,10 +3543,25 @@ msgid "RIFT_REWARD_TOTAL"
 msgstr "◈ %d CREDITS · %d XP"
 
 msgid "RIFT_RULES"
-msgstr "No hunt, incidents, or repeats. Defeat does not consume warrant momentum."
+msgstr "One entry per day · no fuel · defeat keeps the current enemy and preserves warrant momentum."
 
 msgid "RIFT_START"
-msgstr "START INCURSION · FLOOR %d"
+msgstr "ENTER THE RIFT · ENEMY %d/12"
+
+msgid "RIFT_ENTRY_USED"
+msgstr "ENTRY USED · REOPENS AT 00:00 UTC"
+
+msgid "RIFT_REWARD_HIDDEN"
+msgstr "SEALED REWARD"
+
+msgid "RIFT_REWARD_HIDDEN_DESCRIPTION"
+msgstr "The Rift yields superior equipment and resources, but reveals them only after victory."
+
+msgid "RIFT_NOTICE_ENTRY_USED"
+msgstr "Today's entry has already been used. The Rift stabilizes again at midnight UTC."
+
+msgid "MENU_RIFT_ENTRY_USED"
+msgstr "DAILY ENTRY USED"
 
 msgid "RIFT_REWARD_FLOOR_CLEAR"
 msgstr "CLANDESTINE RIFT · FLOOR %d CLEARED"

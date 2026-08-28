@@ -445,12 +445,14 @@ func run_mobile_audit() -> void:
 	check_touch_targets(scene, "Fenda anomaly dossier")
 	check(scene.find_child("ChallengeScroll", true, false) != null and scene.find_child("ChallengeAnomalyRule", true, false) != null, "Fenda anomaly explanation remains reachable in the portrait scroller")
 	state.player.challenge_floor = 11
+	state.player.rift_reality_progress = {ChallengeRules.FIRST_REALITY_ID: 11}
 	scene.render()
 	await process_frame
 	await process_frame
 	check(scene.find_children("ChallengeSector_*", "PanelContainer", true, false).size() == ChallengeRules.REWARD_SECTORS.size(), "late Rift progress stays compact across all four equipment sectors")
 	check(scene.find_child("ChallengeCurrentDossier", true, false) != null and scene.find_child("ChallengeEnterAction", true, false) != null, "the twelfth-floor dossier and fixed action remain reachable on Android")
 	state.player.challenge_floor = ChallengeRules.STAGES.size()
+	state.player.rift_reality_progress = {ChallengeRules.FIRST_REALITY_ID: ChallengeRules.STAGES.size()}
 	scene.render()
 	await process_frame
 	check(scene.find_child("ChallengeCompletePanel", true, false) != null and scene.find_child("ChallengeEnterAction", true, false) == null, "completed twelve-floor Rift has one terminal mobile state")

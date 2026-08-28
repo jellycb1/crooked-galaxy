@@ -4,6 +4,8 @@ const Challenge = preload("res://scripts/challenge_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const Simulator = preload("res://tools/simulate_challenges.gd")
 const Builds = preload("res://tools/simulation_builds.gd")
+const Monetization = preload("res://scripts/monetization_rules.gd")
+const DAY_SECONDS := 86400.0
 
 var failures := 0
 
@@ -108,7 +110,8 @@ func run_audit() -> void:
 	var wins_before := int(state.player.wins)
 	var captures_before: Dictionary = state.player.captures_by_target.duplicate(true)
 	var credits_before := int(state.player.credits)
-	check(state.start_challenge(str(Challenge.STAGES[0].id)) and state.phase == state.Phase.COMBAT, "current floor enters the shared animated combat directly")
+	check(state.start_challenge(str(Challenge.STAGES[0].id), 100.0 * DAY_SECONDS) and state.phase == state.Phase.COMBAT, "the first key opens the current enemy through the shared animated combat")
+	check(state.player.rift_reality_keys == ["dead_customs_key"] and int(state.player.rift_entry_day) == 100, "entry discovers the first key and atomically consumes the UTC attempt")
 	check(not state.start_challenge(str(Challenge.STAGES[1].id)), "a later floor cannot bypass sequential progression")
 	state.enemy_hp = 0
 	state.finish_combat(true)
@@ -120,11 +123,13 @@ func run_audit() -> void:
 	check(int(state.player.wins) == wins_before and state.player.captures_by_target == captures_before and int(state.player.capture_streak) == 4, "challenge does not contaminate rank, target mastery, or warrant streak")
 	check(str(state.player.rig.id) == "rift_customs_drone_reward", "the universal rig slot accepts the first challenge reward")
 
-	check(state.start_challenge(str(Challenge.STAGES[1].id)), "claim opens the next sequential floor")
+	check(not state.start_challenge(str(Challenge.STAGES[1].id), 100.0 * DAY_SECONDS) and state.last_notice_context == "challenge_entry_used", "claim opens the enemy but never grants a second entry on the same UTC day")
+	check(state.start_challenge(str(Challenge.STAGES[1].id), 101.0 * DAY_SECONDS), "the next UTC day restores exactly one entry")
 	state.player_hp = 0
 	state.finish_combat(false)
 	check(state.phase == state.Phase.BOARD and int(state.player.challenge_floor) == 1, "defeat leaves challenge progress on the current floor")
 	check(int(state.player.capture_streak) == 4 and state.last_notice_context == "challenge_defeat", "challenge defeat preserves warrant streak and exposes its own recovery context")
+	state.player.rift_entry_day = Monetization.utc_day_id()
 
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
@@ -135,20 +140,22 @@ func run_audit() -> void:
 	check(scene.find_child("ChallengeProgressTrack", true, false) != null, "unlocked ladder renders persistent floor progress")
 	for slot in reward_families:
 		check(scene.find_child("ChallengeSector_%s" % slot.capitalize(), true, false) != null, "compact progress track exposes the %s sector" % slot)
-	check(scene.find_child("ChallengeCurrentDossier", true, false) != null and scene.find_child("ChallengeRewardPreview", true, false) != null, "current enemy and unique reward share one readable dossier")
+	check(scene.find_child("ChallengeCurrentDossier", true, false) != null and scene.find_child("ChallengeHiddenReward", true, false) != null, "current enemy and sealed-reward promise share one readable dossier")
+	check(scene.find_child("ChallengeRewardPreview", true, false) == null, "the unopened Rift never exposes item, slot, rarity, credits, or XP")
 	var challenge_dossier := scene.find_child("ChallengeCurrentDossier", true, false) as PanelContainer
 	check(challenge_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "the current Rift enemy uses the approved focal frame")
 	check(scene.find_child("ChallengeAnomalyRule", true, false) != null, "challenge dossier exposes its class-neutral anomaly profile before entry")
 	var enter := scene.find_child("ChallengeEnterAction", true, false) as Button
-	check(enter != null and enter.size.y >= 48.0 and enter.get_parent() == scene.content, "challenge entry remains a fixed Android action outside the evidence scroller")
+	check(enter != null and enter.disabled and enter.size.y >= 48.0 and enter.get_parent() == scene.content, "consumed daily entry remains a fixed disabled Android action outside the evidence scroller")
 	var final_build := Simulator.checkpoint_player(Simulator.CHECKPOINTS[11], Builds.POLICIES[0])
 	Simulator.apply_prior_rewards(final_build, 11)
 	for field in final_build:
 		state.player[field] = final_build[field]
 	state.player.challenge_floor = 11
+	state.player.rift_reality_progress = {Challenge.FIRST_REALITY_ID: 11}
 	state.player.sound_enabled = false
 	state.phase = state.Phase.BOARD
-	check(state.start_challenge(str(Challenge.STAGES[11].id)), "the final relic floor starts through the same sequential transaction")
+	check(state.start_challenge(str(Challenge.STAGES[11].id), 102.0 * DAY_SECONDS), "the final relic enemy starts through the same keyed daily transaction")
 	state.enemy_hp = 0
 	state.finish_combat(true)
 	check(str(state.pending_loot.slot) == "relic" and str(state.pending_loot.id) == "rift_last_claim_reward", "the final victory creates the canonical relic")
@@ -163,6 +170,23 @@ func run_audit() -> void:
 	scene.render()
 	await process_frame
 	check(scene.find_child("ChallengeCompletePanel", true, false) != null and scene.find_child("ChallengeEnterAction", true, false) == null, "completed Rift renders a terminal archive without an entry action")
+	state.player.level = 100
+	var key_hunts := 0
+	var discovered_reality := {}
+	while discovered_reality.is_empty() and key_hunts < 5:
+		state.player.wins = int(state.player.wins) + 1
+		discovered_reality = Challenge.record_eligible_hunt_for_key(state.player)
+		key_hunts += 1
+	check(not discovered_reality.is_empty() and key_hunts <= 5, "completing the prior reality makes the next gameplay key drop within its bounded hunt pity")
+	check(state.player.rift_reality_keys == ["dead_customs_key", "frozen_verdict_key"] and str(state.player.selected_rift_reality_id) == "frozen_verdict", "a discovered key is permanent, unique, and selects its newly opened reality")
+	var second_opening := Challenge.current_stage(state.player)
+	var second_reward := Challenge.reward_for(second_opening, ContentDB.ITEM_TRAITS)
+	check(str(second_opening.id).begins_with("frozen_verdict__") and int(second_opening.power) >= int(Challenge.STAGES[11].power), "the second reality owns canonical composite enemies and opens above the first reality finale")
+	check(str(second_reward.id).begins_with("frozen_verdict__") and str(second_reward.base_reward_id) == "rift_customs_drone_reward" and int(second_reward.power) == 2, "reality rewards remain unique while retaining their translated base identity")
+	scene.render()
+	await process_frame
+	check(scene.find_child("ChallengeRealityTab_dead_customs", true, false) != null and scene.find_child("ChallengeRealityTab_frozen_verdict", true, false) != null, "the Rift exposes only the two realities whose keys are owned")
+	check(state.select_rift_reality(Challenge.FIRST_REALITY_ID) and Challenge.current_stage(state.player).is_empty(), "the player can revisit a completed keyed reality without losing either ladder")
 	scene.queue_free()
 	await process_frame
 	finish()

@@ -1006,8 +1006,9 @@ func build_frontier_menu() -> void:
 		view_mode = "career"
 		render()
 	))
-	var challenge_floor := ChallengeRulesScript.progress(GameState.player)
-	var challenge_detail := t("MENU_RIFT_LOCKED", "DESBLOQUEIA NO NÍVEL %d", [ChallengeRulesScript.UNLOCK_LEVEL]) if not ChallengeRulesScript.is_unlocked(GameState.player) else (t("MENU_RIFT_COMPLETE", "ARQUIVO CONCLUÍDO") if challenge_floor >= ChallengeRulesScript.STAGES.size() else t("MENU_RIFT_FLOOR", "ANDAR %d DE %d", [challenge_floor + 1, ChallengeRulesScript.STAGES.size()]))
+	var rift_status := GameState.rift_status()
+	var challenge_floor := int(rift_status.progress)
+	var challenge_detail := t("MENU_RIFT_LOCKED", "DESBLOQUEIA NO NÍVEL %d", [ChallengeRulesScript.UNLOCK_LEVEL]) if not bool(rift_status.unlocked) else (t("MENU_RIFT_COMPLETE", "REALIDADE CONCLUÍDA") if challenge_floor >= ChallengeRulesScript.STAGES.size() else (t("MENU_RIFT_ENTRY_USED", "ENTRADA DIÁRIA USADA") if not bool(rift_status.entry_available) else t("MENU_RIFT_FLOOR", "INIMIGO %d DE %d", [challenge_floor + 1, ChallengeRulesScript.STAGES.size()])))
 	hub_grid.add_child(board_hub_action(t("MENU_RIFT", "FENDA"), challenge_detail, CORAL, "contracts", "BoardChallengeAction", func():
 		view_mode = "challenges"
 		render()

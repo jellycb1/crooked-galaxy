@@ -3465,7 +3465,40 @@ msgid "RIFT_STAGE_RIFT_NULL_WARDEN_NAME"
 msgstr "Carcereiro do Setor Nulo"
 
 msgid "RIFT_SUBTITLE"
-msgstr "Uma escada de inimigos fora da campanha planetária."
+msgstr "Uma chave abre cada realidade. Uma entrada atravessa a Fenda por dia."
+
+msgid "RIFT_KEY"
+msgstr "CHAVE"
+
+msgid "RIFT_KEY_FOUND"
+msgstr "ENCONTRADA"
+
+msgid "RIFT_KEYS"
+msgstr "CHAVES"
+
+msgid "RIFT_KEY_MISSING"
+msgstr "AUSENTE"
+
+msgid "RIFT_REALITY_LABEL"
+msgstr "REALIDADE ABERTA · CHAVE ESTABILIZADA"
+
+msgid "RIFT_REALITY_DEAD_CUSTOMS_NAME"
+msgstr "Alfândega do Universo Morto"
+
+msgid "RIFT_REALITY_DEAD_CUSTOMS_DESCRIPTION"
+msgstr "Uma repartição presa entre o último segundo do universo e uma cobrança que se recusa a prescrever."
+
+msgid "RIFT_REALITY_FROZEN_VERDICT_NAME"
+msgstr "Veredito do Tempo Congelado"
+
+msgid "RIFT_REALITY_FROZEN_VERDICT_DESCRIPTION"
+msgstr "Uma realidade onde o último julgamento parou o relógio, mas não interrompeu a execução da sentença."
+
+msgid "RIFT_REALITY_TAB"
+msgstr "%s · %d/12"
+
+msgid "RIFT_KEY_DISCOVERED_NOTICE"
+msgstr "Chave da Fenda encontrada: %s"
 
 msgid "RIFT_SECTOR"
 msgstr "SETOR"
@@ -3492,7 +3525,7 @@ msgid "RIFT_CLEARED"
 msgstr "FENDA LIMPA"
 
 msgid "RIFT_COMPLETE_DESCRIPTION"
-msgstr "Os doze carcereiros foram removidos. Cinto técnico, implante, dispositivo e relíquia permanecem universais para todas as classes."
+msgstr "Os doze carcereiros desta realidade foram removidos. A chave e todos os artefatos descobertos permanecem no Arquivo."
 
 msgid "COMMON_CHANCE"
 msgstr "CHANCE"
@@ -3510,10 +3543,25 @@ msgid "RIFT_REWARD_TOTAL"
 msgstr "◈ %d CRÉDITOS · %d XP"
 
 msgid "RIFT_RULES"
-msgstr "Sem caça, incidentes ou repetição. Derrota não consome o embalo dos mandados."
+msgstr "Uma entrada por dia · sem combustível · derrota mantém o inimigo atual e preserva o embalo dos mandados."
 
 msgid "RIFT_START"
-msgstr "INICIAR INCURSÃO · ANDAR %d"
+msgstr "ENTRAR NA FENDA · INIMIGO %d/12"
+
+msgid "RIFT_ENTRY_USED"
+msgstr "ENTRADA USADA · REABRE ÀS 00:00 UTC"
+
+msgid "RIFT_REWARD_HIDDEN"
+msgstr "RECOMPENSA SELADA"
+
+msgid "RIFT_REWARD_HIDDEN_DESCRIPTION"
+msgstr "A Fenda entrega equipamento e recursos superiores, mas só revela o conteúdo depois da vitória."
+
+msgid "RIFT_NOTICE_ENTRY_USED"
+msgstr "A entrada diária já foi consumida. A Fenda estabiliza novamente à meia-noite UTC."
+
+msgid "MENU_RIFT_ENTRY_USED"
+msgstr "ENTRADA DIÁRIA USADA"
 
 msgid "RIFT_REWARD_FLOOR_CLEAR"
 msgstr "FENDA CLANDESTINA · ANDAR %d LIMPO"

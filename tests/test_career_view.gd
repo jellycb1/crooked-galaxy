@@ -85,20 +85,24 @@ func _init() -> void:
 	var challenge_action := host.find_child("CareerChallengeAction", true, false) as Button
 	check(challenge_action != null and challenge_action.text == "ABRIR", "career provides a direct route into the unlocked rift")
 	state.player.challenge_floor = 6
+	state.player.rift_reality_progress = {ChallengeRules.FIRST_REALITY_ID: 6}
 	clear_children(content)
 	CareerViewScript.build(host, content, state)
 	check(find_text(host.find_child("CareerChallengeProgress", true, false)).contains("DISPOSITIVOS"), "career identifies gadget floors as their own reward sector")
 	state.player.challenge_floor = 9
+	state.player.rift_reality_progress = {ChallengeRules.FIRST_REALITY_ID: 9}
 	clear_children(content)
 	CareerViewScript.build(host, content, state)
 	check(find_text(host.find_child("CareerChallengeProgress", true, false)).contains("RELÍQUIAS"), "career identifies relic floors as their own reward sector")
 	state.player.challenge_floor = ChallengeRules.STAGES.size()
+	state.player.rift_reality_progress = {ChallengeRules.FIRST_REALITY_ID: ChallengeRules.STAGES.size()}
 	clear_children(content)
 	CareerViewScript.build(host, content, state)
 	var completed_challenge := host.find_child("CareerChallengeProgress", true, false)
 	check(find_text(completed_challenge).contains("12/12 ANDARES") and find_text(completed_challenge).contains("COMPLETA"), "career renders the complete twelve-floor archive without a stale sector")
 	check(host.find_child("CareerChallengeAction", true, false) == null, "completed Rift removes its entry action")
 	state.player.challenge_floor = 0
+	state.player.rift_reality_progress = {ChallengeRules.FIRST_REALITY_ID: 0}
 	clear_children(content)
 	CareerViewScript.build(host, content, state)
 	challenge_action = host.find_child("CareerChallengeAction", true, false) as Button
