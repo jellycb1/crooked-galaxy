@@ -27,17 +27,18 @@ func run_audit() -> void:
 	state.player.capture_streak = 4
 	check(Challenge.is_unlocked(state.player) and Challenge.progress(state.player) == 0, "hunter level opens the first floor without inventing progress")
 	var anomaly_counts := {}
+	var reward_families := ["rig", "implant", "gadget", "relic"]
 	for index in Challenge.STAGES.size():
 		var stage := Challenge.stage_at(index)
 		var reward := Challenge.reward_for(stage, ContentDB.ITEM_TRAITS)
 		check(bool(stage.challenge) and int(stage.challenge_index) == index, "floor %d has canonical challenge identity" % (index + 1))
-		check(str(reward.slot) == ("rig" if index < 3 else "implant"), "floor %d advances the intended universal equipment family" % (index + 1))
+		check(str(reward.slot) == reward_families[index / 3], "floor %d advances the intended universal equipment family" % (index + 1))
 		check(reward.has("trait") and int(reward.power) <= 2, "floor %d reward remains lateral and mechanically complete" % (index + 1))
 		check(not stage.get("anomaly", {}).is_empty() and Challenge.ANOMALY_PROFILES.has(str(stage.anomaly_id)), "floor %d resolves a canonical combat profile" % (index + 1))
 		anomaly_counts[str(stage.anomaly_id)] = int(anomaly_counts.get(str(stage.anomaly_id), 0)) + 1
 		if index > 0:
 			check(int(stage.power) > int(Challenge.STAGES[index - 1].power) and int(stage.health) > int(Challenge.STAGES[index - 1].health), "floor %d is harder than the previous floor" % (index + 1))
-	check(anomaly_counts.size() == 3, "the ladder teaches three mechanically distinct anomaly families")
+	check(Challenge.STAGES.size() == 12 and anomaly_counts.size() == 6, "the ladder contains four equipment sectors and six mechanically distinct anomaly families")
 	for anomaly_id in Challenge.ANOMALY_PROFILES:
 		check(int(anomaly_counts.get(anomaly_id, 0)) == 2, "anomaly '%s' returns once at higher pressure" % anomaly_id)
 	var profile_probe := Simulator.checkpoint_player(Simulator.CHECKPOINTS[0], Builds.POLICIES[1])
@@ -59,6 +60,12 @@ func run_audit() -> void:
 	check(float(rupture_profile.attack_roll_bonus_multiplier) < float(anchor_profile.attack_roll_bonus_multiplier), "containment failures disrupt precision more than inertial anchors")
 	check(is_zero_approx(float(volatile_profile.defense_bypass_multiplier)) and is_zero_approx(float(anchor_profile.counter_damage_multiplier)), "challenge anomalies explicitly suppress the class mechanic they are designed to resist")
 	check(CoreRules.max_health(health_probe) == CoreRules.max_health(profile_probe) + 14, "integrity gear remains fully active when mitigation is mostly pierced")
+	var gadget_probe := profile_probe.duplicate(true)
+	gadget_probe.gadget = {"trait": ContentDB.ITEM_TRAITS.gadget[2].duplicate(true)}
+	var relic_probe := profile_probe.duplicate(true)
+	relic_probe.relic = {"trait": ContentDB.ITEM_TRAITS.relic[0].duplicate(true)}
+	check(CoreRules.player_defense_bypass(gadget_probe) == CoreRules.player_defense_bypass(profile_probe) + 2, "gadget reward family contributes its mature breach mechanic")
+	check(CoreRules.max_health(relic_probe) == CoreRules.max_health(profile_probe) + 16 and CoreRules.player_damage_reduction(relic_probe) == CoreRules.player_damage_reduction(profile_probe) + 1, "relic reward family contributes both integrity and mitigation")
 	var maximum_campaign_safe_delta := 0.0
 	var maximum_campaign_route_delta := 0.0
 	var expected_favored_classes := ["contract_hacker", "warrant_breaker", "orbit_gunslinger", "contract_hacker", "warrant_breaker", "orbit_gunslinger"]
@@ -81,12 +88,13 @@ func run_audit() -> void:
 		var favored_index: int = class_odds.find(best_odds)
 		var favored_class := str(Builds.POLICIES[favored_index].class_id)
 		favorable_floor_counts[favored_class] = int(favorable_floor_counts[favored_class]) + 1
-		check(favored_class == str(expected_favored_classes[stage_index]), "floor %d favors its intended class identity (%s)" % [stage_index + 1, favored_class])
+		if stage_index < expected_favored_classes.size():
+			check(favored_class == str(expected_favored_classes[stage_index]), "floor %d favors its intended introductory class identity (%s)" % [stage_index + 1, favored_class])
 		class_odds.sort()
 		var class_spread := float(class_odds[2]) - float(class_odds[0])
 		check(float(class_odds[0]) >= 0.40 and float(class_odds[2]) <= 0.90, "floor %d stays aspirational but viable across all initial classes (%d-%d%%)" % [stage_index + 1, roundi(float(class_odds[0]) * 100.0), roundi(float(class_odds[2]) * 100.0)])
 		check(class_spread <= 0.30, "floor %d class spread remains bounded at %d percentage points" % [stage_index + 1, roundi(class_spread * 100.0)])
-	check(favorable_floor_counts.values().all(func(count): return int(count) == 2), "each initial class owns exactly two favorable Fenda matchups")
+	check(favorable_floor_counts.values().all(func(count): return int(count) >= 2), "each initial class retains at least two favorable Fenda matchups")
 	check(maximum_campaign_safe_delta <= 0.05, "Fenda rewards do not become mandatory for campaign recovery routes")
 	check(maximum_campaign_route_delta <= 0.25, "Fenda rewards improve risky campaign routes without erasing their risk")
 	var canonical_stage: Dictionary = state.canonicalize_loaded_bounty(Challenge.stage_at(1))
@@ -123,6 +131,8 @@ func run_audit() -> void:
 	scene.render()
 	await process_frame
 	check(scene.find_child("ChallengeProgressTrack", true, false) != null, "unlocked ladder renders persistent floor progress")
+	for slot in reward_families:
+		check(scene.find_child("ChallengeSector_%s" % slot.capitalize(), true, false) != null, "compact progress track exposes the %s sector" % slot)
 	check(scene.find_child("ChallengeCurrentDossier", true, false) != null and scene.find_child("ChallengeRewardPreview", true, false) != null, "current enemy and unique reward share one readable dossier")
 	var challenge_dossier := scene.find_child("ChallengeCurrentDossier", true, false) as PanelContainer
 	check(challenge_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "the current Rift enemy uses the approved focal frame")

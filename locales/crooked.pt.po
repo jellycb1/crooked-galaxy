@@ -3468,7 +3468,7 @@ msgid "RIFT_INACCESSIBLE"
 msgstr "FENDA AINDA INACESSÍVEL"
 
 msgid "RIFT_UNLOCK_REQUIREMENT"
-msgstr "Conclua Dustball Prime para localizar a entrada e abrir a primeira incursão."
+msgstr "Alcance o nível %d de caçador para localizar a entrada e abrir a primeira incursão."
 
 msgid "RIFT_FLOOR"
 msgstr "ANDAR"
@@ -3480,7 +3480,7 @@ msgid "RIFT_CLEARED"
 msgstr "FENDA LIMPA"
 
 msgid "RIFT_COMPLETE_DESCRIPTION"
-msgstr "Os seis carcereiros foram removidos. Cinto técnico e implante permanecem universais para todas as classes."
+msgstr "Os doze carcereiros foram removidos. Cinto técnico, implante, dispositivo e relíquia permanecem universais para todas as classes."
 
 msgid "COMMON_CHANCE"
 msgstr "CHANCE"
@@ -4110,3 +4110,210 @@ msgstr "AO RECEBER · TURNO %d/5 · PAGAMENTO LIBERADO"
 
 msgid "REWARD_DAILY_PROGRESS"
 msgstr "AO RECEBER · TURNO %d/5"
+
+msgid "ITEM_TRAIT_WARRANT_FLARE_NAME"
+msgstr "SINALIZADOR DE MANDADO"
+
+msgid "ITEM_TRAIT_WARRANT_FLARE_DESCRIPTION"
+msgstr "+4 dano de abertura e +4 integridade."
+
+msgid "ITEM_TRAIT_PROBABILITY_DECOY_NAME"
+msgstr "ISCO DE PROBABILIDADE"
+
+msgid "ITEM_TRAIT_PROBABILITY_DECOY_DESCRIPTION"
+msgstr "+8 integridade e +1,5% esquiva."
+
+msgid "ITEM_TRAIT_BREACH_ASSISTANT_NAME"
+msgstr "ASSISTENTE DE RUPTURA"
+
+msgid "ITEM_TRAIT_BREACH_ASSISTANT_DESCRIPTION"
+msgstr "+1 poder, +2 abertura e ignora 2 defesa."
+
+msgid "ITEM_TRAIT_GRAVITY_KNOT_NAME"
+msgstr "NÓ DE GRAVIDADE"
+
+msgid "ITEM_TRAIT_GRAVITY_KNOT_DESCRIPTION"
+msgstr "+16 integridade e -1 dano recebido por golpe."
+
+msgid "ITEM_TRAIT_RECURRING_SECOND_NAME"
+msgstr "SEGUNDO RECORRENTE"
+
+msgid "ITEM_TRAIT_RECURRING_SECOND_DESCRIPTION"
+msgstr "+3 abertura e +2 contra-ataque a cada 4 turnos."
+
+msgid "ITEM_TRAIT_NULL_PRISM_NAME"
+msgstr "PRISMA DO NULO"
+
+msgid "ITEM_TRAIT_NULL_PRISM_DESCRIPTION"
+msgstr "+2 poder, +8 integridade, ignora 2 defesa e rajada de 5% em tiro perfeito."
+
+msgid "RIFT_ANOMALY_CALIBRATED_OPENING_NAME"
+msgstr "RESSONÂNCIA CALIBRADA"
+
+msgid "RIFT_ANOMALY_CALIBRATED_OPENING_DESCRIPTION"
+msgstr "A Fenda amplifica aberturas sem deixar que um único disparo resolva todo o andar; casco e precisão continuam relevantes."
+
+msgid "RIFT_ANOMALY_CALIBRATED_OPENING_FAVORED_AXIS"
+msgstr "ABERTURA CONTROLADA"
+
+msgid "RIFT_ANOMALY_REINFORCED_RUPTURE_NAME"
+msgstr "RUPTURA REFORÇADA"
+
+msgid "RIFT_ANOMALY_REINFORCED_RUPTURE_DESCRIPTION"
+msgstr "A pressão reduz aberturas e precisão sem apagar defesas maduras; poder contínuo ganha espaço sem monopolizar a luta."
+
+msgid "RIFT_ANOMALY_REINFORCED_RUPTURE_FAVORED_AXIS"
+msgstr "PRESSÃO SUSTENTADA"
+
+msgid "RIFT_ANOMALY_STABILIZED_ANCHOR_NAME"
+msgstr "ÂNCORA ESTABILIZADA"
+
+msgid "RIFT_ANOMALY_STABILIZED_ANCHOR_DESCRIPTION"
+msgstr "Precisão, mitigação e contra-ataque funcionam parcialmente; a vantagem pertence a builds coerentes, não a imunidades."
+
+msgid "RIFT_ANOMALY_STABILIZED_ANCHOR_FAVORED_AXIS"
+msgstr "CONTROLE MISTO"
+
+msgid "RIFT_STAGE_RIFT_SIGNAL_POACHER_NAME"
+msgstr "Caçador de Sinais"
+
+msgid "RIFT_STAGE_RIFT_SIGNAL_POACHER_TITLE"
+msgstr "ANDAR 7 · ESTAÇÃO SEM FREQUÊNCIA"
+
+msgid "RIFT_STAGE_RIFT_SIGNAL_POACHER_DESCRIPTION"
+msgstr "Coleciona pedidos de socorro raros e vende silêncio certificado em lotes industriais."
+
+msgid "RIFT_STAGE_RIFT_SIGNAL_POACHER_ATTACK_0"
+msgstr "Farol Predatório"
+
+msgid "RIFT_STAGE_RIFT_SIGNAL_POACHER_ATTACK_1"
+msgstr "Ruído de Captura"
+
+msgid "RIFT_STAGE_RIFT_SIGNAL_POACHER_ATTACK_2"
+msgstr "Silêncio Revendido"
+
+msgid "RIFT_STAGE_RIFT_COUNTERFEIT_FUTURE_NAME"
+msgstr "Futuro Contrafeito"
+
+msgid "RIFT_STAGE_RIFT_COUNTERFEIT_FUTURE_TITLE"
+msgstr "ANDAR 8 · AMANHÃ APREENDIDO"
+
+msgid "RIFT_STAGE_RIFT_COUNTERFEIT_FUTURE_DESCRIPTION"
+msgstr "Chegou antes de existir e exige indemnização por todos os acontecimentos que não sofreu."
+
+msgid "RIFT_STAGE_RIFT_COUNTERFEIT_FUTURE_ATTACK_0"
+msgstr "Previsão Fraudulenta"
+
+msgid "RIFT_STAGE_RIFT_COUNTERFEIT_FUTURE_ATTACK_1"
+msgstr "Atraso Retroativo"
+
+msgid "RIFT_STAGE_RIFT_COUNTERFEIT_FUTURE_ATTACK_2"
+msgstr "Possibilidade Penhorada"
+
+msgid "RIFT_STAGE_RIFT_BREACH_BAILIFF_NAME"
+msgstr "Oficial de Rupturas"
+
+msgid "RIFT_STAGE_RIFT_BREACH_BAILIFF_TITLE"
+msgstr "ANDAR 9 · PORTA SEM PAREDE"
+
+msgid "RIFT_STAGE_RIFT_BREACH_BAILIFF_DESCRIPTION"
+msgstr "Arromba realidades, entrega intimações e cobra deslocação entre dimensões."
+
+msgid "RIFT_STAGE_RIFT_BREACH_BAILIFF_ATTACK_0"
+msgstr "Mandado de Entrada"
+
+msgid "RIFT_STAGE_RIFT_BREACH_BAILIFF_ATTACK_1"
+msgstr "Dobradiça Balística"
+
+msgid "RIFT_STAGE_RIFT_BREACH_BAILIFF_ATTACK_2"
+msgstr "Despejo Dimensional"
+
+msgid "RIFT_STAGE_RIFT_GRAVITY_NOTARY_NAME"
+msgstr "Notário da Gravidade"
+
+msgid "RIFT_STAGE_RIFT_GRAVITY_NOTARY_TITLE"
+msgstr "ANDAR 10 · PESO AUTENTICADO"
+
+msgid "RIFT_STAGE_RIFT_GRAVITY_NOTARY_DESCRIPTION"
+msgstr "Reconhece firmas em órbitas, hipotecas em luas e quedas em triplicado."
+
+msgid "RIFT_STAGE_RIFT_GRAVITY_NOTARY_ATTACK_0"
+msgstr "Carimbo de Massa"
+
+msgid "RIFT_STAGE_RIFT_GRAVITY_NOTARY_ATTACK_1"
+msgstr "Órbita Compulsória"
+
+msgid "RIFT_STAGE_RIFT_GRAVITY_NOTARY_ATTACK_2"
+msgstr "Firma em Queda Livre"
+
+msgid "RIFT_STAGE_RIFT_LOOP_AUDITOR_NAME"
+msgstr "Auditor de Repetições"
+
+msgid "RIFT_STAGE_RIFT_LOOP_AUDITOR_TITLE"
+msgstr "ANDAR 11 · SEGUNDO EM ATRASO"
+
+msgid "RIFT_STAGE_RIFT_LOOP_AUDITOR_DESCRIPTION"
+msgstr "Revê o mesmo instante até encontrar uma versão fiscalmente mais ofensiva."
+
+msgid "RIFT_STAGE_RIFT_LOOP_AUDITOR_ATTACK_0"
+msgstr "Reincidência Temporal"
+
+msgid "RIFT_STAGE_RIFT_LOOP_AUDITOR_ATTACK_1"
+msgstr "Minuto Sob Protesto"
+
+msgid "RIFT_STAGE_RIFT_LOOP_AUDITOR_ATTACK_2"
+msgstr "Juro Recursivo"
+
+msgid "RIFT_STAGE_RIFT_LAST_CLAIM_NAME"
+msgstr "Última Reivindicação"
+
+msgid "RIFT_STAGE_RIFT_LAST_CLAIM_TITLE"
+msgstr "ANDAR 12 · BALCÃO DO FIM"
+
+msgid "RIFT_STAGE_RIFT_LAST_CLAIM_DESCRIPTION"
+msgstr "Alega propriedade sobre tudo o que resta depois do universo, incluindo as taxas de encerramento."
+
+msgid "RIFT_STAGE_RIFT_LAST_CLAIM_ATTACK_0"
+msgstr "Cláusula Terminal"
+
+msgid "RIFT_STAGE_RIFT_LAST_CLAIM_ATTACK_1"
+msgstr "Inventário do Vazio"
+
+msgid "RIFT_STAGE_RIFT_LAST_CLAIM_ATTACK_2"
+msgstr "Assinatura Final"
+
+msgid "RIFT_REWARD_RIFT_SIGNAL_POACHER_NAME"
+msgstr "Facho de Jurisdição Duvidosa"
+
+msgid "RIFT_REWARD_RIFT_SIGNAL_POACHER_DESCRIPTION"
+msgstr "Marca o alvo, o contrato e ocasionalmente o proprietário errado."
+
+msgid "RIFT_REWARD_RIFT_COUNTERFEIT_FUTURE_NAME"
+msgstr "Isca de Amanhã Improvável"
+
+msgid "RIFT_REWARD_RIFT_COUNTERFEIT_FUTURE_DESCRIPTION"
+msgstr "Convence disparos de que acertaram numa versão menos atual do caçador."
+
+msgid "RIFT_REWARD_RIFT_BREACH_BAILIFF_NAME"
+msgstr "Drone de Entrada Sem Convite"
+
+msgid "RIFT_REWARD_RIFT_BREACH_BAILIFF_DESCRIPTION"
+msgstr "Encontra a abertura técnica entre uma fechadura e a definição de propriedade."
+
+msgid "RIFT_REWARD_RIFT_GRAVITY_NOTARY_NAME"
+msgstr "Nó de Gravidade Portátil"
+
+msgid "RIFT_REWARD_RIFT_GRAVITY_NOTARY_DESCRIPTION"
+msgstr "Mantém o caçador no lugar mesmo quando o lugar pede demissão."
+
+msgid "RIFT_REWARD_RIFT_LOOP_AUDITOR_NAME"
+msgstr "Segundo Que Recusa Acabar"
+
+msgid "RIFT_REWARD_RIFT_LOOP_AUDITOR_DESCRIPTION"
+msgstr "Devolve uma fração do conflito quando a contabilidade do tempo fecha."
+
+msgid "RIFT_REWARD_RIFT_LAST_CLAIM_NAME"
+msgstr "Prisma da Última Cláusula"
+
+msgid "RIFT_REWARD_RIFT_LAST_CLAIM_DESCRIPTION"
+msgstr "Divide uma certeza em várias infrações úteis e igualmente brilhantes."

@@ -35,24 +35,27 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 		locked_box.add_theme_constant_override("separation", 9)
 		locked_box.add_child(host.center_label(t("RIFT_ENCRYPTED_SIGNAL", "SINAL CRIPTOGRAFADO"), UIDesignSystem.FONT_CAPTION, host.CORAL))
 		locked_box.add_child(host.center_label(t("RIFT_INACCESSIBLE", "FENDA AINDA INACESSÍVEL"), UIDesignSystem.FONT_SECTION_TITLE, host.INK))
-		var requirement := host.center_label(t("RIFT_UNLOCK_REQUIREMENT", "Conclua Dustball Prime para localizar a entrada e abrir a primeira incursão."), UIDesignSystem.FONT_BODY, host.MUTED)
+		var requirement := host.center_label(t("RIFT_UNLOCK_REQUIREMENT", "Alcance o nível %d de caçador para localizar a entrada e abrir a primeira incursão.", [ChallengeRulesScript.UNLOCK_LEVEL]), UIDesignSystem.FONT_BODY, host.MUTED)
 		requirement.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		locked_box.add_child(requirement)
 		content.add_child(locked)
 		return
 
 	var floor := ChallengeRulesScript.progress(state.player)
-	var track := HBoxContainer.new()
+	var track := GridContainer.new()
 	track.name = "ChallengeProgressTrack"
-	track.add_theme_constant_override("separation", 5)
+	track.columns = 2
+	track.add_theme_constant_override("h_separation", 7)
+	track.add_theme_constant_override("v_separation", 7)
 	content.add_child(track)
-	for index in ChallengeRulesScript.STAGES.size():
-		var cleared := index < floor
-		var current := index == floor
-		var color := host.LIME if cleared else (host.GOLD if current else host.MUTED)
-		var value := "✓" if cleared else str(index + 1)
-		var chip := host.metric_chip(t("RIFT_FLOOR", "ANDAR"), value, color)
-		chip.name = "ChallengeFloor_%d" % (index + 1)
+	var sector_slots := ["rig", "implant", "gadget", "relic"]
+	for sector_index in sector_slots.size():
+		var sector_start := sector_index * 3
+		var sector_progress := clampi(floor - sector_start, 0, 3)
+		var color := host.LIME if sector_progress == 3 else (host.GOLD if floor >= sector_start and floor < sector_start + 3 else host.MUTED)
+		var chip := host.metric_chip(EquipmentPresentation.localized_slot(sector_slots[sector_index]).to_upper(), "%d/3" % sector_progress, color)
+		chip.name = "ChallengeSector_%s" % sector_slots[sector_index].capitalize()
+		chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		track.add_child(chip)
 
 	if floor >= ChallengeRulesScript.STAGES.size():
@@ -61,7 +64,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 		var complete_box := complete.get_child(0) as VBoxContainer
 		complete_box.add_child(host.center_label(t("RIFT_ARCHIVE_CLOSED", "ARQUIVO IMPOSSÍVEL ENCERRADO"), UIDesignSystem.FONT_CAPTION, host.LIME))
 		complete_box.add_child(host.center_label(t("RIFT_CLEARED", "FENDA LIMPA"), UIDesignSystem.FONT_SECTION_TITLE, host.INK))
-		var complete_copy := host.center_label(t("RIFT_COMPLETE_DESCRIPTION", "Os seis carcereiros foram removidos. Cinto técnico e implante permanecem universais para todas as classes."), UIDesignSystem.FONT_CAPTION, host.MUTED)
+		var complete_copy := host.center_label(t("RIFT_COMPLETE_DESCRIPTION", "Os doze carcereiros foram removidos. Cinto técnico, implante, dispositivo e relíquia permanecem universais para todas as classes."), UIDesignSystem.FONT_CAPTION, host.MUTED)
 		complete_copy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		complete_box.add_child(complete_copy)
 		content.add_child(complete)

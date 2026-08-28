@@ -808,6 +808,16 @@ const ITEM_TRAITS := {
 		{"id": "illegal_adrenaline", "name": "ADRENALINA ILEGAL", "description": "+1 poder, +6 integridade e +1% esquiva.", "power_bonus": 1, "health_bonus": 6, "evasion_chance_bonus": 0.01},
 		{"id": "null_synapse", "name": "SINAPSE NULA", "description": "+2 poder e ignora 1 defesa.", "power_bonus": 2, "health_bonus": 0, "defense_bypass_bonus": 1},
 	],
+	"gadget": [
+		{"id": "warrant_flare", "name": "SINALIZADOR DE MANDADO", "description": "+4 dano de abertura e +4 integridade.", "power_bonus": 0, "health_bonus": 4, "opening_damage_bonus": 4},
+		{"id": "probability_decoy", "name": "ISCO DE PROBABILIDADE", "description": "+8 integridade e +1,5% esquiva.", "power_bonus": 0, "health_bonus": 8, "evasion_chance_bonus": 0.015},
+		{"id": "breach_assistant", "name": "ASSISTENTE DE RUPTURA", "description": "+1 poder, +2 abertura e ignora 2 defesa.", "power_bonus": 1, "health_bonus": 0, "opening_damage_bonus": 2, "defense_bypass_bonus": 2},
+	],
+	"relic": [
+		{"id": "gravity_knot", "name": "NÓ DE GRAVIDADE", "description": "+16 integridade e -1 dano recebido por golpe.", "power_bonus": 0, "health_bonus": 16, "damage_reduction": 1},
+		{"id": "recurring_second", "name": "SEGUNDO RECORRENTE", "description": "+3 abertura e +2 contra-ataque a cada 4 turnos.", "power_bonus": 0, "health_bonus": 0, "opening_damage_bonus": 3, "counter_damage_bonus": 2, "counter_every_rounds": 4},
+		{"id": "null_prism", "name": "PRISMA DO NULO", "description": "+2 poder, +8 integridade, ignora 2 defesa e rajada de 5% em tiro perfeito.", "power_bonus": 2, "health_bonus": 8, "defense_bypass_bonus": 2, "follow_up_roll_threshold": 0.99, "follow_up_damage_ratio": 0.05},
+	],
 }
 
 

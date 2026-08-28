@@ -6,6 +6,7 @@ const Rules = preload("res://scripts/core_rules.gd")
 const Content = preload("res://scripts/content_db.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
 const DailyObjectiveRules = preload("res://scripts/daily_objective_rules.gd")
+const ChallengeRules = preload("res://scripts/challenge_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const RewardProgressIconScript = preload("res://scripts/reward_progress_icon.gd")
 const LocaleRules = preload("res://scripts/locale_rules.gd")
@@ -314,7 +315,7 @@ static func build_challenge_reward(host: CrookedUIFactory, content: VBoxContaine
 	comparison.name = "ChallengeEquippedComparison"
 	box.add_child(comparison)
 	var next_floor := int(state.current_bounty.get("challenge_index", 0)) + 2
-	var progress := host.center_label(local_text("RIFT_REWARD_NEXT_FLOOR", "AO RECEBER · ANDAR %d SERÁ ABERTO", [next_floor]) if next_floor <= 6 else local_text("RIFT_REWARD_COMPLETE", "AO RECEBER · FENDA SERÁ CONCLUÍDA"), UIDesignSystem.FONT_CAPTION, host.CYAN)
+	var progress := host.center_label(local_text("RIFT_REWARD_NEXT_FLOOR", "AO RECEBER · ANDAR %d SERÁ ABERTO", [next_floor]) if next_floor <= ChallengeRules.STAGES.size() else local_text("RIFT_REWARD_COMPLETE", "AO RECEBER · FENDA SERÁ CONCLUÍDA"), UIDesignSystem.FONT_CAPTION, host.CYAN)
 	progress.name = "ChallengeRewardProgress"
 	box.add_child(progress)
 	var claim := host.primary_action(local_text("RIFT_REWARD_EQUIP_RETURN", "EQUIPAR E VOLTAR À FENDA") if effective_upgrade else local_text("RIFT_REWARD_STORE_RETURN", "GUARDAR E VOLTAR À FENDA"), host.LIME)

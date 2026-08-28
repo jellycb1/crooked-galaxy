@@ -3468,7 +3468,7 @@ msgid "RIFT_INACCESSIBLE"
 msgstr "RIFT STILL INACCESSIBLE"
 
 msgid "RIFT_UNLOCK_REQUIREMENT"
-msgstr "Complete Dustball Prime to locate the entrance and open the first incursion."
+msgstr "Reach hunter level %d to locate the entrance and open the first incursion."
 
 msgid "RIFT_FLOOR"
 msgstr "FLOOR"
@@ -3480,7 +3480,7 @@ msgid "RIFT_CLEARED"
 msgstr "RIFT CLEARED"
 
 msgid "RIFT_COMPLETE_DESCRIPTION"
-msgstr "All six wardens were removed. Technical rigs and implants remain universal across every class."
+msgstr "All twelve wardens were removed. Technical rigs, implants, gadgets, and relics remain universal across every class."
 
 msgid "COMMON_CHANCE"
 msgstr "CHANCE"
@@ -4110,3 +4110,210 @@ msgstr "ON CLAIM · SHIFT %d/5 · PAYMENT UNLOCKED"
 
 msgid "REWARD_DAILY_PROGRESS"
 msgstr "ON CLAIM · SHIFT %d/5"
+
+msgid "ITEM_TRAIT_WARRANT_FLARE_NAME"
+msgstr "WARRANT FLARE"
+
+msgid "ITEM_TRAIT_WARRANT_FLARE_DESCRIPTION"
+msgstr "+4 opening damage and +4 integrity."
+
+msgid "ITEM_TRAIT_PROBABILITY_DECOY_NAME"
+msgstr "PROBABILITY DECOY"
+
+msgid "ITEM_TRAIT_PROBABILITY_DECOY_DESCRIPTION"
+msgstr "+8 integrity and +1.5% evasion."
+
+msgid "ITEM_TRAIT_BREACH_ASSISTANT_NAME"
+msgstr "BREACH ASSISTANT"
+
+msgid "ITEM_TRAIT_BREACH_ASSISTANT_DESCRIPTION"
+msgstr "+1 power, +2 opening damage, and ignores 2 defense."
+
+msgid "ITEM_TRAIT_GRAVITY_KNOT_NAME"
+msgstr "GRAVITY KNOT"
+
+msgid "ITEM_TRAIT_GRAVITY_KNOT_DESCRIPTION"
+msgstr "+16 integrity and -1 damage received per hit."
+
+msgid "ITEM_TRAIT_RECURRING_SECOND_NAME"
+msgstr "RECURRING SECOND"
+
+msgid "ITEM_TRAIT_RECURRING_SECOND_DESCRIPTION"
+msgstr "+3 opening damage and +2 counter damage every 4 turns."
+
+msgid "ITEM_TRAIT_NULL_PRISM_NAME"
+msgstr "NULL PRISM"
+
+msgid "ITEM_TRAIT_NULL_PRISM_DESCRIPTION"
+msgstr "+2 power, +8 integrity, ignores 2 defense, and a 5% perfect-shot burst."
+
+msgid "RIFT_ANOMALY_CALIBRATED_OPENING_NAME"
+msgstr "CALIBRATED RESONANCE"
+
+msgid "RIFT_ANOMALY_CALIBRATED_OPENING_DESCRIPTION"
+msgstr "The Rift amplifies openings without letting one shot solve the entire floor; hull and accuracy still matter."
+
+msgid "RIFT_ANOMALY_CALIBRATED_OPENING_FAVORED_AXIS"
+msgstr "CONTROLLED OPENING"
+
+msgid "RIFT_ANOMALY_REINFORCED_RUPTURE_NAME"
+msgstr "REINFORCED RUPTURE"
+
+msgid "RIFT_ANOMALY_REINFORCED_RUPTURE_DESCRIPTION"
+msgstr "Pressure reduces openings and accuracy without erasing mature defenses; sustained power gains room without owning the fight."
+
+msgid "RIFT_ANOMALY_REINFORCED_RUPTURE_FAVORED_AXIS"
+msgstr "SUSTAINED PRESSURE"
+
+msgid "RIFT_ANOMALY_STABILIZED_ANCHOR_NAME"
+msgstr "STABILIZED ANCHOR"
+
+msgid "RIFT_ANOMALY_STABILIZED_ANCHOR_DESCRIPTION"
+msgstr "Accuracy, mitigation, and counters work partially; coherent builds win the edge, not immunities."
+
+msgid "RIFT_ANOMALY_STABILIZED_ANCHOR_FAVORED_AXIS"
+msgstr "MIXED CONTROL"
+
+msgid "RIFT_STAGE_RIFT_SIGNAL_POACHER_NAME"
+msgstr "Signal Poacher"
+
+msgid "RIFT_STAGE_RIFT_SIGNAL_POACHER_TITLE"
+msgstr "FLOOR 7 · FREQUENCYLESS STATION"
+
+msgid "RIFT_STAGE_RIFT_SIGNAL_POACHER_DESCRIPTION"
+msgstr "It collects rare distress calls and sells certified silence in industrial batches."
+
+msgid "RIFT_STAGE_RIFT_SIGNAL_POACHER_ATTACK_0"
+msgstr "Predatory Beacon"
+
+msgid "RIFT_STAGE_RIFT_SIGNAL_POACHER_ATTACK_1"
+msgstr "Capture Noise"
+
+msgid "RIFT_STAGE_RIFT_SIGNAL_POACHER_ATTACK_2"
+msgstr "Resold Silence"
+
+msgid "RIFT_STAGE_RIFT_COUNTERFEIT_FUTURE_NAME"
+msgstr "Counterfeit Future"
+
+msgid "RIFT_STAGE_RIFT_COUNTERFEIT_FUTURE_TITLE"
+msgstr "FLOOR 8 · TOMORROW REPOSSESSED"
+
+msgid "RIFT_STAGE_RIFT_COUNTERFEIT_FUTURE_DESCRIPTION"
+msgstr "It arrived before existing and demands compensation for every event it never endured."
+
+msgid "RIFT_STAGE_RIFT_COUNTERFEIT_FUTURE_ATTACK_0"
+msgstr "Fraudulent Forecast"
+
+msgid "RIFT_STAGE_RIFT_COUNTERFEIT_FUTURE_ATTACK_1"
+msgstr "Retroactive Delay"
+
+msgid "RIFT_STAGE_RIFT_COUNTERFEIT_FUTURE_ATTACK_2"
+msgstr "Repossessed Possibility"
+
+msgid "RIFT_STAGE_RIFT_BREACH_BAILIFF_NAME"
+msgstr "Breach Bailiff"
+
+msgid "RIFT_STAGE_RIFT_BREACH_BAILIFF_TITLE"
+msgstr "FLOOR 9 · WALL-LESS DOOR"
+
+msgid "RIFT_STAGE_RIFT_BREACH_BAILIFF_DESCRIPTION"
+msgstr "It breaks into realities, serves notices, and charges for interdimensional travel."
+
+msgid "RIFT_STAGE_RIFT_BREACH_BAILIFF_ATTACK_0"
+msgstr "Entry Warrant"
+
+msgid "RIFT_STAGE_RIFT_BREACH_BAILIFF_ATTACK_1"
+msgstr "Ballistic Hinge"
+
+msgid "RIFT_STAGE_RIFT_BREACH_BAILIFF_ATTACK_2"
+msgstr "Dimensional Eviction"
+
+msgid "RIFT_STAGE_RIFT_GRAVITY_NOTARY_NAME"
+msgstr "Gravity Notary"
+
+msgid "RIFT_STAGE_RIFT_GRAVITY_NOTARY_TITLE"
+msgstr "FLOOR 10 · AUTHENTICATED WEIGHT"
+
+msgid "RIFT_STAGE_RIFT_GRAVITY_NOTARY_DESCRIPTION"
+msgstr "It notarizes signatures in orbit, mortgages on moons, and falls in triplicate."
+
+msgid "RIFT_STAGE_RIFT_GRAVITY_NOTARY_ATTACK_0"
+msgstr "Mass Stamp"
+
+msgid "RIFT_STAGE_RIFT_GRAVITY_NOTARY_ATTACK_1"
+msgstr "Compulsory Orbit"
+
+msgid "RIFT_STAGE_RIFT_GRAVITY_NOTARY_ATTACK_2"
+msgstr "Freefall Signature"
+
+msgid "RIFT_STAGE_RIFT_LOOP_AUDITOR_NAME"
+msgstr "Loop Auditor"
+
+msgid "RIFT_STAGE_RIFT_LOOP_AUDITOR_TITLE"
+msgstr "FLOOR 11 · OVERDUE SECOND"
+
+msgid "RIFT_STAGE_RIFT_LOOP_AUDITOR_DESCRIPTION"
+msgstr "It reviews the same instant until finding a more fiscally offensive version."
+
+msgid "RIFT_STAGE_RIFT_LOOP_AUDITOR_ATTACK_0"
+msgstr "Temporal Recurrence"
+
+msgid "RIFT_STAGE_RIFT_LOOP_AUDITOR_ATTACK_1"
+msgstr "Minute Under Protest"
+
+msgid "RIFT_STAGE_RIFT_LOOP_AUDITOR_ATTACK_2"
+msgstr "Recursive Interest"
+
+msgid "RIFT_STAGE_RIFT_LAST_CLAIM_NAME"
+msgstr "Last Claim"
+
+msgid "RIFT_STAGE_RIFT_LAST_CLAIM_TITLE"
+msgstr "FLOOR 12 · END COUNTER"
+
+msgid "RIFT_STAGE_RIFT_LAST_CLAIM_DESCRIPTION"
+msgstr "It claims everything left after the universe, including the closing fees."
+
+msgid "RIFT_STAGE_RIFT_LAST_CLAIM_ATTACK_0"
+msgstr "Terminal Clause"
+
+msgid "RIFT_STAGE_RIFT_LAST_CLAIM_ATTACK_1"
+msgstr "Void Inventory"
+
+msgid "RIFT_STAGE_RIFT_LAST_CLAIM_ATTACK_2"
+msgstr "Final Signature"
+
+msgid "RIFT_REWARD_RIFT_SIGNAL_POACHER_NAME"
+msgstr "Dubious Jurisdiction Flare"
+
+msgid "RIFT_REWARD_RIFT_SIGNAL_POACHER_DESCRIPTION"
+msgstr "It marks the target, the contract, and occasionally the wrong owner."
+
+msgid "RIFT_REWARD_RIFT_COUNTERFEIT_FUTURE_NAME"
+msgstr "Improbable Tomorrow Decoy"
+
+msgid "RIFT_REWARD_RIFT_COUNTERFEIT_FUTURE_DESCRIPTION"
+msgstr "It convinces incoming fire that it hit a less current version of the hunter."
+
+msgid "RIFT_REWARD_RIFT_BREACH_BAILIFF_NAME"
+msgstr "Uninvited Entry Drone"
+
+msgid "RIFT_REWARD_RIFT_BREACH_BAILIFF_DESCRIPTION"
+msgstr "It finds the technical gap between a lock and the definition of ownership."
+
+msgid "RIFT_REWARD_RIFT_GRAVITY_NOTARY_NAME"
+msgstr "Portable Gravity Knot"
+
+msgid "RIFT_REWARD_RIFT_GRAVITY_NOTARY_DESCRIPTION"
+msgstr "It keeps the hunter in place even when the place resigns."
+
+msgid "RIFT_REWARD_RIFT_LOOP_AUDITOR_NAME"
+msgstr "Second That Refuses to End"
+
+msgid "RIFT_REWARD_RIFT_LOOP_AUDITOR_DESCRIPTION"
+msgstr "It returns a fraction of the conflict when time closes its books."
+
+msgid "RIFT_REWARD_RIFT_LAST_CLAIM_NAME"
+msgstr "Last Clause Prism"
+
+msgid "RIFT_REWARD_RIFT_LAST_CLAIM_DESCRIPTION"
+msgstr "It splits one certainty into several useful, equally luminous violations."

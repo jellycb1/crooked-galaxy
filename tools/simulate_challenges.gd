@@ -12,6 +12,12 @@ const CHECKPOINTS := [
 	{"name": "chegada a Ferro-Velho", "level": 16, "base_power": 40, "weapon": {"power": 40, "origin_planet_id": "ferro_velho_omega"}, "armor": {"power": 34, "integrity_upgrades": 2, "origin_planet_id": "ferro_velho_omega"}, "campaign_target": 12},
 	{"name": "chegada ao Cassino", "level": 22, "base_power": 52, "weapon": {"power": 58, "origin_planet_id": "ferro_velho_omega"}, "armor": {"power": 48, "integrity_upgrades": 3, "origin_planet_id": "ferro_velho_omega"}, "campaign_target": 16},
 	{"name": "fim do Cassino", "level": 29, "base_power": 66, "weapon": {"power": 80, "origin_planet_id": "cassino_quasar"}, "armor": {"power": 64, "integrity_upgrades": 3, "origin_planet_id": "cassino_quasar"}, "campaign_target": 19},
+	{"name": "carreira 32", "level": 32, "base_power": 72, "weapon": {"power": 86, "origin_planet_id": "cassino_quasar"}, "armor": {"power": 68, "integrity_upgrades": 3, "origin_planet_id": "cassino_quasar"}, "campaign_target": 19},
+	{"name": "carreira 38", "level": 38, "base_power": 84, "weapon": {"power": 98, "origin_planet_id": "cassino_quasar"}, "armor": {"power": 78, "integrity_upgrades": 3, "origin_planet_id": "cassino_quasar"}, "campaign_target": 19},
+	{"name": "carreira 45", "level": 45, "base_power": 98, "weapon": {"power": 114, "origin_planet_id": "cassino_quasar"}, "armor": {"power": 90, "integrity_upgrades": 4, "origin_planet_id": "cassino_quasar"}, "campaign_target": 19},
+	{"name": "carreira 55", "level": 55, "base_power": 118, "weapon": {"power": 138, "origin_planet_id": "cassino_quasar"}, "armor": {"power": 108, "integrity_upgrades": 4, "origin_planet_id": "cassino_quasar"}, "campaign_target": 19},
+	{"name": "carreira 70", "level": 70, "base_power": 148, "weapon": {"power": 174, "origin_planet_id": "cassino_quasar"}, "armor": {"power": 136, "integrity_upgrades": 5, "origin_planet_id": "cassino_quasar"}, "campaign_target": 19},
+	{"name": "carreira 90", "level": 90, "base_power": 188, "weapon": {"power": 222, "origin_planet_id": "cassino_quasar"}, "armor": {"power": 174, "integrity_upgrades": 5, "origin_planet_id": "cassino_quasar"}, "campaign_target": 19},
 ]
 
 

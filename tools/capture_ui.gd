@@ -2,6 +2,8 @@ extends SceneTree
 
 const OUTPUT_DIR := "res://builds"
 const LEGACY_CAPTURE_FILES := ["ui_arsenal_settings.png"]
+const ChallengeSimulator = preload("res://tools/simulate_challenges.gd")
+const SimulationBuilds = preload("res://tools/simulation_builds.gd")
 
 
 func _init() -> void:
@@ -344,6 +346,9 @@ func capture() -> void:
 	state.last_notice = ""
 	state.last_notice_context = ""
 	state.player.completed_planets = ["dustball_prime"]
+	var rift_capture_build := ChallengeSimulator.checkpoint_player(ChallengeSimulator.CHECKPOINTS[0], SimulationBuilds.POLICIES[0])
+	for field in rift_capture_build:
+		state.player[field] = rift_capture_build[field]
 	state.player.challenge_floor = 0
 	scene.view_mode = "challenges"
 	scene.render()
@@ -1148,14 +1153,26 @@ func capture() -> void:
 	state.continue_after_chapter()
 	await process_frame
 	await process_frame
-	var anomaly_capture_names := ["volatile", "rupture", "anchor"]
-	for challenge_floor in anomaly_capture_names.size():
+	var anomaly_captures := [
+		{"floor": 0, "name": "volatile"},
+		{"floor": 1, "name": "rupture"},
+		{"floor": 2, "name": "anchor"},
+		{"floor": 6, "name": "calibrated"},
+		{"floor": 7, "name": "reinforced"},
+		{"floor": 8, "name": "stabilized"},
+	]
+	for anomaly_capture in anomaly_captures:
+		var challenge_floor := int(anomaly_capture.floor)
+		var challenge_capture_build := ChallengeSimulator.checkpoint_player(ChallengeSimulator.CHECKPOINTS[challenge_floor], SimulationBuilds.POLICIES[0])
+		ChallengeSimulator.apply_prior_rewards(challenge_capture_build, challenge_floor)
+		for field in challenge_capture_build:
+			state.player[field] = challenge_capture_build[field]
 		state.player.challenge_floor = challenge_floor
 		scene.view_mode = "challenges"
 		scene.render()
 		await process_frame
 		await process_frame
-		if save_frame("ui_challenge_%s.png" % anomaly_capture_names[challenge_floor]) != OK:
+		if save_frame("ui_challenge_%s.png" % str(anomaly_capture.name)) != OK:
 			quit(1)
 			return
 	state.player.challenge_floor = 0
@@ -1202,7 +1219,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured mandatory login/class/species/name onboarding, primary UI and destinations, market, transport hangar/briefing/hunt identity, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, three Fenda anomaly profiles, career, wanted archive, arsenal filters/paging, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured mandatory login/class/species/name onboarding, primary UI and destinations, market, transport hangar/briefing/hunt identity, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, six Fenda anomaly profiles, career, wanted archive, arsenal filters/paging, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

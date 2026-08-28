@@ -419,7 +419,7 @@ func run_mobile_audit() -> void:
 	await process_frame
 	check_touch_targets(scene, "career navigation")
 	state.player.completed_planets = ["dustball_prime"]
-	state.player.level = maxi(4, int(state.player.get("level", 1)))
+	state.player.level = maxi(ChallengeRules.UNLOCK_LEVEL, int(state.player.get("level", 1)))
 	state.player.challenge_floor = 0
 	scene.view_mode = "challenges"
 	scene.render()
