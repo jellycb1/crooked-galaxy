@@ -37,9 +37,16 @@ func run() -> void:
 		if not unique.has(color): unique.append(color)
 		return unique
 	, []).size() == 8, "all eight species retain a distinct emblem accent")
+	var target_visuals := {}
+	for target in ContentDB.TARGETS:
+		portrait.character_id = str(target.id)
+		var visual_id := portrait.visual_identity_id()
+		check(visual_id != "fallback", "target %s owns an authored procedural portrait" % str(target.id))
+		target_visuals[visual_id] = true
+	check(target_visuals.size() == ContentDB.TARGETS.size(), "every current target resolves a stable individual visual identity")
 	portrait.queue_free()
 	if failures == 0:
-		print("PASS: hunter portrait reflects the equipped loadout")
+		print("PASS: hunter loadout and every target portrait resolve authored visual identities")
 	quit(1 if failures > 0 else 0)
 
 

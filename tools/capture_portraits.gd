@@ -51,19 +51,29 @@ func capture() -> void:
 		{"id": "duchess_jackpot", "name": "DUQUESA JACKPOT"},
 		{"id": "misfortune_auditor", "name": "AUDITOR DO AZAR"},
 		{"id": "house_eternal", "name": "A CASA ETERNA"},
+		{"id": "courier_cumulus", "name": "CARTEIRO CUMULUS"},
+		{"id": "duchess_low_pressure", "name": "DUQUESA BAIXA PRESSÃO"},
+		{"id": "engineer_thunder", "name": "ENGENHEIRO TROVÃO"},
+		{"id": "storm_bank", "name": "BANCO DA TEMPESTADE"},
+		{"id": "eel_courier", "name": "ESTAFETA ENGUIA"},
+		{"id": "coral_landlady", "name": "SENHORIA CORALINA"},
+		{"id": "notary_octopus", "name": "TABELIÃO TENTÁCULO"},
+		{"id": "protocol_leviathan", "name": "LEVIATÃ DO PROTOCOLO"},
 	]
-	for row_index in 7:
+	var column_count := 4
+	var row_count := ceili(float(characters.size()) / float(column_count))
+	for row_index in row_count:
 		var row := HBoxContainer.new()
 		row.alignment = BoxContainer.ALIGNMENT_CENTER
 		row.add_theme_constant_override("separation", 8)
 		layout.add_child(row)
-		for column_index in 3:
-			var character_index := row_index * 3 + column_index
+		for column_index in column_count:
+			var character_index := row_index * column_count + column_index
 			if character_index >= characters.size():
 				break
 			var definition: Dictionary = characters[character_index]
 			var cell := VBoxContainer.new()
-			cell.custom_minimum_size = Vector2(105, 102)
+			cell.custom_minimum_size = Vector2(102, 102)
 			cell.alignment = BoxContainer.ALIGNMENT_CENTER
 			row.add_child(cell)
 			var portrait: Control = PortraitScript.new()

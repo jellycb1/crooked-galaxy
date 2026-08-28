@@ -1,5 +1,15 @@
 extends Control
 
+const AUTHORED_TARGET_IDS := [
+	"gloop", "baron_boom", "madame_vacuum", "mayor_gold_dust",
+	"auditor_frost", "chef_coldflame", "executive_penguin", "director_kelvin",
+	"landlord_spore", "countess_truffle", "captain_chlorophyll", "mother_mycelia",
+	"bolt_collector", "doctor_patchwork", "crane_king", "omega_junkyard",
+	"dealer_comet", "duchess_jackpot", "misfortune_auditor", "house_eternal",
+	"courier_cumulus", "duchess_low_pressure", "engineer_thunder", "storm_bank",
+	"eel_courier", "coral_landlady", "notary_octopus", "protocol_leviathan",
+]
+
 var character_id := "hunter"
 var equipment_profile: Dictionary = {}
 
@@ -14,7 +24,7 @@ func _draw() -> void:
 	var side := minf(size.x, size.y)
 	var origin := (size - Vector2(side, side)) * 0.5
 	draw_set_transform(origin, 0.0, Vector2(side, side))
-	match character_id:
+	match visual_identity_id():
 		"gloop":
 			draw_gloop()
 		"baron_boom":
@@ -55,9 +65,136 @@ func _draw() -> void:
 			draw_casino_target(2)
 		"house_eternal":
 			draw_casino_target(3)
+		"courier_cumulus":
+			draw_aerial_target(0)
+		"duchess_low_pressure":
+			draw_aerial_target(1)
+		"engineer_thunder":
+			draw_aerial_target(2)
+		"storm_bank":
+			draw_aerial_target(3)
+		"eel_courier":
+			draw_abyssal_target(0)
+		"coral_landlady":
+			draw_abyssal_target(1)
+		"notary_octopus":
+			draw_abyssal_target(2)
+		"protocol_leviathan":
+			draw_abyssal_target(3)
 		_:
 			draw_hunter()
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+func visual_identity_id() -> String:
+	if character_id == "hunter":
+		return "hunter"
+	return character_id if AUTHORED_TARGET_IDS.has(character_id) else "fallback"
+
+
+func draw_aerial_target(variant: int) -> void:
+	var ink := Color("#071426")
+	var sky := Color("#8fd3ff")
+	var cloud := Color("#dff5ff")
+	var gold := Color("#ffe66d")
+	draw_frame(Color("#173b55"), gold if variant == 3 else sky)
+	# A shared floating coat and cloud collar make the chapter coherent at archive size.
+	filled_polygon([Vector2(0.10, 0.96), Vector2(0.20, 0.70), Vector2(0.36, 0.64), Vector2(0.64, 0.64), Vector2(0.80, 0.70), Vector2(0.90, 0.96)], Color("#315b80"), ink)
+	for x in [0.25, 0.38, 0.52, 0.66, 0.78]:
+		draw_circle(Vector2(x, 0.72 + absf(x - 0.51) * 0.18), 0.085, cloud)
+	if variant == 0:
+		# Courier: parcel-shaped head, winged cap and a stamped delivery slot.
+		filled_polygon([Vector2(0.25, 0.31), Vector2(0.73, 0.28), Vector2(0.78, 0.62), Vector2(0.29, 0.66)], Color("#c48a55"), ink)
+		filled_polygon([Vector2(0.22, 0.30), Vector2(0.49, 0.16), Vector2(0.79, 0.28), Vector2(0.70, 0.37), Vector2(0.29, 0.39)], sky, ink)
+		draw_line(Vector2(0.34, 0.46), Vector2(0.67, 0.44), ink, 0.035, true)
+		draw_circle(Vector2(0.61, 0.53), 0.055, gold)
+		draw_line(Vector2(0.34, 0.58), Vector2(0.54, 0.57), ink, 0.028, true)
+	elif variant == 1:
+		# Duchess: a sharp wind-mask, pressure crown and spiral monocle.
+		outlined_ellipse(Vector2(0.50, 0.49), Vector2(0.29, 0.33), Color("#79b8da"), ink, 0.034)
+		filled_polygon([Vector2(0.25, 0.30), Vector2(0.32, 0.11), Vector2(0.45, 0.24), Vector2(0.53, 0.07), Vector2(0.63, 0.24), Vector2(0.75, 0.12), Vector2(0.77, 0.31)], gold, ink)
+		for eye in [Vector2(0.39, 0.46), Vector2(0.61, 0.44)]:
+			outlined_circle(eye, 0.065, cloud, ink, 0.021)
+		draw_arc(Vector2(0.61, 0.44), 0.105, 0.0, TAU, 24, gold, 0.022, true)
+		draw_arc(Vector2(0.49, 0.60), 0.15, 0.08, PI - 0.08, 20, ink, 0.028, true)
+	elif variant == 2:
+		# Engineer: insulated turbine head and a lightning conductor.
+		outlined_circle(Vector2(0.50, 0.49), 0.31, Color("#657487"), ink, 0.035)
+		for tooth in 8:
+			var direction := Vector2.RIGHT.rotated(TAU * float(tooth) / 8.0)
+			draw_line(Vector2(0.50, 0.49) + direction * 0.29, Vector2(0.50, 0.49) + direction * 0.38, sky, 0.055, true)
+		for eye in [Vector2(0.39, 0.47), Vector2(0.61, 0.47)]:
+			outlined_circle(eye, 0.075, Color("#23374c"), gold, 0.022)
+			draw_circle(eye, 0.025, cloud)
+		var bolt := PackedVector2Array([Vector2(0.62, 0.27), Vector2(0.73, 0.08), Vector2(0.70, 0.22), Vector2(0.82, 0.15)])
+		draw_polyline(bolt, gold, 0.04, true)
+		draw_line(Vector2(0.38, 0.63), Vector2(0.63, 0.62), ink, 0.035, true)
+	else:
+		# Boss: a sentient bank tower suspended inside a storm front.
+		filled_polygon([Vector2(0.22, 0.69), Vector2(0.28, 0.28), Vector2(0.72, 0.28), Vector2(0.78, 0.69)], Color("#334b66"), ink)
+		filled_polygon([Vector2(0.20, 0.29), Vector2(0.50, 0.09), Vector2(0.80, 0.29)], gold, ink)
+		for x in [0.34, 0.50, 0.66]:
+			draw_line(Vector2(x, 0.34), Vector2(x, 0.65), cloud, 0.045, true)
+		for eye in [Vector2(0.40, 0.44), Vector2(0.60, 0.44)]:
+			draw_circle(eye, 0.045, sky)
+		draw_line(Vector2(0.39, 0.59), Vector2(0.62, 0.59), gold, 0.035, true)
+
+
+func draw_abyssal_target(variant: int) -> void:
+	var ink := Color("#03131d")
+	var teal := Color("#39d7c5")
+	var foam := Color("#d8ffff")
+	var coral := Color("#ff8b72")
+	draw_frame(Color("#07343d"), coral if variant == 1 else teal)
+	for bubble in [Vector2(0.20, 0.22), Vector2(0.78, 0.18), Vector2(0.84, 0.52), Vector2(0.17, 0.62)]:
+		draw_arc(bubble, 0.035, 0.0, TAU, 16, Color(foam, 0.72), 0.012, true)
+	if variant == 0:
+		# Courier: a long eel silhouette wrapped around a pneumatic dispatch tube.
+		draw_arc(Vector2(0.50, 0.53), 0.31, -2.7, 1.65, 42, ink, 0.14, true)
+		draw_arc(Vector2(0.50, 0.53), 0.31, -2.7, 1.65, 42, teal, 0.09, true)
+		outlined_ellipse(Vector2(0.55, 0.40), Vector2(0.24, 0.18), teal, ink, 0.030)
+		for eye in [Vector2(0.48, 0.38), Vector2(0.63, 0.36)]:
+			outlined_circle(eye, 0.052, foam, ink, 0.018)
+		draw_line(Vector2(0.45, 0.55), Vector2(0.68, 0.52), ink, 0.026, true)
+		var spark := PackedVector2Array([Vector2(0.28, 0.67), Vector2(0.40, 0.61), Vector2(0.37, 0.75), Vector2(0.52, 0.68)])
+		draw_polyline(spark, Color("#ffe66d"), 0.032, true)
+	elif variant == 1:
+		# Landlady: coral crown, shell collar and pearl-ledger eyes.
+		outlined_ellipse(Vector2(0.50, 0.50), Vector2(0.30, 0.32), Color("#9b5d63"), ink, 0.034)
+		for branch_x in [0.29, 0.40, 0.52, 0.64, 0.74]:
+			draw_line(Vector2(branch_x, 0.29), Vector2(branch_x + (branch_x - 0.50) * 0.18, 0.10 + absf(branch_x - 0.50) * 0.22), coral, 0.045, true)
+		for eye in [Vector2(0.39, 0.47), Vector2(0.61, 0.47)]:
+			outlined_circle(eye, 0.065, foam, ink, 0.020)
+			draw_circle(eye, 0.024, Color("#6f4ca8"))
+		draw_arc(Vector2(0.50, 0.61), 0.15, 0.10, PI - 0.10, 20, ink, 0.028, true)
+		for x in [0.30, 0.40, 0.50, 0.60, 0.70]:
+			outlined_circle(Vector2(x, 0.76), 0.045, foam, ink, 0.015)
+	elif variant == 2:
+		# Notary: octopus head, eight filing arms and a central legal stamp.
+		for arm in 8:
+			var angle := PI * (0.10 + 0.80 * float(arm) / 7.0)
+			var root_point := Vector2(0.50, 0.66)
+			var end_point := Vector2(0.50 + cos(angle) * 0.43, 0.65 + sin(angle) * 0.30)
+			draw_line(root_point, end_point, ink, 0.075, true)
+			draw_line(root_point, end_point, Color("#6f73a8"), 0.043, true)
+		outlined_ellipse(Vector2(0.50, 0.45), Vector2(0.29, 0.31), Color("#777bb8"), ink, 0.034)
+		for eye in [Vector2(0.39, 0.44), Vector2(0.61, 0.44)]:
+			outlined_circle(eye, 0.065, foam, ink, 0.020)
+		draw_circle(Vector2(0.50, 0.61), 0.075, coral)
+		draw_line(Vector2(0.45, 0.61), Vector2(0.55, 0.61), ink, 0.022, true)
+	else:
+		# Boss: a huge archival maw with filing tabs instead of dorsal fins.
+		outlined_ellipse(Vector2(0.50, 0.51), Vector2(0.40, 0.35), Color("#164d55"), ink, 0.040)
+		for tab in 5:
+			var x := 0.24 + float(tab) * 0.13
+			filled_polygon([Vector2(x, 0.24), Vector2(x + 0.05, 0.08), Vector2(x + 0.11, 0.25)], teal if tab % 2 == 0 else coral, ink)
+		for eye in [Vector2(0.34, 0.42), Vector2(0.66, 0.42)]:
+			outlined_circle(eye, 0.075, foam, ink, 0.022)
+			draw_circle(eye, 0.030, coral)
+		filled_polygon([Vector2(0.24, 0.57), Vector2(0.76, 0.57), Vector2(0.67, 0.78), Vector2(0.33, 0.78)], ink, teal)
+		for tooth in 6:
+			var x := 0.31 + float(tooth) * 0.075
+			filled_polygon([Vector2(x, 0.59), Vector2(x + 0.035, 0.69), Vector2(x + 0.07, 0.59)], foam, ink)
 
 
 func draw_casino_target(variant: int) -> void:
