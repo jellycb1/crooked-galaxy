@@ -1,6 +1,6 @@
 # Crooked Galaxy — pipeline modular de conteúdo planetário
 
-Estado: fundação ativa; Dustball Prime migrado sem alteração de comportamento.
+Estado: fundação ativa; os três primeiros planetas foram migrados sem alteração de comportamento.
 
 ## Objetivo
 
@@ -31,7 +31,7 @@ scripts/content/
 
 `content_pack_registry.gd` garante unicidade entre pacotes e oferece uma fronteira única para composição futura.
 
-`content_db.gd` continua a expor `PLANET`, `PLANETS`, `TARGETS`, `HUNT_EVENTS` e `ITEM_CATALOG`. O primeiro passo apenas mudou a origem dos dados de Dustball; consumidores, resultados e saves não mudaram.
+`content_db.gd` continua a expor `PLANET`, `PLANETS`, `TARGETS`, `HUNT_EVENTS`, `ITEM_CATALOG`, `PLANET_ITEM_CATALOGS` e `SECONDARY_ITEM_CATALOGS`. Os três primeiros pacotes apenas mudaram a origem dos dados; consumidores, resultados e saves não mudaram.
 
 ## Regras para migrar um planeta existente
 
@@ -62,11 +62,11 @@ Um pacote novo só entra no registry quando:
 | Planeta | Pack | Conteúdo preservado | Estado |
 | --- | --- | --- | --- |
 | Dustball Prime | `dustball_prime.gd` | planeta, 4 alvos, 2 incidentes, arma e traje | Migrado |
-| Congelária S.A. | — | permanece no monólito | Pendente |
-| Micélia 404 | — | permanece no monólito | Pendente |
+| Congelária S.A. | `congelaria_sa.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e capacete | Migrado |
+| Micélia 404 | `micelia_404.gd` | planeta, 4 alvos, 2 incidentes, arma, traje, capacete e luvas | Migrado |
 | Ferro-Velho Ômega | — | permanece no monólito | Pendente |
 | Cassino Quasar | — | permanece no monólito | Pendente |
 | Aerópolis de Penhora | — | permanece no monólito | Pendente |
 | Arquivo Abissal N-9 | — | permanece no monólito | Pendente |
 
-O próximo batch deve migrar Congelária e Micélia, comparar a progressão secundária de capacete/luvas e só depois avançar para os quatro mundos tardios.
+O próximo batch deve migrar Ferro-Velho Ômega e Cassino Quasar em conjunto, pois ambos consolidam o mesmo conjunto de slots secundários (`helmet`, `gloves`, `boots`). Depois dessa paridade, Aerópolis e Arquivo Abissal podem ser migrados com as suas ramificações tardias de `rig` e `implant`.

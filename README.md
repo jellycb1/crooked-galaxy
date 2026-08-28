@@ -9,9 +9,10 @@ The prototype implements the product's central test and its first independent Pv
 `BOUNTY → APPROACH → HUNT / INCIDENT → AUTOMATIC COMBAT → REWARD → LOOT → EQUIP → STRONGER BOUNTY / FENDA`
 
 Planet content is being migrated incrementally from the original monolithic catalog
-to validated per-world packs under `scripts/content/packs/`. Dustball Prime is the
-first canonical pack and preserves its existing planet, four targets, two incidents,
-and item families exactly. `ContentDB` keeps its public API throughout the migration,
+to validated per-world packs under `scripts/content/packs/`. Dustball Prime,
+Congelária S.A., and Micélia 404 are canonical packs preserving their existing
+planets, targets, incidents, primary item families, and progressive secondary slots
+exactly. `ContentDB` keeps its public API throughout the migration,
 so current saves, balance, translations, and consumers remain unchanged. The pack
 contract and migration procedure are documented in
 `Notes/PLANET_CONTENT_PACK_PIPELINE.md`.
