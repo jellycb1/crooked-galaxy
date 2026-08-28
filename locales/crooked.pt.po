@@ -4323,3 +4323,241 @@ msgstr "Prisma da Última Cláusula"
 
 msgid "RIFT_REWARD_RIFT_LAST_CLAIM_DESCRIPTION"
 msgstr "Divide uma certeza em várias infrações úteis e igualmente brilhantes."
+
+# Aerópolis de Penhora — pacote de planeta nível 30
+msgid "PLANET_DUSTBALL_PRIME_DESCRIPTION"
+msgstr "Um deserto de cartórios tortos, saloons orbitais e poeira suficientemente fina para entrar em qualquer cláusula."
+
+msgid "PLANET_CONGELARIA_SA_DESCRIPTION"
+msgstr "Um frigorífico planetário privatizado, com geleiras, cubículos e multas por aquecimento."
+
+msgid "PLANET_MICELIA_404_DESCRIPTION"
+msgstr "Uma rede fúngica planetária onde prédios brotam, calçadas respiram e todo esporo tem cadastro."
+
+msgid "PLANET_FERRO_VELHO_OMEGA_DESCRIPTION"
+msgstr "Um planeta-oficina montado com luas usadas, garantias vencidas e robôs que cobram estacionamento por eixo."
+
+msgid "PLANET_CASSINO_QUASAR_DESCRIPTION"
+msgstr "Um resort orbital construído em torno de uma estrela viciada, com roletas gravitacionais e probabilidades sob licença."
+
+msgid "PLANET_AEROPOLIS_PENHORA_NAME"
+msgstr "Aerópolis de Penhora"
+
+msgid "PLANET_AEROPOLIS_PENHORA_SUBTITLE"
+msgstr "O céu é o limite. A dívida também."
+
+msgid "PLANET_AEROPOLIS_PENHORA_DESCRIPTION"
+msgstr "Cidades-balão navegam um gigante gasoso onde bancos privatizaram o vento, tempestades trabalham por turno e até respirar exige fiador."
+
+msgid "PLANET_AEROPOLIS_PENHORA_COMPLETION_TEXT"
+msgstr "O Banco da Tempestade entrou em liquidação. Choveu moedas por onze minutos e formulários por três dias."
+
+msgid "TARGET_COURIER_CUMULUS_NAME"
+msgstr "Carteiro Cumulus"
+
+msgid "TARGET_COURIER_CUMULUS_TITLE"
+msgstr "Contrabandista de encomendas atmosféricas"
+
+msgid "TARGET_COURIER_CUMULUS_DESCRIPTION"
+msgstr "Entrega cobranças antes do vencimento e destinatários depois da tempestade."
+
+msgid "TARGET_COURIER_CUMULUS_ATTACK_0"
+msgstr "Entrega Expressa"
+
+msgid "TARGET_COURIER_CUMULUS_ATTACK_1"
+msgstr "Selo de Turbulência"
+
+msgid "TARGET_COURIER_CUMULUS_ATTACK_2"
+msgstr "Aviso de Receção"
+
+msgid "TARGET_DUCHESS_LOW_PRESSURE_NAME"
+msgstr "Duquesa Baixa Pressão"
+
+msgid "TARGET_DUCHESS_LOW_PRESSURE_TITLE"
+msgstr "Pirata aristocrática dos corredores de vento"
+
+msgid "TARGET_DUCHESS_LOW_PRESSURE_DESCRIPTION"
+msgstr "Cobra pedágio de toda brisa e chama furacões de transporte executivo."
+
+msgid "TARGET_DUCHESS_LOW_PRESSURE_ATTACK_0"
+msgstr "Rajada Aristocrática"
+
+msgid "TARGET_DUCHESS_LOW_PRESSURE_ATTACK_1"
+msgstr "Monção de Etiqueta"
+
+msgid "TARGET_DUCHESS_LOW_PRESSURE_ATTACK_2"
+msgstr "Pedágio Barométrico"
+
+msgid "TARGET_ENGINEER_THUNDER_NAME"
+msgstr "Engenheiro Trovão"
+
+msgid "TARGET_ENGINEER_THUNDER_TITLE"
+msgstr "Locador de tempestades industriais"
+
+msgid "TARGET_ENGINEER_THUNDER_DESCRIPTION"
+msgstr "Aluga relâmpagos por minuto e desliga o para-raios de quem atrasa uma prestação."
+
+msgid "TARGET_ENGINEER_THUNDER_ATTACK_0"
+msgstr "Fatura Voltaica"
+
+msgid "TARGET_ENGINEER_THUNDER_ATTACK_1"
+msgstr "Curto de Cobrança"
+
+msgid "TARGET_ENGINEER_THUNDER_ATTACK_2"
+msgstr "Sobretensão Contratual"
+
+msgid "TARGET_STORM_BANK_NAME"
+msgstr "Banco da Tempestade"
+
+msgid "TARGET_STORM_BANK_TITLE"
+msgstr "Instituição atmosférica senciente"
+
+msgid "TARGET_STORM_BANK_DESCRIPTION"
+msgstr "Hipotecou o horizonte, penhorou o clima e capitaliza juros sempre que alguém suspira."
+
+msgid "TARGET_STORM_BANK_ATTACK_0"
+msgstr "Juros Cumulonimbus"
+
+msgid "TARGET_STORM_BANK_ATTACK_1"
+msgstr "Execução Atmosférica"
+
+msgid "TARGET_STORM_BANK_ATTACK_2"
+msgstr "Falência do Horizonte"
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_TITLE"
+msgstr "Pedágio de Pressão"
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_DESCRIPTION"
+msgstr "Uma cabine flutuante cobra pela diferença de pressão entre a sua nave e o céu público."
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_PAY_PRESSURE_NAME"
+msgstr "PAGAR 26 CRÉDITOS"
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_PAY_PRESSURE_EFFECT_TEXT"
+msgstr "A cabine despressuriza a cobertura: -20% defesa do alvo."
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_PAY_PRESSURE_RESULT"
+msgstr "O recibo veio selado a vácuo. A armadura do alvo também."
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_RIDE_UPDRAFT_NAME"
+msgstr "APANHAR A CORRENTE"
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_RIDE_UPDRAFT_EFFECT_TEXT"
+msgstr "+60s de caça e +20% XP em navegação barométrica."
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_RIDE_UPDRAFT_RESULT"
+msgstr "A corrente subiu, virou à esquerda e pediu uma avaliação de cinco estrelas."
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_BURST_GATE_NAME"
+msgstr "ROMPER A COMPORTA"
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_BURST_GATE_EFFECT_TEXT"
+msgstr "+12% poder inimigo, mas +22% créditos por risco atmosférico."
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_BURST_GATE_RESULT"
+msgstr "A comporta abriu. O processo administrativo chegou pelo vento."
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_TITLE"
+msgstr "Greve de Para-Raios"
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_DESCRIPTION"
+msgstr "Os para-raios cruzaram os braços. As nuvens exigem negociação coletiva imediata."
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_HIRE_CLOUD_NAME"
+msgstr "CONTRATAR UMA NUVEM · 28 CR"
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_HIRE_CLOUD_EFFECT_TEXT"
+msgstr "A nuvem denuncia o esconderijo: -14% poder do alvo."
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_HIRE_CLOUD_RESULT"
+msgstr "A nuvem assinou por descarga e apontou o alvo com um relâmpago discreto."
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_NEGOTIATE_RODS_NAME"
+msgstr "NEGOCIAR COM OS PARA-RAIOS"
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_NEGOTIATE_RODS_EFFECT_TEXT"
+msgstr "+45s de caça e +18% XP em relações atmosféricas."
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_NEGOTIATE_RODS_RESULT"
+msgstr "O acordo inclui pausas, seguro e uma tempestade pessoal por trimestre."
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_CROSS_STORM_NAME"
+msgstr "ATRAVESSAR A TEMPESTADE"
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_CROSS_STORM_EFFECT_TEXT"
+msgstr "+10% vida inimiga, mas +20% créditos de periculosidade."
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_CROSS_STORM_RESULT"
+msgstr "A nave saiu fumegando. O contratante classificou o fumo como experiência premium."
+
+msgid "ITEM_AEROPOLIS_PENHORA_WEAPON_0_NAME"
+msgstr "Carabina de Ar Comprimido Premium"
+
+msgid "ITEM_AEROPOLIS_PENHORA_WEAPON_0_DESCRIPTION"
+msgstr "Dispara atmosfera engarrafada e cobra pela tampa."
+
+msgid "ITEM_AEROPOLIS_PENHORA_WEAPON_1_NAME"
+msgstr "Lança-Raios de Prestação"
+
+msgid "ITEM_AEROPOLIS_PENHORA_WEAPON_1_DESCRIPTION"
+msgstr "Cada descarga vence no fim do mês e no início do alvo."
+
+msgid "ITEM_AEROPOLIS_PENHORA_WEAPON_2_NAME"
+msgstr "Mosquete Barométrico"
+
+msgid "ITEM_AEROPOLIS_PENHORA_WEAPON_2_DESCRIPTION"
+msgstr "Prevê chuva, vento e a direção provável da fuga."
+
+msgid "ITEM_AEROPOLIS_PENHORA_WEAPON_3_NAME"
+msgstr "Canhão Cumulonimbus Portátil"
+
+msgid "ITEM_AEROPOLIS_PENHORA_WEAPON_3_DESCRIPTION"
+msgstr "Cabe na mão, mas exige espaço aéreo próprio."
+
+msgid "ITEM_AEROPOLIS_PENHORA_ARMOR_0_NAME"
+msgstr "Casaco de Pressão Variável"
+
+msgid "ITEM_AEROPOLIS_PENHORA_ARMOR_0_DESCRIPTION"
+msgstr "Aperta em combate e nas cláusulas de cancelamento."
+
+msgid "ITEM_AEROPOLIS_PENHORA_ARMOR_1_NAME"
+msgstr "Colete de Balão Blindado"
+
+msgid "ITEM_AEROPOLIS_PENHORA_ARMOR_1_DESCRIPTION"
+msgstr "Leve, resistente e proibido perto de alfinetes jurídicos."
+
+msgid "ITEM_AEROPOLIS_PENHORA_ARMOR_2_NAME"
+msgstr "Manto de Corrente Ascendente"
+
+msgid "ITEM_AEROPOLIS_PENHORA_ARMOR_2_DESCRIPTION"
+msgstr "Mantém os ombros erguidos e as balas em trânsito."
+
+msgid "ITEM_AEROPOLIS_PENHORA_ARMOR_3_NAME"
+msgstr "Armadura de Cabine Pressurizada"
+
+msgid "ITEM_AEROPOLIS_PENHORA_ARMOR_3_DESCRIPTION"
+msgstr "Inclui oxigénio, apoio lombar e uma pequena taxa por impacto."
+
+msgid "ITEM_AEROPOLIS_PENHORA_RIG_0_NAME"
+msgstr "Arnês de Ancoragem Cumulus"
+
+msgid "ITEM_AEROPOLIS_PENHORA_RIG_0_DESCRIPTION"
+msgstr "Prende o caçador ao chão quando o chão está de serviço."
+
+msgid "ITEM_AEROPOLIS_PENHORA_RIG_1_NAME"
+msgstr "Mochila de Lastro Executivo"
+
+msgid "ITEM_AEROPOLIS_PENHORA_RIG_1_DESCRIPTION"
+msgstr "Cheia de chumbo, recibos e decisões com peso legal."
+
+msgid "ITEM_AEROPOLIS_PENHORA_RIG_2_NAME"
+msgstr "Colete de Para-Raios Sindicalizado"
+
+msgid "ITEM_AEROPOLIS_PENHORA_RIG_2_DESCRIPTION"
+msgstr "Desvia descargas apenas dentro do horário contratual."
+
+msgid "ITEM_AEROPOLIS_PENHORA_RIG_3_NAME"
+msgstr "Suspensório Barométrico"
+
+msgid "ITEM_AEROPOLIS_PENHORA_RIG_3_DESCRIPTION"
+msgstr "Ajusta postura, pressão e expectativas meteorológicas."

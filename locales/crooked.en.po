@@ -4323,3 +4323,241 @@ msgstr "Last Clause Prism"
 
 msgid "RIFT_REWARD_RIFT_LAST_CLAIM_DESCRIPTION"
 msgstr "It splits one certainty into several useful, equally luminous violations."
+
+# Repossession Aeropolis — level-30 planet pack
+msgid "PLANET_DUSTBALL_PRIME_DESCRIPTION"
+msgstr "A desert of crooked registries, orbital saloons, and dust fine enough to enter any clause."
+
+msgid "PLANET_CONGELARIA_SA_DESCRIPTION"
+msgstr "A privatized planetary refrigerator full of glaciers, cubicles, and fines for unauthorized heating."
+
+msgid "PLANET_MICELIA_404_DESCRIPTION"
+msgstr "A planetary fungal network where buildings sprout, sidewalks breathe, and every spore is registered."
+
+msgid "PLANET_FERRO_VELHO_OMEGA_DESCRIPTION"
+msgstr "A workshop world assembled from used moons, expired warranties, and robots that charge parking by the axle."
+
+msgid "PLANET_CASSINO_QUASAR_DESCRIPTION"
+msgstr "An orbital resort built around an addicted star, with gravitational roulette and licensed probabilities."
+
+msgid "PLANET_AEROPOLIS_PENHORA_NAME"
+msgstr "Repossession Aeropolis"
+
+msgid "PLANET_AEROPOLIS_PENHORA_SUBTITLE"
+msgstr "The sky is the limit. So is the debt."
+
+msgid "PLANET_AEROPOLIS_PENHORA_DESCRIPTION"
+msgstr "Balloon cities sail a gas giant where banks privatized the wind, storms work shifts, and even breathing needs a guarantor."
+
+msgid "PLANET_AEROPOLIS_PENHORA_COMPLETION_TEXT"
+msgstr "The Storm Bank entered liquidation. It rained coins for eleven minutes and forms for three days."
+
+msgid "TARGET_COURIER_CUMULUS_NAME"
+msgstr "Courier Cumulus"
+
+msgid "TARGET_COURIER_CUMULUS_TITLE"
+msgstr "Atmospheric parcel smuggler"
+
+msgid "TARGET_COURIER_CUMULUS_DESCRIPTION"
+msgstr "Delivers collection notices before they are due and recipients after the storm."
+
+msgid "TARGET_COURIER_CUMULUS_ATTACK_0"
+msgstr "Express Delivery"
+
+msgid "TARGET_COURIER_CUMULUS_ATTACK_1"
+msgstr "Turbulence Stamp"
+
+msgid "TARGET_COURIER_CUMULUS_ATTACK_2"
+msgstr "Proof of Reception"
+
+msgid "TARGET_DUCHESS_LOW_PRESSURE_NAME"
+msgstr "Duchess Low Pressure"
+
+msgid "TARGET_DUCHESS_LOW_PRESSURE_TITLE"
+msgstr "Aristocratic pirate of the wind lanes"
+
+msgid "TARGET_DUCHESS_LOW_PRESSURE_DESCRIPTION"
+msgstr "Charges tolls on every breeze and calls hurricanes executive transport."
+
+msgid "TARGET_DUCHESS_LOW_PRESSURE_ATTACK_0"
+msgstr "Aristocratic Gust"
+
+msgid "TARGET_DUCHESS_LOW_PRESSURE_ATTACK_1"
+msgstr "Etiquette Monsoon"
+
+msgid "TARGET_DUCHESS_LOW_PRESSURE_ATTACK_2"
+msgstr "Barometric Toll"
+
+msgid "TARGET_ENGINEER_THUNDER_NAME"
+msgstr "Engineer Thunder"
+
+msgid "TARGET_ENGINEER_THUNDER_TITLE"
+msgstr "Industrial storm landlord"
+
+msgid "TARGET_ENGINEER_THUNDER_DESCRIPTION"
+msgstr "Rents lightning by the minute and disconnects the rods of anyone late on a payment."
+
+msgid "TARGET_ENGINEER_THUNDER_ATTACK_0"
+msgstr "Voltaic Invoice"
+
+msgid "TARGET_ENGINEER_THUNDER_ATTACK_1"
+msgstr "Collection Short Circuit"
+
+msgid "TARGET_ENGINEER_THUNDER_ATTACK_2"
+msgstr "Contractual Overvoltage"
+
+msgid "TARGET_STORM_BANK_NAME"
+msgstr "The Storm Bank"
+
+msgid "TARGET_STORM_BANK_TITLE"
+msgstr "Sentient atmospheric institution"
+
+msgid "TARGET_STORM_BANK_DESCRIPTION"
+msgstr "Mortgaged the horizon, repossessed the climate, and compounds interest whenever anyone sighs."
+
+msgid "TARGET_STORM_BANK_ATTACK_0"
+msgstr "Cumulonimbus Interest"
+
+msgid "TARGET_STORM_BANK_ATTACK_1"
+msgstr "Atmospheric Foreclosure"
+
+msgid "TARGET_STORM_BANK_ATTACK_2"
+msgstr "Horizon Bankruptcy"
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_TITLE"
+msgstr "Pressure Toll"
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_DESCRIPTION"
+msgstr "A floating booth charges for the pressure difference between your ship and the public sky."
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_PAY_PRESSURE_NAME"
+msgstr "PAY 26 CREDITS"
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_PAY_PRESSURE_EFFECT_TEXT"
+msgstr "The booth depressurizes their cover: -20% target defense."
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_PAY_PRESSURE_RESULT"
+msgstr "The receipt came vacuum-sealed. So did the target's armor."
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_RIDE_UPDRAFT_NAME"
+msgstr "RIDE THE UPDRAFT"
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_RIDE_UPDRAFT_EFFECT_TEXT"
+msgstr "+60s hunt time and +20% XP in barometric navigation."
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_RIDE_UPDRAFT_RESULT"
+msgstr "The current rose, turned left, and requested a five-star review."
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_BURST_GATE_NAME"
+msgstr "BURST THROUGH THE GATE"
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_BURST_GATE_EFFECT_TEXT"
+msgstr "+12% enemy power, but +22% credits for atmospheric risk."
+
+msgid "HUNT_EVENT_PRESSURE_TOLL_CHOICE_BURST_GATE_RESULT"
+msgstr "The gate opened. The administrative case arrived on the wind."
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_TITLE"
+msgstr "Lightning-Rod Strike"
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_DESCRIPTION"
+msgstr "The lightning rods folded their arms. The clouds demand immediate collective bargaining."
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_HIRE_CLOUD_NAME"
+msgstr "HIRE A CLOUD · 28 CR"
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_HIRE_CLOUD_EFFECT_TEXT"
+msgstr "The cloud reports the hideout: -14% target power."
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_HIRE_CLOUD_RESULT"
+msgstr "The cloud signed by discharge and pointed out the target with discreet lightning."
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_NEGOTIATE_RODS_NAME"
+msgstr "NEGOTIATE WITH THE RODS"
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_NEGOTIATE_RODS_EFFECT_TEXT"
+msgstr "+45s hunt time and +18% XP in atmospheric relations."
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_NEGOTIATE_RODS_RESULT"
+msgstr "The agreement includes breaks, insurance, and one personal storm per quarter."
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_CROSS_STORM_NAME"
+msgstr "CROSS THE STORM"
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_CROSS_STORM_EFFECT_TEXT"
+msgstr "+10% enemy health, but +20% hazard-pay credits."
+
+msgid "HUNT_EVENT_LIGHTNING_STRIKE_CHOICE_CROSS_STORM_RESULT"
+msgstr "The ship came out smoking. The client classified the smoke as premium experience."
+
+msgid "ITEM_AEROPOLIS_PENHORA_WEAPON_0_NAME"
+msgstr "Premium Compressed-Air Carbine"
+
+msgid "ITEM_AEROPOLIS_PENHORA_WEAPON_0_DESCRIPTION"
+msgstr "Fires bottled atmosphere and charges extra for the cap."
+
+msgid "ITEM_AEROPOLIS_PENHORA_WEAPON_1_NAME"
+msgstr "Installment Lightning Launcher"
+
+msgid "ITEM_AEROPOLIS_PENHORA_WEAPON_1_DESCRIPTION"
+msgstr "Every discharge is due at month's end and at the target's beginning."
+
+msgid "ITEM_AEROPOLIS_PENHORA_WEAPON_2_NAME"
+msgstr "Barometric Musket"
+
+msgid "ITEM_AEROPOLIS_PENHORA_WEAPON_2_DESCRIPTION"
+msgstr "Forecasts rain, wind, and the probable direction of escape."
+
+msgid "ITEM_AEROPOLIS_PENHORA_WEAPON_3_NAME"
+msgstr "Portable Cumulonimbus Cannon"
+
+msgid "ITEM_AEROPOLIS_PENHORA_WEAPON_3_DESCRIPTION"
+msgstr "Fits in one hand but requires its own airspace."
+
+msgid "ITEM_AEROPOLIS_PENHORA_ARMOR_0_NAME"
+msgstr "Variable-Pressure Coat"
+
+msgid "ITEM_AEROPOLIS_PENHORA_ARMOR_0_DESCRIPTION"
+msgstr "Tightens in combat and inside cancellation clauses."
+
+msgid "ITEM_AEROPOLIS_PENHORA_ARMOR_1_NAME"
+msgstr "Armored Balloon Vest"
+
+msgid "ITEM_AEROPOLIS_PENHORA_ARMOR_1_DESCRIPTION"
+msgstr "Light, resilient, and banned near legal pins."
+
+msgid "ITEM_AEROPOLIS_PENHORA_ARMOR_2_NAME"
+msgstr "Updraft Mantle"
+
+msgid "ITEM_AEROPOLIS_PENHORA_ARMOR_2_DESCRIPTION"
+msgstr "Keeps shoulders raised and bullets in transit."
+
+msgid "ITEM_AEROPOLIS_PENHORA_ARMOR_3_NAME"
+msgstr "Pressurized-Cabin Armor"
+
+msgid "ITEM_AEROPOLIS_PENHORA_ARMOR_3_DESCRIPTION"
+msgstr "Includes oxygen, lumbar support, and a small fee per impact."
+
+msgid "ITEM_AEROPOLIS_PENHORA_RIG_0_NAME"
+msgstr "Cumulus Anchorage Rig"
+
+msgid "ITEM_AEROPOLIS_PENHORA_RIG_0_DESCRIPTION"
+msgstr "Fastens the hunter to the ground whenever the ground is on duty."
+
+msgid "ITEM_AEROPOLIS_PENHORA_RIG_1_NAME"
+msgstr "Executive Ballast Pack"
+
+msgid "ITEM_AEROPOLIS_PENHORA_RIG_1_DESCRIPTION"
+msgstr "Full of lead, receipts, and legally weighty decisions."
+
+msgid "ITEM_AEROPOLIS_PENHORA_RIG_2_NAME"
+msgstr "Unionized Lightning-Rod Vest"
+
+msgid "ITEM_AEROPOLIS_PENHORA_RIG_2_DESCRIPTION"
+msgstr "Diverts discharges only during contracted working hours."
+
+msgid "ITEM_AEROPOLIS_PENHORA_RIG_3_NAME"
+msgstr "Barometric Suspenders"
+
+msgid "ITEM_AEROPOLIS_PENHORA_RIG_3_DESCRIPTION"
+msgstr "Adjusts posture, pressure, and meteorological expectations."

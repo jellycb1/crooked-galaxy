@@ -90,4 +90,5 @@ func planet_tint(planet_id: String) -> Color:
 		"micelia_404": return Color("#b8f45d")
 		"ferro_velho_omega": return Color("#ff9f43")
 		"cassino_quasar": return Color("#ff75d8")
+		"aeropolis_penhora": return Color("#8fd3ff")
 		_: return Color.WHITE

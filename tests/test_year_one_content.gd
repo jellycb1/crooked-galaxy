@@ -14,7 +14,7 @@ func _init() -> void:
 	check(levels.slice(0, 5) == [1, 4, 8, 13, 19], "the launch contract preserves all five implemented discovery levels")
 	check(levels[-1] == 300 and levels.size() == 33, "ten-level expansion cadence covers the projected level-302 daily player")
 	check(YearOne.TOTAL_HUNTS == 1825 and YearOne.required_target_count() == 132, "the year-one catalog has an explicit 365-day, 132-target ceiling")
-	check(ContentDB.PLANETS.size() == 5 and ContentDB.TARGETS.size() == 20, "the audit distinguishes the implemented vertical slice from the launch catalog")
+	check(ContentDB.PLANETS.size() == 6 and ContentDB.TARGETS.size() == 24, "the audit distinguishes implemented planet packs from the launch catalog")
 	for index in ContentDB.PLANETS.size():
 		check(int(ContentDB.PLANETS[index].unlock_level) == levels[index], "implemented planet %d follows the year-one unlock contract" % (index + 1))
 

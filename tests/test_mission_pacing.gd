@@ -35,16 +35,18 @@ func _init() -> void:
 		if known_worlds == ContentDB.PLANETS.size():
 			break
 
-	check(discovery.size() == ContentDB.PLANETS.size(), "a standard-contract career discovers all five current worlds")
+	check(discovery.size() == ContentDB.PLANETS.size(), "a standard-contract career discovers every implemented world")
 	check(in_range(discovery, 2, 5, 15, 4), "the second world enters after the tutorial but before the opening loop becomes repetitive")
 	check(in_range(discovery, 3, 15, 40, 8), "the third world arrives within the intended early-career window")
 	check(in_range(discovery, 4, 35, 75, 13), "the fourth world anchors the middle-career window")
 	check(in_range(discovery, 5, 60, 115, 19), "the fifth world remains a meaningful long-career discovery")
+	check(in_range(discovery, 6, 100, 150, 30), "the first year-one expansion arrives at its level-30 contract")
 	check(float(discovery[2].seconds) < float(discovery[3].seconds) and float(discovery[3].seconds) < float(discovery[4].seconds) and float(discovery[4].seconds) < float(discovery[5].seconds), "cumulative mission time grows monotonically across world discoveries")
 	check(seconds_in_range(discovery, 2, 1100.0, 1300.0), "Congelaria enters after roughly twenty minutes of standard base waits")
 	check(seconds_in_range(discovery, 3, 5200.0, 5600.0), "Micelia enters after roughly ninety minutes of standard base waits")
 	check(seconds_in_range(discovery, 4, 15000.0, 16500.0), "Ferro-Velho enters after roughly four and a half hours of standard base waits")
 	check(seconds_in_range(discovery, 5, 36000.0, 39000.0), "Cassino enters after roughly ten hours of standard base waits")
+	check(float(discovery[6].seconds) > float(discovery[5].seconds), "Aeropolis extends rather than replaces the established route ladder")
 
 	finish()
 

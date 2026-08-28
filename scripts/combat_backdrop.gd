@@ -15,11 +15,12 @@ func _draw() -> void:
 	var fungal := planet_id == "micelia_404"
 	var scrapyard := planet_id == "ferro_velho_omega"
 	var casino := planet_id == "cassino_quasar"
-	var sky_top := Color("#5a1b58") if casino else (Color("#4a3028") if scrapyard else (Color("#244537") if fungal else (Color("#123f59") if frozen else Color("#1b3156"))))
-	var sky_bottom := Color("#28143f") if casino else (Color("#35202d") if scrapyard else (Color("#38244b") if fungal else (Color("#1c3150") if frozen else Color("#341d50"))))
-	var ridge_color := Color("#25102d") if casino else (Color("#211819") if scrapyard else (Color("#152b25") if fungal else (Color("#10283b") if frozen else Color("#131a31"))))
-	var ground_color := Color("#100615") if casino else (Color("#100a0c") if scrapyard else (Color("#08150f") if fungal else (Color("#06131d") if frozen else Color("#0a1025"))))
-	var primary_glow := Color(1.0, 0.46, 0.85, 0.20) if casino else (Color(1.0, 0.62, 0.26, 0.18) if scrapyard else (Color(0.78, 0.96, 0.39, 0.16) if fungal else (Color(0.45, 0.95, 0.88, 0.16) if frozen else Color(0.96, 0.71, 0.31, 0.16))))
+	var aerial := planet_id == "aeropolis_penhora"
+	var sky_top := Color("#315b80") if aerial else (Color("#5a1b58") if casino else (Color("#4a3028") if scrapyard else (Color("#244537") if fungal else (Color("#123f59") if frozen else Color("#1b3156")))))
+	var sky_bottom := Color("#18294d") if aerial else (Color("#28143f") if casino else (Color("#35202d") if scrapyard else (Color("#38244b") if fungal else (Color("#1c3150") if frozen else Color("#341d50")))))
+	var ridge_color := Color("#273a58") if aerial else (Color("#25102d") if casino else (Color("#211819") if scrapyard else (Color("#152b25") if fungal else (Color("#10283b") if frozen else Color("#131a31")))))
+	var ground_color := Color("#111b35") if aerial else (Color("#100615") if casino else (Color("#100a0c") if scrapyard else (Color("#08150f") if fungal else (Color("#06131d") if frozen else Color("#0a1025")))))
+	var primary_glow := Color(0.56, 0.83, 1.0, 0.20) if aerial else (Color(1.0, 0.46, 0.85, 0.20) if casino else (Color(1.0, 0.62, 0.26, 0.18) if scrapyard else (Color(0.78, 0.96, 0.39, 0.16) if fungal else (Color(0.45, 0.95, 0.88, 0.16) if frozen else Color(0.96, 0.71, 0.31, 0.16)))))
 	var horizon := size.y * 0.64
 	draw_rect(Rect2(Vector2.ZERO, size), Color("#101a3a"))
 	for band in 10:
@@ -39,7 +40,15 @@ func _draw() -> void:
 	draw_rect(Rect2(0, horizon, size.x, size.y - horizon), ground_color)
 	draw_arc(Vector2(size.x * 0.24, horizon + 76), 94.0, PI, TAU, 32, Color(0.24, 0.75, 0.83, 0.13), 3.0, true)
 	draw_arc(Vector2(size.x * 0.76, horizon + 76), 94.0, PI, TAU, 32, Color(0.93, 0.33, 0.47, 0.13), 3.0, true)
-	if casino:
+	if aerial:
+		for x in [0.14, 0.36, 0.62, 0.84]:
+			var cloud_center := Vector2(size.x * x, horizon - 22 - 11 * int(x * 10) % 3)
+			draw_circle(cloud_center, 15.0, Color(0.72, 0.90, 1.0, 0.13))
+			draw_circle(cloud_center + Vector2(13, 4), 10.0, Color(0.72, 0.90, 1.0, 0.11))
+		for x in [0.28, 0.72]:
+			var start := Vector2(size.x * x, horizon - 42)
+			draw_polyline(PackedVector2Array([start, start + Vector2(-8, 16), start + Vector2(2, 14), start + Vector2(-5, 32)]), Color(1.0, 0.90, 0.43, 0.20), 3.0, true)
+	elif casino:
 		for x in [0.12, 0.32, 0.56, 0.80]:
 			var sign_center := Vector2(size.x * x, horizon - 30)
 			draw_arc(sign_center, 15.0, 0.0, TAU, 20, Color(1.0, 0.46, 0.85, 0.18), 4.0, true)

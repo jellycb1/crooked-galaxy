@@ -31,8 +31,9 @@ func _draw() -> void:
 	var fungal := planet_id == "micelia_404"
 	var scrapyard := planet_id == "ferro_velho_omega"
 	var casino := planet_id == "cassino_quasar"
-	var top := Color("#4b174f") if casino else (Color("#51352b") if scrapyard else (Color("#2d4b32") if fungal else (Color("#0e4359") if frozen else Color("#12264c"))))
-	var bottom := Color("#13051f") if casino else (Color("#160b09") if scrapyard else (Color("#07150d") if fungal else (Color("#04121d") if frozen else Color("#050817"))))
+	var aerial := planet_id == "aeropolis_penhora"
+	var top := Color("#264d76") if aerial else (Color("#4b174f") if casino else (Color("#51352b") if scrapyard else (Color("#2d4b32") if fungal else (Color("#0e4359") if frozen else Color("#12264c")))))
+	var bottom := Color("#09152f") if aerial else (Color("#13051f") if casino else (Color("#160b09") if scrapyard else (Color("#07150d") if fungal else (Color("#04121d") if frozen else Color("#050817")))))
 	var bands := 28
 	for band in bands:
 		var from_y := size.y * float(band) / float(bands)
@@ -41,7 +42,7 @@ func _draw() -> void:
 		draw_rect(Rect2(0, from_y, size.x, to_y - from_y + 1.0), color)
 
 	# Soft, deliberately off-center nebula shapes.
-	draw_circle(Vector2(size.x * 0.06, size.y * 0.32), size.x * 0.33, Color(1.0, 0.35, 0.82, 0.065) if casino else (Color(1.0, 0.52, 0.22, 0.055) if scrapyard else (Color(0.75, 0.96, 0.39, 0.045) if fungal else (Color(0.25, 0.92, 0.82, 0.045) if frozen else Color(0.14, 0.56, 0.72, 0.035)))))
+	draw_circle(Vector2(size.x * 0.06, size.y * 0.32), size.x * 0.33, Color(0.56, 0.83, 1.0, 0.065) if aerial else (Color(1.0, 0.35, 0.82, 0.065) if casino else (Color(1.0, 0.52, 0.22, 0.055) if scrapyard else (Color(0.75, 0.96, 0.39, 0.045) if fungal else (Color(0.25, 0.92, 0.82, 0.045) if frozen else Color(0.14, 0.56, 0.72, 0.035))))))
 	draw_circle(Vector2(size.x * 0.92, size.y * 0.48), size.x * 0.42, Color(0.52, 0.20, 0.68, 0.028))
 
 	for star in stars:
@@ -55,7 +56,15 @@ func _draw() -> void:
 	draw_arc(planet_center, planet_radius * 1.48, -2.8, 0.2, 80, Color(0.33, 0.65, 0.85, 0.10), 5.0, true)
 	draw_circle(planet_center, planet_radius, Color(0.18, 0.22, 0.47, 0.13))
 	draw_arc(planet_center, planet_radius, 0.0, TAU, 80, Color(0.40, 0.72, 0.90, 0.10), 2.0, true)
-	if casino:
+	if aerial:
+		for cloud_index in 11:
+			var cloud_x := size.x * (0.05 + float((cloud_index * 47) % 91) / 100.0)
+			var cloud_y := size.y * (0.20 + float((cloud_index * 23) % 61) / 100.0)
+			draw_arc(Vector2(cloud_x, cloud_y), 7.0 + float(cloud_index % 4), 0.0, TAU, 18, Color(0.72, 0.90, 1.0, 0.11), 2.5, true)
+		for bolt_index in 4:
+			var bolt_start := Vector2(size.x * (0.18 + bolt_index * 0.21), size.y * (0.32 + 0.07 * (bolt_index % 2)))
+			draw_polyline(PackedVector2Array([bolt_start, bolt_start + Vector2(-7, 14), bolt_start + Vector2(1, 13), bolt_start + Vector2(-5, 27)]), Color(1.0, 0.90, 0.43, 0.11), 2.0, true)
+	elif casino:
 		for ray_index in 10:
 			var angle := TAU * float(ray_index) / 10.0
 			var center := Vector2(size.x * 0.12, size.y * 0.72)

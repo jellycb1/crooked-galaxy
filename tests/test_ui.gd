@@ -427,10 +427,15 @@ func run_smoke_test() -> void:
 	check(state.travel_to_planet("cassino_quasar"), "UI state can enter the fifth unlocked planet")
 	await process_frame
 	check(scene.find_children("BoardOfferSelector_*", "Button", true, false).size() == 3 and scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "interplanetary board remains complete and compact after selecting the fifth discovered world")
+	state.player.completed_planets.append("cassino_quasar")
+	state.player.level = 30
+	check(state.travel_to_planet("aeropolis_penhora"), "UI state can enter the first year-one expansion planet")
+	await process_frame
+	check(scene.find_children("BoardOfferSelector_*", "Button", true, false).size() == 3 and scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "level-30 expansion joins the same compact renewable mission network")
 	scene.view_mode = "galaxy"
 	scene.render()
 	await process_frame
-	check(scene.find_child("GalaxyPlanetProgress_cassino_quasar", true, false) != null, "galaxy map names the active fifth-chapter objective")
+	check(scene.find_child("GalaxyPlanetProgress_aeropolis_penhora", true, false) != null, "galaxy map names the active year-one expansion objective")
 	state.afk_report = {"minutes": 95, "credits": 380, "scrap": 6, "capped": false}
 	state.last_notice = "SAVE RECUPERADO: progresso válido preservado; registros inconsistentes foram isolados."
 	state.last_notice_context = "system_recovery"

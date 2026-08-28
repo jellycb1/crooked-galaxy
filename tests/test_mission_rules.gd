@@ -45,7 +45,8 @@ func _init() -> void:
 	var planet_slot_counts := {}
 	var seen_target_ids := {}
 	var previous_pairs := {}
-	for cycle in 25:
+	state.player.level = 30
+	for cycle in 30:
 		state.player.wins = cycle
 		var rotating := MissionRules.board_offers(state.player)
 		var board_worlds := {}
@@ -66,8 +67,9 @@ func _init() -> void:
 			check(repeats.size() < 3, "a refreshed board never repeats all three planet-target pairs at cycle %d" % cycle)
 		previous_pairs = current_pairs
 	var planet_counts: Array = planet_slot_counts.values()
-	check(int(planet_counts.max()) - int(planet_counts.min()) <= 1, "five unlocked destinations receive balanced exposure across complete rotation epochs")
+	check(int(planet_counts.max()) - int(planet_counts.min()) <= 1, "all unlocked destinations receive balanced exposure across complete rotation epochs")
 	check(seen_target_ids.size() == ContentDB.TARGETS.size(), "the bounded mature rotation exposes every current target identity")
+	state.player.level = 19
 	state.player.wins = 7
 	mature = MissionRules.board_offers(state.player)
 

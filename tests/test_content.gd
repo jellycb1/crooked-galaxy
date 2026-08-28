@@ -113,6 +113,11 @@ func _init() -> void:
 	check(ContentDB.loot_slots_for_planet("congelaria_sa").has("helmet") and not ContentDB.loot_slots_for_planet("congelaria_sa").has("gloves"), "Congelária introduces helmets without opening later slots early")
 	check(ContentDB.loot_slots_for_planet("micelia_404").has("gloves") and not ContentDB.loot_slots_for_planet("micelia_404").has("boots"), "Micélia introduces gloves after helmets")
 	check(ContentDB.loot_slots_for_planet("ferro_velho_omega").has("boots"), "Ferro-Velho completes the first secondary equipment layer")
+	check(ContentDB.loot_slots_for_planet("aeropolis_penhora").has("rig") and not ContentDB.loot_slots_for_planet("aeropolis_penhora").has("implant"), "Aeropolis introduces rigs without leaking the next year-one equipment family")
+	var aerial_rng := RandomNumberGenerator.new()
+	aerial_rng.seed = 303030
+	var aerial_rig := ContentDB.generate_loot(ContentDB.TARGETS[20], aerial_rng, 3, "rig")
+	check(str(aerial_rig.slot) == "rig" and str(aerial_rig.origin_planet_id) == "aeropolis_penhora" and not str(aerial_rig.name).is_empty(), "the level-30 pack produces canonical themed rig equipment")
 	for secondary_case in [
 		{"target": ContentDB.TARGETS[4], "slot": "helmet"},
 		{"target": ContentDB.TARGETS[8], "slot": "gloves"},

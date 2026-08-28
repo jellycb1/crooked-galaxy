@@ -22,6 +22,9 @@ func run() -> void:
 	check(backdrop.loaded_planet == "dustball_prime" and backdrop.texture_rect.texture == contract_texture, "unchanged environment state is reused without another visual update")
 	backdrop.show_context("contracts", "congelaria_sa")
 	check(backdrop.texture_rect.modulate != dustball_modulate, "same environment receives a distinct active-planet tint without reloading its texture")
+	var frozen_modulate := backdrop.texture_rect.modulate
+	backdrop.show_context("contracts", "aeropolis_penhora")
+	check(backdrop.texture_rect.modulate != dustball_modulate and backdrop.texture_rect.modulate != frozen_modulate, "the first year-one planet owns a distinct procedural atmosphere tint")
 	check(backdrop.texture_rect.texture != null, "contract environment resolves its imported texture")
 	check(maxi(backdrop.texture_rect.texture.get_width(), backdrop.texture_rect.texture.get_height()) <= 1280, "contract environment stays within the Android-first texture budget")
 	backdrop.show_context("world")

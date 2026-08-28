@@ -34,6 +34,8 @@ func motif_id() -> String:
 			return "scrapyard"
 		"cassino_quasar":
 			return "quasar"
+		"aeropolis_penhora":
+			return "cloudbank"
 	return "unknown"
 
 
@@ -73,6 +75,12 @@ func _draw() -> void:
 				ring.append(center + Vector2(cos(angle) * (radius + 6.0), sin(angle) * 6.0).rotated(-0.32))
 			draw_polyline(ring, color.lightened(0.22), 2.5, true)
 			draw_circle(center - Vector2(5, 5), 3.0, Color("#ffe86b"))
+		"cloudbank":
+			draw_arc(center, radius * 0.72, 0.15, 3.0, 18, Color("#dff5ff"), 3.0, true)
+			for offset in [Vector2(-8, 3), Vector2(0, -1), Vector2(8, 4)]:
+				draw_circle(center + offset, 5.5, color.lightened(0.28))
+			var bolt := PackedVector2Array([center + Vector2(1, 4), center + Vector2(-3, 11), center + Vector2(2, 10), center + Vector2(-1, 17)])
+			draw_polyline(bolt, Color("#ffe66d"), 2.2, true)
 	if not unlocked:
 		var lock_center := center + Vector2(radius * 0.55, radius * 0.55)
 		draw_rect(Rect2(lock_center - Vector2(5, 2), Vector2(10, 8)), Color("#0b1228"), true)

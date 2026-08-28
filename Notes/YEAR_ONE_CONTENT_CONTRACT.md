@@ -8,7 +8,7 @@ O jogador diário de referência conclui cinco caçadas por dia durante 365 dias
 
 Os cinco planetas atuais mantêm os níveis 1, 4, 8, 13 e 19. A partir daí, um planeta é desbloqueado a cada dez níveis: 30, 40, 50 e assim sucessivamente até 300. Isso define 33 planetas e, com quatro identidades de alvo por planeta, 132 alvos no catálogo completo de lançamento.
 
-Estes números são um teto de produção verificável, não uma alegação de que o conteúdo já existe. O vertical slice atual contém cinco planetas e vinte alvos; faltam 28 habitats e 112 alvos para cumprir este eixo do contrato.
+Estes números são um teto de produção verificável, não uma alegação de que o conteúdo já existe. O catálogo implementado contém seis planetas e vinte e quatro alvos; faltam 27 habitats e 108 alvos para cumprir este eixo do contrato. Aerópolis de Penhora, desbloqueada no nível 30, é o primeiro pacote pós-vertical-slice e estabelece o formato repetível: quatro alvos, dois incidentes, famílias de equipamento, tradução integral e identidade procedural própria.
 
 ## Comportamento da rede de missões
 

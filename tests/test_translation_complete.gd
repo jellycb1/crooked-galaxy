@@ -1,6 +1,7 @@
 extends SceneTree
 
 const Challenge = preload("res://scripts/challenge_rules.gd")
+const Core = preload("res://scripts/core_rules.gd")
 const Locales = preload("res://scripts/locale_rules.gd")
 const State = preload("res://scripts/game_state.gd")
 
@@ -44,8 +45,29 @@ func run_test() -> void:
 
 	TranslationServer.set_locale("en")
 	for planet in ContentDB.PLANETS:
+		for field in ["name", "subtitle", "description", "completion_text"]:
+			check_catalog_key(pt_keys, en_keys, Locales.content_key("planet", str(planet.id), field), "planet %s" % field)
 		check_translation(Locales.content_key("planet", str(planet.id), "name"), "planet name")
 		check_translation(Locales.content_key("planet", str(planet.id), "completion_text"), "chapter finale")
+	for target in ContentDB.TARGETS:
+		for field in ["name", "title", "description"]:
+			check_catalog_key(pt_keys, en_keys, Locales.content_key("target", str(target.id), field), "target %s" % field)
+		for attack_index in target.get("attacks", []).size():
+			check_catalog_key(pt_keys, en_keys, "TARGET_%s_ATTACK_%d" % [str(target.id).to_upper(), attack_index], "target attack")
+	for event in ContentDB.HUNT_EVENTS:
+		for field in ["title", "description"]:
+			check_catalog_key(pt_keys, en_keys, Locales.content_key("hunt_event", str(event.id), field), "hunt event %s" % field)
+		for choice in event.get("choices", []):
+			for field in ["name", "effect_text", "result"]:
+				var event_key := "HUNT_EVENT_%s_CHOICE_%s_%s" % [str(event.id).to_upper(), str(choice.id).to_upper(), field.to_upper()]
+				check_catalog_key(pt_keys, en_keys, event_key, "hunt event choice %s" % field)
+	for planet in ContentDB.PLANETS:
+		for slot in Core.EQUIPMENT_SLOTS:
+			var catalog := ContentDB.item_catalog_for(str(planet.id), slot)
+			for item_index in catalog.size():
+				for field in ["name", "description"]:
+					var item_key := "ITEM_%s_%s_%d_%s" % [str(planet.id).to_upper(), slot.to_upper(), item_index, field.to_upper()]
+					check_catalog_key(pt_keys, en_keys, item_key, "planet item %s" % field)
 	for stage in Challenge.STAGES:
 		for field in ["name", "title", "description"]:
 			check_translation(Locales.content_key("rift_stage", str(stage.id), field), "Rift stage %s" % field)
@@ -174,6 +196,10 @@ func literal_runtime_keys() -> Array[String]:
 func check_translation(key: String, context: String) -> void:
 	var translated := str(TranslationServer.translate(key))
 	check(translated != key and not translated.is_empty(), "%s has English text: %s" % [context, key])
+
+
+func check_catalog_key(pt_keys: Array[String], en_keys: Array[String], key: String, context: String) -> void:
+	check(pt_keys.has(key) and en_keys.has(key), "%s exists in both catalogs: %s" % [context, key])
 
 
 func has_label(scene: Node, expected: String) -> bool:

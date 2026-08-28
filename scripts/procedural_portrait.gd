@@ -255,6 +255,8 @@ func planet_loadout_color(planet_id: String) -> Color:
 			return Color("#ff9f43")
 		"cassino_quasar":
 			return Color("#ff75d8")
+		"aeropolis_penhora":
+			return Color("#8fd3ff")
 		_:
 			return Color("#55e5ff")
 

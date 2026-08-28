@@ -15,7 +15,8 @@ func _init() -> void:
 	source.player.level = 19
 	source.player.xp = 120
 	source.player.wins = 82
-	source.player.completed_planets = ContentDB.PLANETS.map(func(planet): return str(planet.id))
+	var established_planets := MissionRulesScript.available_planets(source.player.level)
+	source.player.completed_planets = established_planets.map(func(planet): return str(planet.id))
 	source.player.current_planet_id = "cassino_quasar"
 	source.player.owned_transport_ids = ["executive_escape_yacht"]
 	source.player.active_transport_id = "executive_escape_yacht"
@@ -26,7 +27,7 @@ func _init() -> void:
 	restored.save_path = test_save
 	restored.load_game()
 	var offers := MissionRulesScript.board_offers(restored.player)
-	check(offers.size() == 3 and MissionRulesScript.available_planets(int(restored.player.level)).size() == ContentDB.PLANETS.size(), "established planet progress resumes into the complete three-offer network")
+	check(offers.size() == 3 and MissionRulesScript.available_planets(int(restored.player.level)).size() == established_planets.size(), "established planet progress resumes into its complete level-19 three-offer network")
 	check(str(restored.player.current_planet_id) == "cassino_quasar" and str(restored.player.active_transport_id) == "executive_escape_yacht", "active destination and owned transport survive the network transition")
 
 	var accepted: Dictionary = offers[2]
