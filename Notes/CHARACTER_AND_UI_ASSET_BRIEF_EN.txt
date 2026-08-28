@@ -176,7 +176,7 @@ TARGET PORTRAITS
 
 Every target needs one canonical expressive portrait with a transparent background, a strong silhouette, a readable face, and one large prop connected to their profession or joke. The same portrait appears in the board, briefing, combat, archive, victory, rewards, and weekly operations. Damage, defeated, selected, and boss states should be overlays rather than separate paintings.
 
-Current requirement: 64 target portraits. First-year requirement: 140 target portraits.
+Current requirement: 68 target portraits. First-year requirement: 140 target portraits.
 
 MISSION PRESSURE SYMBOLS
 
@@ -207,7 +207,7 @@ EQUIPMENT MATERIAL LANGUAGE: three or four recurring shapes, materials, colors, 
 
 INCIDENT PROPS: at least two small illustrations showing local objects, creatures, vehicles, machines, or travel problems.
 
-Current requirement: 16 habitats, 16 arenas, 16 medals, and 32 incident illustrations. First-year requirement: 35 habitats, 35 arenas, 35 medals, and 70 incident illustrations.
+Current requirement: 17 habitats, 17 arenas, 17 medals, and 34 incident illustrations. First-year requirement: 35 habitats, 35 arenas, 35 medals, and 70 incident illustrations.
 
 Galaxy routes, locked states, current location, completion, rewards, and unlock effects are created by the interface rather than painted into one fixed map.
 

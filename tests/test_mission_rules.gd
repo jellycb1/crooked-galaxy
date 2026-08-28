@@ -51,6 +51,17 @@ func _init() -> void:
 	var seen_target_ids := {}
 	var previous_pairs := {}
 	state.player.level = int(ContentDB.PLANETS[-1].unlock_level)
+	state.player.seen_planet_ids = ContentDB.PLANETS.slice(0, ContentDB.PLANETS.size() - 1).map(func(planet): return str(planet.id))
+	var spotlight_target_ids := {}
+	for cycle in 6:
+		state.player.wins = cycle
+		var spotlight_offers := MissionRules.board_offers(state.player)
+		var newest_offers := spotlight_offers.filter(func(offer): return str(offer.planet_id) == str(ContentDB.PLANETS[-1].id))
+		check(newest_offers.size() == 1, "an unacknowledged newest world receives exactly one rotating spotlight at cycle %d" % cycle)
+		if not newest_offers.is_empty():
+			spotlight_target_ids[str(newest_offers[0].id)] = true
+	check(spotlight_target_ids.size() == 4, "six spotlight boards expose all four identities from a newly unlocked world")
+	state.player.seen_planet_ids = ContentDB.PLANETS.map(func(planet): return str(planet.id))
 	# Sixteen passes across the complete current world catalog balance both the
 	# three destination slots and all four authored target tiers as the catalog
 	# grows beyond the early least-common rotation periods.

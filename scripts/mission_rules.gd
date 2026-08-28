@@ -48,6 +48,20 @@ static func board_offers(player: Dictionary, limit := 3) -> Array[Dictionary]:
 		return []
 	var cycle := maxi(0, int(player.get("wins", 0)))
 	var planet_order := _planet_rotation(planets, cycle)
+	# A newly unlocked destination must become visible before the player can
+	# mistake its unlock notice for content that is still unavailable. Until the
+	# newest world is acknowledged in Galaxy, rotate it through the three board
+	# roles; all other slots keep the normal deterministic network order.
+	var seen_planet_ids: Array = player.get("seen_planet_ids", [])
+	var newest_planet: Dictionary = planets.back()
+	var player_level := int(player.get("level", 1))
+	var spotlight_xp_window := 6 * (36 + 7 * player_level)
+	var inside_unlock_window := player_level == int(newest_planet.get("unlock_level", 1)) and int(player.get("xp", 0)) < spotlight_xp_window
+	if inside_unlock_window and not seen_planet_ids.has(str(newest_planet.id)):
+		var current_index := planet_order.find(newest_planet)
+		if current_index >= 0:
+			planet_order.remove_at(current_index)
+			planet_order.insert(cycle % mini(limit, planets.size()), newest_planet)
 	var used_target_ids := {}
 	var result: Array[Dictionary] = []
 	for offer_index in mini(limit, ROLES.size()):

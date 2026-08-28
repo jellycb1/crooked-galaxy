@@ -19,16 +19,17 @@ const MuseuAmanha = preload("res://scripts/content/packs/museu_amanha_obsoleto.g
 const BibliotecaSilencio = preload("res://scripts/content/packs/biblioteca_silencio_taxado.gd")
 const ResortHorizonte = preload("res://scripts/content/packs/resort_horizonte_eventos.gd")
 const TribunalClones = preload("res://scripts/content/packs/tribunal_clones_nao_autorizados.gd")
+const MosteiroGravidade = preload("res://scripts/content/packs/mosteiro_gravidade_reversa.gd")
 
 var failures := 0
 
 
 func _init() -> void:
 	check(Registry.validation_errors().is_empty(), "registered planet packs satisfy the complete content contract")
-	check(Registry.PACK_SCRIPTS.size() == 16, "the registry contains all sixteen current canonical planet packs")
-	check(Registry.PLANETS.size() == 16, "the registry composes all sixteen planets")
-	check(Registry.TARGETS.size() == 64, "the registry composes all 64 targets")
-	check(Registry.HUNT_EVENTS.size() == 32, "the registry composes all 32 hunt incidents")
+	check(Registry.PACK_SCRIPTS.size() == 17, "the registry contains all seventeen current canonical planet packs")
+	check(Registry.PLANETS.size() == 17, "the registry composes all seventeen planets")
+	check(Registry.TARGETS.size() == 68, "the registry composes all 68 targets")
+	check(Registry.HUNT_EVENTS.size() == 34, "the registry composes all 34 hunt incidents")
 	check(Registry.pack_for_planet("dustball_prime") == Dustball.PACK, "registry resolves the canonical Dustball pack")
 	check(Registry.pack_for_planet("congelaria_sa") == Congelaria.PACK, "registry resolves the canonical Congelaria pack")
 	check(Registry.pack_for_planet("micelia_404") == Micelia.PACK, "registry resolves the canonical Micelia pack")
@@ -45,6 +46,7 @@ func _init() -> void:
 	check(Registry.pack_for_planet("biblioteca_silencio_taxado") == BibliotecaSilencio.PACK, "registry resolves the canonical Taxed Silence Library pack")
 	check(Registry.pack_for_planet("resort_horizonte_eventos") == ResortHorizonte.PACK, "registry resolves the canonical Event Horizon Resort pack")
 	check(Registry.pack_for_planet("tribunal_clones_nao_autorizados") == TribunalClones.PACK, "registry resolves the canonical Unauthorized Clone Court pack")
+	check(Registry.pack_for_planet("mosteiro_gravidade_reversa") == MosteiroGravidade.PACK, "registry resolves the canonical Reverse Gravity Monastery pack")
 	check(Registry.pack_for_planet("unknown").is_empty(), "unknown planet packs fail closed")
 	var detached := Registry.pack_for_planet("dustball_prime")
 	detached.planet.name = "MUTATED"
@@ -186,6 +188,14 @@ func _init() -> void:
 	check(Content.loot_slots_for_planet("tribunal_clones_nao_autorizados") == ["weapon", "weapon", "weapon", "armor", "armor", "rig", "rig"], "Unauthorized Clone Court deepens rigs without opening Rift-only slots")
 	check([TribunalClones.TARGETS[0].power, TribunalClones.TARGETS[3].power] == [823, 925], "level-130 combat anchors are explicit")
 	check(TribunalClones.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Unauthorized Clone Court target art remains explicitly assigned to the user asset pipeline")
+	check(Content.PLANETS[16] == MosteiroGravidade.PLANET, "the level-140 planet follows Unauthorized Clone Court in canonical order")
+	check(Content.TARGETS.slice(64, 68) == MosteiroGravidade.TARGETS, "ContentDB exposes all four Reverse Gravity Monastery targets")
+	check(Content.HUNT_EVENTS.slice(32, 34) == MosteiroGravidade.EVENTS, "ContentDB exposes both Reverse Gravity Monastery incidents")
+	check(Content.PLANET_ITEM_CATALOGS.mosteiro_gravidade_reversa == MosteiroGravidade.ITEMS, "Reverse Gravity Monastery primary equipment remains canonical")
+	check(Content.SECONDARY_ITEM_CATALOGS.mosteiro_gravidade_reversa == MosteiroGravidade.SECONDARY_ITEMS, "Reverse Gravity Monastery implant catalog remains canonical")
+	check(Content.loot_slots_for_planet("mosteiro_gravidade_reversa").count("implant") == 2, "level-140 loot deepens the universal implant slot")
+	check([MosteiroGravidade.TARGETS[0].power, MosteiroGravidade.TARGETS[3].power] == [946, 1058], "level-140 combat anchors are explicit")
+	check(MosteiroGravidade.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Reverse Gravity Monastery target art remains explicitly assigned to the user asset pipeline")
 
 	var forged := Dustball.PACK.duplicate(true)
 	forged.targets.pop_back()
@@ -208,7 +218,7 @@ func _init() -> void:
 	check(not PackContract.is_valid(forged), "planet bosses are reserved for tier three")
 
 	if failures == 0:
-		print("PASS: all sixteen current planet packs preserve canonical content and slot progression")
+		print("PASS: all seventeen current planet packs preserve canonical content and slot progression")
 	quit(1 if failures > 0 else 0)
 
 

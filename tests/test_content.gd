@@ -89,7 +89,7 @@ func _init() -> void:
 	check(ContentDB.procedural_collection_ids().size() >= 100 and ContentDB.procedural_collection_ids().all(func(id): return str(id).contains("::")), "finite template families expose a bounded multi-variant collection catalog")
 	check(ContentDB.procedural_collection_entries().size() * 5 == ContentDB.procedural_collection_ids().size(), "every collectible template exposes exactly the five canonical series variants")
 	check(ContentDB.procedural_collection_total() == ContentDB.procedural_collection_ids().size(), "hot collection counts avoid rebuilding or exposing the canonical identifier cache")
-	check(ContentDB.procedural_collection_total() == 1040, "sixteen authored planet packs expose the documented bounded 1040-series catalog")
+	check(ContentDB.procedural_collection_total() == 1100, "seventeen authored planet packs expose the documented bounded 1100-series catalog")
 	check(int(premium_omega_loot.power) == int(canonical_omega_loot.power), "contract danger does not inflate the dropped equipment tier")
 	check(str(ContentDB.target_for_planet_tier("dustball_prime", 1).id) == "baron_boom", "planet tier resolves the next warrant deterministically")
 	check(ContentDB.planet_tier_from_target_captures("dustball_prime", {"gloop": 9}) == 1, "farming the first warrant cannot skip sequential tiers")
@@ -169,6 +169,10 @@ func _init() -> void:
 	clone_rng.seed = 1300130
 	var clone_rig := ContentDB.generate_loot(ContentDB.TARGETS[60], clone_rng, 3, "rig")
 	check(str(clone_rig.slot) == "rig" and str(clone_rig.origin_planet_id) == "tribunal_clones_nao_autorizados" and not str(clone_rig.name).is_empty(), "the level-130 pack produces canonical themed rig equipment")
+	var monastery_rng := RandomNumberGenerator.new()
+	monastery_rng.seed = 1400140
+	var monastery_implant := ContentDB.generate_loot(ContentDB.TARGETS[64], monastery_rng, 3, "implant")
+	check(str(monastery_implant.slot) == "implant" and str(monastery_implant.origin_planet_id) == "mosteiro_gravidade_reversa" and not str(monastery_implant.name).is_empty(), "the level-140 pack produces canonical themed implant equipment")
 	for secondary_case in [
 		{"target": ContentDB.TARGETS[4], "slot": "helmet"},
 		{"target": ContentDB.TARGETS[8], "slot": "gloves"},

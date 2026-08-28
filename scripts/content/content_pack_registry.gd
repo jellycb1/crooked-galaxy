@@ -18,8 +18,9 @@ const MuseuAmanhaObsoleto = preload("res://scripts/content/packs/museu_amanha_ob
 const BibliotecaSilencioTaxado = preload("res://scripts/content/packs/biblioteca_silencio_taxado.gd")
 const ResortHorizonteEventos = preload("res://scripts/content/packs/resort_horizonte_eventos.gd")
 const TribunalClonesNaoAutorizados = preload("res://scripts/content/packs/tribunal_clones_nao_autorizados.gd")
+const MosteiroGravidadeReversa = preload("res://scripts/content/packs/mosteiro_gravidade_reversa.gd")
 
-const PACK_SCRIPTS := [DustballPrime, Congelaria, Micelia404, FerroVelhoOmega, CassinoQuasar, AeropolisPenhora, ArquivoAbissalN9, VerdantiaPatenteada, CaldeiraGarantia, CondominioLunar7, NecropoleSolarUmbral, CentralTempestades24h, MuseuAmanhaObsoleto, BibliotecaSilencioTaxado, ResortHorizonteEventos, TribunalClonesNaoAutorizados]
+const PACK_SCRIPTS := [DustballPrime, Congelaria, Micelia404, FerroVelhoOmega, CassinoQuasar, AeropolisPenhora, ArquivoAbissalN9, VerdantiaPatenteada, CaldeiraGarantia, CondominioLunar7, NecropoleSolarUmbral, CentralTempestades24h, MuseuAmanhaObsoleto, BibliotecaSilencioTaxado, ResortHorizonteEventos, TribunalClonesNaoAutorizados, MosteiroGravidadeReversa]
 
 # This registry owns the deterministic public composition order. ContentDB
 # remains the stable facade consumed by gameplay, saves and tests.
@@ -41,9 +42,10 @@ const PLANETS := [
 	BibliotecaSilencioTaxado.PLANET,
 	ResortHorizonteEventos.PLANET,
 	TribunalClonesNaoAutorizados.PLANET,
+	MosteiroGravidadeReversa.PLANET,
 ]
-const TARGETS := DustballPrime.TARGETS + Congelaria.TARGETS + Micelia404.TARGETS + FerroVelhoOmega.TARGETS + CassinoQuasar.TARGETS + AeropolisPenhora.TARGETS + ArquivoAbissalN9.TARGETS + VerdantiaPatenteada.TARGETS + CaldeiraGarantia.TARGETS + CondominioLunar7.TARGETS + NecropoleSolarUmbral.TARGETS + CentralTempestades24h.TARGETS + MuseuAmanhaObsoleto.TARGETS + BibliotecaSilencioTaxado.TARGETS + ResortHorizonteEventos.TARGETS + TribunalClonesNaoAutorizados.TARGETS
-const HUNT_EVENTS := DustballPrime.EVENTS + Congelaria.EVENTS + Micelia404.EVENTS + FerroVelhoOmega.EVENTS + CassinoQuasar.EVENTS + AeropolisPenhora.EVENTS + ArquivoAbissalN9.EVENTS + VerdantiaPatenteada.EVENTS + CaldeiraGarantia.EVENTS + CondominioLunar7.EVENTS + NecropoleSolarUmbral.EVENTS + CentralTempestades24h.EVENTS + MuseuAmanhaObsoleto.EVENTS + BibliotecaSilencioTaxado.EVENTS + ResortHorizonteEventos.EVENTS + TribunalClonesNaoAutorizados.EVENTS
+const TARGETS := DustballPrime.TARGETS + Congelaria.TARGETS + Micelia404.TARGETS + FerroVelhoOmega.TARGETS + CassinoQuasar.TARGETS + AeropolisPenhora.TARGETS + ArquivoAbissalN9.TARGETS + VerdantiaPatenteada.TARGETS + CaldeiraGarantia.TARGETS + CondominioLunar7.TARGETS + NecropoleSolarUmbral.TARGETS + CentralTempestades24h.TARGETS + MuseuAmanhaObsoleto.TARGETS + BibliotecaSilencioTaxado.TARGETS + ResortHorizonteEventos.TARGETS + TribunalClonesNaoAutorizados.TARGETS + MosteiroGravidadeReversa.TARGETS
+const HUNT_EVENTS := DustballPrime.EVENTS + Congelaria.EVENTS + Micelia404.EVENTS + FerroVelhoOmega.EVENTS + CassinoQuasar.EVENTS + AeropolisPenhora.EVENTS + ArquivoAbissalN9.EVENTS + VerdantiaPatenteada.EVENTS + CaldeiraGarantia.EVENTS + CondominioLunar7.EVENTS + NecropoleSolarUmbral.EVENTS + CentralTempestades24h.EVENTS + MuseuAmanhaObsoleto.EVENTS + BibliotecaSilencioTaxado.EVENTS + ResortHorizonteEventos.EVENTS + TribunalClonesNaoAutorizados.EVENTS + MosteiroGravidadeReversa.EVENTS
 const STARTER_ITEM_CATALOG := DustballPrime.ITEMS
 const PLANET_ITEM_CATALOGS := {
 	"congelaria_sa": Congelaria.ITEMS,
@@ -61,6 +63,7 @@ const PLANET_ITEM_CATALOGS := {
 	"biblioteca_silencio_taxado": BibliotecaSilencioTaxado.ITEMS,
 	"resort_horizonte_eventos": ResortHorizonteEventos.ITEMS,
 	"tribunal_clones_nao_autorizados": TribunalClonesNaoAutorizados.ITEMS,
+	"mosteiro_gravidade_reversa": MosteiroGravidadeReversa.ITEMS,
 }
 const SECONDARY_ITEM_CATALOGS := {
 	"congelaria_sa": Congelaria.SECONDARY_ITEMS,
@@ -78,6 +81,7 @@ const SECONDARY_ITEM_CATALOGS := {
 	"biblioteca_silencio_taxado": BibliotecaSilencioTaxado.SECONDARY_ITEMS,
 	"resort_horizonte_eventos": ResortHorizonteEventos.SECONDARY_ITEMS,
 	"tribunal_clones_nao_autorizados": TribunalClonesNaoAutorizados.SECONDARY_ITEMS,
+	"mosteiro_gravidade_reversa": MosteiroGravidadeReversa.SECONDARY_ITEMS,
 }
 
 

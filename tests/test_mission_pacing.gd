@@ -16,7 +16,7 @@ func _init() -> void:
 	var elapsed := 0.0
 	var discovery := {1: {"wins": 0, "seconds": 0.0}}
 	var known_worlds := MissionRulesScript.available_planets(int(player.level)).size()
-	for _capture in 1900:
+	for _capture in 2200:
 		var offers := MissionRulesScript.board_offers(player)
 		check(offers.size() == 3, "standard progression always retains three generated offers")
 		if offers.size() < 2:
@@ -51,6 +51,7 @@ func _init() -> void:
 	check(in_range(discovery, 14, 1190, 1280, 110), "the taxed-silence-library expansion arrives at its level-110 contract")
 	check(in_range(discovery, 15, 1370, 1470, 120), "the event-horizon-resort expansion arrives at its level-120 contract")
 	check(in_range(discovery, 16, 1570, 1680, 130), "the unauthorized-clone-court expansion arrives at its level-130 contract")
+	check(in_range(discovery, 17, 1780, 1940, 140), "the reverse-gravity-monastery expansion arrives at its level-140 contract")
 	check(float(discovery[2].seconds) < float(discovery[3].seconds) and float(discovery[3].seconds) < float(discovery[4].seconds) and float(discovery[4].seconds) < float(discovery[5].seconds), "cumulative mission time grows monotonically across world discoveries")
 	check(seconds_in_range(discovery, 2, 1100.0, 1300.0), "Congelaria enters after roughly twenty minutes of standard base waits")
 	check(seconds_in_range(discovery, 3, 5500.0, 5800.0), "Micelia enters after roughly ninety minutes of standard base waits")
@@ -67,6 +68,7 @@ func _init() -> void:
 	check(float(discovery[14].seconds) > float(discovery[13].seconds), "Taxed Silence Library extends the cumulative route ladder")
 	check(float(discovery[15].seconds) > float(discovery[14].seconds), "Event Horizon Resort extends the cumulative route ladder")
 	check(float(discovery[16].seconds) > float(discovery[15].seconds), "Unauthorized Clone Court extends the cumulative route ladder")
+	check(float(discovery[17].seconds) > float(discovery[16].seconds), "Reverse Gravity Monastery extends the cumulative route ladder")
 
 	finish()
 

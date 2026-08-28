@@ -1,6 +1,6 @@
 # Crooked Galaxy — pipeline modular de conteúdo planetário
 
-Estado: migração concluída e pipeline continuado com dezasseis planetas até ao nível 130.
+Estado: migração concluída e pipeline continuado com dezassete planetas até ao nível 140.
 
 ## Objetivo
 
@@ -77,5 +77,6 @@ Um pacote novo só entra no registry quando:
 | Biblioteca do Silêncio Taxado | `biblioteca_silencio_taxado.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e luvas | Novo · nível 110 |
 | Resort do Horizonte de Eventos | `resort_horizonte_eventos.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e capacetes | Novo · nível 120 |
 | Tribunal de Clones Não Autorizados | `tribunal_clones_nao_autorizados.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e rigs | Novo · nível 130 |
+| Mosteiro da Gravidade Reversa | `mosteiro_gravidade_reversa.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e implantes | Novo · nível 140 |
 
-O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Os nove packs novos entre os níveis 50 e 130 provam que planetas entram por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus trinta e seis retratos e vinte e sete ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos.
+O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Os dez packs novos entre os níveis 50 e 140 provam que planetas entram por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus quarenta retratos e trinta ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos.
