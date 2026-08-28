@@ -6,16 +6,20 @@ const Registry = preload("res://scripts/content/content_pack_registry.gd")
 const Dustball = preload("res://scripts/content/packs/dustball_prime.gd")
 const Congelaria = preload("res://scripts/content/packs/congelaria_sa.gd")
 const Micelia = preload("res://scripts/content/packs/micelia_404.gd")
+const FerroVelho = preload("res://scripts/content/packs/ferro_velho_omega.gd")
+const Cassino = preload("res://scripts/content/packs/cassino_quasar.gd")
 
 var failures := 0
 
 
 func _init() -> void:
 	check(Registry.validation_errors().is_empty(), "registered planet packs satisfy the complete content contract")
-	check(Registry.PACK_SCRIPTS.size() == 3, "the registry contains the first three canonical planet packs")
+	check(Registry.PACK_SCRIPTS.size() == 5, "the registry contains the first five canonical planet packs")
 	check(Registry.pack_for_planet("dustball_prime") == Dustball.PACK, "registry resolves the canonical Dustball pack")
 	check(Registry.pack_for_planet("congelaria_sa") == Congelaria.PACK, "registry resolves the canonical Congelaria pack")
 	check(Registry.pack_for_planet("micelia_404") == Micelia.PACK, "registry resolves the canonical Micelia pack")
+	check(Registry.pack_for_planet("ferro_velho_omega") == FerroVelho.PACK, "registry resolves the canonical Ferro-Velho pack")
+	check(Registry.pack_for_planet("cassino_quasar") == Cassino.PACK, "registry resolves the canonical Cassino pack")
 	check(Registry.pack_for_planet("unknown").is_empty(), "unknown planet packs fail closed")
 	var detached := Registry.pack_for_planet("dustball_prime")
 	detached.planet.name = "MUTATED"
@@ -41,6 +45,21 @@ func _init() -> void:
 	check(Content.loot_slots_for_planet("micelia_404") == ["weapon", "weapon", "weapon", "armor", "armor", "helmet", "gloves"], "Micelia adds gloves without removing helmets")
 	check([Congelaria.TARGETS[0].power, Congelaria.TARGETS[3].power, Micelia.TARGETS[0].power, Micelia.TARGETS[3].power] == [31, 45, 47, 69], "mid-campaign combat anchors remain unchanged")
 
+	check(Content.PLANETS.slice(3, 5) == [FerroVelho.PLANET, Cassino.PLANET], "ContentDB preserves both intermediate planets in canonical order")
+	check(Content.TARGETS.slice(12, 16) == FerroVelho.TARGETS, "ContentDB preserves all four Ferro-Velho targets")
+	check(Content.TARGETS.slice(16, 20) == Cassino.TARGETS, "ContentDB preserves all four Cassino targets")
+	check(Content.HUNT_EVENTS.slice(6, 8) == FerroVelho.EVENTS, "ContentDB preserves both Ferro-Velho incidents")
+	check(Content.HUNT_EVENTS.slice(8, 10) == Cassino.EVENTS, "ContentDB preserves both Cassino incidents")
+	check(Content.PLANET_ITEM_CATALOGS.ferro_velho_omega == FerroVelho.ITEMS, "Ferro-Velho primary equipment remains canonical")
+	check(Content.PLANET_ITEM_CATALOGS.cassino_quasar == Cassino.ITEMS, "Cassino primary equipment remains canonical")
+	check(Content.SECONDARY_ITEM_CATALOGS.ferro_velho_omega == FerroVelho.SECONDARY_ITEMS, "Ferro-Velho secondary equipment remains canonical")
+	check(Content.SECONDARY_ITEM_CATALOGS.cassino_quasar == Cassino.SECONDARY_ITEMS, "Cassino secondary equipment remains canonical")
+	var intermediate_slots := ["weapon", "weapon", "weapon", "armor", "armor", "helmet", "gloves", "boots"]
+	check(Content.loot_slots_for_planet("ferro_velho_omega") == intermediate_slots, "Ferro-Velho completes the first universal secondary loadout")
+	check(Content.loot_slots_for_planet("cassino_quasar") == intermediate_slots, "Cassino deepens the loadout without opening a surprise slot")
+	check(FerroVelho.SECONDARY_ITEMS.keys() == Cassino.SECONDARY_ITEMS.keys(), "intermediate packs expose the same secondary slot surface")
+	check([FerroVelho.TARGETS[0].power, FerroVelho.TARGETS[3].power, Cassino.TARGETS[0].power, Cassino.TARGETS[3].power] == [69, 90, 96, 124], "intermediate combat anchors remain unchanged")
+
 	var forged := Dustball.PACK.duplicate(true)
 	forged.targets.pop_back()
 	check(not PackContract.is_valid(forged), "incomplete planet packs are rejected")
@@ -62,7 +81,7 @@ func _init() -> void:
 	check(not PackContract.is_valid(forged), "planet bosses are reserved for tier three")
 
 	if failures == 0:
-		print("PASS: the first three modular planet packs preserve canonical content and slot progression")
+		print("PASS: the first five modular planet packs preserve canonical content and slot progression")
 	quit(1 if failures > 0 else 0)
 
 

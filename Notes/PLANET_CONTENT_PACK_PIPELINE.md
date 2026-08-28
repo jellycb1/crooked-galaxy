@@ -1,6 +1,6 @@
 # Crooked Galaxy — pipeline modular de conteúdo planetário
 
-Estado: fundação ativa; os três primeiros planetas foram migrados sem alteração de comportamento.
+Estado: fundação ativa; os cinco primeiros planetas foram migrados sem alteração de comportamento.
 
 ## Objetivo
 
@@ -31,7 +31,7 @@ scripts/content/
 
 `content_pack_registry.gd` garante unicidade entre pacotes e oferece uma fronteira única para composição futura.
 
-`content_db.gd` continua a expor `PLANET`, `PLANETS`, `TARGETS`, `HUNT_EVENTS`, `ITEM_CATALOG`, `PLANET_ITEM_CATALOGS` e `SECONDARY_ITEM_CATALOGS`. Os três primeiros pacotes apenas mudaram a origem dos dados; consumidores, resultados e saves não mudaram.
+`content_db.gd` continua a expor `PLANET`, `PLANETS`, `TARGETS`, `HUNT_EVENTS`, `ITEM_CATALOG`, `PLANET_ITEM_CATALOGS` e `SECONDARY_ITEM_CATALOGS`. Os cinco primeiros pacotes apenas mudaram a origem dos dados; consumidores, resultados e saves não mudaram.
 
 ## Regras para migrar um planeta existente
 
@@ -64,9 +64,9 @@ Um pacote novo só entra no registry quando:
 | Dustball Prime | `dustball_prime.gd` | planeta, 4 alvos, 2 incidentes, arma e traje | Migrado |
 | Congelária S.A. | `congelaria_sa.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e capacete | Migrado |
 | Micélia 404 | `micelia_404.gd` | planeta, 4 alvos, 2 incidentes, arma, traje, capacete e luvas | Migrado |
-| Ferro-Velho Ômega | — | permanece no monólito | Pendente |
-| Cassino Quasar | — | permanece no monólito | Pendente |
+| Ferro-Velho Ômega | `ferro_velho_omega.gd` | planeta, 4 alvos, 2 incidentes e 5 slots de equipamento | Migrado |
+| Cassino Quasar | `cassino_quasar.gd` | planeta, 4 alvos, 2 incidentes e 5 slots de equipamento | Migrado |
 | Aerópolis de Penhora | — | permanece no monólito | Pendente |
 | Arquivo Abissal N-9 | — | permanece no monólito | Pendente |
 
-O próximo batch deve migrar Ferro-Velho Ômega e Cassino Quasar em conjunto, pois ambos consolidam o mesmo conjunto de slots secundários (`helmet`, `gloves`, `boots`). Depois dessa paridade, Aerópolis e Arquivo Abissal podem ser migrados com as suas ramificações tardias de `rig` e `implant`.
+O próximo batch deve concluir a migração dos sete mundos atuais com Aerópolis e Arquivo Abissal. Esses pacotes devem manter deliberadamente ramificações tardias distintas: `rig` em Aerópolis e `implant` no Arquivo, sem herdar automaticamente `helmet`, `gloves` ou `boots` na tabela de drops desses planetas.
