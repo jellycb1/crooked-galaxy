@@ -4,11 +4,11 @@ Estado: fundação executável revista para a curva quadrática, 28 de agosto de
 
 ## Promessa mensurável
 
-O teto de produção conserva margem sobre o perfil mecanicamente mais rápido hoje possível: 160 unidades de combustível por dia e escolha sistemática da rota mais barata entre os três mandados. Nos quinze planetas atuais, esse perfil completa 3 802 caçadas e termina o ano no nível 218. A rota adicional de 60 minutos reduz naturalmente a velocidade relativamente ao catálogo anterior. O catálogo até nível 320 permanece como margem de segurança para futuras alterações de rotas, XP e economia.
+O teto de produção conserva margem sobre o perfil mecanicamente mais rápido hoje possível: 160 unidades de combustível por dia e escolha sistemática da rota mais barata entre os três mandados. Nos dezasseis planetas atuais, esse perfil completa 3 680 caçadas e termina o ano no nível 214. A rota adicional de 64 minutos reduz naturalmente a velocidade relativamente ao catálogo anterior. O catálogo até nível 320 permanece como margem de segurança para futuras alterações de rotas, XP e economia.
 
 Os cinco planetas iniciais mantêm os níveis 1, 4, 8, 13 e 19. A partir daí, um planeta é desbloqueado a cada dez níveis: 30, 40, 50 e assim sucessivamente até 320. Isso define 35 planetas e, com quatro identidades de alvo por planeta, 140 alvos no catálogo completo de lançamento.
 
-O conteúdo de gameplay cobre agora quinze planetas e 60 alvos até ao nível 120; faltam 20 habitats e 80 identidades para cumprir este eixo. Resort do Horizonte de Eventos continua o pipeline com um arquipélago turístico junto de um buraco negro, quatro alvos, dois incidentes, famílias de equipamento e tradução integral. Os assets visuais dos oito packs mais recentes pertencem ao pipeline de entregas do utilizador e permanecem em fallback explícito.
+O conteúdo de gameplay cobre agora dezasseis planetas e 64 alvos até ao nível 130; faltam 19 habitats e 76 identidades para cumprir este eixo. Tribunal de Clones Não Autorizados continua o pipeline com um planeta-tribunal de laboratórios de duplicação, quatro alvos, dois incidentes, famílias de equipamento e tradução integral. Os assets visuais dos nove packs mais recentes pertencem ao pipeline de entregas do utilizador e permanecem em fallback explícito.
 
 ## Curva de progressão
 
@@ -19,11 +19,11 @@ Cinco caçadas padrão por dia continuam a ser uma referência comparável, não
 | Combustível/dia | Estratégia | Caçadas/dia | Nível no dia 365 | Dia nível 30 | Dia nível 100 | Dia nível 300 |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: |
 | 100 | Mandado padrão | 3,9 | 121 | 19 | 229 | — |
-| 100 | Rota mais barata | 6,8 | 170 | 11 | 111 | — |
-| 160 | Mandado padrão | 5,7 | 151 | 12 | 138 | — |
-| 160 | Rota mais barata | 10,4 | 218 | 7 | 68 | — |
+| 100 | Rota mais barata | 6,6 | 167 | 11 | 111 | — |
+| 160 | Mandado padrão | 5,6 | 150 | 12 | 138 | — |
+| 160 | Rota mais barata | 10,1 | 214 | 7 | 68 | — |
 
-Esta projeção já incorpora as rotas de 28 minutos do Arquivo Abissal, 32 minutos de Verdântia, 36 minutos de Caldeira, 40 minutos do Condomínio Lunar, 44 minutos da Necrópole Solar, 48 minutos da Central de Tempestades, 52 minutos do Museu do Amanhã Obsoleto, 56 minutos da Biblioteca do Silêncio Taxado e 60 minutos do Resort do Horizonte de Eventos. Futuros planetas tendem a aumentar a duração média e reduzir o número de caçadas na mesma reserva; o nível 320 continua um teto de segurança de produção, não uma promessa de que todo jogador verá cada planeta no primeiro ano.
+Esta projeção já incorpora as rotas de 28 minutos do Arquivo Abissal, 32 minutos de Verdântia, 36 minutos de Caldeira, 40 minutos do Condomínio Lunar, 44 minutos da Necrópole Solar, 48 minutos da Central de Tempestades, 52 minutos do Museu do Amanhã Obsoleto, 56 minutos da Biblioteca do Silêncio Taxado, 60 minutos do Resort do Horizonte de Eventos e 64 minutos do Tribunal de Clones Não Autorizados. Futuros planetas tendem a aumentar a duração média e reduzir o número de caçadas na mesma reserva; o nível 320 continua um teto de segurança de produção, não uma promessa de que todo jogador verá cada planeta no primeiro ano.
 
 ## Comportamento da rede de missões
 

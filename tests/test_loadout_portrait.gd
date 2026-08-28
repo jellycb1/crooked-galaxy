@@ -50,7 +50,7 @@ func run() -> void:
 			check(visual_id != "fallback", "target %s owns an authored procedural portrait" % str(target.id))
 			target_visuals[visual_id] = true
 	check(target_visuals.size() == ContentDB.TARGETS.size() - pending_user_art, "every completed target resolves a stable individual visual identity")
-	check(pending_user_art == 32, "the level-50 through level-120 packs record exactly thirty-two pending user-authored portraits")
+	check(pending_user_art == 36, "the level-50 through level-130 packs record exactly thirty-six pending user-authored portraits")
 	portrait.queue_free()
 	if failures == 0:
 		print("PASS: hunter loadout, completed portraits, and pending user-art boundaries are explicit")

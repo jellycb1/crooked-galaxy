@@ -298,7 +298,7 @@ Todos são componentes pequenos e reutilizam o retrato do alvo e ícones globais
 
 ### 6.4 Incidentes de viagem
 
-Conteúdo atual: 30 incidentes, dois por cada um dos quinze planetas de gameplay. Cada incidente contém três opções/ícones de escolha no código.
+Conteúdo atual: 32 incidentes, dois por cada um dos dezasseis planetas de gameplay. Cada incidente contém três opções/ícones de escolha no código.
 
 Produção recomendada por incidente:
 
@@ -306,7 +306,7 @@ Produção recomendada por incidente:
 - 3 pictogramas de escolha podem reutilizar uma biblioteca comum;
 - 1 variação visual para resultado positivo/negativo feita por cor e efeitos, não por nova pintura.
 
-Meta de lançamento: 70 incidentes se mantivermos dois por cada um dos 35 planetas. Faltam 40 identidades de incidente para o catálogo anual.
+Meta de lançamento: 70 incidentes se mantivermos dois por cada um dos 35 planetas. Faltam 38 identidades de incidente para o catálogo anual.
 
 Para controlar custo, criar primeiro 12 pictogramas universais de decisão: atacar, negociar, hackear, fugir, investigar, reparar, arriscar, pagar, ajudar, roubar, esperar e improvisar.
 
@@ -318,10 +318,10 @@ Para controlar custo, criar primeiro 12 pictogramas universais de decisão: atac
 
 | Conteúdo | Atual | Meta de lançamento | Falta |
 | --- | ---: | ---: | ---: |
-| Planetas | 12 | 35 | 23 |
-| Alvos | 60 | 140 | 80 |
+| Planetas | 16 | 35 | 19 |
+| Alvos | 64 | 140 | 76 |
 | Alvos por planeta | 4 | 4 | — |
-| Incidentes | 30 | 70 recomendados | 40 |
+| Incidentes | 32 | 70 recomendados | 38 |
 
 Planetas atuais:
 
@@ -340,6 +340,7 @@ Planetas atuais:
 - Museu do Amanhã Obsoleto (assets pendentes do utilizador).
 - Biblioteca do Silêncio Taxado (assets pendentes do utilizador).
 - Resort do Horizonte de Eventos (assets pendentes do utilizador).
+- Tribunal de Clones Não Autorizados (assets pendentes do utilizador).
 
 ### 7.2 Pacote visual mínimo por planeta
 
@@ -956,11 +957,11 @@ Estas capturas são a matriz de validação. Não representam 102 ilustrações 
 | --- | ---: |
 | Ilustrações de classe | 3 |
 | Bases modulares de raça e camadas | aproximadamente 96 unidades |
-| Retratos dos 60 alvos atuais | 60 |
-| Habitats dos 15 planetas atuais | 15 |
-| Camadas de arena dos 15 planetas | 15 |
-| Medalhões dos 15 planetas atuais | 15 |
-| Incidentes atuais | 30 |
+| Retratos dos 64 alvos atuais | 64 |
+| Habitats dos 16 planetas atuais | 16 |
+| Camadas de arena dos 16 planetas | 16 |
+| Medalhões dos 16 planetas atuais | 16 |
+| Incidentes atuais | 32 |
 | Transportes | 4 |
 | NPCs de serviço | 5 |
 | Inimigos atuais da Fenda | 24 |
@@ -973,12 +974,12 @@ Estas capturas são a matriz de validação. Não representam 102 ilustrações 
 
 | Família | Meta total | Falta após conteúdo atual |
 | --- | ---: | ---: |
-| Habitats | 35 | 20 |
-| Arenas/camadas de chão | 35 | 20 |
-| Medalhões | 35 | 20 |
-| Alvos | 140 | 80 |
-| Incidentes | 70 | 40 |
-| Packs materiais planetários para equipamento | 35 | 20 packs |
+| Habitats | 35 | 19 |
+| Arenas/camadas de chão | 35 | 19 |
+| Medalhões | 35 | 19 |
+| Alvos | 140 | 76 |
+| Incidentes | 70 | 38 |
+| Packs materiais planetários para equipamento | 35 | 19 packs |
 
 Fenda, eventos sazonais e futuros transportes ainda não têm uma meta anual fechada. Devem usar templates escaláveis e receber orçamento separado.
 
@@ -1010,17 +1011,17 @@ Nada se expande antes de estes testes funcionarem juntos numa captura 450×800.
 
 ### Lote 2 — ciclo central atual
 
-1. quinze habitats e medalhões;
-2. 60 alvos;
-3. 30 incidentes;
-4. quinze arenas;
+1. dezasseis habitats e medalhões;
+2. 64 alvos;
+3. 32 incidentes;
+4. dezasseis arenas;
 5. VFX de combate;
 6. vitória, derrota e recompensa.
 
 ### Lote 3 — equipamento, economia e mobilidade
 
 1. kit modular de itens;
-2. packs visuais dos quinze planetas;
+2. packs visuais dos dezasseis planetas;
 3. quatro transportes;
 4. mercado e ícones premium;
 5. recibos e estados de compra.

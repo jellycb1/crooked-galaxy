@@ -18,16 +18,17 @@ const CentralTempestades = preload("res://scripts/content/packs/central_tempesta
 const MuseuAmanha = preload("res://scripts/content/packs/museu_amanha_obsoleto.gd")
 const BibliotecaSilencio = preload("res://scripts/content/packs/biblioteca_silencio_taxado.gd")
 const ResortHorizonte = preload("res://scripts/content/packs/resort_horizonte_eventos.gd")
+const TribunalClones = preload("res://scripts/content/packs/tribunal_clones_nao_autorizados.gd")
 
 var failures := 0
 
 
 func _init() -> void:
 	check(Registry.validation_errors().is_empty(), "registered planet packs satisfy the complete content contract")
-	check(Registry.PACK_SCRIPTS.size() == 15, "the registry contains all fifteen current canonical planet packs")
-	check(Registry.PLANETS.size() == 15, "the registry composes all fifteen planets")
-	check(Registry.TARGETS.size() == 60, "the registry composes all 60 targets")
-	check(Registry.HUNT_EVENTS.size() == 30, "the registry composes all 30 hunt incidents")
+	check(Registry.PACK_SCRIPTS.size() == 16, "the registry contains all sixteen current canonical planet packs")
+	check(Registry.PLANETS.size() == 16, "the registry composes all sixteen planets")
+	check(Registry.TARGETS.size() == 64, "the registry composes all 64 targets")
+	check(Registry.HUNT_EVENTS.size() == 32, "the registry composes all 32 hunt incidents")
 	check(Registry.pack_for_planet("dustball_prime") == Dustball.PACK, "registry resolves the canonical Dustball pack")
 	check(Registry.pack_for_planet("congelaria_sa") == Congelaria.PACK, "registry resolves the canonical Congelaria pack")
 	check(Registry.pack_for_planet("micelia_404") == Micelia.PACK, "registry resolves the canonical Micelia pack")
@@ -43,6 +44,7 @@ func _init() -> void:
 	check(Registry.pack_for_planet("museu_amanha_obsoleto") == MuseuAmanha.PACK, "registry resolves the canonical Museum of Obsolete Tomorrows pack")
 	check(Registry.pack_for_planet("biblioteca_silencio_taxado") == BibliotecaSilencio.PACK, "registry resolves the canonical Taxed Silence Library pack")
 	check(Registry.pack_for_planet("resort_horizonte_eventos") == ResortHorizonte.PACK, "registry resolves the canonical Event Horizon Resort pack")
+	check(Registry.pack_for_planet("tribunal_clones_nao_autorizados") == TribunalClones.PACK, "registry resolves the canonical Unauthorized Clone Court pack")
 	check(Registry.pack_for_planet("unknown").is_empty(), "unknown planet packs fail closed")
 	var detached := Registry.pack_for_planet("dustball_prime")
 	detached.planet.name = "MUTATED"
@@ -176,6 +178,15 @@ func _init() -> void:
 	check([ResortHorizonte.TARGETS[0].power, ResortHorizonte.TARGETS[3].power] == [712, 801], "level-120 combat anchors are explicit")
 	check(ResortHorizonte.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Event Horizon Resort target art remains explicitly assigned to the user asset pipeline")
 
+	check(Content.PLANETS[15] == TribunalClones.PLANET, "the level-130 planet follows Event Horizon Resort in canonical order")
+	check(Content.TARGETS.slice(60, 64) == TribunalClones.TARGETS, "ContentDB exposes all four Unauthorized Clone Court targets")
+	check(Content.HUNT_EVENTS.slice(30, 32) == TribunalClones.EVENTS, "ContentDB exposes both Unauthorized Clone Court incidents")
+	check(Content.PLANET_ITEM_CATALOGS.tribunal_clones_nao_autorizados == TribunalClones.ITEMS, "Unauthorized Clone Court primary equipment remains canonical")
+	check(Content.SECONDARY_ITEM_CATALOGS.tribunal_clones_nao_autorizados == TribunalClones.SECONDARY_ITEMS, "Unauthorized Clone Court rig catalog remains canonical")
+	check(Content.loot_slots_for_planet("tribunal_clones_nao_autorizados") == ["weapon", "weapon", "weapon", "armor", "armor", "rig", "rig"], "Unauthorized Clone Court deepens rigs without opening Rift-only slots")
+	check([TribunalClones.TARGETS[0].power, TribunalClones.TARGETS[3].power] == [823, 925], "level-130 combat anchors are explicit")
+	check(TribunalClones.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Unauthorized Clone Court target art remains explicitly assigned to the user asset pipeline")
+
 	var forged := Dustball.PACK.duplicate(true)
 	forged.targets.pop_back()
 	check(not PackContract.is_valid(forged), "incomplete planet packs are rejected")
@@ -197,7 +208,7 @@ func _init() -> void:
 	check(not PackContract.is_valid(forged), "planet bosses are reserved for tier three")
 
 	if failures == 0:
-		print("PASS: all fifteen current planet packs preserve canonical content and slot progression")
+		print("PASS: all sixteen current planet packs preserve canonical content and slot progression")
 	quit(1 if failures > 0 else 0)
 
 
