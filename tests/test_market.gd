@@ -29,6 +29,16 @@ func _init() -> void:
 		check(int(offer.price) > 0, "every market offer has a positive price")
 	check(offer_ids.duplicate().all(func(id): return offer_ids.count(id) == 1), "market offer ids are unique")
 	check(slots.has("weapon") and slots.has("armor"), "every stock cycle includes both equipment slots")
+	check(not ["helmet", "gloves", "boots", "rig", "implant", "gadget", "relic"].has(str(offers[2].item.slot)), "starter-planet stock does not invent a secondary family before its world source exists")
+	var lateral_player := state.default_player()
+	lateral_player.current_planet_id = "micelia_404"
+	lateral_player.level = 15
+	lateral_player.economy_day = 22000
+	var first_lateral_slot := str(MarketRulesScript.offers(lateral_player)[2].item.slot)
+	lateral_player.market_cycle = 1
+	var second_lateral_slot := str(MarketRulesScript.offers(lateral_player)[2].item.slot)
+	check(["helmet", "gloves"].has(first_lateral_slot) and ["helmet", "gloves"].has(second_lateral_slot) and first_lateral_slot != second_lateral_slot, "third stock offer rotates through secondary families already sourced by the active planet")
+	check(MarketRulesScript.offer_slot(lateral_player, 0) == "weapon" and MarketRulesScript.offer_slot(lateral_player, 1) == "armor", "lateral rotation never displaces the two base equipment offers")
 	var first_transport := SpendingGuidanceScript.next_transport_goal(state.player)
 	check(str(first_transport.id) == "licensed_junkbox", "spending guidance exposes the first permanent mobility alternative without buying it")
 	state.player.owned_transport_ids = ["licensed_junkbox"]

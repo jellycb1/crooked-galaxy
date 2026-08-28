@@ -21,7 +21,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	titles.add_theme_constant_override("separation", 4)
 	title_row.add_child(titles)
 	titles.add_child(host.scene_title(t("MARKET_TITLE", "MERCADO TORTO")))
-	titles.add_child(host.readable_caption(t("MARKET_SUBTITLE", "Equipamento planetário. Procedência opcional.")))
+	titles.add_child(host.readable_caption(t("MARKET_SUBTITLE", "Arma, traje e achado lateral do planeta.")))
 	var back := host.secondary_action(t("ACTION_BACK", "VOLTAR"), host.CYAN)
 	back.custom_minimum_size.x = 118
 	back.pressed.connect(func():

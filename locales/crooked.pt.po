@@ -3117,7 +3117,7 @@ msgid "MARKET_TITLE"
 msgstr "MERCADO TORTO"
 
 msgid "MARKET_SUBTITLE"
-msgstr "Equipamento planetário. Procedência opcional."
+msgstr "Arma, traje e achado lateral do planeta."
 
 msgid "MARKET_BALANCE"
 msgstr "SALDO · ◈ %d CRÉDITOS · ◆ %d FICHAS"

@@ -29,7 +29,7 @@ static func offers(player: Dictionary) -> Array[Dictionary]:
 	rng.seed = 98173 + planet_index * 1301 + stock_tier * 101 + cycle * 7919 + economy_day * 104729
 	var result: Array[Dictionary] = []
 	for offer_index in OFFER_COUNT:
-		var slot := "weapon" if offer_index == 0 else ("armor" if offer_index == 1 else ("weapon" if cycle % 2 == 0 else "armor"))
+		var slot := offer_slot(player, offer_index)
 		var mastery := 1 if offer_index < 2 else 3
 		var item := Content.generate_loot(target, rng, mastery, slot)
 		if MonetizationRulesScript.market_refresh_count(player) >= MonetizationRulesScript.MAX_MARKET_REFRESHES_PER_DAY and offer_index == OFFER_COUNT - 1:
@@ -45,6 +45,22 @@ static func offers(player: Dictionary) -> Array[Dictionary]:
 	return result
 
 
+static func offer_slot(player: Dictionary, offer_index: int) -> String:
+	if offer_index == 0:
+		return "weapon"
+	if offer_index == 1:
+		return "armor"
+	var planet_id := str(player.get("current_planet_id", Content.PLANET.id))
+	var secondary_slots: Array[String] = []
+	for slot in Content.loot_slots_for_planet(planet_id):
+		if slot != "weapon" and slot != "armor" and not secondary_slots.has(slot):
+			secondary_slots.append(slot)
+	if secondary_slots.is_empty():
+		return "weapon" if int(player.get("market_cycle", 0)) % 2 == 0 else "armor"
+	var rotation := int(player.get("level", 1)) + int(player.get("market_cycle", 0)) + int(player.get("economy_day", 0))
+	return secondary_slots[posmod(rotation, secondary_slots.size())]
+
+
 static func item_price(item: Dictionary, planet_index: int, tier: int) -> int:
 	var rarity_premium := 0
 	match str(item.get("rarity", "Comum")):
@@ -53,7 +69,12 @@ static func item_price(item: Dictionary, planet_index: int, tier: int) -> int:
 		"Épico":
 			rarity_premium = 300
 	var trait_premium := 180 if Rules.has_intrinsic_modifier(item) else 0
-	return maxi(60, 45 + int(item.get("power", 1)) * 18 + maxi(0, planet_index) * 90 + maxi(0, tier) * 40 + rarity_premium + trait_premium)
+	var secondary_slot := str(item.get("slot", "")) != "weapon" and str(item.get("slot", "")) != "armor"
+	# Secondary power is intentionally flat, so its late-market price needs a
+	# bounded career premium instead of inheriting primary item-power scaling.
+	var late_lateral_step := maxi(0, tier - 50) if secondary_slot else 0
+	var late_lateral_premium := late_lateral_step * late_lateral_step
+	return maxi(60, 45 + int(item.get("power", 1)) * 18 + maxi(0, planet_index) * 90 + maxi(0, tier) * 40 + rarity_premium + trait_premium + late_lateral_premium)
 
 
 static func refresh_cost(player: Dictionary) -> int:

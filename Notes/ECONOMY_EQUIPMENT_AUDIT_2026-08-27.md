@@ -98,3 +98,11 @@ A simulação cruzou as três classes nos níveis 8, 19 e 35. O atributo princip
 Combate, estimativa de campo, comparação de builds, Mercado, Arsenal, recompensas, reciclagem e saneamento de saves usam a mesma definição canónica. Astúcia passou a integrar explicitamente a pontuação comparativa através da precisão, fechando o caso em que um ganho real podia parecer neutro. Um save adulterado não pode inventar IDs, aplicar um pacote numa posição inválida nem acumular pacote e trait.
 
 A nova auditoria de 80 carreiras × 120 contratos manteve a escada saudável: upgrades caem de 55,3% nos contratos 1–20 para 20,9% nos contratos 101–120, com intervalo mediano tardio de quatro contratos. A raridade permanece em 63,6% Comum, 26,3% Raro e 10,2% Épico; os pacotes representam 1,7% de todos os drops. A versão é `0.41.0` código 97 e mantém o schema 19, pois o novo campo opcional de item é saneado sem alterar a forma obrigatória do jogador.
+
+## Stock lateral — sexto batch
+
+O Mercado mantém exatamente três ofertas. As duas primeiras continuam sempre arma e traje; a terceira passa a rodar entre as famílias secundárias que o planeta ativo já pode conceder. Dustball preserva a alternância arma/traje por não possuir uma fonte lateral, Congelaria introduz capacetes, Micelia acrescenta luvas e Ferro-Velho/Cassino acrescentam botas. Rig e implante permanecem exclusivos da Fenda, sem diluir a identidade da escada clandestina.
+
+Uma auditoria de 30 dias × quatro ciclos por planeta confirmou rotação equilibrada. Entre as ofertas laterais, a incidência de modificadores ficou entre 34,2% e 45,8%, e os pacotes de atributos entre 7,5% e 16,7% consoante a perícia local. O refresh premium continua a vender apenas uma nova seleção: não garante pacote nem melhoria.
+
+Como o poder-base das secundárias é deliberadamente plano, a primeira regressão revelou preços demasiado baixos relativamente a uma missão nos níveis 75 e 100. Uma componente quadrática limitada, ativa somente depois do nível 50 e somente para secundárias, restaurou a relação protegida pelo teste de economia. Aos níveis 75/100, a oferta lateral representativa custa 4.048/7.421 Créditos perante missões de 7.626/13.532 Créditos. Progressão inicial, preços de arma/traje, transportes, moedas premium e schema de save permanecem inalterados. A correção corresponde à versão `0.41.1` código 98.
