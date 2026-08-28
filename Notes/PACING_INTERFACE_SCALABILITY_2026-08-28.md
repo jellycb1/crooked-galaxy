@@ -22,4 +22,4 @@ O pacote não altera schema de save, atributos, classes, equipamento, combate, p
 
 O gate completo passou em 53 suítes, incluindo traduções PT/EN, expansão de texto, touch, scroll, lifecycle, boot limpo e as 1 659 combinações da matriz de persistência. O tempo total foi 142,88 segundos; o aviso do armazenamento de certificados raiz do Windows permaneceu não fatal e externo ao projeto.
 
-O APK ARM64 0.47.0/code 105 tem 32,12 MB e passou os gates de API 24+, assinatura estável de testes internos, sincronização de versão, conteúdo obrigatório e fronteira de referências. SHA-256: `77d0d32c7454948bbe11d1327175ead013aa96fa884fc42ab95ea36aac39f428`.
+O APK ARM64 0.47.0/code 105 tem 32,12 MB e passou os gates de API 24+, assinatura estável de testes internos, sincronização de versão, conteúdo obrigatório e fronteira de referências. O artefacto publicado em `latest` tem SHA-256 `f1573671d05c4d4990aa582683913fd71b74f4c958106b8d41ccee6c231f5daa`.
