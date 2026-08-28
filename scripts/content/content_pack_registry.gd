@@ -7,8 +7,10 @@ const Congelaria = preload("res://scripts/content/packs/congelaria_sa.gd")
 const Micelia404 = preload("res://scripts/content/packs/micelia_404.gd")
 const FerroVelhoOmega = preload("res://scripts/content/packs/ferro_velho_omega.gd")
 const CassinoQuasar = preload("res://scripts/content/packs/cassino_quasar.gd")
+const AeropolisPenhora = preload("res://scripts/content/packs/aeropolis_penhora.gd")
+const ArquivoAbissalN9 = preload("res://scripts/content/packs/arquivo_abissal_n9.gd")
 
-const PACK_SCRIPTS := [DustballPrime, Congelaria, Micelia404, FerroVelhoOmega, CassinoQuasar]
+const PACK_SCRIPTS := [DustballPrime, Congelaria, Micelia404, FerroVelhoOmega, CassinoQuasar, AeropolisPenhora, ArquivoAbissalN9]
 
 
 static func all_packs() -> Array[Dictionary]:

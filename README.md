@@ -8,11 +8,10 @@ The prototype implements the product's central test and its first independent Pv
 
 `BOUNTY → APPROACH → HUNT / INCIDENT → AUTOMATIC COMBAT → REWARD → LOOT → EQUIP → STRONGER BOUNTY / FENDA`
 
-Planet content is being migrated incrementally from the original monolithic catalog
-to validated per-world packs under `scripts/content/packs/`. The first five worlds,
-from Dustball Prime through Cassino Quasar, are canonical packs preserving their
-existing planets, targets, incidents, primary item families, and progressive
-secondary slots exactly. `ContentDB` keeps its public API throughout the migration,
+All seven current worlds now live in validated per-world packs under
+`scripts/content/packs/`. They preserve their existing planets, targets, incidents,
+primary item families, and progressive secondary slots exactly. `ContentDB` keeps
+its public API throughout the completed catalog migration,
 so current saves, balance, translations, and consumers remain unchanged. The pack
 contract and migration procedure are documented in
 `Notes/PLANET_CONTENT_PACK_PIPELINE.md`.

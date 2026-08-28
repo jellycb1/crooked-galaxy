@@ -1,6 +1,6 @@
 # Crooked Galaxy — pipeline modular de conteúdo planetário
 
-Estado: fundação ativa; os cinco primeiros planetas foram migrados sem alteração de comportamento.
+Estado: migração do catálogo atual concluída; os sete planetas foram extraídos sem alteração de comportamento.
 
 ## Objetivo
 
@@ -31,7 +31,7 @@ scripts/content/
 
 `content_pack_registry.gd` garante unicidade entre pacotes e oferece uma fronteira única para composição futura.
 
-`content_db.gd` continua a expor `PLANET`, `PLANETS`, `TARGETS`, `HUNT_EVENTS`, `ITEM_CATALOG`, `PLANET_ITEM_CATALOGS` e `SECONDARY_ITEM_CATALOGS`. Os cinco primeiros pacotes apenas mudaram a origem dos dados; consumidores, resultados e saves não mudaram.
+`content_db.gd` continua a expor `PLANET`, `PLANETS`, `TARGETS`, `HUNT_EVENTS`, `ITEM_CATALOG`, `PLANET_ITEM_CATALOGS` e `SECONDARY_ITEM_CATALOGS`. Os sete pacotes apenas mudaram a origem dos dados; consumidores, resultados e saves não mudaram.
 
 ## Regras para migrar um planeta existente
 
@@ -66,7 +66,7 @@ Um pacote novo só entra no registry quando:
 | Micélia 404 | `micelia_404.gd` | planeta, 4 alvos, 2 incidentes, arma, traje, capacete e luvas | Migrado |
 | Ferro-Velho Ômega | `ferro_velho_omega.gd` | planeta, 4 alvos, 2 incidentes e 5 slots de equipamento | Migrado |
 | Cassino Quasar | `cassino_quasar.gd` | planeta, 4 alvos, 2 incidentes e 5 slots de equipamento | Migrado |
-| Aerópolis de Penhora | — | permanece no monólito | Pendente |
-| Arquivo Abissal N-9 | — | permanece no monólito | Pendente |
+| Aerópolis de Penhora | `aeropolis_penhora.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e rig | Migrado |
+| Arquivo Abissal N-9 | `arquivo_abissal_n9.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e implant | Migrado |
 
-O próximo batch deve concluir a migração dos sete mundos atuais com Aerópolis e Arquivo Abissal. Esses pacotes devem manter deliberadamente ramificações tardias distintas: `rig` em Aerópolis e `implant` no Arquivo, sem herdar automaticamente `helmet`, `gloves` ou `boots` na tabela de drops desses planetas.
+O catálogo atual está totalmente modular. O próximo batch recomendado é auditar a composição manual que permanece em `ContentDB` e decidir se `PLANETS`, `TARGETS`, `HUNT_EVENTS` e os catálogos podem ser montados pelo registry sem perder constantes públicas, ordem determinística ou compatibilidade de saves. Essa decisão deve ser tomada antes de adicionar o oitavo planeta.

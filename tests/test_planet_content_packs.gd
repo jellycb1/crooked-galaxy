@@ -8,18 +8,22 @@ const Congelaria = preload("res://scripts/content/packs/congelaria_sa.gd")
 const Micelia = preload("res://scripts/content/packs/micelia_404.gd")
 const FerroVelho = preload("res://scripts/content/packs/ferro_velho_omega.gd")
 const Cassino = preload("res://scripts/content/packs/cassino_quasar.gd")
+const Aeropolis = preload("res://scripts/content/packs/aeropolis_penhora.gd")
+const ArquivoAbissal = preload("res://scripts/content/packs/arquivo_abissal_n9.gd")
 
 var failures := 0
 
 
 func _init() -> void:
 	check(Registry.validation_errors().is_empty(), "registered planet packs satisfy the complete content contract")
-	check(Registry.PACK_SCRIPTS.size() == 5, "the registry contains the first five canonical planet packs")
+	check(Registry.PACK_SCRIPTS.size() == 7, "the registry contains all seven current canonical planet packs")
 	check(Registry.pack_for_planet("dustball_prime") == Dustball.PACK, "registry resolves the canonical Dustball pack")
 	check(Registry.pack_for_planet("congelaria_sa") == Congelaria.PACK, "registry resolves the canonical Congelaria pack")
 	check(Registry.pack_for_planet("micelia_404") == Micelia.PACK, "registry resolves the canonical Micelia pack")
 	check(Registry.pack_for_planet("ferro_velho_omega") == FerroVelho.PACK, "registry resolves the canonical Ferro-Velho pack")
 	check(Registry.pack_for_planet("cassino_quasar") == Cassino.PACK, "registry resolves the canonical Cassino pack")
+	check(Registry.pack_for_planet("aeropolis_penhora") == Aeropolis.PACK, "registry resolves the canonical Aeropolis pack")
+	check(Registry.pack_for_planet("arquivo_abissal_n9") == ArquivoAbissal.PACK, "registry resolves the canonical Arquivo Abissal pack")
 	check(Registry.pack_for_planet("unknown").is_empty(), "unknown planet packs fail closed")
 	var detached := Registry.pack_for_planet("dustball_prime")
 	detached.planet.name = "MUTATED"
@@ -60,6 +64,21 @@ func _init() -> void:
 	check(FerroVelho.SECONDARY_ITEMS.keys() == Cassino.SECONDARY_ITEMS.keys(), "intermediate packs expose the same secondary slot surface")
 	check([FerroVelho.TARGETS[0].power, FerroVelho.TARGETS[3].power, Cassino.TARGETS[0].power, Cassino.TARGETS[3].power] == [69, 90, 96, 124], "intermediate combat anchors remain unchanged")
 
+	check(Content.PLANETS.slice(5, 7) == [Aeropolis.PLANET, ArquivoAbissal.PLANET], "ContentDB preserves both late planets in canonical order")
+	check(Content.TARGETS.slice(20, 24) == Aeropolis.TARGETS, "ContentDB preserves all four Aeropolis targets")
+	check(Content.TARGETS.slice(24, 28) == ArquivoAbissal.TARGETS, "ContentDB preserves all four Arquivo Abissal targets")
+	check(Content.HUNT_EVENTS.slice(10, 12) == Aeropolis.EVENTS, "ContentDB preserves both Aeropolis incidents")
+	check(Content.HUNT_EVENTS.slice(12, 14) == ArquivoAbissal.EVENTS, "ContentDB preserves both Arquivo Abissal incidents")
+	check(Content.PLANET_ITEM_CATALOGS.aeropolis_penhora == Aeropolis.ITEMS, "Aeropolis primary equipment remains canonical")
+	check(Content.PLANET_ITEM_CATALOGS.arquivo_abissal_n9 == ArquivoAbissal.ITEMS, "Arquivo Abissal primary equipment remains canonical")
+	check(Content.SECONDARY_ITEM_CATALOGS.aeropolis_penhora == Aeropolis.SECONDARY_ITEMS, "Aeropolis rig catalog remains canonical")
+	check(Content.SECONDARY_ITEM_CATALOGS.arquivo_abissal_n9 == ArquivoAbissal.SECONDARY_ITEMS, "Arquivo Abissal implant catalog remains canonical")
+	check(Aeropolis.SECONDARY_ITEMS.keys() == ["rig"], "Aeropolis exposes only its late rig branch")
+	check(ArquivoAbissal.SECONDARY_ITEMS.keys() == ["implant"], "Arquivo Abissal exposes only its late implant branch")
+	check(Content.loot_slots_for_planet("aeropolis_penhora") == ["weapon", "weapon", "weapon", "armor", "armor", "rig", "rig"], "Aeropolis weights rigs without leaking intermediate slots")
+	check(Content.loot_slots_for_planet("arquivo_abissal_n9") == ["weapon", "weapon", "weapon", "armor", "armor", "implant", "implant"], "Arquivo Abissal weights implants without leaking rigs")
+	check([Aeropolis.TARGETS[0].power, Aeropolis.TARGETS[3].power, ArquivoAbissal.TARGETS[0].power, ArquivoAbissal.TARGETS[3].power] == [136, 175, 190, 245], "late combat anchors remain unchanged")
+
 	var forged := Dustball.PACK.duplicate(true)
 	forged.targets.pop_back()
 	check(not PackContract.is_valid(forged), "incomplete planet packs are rejected")
@@ -81,7 +100,7 @@ func _init() -> void:
 	check(not PackContract.is_valid(forged), "planet bosses are reserved for tier three")
 
 	if failures == 0:
-		print("PASS: the first five modular planet packs preserve canonical content and slot progression")
+		print("PASS: all seven current planet packs preserve canonical content and slot progression")
 	quit(1 if failures > 0 else 0)
 
 
