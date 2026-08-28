@@ -4594,3 +4594,39 @@ msgstr "LOG DESTINATION"
 
 msgid "GALAXY_DISCOVERY_RECORDED"
 msgstr "Destination logged: %s is now part of your warrant network."
+
+msgid "FUEL_RESERVE_STATUS"
+msgstr "FUEL · %d AVAILABLE"
+
+msgid "FUEL_RESET_RULE"
+msgstr "DAILY RESERVE %d · RESET 00:00 UTC"
+
+msgid "FUEL_REFILL_ACTION"
+msgstr "+%d FUEL · ◆ %d"
+
+msgid "FUEL_REFILL_LIMIT"
+msgstr "REFILLS %d/%d"
+
+msgid "FUEL_REFILL_CONFIRMATION"
+msgstr "CONFIRM REFILL · +%d FUEL FOR ◆ %d · USE %d/%d"
+
+msgid "FUEL_REFILL_CONFIRM"
+msgstr "REFUEL · ◆ %d"
+
+msgid "FUEL_COST_SHORT"
+msgstr "FUEL %d"
+
+msgid "BRIEFING_CHOOSE_WITH_FUEL"
+msgstr "CHOOSE · %s · FUEL %d"
+
+msgid "BRIEFING_NEEDS_FUEL"
+msgstr "NEEDS %d FUEL"
+
+msgid "FUEL_NOTICE_REFILLED"
+msgstr "Reserve refilled: +%d fuel for %d Warp Chips."
+
+msgid "FUEL_NOTICE_INSUFFICIENT"
+msgstr "Not enough fuel: this route needs %d and only %d remains."
+
+msgid "COMMON_CANCEL"
+msgstr "CANCEL"

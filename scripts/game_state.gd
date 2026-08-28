@@ -100,6 +100,8 @@ func default_player() -> Dictionary:
 		"market_cycle": 0,
 		"market_refresh_count": 0,
 		"economy_day": today,
+		"hunt_fuel": MonetizationRulesScript.DAILY_HUNT_FUEL,
+		"hunt_fuel_refill_count": 0,
 		"daily_hunt_chip_day": -1,
 		"discovered_item_variant_ids": [],
 		"claimed_collection_milestones": [],
@@ -355,8 +357,48 @@ func normalize_daily_economy(unix_time := -1.0) -> bool:
 	player.market_cycle = 0
 	player.market_refresh_count = 0
 	player.market_purchased_offer_ids = []
+	player.hunt_fuel = MonetizationRulesScript.DAILY_HUNT_FUEL
+	player.hunt_fuel_refill_count = 0
 	player.daily_hunts_completed = 0
 	player.claimed_daily_objectives = []
+	return true
+
+
+func hunt_fuel_status(unix_time := -1.0) -> Dictionary:
+	if normalize_daily_economy(unix_time):
+		save_game()
+	return {
+		"remaining": MonetizationRulesScript.hunt_fuel_remaining(player),
+		"daily_reserve": MonetizationRulesScript.DAILY_HUNT_FUEL,
+		"refill_count": MonetizationRulesScript.hunt_fuel_refill_count(player),
+		"refill_limit": MonetizationRulesScript.MAX_HUNT_FUEL_REFILLS_PER_DAY,
+		"refill_amount": MonetizationRulesScript.HUNT_FUEL_REFILL_AMOUNT,
+		"refill_cost": MonetizationRulesScript.hunt_fuel_refill_cost(player),
+		"can_refill": MonetizationRulesScript.can_refill_hunt_fuel(player),
+	}
+
+
+func refill_hunt_fuel(expected_cost := -1) -> bool:
+	if phase not in [Phase.BOARD, Phase.BRIEFING]:
+		return false
+	var day_changed := normalize_daily_economy()
+	var cost := MonetizationRulesScript.hunt_fuel_refill_cost(player)
+	# Never charge a price different from the one shown in the confirmation. A
+	# midnight rollover refreshes the offer instead of silently changing it.
+	if int(expected_cost) >= 0 and cost != int(expected_cost):
+		if day_changed:
+			save_game()
+		changed.emit()
+		return false
+	if cost <= 0 or not MonetizationRulesScript.can_refill_hunt_fuel(player) or int(player.get("warp_chips", 0)) < cost:
+		return false
+	player.warp_chips = int(player.get("warp_chips", 0)) - cost
+	player.hunt_fuel_refill_count = MonetizationRulesScript.hunt_fuel_refill_count(player) + 1
+	player.hunt_fuel = MonetizationRulesScript.hunt_fuel_remaining(player) + MonetizationRulesScript.HUNT_FUEL_REFILL_AMOUNT
+	last_notice = LocaleRulesScript.text("FUEL_NOTICE_REFILLED", "Reserva reabastecida: +%d combustível por %d Fichas de Dobra.", [MonetizationRulesScript.HUNT_FUEL_REFILL_AMOUNT, cost])
+	last_notice_context = "fuel"
+	save_game()
+	changed.emit()
 	return true
 
 
@@ -643,9 +685,17 @@ func claim_all_career_milestones() -> Dictionary:
 	return {"count": ready.size(), "credits": credits, "scrap": scrap}
 
 
-func choose_approach(approach_id: String, tested_context: Dictionary = {}) -> void:
+func choose_approach(approach_id: String, tested_context: Dictionary = {}) -> bool:
 	if phase != Phase.BRIEFING:
-		return
+		return false
+	normalize_daily_economy()
+	var fuel_cost := MonetizationRulesScript.mission_fuel_cost(current_bounty)
+	if not MonetizationRulesScript.can_start_mission(player, current_bounty):
+		last_notice = LocaleRulesScript.text("FUEL_NOTICE_INSUFFICIENT", "Combustível insuficiente: esta rota exige %d e restam %d.", [fuel_cost, MonetizationRulesScript.hunt_fuel_remaining(player)])
+		last_notice_context = "fuel"
+		save_game()
+		changed.emit()
+		return false
 	for approach in offered_approaches:
 		if str(approach.id) == approach_id:
 			current_bounty = ContentDB.apply_approach(current_bounty, approach)
@@ -659,8 +709,8 @@ func choose_approach(approach_id: String, tested_context: Dictionary = {}) -> vo
 					"overridden": str(tested_context.approach_id) != approach_id,
 				}
 			offered_approaches = []
-			start_hunt()
-			return
+			return start_hunt()
+	return false
 
 
 func start_bounty(bounty: Dictionary) -> void:
@@ -675,7 +725,20 @@ func start_bounty(bounty: Dictionary) -> void:
 	start_hunt()
 
 
-func start_hunt() -> void:
+func start_hunt() -> bool:
+	if phase not in [Phase.BOARD, Phase.BRIEFING] or current_bounty.is_empty():
+		return false
+	normalize_daily_economy()
+	var fuel_cost := MonetizationRulesScript.mission_fuel_cost(current_bounty)
+	if fuel_cost > 0:
+		var remaining := MonetizationRulesScript.hunt_fuel_remaining(player)
+		if remaining < fuel_cost:
+			last_notice = LocaleRulesScript.text("FUEL_NOTICE_INSUFFICIENT", "Combustível insuficiente: esta rota exige %d e restam %d.", [fuel_cost, remaining])
+			last_notice_context = "fuel"
+			save_game()
+			changed.emit()
+			return false
+		player.hunt_fuel = remaining - fuel_cost
 	phase = Phase.HUNT
 	hunt_started_at = Time.get_unix_time_from_system()
 	hunt_ends_at = hunt_started_at + TransportRulesScript.effective_mission_duration(player, current_bounty)
@@ -685,6 +748,7 @@ func start_hunt() -> void:
 	hunt_remaining_after_event = 0.0
 	save_game()
 	changed.emit()
+	return true
 
 
 func cancel_briefing() -> void:
@@ -1970,6 +2034,15 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	var market_refresh_count := clampi(int(sanitized.get("market_refresh_count", 0)), 0, MonetizationRulesScript.MAX_MARKET_REFRESHES_PER_DAY)
 	if market_refresh_count != int(sanitized.get("market_refresh_count", 0)):
 		sanitized.market_refresh_count = market_refresh_count
+		repaired = true
+	var fuel_refills := clampi(int(sanitized.get("hunt_fuel_refill_count", 0)), 0, MonetizationRulesScript.MAX_HUNT_FUEL_REFILLS_PER_DAY)
+	if fuel_refills != int(sanitized.get("hunt_fuel_refill_count", 0)):
+		sanitized.hunt_fuel_refill_count = fuel_refills
+		repaired = true
+	var maximum_fuel := MonetizationRulesScript.DAILY_HUNT_FUEL + fuel_refills * MonetizationRulesScript.HUNT_FUEL_REFILL_AMOUNT
+	var fuel_remaining := clampi(int(sanitized.get("hunt_fuel", MonetizationRulesScript.DAILY_HUNT_FUEL)), 0, maximum_fuel)
+	if fuel_remaining != int(sanitized.get("hunt_fuel", MonetizationRulesScript.DAILY_HUNT_FUEL)):
+		sanitized.hunt_fuel = fuel_remaining
 		repaired = true
 	for day_key in ["economy_day", "daily_hunt_chip_day"]:
 		var day_value = sanitized.get(day_key, -1)

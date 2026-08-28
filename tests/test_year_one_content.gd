@@ -5,6 +5,7 @@ const CoreRules = preload("res://scripts/core_rules.gd")
 const MissionRules = preload("res://scripts/mission_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const YearOne = preload("res://scripts/year_one_content_rules.gd")
+const MonetizationRules = preload("res://scripts/monetization_rules.gd")
 
 var failures := 0
 
@@ -16,6 +17,7 @@ func _init() -> void:
 	check(YearOne.TOTAL_HUNTS == 1825 and YearOne.required_target_count() == 132, "the year-one catalog has an explicit 365-day, 132-target ceiling")
 	check(YearOne.PACING_AUDIT_DAILY_HUNTS == [5, 10, 20, 40], "the launch contract audits reference through high-intensity hunt profiles")
 	check(YearOne.days_for_hunts(1825, 5) == 365 and YearOne.days_for_hunts(1825, 20) == 92, "pacing conversion exposes faster content consumption instead of treating five hunts as a cap")
+	check(MonetizationRules.DAILY_HUNT_FUEL == 100 and MonetizationRules.HUNT_FUEL_REFILL_AMOUNT == 20 and MonetizationRules.HUNT_FUEL_REFILL_COSTS == [1, 5, 20], "the year-one model uses the approved transparent fuel reserve and refill ladder")
 	check(YearOne.days_for_hunts(0, 0) == 0, "pacing conversion handles an empty horizon safely")
 	check(ContentDB.PLANETS.size() == 6 and ContentDB.TARGETS.size() == 24, "the audit distinguishes implemented planet packs from the launch catalog")
 	for index in ContentDB.PLANETS.size():

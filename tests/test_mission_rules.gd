@@ -19,6 +19,7 @@ func _init() -> void:
 	check(starter.all(func(offer): return int(offer.mission_level) == 1), "all role pressure is anchored to the same snapshotted hunter level")
 	check(int(starter[0].power) < int(starter[1].power) and int(starter[1].power) < int(starter[2].power), "all three roles remain genuinely ordered at the level-one floor")
 	check(float(starter[0].base_travel_duration) == 300.0 and float(starter[0].travel_duration) == 120.0 and float(starter[0].pursuit_duration) > 0.0, "starter acceleration preserves the five-minute base route while travel and pursuit remain independent")
+	check(int(starter[0].fuel_cost) == 5, "mission snapshots expose fuel from base route minutes")
 	check(is_equal_approx(float(starter[0].starter_travel_discount), 0.60), "levels one to three expose the strongest starter travel reduction")
 	var level_four_discoveries := MissionRules.newly_available_planets(3, 4)
 	check(level_four_discoveries.size() == 1 and str(level_four_discoveries[0].id) == "congelaria_sa", "crossing a level band reports only the newly available destination")

@@ -49,6 +49,7 @@ var galaxy_scroll_position := 0
 var galaxy_focus_planet_id := ""
 var market_refresh_confirmation := false
 var market_selected_offer_index := 0
+var fuel_refill_confirmation := false
 var attribute_draft: Dictionary = {}
 var class_draft := ""
 var species_draft := ""
@@ -88,6 +89,7 @@ func reset_transient_navigation() -> void:
 	galaxy_focus_planet_id = ""
 	market_refresh_confirmation = false
 	market_selected_offer_index = 0
+	fuel_refill_confirmation = false
 	attribute_draft = {}
 	class_draft = ""
 	species_draft = ""

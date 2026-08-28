@@ -25,6 +25,7 @@ const LocaleRulesScript = preload("res://scripts/locale_rules.gd")
 const PlanetIconScript = preload("res://scripts/planet_icon.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const MissionRulesScript = preload("res://scripts/mission_rules.gd")
+const MonetizationRulesScript = preload("res://scripts/monetization_rules.gd")
 const AndroidFeedbackScript = preload("res://scripts/android_feedback.gd")
 const HuntChoiceIconScript = preload("res://scripts/hunt_choice_icon.gd")
 const HubDestinationIconScript = preload("res://scripts/hub_destination_icon.gd")
@@ -237,6 +238,8 @@ func apply_safe_area() -> void:
 func render() -> void:
 	if view_mode != "market":
 		market_refresh_confirmation = false
+	if GameState.phase not in [GameState.Phase.BOARD, GameState.Phase.BRIEFING]:
+		fuel_refill_confirmation = false
 	var previous_focus_name := ""
 	var focus_owner := get_viewport().gui_get_focus_owner()
 	if focus_owner != null and content != null and content.is_ancestor_of(focus_owner):
@@ -1065,6 +1068,7 @@ func build_board_bounties() -> void:
 		content.add_child(onboarding_banner())
 	if not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true)):
 		content.add_child(combat_summary_panel(false))
+	content.add_child(fuel_reserve_panel())
 	var streak := int(GameState.player.get("capture_streak", 0))
 	var streak_started_inside_receipt := streak == 1 and GameState.last_notice_context.begins_with("reward_")
 	if streak > 0 and not streak_started_inside_receipt:
@@ -1110,6 +1114,62 @@ func select_board_offer(offer_index: int) -> void:
 	selected_board_offer_index = maxi(0, offer_index)
 	board_details_open = false
 	render()
+
+
+func fuel_reserve_panel() -> PanelContainer:
+	var status: Dictionary = GameState.hunt_fuel_status()
+	var remaining := int(status.remaining)
+	var refill_cost := int(status.refill_cost)
+	var can_refill := bool(status.can_refill)
+	var enough_chips := int(GameState.player.get("warp_chips", 0)) >= refill_cost
+	var reserve := panel(VBoxContainer.new(), Color("#132541e8"), 12, 9)
+	reserve.name = "HuntFuelPanel"
+	var box := reserve.get_child(0) as VBoxContainer
+	box.add_theme_constant_override("separation", 7)
+	var summary := HBoxContainer.new()
+	summary.add_theme_constant_override("separation", 10)
+	box.add_child(summary)
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	summary.add_child(copy)
+	var fuel_color := LIME if remaining >= 20 else (GOLD if remaining > 0 else CORAL)
+	var title := label(t("FUEL_RESERVE_STATUS", "COMBUSTÍVEL · %d DISPONÍVEL", [remaining]), UIDesignSystem.FONT_BODY, fuel_color)
+	title.name = "HuntFuelStatus"
+	copy.add_child(title)
+	copy.add_child(label(t("FUEL_RESET_RULE", "RESERVA DIÁRIA %d · REINÍCIO 00:00 UTC", [int(status.daily_reserve)]), UIDesignSystem.FONT_CAPTION, MUTED))
+	if not fuel_refill_confirmation:
+		var refill_text := t("FUEL_REFILL_ACTION", "+%d COMBUSTÍVEL · ◆ %d", [int(status.refill_amount), refill_cost]) if can_refill else t("FUEL_REFILL_LIMIT", "RECARGAS %d/%d", [int(status.refill_count), int(status.refill_limit)])
+		var refill := secondary_action(refill_text, GOLD if can_refill and enough_chips else MUTED)
+		refill.name = "HuntFuelRefill"
+		refill.custom_minimum_size.x = 190
+		refill.disabled = not can_refill or not enough_chips
+		refill.pressed.connect(func():
+			fuel_refill_confirmation = true
+			render()
+		)
+		summary.add_child(refill)
+	else:
+		box.add_child(readable_caption(t("FUEL_REFILL_CONFIRMATION", "CONFIRMAR RECARGA · +%d COMBUSTÍVEL POR ◆ %d · USO %d/%d", [int(status.refill_amount), refill_cost, int(status.refill_count) + 1, int(status.refill_limit)]), GOLD))
+		var actions := HBoxContainer.new()
+		actions.add_theme_constant_override("separation", 8)
+		box.add_child(actions)
+		var cancel := secondary_action(t("COMMON_CANCEL", "CANCELAR"), MUTED)
+		cancel.name = "HuntFuelRefillCancel"
+		cancel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		cancel.pressed.connect(func():
+			fuel_refill_confirmation = false
+			render()
+		)
+		actions.add_child(cancel)
+		var confirm := primary_action(t("FUEL_REFILL_CONFIRM", "REABASTECER · ◆ %d", [refill_cost]), GOLD)
+		confirm.name = "HuntFuelRefillConfirm"
+		confirm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		confirm.pressed.connect(func():
+			fuel_refill_confirmation = false
+			GameState.refill_hunt_fuel(refill_cost)
+		)
+		actions.add_child(confirm)
+	return reserve
 
 
 func bounty_offer_selector(bounty: Dictionary, offer_index: int, selected: bool) -> Button:
@@ -1699,7 +1759,8 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 	var footer_row := footer.get_child(0) as HBoxContainer
 	footer_row.add_theme_constant_override("separation", 12)
 	var hunt_duration := TransportRulesScript.effective_mission_duration(GameState.player, bounty)
-	var payout_summary := readable_body("◈ %d%s   ✦ %d XP   %s" % [int(payout.credits), t("BOARD_STREAK_SUFFIX", " +EMBALO") if int(payout.bonus_credits) > 0 else "", int(bounty.xp), format_hunt_duration(hunt_duration)], GOLD)
+	var fuel_cost := MonetizationRulesScript.mission_fuel_cost(bounty)
+	var payout_summary := readable_body("◈ %d%s   ✦ %d XP   %s   %s" % [int(payout.credits), t("BOARD_STREAK_SUFFIX", " +EMBALO") if int(payout.bonus_credits) > 0 else "", int(bounty.xp), format_hunt_duration(hunt_duration), t("FUEL_COST_SHORT", "COMB. %d", [fuel_cost])], GOLD)
 	payout_summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer_row.add_child(payout_summary)
 	var risk_text := localized_risk(odds)
@@ -1809,6 +1870,8 @@ func build_briefing() -> void:
 		t("BRIEFING_FLAVOR", "O alvo é o mesmo. A quantidade de problemas é uma escolha sua."),
 		t("BRIEFING_HINT", "BUILD = chance atual · RECOMENDADO = risco + retorno + tempo."),
 	]
+	if not MonetizationRulesScript.can_start_mission(GameState.player, bounty):
+		content.add_child(fuel_reserve_panel())
 	var profile_id := EnemyProfileRulesScript.profile_id_for(bounty)
 	var profile := EnemyProfileRulesScript.profile_for(bounty)
 	var deferred_profile_card: PanelContainer = null
@@ -1910,10 +1973,15 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 	metrics.add_child(briefing_metric_chip(t("COMMON_CREDITS", "CRÉDITOS"), "◈ %d" % int(evaluation.credits), GOLD, "ApproachCredits_%s" % str(approach.id)))
 	metrics.add_child(briefing_metric_chip("XP", str(int(preview.xp)), CYAN, "ApproachXp_%s" % str(approach.id)))
 	var choose := action_button(t("BRIEFING_CHOOSE", "ESCOLHER · %s", [translated_name.to_upper()]), color)
+	var fuel_cost := MonetizationRulesScript.mission_fuel_cost(preview)
+	var has_fuel := MonetizationRulesScript.can_start_mission(GameState.player, preview)
+	if fuel_cost > 0:
+		choose.text = t("BRIEFING_CHOOSE_WITH_FUEL", "ESCOLHER · %s · COMB. %d", [translated_name.to_upper(), fuel_cost]) if has_fuel else t("BRIEFING_NEEDS_FUEL", "PRECISA DE %d COMBUSTÍVEL", [fuel_cost])
 	choose.custom_minimum_size = Vector2(0, UIDesignSystem.TOUCH_TARGET_MIN)
 	choose.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 	var approach_id := str(approach.id)
 	choose.name = "ChooseApproach_%s" % approach_id
+	choose.disabled = fuel_cost > 0 and not has_fuel
 	choose.pressed.connect(func():
 		var tested_context := briefing_context.duplicate(true)
 		briefing_context = {}

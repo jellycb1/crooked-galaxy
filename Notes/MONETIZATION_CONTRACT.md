@@ -1,6 +1,6 @@
 # Crooked Galaxy — contrato de monetização
 
-Estado: direção aprovada para implementação. Os princípios e limites são fixos; valores numéricos continuam sujeitos a testes e telemetria.
+Estado: direção aprovada e combustível implementado na simulação local. Os princípios e limites são fixos; valores numéricos continuam sujeitos a testes e telemetria.
 
 ## Princípios inegociáveis
 
@@ -34,13 +34,14 @@ Dentro de cada sistema e dia UTC, os três usos premium custam **1, 5 e 20** Fic
 Primeiras aplicações:
 
 1. **Mercado:** até três renovações por dia. A terceira seleção contém pelo menos um item Raro compatível, mas não garante que seja melhoria.
-2. **Combustível de caça:** reserva diária proposta de 100 unidades; missões consomem o equivalente aos seus minutos-base. Cada recarga concede 20. Este bloqueio só será ativado depois de testes de ritmo.
+2. **Combustível de caça:** reserva diária de 100 unidades; missões normais consomem o equivalente aos minutos da rota-base. Cada recarga concede 20 e segue a escada diária 1/5/20. O sistema está ativo no cliente de teste desde a versão 0.48.0; faturação e autoridade continuam locais e não representam uma loja real.
 3. **Reduções de tempo:** Células de Salto reduzem cinco minutos e devem existir também como recompensa jogável, com limite diário.
 4. **Fenda/Arena:** futuros saltos de cooldown podem usar a mesma escada, sempre limitados a três por dia.
 
 ## Transportes e conveniência
 
 - Transportes de 10%, 20% e 30% continuam compráveis permanentemente com Créditos.
+- Transportes reduzem apenas a espera da viagem. O custo de combustível permanece ligado à rota-base, por isso transporte não compra caçadas diárias adicionais.
 - O transporte de 50% deve ser alcançável permanentemente no endgame; uma licença temporária premium de 14 dias pode existir como antecipação, nunca como exclusividade.
 - Espaços adicionais de personagem, loadout ou inventário podem ser vendidos apenas quando o espaço gratuito for confortável e não criar dor artificial.
 - Alterações de nome, aparência, espécie, classe ou respec podem ter custos normais/premium definidos quando esses fluxos forem finais.

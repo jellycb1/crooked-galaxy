@@ -4,6 +4,7 @@ const OUTPUT_DIR := "res://builds"
 const LEGACY_CAPTURE_FILES := ["ui_arsenal_settings.png"]
 const ChallengeSimulator = preload("res://tools/simulate_challenges.gd")
 const SimulationBuilds = preload("res://tools/simulation_builds.gd")
+const MissionRules = preload("res://scripts/mission_rules.gd")
 
 
 func _init() -> void:
@@ -769,7 +770,7 @@ func capture() -> void:
 	if save_frame("ui_hangar.png") != OK:
 		quit(1)
 		return
-	state.select_bounty(ContentDB.TARGETS[1])
+	state.select_bounty(MissionRules.offer_for_target(state.player, ContentDB.TARGETS[1]))
 	await process_frame
 	await process_frame
 	if save_frame("ui_transport_briefing.png") != OK:

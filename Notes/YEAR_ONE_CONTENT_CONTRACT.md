@@ -39,7 +39,7 @@ Cinco caçadas por dia são o perfil de referência, não um limite mecânico. A
 | 20 | dia 7 | dia 91 | 1 148 |
 | 40 | dia 4 | dia 46 | 1 897 |
 
-O nível 30 exige 137 contratos; o nível 300, 1 813. Logo, o catálogo de 33 planetas cumpre um ano apenas para o perfil de cinco caçadas. Antes de produzir a maioria dos 27 planetas em falta, o produto deve decidir se o ritmo será protegido por reserva diária, retornos decrescentes, outra restrição transparente ou progressão deliberadamente aberta. A auditoria não ativa combustível nem transforma essa decisão em monetização.
+O nível 30 exige 137 contratos; o nível 300, 1 813. O limite prático foi definido como uma reserva diária de 100 unidades de combustível: cada missão normal gasta os minutos da rota-base e transportes reduzem apenas a espera. Com os seis planetas atuais, uma estratégia padrão ainda produz cerca de 6,5 caçadas/dia e uma estratégia que escolhe sempre a rota mais barata chega a 12,9. Logo, os 27 planetas futuros precisam de uma curva de rotas auditada; nível 300 continua a ser o piso de conteúdo, não garantia suficiente para o jogador que esgota toda a reserva.
 
 ## Entrega 0.45.0 — descoberta persistente
 

@@ -172,6 +172,7 @@ static func scale_offer_level(template: Dictionary, planet: Dictionary, mission_
 	offer["starter_travel_discount"] = starter_travel_discount(mission_level)
 	offer["pursuit_duration"] = 20.0 + minf(100.0, float(mission_level) * 4.0)
 	offer["duration"] = ceili(float(offer.travel_duration) + float(offer.pursuit_duration))
+	offer["fuel_cost"] = maxi(1, ceili(float(offer.base_travel_duration) / 60.0))
 	return offer
 
 

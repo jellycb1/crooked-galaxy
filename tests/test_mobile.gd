@@ -194,9 +194,16 @@ func run_mobile_audit() -> void:
 				check(str(TranslationServer.translate(key)) != key, "English catalog resolves %s" % key)
 	scene.view_mode = "board"
 	scene.board_section = "bounties"
+	state.player.warp_chips = 1
 	scene.render()
 	await process_frame
-	check(find_label_with_text(scene, "WANTED BOARD") != null and find_label_with_text(scene, "Gloop the Inconvenient") != null and find_label_with_text(scene, "Orbital parking thief") != null and (scene.find_child("BountyAction_gloop", true, false) as Button).text == "ANALYZE APPROACHES", "English catalog covers the wanted board, target dossier, and primary action")
+	check(find_label_with_text(scene, "WANTED BOARD") != null and find_label_with_text(scene, "FUEL · 100 AVAILABLE") != null and find_label_with_text(scene, "Gloop the Inconvenient") != null and find_label_with_text(scene, "Orbital parking thief") != null and (scene.find_child("BountyAction_gloop", true, false) as Button).text == "ANALYZE APPROACHES", "English catalog covers fuel, the wanted board, target dossier, and primary action")
+	(scene.find_child("HuntFuelRefill", true, false) as Button).pressed.emit()
+	await process_frame
+	check(scene.find_child("HuntFuelRefillConfirm", true, false) != null and int(state.player.hunt_fuel) == 100, "fuel refill requires explicit confirmation before premium spend")
+	(scene.find_child("HuntFuelRefillConfirm", true, false) as Button).pressed.emit()
+	await process_frame
+	check(int(state.player.hunt_fuel) == 120 and int(state.player.warp_chips) == 0 and find_label_with_text(scene, "FUEL · 120 AVAILABLE") != null, "confirmed first refill updates wallet and visible reserve atomically")
 	state.select_bounty(ContentDB.TARGETS[0])
 	await process_frame
 	check(find_label_with_text(scene, "CONTRACT BRIEFING") != null and find_label_with_text(scene, "SILENT NET") != null and find_label_with_text(scene, "Surround the target, shut down the exits, and pretend it was all planned.") != null and (scene.find_child("ChooseApproach_premium_warrant", true, false) as Button).text == "CHOOSE · CORPORATE WARRANT", "English catalog covers all contract briefing decisions")

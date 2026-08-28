@@ -3,7 +3,7 @@ extends RefCounted
 
 const Content = preload("res://scripts/content_db.gd")
 
-const CURRENT_VERSION := 20
+const CURRENT_VERSION := 21
 const BASE_ATTRIBUTE_VALUE := 10
 const ATTRIBUTE_POINTS_PER_LEVEL := 2
 
@@ -72,6 +72,9 @@ static func migrate(payload: Dictionary) -> Dictionary:
 			19:
 				migrated = migrate_v19_to_v20(migrated)
 				version = 20
+			20:
+				migrated = migrate_v20_to_v21(migrated)
+				version = 21
 			_:
 				return {}
 		migrated.version = version
@@ -340,5 +343,16 @@ static func migrate_v19_to_v20(payload: Dictionary) -> Dictionary:
 			if level >= int(planet.get("unlock_level", 1)):
 				seen.append(str(planet.id))
 		player.seen_planet_ids = seen
+	migrated.player = player
+	return migrated
+
+
+static func migrate_v20_to_v21(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	var player: Dictionary = migrated.get("player", {})
+	if not player.has("hunt_fuel"):
+		player.hunt_fuel = 100
+	if not player.has("hunt_fuel_refill_count"):
+		player.hunt_fuel_refill_count = 0
 	migrated.player = player
 	return migrated

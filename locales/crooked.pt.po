@@ -4594,3 +4594,39 @@ msgstr "REGISTAR DESTINO"
 
 msgid "GALAXY_DISCOVERY_RECORDED"
 msgstr "Destino registado: %s já integra a sua rede de mandados."
+
+msgid "FUEL_RESERVE_STATUS"
+msgstr "COMBUSTÍVEL · %d DISPONÍVEL"
+
+msgid "FUEL_RESET_RULE"
+msgstr "RESERVA DIÁRIA %d · REINÍCIO 00:00 UTC"
+
+msgid "FUEL_REFILL_ACTION"
+msgstr "+%d COMBUSTÍVEL · ◆ %d"
+
+msgid "FUEL_REFILL_LIMIT"
+msgstr "RECARGAS %d/%d"
+
+msgid "FUEL_REFILL_CONFIRMATION"
+msgstr "CONFIRMAR RECARGA · +%d COMBUSTÍVEL POR ◆ %d · USO %d/%d"
+
+msgid "FUEL_REFILL_CONFIRM"
+msgstr "REABASTECER · ◆ %d"
+
+msgid "FUEL_COST_SHORT"
+msgstr "COMB. %d"
+
+msgid "BRIEFING_CHOOSE_WITH_FUEL"
+msgstr "ESCOLHER · %s · COMB. %d"
+
+msgid "BRIEFING_NEEDS_FUEL"
+msgstr "PRECISA DE %d COMBUSTÍVEL"
+
+msgid "FUEL_NOTICE_REFILLED"
+msgstr "Reserva reabastecida: +%d combustível por %d Fichas de Dobra."
+
+msgid "FUEL_NOTICE_INSUFFICIENT"
+msgstr "Combustível insuficiente: esta rota exige %d e restam %d."
+
+msgid "COMMON_CANCEL"
+msgstr "CANCELAR"

@@ -99,6 +99,8 @@ func _init() -> void:
 	check(int(current.player.credits) == 5, "current-version payloads are returned as deep copies")
 	check(SaveMigrations.migrate({"version": 0}).is_empty(), "unversioned saves are rejected")
 	check(SaveMigrations.migrate({"version": SaveMigrations.CURRENT_VERSION + 1}).is_empty(), "future saves are rejected")
+	var fuel_migration := SaveMigrations.migrate({"version": 20, "player": {"credits": 5}})
+	check(int(fuel_migration.version) == 21 and int(fuel_migration.player.hunt_fuel) == 100 and int(fuel_migration.player.hunt_fuel_refill_count) == 0, "schema twenty receives a full neutral daily fuel reserve")
 
 	if failures == 0:
 		print("PASS: save migrations are deterministic and non-destructive")
