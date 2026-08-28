@@ -31,3 +31,5 @@ Isto não invalida os 100 pontos: confirma que a reserva limita o jogo e que os 
 Não existe faturação real, anúncio, passe, energia da Fenda nem relógio autoritativo de servidor. Fichas e reset UTC continuam a ser uma simulação local transparente para validar UX, saves e balanceamento antes da infraestrutura online.
 
 O gate completo passou em 54 suítes e 143,95 segundos, incluindo as 1 659 combinações da matriz de persistência, migrações, PT/EN, expansão de texto, touch, lifecycle e boot limpo. Capturas a 450 × 800 confirmam as três ofertas e as três abordagens no primeiro ecrã com custo legível.
+
+O APK ARM64 0.48.0/code 106 tem 32,13 MB e passou API 24+, assinatura estável de testes internos, conteúdo obrigatório e fronteira de referências. O artefacto publicado em `latest` tem SHA-256 `8badc74319bb9450a1d9825cd62b048aace122b29aa93c61568ebb21c9d218fd`.
