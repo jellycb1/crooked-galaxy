@@ -89,7 +89,7 @@ func _init() -> void:
 	check(ContentDB.procedural_collection_ids().size() >= 100 and ContentDB.procedural_collection_ids().all(func(id): return str(id).contains("::")), "finite template families expose a bounded multi-variant collection catalog")
 	check(ContentDB.procedural_collection_entries().size() * 5 == ContentDB.procedural_collection_ids().size(), "every collectible template exposes exactly the five canonical series variants")
 	check(ContentDB.procedural_collection_total() == ContentDB.procedural_collection_ids().size(), "hot collection counts avoid rebuilding or exposing the canonical identifier cache")
-	check(ContentDB.procedural_collection_total() == 620, "nine authored planet packs expose the documented bounded 620-series catalog")
+	check(ContentDB.procedural_collection_total() == 680, "ten authored planet packs expose the documented bounded 680-series catalog")
 	check(int(premium_omega_loot.power) == int(canonical_omega_loot.power), "contract danger does not inflate the dropped equipment tier")
 	check(str(ContentDB.target_for_planet_tier("dustball_prime", 1).id) == "baron_boom", "planet tier resolves the next warrant deterministically")
 	check(ContentDB.planet_tier_from_target_captures("dustball_prime", {"gloop": 9}) == 1, "farming the first warrant cannot skip sequential tiers")
@@ -118,6 +118,7 @@ func _init() -> void:
 	check(ContentDB.loot_slots_for_planet("arquivo_abissal_n9").has("implant") and not ContentDB.loot_slots_for_planet("arquivo_abissal_n9").has("gadget"), "Abyssal Archive introduces implants without leaking Rift-only equipment families")
 	check(ContentDB.loot_slots_for_planet("verdantia_patenteada").has("boots") and not ContentDB.loot_slots_for_planet("verdantia_patenteada").has("gadget"), "Patent Verdantia deepens universal boots without leaking Rift-only equipment families")
 	check(ContentDB.loot_slots_for_planet("caldeira_garantia").has("gloves") and not ContentDB.loot_slots_for_planet("caldeira_garantia").has("gadget"), "Warranty Caldera deepens universal gloves without leaking Rift-only equipment families")
+	check(ContentDB.loot_slots_for_planet("condominio_lunar_7").has("helmet") and not ContentDB.loot_slots_for_planet("condominio_lunar_7").has("gadget"), "Lunar Estate deepens universal helmets without leaking Rift-only equipment families")
 	var aerial_rng := RandomNumberGenerator.new()
 	aerial_rng.seed = 303030
 	var aerial_rig := ContentDB.generate_loot(ContentDB.TARGETS[20], aerial_rng, 3, "rig")
@@ -134,6 +135,10 @@ func _init() -> void:
 	caldeira_rng.seed = 606060
 	var caldeira_gloves := ContentDB.generate_loot(ContentDB.TARGETS[32], caldeira_rng, 3, "gloves")
 	check(str(caldeira_gloves.slot) == "gloves" and str(caldeira_gloves.origin_planet_id) == "caldeira_garantia" and not str(caldeira_gloves.name).is_empty(), "the level-60 pack produces canonical themed glove equipment")
+	var lunar_rng := RandomNumberGenerator.new()
+	lunar_rng.seed = 707070
+	var lunar_helmet := ContentDB.generate_loot(ContentDB.TARGETS[36], lunar_rng, 3, "helmet")
+	check(str(lunar_helmet.slot) == "helmet" and str(lunar_helmet.origin_planet_id) == "condominio_lunar_7" and not str(lunar_helmet.name).is_empty(), "the level-70 pack produces canonical themed helmet equipment")
 	for secondary_case in [
 		{"target": ContentDB.TARGETS[4], "slot": "helmet"},
 		{"target": ContentDB.TARGETS[8], "slot": "gloves"},

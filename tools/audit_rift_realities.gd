@@ -4,6 +4,7 @@ const Challenge = preload("res://scripts/challenge_rules.gd")
 const Rules = preload("res://scripts/core_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const Builds = preload("res://tools/simulation_builds.gd")
+const FirstRealitySimulation = preload("res://tools/simulate_challenges.gd")
 const Content = preload("res://scripts/content_db.gd")
 
 
@@ -13,12 +14,18 @@ func _init() -> void:
 		var reality_id := str(reality.id)
 		print("\n%s · unlock L%d" % [str(reality.name), int(reality.unlock_level)])
 		for stage_index in reality.stages.size():
-			var projected_level: int = int(reality.unlock_level) + stage_index * (5 if reality_id != Challenge.FIRST_REALITY_ID else 0)
+			# The first reality is an aspirational ladder, not twelve encounters
+			# intended for its level-8 unlock day. Reuse the exact checkpoints
+			# protected by test_challenges instead of printing a misleading L8 wall.
+			var projected_level: int = int(FirstRealitySimulation.CHECKPOINTS[stage_index].level) if reality_id == Challenge.FIRST_REALITY_ID else int(reality.unlock_level) + stage_index * 5
 			var odds: Array[float] = []
 			var players: Array[Dictionary] = []
 			for policy in Builds.POLICIES:
-				var player := representative_player(projected_level, policy)
-				apply_prior_rewards(player, reality_id, stage_index)
+				var player := FirstRealitySimulation.checkpoint_player(FirstRealitySimulation.CHECKPOINTS[stage_index], policy) if reality_id == Challenge.FIRST_REALITY_ID else representative_player(projected_level, policy)
+				if reality_id == Challenge.FIRST_REALITY_ID:
+					FirstRealitySimulation.apply_prior_rewards(player, stage_index)
+				else:
+					apply_prior_rewards(player, reality_id, stage_index)
 				players.append(player)
 				odds.append(Rules.bounty_odds(player, Challenge.stage_at(stage_index, reality_id)))
 			odds.sort()

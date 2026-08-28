@@ -11,8 +11,9 @@ const AeropolisPenhora = preload("res://scripts/content/packs/aeropolis_penhora.
 const ArquivoAbissalN9 = preload("res://scripts/content/packs/arquivo_abissal_n9.gd")
 const VerdantiaPatenteada = preload("res://scripts/content/packs/verdantia_patenteada.gd")
 const CaldeiraGarantia = preload("res://scripts/content/packs/caldeira_garantia.gd")
+const CondominioLunar7 = preload("res://scripts/content/packs/condominio_lunar_7.gd")
 
-const PACK_SCRIPTS := [DustballPrime, Congelaria, Micelia404, FerroVelhoOmega, CassinoQuasar, AeropolisPenhora, ArquivoAbissalN9, VerdantiaPatenteada, CaldeiraGarantia]
+const PACK_SCRIPTS := [DustballPrime, Congelaria, Micelia404, FerroVelhoOmega, CassinoQuasar, AeropolisPenhora, ArquivoAbissalN9, VerdantiaPatenteada, CaldeiraGarantia, CondominioLunar7]
 
 # This registry owns the deterministic public composition order. ContentDB
 # remains the stable facade consumed by gameplay, saves and tests.
@@ -27,9 +28,10 @@ const PLANETS := [
 	ArquivoAbissalN9.PLANET,
 	VerdantiaPatenteada.PLANET,
 	CaldeiraGarantia.PLANET,
+	CondominioLunar7.PLANET,
 ]
-const TARGETS := DustballPrime.TARGETS + Congelaria.TARGETS + Micelia404.TARGETS + FerroVelhoOmega.TARGETS + CassinoQuasar.TARGETS + AeropolisPenhora.TARGETS + ArquivoAbissalN9.TARGETS + VerdantiaPatenteada.TARGETS + CaldeiraGarantia.TARGETS
-const HUNT_EVENTS := DustballPrime.EVENTS + Congelaria.EVENTS + Micelia404.EVENTS + FerroVelhoOmega.EVENTS + CassinoQuasar.EVENTS + AeropolisPenhora.EVENTS + ArquivoAbissalN9.EVENTS + VerdantiaPatenteada.EVENTS + CaldeiraGarantia.EVENTS
+const TARGETS := DustballPrime.TARGETS + Congelaria.TARGETS + Micelia404.TARGETS + FerroVelhoOmega.TARGETS + CassinoQuasar.TARGETS + AeropolisPenhora.TARGETS + ArquivoAbissalN9.TARGETS + VerdantiaPatenteada.TARGETS + CaldeiraGarantia.TARGETS + CondominioLunar7.TARGETS
+const HUNT_EVENTS := DustballPrime.EVENTS + Congelaria.EVENTS + Micelia404.EVENTS + FerroVelhoOmega.EVENTS + CassinoQuasar.EVENTS + AeropolisPenhora.EVENTS + ArquivoAbissalN9.EVENTS + VerdantiaPatenteada.EVENTS + CaldeiraGarantia.EVENTS + CondominioLunar7.EVENTS
 const STARTER_ITEM_CATALOG := DustballPrime.ITEMS
 const PLANET_ITEM_CATALOGS := {
 	"congelaria_sa": Congelaria.ITEMS,
@@ -40,6 +42,7 @@ const PLANET_ITEM_CATALOGS := {
 	"arquivo_abissal_n9": ArquivoAbissalN9.ITEMS,
 	"verdantia_patenteada": VerdantiaPatenteada.ITEMS,
 	"caldeira_garantia": CaldeiraGarantia.ITEMS,
+	"condominio_lunar_7": CondominioLunar7.ITEMS,
 }
 const SECONDARY_ITEM_CATALOGS := {
 	"congelaria_sa": Congelaria.SECONDARY_ITEMS,
@@ -50,6 +53,7 @@ const SECONDARY_ITEM_CATALOGS := {
 	"arquivo_abissal_n9": ArquivoAbissalN9.SECONDARY_ITEMS,
 	"verdantia_patenteada": VerdantiaPatenteada.SECONDARY_ITEMS,
 	"caldeira_garantia": CaldeiraGarantia.SECONDARY_ITEMS,
+	"condominio_lunar_7": CondominioLunar7.SECONDARY_ITEMS,
 }
 
 

@@ -298,7 +298,7 @@ Todos são componentes pequenos e reutilizam o retrato do alvo e ícones globais
 
 ### 6.4 Incidentes de viagem
 
-Conteúdo atual: 18 incidentes, dois por cada um dos nove planetas de gameplay. Cada incidente contém três opções/ícones de escolha no código.
+Conteúdo atual: 20 incidentes, dois por cada um dos dez planetas de gameplay. Cada incidente contém três opções/ícones de escolha no código.
 
 Produção recomendada por incidente:
 
@@ -306,7 +306,7 @@ Produção recomendada por incidente:
 - 3 pictogramas de escolha podem reutilizar uma biblioteca comum;
 - 1 variação visual para resultado positivo/negativo feita por cor e efeitos, não por nova pintura.
 
-Meta de lançamento: 70 incidentes se mantivermos dois por cada um dos 35 planetas. Faltam 52 identidades de incidente para o catálogo anual.
+Meta de lançamento: 70 incidentes se mantivermos dois por cada um dos 35 planetas. Faltam 50 identidades de incidente para o catálogo anual.
 
 Para controlar custo, criar primeiro 12 pictogramas universais de decisão: atacar, negociar, hackear, fugir, investigar, reparar, arriscar, pagar, ajudar, roubar, esperar e improvisar.
 
@@ -318,10 +318,10 @@ Para controlar custo, criar primeiro 12 pictogramas universais de decisão: atac
 
 | Conteúdo | Atual | Meta de lançamento | Falta |
 | --- | ---: | ---: | ---: |
-| Planetas | 9 | 35 | 26 |
-| Alvos | 36 | 140 | 104 |
+| Planetas | 10 | 35 | 25 |
+| Alvos | 40 | 140 | 100 |
 | Alvos por planeta | 4 | 4 | — |
-| Incidentes | 18 | 70 recomendados | 52 |
+| Incidentes | 20 | 70 recomendados | 50 |
 
 Planetas atuais:
 
@@ -333,7 +333,8 @@ Planetas atuais:
 - Aerópolis de Penhora;
 - Arquivo Abissal N-9;
 - Verdântia Patenteada (assets pendentes do utilizador);
-- Caldeira de Garantia (assets pendentes do utilizador).
+- Caldeira de Garantia (assets pendentes do utilizador);
+- Condomínio Lunar 7 (assets pendentes do utilizador).
 
 ### 7.2 Pacote visual mínimo por planeta
 
@@ -398,7 +399,7 @@ Formato recomendado:
 
 Quantidade:
 
-- atual: 36 identidades precisam de arte;
+- atual: 40 identidades precisam de arte;
 - lançamento anual: 140;
 - estado aprovado atual: 0/140 arte final; símbolos/emoji são `TEMP`.
 
@@ -950,11 +951,11 @@ Estas capturas são a matriz de validação. Não representam 102 ilustrações 
 | --- | ---: |
 | Ilustrações de classe | 3 |
 | Bases modulares de raça e camadas | aproximadamente 96 unidades |
-| Retratos dos 36 alvos atuais | 36 |
-| Habitats dos 9 planetas atuais | 9 |
-| Camadas de arena dos 9 planetas | 9 |
-| Medalhões dos 9 planetas | 9 |
-| Incidentes atuais | 18 |
+| Retratos dos 40 alvos atuais | 40 |
+| Habitats dos 10 planetas atuais | 10 |
+| Camadas de arena dos 10 planetas | 10 |
+| Medalhões dos 10 planetas atuais | 10 |
+| Incidentes atuais | 20 |
 | Transportes | 4 |
 | NPCs de serviço | 5 |
 | Inimigos atuais da Fenda | 24 |
@@ -967,12 +968,12 @@ Estas capturas são a matriz de validação. Não representam 102 ilustrações 
 
 | Família | Meta total | Falta após conteúdo atual |
 | --- | ---: | ---: |
-| Habitats | 35 | 26 |
-| Arenas/camadas de chão | 35 | 26 |
-| Medalhões | 35 | 26 |
-| Alvos | 140 | 104 |
-| Incidentes | 70 | 52 |
-| Packs materiais planetários para equipamento | 35 | 26 packs |
+| Habitats | 35 | 25 |
+| Arenas/camadas de chão | 35 | 25 |
+| Medalhões | 35 | 25 |
+| Alvos | 140 | 100 |
+| Incidentes | 70 | 50 |
+| Packs materiais planetários para equipamento | 35 | 25 packs |
 
 Fenda, eventos sazonais e futuros transportes ainda não têm uma meta anual fechada. Devem usar templates escaláveis e receber orçamento separado.
 
@@ -1004,17 +1005,17 @@ Nada se expande antes de estes testes funcionarem juntos numa captura 450×800.
 
 ### Lote 2 — ciclo central atual
 
-1. nove habitats e medalhões;
-2. 36 alvos;
-3. 18 incidentes;
-4. nove arenas;
+1. dez habitats e medalhões;
+2. 40 alvos;
+3. 20 incidentes;
+4. dez arenas;
 5. VFX de combate;
 6. vitória, derrota e recompensa.
 
 ### Lote 3 — equipamento, economia e mobilidade
 
 1. kit modular de itens;
-2. packs visuais dos nove planetas;
+2. packs visuais dos dez planetas;
 3. quatro transportes;
 4. mercado e ícones premium;
 5. recibos e estados de compra.

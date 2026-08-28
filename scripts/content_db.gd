@@ -363,6 +363,8 @@ static func loot_slots_for_planet(planet_id: String) -> Array[String]:
 			return ["weapon", "weapon", "weapon", "armor", "armor", "boots", "boots"]
 		"caldeira_garantia":
 			return ["weapon", "weapon", "weapon", "armor", "armor", "gloves", "gloves"]
+		"condominio_lunar_7":
+			return ["weapon", "weapon", "weapon", "armor", "armor", "helmet", "helmet"]
 		_:
 			return ["weapon", "weapon", "weapon", "armor", "armor"]
 

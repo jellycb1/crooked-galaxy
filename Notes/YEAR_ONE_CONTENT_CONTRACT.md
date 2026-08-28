@@ -4,11 +4,11 @@ Estado: fundação executável revista para a curva quadrática, 28 de agosto de
 
 ## Promessa mensurável
 
-O teto de produção conserva margem sobre o perfil mecanicamente mais rápido hoje possível: 160 unidades de combustível por dia e escolha sistemática da rota mais barata entre os três mandados. Nos nove planetas atuais, esse perfil completa 5 540 caçadas e termina o ano no nível 271. A rota adicional de 36 minutos reduz naturalmente a velocidade relativamente ao catálogo anterior. O catálogo até nível 320 permanece como margem de segurança para futuras alterações de rotas, XP e economia.
+O teto de produção conserva margem sobre o perfil mecanicamente mais rápido hoje possível: 160 unidades de combustível por dia e escolha sistemática da rota mais barata entre os três mandados. Nos dez planetas atuais, esse perfil completa 5 079 caçadas e termina o ano no nível 258. A rota adicional de 40 minutos reduz naturalmente a velocidade relativamente ao catálogo anterior. O catálogo até nível 320 permanece como margem de segurança para futuras alterações de rotas, XP e economia.
 
 Os cinco planetas iniciais mantêm os níveis 1, 4, 8, 13 e 19. A partir daí, um planeta é desbloqueado a cada dez níveis: 30, 40, 50 e assim sucessivamente até 320. Isso define 35 planetas e, com quatro identidades de alvo por planeta, 140 alvos no catálogo completo de lançamento.
 
-O conteúdo de gameplay cobre agora nove planetas e 36 alvos até ao nível 60; faltam 26 habitats e 104 identidades para cumprir este eixo. Caldeira de Garantia continua o pipeline com um mundo vulcânico-industrial, quatro alvos, dois incidentes, famílias de equipamento e tradução integral. Os assets visuais dos dois packs mais recentes pertencem ao pipeline de entregas do utilizador e permanecem em fallback explícito.
+O conteúdo de gameplay cobre agora dez planetas e 40 alvos até ao nível 70; faltam 25 habitats e 100 identidades para cumprir este eixo. Condomínio Lunar 7 continua o pipeline com uma lua residencial regulada, quatro alvos, dois incidentes, famílias de equipamento e tradução integral. Os assets visuais dos três packs mais recentes pertencem ao pipeline de entregas do utilizador e permanecem em fallback explícito.
 
 ## Curva de progressão
 
@@ -18,12 +18,12 @@ Cinco caçadas padrão por dia continuam a ser uma referência comparável, não
 
 | Combustível/dia | Estratégia | Caçadas/dia | Nível no dia 365 | Dia nível 30 | Dia nível 100 | Dia nível 300 |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: |
-| 100 | Mandado padrão | 4,8 | 137 | 19 | 205 | — |
-| 100 | Rota mais barata | 9,5 | 207 | 11 | 100 | — |
-| 160 | Mandado padrão | 7,8 | 182 | 12 | 124 | — |
-| 160 | Rota mais barata | 15,2 | 271 | 7 | 62 | — |
+| 100 | Mandado padrão | 4,5 | 132 | 19 | 216 | — |
+| 100 | Rota mais barata | 8,7 | 196 | 11 | 105 | — |
+| 160 | Mandado padrão | 7,2 | 174 | 12 | 129 | — |
+| 160 | Rota mais barata | 13,9 | 258 | 7 | 64 | — |
 
-Esta projeção já incorpora as rotas de 28 minutos do Arquivo Abissal, 32 minutos de Verdântia e 36 minutos de Caldeira. Futuros planetas tendem a aumentar a duração média e reduzir o número de caçadas na mesma reserva; o nível 320 continua um teto de segurança de produção, não uma promessa de que todo jogador verá cada planeta no primeiro ano.
+Esta projeção já incorpora as rotas de 28 minutos do Arquivo Abissal, 32 minutos de Verdântia, 36 minutos de Caldeira e 40 minutos do Condomínio Lunar. Futuros planetas tendem a aumentar a duração média e reduzir o número de caçadas na mesma reserva; o nível 320 continua um teto de segurança de produção, não uma promessa de que todo jogador verá cada planeta no primeiro ano.
 
 ## Comportamento da rede de missões
 
