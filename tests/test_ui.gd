@@ -422,6 +422,12 @@ func run_smoke_test() -> void:
 	check(not planet_motifs.has("unknown") and planet_motifs.size() == visible_planets.size() - pending_planet_motifs, "every visible completed planet resolves a distinct visual motif")
 	check(pending_planet_motifs == visible_planets.filter(func(planet): return str(planet.get("visual_delivery", "")) == "pending_user_asset").size(), "visible pending planets retain the explicit user-art boundary")
 	check(scene.find_child("PrimaryNavBadge_galaxy", true, false) != null, "persistent unseen destinations produce a global Galaxy navigation badge")
+	state.player.level = 160
+	scene.render()
+	await process_frame
+	check(scene.find_children("GalaxyPlanetIcon_*", "Control", true, false).size() == ContentDB.PLANETS.size(), "the bounded map never hides a world once its level is unlocked")
+	check(scene.find_child("GalaxyDistantSignals", true, false) == null, "the distant-signal summary disappears when the current catalog is fully unlocked")
+	state.player.level = 19
 	scene.view_mode = "board"
 	scene.board_section = "bounties"
 	check(state.travel_to_planet("congelaria_sa"), "UI state can travel to an unlocked planet")

@@ -28,7 +28,12 @@ static func available_planets(level: int) -> Array[Dictionary]:
 
 
 static func is_planet_available(planet_id: String, level: int) -> bool:
-	return available_planets(level).any(func(planet): return str(planet.id) == planet_id)
+	# This check runs once per visible Galaxy card. Avoid constructing and deeply
+	# duplicating the complete unlocked catalog for every card.
+	for planet in Content.PLANETS:
+		if str(planet.id) == planet_id:
+			return level >= int(planet.get("unlock_level", 1))
+	return false
 
 
 static func newly_available_planets(before_level: int, after_level: int) -> Array[Dictionary]:
