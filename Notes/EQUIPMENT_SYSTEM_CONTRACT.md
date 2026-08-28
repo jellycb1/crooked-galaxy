@@ -29,7 +29,7 @@ Itens épicos e lendários podem ter mais autoria visual e narrativa. A grande v
 
 - A maioria das melhorias deve ser pequena. Sidegrades e trade-offs são parte deliberada da progressão.
 - O nível do item sobe com o jogador e a dificuldade; diferenças pequenas de poder mantêm valor sem acelerar excessivamente a campanha.
-- Estrutura alvo: Comum/Básico, Melhorado/Incomum, Raro, Épico e Lendário limitado. Os nomes finais localizados ainda podem mudar.
+- O cliente atual usa três raridades: Comum, Raro e Épico. A estrutura futura poderá acrescentar Melhorado/Incomum e Lendário limitado apenas com nova simulação, localização e apresentação; os nomes finais ainda podem mudar.
 - O mercado fornece mais rolls, nunca uma melhoria garantida. O preço do item continua em Créditos.
 - Investimentos da oficina devem ser visíveis e recuperáveis em parte ao substituir ou reciclar uma peça.
 

@@ -32,12 +32,12 @@ O mercado nunca vende o item por Fichas de Dobra: a ficha compra uma nova seleç
 
 Dentro de cada sistema e dia UTC, os três usos premium custam **1, 5 e 20** Fichas de Dobra. O quarto uso é bloqueado. A escalada é sempre mostrada antes da confirmação e reinicia no próximo dia UTC.
 
-Primeiras aplicações:
+Estado das aplicações:
 
-1. **Mercado:** até três renovações por dia. A terceira seleção contém pelo menos um item Raro compatível, mas não garante que seja melhoria.
-2. **Combustível de caça:** reserva diária de 100 unidades; missões normais consomem o equivalente aos minutos da rota-base. Cada recarga concede 20 e segue a escada diária 1/5/20. O sistema está ativo no cliente de teste desde a versão 0.48.0; faturação e autoridade continuam locais e não representam uma loja real.
-3. **Reduções de tempo:** Células de Salto reduzem cinco minutos e devem existir também como recompensa jogável, com limite diário.
-4. **Arena:** futuros saltos de cooldown podem usar a mesma escada, sempre limitados a três por dia e sem alterar probabilidades de vitória.
+1. **ATIVO — Mercado:** até três renovações por dia. A terceira seleção contém pelo menos um item Raro compatível, mas não garante que seja melhoria.
+2. **ATIVO — Combustível de caça:** reserva diária de 100 unidades; missões normais consomem o equivalente aos minutos da rota-base. Cada recarga concede 20 e segue a escada diária 1/5/20. Faturação e autoridade continuam locais e não representam uma loja real.
+3. **PLANEADO — Reduções de tempo:** Células de Salto poderão reduzir cinco minutos e deverão existir também como recompensa jogável, com limite diário. Ainda não fazem parte do cliente atual.
+4. **FUTURO — Arena:** saltos de cooldown poderão usar a mesma escada, sempre limitados a três por dia e sem alterar probabilidades de vitória.
 
 ## Fenda: limite de integridade comercial
 
@@ -52,7 +52,7 @@ Primeiras aplicações:
 
 - Transportes de 10%, 20% e 30% continuam compráveis permanentemente com Créditos.
 - Transportes reduzem apenas a espera da viagem. O custo de combustível permanece ligado à rota-base, por isso transporte não compra caçadas diárias adicionais.
-- O transporte de 50% deve ser alcançável permanentemente no endgame; uma licença temporária premium de 14 dias pode existir como antecipação, nunca como exclusividade.
+- O transporte permanente de 50% já existe por Créditos no nível 13. Uma licença temporária premium de 14 dias só poderá existir como antecipação, nunca como exclusividade ou melhoria acima desse teto.
 - Espaços adicionais de personagem, loadout ou inventário podem ser vendidos apenas quando o espaço gratuito for confortável e não criar dor artificial.
 - Alterações de nome, aparência, espécie, classe ou respec podem ter custos normais/premium definidos quando esses fluxos forem finais.
 

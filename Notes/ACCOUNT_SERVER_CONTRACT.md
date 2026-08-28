@@ -1,5 +1,7 @@
 # Account and International 1 contract
 
+Status: active boundary. The current build is device-authoritative; remote states in this document are future requirements, not implemented claims.
+
 ## Current product truth
 
 Crooked Galaxy remains a local test build. `International 1` is the stable shard identity reserved for the first global multilingual world, but no account backend is contacted. The device is the only authority for progress, the session is `local_ready`, and synchronization is `local_only`.

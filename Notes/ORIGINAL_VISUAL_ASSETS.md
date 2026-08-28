@@ -1,5 +1,7 @@
 # Original visual asset register
 
+Status: provenance record for assets already accepted into production. It does not authorize Codex to create or edit visual assets; current authorship rules live in `AGENTS.md`.
+
 Generated with the built-in OpenAI image-generation workflow. No reference image was supplied to the generator. Every prompt required a fully original composition and excluded text, logos, trademarks, recognizable third-party designs, and watermarks.
 
 | Asset | Runtime context | Prompt summary |

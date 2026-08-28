@@ -1,6 +1,6 @@
 CROOKED GALAXY — BRIEFING VISUAL DAS 3 CLASSES E 8 RAÇAS INICIAIS
 
-Estado: direção para criação dos assets iniciais de personagem.
+Estado: briefing ativo destinado ao utilizador ou artista externo. Não autoriza Codex a criar ou editar assets visuais.
 Objetivo: produzir personagens memoráveis, legíveis no Android e compatíveis com a identidade “Clean, organized, space RPG, 2D, hand-drawn, comedic sci-fi”.
 
 

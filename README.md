@@ -1,401 +1,147 @@
 # Crooked Galaxy
 
-Mobile-first comedic sci-fi idle RPG built with Godot 4 and GDScript.
-
-## Current playable slice
-
-The prototype implements the product's central test and its first independent PvE progression branch:
-
-`BOUNTY → APPROACH → HUNT / INCIDENT → AUTOMATIC COMBAT → REWARD → LOOT → EQUIP → STRONGER BOUNTY / FENDA`
-
-All nine current worlds now live in validated per-world packs under
-`scripts/content/packs/`. They preserve their existing planets, targets, incidents,
-primary item families, and progressive secondary slots exactly. `ContentDB` keeps
-its public API throughout the completed catalog migration,
-so current saves, balance, translations, and consumers remain unchanged. The pack
-contract and migration procedure are documented in
-`Notes/PLANET_CONTENT_PACK_PIPELINE.md`.
-
-A fresh installation now begins with a mandatory, resumable identity sequence before any game navigation appears: locale, server, local login, explicit class confirmation, explicit species confirmation, cosmetic customization, and a validated 3–20 character hunter name. `International 1` is the first global multilingual shard and remains visible as `INT-1` in both compact headers. The current APK states honestly that its account is device-local and that no authoritative online connection exists yet. Portuguese and English are complete selectable surfaces. All current navigation, contracts, incidents, combat, rewards, Hunter/build management, galaxy, commerce, career, Fenda, six legacy chapter finales, save/recovery feedback, and transaction receipts resolve through parity-checked PO catalogs. Language can be previewed at login and changed later in Settings; the account/session keeps the selected locale independently from class, species, appearance, and hunter name. Unknown shards and unavailable locales are rejected at the state boundary.
-
-Schema 14 establishes the future account/server seam without pretending that a backend exists. Provider, account, session, shard, locale, active character, owned characters, progress authority, synchronization state, local revision, and last acknowledged server revision have separate stable fields. The current replaceable account adapter always reports `local_device`, `local_ready`, device authority, `local_only`, and no backend. Successful atomic saves advance the local revision; failed writes do not. Foreign character ownership, fake server authority, and fake synchronized saves are rejected. The deterministic conflict policy forbids automatic merging of currency, inventory, rewards, phases, or progression. Its full contract is documented in `Notes/ACCOUNT_SERVER_CONTRACT.md`.
-
-The initial cosmetic roster is finalized as Terran, Synthetic, Starworn, Fungoid, Abyssal, Mothari, Scraproot, and Glitchlight. Species never alter attributes, combat, loot, economy, or progression. Each owns an original scalable emblem, anatomy cues, and 81 combinations across palette, eyes, feature, and marking on the shared procedural portrait. Schema 15 explicitly migrates every former provisional species ID and gives established hunters the neutral appearance recipe without replaying onboarding; interrupted creation resumes at customization. The naming step previews the assembled hunter and offers explicit class/species correction routes before final entry.
-
-Species selection now shows a large live hunter preview above the eight origin cards and keeps its confirmation action fixed outside the roster. Draft rerenders preserve the roster position on constrained or enlarged-text layouts, so selecting a lower option never forces a second navigation pass merely to confirm it.
-
-Mandatory class selection now follows the same creation grammar. Each initial class uses an original scalable vector emblem, and the screen states the primary attribute, preferred contract style, and exact active specialization before confirmation. The three class designs and their runtime presentation are now independent production content.
-
-It currently includes nine mission worlds: Dustball Prime, Congelária S.A., Micélia 404, Ferro-Velho Ômega, Cassino Quasar, Aerópolis de Penhora, Arquivo Abissal N-9, Verdântia Patenteada, and the level-60 volcanic industry of Caldeira de Garantia. The first capture is a single guided warrant; afterward the board retains three deterministic interplanetary offers—routine, priority and high-value—as compact comparable tickets above one expanded dossier. Each ticket names its target and destination while showing current-build odds, streak-adjusted payment and transport-adjusted total time; the selected ticket owns an explicit filled state and marker. Selecting another ticket replaces that dossier instead of stacking three long cards on the mobile scroller, restores controller focus to the same choice and reuses cached combat estimates. Hunter level progressively adds worlds and their criminal families to this rotating network instead of requiring a sequential planet campaign. Each accepted offer stores immutable level-banded combat statistics, so equipment upgrades make that exact target easier rather than causing hidden enemy scaling. Role pressure is anchored to one snapshotted level, while target profiles and the visible build estimate preserve class-neutral tactical variation. Mission XP grows linearly and remains below the next-level requirement even at long-horizon checkpoints, preventing self-accelerating level inflation. A mission separates destination travel from pursuit time; ship upgrades reduce only travel and become increasingly valuable on distant routes. The accepted deadline is an authoritative wall-clock timestamp: an optional incident never pauses it, ignoring the event changes nothing, and a chosen detour adds only its advertised duration. Expiration while open, backgrounded, or reloading reaches the same combat state; Android runtime feedback confirms the ready target on return. A capped eight-hour AFK patrol grants credits and scrap on return, while consecutive captures build a capped credit-paying streak that is lost on defeat or abandonment. Repeated captures also build three target-mastery tiers that improve future rare and epic loot odds. Career and Galaxy summarize discovered worlds, route distance, permanent capture records, claimable milestones, and a thirty-six-target archive. The first 28 targets retain individual scalable procedural identities; Verdântia and Caldeira's eight new portraits and six planet deliveries have deterministic catalog paths and explicit fallbacks until the user supplies their assets. Rare equipment can carry power, integrity, opening-shot, or incoming-damage-reduction modifications. Every new item also records its planet of origin; matching weapon and armor activates a visible planetary kit bonus that participates in combat odds and complete-build comparison. The workshop filters, sorts, protects valuable pieces, manages two persistent loadouts, safely bulk-recycles, and spends scrap on either power calibration or capped integrity reinforcement. AFK-safe hunt resolution, runtime-synthesized sound effects, planet-themed automatic combat, XP and level progression, simulation-backed risk estimates, content validation, versioned save migration, and local persistence complete the slice.
-
-Level progression awards two persistent attribute points per level across Strength, Vitality, Dexterity, Intelligence, and Cunning. The portrait hub keeps taps in a reversible draft until explicit confirmation, and legacy hunters receive the points earned by their existing level. Each attribute contributes a restrained universal bonus.
-
-Five original vector glyphs make the attribute profile scannable before reading: weight for Strength, heart for Vitality, sight for Dexterity, circuit for Intelligence, and an eye for Cunning. They occupy the existing value column and add no texture residency.
-
-The hunter shortcut now opens a unified mobile character sheet inspired by the reference's build-at-a-glance hierarchy: an equipment-aware hunter portrait sits between the currently equipped weapon and suit, while a compact paper doll reserves helmet, gloves, boots, technical rig, implant, gadget, and alien relic positions. Class, level, power, health, opening damage, damage reduction, and all five editable attributes remain in the same scroll. Equipment management stays in the full workshop and is linked directly from the sheet.
-
-All current and future classes share one nine-slot equipment contract: weapon, helmet, suit, gloves, boots, technical rig, implant, gadget, and alien relic. Slots never declare a permitted class; class identity changes the value of stats and effects instead of changing inventory shape. Existing saves migrate atomically to schema 10 with their weapon and suit untouched and seven empty positions, while both persistent loadouts, item protection, complete-build comparison, and combat aggregation use the centralized slot catalog.
-
-The first secondary equipment layer now enters the campaign progressively: Congelária adds helmets, Micélia adds gloves, and Ferro-Velho adds boots. Dustball remains a focused weapon/suit tutorial, and the arsenal names the next family before it starts dropping. Secondary pieces have a nearly flat one-to-two Power budget; rare modifications supply opening damage, health, mitigation, or a small Power tradeoff. This makes them lateral build decisions instead of three extra weapon curves. Planet markets deliberately remain weapon/suit-only catch-up systems.
-
-Hunter level 8 reveals the Fenda Clandestina, a keyed daily PvE branch independent of ordinary warrants. Each alternate reality contains twelve sequential enemies, keeps its own permanent progress, and requires a gameplay-only key; completing the first reality and reaching level 100 makes the second key discoverable through ordinary hunts with bounded bad-luck protection. The two implemented realities now contain twenty-four distinct authored enemy identities, seventy-two localized attacks and twenty-four sealed artifact identities while retaining one audited universal trait ladder. One global entry is available per UTC day across every opened reality and is consumed when combat begins, including on defeat. The dossier shows only the current enemy, deterministic build odds and its visible class-neutral anomaly; item identity, slot, rarity, Credits and XP remain sealed until victory. The first reality's sectors introduce rigs, implants, gadgets and relics in groups of three, all universal authored sidegrades rather than raw vertical shortcuts. Fenda attempts consume no fuel and never increase warrant rank, planet captures, target mastery, daily-shift progress or capture streak. No premium currency buys entries, retries, keys, enemy skips, odds or reward revelation.
-
-On the physical Android layout, that sheet uses its own compact header and the reference's low-noise slot hierarchy: equipment frames carry only slot, icon, and power, while full item names and details remain in the directly linked workshop. Combat metrics, class, and navigation each occupy one dedicated line. Attribute rows omit tutorial paragraphs after their first introduction, keeping the live value, effect, and action visually dominant.
-
-Three initial bounty-hunter classes exercise that foundation: Quebra-Mandados specializes in Strength, Pistoleiro Orbital in Dexterity, and Hacker de Contratos in Intelligence. Their names, themes, copy, mechanical identities, and scalable vector emblems are now the initial design baseline. Class effects are declared as data rather than ID-specific combat branches, so the roster can expand without rewriting combat. Quebra-Mandados converts Strength to Power more slowly because Strength is already universally offensive, absorbs damage through Casco Duro, and retaliates every third surviving round. Pistoleiro Orbital combines restrained persistent precision with a bounded evasion window and a small follow-up burst on a perfect shot. Hacker de Contratos adds opening invasion damage and sustained overload that bypasses one point of target defense. The new signatures are intentionally modest: the primary attribute still carries the scalable class bonus, while counter, evasion/burst, and overload remain readable tactical punctuation instead of compounding growth curves. The selector, hunter sheet, affected turn cards, and final combat report expose exact active values and aggregate contribution. Vitality, Cunning, equipment, and every universal attribute effect remain active. Selection uses a separate mobile scroller and explicit confirmation; reclassification is free during early access so unfinished balance cannot trap an existing save.
-
-Ordinary campaign enemies now teach build reading instead of differing only by larger numbers. Dustball stays neutral; from Congelária onward each chapter rotates improvised plating, reckless pressure, and an elusive signature before a class-neutral elite boss. The briefing states the exact behavior and useful response, while combat preserves the profile label. These profiles suppress opening damage, pierce mitigation, disrupt aim, or amplify counterplay without checking the player's class or scaling from the player. The twelve Fenda traits across rigs, implants, gadgets, and relics provide universal opening, integrity, mitigation, counterattack, perfect-shot burst, evasion, and defense bypass responses, so any present or future class can answer the same enemy through equipment. Class signatures and equipment effects combine additively, and the arsenal's item comparison exposes every tactical delta.
-
-Android interaction paths use a 768-trial deterministic combat estimate and precompute all build and target invariants before entering its inner loop. The reduced sample remains protected by class, recommendation, 55% viability, and complete-career simulations while cutting cold estimate work by roughly 18–25% on the development machine. Cold estimates no longer rescan class data and nine equipment slots on every simulated turn; common random streams keep build comparisons stable. Decoded environment paintings are retained after first use, identical context/planet requests become no-ops, and the vector space backdrop redraws only when its planet actually changes. After the bounded Arsenal estimates finish, the board staggers worker requests for the Workshop, World and Combat paintings across idle slices, avoiding first-navigation decode spikes without adding work to the input frame. Multi-minute hunts update at 4 Hz instead of 10 Hz and only rewrite visible countdown text when its displayed second changes. The Career screen builds either planetary progression or the wanted archive as independent tabs, cutting its default synchronous tree from 343 to 181 nodes; switching tabs starts at that ledger's top and rerenders only the selected content. Arsenal construction reuses its field-readiness result when selecting the recommended workshop action. Permanent hot-path tests and local benchmark tools cover cold/cache combat odds, synchronous screen construction, and transactional persistence across bounded inventory sizes.
-
-The workshop paginates filtered and sorted inventory into twelve-card windows. Only the active page is instantiated, keeping touch navigation and rendering bounded even when a long-running hunter retains hundreds of pieces; page choice remains transient and never expands the save schema.
-
-The mobile arsenal separates the reference-inspired equipped build from the backpack. `EQUIPADO` opens with a stable three-by-three overview of the universal paper doll, then owns field odds, the best investment, live weapon/suit upgrades, and two nine-slot loadouts; `MOCHILA` owns grouped slot filtering, sorting, protection, equipping, recycling, paging, and the item list. `AJUSTES` is reached from `MENU DA FRONTEIRA`. The selected arsenal section is session-only, while contextual recovery and character-sheet routes always open the equipped build that motivated them.
-
-The bounty board now links to a deterministic three-offer planet market. Credits buy weapons or suits, with upgrades equipped automatically and alternatives stored. Stock deliberately trails the active warrant tier, preventing the market from selling the next target's reward before the fight. The first completed mission each UTC day grants one playable Warp Chip; up to three daily stock renewals cost 1, 5 and 20 Chips, and the third guarantees at least one Rare without guaranteeing an upgrade. The Market states the playable source and 00:00 UTC reset explicitly, while every premium renewal requires a separate confirm-or-cancel decision that names its exact cost and destructive stock replacement. Daily stock, premium balance, refresh count, purchase records, collection discoveries, claimed lifetime milestones, daily hunt progress and daily claims persist through save schema 19 and are bounded during load sanitization. This remains a device-local product simulation: no billing or server-authoritative premium wallet is claimed.
-
-Newly generated equipment retains the established combat curve while recording a stable template family, item level, bounded quality roll, material/visual variant and instance seed. Quality now reports the actual position inside the template's base-stat roll. Five series variants add localized collectible names and distinct code-drawn icon markings without texture residency. Receiving, buying or recycling a generated variant permanently records it in the bounded series catalog; this gives mature sidegrades collection value without increasing combat power. Reward and Market decisions mark a series as new or already registered before the player acts. Arsenal includes a dedicated scrollable Series tab which renders one planet at a time, distinguishes discovered and missing variants without revealing undiscovered family names, and exposes a compact next-milestone card. Lifetime milestones at 1/10/25/50/100/200/300/350/full catalog grant a bounded 37 Warp Chips across the current 620-series catalog. Claimable rewards create a direct Series badge and shortcut in primary navigation. Warp Chips remain visible in the persistent resource header outside the Market. These fields establish the finite-family/near-unlimited-instance architecture. Simulation-gated attribute packages are now active as bounded lateral rolls on helmet, gloves, boots, rig, and implant families.
-
-After mandatory identity creation, the bounty board opens directly on `MANDADOS`: receipts, exact warrant progress, and the active contract form one uninterrupted decision path. A persistent five-slot game dock now anchors `MANDADOS`, `ARSENAL`, `CAÇADOR`, `GALÁXIA`, and `MENU` to stable positions across every safe hub. Each destination uses an original scalable emblem and a clear selected state; contextual badges expose available status points, claimable career rewards, or a funded field test without inserting extra dashboard cards. Contract-owned briefing, hunt, incident, combat, victory, reward, and chapter-finale phases hide the dock so navigation cannot bypass transactional decisions.
-
-`MENU DA FRONTEIRA` is the secondary service layer rather than a second copy of primary navigation. Its compact two-column grid contains Mercado, Hangar, Carreira, Fenda, Operações and Ajustes; every destination pairs its emblem with a readable place name and a concise function or live state, followed by an illustrated current-planet and active-transport card. Android Back and visible `VOLTAR` actions preserve that hierarchy: services return to Menu, primary destinations return to Mandados, and Menu returns to the active contract board before exit. The icon-first grammar follows the reference's glanceable location principle without copying its imagery or adding bitmap residency. The five primary dock controls persist in place while their selected state changes, avoiding transient CanvasItem reconstruction on mobile GPUs.
-
-`OPERAÇÕES` keeps the daily 1/3/5 shift and a separate weekly 8/20/35 ladder in one compact service. Daily rewards remain capped at 85 Credits and 8 Scrap; weekly objectives add at most 550 Credits and 40 Scrap. A rotating `MANDADO NEGRO` snapshots one elite criminal from the planets already unlocked, uses the normal briefing/hunt/combat flow and fuel reserve, and pays reinforced ordinary resources exactly once per cycle. Fenda, purchases and premium actions advance neither ladder, and Operations never grants Warp Chips. Daily progress resets at 00:00 UTC; the weekly cycle resets Monday at 00:00 UTC. Both remain explicitly device-authoritative until a server clock exists.
-
-The persistent header keeps the equipped hunter visible beside level and power. Its framed portrait is also a 48-unit character shortcut, taking the player directly to class and attribute decisions without adding another board row. Credits, scrap, rank, and victories now share one compact ledger instead of four stacked dashboard cards, returning vertical space to the active contract, commerce, and combat surfaces on physical Android screens.
-
-The `HANGAR DUVIDOSO` adds four permanent transports unlocked by hunter level. Bought models can be equipped freely and reduce only interplanetary travel by 10–50%; pursuit and incident delays remain fully additive, while combat odds, rewards, loot power, and AFK patrols remain unchanged. Prices compete directly with market spending, turning the fastest models into durable time-saving goals rather than compulsory combat upgrades. Ownership and the active model persist atomically, while malformed or prematurely unlocked records are repaired safely.
-
-Market and hangar now expose each other as neutral spending alternatives. The market names the nearest unowned permanent transport and its exact speed/price, while the hangar reports how many current stock offers are genuine complete-build combat upgrades and the cheapest entry price. One-tap cross-navigation keeps the comparison actionable without reserving currency, recommending a compulsory purchase, or changing either economy.
-
-Every transport uses an original, code-drawn vector silhouette rather than a shipped bitmap or reference asset. The boxy shuttle, roof-lit warp taxi, magnetic wedge interceptor, and asymmetric executive yacht scale from compact hangar cards to map and hunt status without additional texture residency. The active silhouette follows the hunter through the galaxy map, contract briefing, and live hunt so the time upgrade remains part of the travel fantasy rather than an isolated shop statistic.
-
-The galaxy map gives every world an original vector destination emblem without increasing texture memory: cratered Dustball, fractured Congelária ice, Micélia spores, Ferro-Velho machinery, Cassino Quasar rings, Aerópolis cloudbanks, and Arquivo Abissal waves. Its scrollable compact rows report base route time, recorded captures, level discovery requirements, the active mission destination and equipped transport. Destination selection belongs to the three-offer board rather than a separate manual travel action.
-
-Aggressive contract routes now preserve their identity as equipment grows. The fast route grants 35% more credits and resolves sooner but adds substantially more target resistance; the corporate route doubles credits, grants three workshop scrap, and applies still higher combat pressure. Dustball adds an introductory resistance surcharge to both aggressive routes so the first chapter teaches an actual risk choice instead of presenting three saturated victories. Later resistance pressure rises gently by planet while attack pressure remains fixed, avoiding hidden player-scaled enemies and preserving the safe route as recovery. Equipment drops remain anchored to the canonical target, so extra danger cannot inflate the loot tier. Prototype classes also expose a preferred contract style in the class sheet and use that affinity when ranking viable routes; combat viability always remains the first gate.
-
-Congelária and Micélia use a smoother mid-campaign combat curve instead of repeating the previous chapter's endpoint. Their explicit loot-power anchors preserve the established equipment economy while stronger combat profiles keep safe, fast, and corporate routes meaningfully distinct. Campaign reports include per-planet saturation and viable-choice metrics so future content cannot hide a local plateau behind a healthy global average.
-
-Four original portrait environment paintings now ground the primary mobile contexts: bounty office, frontier spaceport, arsenal workshop, and encounter arena. They are production assets included in desktop and Android exports; proprietary study references have no active runtime mapping and remain export-excluded.
-
-Every primary screen also exposes a visible keyboard/controller focus ring. Rebuilt layouts restore the equivalent focused action when possible and otherwise select the first enabled action, including automatic combat redraws.
-
-The arsenal includes a persistent reduced-motion preference. It removes the decorative loot fade while preserving automatic combat, its deliberate 1× default, the readable victory receipt pause, and the explicit skip action.
-
-Dense decision layouts are regression-tested with 125% expanded typography. Shared actions and long loot names wrap by words so briefing, incident, threshold reward, career, and arsenal controls remain reachable at the mobile viewport.
-
-Window focus and mobile suspension explicitly freeze automatic combat and preserve the unread portion of the victory receipt. Overlapping lifecycle notifications are idempotent; idle hunts still reconcile wall-clock progress on the final resume, and mobile suspension saves immediately.
-
-Local write failures no longer fail silently. A phase-independent warning explains that progress remains only in memory and offers a retry; it clears only after the complete current payload is flushed successfully, without hiding the mobile victory action.
-
-Save replacement is crash-resilient: a fully flushed staging payload is promoted before a latest-state backup is refreshed. Loading prefers a valid interrupted staging write, then primary, then backup; copy recovery is visible and rewrites the primary without rolling reward or incident transactions backward.
-
-If primary, staging, and backup are all unreadable, normal gameplay and writes remain blocked instead of silently replacing evidence with defaults. `INICIAR NOVO SAVE` is an explicit recovery decision that first preserves every damaged artifact under a `.corrupt` suffix, then creates a canonical primary/backup pair.
-
-Corrupt-artifact retention is bounded to the two newest generations for each member of the save family. Cleanup runs only after a replacement save succeeds, retaining the most useful recent evidence without unbounded storage growth.
-
-Threshold captures explicitly preview and reveal the next warrant, keeping early progression visible without a modal tutorial.
-
-Reward screens also count the pending capture toward target mastery and preview its rare/epic loot bonus plus one-time workshop scrap funding before the player commits the loot decision.
-
-The first reward in any sequence explicitly marks embalo ×1 and explains that its credit bonus begins on the next consecutive capture; later rewards show the exact active bonus. On the return board, that ×1 lesson is embedded in the exact contract/equipment receipt instead of repeated as a second tutorial banner. Established streaks retain their forward-looking reminder.
-
-Reward decisions use three distinct visual layers: loot identity, a `NOVO / EQUIPADO / RESULTADO` comparison, and grouped contract/progression evidence. Repeat remains the solid primary action for ordinary captures; when a new warrant opens, the named warrant destination becomes solid while workshop preparation stays secondary. Recycling remains explicit and destructive-looking without competing with a genuine upgrade.
-
-The initial reward prioritizes the equipment upgrade and next-warrant `1/3` progress. Target-mastery vocabulary begins on the second capture at `2/3`, immediately before its first tangible loot-quality and workshop reward, avoiding two unrelated `1/3` counters on the first decision screen.
-
-On that second capture, the two systems converge into one explicit promise: the next repeat grants mastery 1/3 and opens the named warrant. The duplicate warrant-progress/odds line is omitted for this one handoff, keeping `EQUIPAR E REPETIR` as the dominant decision.
-
-The combined third-capture reward keeps two intentional destinations—spend the new mastery scrap before hunting, or inspect the newly opened warrant immediately. Mobile guards verify both that threshold choice and the first reward's repeat/board actions remain fully inside the viewport.
-
-On ordinary rewards, the repeat route previews the next streak multiplier and approach-invariant percentage. Exact credits remain attached to the selected approach and incident outcome. Threshold rewards suppress the repeat prompt and prioritize the newly opened warrant.
-
-Contract briefings present all three routes and their actions inside the initial 450×800 decision viewport. Every compact card follows the same scan order: strategy and explicit risk, short route fiction, included streak/scrap bonuses, time, current-build win chance, credits, XP, and the exact named action. A bordered `MELHOR EQUILÍBRIO` state explains that the dynamic recommendation balances risk, return, and time without hiding the alternatives.
-
-Repeated-contract briefings mark each route's displayed payment as already streak-adjusted and show its exact included bonus, preventing the same percentage from being counted twice.
-
-Hunt incidents recompute and display the final victory payment for every choice, including any streak amount already embedded after that consequence.
-
-Every incident uses the same visual decision grammar: a shield marks paid tactical advantage, a branching route and clock mark the slower experience path, and a lightning bolt marks the higher-risk credit option. A compact signal dossier binds event code, title, fiction, live deadline, safe ignore behavior, and the three decisions. Distinct card colors and compact `VITÓRIA / LÍQUIDO` receipts keep all consequences comparable without turning the encounter into a financial form.
-
-Their in-motion panel keeps the remaining wall-clock time live and states explicitly that ignoring the incident applies no consequence. A visible `IGNORAR · CONTINUAR ROTA` action and Android Back both dismiss the optional prompt without changing credits, combat, or the original deadline. Detours add 30, 45, or 60 seconds instead of the obsolete one-to-three-second prototype values.
-
-Market, Hangar, and paginated Inventory remember their current scroll position through ordinary transactional rerenders. Replacing complete market stock, changing an inventory filter/sort, or moving to another inventory page intentionally starts the new collection at its first item.
-
-Paid incident options additionally show the net contract gain after their immediate credit cost.
-
-If a paid choice is unaffordable, its disabled action states the exact missing credits; zero-cost alternatives remain enabled in the same incident.
-
-Incident resolution is persisted atomically with its cost and applied choice: reloading resumes the mutated hunt, cannot charge the same option twice, and cannot resurrect it after abandonment.
-
-Reward claiming has the same transaction guarantee across credits, XP/captures, contract and mastery scrap, equipment/inventory changes, and pending-loot cleanup; reload cannot execute the receipt twice.
-
-Claiming also consumes the completed victory log before saving. The evidence remains visible through combat, victory, and reward, but cannot be misinterpreted as damaged state after its approach-modified contract has been cleared.
-
-Immediate repeat saves only after replacing the completed modified contract with a canonical target and three fresh approaches, so reload cannot retain the old route or skip the next route decision.
-
-Chapter finales survive reload until acknowledged. Continuing consumes only the finale evidence; completed-planet and active-route progress remain persistent, and later reloads cannot resurrect the completion screen.
-
-AFK rewards immediately persist their updated wallet and `last_seen` timestamp, including after chapter continuation, so a second launch cannot claim the completed-planet patrol multiplier twice.
-
-The AFK settlement watermark is monotonic: a device-clock rollback pays nothing and cannot manufacture a later patrol when the clock catches up. Boundary tests cover the five-minute minimum, exact and exceeded eight-hour cap, pre-capture lock, duplicate launch, and a return that also repairs save data.
-
-The reward receipt retains paid incident cost and reconciles gross payout with the exact net wallet gain from before the choice.
-
-Claim summaries and the persistent board/workshop record name whether the captured item was equipped, stored, or recycled, including the exact item name.
-
-After an equipped claim with enough scrap for at least one calibration, the board's arsenal shortcut becomes a contextual `TESTAR BUILD` action that opens the field-test odds beside the new loadout. Unfunded early loot keeps the ordinary arsenal link, leaving the repeat contract as the clear first-session action.
-
-The workshop presents one explicit `MELHOR INVESTIMENTO` strip between the field test and equipped pieces. It names the affected slot and item, exact scrap cost, projected odds change (or saturated-build impact), and exposes a single 48-unit `APLICAR` action while retaining both manual upgrade paths below. Recommendation, loadouts, filters, recycling, and the bounded 12-item inventory page remain visually distinct in the initial Android viewport.
-
-When that field test focuses an available warrant, its `ESCOLHER ROTA` action opens the briefing and preserves the same recommendation instead of implying that combat begins immediately.
-
-Briefings opened through that handoff display the tested route and odds as confirmed context while keeping all three approach choices available; ordinary board and career briefings remain context-free.
-
-The active hunt persists whether the player confirmed that tested route or deliberately replaced it, so the decision remains visible through interruptions and later incident resolution.
-
-The live pursuit now frames its progress as `PARTIDA → estágio/percentual → ALVO`. Named departure, tracking, and imminent-contact stages make the timer legible at a glance while preserving the target portrait, chosen approach, active transport, exact countdown, and authoritative wall-clock behavior.
-
-That compact tested-versus-chosen record is reused on the in-motion incident and automatic-combat screens, alongside the selected approach and incident-adjusted payment.
-
-Victory closes that provenance trail beside the capture report; the reward screen then replaces it with loot, receipt, mastery, streak, and next-hunt projection evidence.
-
-On defeat, the combat summary preserves that provenance after the live contract is cleared: overridden tests recommend reconsidering the route, while a failed confirmed route redirects recovery toward build or incident choices. The revenge workshop repeats the same diagnosis beside fresh odds.
-
-Every reward with a next warrant translates the full pending receipt—XP level gains plus the chosen equipment state—into same-route win odds before and after claiming, directly connecting loot to the next hunt and the workshop field test.
-
-Automatic combat retains the selected incident result and adjusted payment above the encounter, preserving economic context through resolution.
-
-The victory beat confirms that same gross payment, embedded streak bonus, and net balance before revealing loot.
-
-It remains on screen for 2.8 seconds so the decisive hit, build contribution, combat totals, and payment can be read; `ABRIR RECOMPENSA` lets players skip that pause immediately.
-
-The 1×/2× combat pace is a session preference: victory stops automatic turns but does not silently reset the selected speed for the next encounter.
-
-Abandoning either an active hunt or an in-motion incident names the exact active streak that will be lost before the action; the return-board receipt confirms the same number afterward.
-
-When a capture reveals a new warrant, the reward also projects the best approach and win chance after equipping the pending item, so the direct-contract and workshop routes have visible context.
-
-Post-combat reports summarize turns, damage and the contribution of tactical traits or planetary kits; defeats name any lost capture streak, explain its ×1 restart, retain a compact diagnosis on the board, and link directly to a field-test workshop that keeps the failed warrant focused through the next attempt.
-
-Long-career navigation keeps progress legible: galaxy cards distinguish completed chapters and name each open planet's current warrant, while career shortcuts jump directly between planetary progress and the thirty-six-target archive.
-
-Every revealed and currently available wanted record in that archive has a 48-unit `ABRIR` action that travels across unlocked planets and opens its briefing; revealed-but-sequentially-locked records remain read-only.
-
-The archive keeps all thirty-six records but orders the active planet's four warrants first, making late-career contract access immediate without erasing chronological history.
-
-Class selection uses three compact archetype selectors and one focused sheet, so only the marked class expands its fiction, specialization formula, and exact current-build bonus. The provisional trio and explicit confirmation remain unchanged.
-
-The career summary now exposes next-level XP as a real progress bar. Its nine paginated destination rows retain colored capture bars and explicit completed/current/locked states, keeping the complete sector overview usable before milestones while the thirty-six-record archive remains one shortcut away. Verdântia and Caldeira deliberately use generic fallbacks until their user-authored planet deliveries arrive.
-
-The arsenal is divided into two explicit equipment surfaces. `EQUIPADO` presents weapon and armor as full-width visual workbench rows with their own calibration and reinforcement actions; `MOCHILA` owns filters, sorting, protection, equipping, and recycling. `AJUSTES` is a dedicated surface reached from `MENU DA FRONTEIRA`, so device preferences and the clearly separated local test reset never consume inventory space or compete with loot decisions.
-
-Reward progression uses an original three-symbol receipt grammar: a crosshair identifies target mastery, forward chevrons identify capture streak, and a document identifies warrant progression. Exact bonuses, requirements, projected route odds, and destination actions remain textual beside those markers, but dense mastery-and-unlock states no longer collapse into an undifferentiated centered paragraph.
-
-Automatic combat opens with a compact contract dossier that binds the current turn and route to the applied incident and exact payment, including any streak bonus. A full-width cyan/coral pressure strip derives only from both fighters' remaining-health ratios, while larger portraits and unchanged exact HP bars keep the arena as the visual focus. Victory then groups the captured target, final blow, combat metrics, active build evidence, and payment into one dossier; defeat uses the same immediate verdict grammar before its recovery guidance.
-
-Career scroll position is session-persistent: claiming a milestone, rerendering the ledger, or briefly visiting another hub returns to the same section instead of the top.
-
-Milestone claims leave an exact in-career receipt for individual or bulk rewards, including both credits and scrap, while the shared renderer cleanly replaces the previous UI tree before rebuilding transactional views.
-
-Transient notices carry explicit provenance: reward-equipped receipts alone activate `TESTAR BUILD`, career receipts stay in career, and the arsenal distinguishes contract receipts from its own workshop records while ignoring unrelated travel or system messages.
-
-All warrant handoffs that open a briefing now say `ESCOLHER ROTA`; a full development reset also clears hub filters, tested-briefing context, and retained career position along with gameplay progress.
-
-Save loading clears runtime-only receipts before restoration, type-checks interrupted-phase objects, reconstructs missing briefing routes when the contract is valid, and repairs incoherent phases back to the board without discarding valid player progression.
-
-A dedicated current-schema matrix round-trips board, briefing, hunt, incident, combat, victory, reward, and chapter-complete states and rejects any false `SAVE RECUPERADO` notice from data written by the game itself.
-
-Its combat variant also proves optional active-kit and confirmed tested-route evidence survives when present, while empty optional fields remain omitted.
-
-The same matrix applies and reloads all thirty canonical hunt-event choices across the five unlocked planet chains, covering paid/free costs, added duration, and combat/economic multipliers.
-
-Representative early, mid-campaign, and final-boss targets also round-trip all three approaches, including corporate scrap metadata while proving loot power remains anchored to the canonical target.
-
-Equipment round-trips cover every canonical modification, rarity, planetary origin, and legal reinforcement level, crossed with no, early, and mature calibration histories. Equipped and reserve copies retain their complete payloads, protection flags, and loadout references without false recovery.
-
-Career claims are transaction-tested individually for every milestone and in bulk for early, mid-campaign, and completed profiles. Reloads retain each wallet and lifetime total exactly once, consume only eligible stable IDs, and reject duplicate claims without side effects.
-
-Loaded player data is shape-checked against canonical defaults: scalar progress is preserved when compatible, invalid equipment falls back safely, malformed inventory entries are discarded, and loadouts always normalize to two usable slots before any renderer sees them.
-
-When loading performs a migration or repair, the next board visit receives a concise session-only `SAVE ATUALIZADO` or `SAVE RECUPERADO` notice that emphasizes preserved progress without exposing storage internals.
-
-When shown by itself, that system notice has an explicit acknowledgement. Gameplay receipts instead remain available for review until the player commits to the next contract, at which point target selection clears the stale transaction context.
-
-If that recovery coincides with an AFK patrol return, both outcomes share one compact return card and one acknowledgement. This avoids competing board banners while preserving the exact patrol payout and recovery explanation.
-
-Defeat uses the same one-outcome hierarchy: the escaped target, combat evidence, lost streak, route diagnosis, and workshop recovery action live in one persistent panel. Claimable career rewards remain counted in the header instead of inserting another competing board card.
-
-Numerical repair enforces only canonical lower bounds and existing reinforcement caps: currencies and counters cannot be negative, level/base power stay at least one, and best streak cannot trail the active streak, while legitimately high long-career power and level remain untouched.
-
-Identifier repair accepts only canonical targets, planets, and milestones, removes duplicates, routes an invalid current planet to the furthest legitimately unlocked chapter, and clears protection/loadout references to items the player no longer owns.
-
-Equipment repair canonicalizes rarity colors and known modification payloads, removes unknown planetary origins or traits, and applies the same rules to pending reward loot so an interrupted decision survives whenever the base item remains usable.
-
-Interrupted contracts are rebuilt from canonical target, approach, and incident-choice IDs; forged nested multipliers or payouts are discarded while the selected route, incident outcome, tested-route evidence, and pending reward phase remain intact.
-
-Restored combat and chapter evidence also validates canonical target/planet identity, known kit and route context, nonnegative metrics, bounded remaining health, and a real boss-to-planet pairing before defeat recovery or finale UI can consume it.
-
-Combat-event rows accept only catalog attacks and known quality labels; impossible hunt clocks restart with canonical duration, expired hunts still resolve normally, and resumed combat clamps HP and round counters to the active build/contract.
-
-Automatic combat exposes a concise mobile readout above the arena: both relative-health percentages and an explicitly health-based pressure state. Fighter cards retain raw HP, add percentages, and identify the active weapon/armor build, while the latest event pair and turn report separate damage caused, damage received, quality, tactical effects, and the existing narrative. This presentation derives only from authoritative combat state and does not predict or alter the result.
-
-## Run
-
-Open `project.godot` in Godot 4, or run from a console where Godot is available:
+Mobile-first comedic science-fiction idle RPG built with Godot 4 and GDScript.
+
+The current playable loop is:
+
+`WARRANT → APPROACH → ASYNCHRONOUS HUNT → INCIDENT → AUTOMATIC COMBAT → REWARD → EQUIPMENT → STRONGER WARRANT`
+
+Crooked Galaxy is Android-first, fully playable in Portuguese and English, and currently device-authoritative. `International 1` is the stable identity of the future global server, but this build does not claim authentication, cloud synchronization, remote economy authority, billing, PvP, rankings, or syndicates.
+
+## Current product state
+
+- Mandatory resumable onboarding: language, server, local login, class, race, cosmetic appearance, and a validated hunter name.
+- Three initial classes: Quebra-Mandados, Pistoleiro Orbital, and Hacker de Contratos.
+- Eight cosmetic-only races with 81 appearance recipes each; race never changes mechanics.
+- Five attributes: Strength, Vitality, Dexterity, Intelligence, and Cunning.
+- One universal nine-slot equipment model for every current and future class.
+- Nine modular mission worlds through level 60, containing 36 targets and 18 incidents.
+- Three deterministic interplanetary warrant offers after the guided first capture.
+- Wall-clock hunts that continue while navigating other interfaces, suspending, closing, or reopening the game.
+- Permanent transports that reduce travel time only; fuel cost remains tied to base route length.
+- Automatic combat with class signatures, enemy profiles, build odds, tactical equipment, and persisted evidence.
+- Procedural item instances, three active rarities, planet kits, traits, workshop investment, two loadouts, protection, recycling, pagination, and a 620-series collection.
+- Daily objectives, weekly Operations, target mastery, capture streaks, career milestones, and an eight-hour AFK patrol cap.
+- Two keyed Fenda Clandestina realities with twelve enemies each and one global entry per UTC day.
+- Local monetization simulation using Credits, Scrap, and Warp Chips; no real-money billing is integrated.
+- Versioned atomic saves, backups, recovery, migrations, interrupted-phase restoration, and an explicit future server-revision boundary.
+
+Detailed product authority is indexed in [Notes/README.md](Notes/README.md). The accumulated implementation history lives in [Notes/AUDIT_2026-08-23.md](Notes/AUDIT_2026-08-23.md); historical entries are not current instructions.
+
+## Product invariants
+
+- Accepted enemies never scale from currently equipped power. Equipment must make an existing accepted warrant genuinely easier.
+- New planets enter the permanent rotating mission network; they do not restore a mandatory linear campaign.
+- The board offers different destinations when at least three worlds are available.
+- Hunt deadlines are authoritative timestamps. Ignoring an incident has no consequence and does not pause travel.
+- Classes share inventory; races are visual and narrative only.
+- Monetization may sell bounded time reduction or additional choices, never levels, attributes, victory, combat probability, exclusive superior gear, Fenda attempts, advertisements, or a season pass.
+- Device-local state must never be described as online, authenticated, synchronized, or server-authoritative.
+- Visual assets are supplied by the user or an external artist. Codex preserves code-native fallbacks and does not create substitute artwork.
+
+## Architecture
+
+| Path | Responsibility |
+| --- | --- |
+| `project.godot` | Project metadata, autoloads, localization, and display configuration. |
+| `scenes/` | Godot scenes. |
+| `scripts/` | State, deterministic rules, presentation, and UI. |
+| `scripts/content/packs/` | One validated canonical content pack per mission world. |
+| `tests/` | Headless deterministic, UI, persistence, localization, and mobile tests. |
+| `tools/` | Gates, simulations, benchmarks, captures, exports, and publishing helpers. |
+| `assets/` | Accepted production assets only. |
+| `Notes/` | Product vision, active contracts, asset specifications, and historical audits. |
+| `References/` | Local study library; Git-ignored, Godot-ignored, and export-excluded. |
+| `builds/` | Regenerable local exports and QA captures; only `.gdignore` is tracked. |
+
+`scripts/content/content_pack_registry.gd` is the single deterministic composition point for planets, targets, incidents, and item catalogs. `scripts/content_db.gd` preserves the stable public facade consumed by gameplay and saves.
+
+`scripts/game_state.gd` owns device-authoritative transactions and persistence. Account, character, locale, shard, ownership, revision, and synchronization claims remain separate so a future backend can replace authority without heuristic save merging.
+
+## Run locally
+
+Open the editor or run the game:
 
 ```powershell
 godot --path . --editor
 godot --path .
 ```
 
-Create and smoke-boot the local Windows release without touching the player's real save:
+The repository checker automatically performs a one-time headless import when a clean checkout does not yet contain Godot's global script-class cache.
+
+## Validation
+
+Fast development gate, excluding only the exhaustive persistence matrix:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\tools\check_windows_export.ps1
+.\tools\check_fast.ps1
 ```
 
-The tracked `Windows Desktop` preset emits `builds/windows/CrookedGalaxy.exe` plus its PCK. Export filters exclude tests, tools, captures, notes, references, and prior builds; `builds/.gdignore` also prevents generated review images and binaries from entering Godot's resource scan.
-
-Create the installable Android test APK locally:
+Complete commit/release gate, including 1,659 persistence cases:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\tools\check_android_export.ps1
+.\tools\check_project.ps1
 ```
 
-Publish a newly verified APK to the permanent team-test download address:
+The complete gate also verifies repository hygiene, document authority, reference isolation, clean boot, PT/EN parity, Android-safe layout, touch scrolling, lifecycle timers, economy, content, progression, and save migration.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\tools\publish_android_latest.ps1
-```
-
-The command exports a reference-free ARM64 debug-signed APK and replaces only the asset on the `latest` release used by the team. The dedicated ignored local test key keeps successive APKs update-compatible; it must never be reused for store distribution. The stable download address remains:
-
-```text
-https://github.com/jellycb1/crooked-galaxy/releases/download/latest/CrookedGalaxy.apk
-```
-
-The matching checksum is always available at `https://github.com/jellycb1/crooked-galaxy/releases/download/latest/CrookedGalaxy.apk.sha256`. Publishing requires a clean tracked worktree, uploads both assets, records the SHA-256 in the release notes, and verifies the remote APK size and digest when GitHub exposes it.
-
-This channel is intended for direct testing. The APK contains only runtime-owned presentation and excludes the local study library. Preserve the ignored local test key to keep direct installs update-compatible; its non-secret public certificate fingerprint is tracked and verified on every export. A store release must use a separate private release keystore and signing workflow.
-
-Run deterministic core tests:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\tools\check_project.ps1
-```
-
-For the normal edit loop, run the same functional, UI, lifecycle, migration, and phase-round-trip coverage without the 1,659-case exhaustive persistence matrix:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\tools\check_fast.ps1
-```
-
-The full checker remains the release/commit authority and reports per-suite timing. The exhaustive matrix can also run independently with `res://tests/test_persistence_matrix.gd`.
-
-Successful checker runs retain only the three newest `.godot/test-logs` directories. Failed runs exit before pruning, so their diagnostics survive until later successful runs age them out; `-RetainedLogRuns` can raise the bounded retention when needed.
-
-Or run an individual suite:
+Run an individual suite when isolating a failure:
 
 ```powershell
 godot --headless --path . --script res://tests/test_core.gd
 godot --headless --path . --script res://tests/test_mission_rules.gd
-godot --headless --path . --script res://tests/test_mission_pacing.gd
-godot --headless --path . --script res://tests/test_mission_network_compatibility.gd
-godot --headless --path . --script res://tests/test_attributes.gd
-godot --headless --path . --script res://tests/test_balance_guards.gd
-godot --headless --path . --script res://tests/test_flow.gd
-godot --headless --path . --script res://tests/test_ui.gd
-godot --headless --path . --script res://tests/test_ui_factory.gd
-godot --headless --path . --script res://tests/test_arsenal_view.gd
-godot --headless --path . --script res://tests/test_transport.gd
-godot --headless --path . --script res://tests/test_reward_view.gd
-godot --headless --path . --script res://tests/test_career_view.gd
-godot --headless --path . --script res://tests/test_persistence.gd
-godot --headless --path . --script res://tests/test_clean_roundtrip.gd
-godot --headless --path . --script res://tests/test_persistence_matrix.gd
-godot --headless --path . --script res://tests/test_save_migrations.gd
-godot --headless --path . --script res://tests/test_equipment_presentation.gd
-godot --headless --path . --script res://tests/test_career_rules.gd
-godot --headless --path . --script res://tests/test_contract_rules.gd
-godot --headless --path . --script res://tests/test_audio.gd
-godot --headless --path . --script res://tests/test_content.gd
 godot --headless --path . --script res://tests/test_mobile.gd
+godot --headless --path . --script res://tests/test_persistence_matrix.gd
 ```
 
-Capture the bounty boards, market, transport hangar, defeat recovery and post-upgrade workshop, AFK return, career, galaxy map, unlocked boss, contract briefing, hunt incident, combat, victory, reward decisions, arsenal filters, and chapter-completion states for visual review:
+## Simulations and audits
+
+```powershell
+godot --headless --path . --script res://tools/simulate_balance.gd
+godot --headless --path . --script res://tools/simulate_campaign.gd
+godot --headless --path . --script res://tools/audit_year_one_pacing.gd
+godot --headless --path . --script res://tools/audit_rift_realities.gd
+godot --headless --path . --script res://tools/audit_visual_asset_readiness.gd -- --missing
+```
+
+Campaign simulation accepts `CG_CAMPAIGN_BUILD`, `CG_CAMPAIGN_STRATEGY`, `CG_CAMPAIGN_CAREERS`, `CG_CAMPAIGN_MARKET=active|off`, and `CG_CAMPAIGN_TRANSPORT=active|off` for focused comparisons.
+
+## Visual QA
+
+Generate the current 450×800 UI matrix and the procedural portrait lineup with a graphical renderer:
 
 ```powershell
 godot --path . --script res://tools/capture_ui.gd
+godot --path . --script res://tools/capture_portraits.gd
 ```
 
-This capture pass requires a graphical renderer. If no viewport image is available, the harness now exits with an error instead of reporting empty screenshots as a successful review.
+Captures are written under `builds/` and are intentionally not retained as source. If the renderer cannot expose a viewport image, the capture process fails instead of recording an empty review.
 
-The proprietary study library in `References/` remains local, Git-ignored, and export-excluded. Runtime composition uses the four independently created Crooked Galaxy environment paintings plus original vector class emblems, portrait frame, and board divider. The executable pack inspector rejects both raw reference paths and the former staged placeholder payloads on Android and Windows.
+Before inspecting a supplied raster for acceptance or integrating it, follow `AGENTS.md`, [Notes/ASSET_GENERATION_RULES.md](Notes/ASSET_GENERATION_RULES.md), and [Notes/UI_ASSET_INVENTORY_PT.md](Notes/UI_ASSET_INVENTORY_PT.md). Raw study references never enter production exports.
 
-Build and inspect the single Android test APK:
+## Exports
+
+Build and smoke-test Windows:
+
+```powershell
+.\tools\check_windows_export.ps1
+```
+
+Build and inspect the ARM64 Android test APK:
 
 ```powershell
 .\tools\check_android_export.ps1
 ```
 
-Capture the procedural character lineup:
+Publish a newly verified APK to the stable internal-testing release:
 
 ```powershell
-godot --path . --script res://tools/capture_portraits.gd
+.\tools\publish_android_latest.ps1
 ```
 
-Regenerate the tracked PNG boot splash from its SVG illustration and Godot-composed title:
+Permanent team-test links:
 
-```powershell
-godot --path . --script res://tools/generate_boot_splash.gd
-```
+- APK: <https://github.com/jellycb1/crooked-galaxy/releases/download/latest/CrookedGalaxy.apk>
+- SHA-256: <https://github.com/jellycb1/crooked-galaxy/releases/download/latest/CrookedGalaxy.apk.sha256>
 
-### Visual asset delivery contract
-
-Visual art is supplied by the user or an external artist. Codex does not generate,
-edit, or substitute production artwork. Missing files retain the current
-code-native fallbacks until an approved delivery is explicitly integrated.
-
-The deterministic delivery paths, mobile texture budgets, current-content counts,
-and fallback ownership live in `scripts/visual_asset_catalog.gd`. Audit the current
-delivery status without creating or changing any visual asset:
-
-```powershell
-C:\Tools\Godot\Godot_v4.7.1-stable_win64_console.exe --headless --path . --log-file .godot\visual_asset_audit.log --script res://tools/audit_visual_asset_readiness.gd
-```
-
-Append `-- --missing` to print every missing destination path. The human-facing
-production inventory is `Notes/UI_ASSET_INVENTORY_PT.md`; every supplied raster
-still passes `Notes/ASSET_GENERATION_RULES.md` before runtime integration.
-
-Run the deterministic combat balance simulation:
-
-```powershell
-godot --headless --path . --script res://tools/simulate_balance.gd
-```
-
-Audit the failure-aware first-chapter repeat path across 100 deterministic careers, plus alternate target-choice samples:
-
-```powershell
-godot --headless --path . --script res://tools/simulate_first_chapter.gd
-```
-
-Run a continuous five-planet, failure-aware campaign sample with real loot, mastery, XP, and workshop spending:
-
-```powershell
-godot --headless --path . --script res://tools/simulate_campaign.gd
-```
-
-The campaign simulator now selects each initial class and automatically spends earned attribute points through comparable 50/25/25 primary-attribute, Vitality, and Cunning policies. It reports final attributes and currency plus route/odds saturation, market and hangar spend, purchases, active transport, and seconds saved. `CG_CAMPAIGN_MARKET=active|off` and `CG_CAMPAIGN_TRANSPORT=active|off` compare the optional sinks; `CG_CAMPAIGN_BUILD` can isolate `breaker_balanced`, `gunslinger_balanced`, `hacker_balanced`, or the intentionally obsolete `unassigned_control`; `CG_CAMPAIGN_STRATEGY` and `CG_CAMPAIGN_CAREERS` narrow route policy and sample count.
-
-## Project layout
-
-- `scenes/` — Godot scenes.
-- `scripts/` — gameplay state, deterministic rules, content, and interface.
-- `tests/` — headless deterministic tests.
-- `Notes/` — product vision, active contracts, and dated audits; `Notes/README.md` defines their authority.
-- `builds/` — ignored, regenerable exports and QA captures; only `.gdignore` is retained.
-- `References/` — external study material, excluded from Godot imports and every export by `.gdignore` plus executable pack checks.
-
-Content in `References/` is temporary test material, not Crooked Galaxy production content. Code, names, formulas, and original assets remain independently created.
+The ignored local test key preserves update compatibility for direct installs and must never be reused for a store release. Store distribution requires a separate private signing workflow and server-authoritative billing infrastructure.

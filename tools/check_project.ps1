@@ -102,6 +102,8 @@ if (-not (Test-Path -LiteralPath $GlobalClassCache -PathType Leaf)) {
 }
 Write-Host "`n[repository hygiene]"
 & (Join-Path $PSScriptRoot "check_repository_hygiene.ps1")
+Write-Host "`n[documentation contracts]"
+& (Join-Path $PSScriptRoot "check_documentation_contracts.ps1")
 Write-Host "`n[reference boundaries]"
 & (Join-Path $PSScriptRoot "check_reference_boundaries.ps1")
 foreach ($TestFile in $Tests) {

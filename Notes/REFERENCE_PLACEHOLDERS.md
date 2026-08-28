@@ -16,4 +16,4 @@ Their independently created replacements are:
 
 `References/.gdignore` remains mandatory so Godot never imports the local study library. Both export presets exclude `References/*`; Android has no custom reference feature and no staged include filter. The pack inspector rejects raw paths and every former `internal_reference_assets/*.png.bin` path.
 
-The material may still be consulted locally for high-level flow and usability analysis. Production implementation must continue using independently written code, copy, data, characters, iconography, and visual composition.
+The material may still be consulted locally for high-level flow and usability analysis. Production implementation must continue using independently written code and data plus visual work supplied or explicitly approved by the user. Reference files remain local study material, not distributable production assets.

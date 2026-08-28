@@ -1,5 +1,7 @@
 # Crooked Galaxy visual direction
 
+Status: active visual contract. Asset authorship and intake authority remain in `AGENTS.md` and `Notes/ASSET_GENERATION_RULES.md`.
+
 ## Promise
 
 Crooked Galaxy is a clean, organized 2D space RPG with the immediacy and character-led readability of a browser comic RPG. It should feel handmade, crooked, funny, and adventurous rather than sterile, photorealistic, or like a generic neon dashboard.
@@ -32,7 +34,7 @@ Class illustration and personal avatar have different jobs. Class art sells an a
 - **Pistoleiro Orbital** — tall coat-and-hat silhouette, visible sidearm, agile asymmetry, mustard gold and cyan targeting accent.
 - **Hacker de Contratos** — narrow layered silhouette, articulated tech rig, projected intrusion tools, cyan with acidic lime accent.
 
-The initial generated class trio was rejected because its serious tactical concept-art language contradicted the intended caricature-led RPG. Vector emblems are the intentional production presentation until one replacement draft passes `Notes/ASSET_GENERATION_RULES.md` and receives explicit user approval.
+The initial generated class trio was rejected because its serious tactical concept-art language contradicted the intended caricature-led RPG. Vector emblems are the intentional production presentation until an externally supplied replacement passes `Notes/ASSET_GENERATION_RULES.md` and the user explicitly requests integration of that exact file.
 
 ## UI composition
 
@@ -65,8 +67,8 @@ The hierarchy has been checked across login, class/species/appearance/name onboa
 
 - Runtime art is original production content; study references stay outside runtime.
 - Portrait textures use alpha, no baked panel or background.
-- Imported raster art is capped to the smallest resolution that survives its maximum display size; the current class slice is capped at 1024 px on its longest edge.
+- Imported raster art is capped to the smallest resolution that survives its maximum display size. Supplied class illustrations should initially target a 1024 px longest-edge import cap and be reduced further when the real UI proves that sufficient.
 - Reusable interface frames are stored at logical-viewport scale and rendered through `StyleBoxTexture`; the approved panel is 660×124 RGBA and expands without scaling its corner identity.
 - Identical support, action, focal-frame, and navigation styles share immutable resources within the active UI host; any screen-specific mutation must duplicate the shared style first.
 - Load large class art only on screens that display it, reuse Godot's resource cache, and keep procedural/vector fallbacks.
-- New art follows the mandatory gate in `Notes/ASSET_GENERATION_RULES.md`: one off-runtime draft, explicit user approval, then a 450×800 physical capture and technical checks before integration or expansion.
+- New art is supplied by the user or an external artist. `Notes/ASSET_GENERATION_RULES.md` requires one off-runtime candidate, explicit integration approval, then a 450×800 physical capture and technical checks; Codex does not generate or edit that candidate.

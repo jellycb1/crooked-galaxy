@@ -27,7 +27,7 @@ Este documento cobre:
 | `CODE` | Desenhado atualmente por Godot; funcional e escalável, mas pode receber revisão artística. |
 | `TEMP` | Solução provisória que comunica a função mas não representa arte final. |
 | `FALTA` | Asset ainda não existe. |
-| `GATE` | Precisa passar por `Notes/ASSET_GENERATION_RULES.md` e aprovação explícita antes de entrar no jogo. |
+| `GATE` | Asset fornecido pelo utilizador/artista; precisa passar por `Notes/ASSET_GENERATION_RULES.md` e por pedido explícito de integração. |
 | `REUSO` | Não deve ganhar um ficheiro exclusivo; reutiliza outro asset ou um sistema modular. |
 
 ## 2. Regras de produção para toda a UI
@@ -110,7 +110,7 @@ Estado atual: `CODE`. Nenhum deles precisa de uma imagem raster exclusiva.
 | Ícone | Quantidade | Estado | Uso |
 | --- | ---: | --- | --- |
 | Créditos | 1 | `TEMP` | Cabeçalho, mercado, recompensa e recibos. |
-| Fichas Warp | 1 | `TEMP` | Moeda premium e confirmações. |
+| Fichas de Dobra | 1 | `TEMP` | Moeda premium (`Warp Chips` em inglês) e confirmações. |
 | Combustível | 1 | `TEMP` | Quadro, briefing, recarga e retorno diário. |
 | Sucata | 1 | `TEMP` | Arsenal, reciclagem e melhorias. |
 | XP | 1 | `TEMP` | Recompensas, nível e progressão. |
@@ -398,7 +398,7 @@ Formato recomendado:
 
 Quantidade:
 
-- atual: 28 identidades precisam de arte;
+- atual: 36 identidades precisam de arte;
 - lançamento anual: 140;
 - estado aprovado atual: 0/140 arte final; símbolos/emoji são `TEMP`.
 
@@ -584,7 +584,7 @@ Assets adicionais:
 - equipar;
 - remover;
 - comparar;
-- loadout A/B/C;
+- loadout A/B;
 - filtros dos nove slots;
 - ordenação;
 - paginação;
@@ -635,7 +635,7 @@ Assets de hangar adicionais:
 
 ## 12. Mercado e monetização
 
-A direção definida não usa anúncios nem passe de temporada. A monetização concentra-se em Fichas Warp para conveniência limitada, como renovações escaladas do mercado e combustível adicional.
+A direção definida não usa anúncios nem passe de temporada. A monetização concentra-se em Fichas de Dobra para conveniência limitada, como renovações escaladas do mercado e combustível adicional.
 
 ### 12.1 Mercado de itens
 
@@ -644,7 +644,7 @@ Reutiliza:
 - ícones procedurais/modulares de equipamento;
 - fundo da oficina;
 - créditos;
-- Fichas Warp;
+- Fichas de Dobra;
 - raridade;
 - comparação;
 - coleção;
@@ -665,7 +665,7 @@ Assets específicos:
 
 Ainda precisamos inventariar e posteriormente implementar:
 
-- entrada da loja de Fichas Warp;
+- entrada da loja de Fichas de Dobra;
 - pacotes de fichas;
 - preço local da plataforma;
 - destaque de valor sem alegações enganosas;
@@ -919,7 +919,7 @@ Estado: gerador de som existe. A identidade sonora final deverá ser auditada ju
 
 ## 19. Estados capturados e cobertura atual
 
-O projeto gera 102 capturas automatizadas a 450×800. Elas cobrem, entre outras:
+O projeto gera mais de 100 capturas automatizadas a 450×800. Elas cobrem, entre outras:
 
 - login, classe, raça, aparência e nome em PT/EN;
 - quadro, escolhas, detalhes e destinos;
@@ -1045,7 +1045,7 @@ A interface só deve ser considerada completa quando:
 
 - nenhum ecrã principal depende de emoji ou símbolo tipográfico como arte final;
 - classes, raças, alvos, planetas, equipamento e transportes têm uma linguagem comum;
-- os 102 estados automatizados permanecem legíveis a 450×800;
+- toda a matriz automatizada permanece legível a 450×800;
 - todas as imagens continuam funcionais em PT, EN e idiomas futuros;
 - missão ativa, retorno AFK, rede, compra e recuperação têm estados claros;
 - a loja premium parece parte do mundo, mas não domina a navegação;

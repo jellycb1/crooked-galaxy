@@ -14,6 +14,14 @@ Este ficheiro define a autoridade dos documentos. Relatórios datados preservam 
 
 Quando dois documentos discordarem, aplica-se o documento de maior autoridade. Valores mensuráveis devem ser confirmados nos testes e simuladores atuais.
 
+## Vocabulário canónico
+
+- **Raça** é o termo de produto em português; `species` permanece o nome técnico estável nos saves e no código.
+- **Fichas de Dobra** é o nome português da moeda premium; **Warp Chips** é o nome inglês e `warp_chips` o ID técnico.
+- **Mandado** é a oferta/contrato de caça. **Caçada** é a execução assíncrona aceite.
+- **Fenda Clandestina** é o nome do sistema; **realidade** é cada conjunto de doze inimigos aberto por uma chave.
+- Contagens acompanhadas de uma versão ou data são históricas. Contagens sem qualificação devem coincidir com código e testes atuais.
+
 ## Produto e contratos ativos
 
 | Documento | Responsabilidade |
@@ -34,8 +42,8 @@ Quando dois documentos discordarem, aplica-se o documento de maior autoridade. V
 | --- | --- |
 | `VISUAL_DIRECTION.md` | Identidade visual vigente e hierarquia da UI. |
 | `UI_ASSET_INVENTORY_PT.md` | Inventário mestre de assets ainda necessários. |
-| `CHARACTER_ASSET_BRIEF_PT.txt` | Especificação visual das classes e espécies para o artista. |
-| `ASSET_GENERATION_RULES.md` | Gate técnico para material visual fornecido externamente; subordinado à proibição de autoria em `AGENTS.md`. |
+| `CHARACTER_ASSET_BRIEF_PT.txt` | Especificação visual das classes e raças para o artista. |
+| `ASSET_GENERATION_RULES.md` | Gate de receção para material visual fornecido externamente; subordinado à proibição de autoria em `AGENTS.md`. |
 | `ORIGINAL_VISUAL_ASSETS.md` | Proveniência dos assets de produção existentes e experiências rejeitadas. |
 | `REFERENCE_PLACEHOLDERS.md` | Registro arquivado da remoção das antigas referências em runtime. |
 

@@ -16,7 +16,7 @@ Estado: primeira fundação executável, 28 de agosto de 2026.
 - Somente caçadas normais concluídas contam. Fenda, mercado, compras e outras ações premium não contam.
 - Cada pagamento é explícito, resgatável uma vez e sanitizado no carregamento.
 
-O limite de 35 fica abaixo das aproximadamente 45 caçadas semanais do perfil gratuito padrão atual. A última meta exige presença regular, mas não exige comprar combustível nem escolher sempre a rota mais barata.
+O perfil gratuito padrão atual completa aproximadamente 33–34 caçadas por semana; portanto, a meta final de 35 exige presença diária e uma escolha ocasional de rota mais curta. Continua possível com a reserva gratuita de 100 combustível/dia e não exige recarga premium, mas não deve ser apresentada como automática para quem escolhe sempre o mandado padrão.
 
 ## Mandado Negro
 
