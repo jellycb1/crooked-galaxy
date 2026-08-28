@@ -1,6 +1,6 @@
 # Crooked Galaxy — pipeline modular de conteúdo planetário
 
-Estado: migração concluída e pipeline provado com um oitavo planeta original de nível 50.
+Estado: migração concluída e pipeline continuado com nove planetas até ao nível 60.
 
 ## Objetivo
 
@@ -69,5 +69,6 @@ Um pacote novo só entra no registry quando:
 | Aerópolis de Penhora | `aeropolis_penhora.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e rig | Migrado |
 | Arquivo Abissal N-9 | `arquivo_abissal_n9.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e implant | Migrado |
 | Verdântia Patenteada | `verdantia_patenteada.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e botas | Novo · nível 50 |
+| Caldeira de Garantia | `caldeira_garantia.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e luvas | Novo · nível 60 |
 
-O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Verdântia provou que um planeta novo pode entrar por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus quatro retratos e três ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos.
+O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Verdântia e Caldeira provam que planetas novos entram por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus oito retratos e seis ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos.

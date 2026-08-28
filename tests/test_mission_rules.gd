@@ -50,10 +50,10 @@ func _init() -> void:
 	var planet_slot_counts := {}
 	var seen_target_ids := {}
 	var previous_pairs := {}
-	state.player.level = 50
-	# Eight worlds need a complete eight-pass epoch (64 refreshes) for the
+	state.player.level = 60
+	# Nine worlds need a complete eight-pass epoch (72 refreshes) for the
 	# three-slot rotation to balance both destinations and all four target tiers.
-	for cycle in 64:
+	for cycle in 72:
 		state.player.wins = cycle
 		var rotating := MissionRules.board_offers(state.player)
 		var board_worlds := {}

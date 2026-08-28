@@ -11,16 +11,17 @@ const Cassino = preload("res://scripts/content/packs/cassino_quasar.gd")
 const Aeropolis = preload("res://scripts/content/packs/aeropolis_penhora.gd")
 const ArquivoAbissal = preload("res://scripts/content/packs/arquivo_abissal_n9.gd")
 const Verdantia = preload("res://scripts/content/packs/verdantia_patenteada.gd")
+const Caldeira = preload("res://scripts/content/packs/caldeira_garantia.gd")
 
 var failures := 0
 
 
 func _init() -> void:
 	check(Registry.validation_errors().is_empty(), "registered planet packs satisfy the complete content contract")
-	check(Registry.PACK_SCRIPTS.size() == 8, "the registry contains all eight current canonical planet packs")
-	check(Registry.PLANETS.size() == 8, "the registry composes all eight planets")
-	check(Registry.TARGETS.size() == 32, "the registry composes all 32 targets")
-	check(Registry.HUNT_EVENTS.size() == 16, "the registry composes all 16 hunt incidents")
+	check(Registry.PACK_SCRIPTS.size() == 9, "the registry contains all nine current canonical planet packs")
+	check(Registry.PLANETS.size() == 9, "the registry composes all nine planets")
+	check(Registry.TARGETS.size() == 36, "the registry composes all 36 targets")
+	check(Registry.HUNT_EVENTS.size() == 18, "the registry composes all 18 hunt incidents")
 	check(Registry.pack_for_planet("dustball_prime") == Dustball.PACK, "registry resolves the canonical Dustball pack")
 	check(Registry.pack_for_planet("congelaria_sa") == Congelaria.PACK, "registry resolves the canonical Congelaria pack")
 	check(Registry.pack_for_planet("micelia_404") == Micelia.PACK, "registry resolves the canonical Micelia pack")
@@ -29,6 +30,7 @@ func _init() -> void:
 	check(Registry.pack_for_planet("aeropolis_penhora") == Aeropolis.PACK, "registry resolves the canonical Aeropolis pack")
 	check(Registry.pack_for_planet("arquivo_abissal_n9") == ArquivoAbissal.PACK, "registry resolves the canonical Arquivo Abissal pack")
 	check(Registry.pack_for_planet("verdantia_patenteada") == Verdantia.PACK, "registry resolves the canonical Verdantia pack")
+	check(Registry.pack_for_planet("caldeira_garantia") == Caldeira.PACK, "registry resolves the canonical Warranty Caldera pack")
 	check(Registry.pack_for_planet("unknown").is_empty(), "unknown planet packs fail closed")
 	var detached := Registry.pack_for_planet("dustball_prime")
 	detached.planet.name = "MUTATED"
@@ -99,6 +101,15 @@ func _init() -> void:
 	check([Verdantia.TARGETS[0].power, Verdantia.TARGETS[3].power] == [250, 282], "level-50 combat anchors are explicit")
 	check(Verdantia.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "new target art remains explicitly assigned to the user asset pipeline")
 
+	check(Content.PLANETS[8] == Caldeira.PLANET, "the level-60 planet follows Verdantia in canonical order")
+	check(Content.TARGETS.slice(32, 36) == Caldeira.TARGETS, "ContentDB exposes all four Caldera targets")
+	check(Content.HUNT_EVENTS.slice(16, 18) == Caldeira.EVENTS, "ContentDB exposes both Caldera incidents")
+	check(Content.PLANET_ITEM_CATALOGS.caldeira_garantia == Caldeira.ITEMS, "Caldera primary equipment remains canonical")
+	check(Content.SECONDARY_ITEM_CATALOGS.caldeira_garantia == Caldeira.SECONDARY_ITEMS, "Caldera glove catalog remains canonical")
+	check(Content.loot_slots_for_planet("caldeira_garantia") == ["weapon", "weapon", "weapon", "armor", "armor", "gloves", "gloves"], "Caldera deepens gloves without opening Rift-only slots")
+	check([Caldeira.TARGETS[0].power, Caldeira.TARGETS[3].power] == [290, 324], "level-60 combat anchors are explicit")
+	check(Caldeira.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Caldera target art remains explicitly assigned to the user asset pipeline")
+
 	var forged := Dustball.PACK.duplicate(true)
 	forged.targets.pop_back()
 	check(not PackContract.is_valid(forged), "incomplete planet packs are rejected")
@@ -120,7 +131,7 @@ func _init() -> void:
 	check(not PackContract.is_valid(forged), "planet bosses are reserved for tier three")
 
 	if failures == 0:
-		print("PASS: all eight current planet packs preserve canonical content and slot progression")
+		print("PASS: all nine current planet packs preserve canonical content and slot progression")
 	quit(1 if failures > 0 else 0)
 
 

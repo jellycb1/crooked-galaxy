@@ -298,7 +298,7 @@ Todos são componentes pequenos e reutilizam o retrato do alvo e ícones globais
 
 ### 6.4 Incidentes de viagem
 
-Conteúdo atual: 16 incidentes, dois por cada um dos oito planetas autorados. Cada incidente contém três opções/ícones de escolha no código.
+Conteúdo atual: 18 incidentes, dois por cada um dos nove planetas de gameplay. Cada incidente contém três opções/ícones de escolha no código.
 
 Produção recomendada por incidente:
 
@@ -306,7 +306,7 @@ Produção recomendada por incidente:
 - 3 pictogramas de escolha podem reutilizar uma biblioteca comum;
 - 1 variação visual para resultado positivo/negativo feita por cor e efeitos, não por nova pintura.
 
-Meta de lançamento: 70 incidentes se mantivermos dois por cada um dos 35 planetas. Faltam 54 identidades de incidente para o catálogo anual.
+Meta de lançamento: 70 incidentes se mantivermos dois por cada um dos 35 planetas. Faltam 52 identidades de incidente para o catálogo anual.
 
 Para controlar custo, criar primeiro 12 pictogramas universais de decisão: atacar, negociar, hackear, fugir, investigar, reparar, arriscar, pagar, ajudar, roubar, esperar e improvisar.
 
@@ -318,10 +318,10 @@ Para controlar custo, criar primeiro 12 pictogramas universais de decisão: atac
 
 | Conteúdo | Atual | Meta de lançamento | Falta |
 | --- | ---: | ---: | ---: |
-| Planetas | 8 | 35 | 27 |
-| Alvos | 32 | 140 | 108 |
+| Planetas | 9 | 35 | 26 |
+| Alvos | 36 | 140 | 104 |
 | Alvos por planeta | 4 | 4 | — |
-| Incidentes | 16 | 70 recomendados | 54 |
+| Incidentes | 18 | 70 recomendados | 52 |
 
 Planetas atuais:
 
@@ -332,7 +332,8 @@ Planetas atuais:
 - Cassino Quasar;
 - Aerópolis de Penhora;
 - Arquivo Abissal N-9;
-- Verdântia Patenteada (assets pendentes do utilizador).
+- Verdântia Patenteada (assets pendentes do utilizador);
+- Caldeira de Garantia (assets pendentes do utilizador).
 
 ### 7.2 Pacote visual mínimo por planeta
 
@@ -949,11 +950,11 @@ Estas capturas são a matriz de validação. Não representam 102 ilustrações 
 | --- | ---: |
 | Ilustrações de classe | 3 |
 | Bases modulares de raça e camadas | aproximadamente 96 unidades |
-| Retratos dos 32 alvos atuais | 32 |
-| Habitats dos 8 planetas atuais | 8 |
-| Camadas de arena dos 8 planetas | 8 |
-| Medalhões dos 8 planetas | 8 |
-| Incidentes atuais | 16 |
+| Retratos dos 36 alvos atuais | 36 |
+| Habitats dos 9 planetas atuais | 9 |
+| Camadas de arena dos 9 planetas | 9 |
+| Medalhões dos 9 planetas | 9 |
+| Incidentes atuais | 18 |
 | Transportes | 4 |
 | NPCs de serviço | 5 |
 | Inimigos atuais da Fenda | 24 |
@@ -966,12 +967,12 @@ Estas capturas são a matriz de validação. Não representam 102 ilustrações 
 
 | Família | Meta total | Falta após conteúdo atual |
 | --- | ---: | ---: |
-| Habitats | 35 | 27 |
-| Arenas/camadas de chão | 35 | 27 |
-| Medalhões | 35 | 27 |
-| Alvos | 140 | 108 |
-| Incidentes | 70 | 54 |
-| Packs materiais planetários para equipamento | 35 | 27 packs |
+| Habitats | 35 | 26 |
+| Arenas/camadas de chão | 35 | 26 |
+| Medalhões | 35 | 26 |
+| Alvos | 140 | 104 |
+| Incidentes | 70 | 52 |
+| Packs materiais planetários para equipamento | 35 | 26 packs |
 
 Fenda, eventos sazonais e futuros transportes ainda não têm uma meta anual fechada. Devem usar templates escaláveis e receber orçamento separado.
 
@@ -1003,17 +1004,17 @@ Nada se expande antes de estes testes funcionarem juntos numa captura 450×800.
 
 ### Lote 2 — ciclo central atual
 
-1. oito habitats e medalhões;
-2. 32 alvos;
-3. 16 incidentes;
-4. oito arenas;
+1. nove habitats e medalhões;
+2. 36 alvos;
+3. 18 incidentes;
+4. nove arenas;
 5. VFX de combate;
 6. vitória, derrota e recompensa.
 
 ### Lote 3 — equipamento, economia e mobilidade
 
 1. kit modular de itens;
-2. packs visuais dos oito planetas;
+2. packs visuais dos nove planetas;
 3. quatro transportes;
 4. mercado e ícones premium;
 5. recibos e estados de compra.
@@ -1031,9 +1032,9 @@ Nada se expande antes de estes testes funcionarem juntos numa captura 450×800.
 1. login/servidor/loja final;
 2. estados de rede, compra e recuperação;
 3. app icon e imagens de loja;
-4. mais 27 planetas;
-5. mais 108 alvos;
-6. mais 54 incidentes;
+4. mais 26 planetas;
+5. mais 104 alvos;
+6. mais 52 incidentes;
 7. packs materiais restantes.
 
 ---
