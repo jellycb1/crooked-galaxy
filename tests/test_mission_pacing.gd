@@ -16,7 +16,7 @@ func _init() -> void:
 	var elapsed := 0.0
 	var discovery := {1: {"wins": 0, "seconds": 0.0}}
 	var known_worlds := MissionRulesScript.available_planets(int(player.level)).size()
-	for _capture in 1000:
+	for _capture in 1200:
 		var offers := MissionRulesScript.board_offers(player)
 		check(offers.size() == 3, "standard progression always retains three generated offers")
 		if offers.size() < 2:
@@ -47,6 +47,7 @@ func _init() -> void:
 	check(in_range(discovery, 10, 580, 650, 70), "the lunar-estate expansion arrives at its level-70 contract")
 	check(in_range(discovery, 11, 720, 770, 80), "the umbral-necropolis expansion arrives at its level-80 contract")
 	check(in_range(discovery, 12, 870, 920, 90), "the 24h-storm-center expansion arrives at its level-90 contract")
+	check(in_range(discovery, 13, 1020, 1100, 100), "the obsolete-tomorrows expansion arrives at its level-100 contract")
 	check(float(discovery[2].seconds) < float(discovery[3].seconds) and float(discovery[3].seconds) < float(discovery[4].seconds) and float(discovery[4].seconds) < float(discovery[5].seconds), "cumulative mission time grows monotonically across world discoveries")
 	check(seconds_in_range(discovery, 2, 1100.0, 1300.0), "Congelaria enters after roughly twenty minutes of standard base waits")
 	check(seconds_in_range(discovery, 3, 5500.0, 5800.0), "Micelia enters after roughly ninety minutes of standard base waits")
@@ -59,6 +60,7 @@ func _init() -> void:
 	check(float(discovery[10].seconds) > float(discovery[9].seconds), "Lunar Estate extends the cumulative route ladder")
 	check(float(discovery[11].seconds) > float(discovery[10].seconds), "Umbral Solar Necropolis extends the cumulative route ladder")
 	check(float(discovery[12].seconds) > float(discovery[11].seconds), "24h Storm Center extends the cumulative route ladder")
+	check(float(discovery[13].seconds) > float(discovery[12].seconds), "Museum of Obsolete Tomorrows extends the cumulative route ladder")
 
 	finish()
 

@@ -22,7 +22,7 @@ O mercado nunca vende o item por Fichas de Dobra: a ficha compra uma nova seleç
 ## Fontes gratuitas de Fichas de Dobra
 
 - A primeira missão concluída em cada dia UTC concede 1 Ficha de Dobra.
-- Marcos vitalícios da coleção de equipamento concedem quantidades pequenas e predeterminadas. No catálogo atual de 800 séries, a escada completa concede 37 Fichas no total; não reinicia e não depende de sorte paga.
+- Marcos vitalícios da coleção de equipamento concedem quantidades pequenas e predeterminadas. No catálogo atual de 860 séries, a escada completa concede 37 Fichas no total; não reinicia e não depende de sorte paga.
 - Os objetivos semanais atuais concedem apenas Créditos e Sucata. Eventos e compensações poderão conceder fichas mais tarde, sempre com fonte e limite explícitos.
 - O jogo deve mostrar claramente a fonte, o limite e o momento do próximo reset.
 - Objetivos diários normais não concedem Fichas: o turno inicial paga no máximo 85 Créditos e 8 Sucata por 1/3/5 caçadas normais, sem contar Fenda ou qualquer ação premium.

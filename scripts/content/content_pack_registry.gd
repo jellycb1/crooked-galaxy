@@ -14,8 +14,9 @@ const CaldeiraGarantia = preload("res://scripts/content/packs/caldeira_garantia.
 const CondominioLunar7 = preload("res://scripts/content/packs/condominio_lunar_7.gd")
 const NecropoleSolarUmbral = preload("res://scripts/content/packs/necropole_solar_umbral.gd")
 const CentralTempestades24h = preload("res://scripts/content/packs/central_tempestades_24h.gd")
+const MuseuAmanhaObsoleto = preload("res://scripts/content/packs/museu_amanha_obsoleto.gd")
 
-const PACK_SCRIPTS := [DustballPrime, Congelaria, Micelia404, FerroVelhoOmega, CassinoQuasar, AeropolisPenhora, ArquivoAbissalN9, VerdantiaPatenteada, CaldeiraGarantia, CondominioLunar7, NecropoleSolarUmbral, CentralTempestades24h]
+const PACK_SCRIPTS := [DustballPrime, Congelaria, Micelia404, FerroVelhoOmega, CassinoQuasar, AeropolisPenhora, ArquivoAbissalN9, VerdantiaPatenteada, CaldeiraGarantia, CondominioLunar7, NecropoleSolarUmbral, CentralTempestades24h, MuseuAmanhaObsoleto]
 
 # This registry owns the deterministic public composition order. ContentDB
 # remains the stable facade consumed by gameplay, saves and tests.
@@ -33,9 +34,10 @@ const PLANETS := [
 	CondominioLunar7.PLANET,
 	NecropoleSolarUmbral.PLANET,
 	CentralTempestades24h.PLANET,
+	MuseuAmanhaObsoleto.PLANET,
 ]
-const TARGETS := DustballPrime.TARGETS + Congelaria.TARGETS + Micelia404.TARGETS + FerroVelhoOmega.TARGETS + CassinoQuasar.TARGETS + AeropolisPenhora.TARGETS + ArquivoAbissalN9.TARGETS + VerdantiaPatenteada.TARGETS + CaldeiraGarantia.TARGETS + CondominioLunar7.TARGETS + NecropoleSolarUmbral.TARGETS + CentralTempestades24h.TARGETS
-const HUNT_EVENTS := DustballPrime.EVENTS + Congelaria.EVENTS + Micelia404.EVENTS + FerroVelhoOmega.EVENTS + CassinoQuasar.EVENTS + AeropolisPenhora.EVENTS + ArquivoAbissalN9.EVENTS + VerdantiaPatenteada.EVENTS + CaldeiraGarantia.EVENTS + CondominioLunar7.EVENTS + NecropoleSolarUmbral.EVENTS + CentralTempestades24h.EVENTS
+const TARGETS := DustballPrime.TARGETS + Congelaria.TARGETS + Micelia404.TARGETS + FerroVelhoOmega.TARGETS + CassinoQuasar.TARGETS + AeropolisPenhora.TARGETS + ArquivoAbissalN9.TARGETS + VerdantiaPatenteada.TARGETS + CaldeiraGarantia.TARGETS + CondominioLunar7.TARGETS + NecropoleSolarUmbral.TARGETS + CentralTempestades24h.TARGETS + MuseuAmanhaObsoleto.TARGETS
+const HUNT_EVENTS := DustballPrime.EVENTS + Congelaria.EVENTS + Micelia404.EVENTS + FerroVelhoOmega.EVENTS + CassinoQuasar.EVENTS + AeropolisPenhora.EVENTS + ArquivoAbissalN9.EVENTS + VerdantiaPatenteada.EVENTS + CaldeiraGarantia.EVENTS + CondominioLunar7.EVENTS + NecropoleSolarUmbral.EVENTS + CentralTempestades24h.EVENTS + MuseuAmanhaObsoleto.EVENTS
 const STARTER_ITEM_CATALOG := DustballPrime.ITEMS
 const PLANET_ITEM_CATALOGS := {
 	"congelaria_sa": Congelaria.ITEMS,
@@ -49,6 +51,7 @@ const PLANET_ITEM_CATALOGS := {
 	"condominio_lunar_7": CondominioLunar7.ITEMS,
 	"necropole_solar_umbral": NecropoleSolarUmbral.ITEMS,
 	"central_tempestades_24h": CentralTempestades24h.ITEMS,
+	"museu_amanha_obsoleto": MuseuAmanhaObsoleto.ITEMS,
 }
 const SECONDARY_ITEM_CATALOGS := {
 	"congelaria_sa": Congelaria.SECONDARY_ITEMS,
@@ -62,6 +65,7 @@ const SECONDARY_ITEM_CATALOGS := {
 	"condominio_lunar_7": CondominioLunar7.SECONDARY_ITEMS,
 	"necropole_solar_umbral": NecropoleSolarUmbral.SECONDARY_ITEMS,
 	"central_tempestades_24h": CentralTempestades24h.SECONDARY_ITEMS,
+	"museu_amanha_obsoleto": MuseuAmanhaObsoleto.SECONDARY_ITEMS,
 }
 
 

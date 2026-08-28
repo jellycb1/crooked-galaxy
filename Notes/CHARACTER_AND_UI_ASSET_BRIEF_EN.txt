@@ -176,7 +176,7 @@ TARGET PORTRAITS
 
 Every target needs one canonical expressive portrait with a transparent background, a strong silhouette, a readable face, and one large prop connected to their profession or joke. The same portrait appears in the board, briefing, combat, archive, victory, rewards, and weekly operations. Damage, defeated, selected, and boss states should be overlays rather than separate paintings.
 
-Current requirement: 48 target portraits. First-year requirement: 140 target portraits.
+Current requirement: 52 target portraits. First-year requirement: 140 target portraits.
 
 MISSION PRESSURE SYMBOLS
 
@@ -207,7 +207,7 @@ EQUIPMENT MATERIAL LANGUAGE: three or four recurring shapes, materials, colors, 
 
 INCIDENT PROPS: at least two small illustrations showing local objects, creatures, vehicles, machines, or travel problems.
 
-Current requirement: 12 habitats, 12 arenas, 12 medals, and 24 incident illustrations. First-year requirement: 35 habitats, 35 arenas, 35 medals, and 70 incident illustrations.
+Current requirement: 13 habitats, 13 arenas, 13 medals, and 26 incident illustrations. First-year requirement: 35 habitats, 35 arenas, 35 medals, and 70 incident illustrations.
 
 Galaxy routes, locked states, current location, completion, rewards, and unlock effects are created by the interface rather than painted into one fixed map.
 
@@ -434,9 +434,9 @@ The final launch presentation requires a finished App Icon, Game Logo, Boot Spla
 
 - 3 full class illustrations.
 - 8 modular species families, approximately 96 authored or derived layers in total.
-- 48 current target portraits.
-- 12 current planet habitat packages.
-- 24 current incident illustrations.
+- 52 current target portraits.
+- 13 current planet habitat packages.
+- 26 current incident illustrations.
 - 4 transport illustrations.
 - 5 service NPC busts.
 - 24 current Rift enemy portraits.
