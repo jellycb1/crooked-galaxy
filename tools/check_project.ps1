@@ -30,6 +30,7 @@ $Tests = @(
 	"test_hunt_timing_rules.gd",
 	"test_mission_pacing.gd",
 	"test_long_horizon_economy.gd",
+	"test_year_one_content.gd",
 	"test_mission_network_compatibility.gd",
 	"test_performance_hotpaths.gd",
     "test_attributes.gd",

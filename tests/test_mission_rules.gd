@@ -3,6 +3,7 @@ extends SceneTree
 const MissionRules = preload("res://scripts/mission_rules.gd")
 const TransportRules = preload("res://scripts/transport_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
+const ContentDB = preload("res://scripts/content_db.gd")
 
 var failures := 0
 
@@ -40,6 +41,35 @@ func _init() -> void:
 	equipment_changed.armor.power = 999
 	check(MissionRules.board_offers(equipment_changed) == mature, "offer enemies never read or mirror current equipment power")
 	check(MissionRules.board_offers(state.player) == mature, "unchanged level and completion cycle preserve deterministic offers")
+
+	var planet_slot_counts := {}
+	var seen_target_ids := {}
+	var previous_pairs := {}
+	for cycle in 25:
+		state.player.wins = cycle
+		var rotating := MissionRules.board_offers(state.player)
+		var board_worlds := {}
+		var board_targets := {}
+		var current_pairs := {}
+		for offer in rotating:
+			var planet_id := str(offer.planet_id)
+			var target_id := str(offer.id)
+			board_worlds[planet_id] = true
+			board_targets[target_id] = true
+			seen_target_ids[target_id] = true
+			planet_slot_counts[planet_id] = int(planet_slot_counts.get(planet_id, 0)) + 1
+			current_pairs["%s/%s" % [planet_id, target_id]] = true
+		check(board_worlds.size() == 3, "every mature board keeps three distinct unlocked destinations at cycle %d" % cycle)
+		check(board_targets.size() == 3, "every board avoids duplicate target identities at cycle %d" % cycle)
+		if not previous_pairs.is_empty():
+			var repeats := current_pairs.keys().filter(func(pair): return previous_pairs.has(pair))
+			check(repeats.size() < 3, "a refreshed board never repeats all three planet-target pairs at cycle %d" % cycle)
+		previous_pairs = current_pairs
+	var planet_counts: Array = planet_slot_counts.values()
+	check(int(planet_counts.max()) - int(planet_counts.min()) <= 1, "five unlocked destinations receive balanced exposure across complete rotation epochs")
+	check(seen_target_ids.size() == ContentDB.TARGETS.size(), "the bounded mature rotation exposes every current target identity")
+	state.player.wins = 7
+	mature = MissionRules.board_offers(state.player)
 
 	var canonical := MissionRules.canonical_offer(mature[1])
 	check(canonical == mature[1], "a snapshotted mission offer reconstructs exactly for safe persistence")

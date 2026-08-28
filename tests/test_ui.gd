@@ -62,7 +62,9 @@ func run_smoke_test() -> void:
 
 	var bounty: Dictionary = ContentDB.TARGETS[0].duplicate(true)
 	state.player.wins = 4
-	state.player.captures_by_target = {"gloop": 3}
+	var known_target_id := str(MissionRules.board_offers(state.player)[0].id)
+	state.player.captures_by_target = {}
+	state.player.captures_by_target[known_target_id] = 3
 	state.player.reputation = 1
 	state.player.capture_streak = 2
 	scene.render()
@@ -77,14 +79,14 @@ func run_smoke_test() -> void:
 	check(scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1 and str(scene.find_children("BountyCard_*", "PanelContainer", true, false)[0].name) != initial_dossier_name, "selecting another compact ticket replaces rather than stacks the expanded dossier")
 	(scene.find_child("BoardOfferSelector_0", true, false) as Button).pressed.emit()
 	await process_frame
-	check(scene.find_child("BountyRole_gloop", true, false) != null and scene.find_child("BountyAction_gloop", true, false).text == "ANALISAR ABORDAGENS", "known targets retain their route while the new board presents a fresh level-banded contract")
-	(scene.find_child("BountyDetailsAction_gloop", true, false) as Button).pressed.emit()
+	check(scene.find_child("BountyRole_%s" % known_target_id, true, false) != null and scene.find_child("BountyAction_%s" % known_target_id, true, false).text == "ANALISAR ABORDAGENS", "known targets retain their route while the new board presents a fresh level-banded contract")
+	(scene.find_child("BountyDetailsAction_%s" % known_target_id, true, false) as Button).pressed.emit()
 	await process_frame
-	check(scene.find_child("BountyMastery_gloop", true, false) != null, "bounty detail sheet exposes target mastery progress")
-	check(scene.find_child("MasteryRoute_gloop", true, false) != null, "bounty detail sheet preserves the career mastery recommendation")
-	(scene.find_child("BountyAction_gloop", true, false) as Button).pressed.emit()
+	check(scene.find_child("BountyMastery_%s" % known_target_id, true, false) != null, "bounty detail sheet exposes target mastery progress")
+	check(scene.find_child("MasteryRoute_%s" % known_target_id, true, false) != null, "bounty detail sheet preserves the career mastery recommendation")
+	(scene.find_child("BountyAction_%s" % known_target_id, true, false) as Button).pressed.emit()
 	await process_frame
-	check(str(state.current_bounty.id) == "gloop" and int(state.player.captures_by_target.gloop) == 3, "repeat action opens the prior target without mutating campaign progress")
+	check(str(state.current_bounty.id) == known_target_id and int(state.player.captures_by_target[known_target_id]) == 3, "repeat action opens the prior target without mutating campaign progress")
 	check(scene.find_child("BriefingScroll", true, false) != null, "contract briefing renders")
 	var briefing_dossier := scene.find_child("BriefingTargetDossier", true, false) as PanelContainer
 	check(briefing_dossier != null and briefing_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "briefing keeps the target inside the same focal dossier language")

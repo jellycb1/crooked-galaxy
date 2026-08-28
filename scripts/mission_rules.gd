@@ -36,15 +36,67 @@ static func board_offers(player: Dictionary, limit := 3) -> Array[Dictionary]:
 	if planets.is_empty() or limit <= 0:
 		return []
 	var cycle := maxi(0, int(player.get("wins", 0)))
+	var planet_order := _planet_rotation(planets, cycle)
+	var used_target_ids := {}
 	var result: Array[Dictionary] = []
 	for offer_index in mini(limit, ROLES.size()):
-		var planet: Dictionary = planets[(cycle + offer_index) % planets.size()]
+		var planet: Dictionary = planet_order[offer_index % planet_order.size()]
 		var templates := targets_for_planet(str(planet.id))
 		if templates.is_empty():
 			continue
-		var template: Dictionary = templates[(cycle + offer_index + Content.planet_index_for(str(planet.id))) % templates.size()]
+		var template := _target_for_slot(templates, str(planet.id), cycle, offer_index, used_target_ids, planets.size())
+		used_target_ids[str(template.id)] = true
 		result.append(scale_offer(template, planet, int(player.get("level", 1)), ROLES[offer_index], offer_index))
 	return result
+
+
+static func _planet_rotation(planets: Array[Dictionary], cycle: int) -> Array[Dictionary]:
+	# One epoch spans one pass through the complete unlocked pool. Within it,
+	# every destination appears in exactly the same number of board slots. A
+	# deterministic shuffle prevents the network from looking like a fixed list
+	# while keeping identical saves and server snapshots reproducible.
+	var epoch := cycle / planets.size()
+	var offset := cycle % planets.size()
+	var shuffled := _deterministic_shuffle(planets, _stable_seed("planets:%d:%d" % [planets.size(), epoch]))
+	var result: Array[Dictionary] = []
+	for index in planets.size():
+		result.append(shuffled[(offset + index) % shuffled.size()])
+	return result
+
+
+static func _target_for_slot(templates: Array[Dictionary], planet_id: String, cycle: int, offer_index: int, used_ids: Dictionary, unlocked_planet_count: int) -> Dictionary:
+	# Preserve the familiar opening sequence while varying the target whenever a
+	# planet changes board position later in the network. Content order remains a
+	# deliberate authoring tool; duplicate identities on two-world boards are
+	# resolved by advancing within that planet's family.
+	var stride := 1 if unlocked_planet_count == 1 else 2
+	var cursor := (cycle * stride + offer_index + Content.planet_index_for(planet_id)) % templates.size()
+	for step in templates.size():
+		var candidate: Dictionary = templates[(cursor + step) % templates.size()]
+		if not used_ids.has(str(candidate.id)):
+			return candidate
+	return templates[cursor]
+
+
+static func _deterministic_shuffle(source: Array[Dictionary], seed: int) -> Array[Dictionary]:
+	var result: Array[Dictionary] = source.duplicate(true)
+	var state := maxi(1, seed)
+	for index in range(result.size() - 1, 0, -1):
+		state = int((state * 1103515245 + 12345) & 0x7fffffff)
+		var swap_index := state % (index + 1)
+		var held := result[index]
+		result[index] = result[swap_index]
+		result[swap_index] = held
+	return result
+
+
+static func _stable_seed(value: String) -> int:
+	# A small process-independent hash; unlike Object.hash(), this is safe to use
+	# as part of a future authoritative server contract.
+	var seed := 2166136261
+	for byte in value.to_utf8_buffer():
+		seed = int(((seed ^ int(byte)) * 16777619) & 0x7fffffff)
+	return maxi(1, seed)
 
 
 static func offer_for_target(player: Dictionary, target: Dictionary, role_id := "standard") -> Dictionary:
