@@ -82,21 +82,30 @@ func _init() -> void:
 	state.phase = state.Phase.BOARD
 	state.player = state.default_player()
 	state.player.credits = 99999
+	state.player.owned_transport_ids = ["cloned_warp_taxi"]
+	state.player.active_transport_id = "cloned_warp_taxi"
 	var host = FactoryScript.new()
 	root.add_child(host)
 	var content := VBoxContainer.new()
 	host.add_child(content)
 	HangarViewScript.build(host, content, state)
 	check(host.find_child("HangarScroll", true, false) != null, "hangar renderer provides a portrait-safe scroller")
+	check(host.hangar_selected_transport_index == HangarViewScript.transport_index_for(str(state.player.active_transport_id)), "first hangar entry selects the equipped transport dossier")
+	var active_action := host.find_child("HangarAction_%s" % str(state.player.active_transport_id), true, false) as Button
+	check(active_action != null and active_action.text == "ATIVO", "an owned equipped transport never appears locked after unlock-level rebalance")
 	var hangar_status := host.find_child("HangarStatus", true, false) as PanelContainer
 	check(hangar_status != null and hangar_status.get_theme_stylebox("panel") is StyleBoxTexture, "the active transport owns Hangar's illustrated status frame")
 	check(host.find_children("HangarTransport_*", "PanelContainer", true, false).size() == 4, "hangar renders every launch transport once")
-	check(host.find_children("HangarTransportIcon_*", "Control", true, false).size() == 4, "every launch transport renders an original scalable silhouette")
-	check(host.find_children("HangarAction_*", "Button", true, false).size() == 4, "every transport owns an explicit transaction action")
+	check(host.find_children("HangarSelect_*", "Button", true, false).size() == 4, "every launch transport remains directly selectable")
+	check(host.find_children("HangarTransportIcon_*", "Control", true, false).size() == 1, "only the selected transport materializes its scalable silhouette")
+	check(host.find_children("HangarAction_*", "Button", true, false).size() == 1, "only the selected transport materializes its transaction action")
+	check(host.find_child("HangarSelectedTransport", true, false) != null, "selected transport owns one readable mobile dossier")
 	var market_action := host.find_child("HangarMarketAction", true, false) as Button
 	check(market_action != null and market_action.custom_minimum_size.y >= 48.0, "hangar exposes a touch-safe route to the combat equipment alternative")
 	for button in host.find_children("HangarAction_*", "Button", true, false):
 		check((button as Button).custom_minimum_size.y >= 48.0, "transport action preserves an Android-first touch target")
+	for button in host.find_children("HangarSelect_*", "Button", true, false):
+		check((button as Button).custom_minimum_size.y >= 48.0, "transport selector preserves an Android-first touch target")
 
 	host.free()
 	state.free()

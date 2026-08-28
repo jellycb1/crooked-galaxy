@@ -87,13 +87,21 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		var progress_heading := host.label(t("CAREER_PLANET_PROGRESS", "PROGRESSO PLANETÁRIO"), UIDesignSystem.FONT_CAPTION, host.MUTED)
 		progress_heading.name = "CareerProgressHeading"
 		list.add_child(progress_heading)
-		for planet in Content.PLANETS:
-			list.add_child(planet_card(host, state, planet))
+		if host.career_progress_planet_index < 0:
+			host.career_progress_planet_index = planet_index_for(str(state.player.get("current_planet_id", Content.PLANET.id)))
+		host.career_progress_planet_index = clampi(host.career_progress_planet_index, 0, maxi(0, Content.PLANETS.size() - 1))
+		if not Content.PLANETS.is_empty():
+			var progress_planet: Dictionary = Content.PLANETS[host.career_progress_planet_index]
+			list.add_child(progress_planet_navigation(host, progress_planet))
+			list.add_child(planet_card(host, state, progress_planet))
 		list.add_child(host.label(t("CAREER_PARALLEL_PROGRESS", "PROGRESSO PARALELO"), UIDesignSystem.FONT_CAPTION, host.MUTED))
 		list.add_child(challenge_progress_card(host, state))
 		list.add_child(host.label(t("CAREER_MILESTONES", "MARCOS DA CARREIRA"), UIDesignSystem.FONT_CAPTION, host.MUTED))
-		for milestone in state.career_milestones():
-			list.add_child(milestone_card(host, state, milestone))
+		var milestones := state.career_milestones()
+		host.career_milestone_index = clampi(host.career_milestone_index, 0, maxi(0, milestones.size() - 1))
+		if not milestones.is_empty():
+			list.add_child(milestone_navigation(host, milestones[host.career_milestone_index], milestones.size()))
+			list.add_child(milestone_card(host, state, milestones[host.career_milestone_index]))
 	scroller.get_v_scroll_bar().value_changed.connect(func(value: float):
 		host.career_scroll_position = roundi(value)
 	)
@@ -200,6 +208,88 @@ static func change_archive_planet(host: CrookedUIFactory, direction: int, planet
 	host.career_section_switch_pending = true
 	if host.has_method("render"):
 		host.call("render")
+
+
+static func progress_planet_navigation(host: CrookedUIFactory, planet: Dictionary) -> PanelContainer:
+	var navigation := host.panel(HBoxContainer.new(), Color("#142541"), 12, 10)
+	navigation.name = "CareerProgressPlanetNavigation"
+	var row := navigation.get_child(0) as HBoxContainer
+	row.add_theme_constant_override("separation", 8)
+	var previous := host.secondary_action("‹", host.CYAN)
+	previous.name = "CareerProgressPlanetPrevious"
+	previous.custom_minimum_size = Vector2(UIDesignSystem.TOUCH_TARGET_MIN, UIDesignSystem.TOUCH_TARGET_MIN)
+	previous.disabled = host.career_progress_planet_index <= 0
+	previous.pressed.connect(func(): change_progress_planet(host, -1))
+	row.add_child(previous)
+	var title := host.label(localized_content_field("planet", planet, "name").to_upper(), UIDesignSystem.FONT_BODY, Color(str(planet.accent)), HORIZONTAL_ALIGNMENT_CENTER)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(title)
+	var page := host.label("%d/%d" % [host.career_progress_planet_index + 1, Content.PLANETS.size()], UIDesignSystem.FONT_CAPTION, host.MUTED, HORIZONTAL_ALIGNMENT_CENTER)
+	page.custom_minimum_size.x = 54
+	page.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(page)
+	var next := host.secondary_action("›", host.CYAN)
+	next.name = "CareerProgressPlanetNext"
+	next.custom_minimum_size = Vector2(UIDesignSystem.TOUCH_TARGET_MIN, UIDesignSystem.TOUCH_TARGET_MIN)
+	next.disabled = host.career_progress_planet_index >= Content.PLANETS.size() - 1
+	next.pressed.connect(func(): change_progress_planet(host, 1))
+	row.add_child(next)
+	return navigation
+
+
+static func change_progress_planet(host: CrookedUIFactory, direction: int) -> void:
+	var next_index := clampi(host.career_progress_planet_index + direction, 0, maxi(0, Content.PLANETS.size() - 1))
+	if next_index == host.career_progress_planet_index:
+		return
+	host.career_progress_planet_index = next_index
+	if host.has_method("render"):
+		host.call("render")
+
+
+static func milestone_navigation(host: CrookedUIFactory, milestone: Dictionary, milestone_count: int) -> PanelContainer:
+	var navigation := host.panel(HBoxContainer.new(), Color("#142541"), 12, 10)
+	navigation.name = "CareerMilestoneNavigation"
+	var row := navigation.get_child(0) as HBoxContainer
+	row.add_theme_constant_override("separation", 8)
+	var previous := host.secondary_action("‹", host.CYAN)
+	previous.name = "CareerMilestonePrevious"
+	previous.custom_minimum_size = Vector2(UIDesignSystem.TOUCH_TARGET_MIN, UIDesignSystem.TOUCH_TARGET_MIN)
+	previous.disabled = host.career_milestone_index <= 0
+	previous.pressed.connect(func(): change_milestone(host, -1, milestone_count))
+	row.add_child(previous)
+	var title := host.label(str(milestone.name), UIDesignSystem.FONT_CAPTION, host.GOLD, HORIZONTAL_ALIGNMENT_CENTER)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(title)
+	var page := host.label("%d/%d" % [host.career_milestone_index + 1, milestone_count], UIDesignSystem.FONT_CAPTION, host.MUTED, HORIZONTAL_ALIGNMENT_CENTER)
+	page.custom_minimum_size.x = 54
+	page.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(page)
+	var next := host.secondary_action("›", host.CYAN)
+	next.name = "CareerMilestoneNext"
+	next.custom_minimum_size = Vector2(UIDesignSystem.TOUCH_TARGET_MIN, UIDesignSystem.TOUCH_TARGET_MIN)
+	next.disabled = host.career_milestone_index >= milestone_count - 1
+	next.pressed.connect(func(): change_milestone(host, 1, milestone_count))
+	row.add_child(next)
+	return navigation
+
+
+static func change_milestone(host: CrookedUIFactory, direction: int, milestone_count: int) -> void:
+	var next_index := clampi(host.career_milestone_index + direction, 0, maxi(0, milestone_count - 1))
+	if next_index == host.career_milestone_index:
+		return
+	host.career_milestone_index = next_index
+	if host.has_method("render"):
+		host.call("render")
+
+
+static func planet_index_for(planet_id: String) -> int:
+	for index in Content.PLANETS.size():
+		if str(Content.PLANETS[index].id) == planet_id:
+			return index
+	return 0
 
 
 static func career_claim_notice(state: StateScript) -> String:
@@ -425,6 +515,7 @@ static func milestone_card(host: CrookedUIFactory, state: StateScript, milestone
 	var complete := bool(milestone.complete)
 	var claimed := bool(milestone.claimed)
 	var card := host.panel(HBoxContainer.new(), Color("#11213a") if complete else Color("#0a1025"), 11, 10)
+	card.name = "CareerMilestone_%s" % str(milestone.id)
 	var row := card.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 10)
 	row.add_child(host.center_label("✓" if claimed else ("!" if complete else "·"), UIDesignSystem.FONT_BODY, host.LIME if claimed else (host.GOLD if complete else host.MUTED)))

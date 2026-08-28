@@ -62,6 +62,10 @@ func run_mobile_audit() -> void:
 	scene.render()
 	await process_frame
 	check(find_label_with_text(scene, "QUESTIONABLE HANGAR") != null and find_label_with_text(scene, "LICENSED FLYING JUNKBOX") != null and find_label_with_text(scene, "The door closes when gravity cooperates.") != null and (scene.find_child("HangarMarketAction", true, false) as Button).text == "VIEW MARKET", "English hangar covers permanent transport identity, tagline, timing, and commerce route")
+	var cloned_taxi_selector := scene.find_child("HangarSelect_cloned_warp_taxi", true, false) as Button
+	if cloned_taxi_selector != null:
+		cloned_taxi_selector.pressed.emit()
+	await process_frame
 	var cloned_taxi_action := scene.find_child("HangarAction_cloned_warp_taxi", true, false) as Button
 	check(cloned_taxi_action != null and cloned_taxi_action.text.begins_with("BUY"), "English hangar exposes an unlocked transport purchase")
 	if cloned_taxi_action != null:
@@ -351,7 +355,7 @@ func run_mobile_audit() -> void:
 	await process_frame
 	await process_frame
 	check_touch_targets(scene, "planet market")
-	check(scene.find_child("MarketScroll", true, false) != null and scene.find_children("MarketOffer_*", "PanelContainer", true, false).size() == 3, "all three market offers remain reachable in the portrait scroller")
+	check(scene.find_child("MarketScroll", true, false) != null and scene.find_children("MarketOffer_*", "PanelContainer", true, false).size() == 3 and scene.find_children("MarketSelect_*", "Button", true, false).size() == 3, "all three market offers remain directly reachable above the portrait dossier")
 	scene.market_scroll_position = 80
 	var refresh_market := scene.find_child("MarketRefresh", true, false) as Button
 	if refresh_market != null:
@@ -374,8 +378,8 @@ func run_mobile_audit() -> void:
 	await process_frame
 	check(scene.view_mode == "hangar", "market alternative action opens the hangar without returning through the board")
 	check_touch_targets(scene, "transport hangar")
-	check(scene.find_child("HangarScroll", true, false) != null and scene.find_children("HangarTransport_*", "PanelContainer", true, false).size() == 4, "all four transports remain reachable in the portrait scroller")
-	check(scene.find_children("HangarTransportIcon_*", "Control", true, false).size() == 4, "hangar silhouettes remain visible at the mobile card size")
+	check(scene.find_child("HangarScroll", true, false) != null and scene.find_children("HangarTransport_*", "PanelContainer", true, false).size() == 4 and scene.find_children("HangarSelect_*", "Button", true, false).size() == 4, "all four transports remain directly reachable above the portrait dossier")
+	check(scene.find_children("HangarTransportIcon_*", "Control", true, false).size() == 1, "selected hangar silhouette remains visible at the mobile card size")
 	var hangar_market_action := scene.find_child("HangarMarketAction", true, false) as Button
 	check(hangar_market_action != null, "hangar keeps the combat alternative one touch away")
 	check(scene.android_back_action() == "menu", "Android Back routes the hangar to its secondary menu parent")

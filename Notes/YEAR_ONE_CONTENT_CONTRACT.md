@@ -28,6 +28,19 @@ Trinta e três planetas não são, por si só, 365 dias de jogo. O plano anual c
 
 O teste `test_year_one_content.gd` executa as 1 825 caçadas, confirma o nível final projetado e garante que toda a amostra atual permanece acessível. Qualquer alteração futura à experiência, frequência diária ou cadência de planetas deve atualizar simultaneamente a regra, este documento e a simulação.
 
+## Auditoria de intensidade de jogo
+
+Cinco caçadas por dia são o perfil de referência, não um limite mecânico. A auditoria executável `tools/audit_year_one_pacing.gd` mede também jogadores de 10, 20 e 40 caçadas diárias. Com ofertas padrão e sem transporte, a curva atual produz:
+
+| Caçadas/dia | Último planeta atual, nível 30 | Último planeta contratado, nível 300 | Nível após 365 dias |
+| ---: | ---: | ---: | ---: |
+| 5 | dia 28 | dia 363 | 302 |
+| 10 | dia 14 | dia 182 | 588 |
+| 20 | dia 7 | dia 91 | 1 148 |
+| 40 | dia 4 | dia 46 | 1 897 |
+
+O nível 30 exige 137 contratos; o nível 300, 1 813. Logo, o catálogo de 33 planetas cumpre um ano apenas para o perfil de cinco caçadas. Antes de produzir a maioria dos 27 planetas em falta, o produto deve decidir se o ritmo será protegido por reserva diária, retornos decrescentes, outra restrição transparente ou progressão deliberadamente aberta. A auditoria não ativa combustível nem transforma essa decisão em monetização.
+
 ## Entrega 0.45.0 — descoberta persistente
 
 O schema 20 acrescenta apenas `seen_planet_ids`, separando a progressão mecânica da apresentação. Saves existentes marcam como vistos todos os mundos que já estavam disponíveis ao seu nível, evitando falsos anúncios retroativos; saves novos começam com Dustball Prime confirmado. A recompensa calcula qualquer banda atravessada antes de aplicar XP, o Quadro mantém o alerta até reconhecimento explícito e a Galáxia lista cada destino novo sem bloquear as três ofertas. PT/EN, migração, expansão de texto e geometria Android integram o mesmo contrato.

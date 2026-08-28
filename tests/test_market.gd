@@ -148,8 +148,10 @@ func _init() -> void:
 	host.add_child(content)
 	MarketViewScript.build(host, content, state)
 	check(host.find_child("MarketScroll", true, false) != null, "market renderer provides a portrait-safe scroller")
-	check(host.find_children("MarketOffer_*", "PanelContainer", true, false).size() == 3, "market renderer shows exactly one bounded offer cycle")
-	check(host.find_children("MarketBuy_*", "Button", true, false).size() == 3, "every offer has a purchase action")
+	check(host.find_children("MarketOffer_*", "PanelContainer", true, false).size() == 3, "market renderer exposes the bounded three-offer cycle as compact selectors")
+	check(host.find_children("MarketSelect_*", "Button", true, false).size() == 3, "every market offer remains directly selectable")
+	check(host.find_children("MarketBuy_*", "Button", true, false).size() == 1, "only the selected offer materializes its detailed purchase action")
+	check(host.find_child("MarketSelectedOffer", true, false) != null, "selected stock owns one readable mobile dossier")
 	var daily_status := host.find_child("MarketDailyChipStatus", true, false) as Label
 	check(daily_status != null and daily_status.text.contains("+1") and daily_status.text.contains("00:00 UTC"), "market explains the playable premium source and exact UTC reset")
 	var refresh := host.find_child("MarketRefresh", true, false) as Button
@@ -159,6 +161,8 @@ func _init() -> void:
 	check(hangar_action != null and hangar_action.custom_minimum_size.y >= 48.0, "market exposes a touch-safe route to the permanent transport alternative")
 	for button in host.find_children("MarketBuy_*", "Button", true, false):
 		check((button as Button).custom_minimum_size.y >= 48.0, "purchase action preserves an Android-first touch target")
+	for button in host.find_children("MarketSelect_*", "Button", true, false):
+		check((button as Button).custom_minimum_size.y >= 48.0, "stock selectors preserve Android-first touch targets")
 	for child in content.get_children():
 		child.free()
 	host.market_refresh_confirmation = true

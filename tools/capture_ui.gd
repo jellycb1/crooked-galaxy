@@ -760,6 +760,7 @@ func capture() -> void:
 	state.player.active_transport_id = "cloned_warp_taxi"
 	state.last_notice = "Hangar: TÁXI WARP CLONADO agora responde pelos seus atrasos."
 	state.last_notice_context = "hangar"
+	scene.hangar_selected_transport_index = -1
 	scene.view_mode = "hangar"
 	scene.render()
 	await process_frame

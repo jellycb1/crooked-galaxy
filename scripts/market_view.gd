@@ -39,12 +39,6 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	info_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info_row.add_child(info_copy)
 	info_copy.add_child(host.label(t("MARKET_BALANCE", "SALDO · ◈ %d CRÉDITOS · ◆ %d FICHAS", [int(state.player.credits), int(state.player.get("warp_chips", 0))]), UIDesignSystem.FONT_BODY, host.GOLD))
-	var explanation := host.label(t("MARKET_PURCHASE_RULE", "Compras equipam melhorias automaticamente; alternativas vão para o inventário."), UIDesignSystem.FONT_CAPTION, host.MUTED)
-	explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	info_copy.add_child(explanation)
-	var refresh_rule := host.label(t("MARKET_REFRESH_RULE", "Renovações diárias custam 1/5/20 Fichas; a terceira garante pelo menos um Raro, nunca uma melhoria."), UIDesignSystem.FONT_CAPTION, host.MUTED)
-	refresh_rule.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	info_copy.add_child(refresh_rule)
 	var daily_source_key := "MARKET_DAILY_FREE_READY" if MonetizationRulesScript.first_hunt_chip_available(state.player) else "MARKET_DAILY_FREE_CLAIMED"
 	var daily_source_fallback := "FONTE JOGÁVEL · primeira missão de hoje: +1 Ficha" if MonetizationRulesScript.first_hunt_chip_available(state.player) else "FONTE JOGÁVEL · recompensa diária recolhida"
 	var daily_source := host.label(t(daily_source_key, daily_source_fallback) + t("MARKET_DAILY_RESET", " · reinício 00:00 UTC"), UIDesignSystem.FONT_CAPTION, host.LIME if MonetizationRulesScript.first_hunt_chip_available(state.player) else host.MUTED)
@@ -113,6 +107,15 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		(receipt.get_child(0) as VBoxContainer).add_child(receipt_label)
 		content.add_child(receipt)
 
+	var offers := state.market_offers()
+	host.market_selected_offer_index = clampi(host.market_selected_offer_index, 0, maxi(0, offers.size() - 1))
+	var selectors := HBoxContainer.new()
+	selectors.name = "MarketOfferSelectors"
+	selectors.add_theme_constant_override("separation", 8)
+	content.add_child(selectors)
+	for index in offers.size():
+		selectors.add_child(offer_selector(host, offers[index], index, index == host.market_selected_offer_index))
+
 	var scroller := ScrollContainer.new()
 	scroller.name = "MarketScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -122,8 +125,30 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", 12)
 	scroller.add_child(list)
-	for offer in state.market_offers():
-		list.add_child(offer_card(host, state, offer))
+	if not offers.is_empty():
+		list.add_child(offer_card(host, state, offers[host.market_selected_offer_index]))
+
+
+static func offer_selector(host: CrookedUIFactory, offer: Dictionary, index: int, selected: bool) -> PanelContainer:
+	var item: Dictionary = offer.item
+	var purchased := bool(offer.purchased)
+	var accent := host.GOLD if selected else (host.MUTED if purchased else Color(str(item.color)))
+	var card := host.panel(VBoxContainer.new(), Color("#1f3159") if selected else host.PANEL, 6, 6)
+	card.name = "MarketOffer_%s" % str(offer.id)
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var action := host.secondary_action("%s\n+%d · ◈ %d" % [EquipmentPresentation.localized_slot(str(item.slot)).to_upper(), int(item.power), int(offer.price)], accent)
+	action.name = "MarketSelect_%s" % str(offer.id)
+	action.custom_minimum_size = Vector2(0, UIDesignSystem.TOUCH_TARGET_MIN)
+	action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	action.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
+	action.disabled = selected
+	action.pressed.connect(func():
+		host.market_selected_offer_index = index
+		host.market_scroll_position = 0
+		host.call("render")
+	)
+	(card.get_child(0) as VBoxContainer).add_child(action)
+	return card
 
 
 static func offer_card(host: CrookedUIFactory, state: StateScript, offer: Dictionary) -> PanelContainer:
@@ -131,7 +156,7 @@ static func offer_card(host: CrookedUIFactory, state: StateScript, offer: Dictio
 	var purchased := bool(offer.purchased)
 	var affordable := int(state.player.credits) >= int(offer.price)
 	var card := host.panel(VBoxContainer.new(), host.PANEL_LIGHT if not purchased else host.PANEL, 16, 14)
-	card.name = "MarketOffer_%s" % str(offer.id)
+	card.name = "MarketSelectedOffer"
 	var card_box := card.get_child(0) as VBoxContainer
 	card_box.add_theme_constant_override("separation", 10)
 	var row := HBoxContainer.new()
@@ -202,6 +227,7 @@ static func refresh_confirmation_panel(host: CrookedUIFactory, state: StateScrip
 	confirm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	confirm.pressed.connect(func():
 		host.market_refresh_confirmation = false
+		host.market_selected_offer_index = 0
 		host.reset_session_scroll("MarketScroll", "market_scroll_position")
 		state.refresh_market()
 	)

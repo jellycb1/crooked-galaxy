@@ -8,6 +8,7 @@ const TARGETS_PER_PLANET := 4
 const FIRST_REGULAR_EXPANSION_LEVEL := 30
 const REGULAR_PLANET_INTERVAL := 10
 const PROJECTED_YEAR_END_LEVEL := 302
+const PACING_AUDIT_DAILY_HUNTS := [5, 10, 20, 40]
 
 
 static func required_unlock_levels() -> Array[int]:
@@ -23,3 +24,9 @@ static func required_planet_count() -> int:
 
 static func required_target_count() -> int:
 	return required_planet_count() * TARGETS_PER_PLANET
+
+
+static func days_for_hunts(total_hunts: int, daily_hunts: int) -> int:
+	if total_hunts <= 0:
+		return 0
+	return ceili(float(total_hunts) / float(maxi(1, daily_hunts)))

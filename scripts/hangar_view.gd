@@ -88,6 +88,18 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		(receipt.get_child(0) as VBoxContainer).add_child(receipt_label)
 		content.add_child(receipt)
 
+	if host.hangar_selected_transport_index < 0:
+		host.hangar_selected_transport_index = transport_index_for(str(state.player.get("active_transport_id", "")))
+	host.hangar_selected_transport_index = clampi(host.hangar_selected_transport_index, 0, maxi(0, TransportRulesScript.DEFINITIONS.size() - 1))
+	var selectors := GridContainer.new()
+	selectors.name = "HangarTransportSelectors"
+	selectors.columns = 2
+	selectors.add_theme_constant_override("h_separation", 8)
+	selectors.add_theme_constant_override("v_separation", 8)
+	content.add_child(selectors)
+	for index in TransportRulesScript.DEFINITIONS.size():
+		selectors.add_child(transport_selector(host, state, TransportRulesScript.DEFINITIONS[index], index, index == host.hangar_selected_transport_index))
+
 	var scroller := ScrollContainer.new()
 	scroller.name = "HangarScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -97,18 +109,53 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", 12)
 	scroller.add_child(list)
-	for transport in TransportRulesScript.DEFINITIONS:
-		list.add_child(transport_card(host, state, transport))
+	if not TransportRulesScript.DEFINITIONS.is_empty():
+		list.add_child(transport_card(host, state, TransportRulesScript.DEFINITIONS[host.hangar_selected_transport_index]))
+
+
+static func transport_selector(host: CrookedUIFactory, state: StateScript, transport: Dictionary, index: int, selected: bool) -> PanelContainer:
+	var transport_id := str(transport.id)
+	var owned := TransportRulesScript.is_owned(state.player, transport_id)
+	var active := str(state.player.get("active_transport_id", "")) == transport_id
+	# A transport legitimately owned by an older save must remain usable even if a
+	# later balance pass raises its nominal unlock level.
+	var unlocked := TransportRulesScript.is_unlocked(state.player, transport) or owned
+	var accent := Color(str(transport.color)) if unlocked else host.MUTED
+	var card := host.panel(VBoxContainer.new(), Color("#1f3159") if selected else host.PANEL, 6, 6)
+	card.name = "HangarTransport_%s" % transport_id
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var state_text := t("HANGAR_ACTION_ACTIVE", "ATIVO") if active else (t("HANGAR_ACTION_EQUIP", "EQUIPAR") if owned else ("◈ %d" % int(transport.price) if unlocked else "N%d" % int(transport.required_level)))
+	var action := host.secondary_action("-%d%% · %s" % [roundi(float(transport.speed_bonus) * 100.0), state_text], accent)
+	action.name = "HangarSelect_%s" % transport_id
+	action.custom_minimum_size = Vector2(0, UIDesignSystem.TOUCH_TARGET_MIN)
+	action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	action.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
+	action.disabled = selected
+	action.pressed.connect(func():
+		host.hangar_selected_transport_index = index
+		host.hangar_scroll_position = 0
+		host.call("render")
+	)
+	(card.get_child(0) as VBoxContainer).add_child(action)
+	return card
+
+
+static func transport_index_for(transport_id: String) -> int:
+	for index in TransportRulesScript.DEFINITIONS.size():
+		if str(TransportRulesScript.DEFINITIONS[index].id) == transport_id:
+			return index
+	return 0
 
 
 static func transport_card(host: CrookedUIFactory, state: StateScript, transport: Dictionary) -> PanelContainer:
 	var transport_id := str(transport.id)
 	var owned := TransportRulesScript.is_owned(state.player, transport_id)
 	var active := str(state.player.get("active_transport_id", "")) == transport_id
-	var unlocked := TransportRulesScript.is_unlocked(state.player, transport)
+	# Ownership is permanent; never present an equipped legacy transport as locked.
+	var unlocked := TransportRulesScript.is_unlocked(state.player, transport) or owned
 	var affordable := int(state.player.credits) >= int(transport.price)
 	var card := host.panel(VBoxContainer.new(), host.PANEL_LIGHT if unlocked else host.PANEL, 16, 14)
-	card.name = "HangarTransport_%s" % transport_id
+	card.name = "HangarSelectedTransport"
 	var card_box := card.get_child(0) as VBoxContainer
 	card_box.add_theme_constant_override("separation", 10)
 	var row := HBoxContainer.new()
