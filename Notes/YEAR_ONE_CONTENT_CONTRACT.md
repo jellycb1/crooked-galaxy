@@ -4,11 +4,11 @@ Estado: fundação executável revista para a curva quadrática, 28 de agosto de
 
 ## Promessa mensurável
 
-O teto de produção é definido pelo perfil mecanicamente mais rápido hoje possível: 160 unidades de combustível por dia e escolha sistemática da rota mais barata entre os três mandados. Nos seis planetas atuais, esse perfil completa 7 569 caçadas, alcança o nível 300 no dia 318, desbloqueia o nível 320 no dia 358 e termina o ano no nível 323.
+O teto de produção conserva margem sobre o perfil mecanicamente mais rápido hoje possível: 160 unidades de combustível por dia e escolha sistemática da rota mais barata entre os três mandados. Nos sete planetas atuais, esse perfil completa 6 725 caçadas, alcança o nível 300 no dia 360 e termina o ano no nível 302. O catálogo até nível 320 permanece como margem de segurança para futuras alterações de rotas, XP e economia.
 
 Os cinco planetas iniciais mantêm os níveis 1, 4, 8, 13 e 19. A partir daí, um planeta é desbloqueado a cada dez níveis: 30, 40, 50 e assim sucessivamente até 320. Isso define 35 planetas e, com quatro identidades de alvo por planeta, 140 alvos no catálogo completo de lançamento.
 
-Estes números são um teto de produção verificável, não uma alegação de que o conteúdo já existe. O catálogo implementado contém seis planetas e vinte e quatro alvos; faltam 29 habitats e 116 alvos para cumprir este eixo. Aerópolis de Penhora, desbloqueada no nível 30, já implementa o primeiro pacote pós-vertical-slice e estabelece o formato repetível: quatro alvos, incidentes, famílias de equipamento, tradução integral e identidade procedural própria.
+O conteúdo autorado cobre agora sete planetas e 28 alvos até ao nível 40; faltam 28 habitats e 112 identidades para cumprir este eixo. Aerópolis de Penhora estabeleceu o formato repetível pós-vertical-slice, e o Arquivo Abissal N-9 confirma-o no nível 40: quatro alvos, dois incidentes, famílias de equipamento, tradução integral e identidade procedural própria. O mundo oceânico também abre implantes como família normal universal.
 
 ## Curva de progressão
 
@@ -18,12 +18,12 @@ Cinco caçadas padrão por dia continuam a ser uma referência comparável, não
 
 | Combustível/dia | Estratégia | Caçadas/dia | Nível no dia 365 | Dia nível 30 | Dia nível 100 | Dia nível 300 |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: |
-| 100 | Mandado padrão | 6,5 | 165 | 19 | 156 | — |
-| 100 | Rota mais barata | 12,9 | 247 | 11 | 80 | — |
-| 160 | Mandado padrão | 10,8 | 221 | 12 | 95 | — |
-| 160 | Rota mais barata | 20,7 | 323 | 7 | 49 | 318 |
+| 100 | Mandado padrão | 5,8 | 153 | 19 | 175 | — |
+| 100 | Rota mais barata | 11,3 | 229 | 11 | 87 | — |
+| 160 | Mandado padrão | 9,4 | 204 | 12 | 107 | — |
+| 160 | Rota mais barata | 18,4 | 302 | 7 | 54 | 360 |
 
-Esta projeção é deliberadamente conservadora: futuros planetas tendem a ter rotas maiores, reduzindo o número de caçadas que cabe na mesma reserva. O nível 320 é portanto um teto de segurança para produção, não uma promessa de que todo jogador verá cada planeta no primeiro ano.
+Esta projeção já incorpora a rota de 28 minutos do Arquivo Abissal. Futuros planetas tendem a aumentar a duração média e reduzir o número de caçadas na mesma reserva; o nível 320 continua um teto de segurança de produção, não uma promessa de que todo jogador verá cada planeta no primeiro ano.
 
 ## Comportamento da rede de missões
 

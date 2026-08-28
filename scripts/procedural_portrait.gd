@@ -257,6 +257,8 @@ func planet_loadout_color(planet_id: String) -> Color:
 			return Color("#ff75d8")
 		"aeropolis_penhora":
 			return Color("#8fd3ff")
+		"arquivo_abissal_n9":
+			return Color("#39d7c5")
 		_:
 			return Color("#55e5ff")
 

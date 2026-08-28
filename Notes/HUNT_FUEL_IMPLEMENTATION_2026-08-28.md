@@ -19,7 +19,7 @@ O schema 21 adiciona `hunt_fuel` e `hunt_fuel_refill_count`. Saves anteriores re
 
 ## Resultado da auditoria de ritmo
 
-A simulação de 365 dias com os seis planetas atuais e sem recargas pagas produz:
+A simulação histórica de 365 dias com os seis planetas disponíveis na versão 0.48.0 e sem recargas pagas produziu:
 
 | Estratégia | Caçadas/ano | Média diária | Nível final | Combustível usado/dia |
 | --- | ---: | ---: | ---: | ---: |

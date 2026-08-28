@@ -161,4 +161,6 @@ func planet_color(planet_id: String) -> Color:
 		"micelia_404": return Color("#c7f464")
 		"ferro_velho_omega": return Color("#ff9f43")
 		"cassino_quasar": return Color("#ff75d8")
+		"aeropolis_penhora": return Color("#8fd3ff")
+		"arquivo_abissal_n9": return Color("#39d7c5")
 		_: return Color("#55e5ff")

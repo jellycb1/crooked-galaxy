@@ -32,8 +32,9 @@ func _draw() -> void:
 	var scrapyard := planet_id == "ferro_velho_omega"
 	var casino := planet_id == "cassino_quasar"
 	var aerial := planet_id == "aeropolis_penhora"
-	var top := Color("#264d76") if aerial else (Color("#4b174f") if casino else (Color("#51352b") if scrapyard else (Color("#2d4b32") if fungal else (Color("#0e4359") if frozen else Color("#12264c")))))
-	var bottom := Color("#09152f") if aerial else (Color("#13051f") if casino else (Color("#160b09") if scrapyard else (Color("#07150d") if fungal else (Color("#04121d") if frozen else Color("#050817")))))
+	var abyssal := planet_id == "arquivo_abissal_n9"
+	var top := Color("#06454f") if abyssal else (Color("#264d76") if aerial else (Color("#4b174f") if casino else (Color("#51352b") if scrapyard else (Color("#2d4b32") if fungal else (Color("#0e4359") if frozen else Color("#12264c"))))))
+	var bottom := Color("#020914") if abyssal else (Color("#09152f") if aerial else (Color("#13051f") if casino else (Color("#160b09") if scrapyard else (Color("#07150d") if fungal else (Color("#04121d") if frozen else Color("#050817"))))))
 	var bands := 28
 	for band in bands:
 		var from_y := size.y * float(band) / float(bands)
@@ -42,7 +43,7 @@ func _draw() -> void:
 		draw_rect(Rect2(0, from_y, size.x, to_y - from_y + 1.0), color)
 
 	# Soft, deliberately off-center nebula shapes.
-	draw_circle(Vector2(size.x * 0.06, size.y * 0.32), size.x * 0.33, Color(0.56, 0.83, 1.0, 0.065) if aerial else (Color(1.0, 0.35, 0.82, 0.065) if casino else (Color(1.0, 0.52, 0.22, 0.055) if scrapyard else (Color(0.75, 0.96, 0.39, 0.045) if fungal else (Color(0.25, 0.92, 0.82, 0.045) if frozen else Color(0.14, 0.56, 0.72, 0.035))))))
+	draw_circle(Vector2(size.x * 0.06, size.y * 0.32), size.x * 0.33, Color(0.22, 0.85, 0.77, 0.06) if abyssal else (Color(0.56, 0.83, 1.0, 0.065) if aerial else (Color(1.0, 0.35, 0.82, 0.065) if casino else (Color(1.0, 0.52, 0.22, 0.055) if scrapyard else (Color(0.75, 0.96, 0.39, 0.045) if fungal else (Color(0.25, 0.92, 0.82, 0.045) if frozen else Color(0.14, 0.56, 0.72, 0.035)))))))
 	draw_circle(Vector2(size.x * 0.92, size.y * 0.48), size.x * 0.42, Color(0.52, 0.20, 0.68, 0.028))
 
 	for star in stars:
@@ -56,7 +57,12 @@ func _draw() -> void:
 	draw_arc(planet_center, planet_radius * 1.48, -2.8, 0.2, 80, Color(0.33, 0.65, 0.85, 0.10), 5.0, true)
 	draw_circle(planet_center, planet_radius, Color(0.18, 0.22, 0.47, 0.13))
 	draw_arc(planet_center, planet_radius, 0.0, TAU, 80, Color(0.40, 0.72, 0.90, 0.10), 2.0, true)
-	if aerial:
+	if abyssal:
+		for bubble_index in 14:
+			var bubble_x := size.x * (0.05 + float((bubble_index * 41) % 91) / 100.0)
+			var bubble_y := size.y * (0.16 + float((bubble_index * 31) % 71) / 100.0)
+			draw_arc(Vector2(bubble_x, bubble_y), 3.0 + float(bubble_index % 4), 0.0, TAU, 16, Color(0.55, 1.0, 0.92, 0.10), 1.5, true)
+	elif aerial:
 		for cloud_index in 11:
 			var cloud_x := size.x * (0.05 + float((cloud_index * 47) % 91) / 100.0)
 			var cloud_y := size.y * (0.20 + float((cloud_index * 23) % 61) / 100.0)

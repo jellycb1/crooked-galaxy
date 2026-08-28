@@ -36,6 +36,8 @@ func motif_id() -> String:
 			return "quasar"
 		"aeropolis_penhora":
 			return "cloudbank"
+		"arquivo_abissal_n9":
+			return "abyss"
 	return "unknown"
 
 
@@ -81,6 +83,13 @@ func _draw() -> void:
 				draw_circle(center + offset, 5.5, color.lightened(0.28))
 			var bolt := PackedVector2Array([center + Vector2(1, 4), center + Vector2(-3, 11), center + Vector2(2, 10), center + Vector2(-1, 17)])
 			draw_polyline(bolt, Color("#ffe66d"), 2.2, true)
+		"abyss":
+			for depth in 3:
+				var wave_y := center.y - 8.0 + float(depth) * 8.0
+				draw_arc(Vector2(center.x - 5.0, wave_y), 6.0, 0.0, PI, 12, color.lightened(0.28), 2.0, true)
+				draw_arc(Vector2(center.x + 7.0, wave_y), 6.0, PI, TAU, 12, color.darkened(0.18), 2.0, true)
+			draw_circle(center + Vector2(-7, 8), 2.2, Color("#d8ffff"))
+			draw_circle(center + Vector2(6, -9), 1.6, Color("#d8ffff"))
 	if not unlocked:
 		var lock_center := center + Vector2(radius * 0.55, radius * 0.55)
 		draw_rect(Rect2(lock_center - Vector2(5, 2), Vector2(10, 8)), Color("#0b1228"), true)

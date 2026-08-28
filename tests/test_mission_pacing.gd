@@ -16,7 +16,7 @@ func _init() -> void:
 	var elapsed := 0.0
 	var discovery := {1: {"wins": 0, "seconds": 0.0}}
 	var known_worlds := MissionRulesScript.available_planets(int(player.level)).size()
-	for _capture in 220:
+	for _capture in 320:
 		var offers := MissionRulesScript.board_offers(player)
 		check(offers.size() == 3, "standard progression always retains three generated offers")
 		if offers.size() < 2:
@@ -41,12 +41,14 @@ func _init() -> void:
 	check(in_range(discovery, 4, 35, 75, 13), "the fourth world anchors the middle-career window")
 	check(in_range(discovery, 5, 60, 115, 19), "the fifth world remains a meaningful long-career discovery")
 	check(in_range(discovery, 6, 150, 190, 30), "the first year-one expansion arrives at its level-30 contract")
+	check(in_range(discovery, 7, 240, 280, 40), "the abyssal expansion arrives at its level-40 contract")
 	check(float(discovery[2].seconds) < float(discovery[3].seconds) and float(discovery[3].seconds) < float(discovery[4].seconds) and float(discovery[4].seconds) < float(discovery[5].seconds), "cumulative mission time grows monotonically across world discoveries")
 	check(seconds_in_range(discovery, 2, 1100.0, 1300.0), "Congelaria enters after roughly twenty minutes of standard base waits")
 	check(seconds_in_range(discovery, 3, 5500.0, 5800.0), "Micelia enters after roughly ninety minutes of standard base waits")
 	check(seconds_in_range(discovery, 4, 17000.0, 18200.0), "Ferro-Velho enters after roughly five hours of standard base waits")
 	check(seconds_in_range(discovery, 5, 42500.0, 45000.0), "Cassino enters after roughly twelve hours of standard base waits")
 	check(float(discovery[6].seconds) > float(discovery[5].seconds), "Aeropolis extends rather than replaces the established route ladder")
+	check(float(discovery[7].seconds) > float(discovery[6].seconds), "Abyssal Archive extends the cumulative route ladder")
 
 	finish()
 

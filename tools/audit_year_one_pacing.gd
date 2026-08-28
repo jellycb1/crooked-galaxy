@@ -10,10 +10,11 @@ const XP_MILESTONES := [4, 8, 13, 19, 30, 50, 100, 200, 300, 320, 500]
 
 
 func _init() -> void:
-	var current_catalog := simulate_until_level(30)
+	var current_catalog_level := int(ContentDB.PLANETS[-1].unlock_level)
+	var current_catalog := simulate_until_level(current_catalog_level)
 	var launch_catalog := simulate_until_level(YearOne.FINAL_YEAR_ONE_PLANET_LEVEL)
 	print("Crooked Galaxy year-one pacing audit · standard offers · no transport")
-	print("  current final discovery · level 30 · %d hunts · %.1f route hours" % [int(current_catalog.hunts), float(current_catalog.elapsed_seconds) / 3600.0])
+	print("  current final discovery · level %d · %d hunts · %.1f route hours" % [current_catalog_level, int(current_catalog.hunts), float(current_catalog.elapsed_seconds) / 3600.0])
 	print("  launch final discovery · level %d · %d hunts · %.1f route hours" % [YearOne.FINAL_YEAR_ONE_PLANET_LEVEL, int(launch_catalog.hunts), float(launch_catalog.elapsed_seconds) / 3600.0])
 	for daily_hunts in YearOne.PACING_AUDIT_DAILY_HUNTS:
 		var year_result := simulate_hunts(YearOne.DAYS * int(daily_hunts))
@@ -25,7 +26,7 @@ func _init() -> void:
 			float(year_result.elapsed_seconds) / 3600.0 / float(YearOne.DAYS),
 		])
 	print("  NOTE · five hunts/day is a reference profile, not an enforced limit")
-	print("Fuel-limited year · current six-planet catalog")
+	print("Fuel-limited year · current %d-planet catalog" % ContentDB.PLANETS.size())
 	for daily_fuel in [MonetizationRules.DAILY_HUNT_FUEL, MonetizationRules.DAILY_HUNT_FUEL + MonetizationRules.HUNT_FUEL_REFILL_AMOUNT * MonetizationRules.MAX_HUNT_FUEL_REFILLS_PER_DAY]:
 		for strategy in ["standard", "cheapest"]:
 			var fuel_year := simulate_fuel_days(YearOne.DAYS, strategy, daily_fuel)

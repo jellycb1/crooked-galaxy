@@ -16,11 +16,12 @@ func _draw() -> void:
 	var scrapyard := planet_id == "ferro_velho_omega"
 	var casino := planet_id == "cassino_quasar"
 	var aerial := planet_id == "aeropolis_penhora"
-	var sky_top := Color("#315b80") if aerial else (Color("#5a1b58") if casino else (Color("#4a3028") if scrapyard else (Color("#244537") if fungal else (Color("#123f59") if frozen else Color("#1b3156")))))
-	var sky_bottom := Color("#18294d") if aerial else (Color("#28143f") if casino else (Color("#35202d") if scrapyard else (Color("#38244b") if fungal else (Color("#1c3150") if frozen else Color("#341d50")))))
-	var ridge_color := Color("#273a58") if aerial else (Color("#25102d") if casino else (Color("#211819") if scrapyard else (Color("#152b25") if fungal else (Color("#10283b") if frozen else Color("#131a31")))))
-	var ground_color := Color("#111b35") if aerial else (Color("#100615") if casino else (Color("#100a0c") if scrapyard else (Color("#08150f") if fungal else (Color("#06131d") if frozen else Color("#0a1025")))))
-	var primary_glow := Color(0.56, 0.83, 1.0, 0.20) if aerial else (Color(1.0, 0.46, 0.85, 0.20) if casino else (Color(1.0, 0.62, 0.26, 0.18) if scrapyard else (Color(0.78, 0.96, 0.39, 0.16) if fungal else (Color(0.45, 0.95, 0.88, 0.16) if frozen else Color(0.96, 0.71, 0.31, 0.16)))))
+	var abyssal := planet_id == "arquivo_abissal_n9"
+	var sky_top := Color("#0a5964") if abyssal else (Color("#315b80") if aerial else (Color("#5a1b58") if casino else (Color("#4a3028") if scrapyard else (Color("#244537") if fungal else (Color("#123f59") if frozen else Color("#1b3156"))))))
+	var sky_bottom := Color("#041827") if abyssal else (Color("#18294d") if aerial else (Color("#28143f") if casino else (Color("#35202d") if scrapyard else (Color("#38244b") if fungal else (Color("#1c3150") if frozen else Color("#341d50"))))))
+	var ridge_color := Color("#0c3039") if abyssal else (Color("#273a58") if aerial else (Color("#25102d") if casino else (Color("#211819") if scrapyard else (Color("#152b25") if fungal else (Color("#10283b") if frozen else Color("#131a31"))))))
+	var ground_color := Color("#03131d") if abyssal else (Color("#111b35") if aerial else (Color("#100615") if casino else (Color("#100a0c") if scrapyard else (Color("#08150f") if fungal else (Color("#06131d") if frozen else Color("#0a1025"))))))
+	var primary_glow := Color(0.22, 0.85, 0.77, 0.18) if abyssal else (Color(0.56, 0.83, 1.0, 0.20) if aerial else (Color(1.0, 0.46, 0.85, 0.20) if casino else (Color(1.0, 0.62, 0.26, 0.18) if scrapyard else (Color(0.78, 0.96, 0.39, 0.16) if fungal else (Color(0.45, 0.95, 0.88, 0.16) if frozen else Color(0.96, 0.71, 0.31, 0.16))))))
 	var horizon := size.y * 0.64
 	draw_rect(Rect2(Vector2.ZERO, size), Color("#101a3a"))
 	for band in 10:
@@ -40,7 +41,15 @@ func _draw() -> void:
 	draw_rect(Rect2(0, horizon, size.x, size.y - horizon), ground_color)
 	draw_arc(Vector2(size.x * 0.24, horizon + 76), 94.0, PI, TAU, 32, Color(0.24, 0.75, 0.83, 0.13), 3.0, true)
 	draw_arc(Vector2(size.x * 0.76, horizon + 76), 94.0, PI, TAU, 32, Color(0.93, 0.33, 0.47, 0.13), 3.0, true)
-	if aerial:
+	if abyssal:
+		for x in [0.12, 0.30, 0.52, 0.74, 0.90]:
+			var stem := Vector2(size.x * x, horizon)
+			draw_line(stem, stem + Vector2(-4, -34), Color(0.20, 0.74, 0.60, 0.18), 5.0, true)
+			draw_circle(stem + Vector2(-4, -36), 7.0, Color(0.28, 0.94, 0.78, 0.13))
+		for bubble_index in 9:
+			var bubble := Vector2(size.x * (0.08 + float((bubble_index * 37) % 86) / 100.0), horizon * (0.18 + float((bubble_index * 29) % 64) / 100.0))
+			draw_arc(bubble, 3.0 + float(bubble_index % 3), 0.0, TAU, 14, Color(0.72, 1.0, 0.96, 0.16), 1.5, true)
+	elif aerial:
 		for x in [0.14, 0.36, 0.62, 0.84]:
 			var cloud_center := Vector2(size.x * x, horizon - 22 - 11 * int(x * 10) % 3)
 			draw_circle(cloud_center, 15.0, Color(0.72, 0.90, 1.0, 0.13))
