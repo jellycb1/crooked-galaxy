@@ -41,6 +41,7 @@ func run_mobile_audit() -> void:
 	(scene.find_child("PrimaryNav_menu", true, false) as Button).pressed.emit()
 	await process_frame
 	check(find_label_with_text(scene, "FRONTIER MENU") != null and find_label_with_text(scene, "MARKET") != null and find_label_with_text(scene, "LICENSED FLYING JUNKBOX") != null and find_label_with_text(scene, "CURRENT POSITION") != null, "English catalog covers the complete Frontier Menu and localized current transport")
+	check(find_label_with_text(scene, "UNLOCKS AT LEVEL %d" % ChallengeRules.UNLOCK_LEVEL) != null, "Frontier Menu reports the canonical level-based Rift gate")
 	(scene.find_child("BoardSettingsAction", true, false) as Button).pressed.emit()
 	await process_frame
 	check(find_label_with_text(scene, "SETTINGS") != null and find_label_with_text(scene, "GAME EXPERIENCE") != null and find_label_with_text(scene, "AUDIO") != null and (scene.find_child("SoundPreferenceAction", true, false) as Button).text == "ON" and (scene.find_child("ResetProgressAction", true, false) as Button).text == "RESET LOCAL PROGRESS", "English catalog covers device preferences and the explicit local-test reset")
@@ -427,6 +428,16 @@ func run_mobile_audit() -> void:
 	await process_frame
 	check_touch_targets(scene, "Fenda anomaly dossier")
 	check(scene.find_child("ChallengeScroll", true, false) != null and scene.find_child("ChallengeAnomalyRule", true, false) != null, "Fenda anomaly explanation remains reachable in the portrait scroller")
+	state.player.challenge_floor = 11
+	scene.render()
+	await process_frame
+	await process_frame
+	check(scene.find_children("ChallengeSector_*", "PanelContainer", true, false).size() == ChallengeRules.REWARD_SECTORS.size(), "late Rift progress stays compact across all four equipment sectors")
+	check(scene.find_child("ChallengeCurrentDossier", true, false) != null and scene.find_child("ChallengeEnterAction", true, false) != null, "the twelfth-floor dossier and fixed action remain reachable on Android")
+	state.player.challenge_floor = ChallengeRules.STAGES.size()
+	scene.render()
+	await process_frame
+	check(scene.find_child("ChallengeCompletePanel", true, false) != null and scene.find_child("ChallengeEnterAction", true, false) == null, "completed twelve-floor Rift has one terminal mobile state")
 
 	state.player.stat_points = 2
 	scene.view_mode = "attributes"

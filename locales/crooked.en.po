@@ -459,7 +459,7 @@ msgid "MENU_CAREER"
 msgstr "CAREER"
 
 msgid "MENU_RIFT_LOCKED"
-msgstr "COMPLETE DUSTBALL"
+msgstr "UNLOCKS AT LEVEL %d"
 
 msgid "MENU_RIFT_COMPLETE"
 msgstr "ARCHIVE COMPLETE"
@@ -3309,7 +3309,7 @@ msgid "RIFT_TITLE"
 msgstr "CLANDESTINE RIFT"
 
 msgid "CAREER_RIFT_LOCKED"
-msgstr "LOCKED · COMPLETE DUSTBALL PRIME"
+msgstr "LOCKED · UNLOCKS AT LEVEL %d"
 
 msgid "CAREER_RIFT_COMPLETE"
 msgstr "%d/%d FLOORS · ARCHIVE COMPLETE"
@@ -3328,6 +3328,12 @@ msgstr "TECHNICAL\nRIGS"
 
 msgid "CAREER_IMPLANTS"
 msgstr "IMPLANTS"
+
+msgid "CAREER_GADGETS"
+msgstr "GADGETS"
+
+msgid "CAREER_RELICS"
+msgstr "RELICS"
 
 msgid "CAREER_OPEN"
 msgstr "OPEN"

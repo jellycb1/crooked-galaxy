@@ -993,7 +993,7 @@ func build_frontier_menu() -> void:
 		render()
 	))
 	var challenge_floor := ChallengeRulesScript.progress(GameState.player)
-	var challenge_detail := t("MENU_RIFT_LOCKED", "CONCLUA DUSTBALL") if not ChallengeRulesScript.is_unlocked(GameState.player) else (t("MENU_RIFT_COMPLETE", "ARQUIVO CONCLUÍDO") if challenge_floor >= ChallengeRulesScript.STAGES.size() else t("MENU_RIFT_FLOOR", "ANDAR %d DE %d", [challenge_floor + 1, ChallengeRulesScript.STAGES.size()]))
+	var challenge_detail := t("MENU_RIFT_LOCKED", "DESBLOQUEIA NO NÍVEL %d", [ChallengeRulesScript.UNLOCK_LEVEL]) if not ChallengeRulesScript.is_unlocked(GameState.player) else (t("MENU_RIFT_COMPLETE", "ARQUIVO CONCLUÍDO") if challenge_floor >= ChallengeRulesScript.STAGES.size() else t("MENU_RIFT_FLOOR", "ANDAR %d DE %d", [challenge_floor + 1, ChallengeRulesScript.STAGES.size()]))
 	hub_grid.add_child(board_hub_action(t("MENU_RIFT", "FENDA"), challenge_detail, CORAL, "contracts", "BoardChallengeAction", func():
 		view_mode = "challenges"
 		render()

@@ -114,3 +114,9 @@ A Fenda Clandestina cresce de seis para doze pisos sem criar outra moeda, menu o
 Três anomalias maduras reutilizam os eixos já ensinados com pressões menos absolutas. A simulação acumulativa cruza as três classes em doze checkpoints dos níveis 8–90; todos os protótipos equilibrados preservam pelo menos 40% de probabilidade, nenhum ultrapassa 90%, o maior spread fica dentro de 30 pontos percentuais e as seis identidades introdutórias continuam intactas. O maior efeito da escada numa rota normal de campanha permanece 22 pontos; na rota segura, zero.
 
 No Android, doze chips individuais seriam ilegíveis. O progresso agora resume quatro setores num grid 2×2, cada um com avanço `0/3` a `3/3`, preservando o dossier, a anomalia, a recompensa e a ação fixa. Os limites antigos de seis pisos na recompensa e no texto de conclusão foram removidos. PT/EN, touch/scroll 450×800 e a matriz exaustiva de persistência passaram sem alteração de schema. A versão é `0.42.0` código 99.
+
+## Coerência dos doze pisos — oitavo batch
+
+A auditoria pós-expansão encontrou duas cópias antigas fora do combate: Menu e Carreira ainda descreviam o desbloqueio por conclusão de Dustball, e a Carreira chamava todos os pisos após o terceiro de “Implantes”. O desbloqueio por nível 8 agora vem da mesma constante em gameplay, Menu, Carreira, PT/EN e testes. Os quatro setores e os três pisos por setor também passam a pertencer às regras canónicas da Fenda; a interface deixou de repetir a sua própria aritmética.
+
+Cobertura nova percorre os estados 6/12, 9/12 e 12/12 na Carreira, o dossier do piso 12 no Android, a recompensa final, a equipagem da relíquia e o arquivo terminal. O último recibo anuncia conclusão, não um piso 13; a tela concluída remove a ação de incursão. A matriz de capturas recebe ainda um estado final dedicado. Esta correção não altera economia, combate, recompensas ou schema. A versão é `0.42.1` código 100.

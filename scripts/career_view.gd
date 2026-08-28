@@ -314,7 +314,7 @@ static func challenge_progress_card(host: CrookedUIFactory, state: StateScript) 
 	progress.add_theme_stylebox_override("background", host.box_style(Color("#071025"), 4))
 	progress.add_theme_stylebox_override("fill", host.box_style(host.CORAL if unlocked else host.MUTED.darkened(0.35), 4))
 	copy.add_child(progress)
-	var detail := t("CAREER_RIFT_LOCKED", "BLOQUEADA · CONCLUA DUSTBALL PRIME")
+	var detail := t("CAREER_RIFT_LOCKED", "BLOQUEADA · DESBLOQUEIA NO NÍVEL %d", [ChallengeRulesScript.UNLOCK_LEVEL])
 	if complete:
 		detail = t("CAREER_RIFT_COMPLETE", "%d/%d ANDARES · ARQUIVO CONCLUÍDO", [floor, total])
 	elif unlocked:
@@ -326,10 +326,16 @@ static func challenge_progress_card(host: CrookedUIFactory, state: StateScript) 
 	var status := t("CAREER_LOCKED_FEMININE", "BLOQUEADA")
 	if complete:
 		status = t("CAREER_COMPLETE_FEMININE", "COMPLETA")
-	elif floor < 3:
-		status = t("CAREER_RIGS", "CINTOS\nTÉCNICOS")
-	else:
-		status = t("CAREER_IMPLANTS", "IMPLANTES")
+	elif unlocked:
+		match ChallengeRulesScript.sector_slot_for_floor(floor):
+			"rig":
+				status = t("CAREER_RIGS", "CINTOS\nTÉCNICOS")
+			"implant":
+				status = t("CAREER_IMPLANTS", "IMPLANTES")
+			"gadget":
+				status = t("CAREER_GADGETS", "DISPOSITIVOS")
+			"relic":
+				status = t("CAREER_RELICS", "RELÍQUIAS")
 	var action_column := VBoxContainer.new()
 	action_column.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_child(action_column)

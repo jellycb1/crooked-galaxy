@@ -3,6 +3,8 @@ extends RefCounted
 
 const UNLOCK_PLANET_ID := "dustball_prime"
 const UNLOCK_LEVEL := 8
+const FLOORS_PER_SECTOR := 3
+const REWARD_SECTORS := ["rig", "implant", "gadget", "relic"]
 
 const ANOMALY_PROFILES := {
 	"volatile_opening": {
@@ -197,6 +199,19 @@ static func is_unlocked(player: Dictionary) -> bool:
 
 static func progress(player: Dictionary) -> int:
 	return clampi(int(player.get("challenge_floor", 0)), 0, STAGES.size())
+
+
+static func sector_slot_for_floor(floor: int) -> String:
+	if REWARD_SECTORS.is_empty():
+		return ""
+	var sector_index := clampi(floor / FLOORS_PER_SECTOR, 0, REWARD_SECTORS.size() - 1)
+	return str(REWARD_SECTORS[sector_index])
+
+
+static func sector_progress(floor: int, sector_index: int) -> int:
+	if sector_index < 0 or sector_index >= REWARD_SECTORS.size():
+		return 0
+	return clampi(floor - sector_index * FLOORS_PER_SECTOR, 0, FLOORS_PER_SECTOR)
 
 
 static func current_stage(player: Dictionary) -> Dictionary:

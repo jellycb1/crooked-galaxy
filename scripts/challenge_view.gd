@@ -48,12 +48,12 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 	track.add_theme_constant_override("h_separation", 7)
 	track.add_theme_constant_override("v_separation", 7)
 	content.add_child(track)
-	var sector_slots := ["rig", "implant", "gadget", "relic"]
+	var sector_slots := ChallengeRulesScript.REWARD_SECTORS
 	for sector_index in sector_slots.size():
-		var sector_start := sector_index * 3
-		var sector_progress := clampi(floor - sector_start, 0, 3)
-		var color := host.LIME if sector_progress == 3 else (host.GOLD if floor >= sector_start and floor < sector_start + 3 else host.MUTED)
-		var chip := host.metric_chip(EquipmentPresentation.localized_slot(sector_slots[sector_index]).to_upper(), "%d/3" % sector_progress, color)
+		var sector_start := sector_index * ChallengeRulesScript.FLOORS_PER_SECTOR
+		var cleared_in_sector := ChallengeRulesScript.sector_progress(floor, sector_index)
+		var color := host.LIME if cleared_in_sector == ChallengeRulesScript.FLOORS_PER_SECTOR else (host.GOLD if floor >= sector_start and floor < sector_start + ChallengeRulesScript.FLOORS_PER_SECTOR else host.MUTED)
+		var chip := host.metric_chip(EquipmentPresentation.localized_slot(sector_slots[sector_index]).to_upper(), "%d/%d" % [cleared_in_sector, ChallengeRulesScript.FLOORS_PER_SECTOR], color)
 		chip.name = "ChallengeSector_%s" % sector_slots[sector_index].capitalize()
 		chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		track.add_child(chip)

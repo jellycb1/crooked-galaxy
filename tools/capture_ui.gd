@@ -1175,6 +1175,14 @@ func capture() -> void:
 		if save_frame("ui_challenge_%s.png" % str(anomaly_capture.name)) != OK:
 			quit(1)
 			return
+	state.player.challenge_floor = ChallengeRules.STAGES.size()
+	scene.view_mode = "challenges"
+	scene.render()
+	await process_frame
+	await process_frame
+	if save_frame("ui_challenge_complete.png") != OK:
+		quit(1)
+		return
 	state.player.challenge_floor = 0
 	scene.view_mode = "career"
 	scene.render()
@@ -1219,7 +1227,7 @@ func capture() -> void:
 	scene.free()
 	await process_frame
 	await create_timer(0.5).timeout
-	print("Captured mandatory login/class/species/name onboarding, primary UI and destinations, market, transport hangar/briefing/hunt identity, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, six Fenda anomaly profiles, career, wanted archive, arsenal filters/paging, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
+	print("Captured mandatory login/class/species/name onboarding, primary UI and destinations, market, transport hangar/briefing/hunt identity, class selection, attribute allocation, first briefing/incident and first/second reward handoffs, reward/mastery/warrant-unlock decisions, post-claim and career receipts, defeat recovery and upgrade, AFK/save return states, six Fenda anomaly profiles plus completion, career, wanted archive, arsenal filters/paging, galaxy, incidents, five finales, and planet boards to %s" % OUTPUT_DIR)
 	quit(0)
 
 

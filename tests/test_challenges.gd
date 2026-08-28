@@ -27,7 +27,7 @@ func run_audit() -> void:
 	state.player.capture_streak = 4
 	check(Challenge.is_unlocked(state.player) and Challenge.progress(state.player) == 0, "hunter level opens the first floor without inventing progress")
 	var anomaly_counts := {}
-	var reward_families := ["rig", "implant", "gadget", "relic"]
+	var reward_families := Challenge.REWARD_SECTORS
 	for index in Challenge.STAGES.size():
 		var stage := Challenge.stage_at(index)
 		var reward := Challenge.reward_for(stage, ContentDB.ITEM_TRAITS)
@@ -39,6 +39,8 @@ func run_audit() -> void:
 		if index > 0:
 			check(int(stage.power) > int(Challenge.STAGES[index - 1].power) and int(stage.health) > int(Challenge.STAGES[index - 1].health), "floor %d is harder than the previous floor" % (index + 1))
 	check(Challenge.STAGES.size() == 12 and anomaly_counts.size() == 6, "the ladder contains four equipment sectors and six mechanically distinct anomaly families")
+	check(Challenge.sector_slot_for_floor(0) == "rig" and Challenge.sector_slot_for_floor(6) == "gadget" and Challenge.sector_slot_for_floor(11) == "relic", "canonical floor-to-sector routing covers the complete ladder")
+	check(Challenge.sector_progress(7, 0) == 3 and Challenge.sector_progress(7, 2) == 1 and Challenge.sector_progress(7, 3) == 0, "sector progress summarizes a mature floor without visual arithmetic drift")
 	for anomaly_id in Challenge.ANOMALY_PROFILES:
 		check(int(anomaly_counts.get(anomaly_id, 0)) == 2, "anomaly '%s' returns once at higher pressure" % anomaly_id)
 	var profile_probe := Simulator.checkpoint_player(Simulator.CHECKPOINTS[0], Builds.POLICIES[1])
@@ -139,6 +141,28 @@ func run_audit() -> void:
 	check(scene.find_child("ChallengeAnomalyRule", true, false) != null, "challenge dossier exposes its class-neutral anomaly profile before entry")
 	var enter := scene.find_child("ChallengeEnterAction", true, false) as Button
 	check(enter != null and enter.size.y >= 48.0 and enter.get_parent() == scene.content, "challenge entry remains a fixed Android action outside the evidence scroller")
+	var final_build := Simulator.checkpoint_player(Simulator.CHECKPOINTS[11], Builds.POLICIES[0])
+	Simulator.apply_prior_rewards(final_build, 11)
+	for field in final_build:
+		state.player[field] = final_build[field]
+	state.player.challenge_floor = 11
+	state.player.sound_enabled = false
+	state.phase = state.Phase.BOARD
+	check(state.start_challenge(str(Challenge.STAGES[11].id)), "the final relic floor starts through the same sequential transaction")
+	state.enemy_hp = 0
+	state.finish_combat(true)
+	check(str(state.pending_loot.slot) == "relic" and str(state.pending_loot.id) == "rift_last_claim_reward", "the final victory creates the canonical relic")
+	state.open_reward()
+	scene.render()
+	await process_frame
+	check(scene.find_children("*", "Label", true, false).any(func(label): return (label as Label).text.contains("FENDA SERÁ CONCLUÍDA")), "the final reward announces completion instead of a nonexistent floor 13")
+	var final_summary: Dictionary = state.claim_reward(true)
+	check(bool(final_summary.get("challenge", false)) and int(state.player.challenge_floor) == Challenge.STAGES.size(), "claiming the final relic closes exactly twelve floors")
+	check(str(state.player.relic.id) == "rift_last_claim_reward" and Challenge.current_stage(state.player).is_empty(), "the final relic equips and no phantom challenge remains")
+	scene.view_mode = "challenges"
+	scene.render()
+	await process_frame
+	check(scene.find_child("ChallengeCompletePanel", true, false) != null and scene.find_child("ChallengeEnterAction", true, false) == null, "completed Rift renders a terminal archive without an entry action")
 	scene.queue_free()
 	await process_frame
 	finish()

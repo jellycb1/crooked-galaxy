@@ -32,7 +32,7 @@ func _init() -> void:
 	check(host.find_child("CareerProgressJump", true, false) != null, "career provides a direct route back to progression")
 	check(host.find_child("CareerArchiveJump", true, false) != null, "career provides a direct route to the wanted archive")
 	var locked_challenge := host.find_child("CareerChallengeProgress", true, false) as PanelContainer
-	check(locked_challenge != null and find_text(locked_challenge).contains("CONCLUA DUSTBALL PRIME"), "career introduces the parallel ladder at its truthful unlock condition")
+	check(locked_challenge != null and find_text(locked_challenge).contains("NÍVEL %d" % ChallengeRules.UNLOCK_LEVEL), "career introduces the parallel ladder at its truthful unlock condition")
 	check(host.find_child("CareerChallengeAction", true, false) == null, "locked challenge progress does not expose a dead route")
 	check(host.find_child("MasteryDirective", true, false) != null, "isolated career turns archive data into a repeat objective")
 	var mastery_action := host.find_child("MasteryDirectiveAction", true, false) as Button
@@ -71,6 +71,24 @@ func _init() -> void:
 	check(host.find_child("CareerChallengeBar", true, false) != null, "career makes rift completion readable as a stable progress track")
 	var challenge_action := host.find_child("CareerChallengeAction", true, false) as Button
 	check(challenge_action != null and challenge_action.text == "ABRIR", "career provides a direct route into the unlocked rift")
+	state.player.challenge_floor = 6
+	clear_children(content)
+	CareerViewScript.build(host, content, state)
+	check(find_text(host.find_child("CareerChallengeProgress", true, false)).contains("DISPOSITIVOS"), "career identifies gadget floors as their own reward sector")
+	state.player.challenge_floor = 9
+	clear_children(content)
+	CareerViewScript.build(host, content, state)
+	check(find_text(host.find_child("CareerChallengeProgress", true, false)).contains("RELÍQUIAS"), "career identifies relic floors as their own reward sector")
+	state.player.challenge_floor = ChallengeRules.STAGES.size()
+	clear_children(content)
+	CareerViewScript.build(host, content, state)
+	var completed_challenge := host.find_child("CareerChallengeProgress", true, false)
+	check(find_text(completed_challenge).contains("12/12 ANDARES") and find_text(completed_challenge).contains("COMPLETA"), "career renders the complete twelve-floor archive without a stale sector")
+	check(host.find_child("CareerChallengeAction", true, false) == null, "completed Rift removes its entry action")
+	state.player.challenge_floor = 0
+	clear_children(content)
+	CareerViewScript.build(host, content, state)
+	challenge_action = host.find_child("CareerChallengeAction", true, false) as Button
 	challenge_action.pressed.emit()
 	check(host.view_mode == "challenges", "career challenge route opens the independent ladder")
 	check(str(CareerViewScript.ordered_archive_targets(state)[0].id) == "auditor_frost", "changing planets moves that chapter's warrants to the front without filtering history")
