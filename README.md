@@ -8,6 +8,14 @@ The prototype implements the product's central test and its first independent Pv
 
 `BOUNTY → APPROACH → HUNT / INCIDENT → AUTOMATIC COMBAT → REWARD → LOOT → EQUIP → STRONGER BOUNTY / FENDA`
 
+Planet content is being migrated incrementally from the original monolithic catalog
+to validated per-world packs under `scripts/content/packs/`. Dustball Prime is the
+first canonical pack and preserves its existing planet, four targets, two incidents,
+and item families exactly. `ContentDB` keeps its public API throughout the migration,
+so current saves, balance, translations, and consumers remain unchanged. The pack
+contract and migration procedure are documented in
+`Notes/PLANET_CONTENT_PACK_PIPELINE.md`.
+
 A fresh installation now begins with a mandatory, resumable identity sequence before any game navigation appears: locale, server, local login, explicit class confirmation, explicit species confirmation, cosmetic customization, and a validated 3–20 character hunter name. `International 1` is the first global multilingual shard and remains visible as `INT-1` in both compact headers. The current APK states honestly that its account is device-local and that no authoritative online connection exists yet. Portuguese and English are complete selectable surfaces. All current navigation, contracts, incidents, combat, rewards, Hunter/build management, galaxy, commerce, career, Fenda, six legacy chapter finales, save/recovery feedback, and transaction receipts resolve through parity-checked PO catalogs. Language can be previewed at login and changed later in Settings; the account/session keeps the selected locale independently from class, species, appearance, and hunter name. Unknown shards and unavailable locales are rejected at the state boundary.
 
 Schema 14 establishes the future account/server seam without pretending that a backend exists. Provider, account, session, shard, locale, active character, owned characters, progress authority, synchronization state, local revision, and last acknowledged server revision have separate stable fields. The current replaceable account adapter always reports `local_device`, `local_ready`, device authority, `local_only`, and no backend. Successful atomic saves advance the local revision; failed writes do not. Foreign character ownership, fake server authority, and fake synchronized saves are rejected. The deterministic conflict policy forbids automatic merging of currency, inventory, rewards, phases, or progression. Its full contract is documented in `Notes/ACCOUNT_SERVER_CONTRACT.md`.

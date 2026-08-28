@@ -332,7 +332,10 @@ func buy_market_upgrades(state: StateScript) -> int:
 			if bool(offer.purchased) or int(offer.price) > int(state.player.credits) or not Rules.is_upgrade_for_player(state.player, offer.item):
 				continue
 			var equipped: Dictionary = state.player[str(offer.item.slot)]
-			var gain := maxi(1, int(offer.item.power) - int(equipped.power))
+			# Secondary equipment slots legitimately start empty. Compare through the
+			# same defensive accessor used by the runtime rules instead of assuming
+			# every equipped dictionary already contains a base power field.
+			var gain := maxi(1, Rules.item_combat_power(offer.item) - Rules.item_combat_power(equipped))
 			choices.append({"id": str(offer.id), "price": int(offer.price), "efficiency": float(gain) / float(offer.price)})
 		if choices.is_empty():
 			break
