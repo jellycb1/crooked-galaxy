@@ -4678,3 +4678,81 @@ msgstr "Not enough fuel: this route needs %d and only %d remains."
 
 msgid "COMMON_CANCEL"
 msgstr "CANCEL"
+
+msgid "OPERATIONS_TITLE"
+msgstr "OPERATIONS"
+
+msgid "OPERATIONS_SUBTITLE"
+msgstr "Network routines, payments, and special warrants."
+
+msgid "OPERATIONS_DAILY_TAB"
+msgstr "DAILY"
+
+msgid "OPERATIONS_WEEKLY_TAB"
+msgstr "WEEKLY"
+
+msgid "MENU_OPERATIONS"
+msgstr "OPERATIONS"
+
+msgid "MENU_OPERATIONS_READY"
+msgstr "%d PAYMENTS AVAILABLE"
+
+msgid "MENU_OPERATIONS_DETAIL"
+msgstr "%d/5 TODAY · %d/35 THIS WEEK"
+
+msgid "WEEKLY_PROGRESS"
+msgstr "WEEK · %d CONTRACTS · %d/%d CLAIMED"
+
+msgid "WEEKLY_POLICY"
+msgstr "Resets Monday at 00:00 UTC. Rift and purchases do not count; this APK stores state locally."
+
+msgid "WEEKLY_CLAIM_ALL"
+msgstr "CLAIM WEEK · %d"
+
+msgid "WEEKLY_SPECIAL_KICKER"
+msgstr "BLACK WARRANT · ONCE PER WEEK"
+
+msgid "WEEKLY_SPECIAL_UNAVAILABLE"
+msgstr "No elite criminal is available in this level band."
+
+msgid "WEEKLY_SPECIAL_ROUTE"
+msgstr "%s · %d FUEL · %d CREDITS · %d SCRAP"
+
+msgid "WEEKLY_SPECIAL_RULE"
+msgstr "A rotating elite target with greater resistance and a stronger payment. Uses the standard hunt and normal fuel."
+
+msgid "WEEKLY_SPECIAL_COMPLETE"
+msgstr "WARRANT COMPLETE"
+
+msgid "WEEKLY_SPECIAL_START"
+msgstr "ANALYZE WARRANT"
+
+msgid "WEEKLY_OBJECTIVE_PROGRESS"
+msgstr "%d/%d CONTRACTS"
+
+msgid "WEEKLY_NOTICE_CLAIMED"
+msgstr "Weekly objective claimed: +%d credits · +%d scrap."
+
+msgid "WEEKLY_NOTICE_ALL_CLAIMED"
+msgstr "%d weekly objectives claimed: +%d credits · +%d scrap."
+
+msgid "REWARD_NOTICE_WEEKLY_SPECIAL"
+msgstr "Weekly Black Warrant complete"
+
+msgid "WEEKLY_OBJECTIVE_WEEKLY_PATROL_NAME"
+msgstr "Network patrol"
+
+msgid "WEEKLY_OBJECTIVE_WEEKLY_PATROL_DESCRIPTION"
+msgstr "Complete 8 contracts this week."
+
+msgid "WEEKLY_OBJECTIVE_WEEKLY_REGULAR_NAME"
+msgstr "Regular hunter"
+
+msgid "WEEKLY_OBJECTIVE_WEEKLY_REGULAR_DESCRIPTION"
+msgstr "Complete 20 contracts this week."
+
+msgid "WEEKLY_OBJECTIVE_WEEKLY_VETERAN_NAME"
+msgstr "Frontier veteran"
+
+msgid "WEEKLY_OBJECTIVE_WEEKLY_VETERAN_DESCRIPTION"
+msgstr "Complete 35 contracts this week."

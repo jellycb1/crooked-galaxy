@@ -2,7 +2,7 @@
 
 ## Current product truth
 
-Crooked Galaxy 0.26 remains a local test build. `International 1` is the stable shard identity reserved for the first global multilingual world, but no account backend is contacted. The device is the only authority for progress, the session is `local_ready`, and synchronization is `local_only`.
+Crooked Galaxy remains a local test build. `International 1` is the stable shard identity reserved for the first global multilingual world, but no account backend is contacted. The device is the only authority for progress, the session is `local_ready`, and synchronization is `local_only`.
 
 The UI must never call this state authenticated, online, cloud-saved, or synchronized. Login creates a local account boundary without requesting credentials. Portuguese and English are account preferences; class, species, name, equipment, and progression belong to the active character.
 

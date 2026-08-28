@@ -8,7 +8,7 @@ O teto de produção é definido pelo perfil mecanicamente mais rápido hoje pos
 
 Os cinco planetas iniciais mantêm os níveis 1, 4, 8, 13 e 19. A partir daí, um planeta é desbloqueado a cada dez níveis: 30, 40, 50 e assim sucessivamente até 320. Isso define 35 planetas e, com quatro identidades de alvo por planeta, 140 alvos no catálogo completo de lançamento.
 
-Estes números são um teto de produção verificável, não uma alegação de que o conteúdo já existe. O catálogo implementado contém seis planetas e vinte e quatro alvos; faltam 29 habitats e 116 alvos para cumprir este eixo. Aerópolis de Penhora, desbloqueada no nível 30, é o primeiro pacote pós-vertical-slice e estabelece o formato repetível: quatro alvos, dois incidentes, famílias de equipamento, tradução integral e identidade procedural própria.
+Estes números são um teto de produção verificável, não uma alegação de que o conteúdo já existe. O catálogo implementado contém seis planetas e vinte e quatro alvos; faltam 29 habitats e 116 alvos para cumprir este eixo. Aerópolis de Penhora, desbloqueada no nível 30, já implementa o primeiro pacote pós-vertical-slice e estabelece o formato repetível: quatro alvos, incidentes, famílias de equipamento, tradução integral e identidade procedural própria.
 
 ## Curva de progressão
 
@@ -39,7 +39,7 @@ Esta projeção é deliberadamente conservadora: futuros planetas tendem a ter r
 
 ## Limites desta promessa
 
-Trinta e cinco planetas não são, por si só, 365 dias de jogo. O plano anual completo também precisa de escadas permanentes de equipamento, Fenda/desafios, coleção, objetivos e rotações especiais. Este contrato mede apenas o eixo planeta–alvo e impede que a variedade visual acabe silenciosamente para o jogador de maior intensidade.
+Trinta e cinco planetas não são, por si só, 365 dias de jogo. O plano anual completo também precisa de escadas permanentes de equipamento, Fenda/desafios, coleção, objetivos e rotações especiais. A primeira fundação de retenção semanal já existe em Operações: metas 8/20/35 e um Mandado Negro rotativo entre elites desbloqueados. Ela reutiliza conteúdo sem substituir a dívida de produção de habitats e identidades. Este contrato mede sobretudo o eixo planeta–alvo e impede que a variedade visual acabe silenciosamente para o jogador de maior intensidade.
 
 O teste `test_year_one_content.gd` executa 1 825 caçadas de referência, confirma o nível 140 e protege o catálogo de 35 planetas/140 alvos. A auditoria `tools/audit_year_one_pacing.gd` mede tanto os perfis fixos como os quatro perfis reais de combustível. Qualquer alteração futura à experiência, reserva, custos de rota ou cadência de planetas deve atualizar simultaneamente a regra, este documento e a simulação.
 

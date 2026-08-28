@@ -4678,3 +4678,81 @@ msgstr "Combustível insuficiente: esta rota exige %d e restam %d."
 
 msgid "COMMON_CANCEL"
 msgstr "CANCELAR"
+
+msgid "OPERATIONS_TITLE"
+msgstr "OPERAÇÕES"
+
+msgid "OPERATIONS_SUBTITLE"
+msgstr "Rotinas da rede, pagamentos e mandados especiais."
+
+msgid "OPERATIONS_DAILY_TAB"
+msgstr "DIÁRIO"
+
+msgid "OPERATIONS_WEEKLY_TAB"
+msgstr "SEMANAL"
+
+msgid "MENU_OPERATIONS"
+msgstr "OPERAÇÕES"
+
+msgid "MENU_OPERATIONS_READY"
+msgstr "%d PAGAMENTOS DISPONÍVEIS"
+
+msgid "MENU_OPERATIONS_DETAIL"
+msgstr "%d/5 HOJE · %d/35 SEMANA"
+
+msgid "WEEKLY_PROGRESS"
+msgstr "SEMANA · %d CONTRATOS · %d/%d RESGATADOS"
+
+msgid "WEEKLY_POLICY"
+msgstr "Reinício segunda-feira às 00:00 UTC. Fenda e compras não contam; o estado deste APK é local."
+
+msgid "WEEKLY_CLAIM_ALL"
+msgstr "RESGATAR SEMANA · %d"
+
+msgid "WEEKLY_SPECIAL_KICKER"
+msgstr "MANDADO NEGRO · UMA VEZ POR SEMANA"
+
+msgid "WEEKLY_SPECIAL_UNAVAILABLE"
+msgstr "Nenhum criminoso de elite disponível nesta faixa de nível."
+
+msgid "WEEKLY_SPECIAL_ROUTE"
+msgstr "%s · %d COMBUSTÍVEL · %d CRÉDITOS · %d SUCATA"
+
+msgid "WEEKLY_SPECIAL_RULE"
+msgstr "Um alvo de elite rotativo, mais resistente e com pagamento reforçado. Usa a mesma caçada e o combustível normal."
+
+msgid "WEEKLY_SPECIAL_COMPLETE"
+msgstr "MANDADO CONCLUÍDO"
+
+msgid "WEEKLY_SPECIAL_START"
+msgstr "ANALISAR MANDADO"
+
+msgid "WEEKLY_OBJECTIVE_PROGRESS"
+msgstr "%d/%d CONTRATOS"
+
+msgid "WEEKLY_NOTICE_CLAIMED"
+msgstr "Objetivo semanal resgatado: +%d créditos · +%d sucata."
+
+msgid "WEEKLY_NOTICE_ALL_CLAIMED"
+msgstr "%d objetivos semanais resgatados: +%d créditos · +%d sucata."
+
+msgid "REWARD_NOTICE_WEEKLY_SPECIAL"
+msgstr "Mandado Negro semanal concluído"
+
+msgid "WEEKLY_OBJECTIVE_WEEKLY_PATROL_NAME"
+msgstr "Patrulha da rede"
+
+msgid "WEEKLY_OBJECTIVE_WEEKLY_PATROL_DESCRIPTION"
+msgstr "Conclua 8 contratos esta semana."
+
+msgid "WEEKLY_OBJECTIVE_WEEKLY_REGULAR_NAME"
+msgstr "Caçador regular"
+
+msgid "WEEKLY_OBJECTIVE_WEEKLY_REGULAR_DESCRIPTION"
+msgstr "Conclua 20 contratos esta semana."
+
+msgid "WEEKLY_OBJECTIVE_WEEKLY_VETERAN_NAME"
+msgstr "Veterano da fronteira"
+
+msgid "WEEKLY_OBJECTIVE_WEEKLY_VETERAN_DESCRIPTION"
+msgstr "Conclua 35 contratos esta semana."

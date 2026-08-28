@@ -120,6 +120,26 @@ static func offer_for_target(player: Dictionary, target: Dictionary, role_id := 
 	return {}
 
 
+static func weekly_special_offer(player: Dictionary, target: Dictionary, week_id: int) -> Dictionary:
+	var offer := offer_for_target(player, target, "dangerous")
+	if offer.is_empty():
+		return {}
+	return _apply_weekly_special(offer, week_id)
+
+
+static func _apply_weekly_special(offer: Dictionary, week_id: int) -> Dictionary:
+	offer["weekly_special"] = true
+	offer["weekly_cycle_id"] = week_id
+	offer["power"] = maxi(1, roundi(float(offer.power) * 1.08))
+	offer["defense"] = maxi(0, roundi(float(offer.defense) * 1.08))
+	offer["health"] = maxi(1, roundi(float(offer.health) * 1.15))
+	offer["credits"] = maxi(1, roundi(float(offer.credits) * 1.35))
+	offer["xp"] = maxi(1, roundi(float(offer.xp) * 1.20))
+	offer["loot_power"] = int(offer.power)
+	offer["scrap_reward"] = 8
+	return offer
+
+
 static func targets_for_planet(planet_id: String) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	for target in Content.TARGETS:
@@ -196,4 +216,10 @@ static func canonical_offer(loaded: Dictionary) -> Dictionary:
 		return {}
 	if str(ROLES[int(offer_index)].id) != str(role.id):
 		return {}
-	return scale_offer_level(template, planet, int(mission_level), role, int(offer_index))
+	var canonical := scale_offer_level(template, planet, int(mission_level), role, int(offer_index))
+	if bool(loaded.get("weekly_special", false)):
+		var cycle = loaded.get("weekly_cycle_id", -1)
+		if not (cycle is int or cycle is float) or int(cycle) < 0:
+			return {}
+		canonical = _apply_weekly_special(canonical, int(cycle))
+	return canonical

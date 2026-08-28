@@ -14,6 +14,7 @@ const MonetizationRulesScript = preload("res://scripts/monetization_rules.gd")
 const EquipmentGenerationRulesScript = preload("res://scripts/equipment_generation_rules.gd")
 const CollectionRulesScript = preload("res://scripts/collection_rules.gd")
 const DailyObjectiveRulesScript = preload("res://scripts/daily_objective_rules.gd")
+const WeeklyOperationRulesScript = preload("res://scripts/weekly_operation_rules.gd")
 const TransportRulesScript = preload("res://scripts/transport_rules.gd")
 const MissionRulesScript = preload("res://scripts/mission_rules.gd")
 const ChallengeRulesScript = preload("res://scripts/challenge_rules.gd")
@@ -107,6 +108,11 @@ func default_player() -> Dictionary:
 		"claimed_collection_milestones": [],
 		"daily_hunts_completed": 0,
 		"claimed_daily_objectives": [],
+		"weekly_cycle_id": WeeklyOperationRulesScript.utc_week_id(),
+		"weekly_hunts_completed": 0,
+		"claimed_weekly_objectives": [],
+		"weekly_special_target_id": "",
+		"weekly_special_completed": false,
 		"market_purchased_offer_ids": [],
 		"owned_transport_ids": [],
 		"active_transport_id": "",
@@ -427,6 +433,22 @@ func normalize_daily_economy(unix_time := -1.0) -> bool:
 	return true
 
 
+func normalize_weekly_operations(unix_time := -1.0) -> bool:
+	var week_id := WeeklyOperationRulesScript.utc_week_id(unix_time)
+	var changed_state := false
+	if int(player.get("weekly_cycle_id", -1)) != week_id:
+		player.weekly_cycle_id = week_id
+		player.weekly_hunts_completed = 0
+		player.claimed_weekly_objectives = []
+		player.weekly_special_target_id = ""
+		player.weekly_special_completed = false
+		changed_state = true
+	if str(player.get("weekly_special_target_id", "")).is_empty():
+		player.weekly_special_target_id = WeeklyOperationRulesScript.rotating_target_id(player, week_id)
+		changed_state = true
+	return changed_state
+
+
 func hunt_fuel_status(unix_time := -1.0) -> Dictionary:
 	if normalize_daily_economy(unix_time):
 		save_game()
@@ -574,6 +596,80 @@ func claim_all_daily_objectives() -> Dictionary:
 	player.scrap = int(player.get("scrap", 0)) + scrap
 	last_notice = LocaleRulesScript.text("DAILY_NOTICE_ALL_CLAIMED", "%d objetivos diários resgatados: +%d créditos · +%d sucata.", [ready.size(), credits, scrap])
 	last_notice_context = "daily"
+	save_game()
+	changed.emit()
+	return {"count": ready.size(), "credits": credits, "scrap": scrap}
+
+
+func weekly_objectives() -> Array[Dictionary]:
+	if normalize_weekly_operations():
+		save_game()
+	return WeeklyOperationRulesScript.objectives(player)
+
+
+func weekly_rewards_ready() -> int:
+	if normalize_weekly_operations():
+		save_game()
+	return WeeklyOperationRulesScript.rewards_ready(player).size()
+
+
+func weekly_special_status() -> Dictionary:
+	if normalize_weekly_operations():
+		save_game()
+	var target_id := str(player.get("weekly_special_target_id", ""))
+	return {
+		"week_id": int(player.get("weekly_cycle_id", -1)),
+		"target": ContentDB.get_target(target_id),
+		"contract": WeeklyOperationRulesScript.special_contract(player, target_id, int(player.get("weekly_cycle_id", -1))),
+		"completed": bool(player.get("weekly_special_completed", false)),
+	}
+
+
+func start_weekly_special() -> bool:
+	if phase != Phase.BOARD or requires_onboarding():
+		return false
+	var status := weekly_special_status()
+	if bool(status.completed) or status.contract.is_empty():
+		return false
+	select_bounty(status.contract)
+	return phase == Phase.BRIEFING
+
+
+func claim_weekly_objective(objective_id: String) -> bool:
+	for objective in weekly_objectives():
+		if str(objective.id) != objective_id or not bool(objective.complete) or bool(objective.claimed):
+			continue
+		var claimed: Array = player.get("claimed_weekly_objectives", []).duplicate()
+		claimed.append(objective_id)
+		player.claimed_weekly_objectives = claimed
+		player.credits = int(player.get("credits", 0)) + int(objective.credits)
+		player.scrap = int(player.get("scrap", 0)) + int(objective.scrap)
+		last_notice = LocaleRulesScript.text("WEEKLY_NOTICE_CLAIMED", "Objetivo semanal resgatado: +%d créditos · +%d sucata.", [int(objective.credits), int(objective.scrap)])
+		last_notice_context = "weekly"
+		save_game()
+		changed.emit()
+		return true
+	return false
+
+
+func claim_all_weekly_objectives() -> Dictionary:
+	if normalize_weekly_operations():
+		save_game()
+	var ready := WeeklyOperationRulesScript.rewards_ready(player)
+	if ready.is_empty():
+		return {"count": 0, "credits": 0, "scrap": 0}
+	var claimed: Array = player.get("claimed_weekly_objectives", []).duplicate()
+	var credits := 0
+	var scrap := 0
+	for objective in ready:
+		claimed.append(str(objective.id))
+		credits += int(objective.credits)
+		scrap += int(objective.scrap)
+	player.claimed_weekly_objectives = claimed
+	player.credits = int(player.get("credits", 0)) + credits
+	player.scrap = int(player.get("scrap", 0)) + scrap
+	last_notice = LocaleRulesScript.text("WEEKLY_NOTICE_ALL_CLAIMED", "%d objetivos semanais resgatados: +%d créditos · +%d sucata.", [ready.size(), credits, scrap])
+	last_notice_context = "weekly"
 	save_game()
 	changed.emit()
 	return {"count": ready.size(), "credits": credits, "scrap": scrap}
@@ -1181,12 +1277,18 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		"rank_up": false,
 		"chapter_tier_up": false,
 		"chapter_complete": false,
+		"weekly_special_complete": false,
 		"target_mastery_up": false,
 		"target_mastery": 0,
 		"loot_name": localized_item_field(pending_loot, "name"),
 		"loot_action": "recycled" if recycle_item else ("equipped" if equip_item else "stored"),
 	}
 	var completed_bounty := current_bounty.duplicate(true)
+	# The Black Warrant is deliberately one contract per weekly cycle. The normal
+	# reward screen may offer a repeat shortcut, but this mission always returns
+	# to Operations after payment.
+	if bool(completed_bounty.get("weekly_special", false)):
+		repeat_contract = false
 	var network_mission := bool(completed_bounty.get("mission_offer", false))
 	var completed_planet_id := str(completed_bounty.get("planet_id", ContentDB.PLANET.id))
 	var old_chapter_tier := 0 if network_mission else planet_tier(completed_planet_id)
@@ -1194,6 +1296,11 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	summary.collection_new = register_item_discovery(pending_loot)
 	normalize_daily_economy()
 	player.daily_hunts_completed = int(player.get("daily_hunts_completed", 0)) + 1
+	normalize_weekly_operations()
+	player.weekly_hunts_completed = int(player.get("weekly_hunts_completed", 0)) + 1
+	if bool(completed_bounty.get("weekly_special", false)) and int(completed_bounty.get("weekly_cycle_id", -1)) == int(player.get("weekly_cycle_id", -2)):
+		player.weekly_special_completed = true
+		summary.weekly_special_complete = true
 	var reward_day := MonetizationRulesScript.utc_day_id()
 	if MonetizationRulesScript.first_hunt_chip_available(player, float(reward_day) * MonetizationRulesScript.SECONDS_PER_DAY):
 		player.daily_hunt_chip_day = reward_day
@@ -1258,6 +1365,8 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_INCIDENT", "Incidente já pago: saldo +%d créditos", [int(summary.net_contract_credits)]))
 	if int(summary.contract_scrap) > 0:
 		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_WARRANT_SCRAP", "Mandado corporativo: +%d sucata", [int(summary.contract_scrap)]))
+	if bool(summary.weekly_special_complete):
+		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_WEEKLY_SPECIAL", "Mandado Negro semanal concluído"))
 	if int(summary.recycled_scrap) > 0:
 		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_RECYCLED", "%s reciclado: +%d sucata", [str(summary.loot_name), int(summary.recycled_scrap)]))
 	elif str(summary.loot_action) == "equipped":
@@ -2231,6 +2340,34 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	else:
 		repaired = true
 	sanitized.claimed_daily_objectives = clean_daily_claims
+	var weekly_hunts := clampi(int(sanitized.get("weekly_hunts_completed", 0)), 0, 10000)
+	if weekly_hunts != int(sanitized.get("weekly_hunts_completed", 0)):
+		sanitized.weekly_hunts_completed = weekly_hunts
+		repaired = true
+	var clean_weekly_claims: Array = []
+	var loaded_weekly_claims = sanitized.get("claimed_weekly_objectives", [])
+	if loaded_weekly_claims is Array:
+		for objective_id in loaded_weekly_claims:
+			var id := str(objective_id)
+			if WeeklyOperationRulesScript.valid_claim_ids().has(id) and not clean_weekly_claims.has(id):
+				clean_weekly_claims.append(id)
+			else:
+				repaired = true
+	else:
+		repaired = true
+	sanitized.claimed_weekly_objectives = clean_weekly_claims
+	var loaded_weekly_cycle = sanitized.get("weekly_cycle_id", -1)
+	if not (loaded_weekly_cycle is int or loaded_weekly_cycle is float) or int(loaded_weekly_cycle) < -1:
+		sanitized.weekly_cycle_id = -1
+		repaired = true
+	if not sanitized.get("weekly_special_completed", false) is bool:
+		sanitized.weekly_special_completed = false
+		repaired = true
+	var loaded_weekly_target := str(sanitized.get("weekly_special_target_id", ""))
+	var valid_weekly_targets := WeeklyOperationRulesScript.eligible_special_targets(sanitized).map(func(entry): return str(entry.id))
+	if not loaded_weekly_target.is_empty() and not valid_weekly_targets.has(loaded_weekly_target):
+		sanitized.weekly_special_target_id = ""
+		repaired = true
 	if not ClassRules.is_valid(str(sanitized.get("class_id", ""))):
 		sanitized.class_id = ""
 		repaired = true

@@ -3,7 +3,7 @@ extends RefCounted
 
 const Content = preload("res://scripts/content_db.gd")
 
-const CURRENT_VERSION := 22
+const CURRENT_VERSION := 23
 const BASE_ATTRIBUTE_VALUE := 10
 const ATTRIBUTE_POINTS_PER_LEVEL := 2
 
@@ -78,6 +78,9 @@ static func migrate(payload: Dictionary) -> Dictionary:
 			21:
 				migrated = migrate_v21_to_v22(migrated)
 				version = 22
+			22:
+				migrated = migrate_v22_to_v23(migrated)
+				version = 23
 			_:
 				return {}
 		migrated.version = version
@@ -375,5 +378,22 @@ static func migrate_v21_to_v22(payload: Dictionary) -> Dictionary:
 		player.rift_entry_day = -1
 	if not player.has("rift_key_hunt_progress"):
 		player.rift_key_hunt_progress = {}
+	migrated.player = player
+	return migrated
+
+
+static func migrate_v22_to_v23(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	var player: Dictionary = migrated.get("player", {})
+	if not player.has("weekly_cycle_id"):
+		player.weekly_cycle_id = -1
+	if not player.has("weekly_hunts_completed"):
+		player.weekly_hunts_completed = 0
+	if not player.has("claimed_weekly_objectives"):
+		player.claimed_weekly_objectives = []
+	if not player.has("weekly_special_target_id"):
+		player.weekly_special_target_id = ""
+	if not player.has("weekly_special_completed"):
+		player.weekly_special_completed = false
 	migrated.player = player
 	return migrated

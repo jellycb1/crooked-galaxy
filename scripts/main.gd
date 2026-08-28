@@ -50,6 +50,7 @@ var lifecycle_suspensions: Dictionary = {}
 var timed_actions_suspended := false
 var suspended_victory_time_left := 0.0
 var selected_board_offer_index := 0
+var operations_section := "daily"
 var last_hunt_remaining := -1
 var last_hunt_percent := -1
 const IDLE_BACKGROUND_PREFETCH := ["workshop", "world", "combat"]
@@ -560,8 +561,9 @@ func update_primary_navigation() -> void:
 		badges.galaxy = unseen_planets.size()
 	var ready_rewards := GameState.career_rewards_ready()
 	var daily_ready := GameState.daily_rewards_ready()
-	if ready_rewards + daily_ready > 0:
-		badges.menu = ready_rewards + daily_ready
+	var weekly_ready := GameState.weekly_rewards_ready()
+	if ready_rewards + daily_ready + weekly_ready > 0:
+		badges.menu = ready_rewards + daily_ready + weekly_ready
 	navigation_dock.configure(active_id, labels, badges)
 
 
@@ -1014,9 +1016,11 @@ func build_frontier_menu() -> void:
 		render()
 	))
 	var daily_ready := GameState.daily_rewards_ready()
+	var weekly_ready := GameState.weekly_rewards_ready()
 	var daily_progress := clampi(int(GameState.player.get("daily_hunts_completed", 0)), 0, 5)
-	var daily_detail := t("MENU_DAILY_READY", "%d PAGAMENTOS DISPONÍVEIS", [daily_ready]) if daily_ready > 0 else t("MENU_DAILY_DETAIL", "%d/5 CONTRATOS HOJE", [daily_progress])
-	hub_grid.add_child(board_hub_action(t("MENU_DAILY", "TURNO"), daily_detail, GOLD, "daily", "BoardDailyAction", func():
+	var operations_ready := daily_ready + weekly_ready
+	var daily_detail := t("MENU_OPERATIONS_READY", "%d PAGAMENTOS DISPONÍVEIS", [operations_ready]) if operations_ready > 0 else t("MENU_OPERATIONS_DETAIL", "%d/5 HOJE · %d/35 SEMANA", [daily_progress, mini(35, int(GameState.player.get("weekly_hunts_completed", 0)))])
+	hub_grid.add_child(board_hub_action(t("MENU_OPERATIONS", "OPERAÇÕES"), daily_detail, GOLD, "daily", "BoardDailyAction", func():
 		view_mode = "daily"
 		render()
 	))

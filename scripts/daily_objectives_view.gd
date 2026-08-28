@@ -4,6 +4,7 @@ extends RefCounted
 const StateScript = preload("res://scripts/game_state.gd")
 const LocaleRules = preload("res://scripts/locale_rules.gd")
 const UIDesignSystem = preload("res://scripts/ui_design_system.gd")
+const WeeklyOperationsViewScript = preload("res://scripts/weekly_operations_view.gd")
 
 
 static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
@@ -13,14 +14,38 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var titles := VBoxContainer.new()
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(titles)
-	titles.add_child(host.scene_title(t("DAILY_TITLE", "TURNO DIÁRIO")))
-	var subtitle := host.readable_caption(t("DAILY_SUBTITLE", "Trabalho honesto, pagamentos suspeitos. Reinício às 00:00 UTC."))
+	titles.add_child(host.scene_title(t("OPERATIONS_TITLE", "OPERAÇÕES")))
+	var subtitle := host.readable_caption(t("OPERATIONS_SUBTITLE", "Rotinas da rede, pagamentos e mandados especiais."))
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	titles.add_child(subtitle)
 	var back := host.secondary_action(t("ACTION_BACK", "VOLTAR"), host.CYAN)
 	back.custom_minimum_size.x = 118
 	back.pressed.connect(func(): host.call("open_frontier_menu"))
 	title_row.add_child(back)
+	var tabs := HBoxContainer.new()
+	tabs.add_theme_constant_override("separation", 8)
+	content.add_child(tabs)
+	var daily_tab := host.secondary_action(t("OPERATIONS_DAILY_TAB", "DIÁRIO"), host.GOLD if host.operations_section == "daily" else host.MUTED)
+	daily_tab.name = "OperationsDailyTab"
+	daily_tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	daily_tab.pressed.connect(func():
+		host.operations_section = "daily"
+		host.daily_scroll_position = 0
+		host.render()
+	)
+	tabs.add_child(daily_tab)
+	var weekly_tab := host.secondary_action(t("OPERATIONS_WEEKLY_TAB", "SEMANAL"), host.CORAL if host.operations_section == "weekly" else host.MUTED)
+	weekly_tab.name = "OperationsWeeklyTab"
+	weekly_tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	weekly_tab.pressed.connect(func():
+		host.operations_section = "weekly"
+		host.daily_scroll_position = 0
+		host.render()
+	)
+	tabs.add_child(weekly_tab)
+	if host.operations_section == "weekly":
+		WeeklyOperationsViewScript.build_content(host, content, state)
+		return
 
 	var scroller := ScrollContainer.new()
 	scroller.name = "DailyObjectivesScroll"

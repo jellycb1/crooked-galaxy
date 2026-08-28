@@ -56,6 +56,8 @@ $Tests = @(
 	"test_market.gd",
 	"test_collection_rules.gd",
 	"test_daily_objectives.gd",
+	"test_weekly_operations.gd",
+	"test_weekly_operations_ui.gd",
 	"test_transport.gd",
 	"test_challenges.gd",
 	"test_translation_complete.gd",
