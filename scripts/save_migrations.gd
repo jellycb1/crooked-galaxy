@@ -1,7 +1,9 @@
 class_name SaveMigrations
 extends RefCounted
 
-const CURRENT_VERSION := 19
+const Content = preload("res://scripts/content_db.gd")
+
+const CURRENT_VERSION := 20
 const BASE_ATTRIBUTE_VALUE := 10
 const ATTRIBUTE_POINTS_PER_LEVEL := 2
 
@@ -67,6 +69,9 @@ static func migrate(payload: Dictionary) -> Dictionary:
 			18:
 				migrated = migrate_v18_to_v19(migrated)
 				version = 19
+			19:
+				migrated = migrate_v19_to_v20(migrated)
+				version = 20
 			_:
 				return {}
 		migrated.version = version
@@ -319,5 +324,21 @@ static func migrate_v18_to_v19(payload: Dictionary) -> Dictionary:
 		player.daily_hunts_completed = 0
 	if not player.has("claimed_daily_objectives"):
 		player.claimed_daily_objectives = []
+	migrated.player = player
+	return migrated
+
+
+static func migrate_v19_to_v20(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	var player: Dictionary = migrated.get("player", {})
+	if not player.has("seen_planet_ids"):
+		var seen: Array = []
+		var level := maxi(1, int(player.get("level", 1)))
+		# Existing hunters have already lived with every destination available to
+		# their level. Migration must not present old content as a fresh discovery.
+		for planet in Content.PLANETS:
+			if level >= int(planet.get("unlock_level", 1)):
+				seen.append(str(planet.id))
+		player.seen_planet_ids = seen
 	migrated.player = player
 	return migrated

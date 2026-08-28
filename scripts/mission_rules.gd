@@ -31,6 +31,17 @@ static func is_planet_available(planet_id: String, level: int) -> bool:
 	return available_planets(level).any(func(planet): return str(planet.id) == planet_id)
 
 
+static func newly_available_planets(before_level: int, after_level: int) -> Array[Dictionary]:
+	var known_ids := {}
+	for planet in available_planets(before_level):
+		known_ids[str(planet.id)] = true
+	var result: Array[Dictionary] = []
+	for planet in available_planets(after_level):
+		if not known_ids.has(str(planet.id)):
+			result.append(planet.duplicate(true))
+	return result
+
+
 static func board_offers(player: Dictionary, limit := 3) -> Array[Dictionary]:
 	var planets := available_planets(int(player.get("level", 1)))
 	if planets.is_empty() or limit <= 0:

@@ -7,6 +7,7 @@ const Content = preload("res://scripts/content_db.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
 const DailyObjectiveRules = preload("res://scripts/daily_objective_rules.gd")
 const ChallengeRules = preload("res://scripts/challenge_rules.gd")
+const MissionRules = preload("res://scripts/mission_rules.gd")
 const StateScript = preload("res://scripts/game_state.gd")
 const RewardProgressIconScript = preload("res://scripts/reward_progress_icon.gd")
 const LocaleRules = preload("res://scripts/locale_rules.gd")
@@ -154,6 +155,9 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var daily_before := state.daily_objectives()
 	var projected_player: Dictionary = state.player.duplicate(true)
 	projected_player.daily_hunts_completed = int(projected_player.get("daily_hunts_completed", 0)) + 1
+	Rules.apply_xp(projected_player, int(state.current_bounty.xp))
+	var new_planets := MissionRules.newly_available_planets(int(state.player.get("level", 1)), int(projected_player.get("level", 1)))
+	var unlocks_new_planet := not new_planets.is_empty()
 	var projected_hunts := mini(5, int(projected_player.daily_hunts_completed))
 	var ready_daily_before := daily_before.filter(func(entry): return bool(entry.complete) and not bool(entry.claimed)).size()
 	var unlocks_daily_payment := DailyObjectiveRules.rewards_ready(projected_player).size() > ready_daily_before
@@ -208,6 +212,15 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		var network_refresh := host.center_label(local_text("REWARD_NETWORK_REFRESH", "REDE PRONTA · TRÊS NOVOS MANDADOS AO VOLTAR AO QUADRO"), UIDesignSystem.FONT_CAPTION, host.CYAN)
 		network_refresh.name = "RewardNetworkRefresh"
 		progress_box.add_child(reward_progress_row(host, "warrant", network_refresh, null, host.CYAN))
+	if unlocks_new_planet:
+		var planet_names: Array[String] = []
+		for planet in new_planets:
+			planet_names.append(localized_content("planet", planet, "name").to_upper())
+		var planet_unlock := host.center_label(local_text("REWARD_NEW_PLANET", "NOVO DESTINO AO RECEBER · %s", [", ".join(planet_names)]), UIDesignSystem.FONT_CAPTION, host.GOLD)
+		planet_unlock.name = "RewardPlanetUnlock"
+		var planet_context := host.center_label(local_text("REWARD_NEW_PLANET_CONTEXT", "PASSA A APARECER ENTRE OS TRÊS MANDADOS DIÁRIOS"), UIDesignSystem.FONT_CAPTION, host.LIME)
+		planet_context.name = "RewardPlanetUnlockContext"
+		progress_box.add_child(reward_progress_row(host, "warrant", planet_unlock, planet_context, host.GOLD))
 	if unlocks_new_warrant:
 		var unlock_label := host.center_label(local_text("REWARD_NEW_WARRANT", "NOVO MANDADO AO RECEBER · %s", [localized_content("target", next_target, "name").to_upper()]), UIDesignSystem.FONT_CAPTION, host.LIME)
 		unlock_label.name = "RewardWarrantUnlock"
@@ -224,7 +237,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		box.add_child(progress_panel)
 	var completes_chapter: bool = bool(state.current_bounty.get("boss", false)) and not bool(state.player.get("completed_planets", []).has(planet_id))
 	var safe_to_recycle := state.can_recycle_reward(item)
-	if not completes_chapter and not unlocks_new_warrant:
+	if not completes_chapter and not unlocks_new_warrant and not unlocks_new_planet:
 		var next_streak_reward := Rules.bounty_streak_reward(int(state.current_bounty.credits), int(reward_preview.streak) + 1)
 		var repeat_value := host.center_label(local_text("REWARD_NEXT_CAPTURE_MOMENTUM", "PRÓXIMA CAPTURA SEGUIDA · EMBALO ×%d · +%d%% SOBRE O PAGAMENTO", [int(next_streak_reward.streak), int(next_streak_reward.bonus_percent)]), UIDesignSystem.FONT_CAPTION, host.CYAN)
 		repeat_value.name = "RewardRepeatValue"
@@ -259,13 +272,19 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var claim_text := ""
 	if completes_chapter:
 		claim_text = local_text("REWARD_CLAIM_COMPLETE_CHAPTER", "RECEBER E CONCLUIR CAPÍTULO")
+	elif unlocks_new_planet:
+		claim_text = local_text("REWARD_EQUIP_VIEW_PLANET", "EQUIPAR E VER NOVO DESTINO") if effective_upgrade else local_text("REWARD_STORE_VIEW_PLANET", "GUARDAR E VER NOVO DESTINO")
 	elif unlocks_new_warrant:
 		claim_text = local_text("REWARD_EQUIP_VIEW_WARRANT", "EQUIPAR E VER NOVO MANDADO") if effective_upgrade else local_text("REWARD_STORE_VIEW_WARRANT", "GUARDAR E VER NOVO MANDADO")
 	else:
 		claim_text = local_text("REWARD_EQUIP_BOARD", "EQUIPAR E VOLTAR AO QUADRO") if effective_upgrade else local_text("REWARD_STORE_BOARD", "GUARDAR E VOLTAR AO QUADRO")
-	var claim := host.primary_action(claim_text, host.LIME) if completes_chapter or unlocks_new_warrant else host.secondary_action(claim_text, host.GOLD)
-	claim.name = "ClaimAndUnlock" if unlocks_new_warrant else "ClaimAndBoard"
-	claim.pressed.connect(func(): state.claim_reward(effective_upgrade))
+	var claim := host.primary_action(claim_text, host.LIME) if completes_chapter or unlocks_new_warrant or unlocks_new_planet else host.secondary_action(claim_text, host.GOLD)
+	claim.name = "ClaimAndPlanet" if unlocks_new_planet else ("ClaimAndUnlock" if unlocks_new_warrant else "ClaimAndBoard")
+	claim.pressed.connect(func():
+		if unlocks_new_planet:
+			host.view_mode = "galaxy"
+		state.claim_reward(effective_upgrade)
+	)
 	content.add_child(claim)
 
 

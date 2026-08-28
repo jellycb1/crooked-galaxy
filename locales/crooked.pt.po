@@ -4561,3 +4561,30 @@ msgstr "Suspensório Barométrico"
 
 msgid "ITEM_AEROPOLIS_PENHORA_RIG_3_DESCRIPTION"
 msgstr "Ajusta postura, pressão e expectativas meteorológicas."
+
+msgid "REWARD_NOTICE_PLANET_UNLOCKED"
+msgstr "Novo destino na rede: %s"
+
+msgid "REWARD_NEW_PLANET"
+msgstr "NOVO DESTINO AO RECEBER · %s"
+
+msgid "REWARD_NEW_PLANET_CONTEXT"
+msgstr "PASSA A APARECER ENTRE OS TRÊS MANDADOS DIÁRIOS"
+
+msgid "REWARD_EQUIP_VIEW_PLANET"
+msgstr "EQUIPAR E VER NOVO DESTINO"
+
+msgid "REWARD_STORE_VIEW_PLANET"
+msgstr "GUARDAR E VER NOVO DESTINO"
+
+msgid "BOARD_NEW_DESTINATION"
+msgstr "NOVO DESTINO · %s"
+
+msgid "GALAXY_NEW_DESTINATION"
+msgstr "NOVO"
+
+msgid "GALAXY_RECORD_DESTINATION"
+msgstr "REGISTAR DESTINO"
+
+msgid "GALAXY_DISCOVERY_RECORDED"
+msgstr "Destino registado: %s já integra a sua rede de mandados."

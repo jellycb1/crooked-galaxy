@@ -1244,6 +1244,16 @@ func rank_progress_panel() -> PanelContainer:
 	var discovered := label(t("BOARD_DISCOVERED_WORLDS", "%d/%d MUNDOS CONHECIDOS", [available.size(), ContentDB.PLANETS.size()]), UIDesignSystem.FONT_CAPTION, GOLD, HORIZONTAL_ALIGNMENT_RIGHT)
 	discovered.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(discovered)
+	var unseen := GameState.unseen_planets()
+	if not unseen.is_empty():
+		var discovery := primary_action(t("BOARD_NEW_DESTINATION", "NOVO DESTINO · %s", [localized_content_field("planet", unseen[0], "name").to_upper()]), GOLD)
+		discovery.name = "BoardNewDestination"
+		discovery.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
+		discovery.pressed.connect(func():
+			view_mode = "galaxy"
+			render()
+		)
+		box.add_child(discovery)
 	var next_planet: Dictionary = {}
 	for planet in ContentDB.PLANETS:
 		if level < int(planet.get("unlock_level", 1)):
@@ -1330,6 +1340,7 @@ func planet_card(planet: Dictionary) -> PanelContainer:
 	var current := planet_id == str(GameState.player.get("current_planet_id", ContentDB.PLANET.id))
 	var unlocked := MissionRulesScript.is_planet_available(planet_id, int(GameState.player.get("level", 1)))
 	var visited := GameState.planet_capture_count(planet_id) > 0
+	var newly_discovered: bool = unlocked and not bool(GameState.player.get("seen_planet_ids", []).has(planet_id))
 	var accent := Color(str(planet.accent))
 	var card_fill := Color("#173356") if current else (Color("#121d3d") if visited else (PANEL_LIGHT if unlocked else Color("#0b1228")))
 	var card := panel(VBoxContainer.new(), card_fill, 18, 15)
@@ -1372,11 +1383,16 @@ func planet_card(planet: Dictionary) -> PanelContainer:
 		var requirement_label := label(context_text, UIDesignSystem.FONT_CAPTION, MUTED)
 		requirement_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		names.add_child(requirement_label)
-	var route_status := t("GALAXY_NETWORK_AVAILABLE", "NA REDE") if unlocked else t("GALAXY_LOCKED", "BLOQUEADO")
+	var route_status := t("GALAXY_NEW_DESTINATION", "NOVO") if newly_discovered else (t("GALAXY_NETWORK_AVAILABLE", "NA REDE") if unlocked else t("GALAXY_LOCKED", "BLOQUEADO"))
 	var status := label(route_status, UIDesignSystem.FONT_CAPTION, accent if unlocked else CORAL, HORIZONTAL_ALIGNMENT_RIGHT)
 	status.custom_minimum_size = Vector2(92, 0)
 	status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	heading.add_child(status)
+	if newly_discovered:
+		var acknowledge := primary_action(t("GALAXY_RECORD_DESTINATION", "REGISTAR DESTINO"), accent)
+		acknowledge.name = "GalaxyAcknowledge_%s" % planet_id
+		acknowledge.pressed.connect(func(): GameState.acknowledge_planet(planet_id))
+		box.add_child(acknowledge)
 	return card
 
 

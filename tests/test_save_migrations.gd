@@ -87,6 +87,9 @@ func _init() -> void:
 	check(legacy_identity.player.discovered_item_variant_ids.is_empty(), "schema seventeen initializes the permanent equipment collection without inventing discoveries")
 	check(legacy_identity.player.claimed_collection_milestones.is_empty(), "schema eighteen initializes collection rewards without claiming premium currency")
 	check(int(legacy_identity.player.daily_hunts_completed) == 0 and legacy_identity.player.claimed_daily_objectives.is_empty(), "schema nineteen initializes daily activity without inventing completed objectives")
+	check(legacy_identity.player.seen_planet_ids == ["dustball_prime"], "schema twenty treats destinations already available to a migrated level-one hunter as seen")
+	var established_network := SaveMigrations.migrate({"version": 19, "player": {"level": 13}})
+	check(established_network.player.seen_planet_ids == ["dustball_prime", "congelaria_sa", "micelia_404", "ferro_velho_omega"], "schema twenty does not mislabel established level-band content as a new discovery")
 	var interrupted_identity := SaveMigrations.migrate({"version": 14, "player": {"species_id": "cellar_mycelian", "hunter_name": ""}})
 	check(str(interrupted_identity.player.species_id) == "fungoid" and interrupted_identity.player.appearance.is_empty(), "interrupted creation resumes at customization after species migration")
 

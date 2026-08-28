@@ -20,6 +20,10 @@ func _init() -> void:
 	check(int(starter[0].power) < int(starter[1].power) and int(starter[1].power) < int(starter[2].power), "all three roles remain genuinely ordered at the level-one floor")
 	check(float(starter[0].base_travel_duration) == 300.0 and float(starter[0].travel_duration) == 120.0 and float(starter[0].pursuit_duration) > 0.0, "starter acceleration preserves the five-minute base route while travel and pursuit remain independent")
 	check(is_equal_approx(float(starter[0].starter_travel_discount), 0.60), "levels one to three expose the strongest starter travel reduction")
+	var level_four_discoveries := MissionRules.newly_available_planets(3, 4)
+	check(level_four_discoveries.size() == 1 and str(level_four_discoveries[0].id) == "congelaria_sa", "crossing a level band reports only the newly available destination")
+	check(MissionRules.newly_available_planets(4, 7).is_empty(), "levels inside one discovery band never invent a destination")
+	check(MissionRules.newly_available_planets(3, 13).map(func(planet): return str(planet.id)) == ["congelaria_sa", "micelia_404", "ferro_velho_omega"], "multi-level rewards preserve every crossed destination in authored order")
 	var expected_travel_multipliers := {1: 0.40, 4: 0.60, 8: 0.80, 13: 1.00, 19: 1.00, 50: 1.00, 100: 1.00}
 	for checkpoint_level in [1, 4, 8, 13, 19, 50, 100]:
 		state.player.level = checkpoint_level

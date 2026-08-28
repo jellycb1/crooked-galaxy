@@ -4561,3 +4561,30 @@ msgstr "Barometric Suspenders"
 
 msgid "ITEM_AEROPOLIS_PENHORA_RIG_3_DESCRIPTION"
 msgstr "Adjusts posture, pressure, and meteorological expectations."
+
+msgid "REWARD_NOTICE_PLANET_UNLOCKED"
+msgstr "New network destination: %s"
+
+msgid "REWARD_NEW_PLANET"
+msgstr "NEW DESTINATION ON CLAIM · %s"
+
+msgid "REWARD_NEW_PLANET_CONTEXT"
+msgstr "JOINS THE THREE DAILY WARRANT ROTATION"
+
+msgid "REWARD_EQUIP_VIEW_PLANET"
+msgstr "EQUIP AND VIEW NEW DESTINATION"
+
+msgid "REWARD_STORE_VIEW_PLANET"
+msgstr "STORE AND VIEW NEW DESTINATION"
+
+msgid "BOARD_NEW_DESTINATION"
+msgstr "NEW DESTINATION · %s"
+
+msgid "GALAXY_NEW_DESTINATION"
+msgstr "NEW"
+
+msgid "GALAXY_RECORD_DESTINATION"
+msgstr "LOG DESTINATION"
+
+msgid "GALAXY_DISCOVERY_RECORDED"
+msgstr "Destination logged: %s is now part of your warrant network."

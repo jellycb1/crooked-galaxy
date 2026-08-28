@@ -120,6 +120,7 @@ func default_player() -> Dictionary:
 		"captures_by_target": {},
 		"captures_by_planet": {},
 		"completed_planets": [],
+		"seen_planet_ids": ["dustball_prime"],
 		"current_planet_id": "dustball_prime",
 		"weapon": {"id": "starter_weapon", "name": "Zapper de Treino", "slot": "weapon", "power": 1, "rarity": "Comum", "color": "#b9c2d9"},
 		"helmet": {},
@@ -1017,6 +1018,7 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	if bool(current_bounty.get("challenge", false)):
 		return claim_challenge_reward(equip_item, recycle_item)
 	var new_streak := int(player.get("capture_streak", 0)) + 1
+	var level_before_reward := int(player.get("level", 1))
 	var reward := CoreRules.bounty_streak_reward(int(current_bounty.credits), new_streak)
 	var summary := {
 		"credits": int(reward.credits),
@@ -1035,6 +1037,7 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 		"warp_chips": 0,
 		"collection_new": false,
 		"levels": 0,
+		"new_planets": [],
 		"rank_up": false,
 		"chapter_tier_up": false,
 		"chapter_complete": false,
@@ -1059,6 +1062,7 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	player.capture_streak = new_streak
 	player.best_capture_streak = maxi(int(player.get("best_capture_streak", 0)), new_streak)
 	summary.levels = CoreRules.apply_xp(player, summary.xp)
+	summary.new_planets = MissionRulesScript.newly_available_planets(level_before_reward, int(player.get("level", 1)))
 	player.wins = int(player.wins) + 1
 	var captures: Dictionary = player.get("captures_by_target", {})
 	var target_id := str(completed_bounty.get("id", "unknown"))
@@ -1121,6 +1125,11 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	if int(summary.levels) > 0:
 		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_LEVEL", "Nível +%d", [int(summary.levels)]))
 		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_ATTRIBUTE_POINTS", "+%d pontos de atributo", [int(summary.levels) * CoreRules.ATTRIBUTE_POINTS_PER_LEVEL]))
+	if not summary.new_planets.is_empty():
+		var planet_names: Array[String] = []
+		for planet in summary.new_planets:
+			planet_names.append(localized_content_field("planet", planet, "name"))
+		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_PLANET_UNLOCKED", "Novo destino na rede: %s", [", ".join(planet_names)]))
 	if bool(summary.rank_up):
 		notice_parts.append(LocaleRulesScript.text("REWARD_NOTICE_NETWORK_RANK", "Reputação da rede aumentada") if network_mission else LocaleRulesScript.text("REWARD_NOTICE_CONTRACT_UNLOCKED", "Novo contrato liberado"))
 	elif bool(summary.chapter_tier_up):
@@ -1158,6 +1167,28 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	save_game()
 	changed.emit()
 	return summary
+
+
+func unseen_planets() -> Array[Dictionary]:
+	var seen: Array = player.get("seen_planet_ids", [])
+	return MissionRulesScript.available_planets(int(player.get("level", 1))).filter(
+		func(planet): return not seen.has(str(planet.id))
+	)
+
+
+func acknowledge_planet(planet_id: String) -> bool:
+	if not MissionRulesScript.is_planet_available(planet_id, int(player.get("level", 1))):
+		return false
+	var seen: Array = player.get("seen_planet_ids", []).duplicate()
+	if seen.has(planet_id):
+		return true
+	seen.append(planet_id)
+	player.seen_planet_ids = seen
+	last_notice = LocaleRulesScript.text("GALAXY_DISCOVERY_RECORDED", "Destino registado: %s já integra a sua rede de mandados.", [localized_content_field("planet", ContentDB.get_planet(planet_id), "name")])
+	last_notice_context = "galaxy"
+	var saved := save_game()
+	changed.emit()
+	return saved
 
 
 func claim_challenge_reward(equip_item: bool, recycle_item: bool) -> Dictionary:
@@ -2027,6 +2058,21 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	if clean_completed.size() != sanitized.completed_planets.size():
 		repaired = true
 	sanitized.completed_planets = clean_completed
+	var clean_seen: Array = []
+	var loaded_seen = sanitized.get("seen_planet_ids", [])
+	if loaded_seen is Array:
+		for planet in ContentDB.PLANETS:
+			var planet_id := str(planet.id)
+			if loaded_seen.has(planet_id) and MissionRulesScript.is_planet_available(planet_id, int(sanitized.get("level", 1))):
+				clean_seen.append(planet_id)
+		if clean_seen.size() != loaded_seen.size():
+			repaired = true
+	else:
+		repaired = true
+	if not clean_seen.has(str(ContentDB.PLANET.id)):
+		clean_seen.push_front(str(ContentDB.PLANET.id))
+		repaired = true
+	sanitized.seen_planet_ids = clean_seen
 	if int(sanitized.challenge_floor) > 0 and not ChallengeRulesScript.is_unlocked(sanitized):
 		sanitized.challenge_floor = 0
 		repaired = true

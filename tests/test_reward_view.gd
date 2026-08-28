@@ -55,6 +55,30 @@ func _init() -> void:
 	state.current_bounty = ContentDB.TARGETS[0].duplicate(true)
 
 	clear_content(content)
+	state.phase = state.Phase.REWARD
+	state.player.level = 3
+	state.player.xp = CoreRules.xp_needed(3) - 1
+	state.player.seen_planet_ids = ["dustball_prime"]
+	state.player.captures_by_target = {}
+	state.current_bounty = MissionRules.offer_for_target(state.player, ContentDB.TARGETS[0])
+	state.current_bounty.xp = 1
+	state.pending_loot = reward_item(7)
+	RewardScript.build(host, content, state)
+	var planet_unlock := host.find_child("RewardPlanetUnlock", true, false) as Label
+	var planet_action := host.find_child("ClaimAndPlanet", true, false) as Button
+	check(planet_unlock != null and planet_unlock.text.contains("CONGELÁRIA S.A."), "level-band reward names the destination before the player commits XP")
+	check(host.find_child("ClaimAndRepeat", true, false) == null and planet_action != null, "new destination replaces habitual repetition with one clear discovery action")
+	planet_action.pressed.emit()
+	check(host.view_mode == "galaxy" and int(state.player.level) == 4 and state.unseen_planets().size() == 1, "claim routes to the Galaxy while retaining the unseen discovery across the reward transaction")
+	check(state.acknowledge_planet("congelaria_sa") and state.unseen_planets().is_empty(), "explicit Galaxy acknowledgement consumes the persistent discovery receipt")
+	state.player.level = 1
+	state.player.xp = 0
+	state.player.seen_planet_ids = ["dustball_prime"]
+	state.phase = state.Phase.REWARD
+	state.current_bounty = ContentDB.TARGETS[0].duplicate(true)
+	state.pending_loot = reward_item(6)
+
+	clear_content(content)
 	state.player.captures_by_target = {"gloop": 1}
 	RewardScript.build(host, content, state)
 	var second_capture_mastery := host.find_child("RewardMasteryProgress", true, false) as Label

@@ -13,6 +13,8 @@ Estes números são um teto de produção verificável, não uma alegação de q
 ## Comportamento da rede de missões
 
 - O nível desbloqueia novos planetas, mas nunca retira os anteriores.
+- Cruzar um nível de descoberta anuncia o novo planeta no recibo da missão e dá prioridade à Galáxia em vez de repetir silenciosamente o contrato anterior.
+- Destinos ainda não confirmados mantêm um alerta persistente no Quadro e um estado `NOVO` na Galáxia, inclusive após reiniciar o jogo. A confirmação é informativa: disponibilidade e força continuam exclusivamente derivadas do nível.
 - Cada quadro oferece três mandados com pressões segura, padrão e perigosa.
 - Quando existem pelo menos três planetas, os três mandados usam destinos diferentes.
 - A rotação determinística distribui exposição igualmente por todos os mundos desbloqueados e percorre todos os alvos, sem depender do equipamento do jogador.
@@ -25,3 +27,7 @@ Estes números são um teto de produção verificável, não uma alegação de q
 Trinta e três planetas não são, por si só, 365 dias de jogo. O plano anual completo também precisa de escadas permanentes de equipamento, masmorra/desafios, coleção, objetivos e rotações especiais. Este contrato mede apenas o eixo planeta–alvo e impede que a variedade visual acabe silenciosamente a meio do ano.
 
 O teste `test_year_one_content.gd` executa as 1 825 caçadas, confirma o nível final projetado e garante que toda a amostra atual permanece acessível. Qualquer alteração futura à experiência, frequência diária ou cadência de planetas deve atualizar simultaneamente a regra, este documento e a simulação.
+
+## Entrega 0.45.0 — descoberta persistente
+
+O schema 20 acrescenta apenas `seen_planet_ids`, separando a progressão mecânica da apresentação. Saves existentes marcam como vistos todos os mundos que já estavam disponíveis ao seu nível, evitando falsos anúncios retroativos; saves novos começam com Dustball Prime confirmado. A recompensa calcula qualquer banda atravessada antes de aplicar XP, o Quadro mantém o alerta até reconhecimento explícito e a Galáxia lista cada destino novo sem bloquear as três ofertas. PT/EN, migração, expansão de texto e geometria Android integram o mesmo contrato.
