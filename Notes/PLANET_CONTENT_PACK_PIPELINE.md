@@ -1,6 +1,6 @@
 # Crooked Galaxy — pipeline modular de conteúdo planetário
 
-Estado: migração concluída e pipeline continuado com treze planetas até ao nível 100.
+Estado: migração concluída e pipeline continuado com catorze planetas até ao nível 110.
 
 ## Objetivo
 
@@ -74,5 +74,6 @@ Um pacote novo só entra no registry quando:
 | Necrópole Solar Umbral | `necropole_solar_umbral.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e rig | Novo · nível 80 |
 | Central de Tempestades 24h | `central_tempestades_24h.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e implante | Novo · nível 90 |
 | Museu do Amanhã Obsoleto | `museu_amanha_obsoleto.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e botas | Novo · nível 100 |
+| Biblioteca do Silêncio Taxado | `biblioteca_silencio_taxado.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e luvas | Novo · nível 110 |
 
-O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Verdântia, Caldeira, Condomínio Lunar, Necrópole Solar, Central de Tempestades e Museu do Amanhã Obsoleto provam que planetas novos entram por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus vinte e quatro retratos e dezoito ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos.
+O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Os sete packs novos entre os níveis 50 e 110 provam que planetas entram por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus vinte e oito retratos e vinte e um ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos.

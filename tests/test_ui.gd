@@ -416,7 +416,7 @@ func run_smoke_test() -> void:
 		else:
 			planet_motifs[icon.motif_id()] = true
 	check(not planet_motifs.has("unknown") and planet_motifs.size() == ContentDB.PLANETS.size() - pending_planet_motifs, "every completed canonical planet resolves a distinct visual motif")
-	check(pending_planet_motifs == 6, "exactly six current planets record pending user-authored visuals")
+	check(pending_planet_motifs == 7, "exactly seven current planets record pending user-authored visuals")
 	check(scene.find_child("PrimaryNavBadge_galaxy", true, false) != null, "persistent unseen destinations produce a global Galaxy navigation badge")
 	scene.view_mode = "board"
 	scene.board_section = "bounties"
