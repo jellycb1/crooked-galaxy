@@ -110,6 +110,8 @@ Write-Host "`n[documentation contracts]"
 & (Join-Path $PSScriptRoot "check_documentation_contracts.ps1")
 Write-Host "`n[reference boundaries]"
 & (Join-Path $PSScriptRoot "check_reference_boundaries.ps1")
+Write-Host "`n[backend workspace]"
+& (Join-Path $PSScriptRoot "check_backend_workspace.ps1")
 foreach ($TestFile in $Tests) {
     Write-Host "`n[$TestFile]"
     $LogFile = Join-Path $LogRoot "$TestFile.log"

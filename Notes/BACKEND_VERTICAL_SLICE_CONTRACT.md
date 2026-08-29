@@ -1,12 +1,14 @@
 # Backend vertical slice contract
 
-Status: active protocol boundary. Version 1 defines validation and transaction semantics only; no remote provider or endpoint is configured in the current APK.
+Status: active protocol boundary. Version 1 now has a local authenticated clock implementation; no remote provider or endpoint is configured in the current APK.
 
 ## Product truth
 
 Crooked Galaxy remains device-authoritative and `local_only`. `International 1` is the sole canonical shard, but its account, clock, profile and Agency service flags remain disabled. The client must not display online login, cloud synchronization, Agency membership or server rewards until a real service implements and passes this contract.
 
 This slice deliberately does not persist credentials, contact a server, alter the player-save schema or move progress authority away from the device. It creates the stable seam required before those changes can be made safely.
+
+The separate `backend/` development stack now proves Nakama health, development device authentication and the authenticated `cg_clock` RPC on loopback. This is server evidence, not client activation: the exported game still contains no SDK, endpoint or credential and all online capability flags remain disabled.
 
 ## Session boundary
 

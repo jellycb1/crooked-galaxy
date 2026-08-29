@@ -1,0 +1,12 @@
+{
+  "name": "crooked-galaxy-nakama-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc --project tsconfig.json"
+  },
+  "devDependencies": {
+    "nakama-runtime": "github:heroiclabs/nakama-common#v1.47.0",
+    "typescript": "5.9.2"
+  }
+}

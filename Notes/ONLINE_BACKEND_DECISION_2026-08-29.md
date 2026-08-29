@@ -1,6 +1,6 @@
 # Online backend decision — 29 August 2026
 
-Status: active architecture decision. Nakama is selected; no remote environment, credential, client add-on or online product claim exists yet.
+Status: active architecture decision. Nakama is selected and the local loopback foundation passes its integration smoke test; no remote environment, production credential, client add-on or online product claim exists yet.
 
 ## Decision
 
@@ -50,9 +50,15 @@ Begin with local open-source development. Compare a small managed deployment aga
 
 Current published reference points are volatile and must be rechecked before spending: Supabase advertises Free and USD 25/month Pro tiers with included MAU/function quotas; Firebase offers free quotas with pay-as-you-go Google Cloud services; PlayFab uses multiple consumption meters; Heroic Cloud charges active deployment capacity and add-ons.
 
+## Local foundation evidence
+
+Docker Desktop now runs the pinned Nakama `3.40.0` image and PostgreSQL `16.8` on a private Docker network. Only loopback ports `7350` and `7351` are exposed. The TypeScript runtime compiles inside a multi-stage image and registers protocol-v1 `cg_clock`; a repeatable smoke test verifies container health, rejects anonymous RPC access, creates a development device session, and validates authoritative UTC plus the `international_1` shard envelope. Local secrets are random, ignored by Git, absent from game exports and never printed by the test.
+
+The official Heroic Labs Docker Hub repository is used as its documented fallback because the Heroic Labs Scarf gateway returned HTTP 429 during the first pinned pull. Both sources resolve the same Heroic Labs image/tag; no version was relaxed.
+
 ## Immediate gate
 
-The repository may prepare provider-neutral and Nakama-specific contracts, but must not download the client, add Android plugins or enable `account_backend`, `clock_backend`, `profile_backend`, `agency_backend` or billing until a reproducible local server and integration test exist. Docker Desktop/Compose is currently absent from the development host, so local deployment is the next external prerequisite rather than something the APK should conceal.
+The reproducible local server prerequisite is complete. The next gate is to vendor and checksum the pinned official Godot client, introduce an offline-safe adapter, and prove development authentication plus clock sampling from the game client. `account_backend`, `clock_backend`, `profile_backend`, `agency_backend` and billing remain false until their individual end-to-end gates pass; the existence of a local server alone enables none of them.
 
 ## Official references consulted
 

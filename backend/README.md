@@ -1,6 +1,6 @@
 # Crooked Galaxy backend workspace
 
-Status: provider selected and deployment boundary prepared; no service is deployed or connected to the game.
+Status: reproducible local development service implemented and smoke-tested; no remote service is deployed or connected to the game.
 
 The selected foundation is open-source Nakama. Version pins live in `stack-lock.json`. This directory is intentionally excluded from Godot exports.
 
@@ -15,9 +15,11 @@ Never reuse databases, encryption keys, Google credentials, purchase-validation 
 ## Local prerequisites
 
 - Docker Desktop with Docker Compose;
-- Node.js only when the TypeScript authoritative runtime is introduced;
+- no host Node.js installation is required; the pinned builder runs inside Docker;
 - the pinned Nakama Godot client only after the local server passes health, authentication and protocol smoke tests.
 
-Docker/Compose is not currently available on the development host, so no unverified compose stack or downloaded client add-on is committed in this batch. The next infrastructure action is to install Docker Desktop, reproduce the official PostgreSQL quickstart with the pinned versions, then add the minimal clock and character RPC runtime with integration tests.
+Docker Desktop/Compose is available. The local stack builds the pinned TypeScript runtime, starts PostgreSQL and Nakama on loopback, and exposes only the game API (`7350`) and local console (`7351`). Generate or complete ignored credentials with `prepare_local_env.ps1`, start with `docker compose up --build -d`, then run `test_local.ps1`. Stop the services without deleting their database with `docker compose stop`. The smoke test passes; vendoring and checksumming the pinned Nakama Godot client is the next independent gate.
 
-The game remains `offline`, `local_only` and device-authoritative until those integration tests pass. See `Notes/ONLINE_BACKEND_DECISION_2026-08-29.md` and `Notes/BACKEND_VERTICAL_SLICE_CONTRACT.md`.
+The Nakama base image is pulled from the official Heroic Labs Docker Hub repository. Heroic Labs documents this as the supported fallback for its rate-limited `registry.heroiclabs.com` gateway; the immutable version tag remains pinned by `stack-lock.json`. `.dockerignore` also prevents local secrets and generated state from entering the Docker build context.
+
+The server smoke test passes, but the exported game remains `offline`, `local_only` and device-authoritative until the separate Godot client integration gates pass. See `Notes/ONLINE_BACKEND_DECISION_2026-08-29.md` and `Notes/BACKEND_VERTICAL_SLICE_CONTRACT.md`.
