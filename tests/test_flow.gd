@@ -79,6 +79,7 @@ func _init() -> void:
 	var network_summary := network_claim_state.claim_reward(false)
 	check(not bool(network_summary.chapter_tier_up) and not network_claim_state.last_notice.contains("Novo mandado planetário"), "network claim cannot emit a legacy sequential-warrant unlock")
 	check(bool(network_summary.rank_up) and network_claim_state.last_notice.contains("Reputação da rede aumentada"), "network rank receipt describes standing without claiming a content unlock")
+	check(int(network_claim_state.player.weekly_route_captures.get("dustball_prime", 0)) == 1, "a completed network warrant advances its matching weekly circuit exactly once")
 	network_claim_state.free()
 	var projection_state = StateScript.new()
 	projection_state.persistence_enabled = false

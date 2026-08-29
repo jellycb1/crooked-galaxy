@@ -35,6 +35,7 @@ static func build_content(host: CrookedUIFactory, content: VBoxContainer, state:
 		(receipt.get_child(0) as VBoxContainer).add_child(receipt_label)
 		list.add_child(receipt)
 
+	list.add_child(route_card(host, state))
 	list.add_child(special_card(host, state))
 	var ready := state.weekly_rewards_ready()
 	if ready > 0:
@@ -45,6 +46,37 @@ static func build_content(host: CrookedUIFactory, content: VBoxContainer, state:
 	for objective in objectives:
 		list.add_child(objective_card(host, state, objective))
 	scroller.get_v_scroll_bar().value_changed.connect(func(value: float): host.daily_scroll_position = roundi(value))
+
+
+static func route_card(host: CrookedUIFactory, state: StateScript) -> PanelContainer:
+	var status := state.weekly_route_status()
+	var complete := bool(status.complete)
+	var claimed := bool(status.claimed)
+	var accent := host.LIME if claimed else (host.GOLD if complete else host.CYAN)
+	var card := host.panel(VBoxContainer.new(), Color("#12332f") if claimed else Color("#142d4b"), 15, 13)
+	card.name = "WeeklyRouteCard"
+	var box := card.get_child(0) as VBoxContainer
+	box.add_theme_constant_override("separation", 7)
+	box.add_child(host.label(t("WEEKLY_ROUTE_KICKER", "CIRCUITO DA REDE · ROTA SEMANAL"), UIDesignSystem.FONT_CAPTION, accent))
+	var title := host.label(t("WEEKLY_ROUTE_PROGRESS", "%d/%d CAPTURAS EM DESTAQUE", [int(status.progress), int(status.goal)]), UIDesignSystem.FONT_SECTION_TITLE, accent)
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(title)
+	var explanation := host.label(t("WEEKLY_ROUTE_RULE", "Dois contratos em cada destino. Um mundo do circuito aparece sempre no quadro; combustível, duração e pagamento do mandado não mudam."), UIDesignSystem.FONT_CAPTION, host.INK)
+	explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(explanation)
+	for entry in status.entries:
+		var planet_name := state.localized_content_field("planet", entry.planet, "name")
+		var line := host.label("%s %s · %d/%d" % ["✓" if bool(entry.complete) else "·", planet_name.to_upper(), int(entry.progress), int(entry.goal)], UIDesignSystem.FONT_CAPTION, host.LIME if bool(entry.complete) else host.MUTED)
+		line.name = "WeeklyRoutePlanet_%s" % str(entry.planet.id)
+		line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		box.add_child(line)
+	box.add_child(host.label(t("WEEKLY_ROUTE_REWARD", "PAGAMENTO · ◈ %d · %d SUCATA", [int(status.credits), int(status.scrap)]), UIDesignSystem.FONT_CAPTION, host.GOLD))
+	if complete and not claimed:
+		var claim := host.secondary_action(t("WEEKLY_ROUTE_CLAIM", "RESGATAR CIRCUITO"), host.GOLD)
+		claim.name = "ClaimWeeklyRoute"
+		claim.pressed.connect(func(): state.claim_weekly_route())
+		box.add_child(claim)
+	return card
 
 
 static func special_card(host: CrookedUIFactory, state: StateScript) -> PanelContainer:

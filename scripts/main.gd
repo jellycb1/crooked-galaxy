@@ -1094,6 +1094,9 @@ func build_board_bounties() -> void:
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", UIDesignSystem.SECTION_GAP)
 	scroller.add_child(list)
+	# Snapshot the weekly route before constructing the deterministic board, so a
+	# fresh or migrated profile receives its highlighted destination immediately.
+	GameState.weekly_route_status()
 	var board_bounties := MissionRulesScript.board_offers(GameState.player)
 	var first_contract := int(GameState.player.get("wins", 0)) <= 0
 	if first_contract:
@@ -1183,7 +1186,8 @@ func fuel_reserve_panel() -> PanelContainer:
 
 func bounty_offer_selector(bounty: Dictionary, offer_index: int, selected: bool) -> Button:
 	var destination := ContentDB.get_planet(str(bounty.get("planet_id", ContentDB.PLANET.id)))
-	var accent := GOLD if selected else Color(str(destination.accent))
+	var route_active: bool = GameState.player.get("weekly_route_planet_ids", []).has(str(destination.id))
+	var accent := GOLD if selected or route_active else Color(str(destination.accent))
 	var selector := action_button(localized_content_field("target", bounty, "name"), accent, true)
 	selector.name = "BoardOfferSelector_%d" % offer_index
 	selector.custom_minimum_size = Vector2(0, 204)
@@ -1225,6 +1229,11 @@ func bounty_offer_selector(bounty: Dictionary, offer_index: int, selected: bool)
 	target_name.clip_text = true
 	target_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	copy.add_child(target_name)
+	if route_active:
+		var route_marker := label(t("BOARD_WEEKLY_ROUTE", "CIRCUITO SEMANAL"), UIDesignSystem.FONT_CAPTION, GOLD, HORIZONTAL_ALIGNMENT_CENTER)
+		route_marker.name = "BoardWeeklyRoute_%d" % offer_index
+		route_marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		copy.add_child(route_marker)
 	var planet_name := label(localized_content_field("planet", destination, "name").to_upper(), UIDesignSystem.FONT_CAPTION, accent, HORIZONTAL_ALIGNMENT_CENTER)
 	planet_name.name = "BoardOfferPlanet_%d" % offer_index
 	planet_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS

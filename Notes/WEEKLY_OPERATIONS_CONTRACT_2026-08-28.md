@@ -2,6 +2,8 @@
 
 Estado: primeira fundação executável, 28 de agosto de 2026.
 
+O Circuito da Rede complementa este sistema sem alterar as três metas nem o Mandado Negro; o seu contrato ativo está em `NETWORK_CIRCUIT_CONTRACT_2026-08-29.md`.
+
 ## Ciclo
 
 - A semana começa segunda-feira às 00:00 UTC.

@@ -17,6 +17,13 @@ func _init() -> void:
 	for reality in ChallengeRules.REALITIES:
 		rift_victories += reality.stages.size()
 	check(ChallengeRules.REALITIES.size() == 3 and rift_victories == 36, "the current Rift contributes exactly 36 first-clear days")
+	var circuit_player := {"level": 320}
+	var circuit_worlds := {}
+	for week_id in 12:
+		for planet_id in WeeklyRules.rotating_planet_ids(circuit_player, week_id):
+			circuit_worlds[planet_id] = true
+	check(circuit_worlds.size() == 35, "twelve mature Network Circuits rotate the complete launch world catalog")
+	check(WeeklyRules.ROUTE_PLANET_QUOTA == 2 and WeeklyRules.ROUTE_REWARD_CREDITS == 250 and WeeklyRules.ROUTE_REWARD_SCRAP == 18, "the repeatable route keeps a six-hunt bounded weekly reward envelope")
 
 	var complete_player := {
 		"wins": 3000,

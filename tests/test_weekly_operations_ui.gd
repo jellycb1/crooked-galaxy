@@ -27,6 +27,7 @@ func run_test() -> void:
 	await process_frame
 	check(scene.find_child("OperationsDailyTab", true, false) is Button and scene.find_child("OperationsWeeklyTab", true, false) is Button, "Operations exposes explicit daily and weekly tabs")
 	check(scene.find_child("WeeklySpecialCard", true, false) != null and scene.find_child("WeeklySpecialAction", true, false) is Button, "weekly surface exposes one intentional Black Warrant action")
+	check(scene.find_child("WeeklyRouteCard", true, false) != null and scene.find_child("WeeklyRoutePlanet_dustball_prime", true, false) != null, "weekly surface exposes the circuit and its current world progress")
 	check(scene.find_child("WeeklyObjective_weekly_patrol", true, false) != null and scene.find_child("WeeklyObjective_weekly_veteran", true, false) != null, "weekly board renders the complete bounded objective ladder")
 	var scroll := scene.find_child("DailyObjectivesScroll", true, false) as ScrollContainer
 	check(scroll != null and scroll.vertical_scroll_mode != ScrollContainer.SCROLL_MODE_DISABLED, "weekly board remains finger-scrollable at Android height")

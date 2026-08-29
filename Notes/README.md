@@ -33,6 +33,7 @@ Quando dois documentos discordarem, aplica-se o documento de maior autoridade. V
 | `YEAR_ONE_CONTENT_CONTRACT.md` | Escala de 365 dias, curva e teto de produção. |
 | `RIFT_DAILY_REALITY_CONTRACT_2026-08-28.md` | Fenda diária, chaves, sigilo e monetização. |
 | `WEEKLY_OPERATIONS_CONTRACT_2026-08-28.md` | Objetivos e operações semanais. |
+| `NETWORK_CIRCUIT_CONTRACT_2026-08-29.md` | Rotação semanal repetível dos mundos e alvos já desbloqueados. |
 | `PLANET_CONTENT_PACK_PIPELINE.md` | Contrato modular para planetas, alvos, incidentes e loot. |
 | `XP_PACING_SIMULATION_2026-08-28.md` | Curva de XP ativa e resultados reproduzíveis. |
 

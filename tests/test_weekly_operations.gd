@@ -31,6 +31,30 @@ func _init() -> void:
 	check(int(special.scrap_reward) == 8 and int(special.fuel_cost) > 0, "Black Warrant grants bounded normal resources and consumes normal fuel")
 	check(MissionRules.canonical_offer(special) == special, "a Black Warrant survives canonical save repair exactly")
 
+	state.player.level = 320
+	var covered_worlds := {}
+	for week_offset in 12:
+		for planet_id in WeeklyRules.rotating_planet_ids(state.player, week_id + week_offset):
+			covered_worlds[planet_id] = true
+	check(covered_worlds.size() == 35, "twelve weekly circuits expose the complete thirty-five-world launch catalog")
+	var route_ids := WeeklyRules.rotating_planet_ids(state.player, week_id)
+	state.player.weekly_route_planet_ids = route_ids
+	state.player.weekly_route_captures = {}
+	state.player.weekly_route_claimed = false
+	state.player.seen_planet_ids = MissionRules.available_planets(320).map(func(planet): return str(planet.id))
+	var route_board := MissionRules.board_offers(state.player)
+	check(route_board.any(func(offer): return route_ids.has(str(offer.planet_id))), "every board guarantees one normal warrant from the weekly circuit")
+	for route_id in route_ids:
+		check(WeeklyRules.record_route_capture(state.player, route_id), "the first circuit capture advances its snapshotted world")
+		check(WeeklyRules.record_route_capture(state.player, route_id), "the second circuit capture completes its snapshotted world")
+		check(not WeeklyRules.record_route_capture(state.player, route_id), "circuit progress is capped at two captures per world")
+	var route_status := state.weekly_route_status()
+	check(bool(route_status.complete) and int(route_status.progress) == 6 and int(route_status.goal) == 6, "three circuit worlds require exactly six normal captures")
+	var route_balance := {"credits": int(state.player.credits), "scrap": int(state.player.scrap)}
+	check(state.claim_weekly_route(), "a completed circuit exposes one explicit claim")
+	check(int(state.player.credits) == int(route_balance.credits) + 250 and int(state.player.scrap) == int(route_balance.scrap) + 18, "circuit payout remains bounded to 250 credits and eighteen scrap")
+	check(not state.claim_weekly_route(), "a circuit cannot be paid twice")
+
 	state.player.weekly_cycle_id = week_id
 	state.player.weekly_special_target_id = target_id
 	check(state.start_weekly_special() and state.phase == StateScript.Phase.BRIEFING, "weekly action enters the normal approach briefing instead of a parallel combat loop")
@@ -49,6 +73,7 @@ func _init() -> void:
 	check(state.normalize_weekly_operations(next_monday), "the next Monday resets weekly state atomically")
 	check(int(state.player.weekly_hunts_completed) == 0 and state.player.claimed_weekly_objectives.is_empty() and not bool(state.player.weekly_special_completed), "weekly progress, claims, and special completion reset together")
 	check(not str(state.player.weekly_special_target_id).is_empty(), "the new cycle snapshots its own eligible elite target")
+	check(state.player.weekly_route_captures.is_empty() and not bool(state.player.weekly_route_claimed) and not state.player.weekly_route_planet_ids.is_empty(), "the new cycle atomically snapshots a fresh unclaimed circuit")
 
 	var malformed := state.default_player()
 	malformed.weekly_hunts_completed = 999999
@@ -56,14 +81,19 @@ func _init() -> void:
 	malformed.weekly_special_target_id = "forged_boss"
 	malformed.weekly_cycle_id = "forged_week"
 	malformed.weekly_special_completed = "false"
+	malformed.weekly_route_planet_ids = ["forged_world"]
+	malformed.weekly_route_captures = {"forged_world": 999}
+	malformed.weekly_route_claimed = "true"
 	var repaired := state.sanitize_loaded_player(malformed)
 	check(bool(repaired.repaired) and int(repaired.player.weekly_hunts_completed) == 10000, "loaded weekly progress is bounded defensively")
 	check(repaired.player.claimed_weekly_objectives == ["weekly_patrol"] and str(repaired.player.weekly_special_target_id).is_empty(), "loaded weekly claims and target identity are canonicalized")
 	check(int(repaired.player.weekly_cycle_id) == WeeklyRules.utc_week_id() and not bool(repaired.player.weekly_special_completed), "loaded weekly cycle and completion types cannot be forged")
+	check(repaired.player.weekly_route_planet_ids.is_empty() and repaired.player.weekly_route_captures.is_empty() and not bool(repaired.player.weekly_route_claimed), "loaded circuit identity, progress, and claim types cannot be forged")
 
 	var migrated := SaveMigrations.migrate({"version": 22, "player": {"level": 7}})
-	check(int(migrated.version) == 23 and int(migrated.player.weekly_cycle_id) == -1, "schema twenty-three initializes a neutral weekly cycle without inventing progress")
+	check(int(migrated.version) == 24 and int(migrated.player.weekly_cycle_id) == -1, "schema twenty-three initializes a neutral weekly cycle without inventing progress")
 	check(migrated.player.claimed_weekly_objectives.is_empty() and not bool(migrated.player.weekly_special_completed), "weekly migration never claims content for an existing hunter")
+	check(migrated.player.weekly_route_planet_ids.is_empty() and migrated.player.weekly_route_captures.is_empty() and not bool(migrated.player.weekly_route_claimed), "schema twenty-four initializes a neutral circuit snapshot without inventing captures")
 	state.free()
 
 	if failures == 0:

@@ -113,6 +113,9 @@ func default_player() -> Dictionary:
 		"claimed_weekly_objectives": [],
 		"weekly_special_target_id": "",
 		"weekly_special_completed": false,
+		"weekly_route_planet_ids": [],
+		"weekly_route_captures": {},
+		"weekly_route_claimed": false,
 		"market_purchased_offer_ids": [],
 		"owned_transport_ids": [],
 		"active_transport_id": "",
@@ -442,9 +445,17 @@ func normalize_weekly_operations(unix_time := -1.0) -> bool:
 		player.claimed_weekly_objectives = []
 		player.weekly_special_target_id = ""
 		player.weekly_special_completed = false
+		player.weekly_route_planet_ids = []
+		player.weekly_route_captures = {}
+		player.weekly_route_claimed = false
 		changed_state = true
 	if str(player.get("weekly_special_target_id", "")).is_empty():
 		player.weekly_special_target_id = WeeklyOperationRulesScript.rotating_target_id(player, week_id)
+		changed_state = true
+	if player.get("weekly_route_planet_ids", []).is_empty():
+		player.weekly_route_planet_ids = WeeklyOperationRulesScript.rotating_planet_ids(player, week_id)
+		player.weekly_route_captures = {}
+		player.weekly_route_claimed = false
 		changed_state = true
 	return changed_state
 
@@ -610,7 +621,27 @@ func weekly_objectives() -> Array[Dictionary]:
 func weekly_rewards_ready() -> int:
 	if normalize_weekly_operations():
 		save_game()
-	return WeeklyOperationRulesScript.rewards_ready(player).size()
+	return WeeklyOperationRulesScript.rewards_ready(player).size() + (1 if WeeklyOperationRulesScript.route_reward_ready(player) else 0)
+
+
+func weekly_route_status() -> Dictionary:
+	if normalize_weekly_operations():
+		save_game()
+	return WeeklyOperationRulesScript.route_status(player)
+
+
+func claim_weekly_route() -> bool:
+	var status := weekly_route_status()
+	if not bool(status.complete) or bool(status.claimed):
+		return false
+	player.weekly_route_claimed = true
+	player.credits = int(player.get("credits", 0)) + int(status.credits)
+	player.scrap = int(player.get("scrap", 0)) + int(status.scrap)
+	last_notice = LocaleRulesScript.text("WEEKLY_ROUTE_NOTICE_CLAIMED", "Circuito da Rede resgatado: +%d créditos · +%d sucata.", [int(status.credits), int(status.scrap)])
+	last_notice_context = "weekly"
+	save_game()
+	changed.emit()
+	return true
 
 
 func weekly_special_status() -> Dictionary:
@@ -656,7 +687,9 @@ func claim_all_weekly_objectives() -> Dictionary:
 	if normalize_weekly_operations():
 		save_game()
 	var ready := WeeklyOperationRulesScript.rewards_ready(player)
-	if ready.is_empty():
+	var route := WeeklyOperationRulesScript.route_status(player)
+	var route_ready := bool(route.complete) and not bool(route.claimed)
+	if ready.is_empty() and not route_ready:
 		return {"count": 0, "credits": 0, "scrap": 0}
 	var claimed: Array = player.get("claimed_weekly_objectives", []).duplicate()
 	var credits := 0
@@ -665,14 +698,19 @@ func claim_all_weekly_objectives() -> Dictionary:
 		claimed.append(str(objective.id))
 		credits += int(objective.credits)
 		scrap += int(objective.scrap)
+	if route_ready:
+		player.weekly_route_claimed = true
+		credits += int(route.credits)
+		scrap += int(route.scrap)
 	player.claimed_weekly_objectives = claimed
 	player.credits = int(player.get("credits", 0)) + credits
 	player.scrap = int(player.get("scrap", 0)) + scrap
-	last_notice = LocaleRulesScript.text("WEEKLY_NOTICE_ALL_CLAIMED", "%d objetivos semanais resgatados: +%d créditos · +%d sucata.", [ready.size(), credits, scrap])
+	var payment_count := ready.size() + (1 if route_ready else 0)
+	last_notice = LocaleRulesScript.text("WEEKLY_NOTICE_ALL_PAYMENTS_CLAIMED", "%d pagamentos semanais resgatados: +%d créditos · +%d sucata.", [payment_count, credits, scrap])
 	last_notice_context = "weekly"
 	save_game()
 	changed.emit()
-	return {"count": ready.size(), "credits": credits, "scrap": scrap}
+	return {"count": payment_count, "credits": credits, "scrap": scrap}
 
 
 func buy_market_offer(offer_id: String) -> bool:
@@ -1299,6 +1337,8 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	player.daily_hunts_completed = int(player.get("daily_hunts_completed", 0)) + 1
 	normalize_weekly_operations()
 	player.weekly_hunts_completed = int(player.get("weekly_hunts_completed", 0)) + 1
+	if network_mission:
+		WeeklyOperationRulesScript.record_route_capture(player, completed_planet_id)
 	if bool(completed_bounty.get("weekly_special", false)) and int(completed_bounty.get("weekly_cycle_id", -1)) == int(player.get("weekly_cycle_id", -2)):
 		player.weekly_special_completed = true
 		summary.weekly_special_complete = true
@@ -2365,6 +2405,42 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 		repaired = true
 	if not sanitized.get("weekly_special_completed", false) is bool:
 		sanitized.weekly_special_completed = false
+		repaired = true
+	var expected_route_ids := WeeklyOperationRulesScript.rotating_planet_ids(sanitized, int(sanitized.get("weekly_cycle_id", -1)))
+	var clean_route_ids: Array = []
+	var loaded_route_ids = sanitized.get("weekly_route_planet_ids", [])
+	if loaded_route_ids is Array:
+		for route_id in loaded_route_ids:
+			var id := str(route_id)
+			if expected_route_ids.has(id) and not clean_route_ids.has(id):
+				clean_route_ids.append(id)
+			else:
+				repaired = true
+	else:
+		repaired = true
+	if not clean_route_ids.is_empty() and clean_route_ids != expected_route_ids:
+		clean_route_ids = expected_route_ids
+		repaired = true
+	sanitized.weekly_route_planet_ids = clean_route_ids
+	var clean_route_captures := {}
+	var loaded_route_captures = sanitized.get("weekly_route_captures", {})
+	if loaded_route_captures is Dictionary:
+		for route_id_value in loaded_route_captures:
+			var route_id := str(route_id_value)
+			var value = loaded_route_captures[route_id_value]
+			if not clean_route_ids.has(route_id) or not (value is int or value is float):
+				repaired = true
+				continue
+			var count := clampi(int(value), 0, WeeklyOperationRulesScript.ROUTE_PLANET_QUOTA)
+			if count != int(value) or count <= 0:
+				repaired = true
+				continue
+			clean_route_captures[route_id] = count
+	else:
+		repaired = true
+	sanitized.weekly_route_captures = clean_route_captures
+	if not sanitized.get("weekly_route_claimed", false) is bool:
+		sanitized.weekly_route_claimed = false
 		repaired = true
 	var loaded_weekly_target := str(sanitized.get("weekly_special_target_id", ""))
 	var valid_weekly_targets := WeeklyOperationRulesScript.eligible_special_targets(sanitized).map(func(entry): return str(entry.id))

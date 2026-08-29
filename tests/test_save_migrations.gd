@@ -100,11 +100,12 @@ func _init() -> void:
 	check(SaveMigrations.migrate({"version": 0}).is_empty(), "unversioned saves are rejected")
 	check(SaveMigrations.migrate({"version": SaveMigrations.CURRENT_VERSION + 1}).is_empty(), "future saves are rejected")
 	var fuel_migration := SaveMigrations.migrate({"version": 20, "player": {"credits": 5}})
-	check(int(fuel_migration.version) == 23 and int(fuel_migration.player.hunt_fuel) == 100 and int(fuel_migration.player.hunt_fuel_refill_count) == 0, "schema twenty receives a full neutral daily fuel reserve")
+	check(int(fuel_migration.version) == 24 and int(fuel_migration.player.hunt_fuel) == 100 and int(fuel_migration.player.hunt_fuel_refill_count) == 0, "schema twenty receives a full neutral daily fuel reserve")
 	var rift_migration := SaveMigrations.migrate({"version": 21, "player": {"level": 29, "challenge_floor": 6}})
 	check(rift_migration.player.rift_reality_keys == ["dead_customs_key"], "schema twenty-two preserves the earned key for an established Rift hunter")
 	check(int(rift_migration.player.rift_reality_progress.dead_customs) == 6 and int(rift_migration.player.rift_entry_day) == -1, "schema twenty-two maps legacy floors without inventing a consumed daily entry")
-	check(int(rift_migration.version) == 23 and int(rift_migration.player.weekly_cycle_id) == -1 and rift_migration.player.claimed_weekly_objectives.is_empty(), "schema twenty-three adds neutral weekly operations to established Rift saves")
+	check(int(rift_migration.version) == 24 and int(rift_migration.player.weekly_cycle_id) == -1 and rift_migration.player.claimed_weekly_objectives.is_empty(), "schema twenty-three adds neutral weekly operations to established Rift saves")
+	check(rift_migration.player.weekly_route_planet_ids.is_empty() and rift_migration.player.weekly_route_captures.is_empty() and not bool(rift_migration.player.weekly_route_claimed), "schema twenty-four adds a neutral Network Circuit to established weekly saves")
 
 	if failures == 0:
 		print("PASS: save migrations are deterministic and non-destructive")

@@ -85,6 +85,19 @@ static func board_offers(player: Dictionary, limit := 3) -> Array[Dictionary]:
 		if current_index >= 0:
 			planet_order.remove_at(current_index)
 			planet_order.insert(cycle % mini(limit, planets.size()), newest_planet)
+	# The weekly circuit occupies one of the three normal slots. It changes
+	# destination choice, never fuel, pressure, duration, payout or target rules.
+	# A fresh unlock keeps precedence, but the circuit uses another slot if the
+	# highlighted world was not already visible.
+	var route_ids: Array = player.get("weekly_route_planet_ids", [])
+	var visible_limit := mini(limit, planets.size())
+	if not route_ids.is_empty() and not planet_order.slice(0, visible_limit).any(func(planet): return route_ids.has(str(planet.id))):
+		var route_id := str(route_ids[posmod(cycle, route_ids.size())])
+		var route_index := planet_order.find_custom(func(planet): return str(planet.id) == route_id)
+		if route_index >= 0:
+			var route_planet: Dictionary = planet_order[route_index]
+			planet_order.remove_at(route_index)
+			planet_order.insert(posmod(cycle + (1 if inside_unlock_window else 0), visible_limit), route_planet)
 	var used_target_ids := {}
 	var result: Array[Dictionary] = []
 	for offer_index in mini(limit, ROLES.size()):

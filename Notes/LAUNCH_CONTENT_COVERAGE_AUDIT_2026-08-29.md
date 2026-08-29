@@ -13,7 +13,7 @@ Com o eixo planetário fechado em 35 mundos, esta auditoria mede se missões, eq
 | Rede de mandados | 35 planetas, 140 alvos e 70 incidentes até ao nível 320 | Catálogo lógico de lançamento completo; expansão congelada. |
 | Equipamento | nove espaços universais e 2 180 séries normais | Variedade e cauda de coleção suficientes; nenhuma de 100 carreiras completou o catálogo após 5 000 contratos. |
 | Retenção curta | três objetivos diários | Ciclo limitado e honesto de 1/3/5 caçadas, sem obrigação premium. |
-| Retenção semanal | três metas e um Mandado Negro | Um motivo semanal funcional, reutilizando bosses desbloqueados sem reativar campanha linear. |
+| Retenção semanal | três metas, um Circuito da Rede e um Mandado Negro | Volume, variedade planetária e alvo especial são decisões distintas sem criar outra energia ou campanha linear. |
 | Fenda | três realidades, 36 primeiras vitórias | Teste diário de build coerente até aos checkpoints de nível 215; continua a ser uma escada finita, não retenção anual isolada. |
 | Economia | Mercado, Oficina, quatro transportes e incidentes pagos | Créditos perdem pressão após os transportes; uma carreira padrão conserva 136 391 créditos ao fim de 200 vitórias. |
 | Carreira antes deste batch | oito marcos | Terminava no quinto mundo, cinco capturas de embalo e 25 de sucata reciclada, muito antes do horizonte anual. |
@@ -37,3 +37,5 @@ Esses pagamentos são reconhecimento, não uma nova curva de poder. O total de C
 ## Continuação implementada
 
 A Oficina passou a cobrar um serviço em Créditos além da Sucata, conforme `WORKSHOP_CREDIT_SERVICE_AUDIT_2026-08-29.md`. A simulação preserva os quatro transportes e absorve medianamente 17,4% do saldo que seria retido após 200 contratos. A continuação seguinte acrescenta a terceira realidade da Fenda, com doze inimigos, chave gameplay-only, 36 dias totais de primeira conclusão e envelope de recompensas compatível com esta economia.
+
+O Circuito da Rede fecha a lacuna repetível seguinte sem expandir o catálogo: até três mundos por semana, duas capturas em cada, um cartão garantido no quadro e 250 Créditos/18 Sucata resgatáveis uma vez. Doze semanas cobrem os 35 mundos; o sistema reutiliza os 140 alvos através das regras normais de rotação e não altera combustível, tempo, pressão ou pagamento dos mandados.
