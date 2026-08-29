@@ -141,13 +141,10 @@ static func restore_scroll_position(host: CrookedUIFactory, scroller: ScrollCont
 
 static func ordered_archive_targets(state: StateScript) -> Array[Dictionary]:
 	var current_planet_id := str(state.player.get("current_planet_id", Content.PLANET.id))
-	var ordered: Array[Dictionary] = []
-	for target in Content.TARGETS:
-		if str(target.get("planet_id", Content.PLANET.id)) == current_planet_id:
-			ordered.append(target)
-	for target in Content.TARGETS:
-		if str(target.get("planet_id", Content.PLANET.id)) != current_planet_id:
-			ordered.append(target)
+	var ordered := Content.targets_for_planet(current_planet_id)
+	for planet in Content.PLANETS:
+		if str(planet.id) != current_planet_id:
+			ordered.append_array(Content.targets_for_planet(str(planet.id)))
 	return ordered
 
 
@@ -164,12 +161,7 @@ static func ordered_archive_planets(state: StateScript) -> Array[Dictionary]:
 
 
 static func targets_for_archive_planet(planet: Dictionary) -> Array[Dictionary]:
-	var planet_id := str(planet.get("id", ""))
-	var result: Array[Dictionary] = []
-	for target in Content.TARGETS:
-		if str(target.get("planet_id", Content.PLANET.id)) == planet_id:
-			result.append(target)
-	return result
+	return Content.targets_for_planet(str(planet.get("id", "")))
 
 
 static func archive_planet_navigation(host: CrookedUIFactory, state: StateScript, planets: Array[Dictionary], planet: Dictionary, record_count: int) -> PanelContainer:
@@ -324,7 +316,7 @@ static func summary_card(host: CrookedUIFactory, state: StateScript) -> PanelCon
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
 	copy.add_child(host.label(t("CAREER_HUNTER_LEVEL", "CAÇADOR NÍVEL %d", [int(state.player.level)]), UIDesignSystem.FONT_BODY, host.GOLD))
-	copy.add_child(host.readable_caption(t("CAREER_CAPTURE_SECTORS", "%d CAPTURAS · %d/%d MUNDOS CONHECIDOS", [int(state.player.wins), MissionRules.available_planets(int(state.player.get("level", 1))).size(), Content.PLANETS.size()]), host.INK))
+	copy.add_child(host.readable_caption(t("CAREER_CAPTURE_SECTORS", "%d CAPTURAS · %d/%d MUNDOS CONHECIDOS", [int(state.player.wins), MissionRules.available_planet_count(int(state.player.get("level", 1))), Content.PLANETS.size()]), host.INK))
 	var xp_needed := Rules.xp_needed(int(state.player.level))
 	var xp_row := HBoxContainer.new()
 	copy.add_child(xp_row)
@@ -414,10 +406,7 @@ static func planet_card(host: CrookedUIFactory, state: StateScript, planet: Dict
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
 	copy.add_child(host.label(localized_content_field("planet", planet, "name").to_upper(), UIDesignSystem.FONT_BODY, accent if unlocked else host.MUTED))
-	var planet_targets := 0
-	for target in Content.TARGETS:
-		if str(target.get("planet_id", "")) == planet_id:
-			planet_targets += 1
+	var planet_targets := Content.target_count_for_planet(planet_id)
 	var target_captures := maxi(1, planet_targets * 3)
 	var progress := ProgressBar.new()
 	progress.name = "CareerPlanetProgress_%s" % planet_id

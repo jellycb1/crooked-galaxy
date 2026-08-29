@@ -887,10 +887,9 @@ func localized_hunt_result(bounty: Dictionary) -> String:
 	var choice_id := str(bounty.get("hunt_event_choice_id", ""))
 	if choice_id.is_empty():
 		return str(bounty.get("hunt_event_result", ""))
-	for event in ContentDB.HUNT_EVENTS:
-		for choice in event.get("choices", []):
-			if str(choice.get("id", "")) == choice_id:
-				return localized_hunt_choice_field(str(event.id), choice, "result")
+	var indexed_choice := ContentDB.hunt_choice(choice_id)
+	if not indexed_choice.is_empty():
+		return localized_hunt_choice_field(str(indexed_choice.event_id), indexed_choice.choice, "result")
 	return str(bounty.get("hunt_event_result", ""))
 
 
@@ -1427,7 +1426,7 @@ func build_galaxy_map() -> void:
 
 
 func galaxy_visible_planets(level: int) -> Array:
-	var unlocked_count := MissionRulesScript.available_planets(level).size()
+	var unlocked_count := MissionRulesScript.available_planet_count(level)
 	var visible_count := mini(ContentDB.PLANETS.size(), unlocked_count + GALAXY_LOCKED_PREVIEW_COUNT)
 	return ContentDB.PLANETS.slice(0, visible_count)
 

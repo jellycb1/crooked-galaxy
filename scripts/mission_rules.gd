@@ -27,6 +27,14 @@ static func available_planets(level: int) -> Array[Dictionary]:
 	return result
 
 
+static func available_planet_count(level: int) -> int:
+	var result := 0
+	for planet in Content.PLANETS:
+		if level >= int(planet.get("unlock_level", 1)):
+			result += 1
+	return result
+
+
 static func is_planet_available(planet_id: String, level: int) -> bool:
 	# This check runs once per visible Galaxy card. Avoid constructing and deeply
 	# duplicating the complete unlocked catalog for every card.
@@ -160,11 +168,7 @@ static func _apply_weekly_special(offer: Dictionary, week_id: int) -> Dictionary
 
 
 static func targets_for_planet(planet_id: String) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
-	for target in Content.TARGETS:
-		if str(target.get("planet_id", Content.PLANET.id)) == planet_id:
-			result.append(target.duplicate(true))
-	return result
+	return Content.targets_for_planet(planet_id)
 
 
 static func travel_multiplier(mission_level: int) -> float:

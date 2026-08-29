@@ -8,6 +8,15 @@ const ContentPackRegistry = preload("res://scripts/content/content_pack_registry
 
 static var procedural_collection_ids_cache: Array[String] = []
 static var procedural_collection_entries_cache: Array[Dictionary] = []
+static var content_indices_ready := false
+static var planet_by_id_cache := {}
+static var planet_index_by_id_cache := {}
+static var target_by_id_cache := {}
+static var targets_by_planet_cache := {}
+static var target_by_planet_tier_cache := {}
+static var hunt_events_by_planet_cache := {}
+static var hunt_choice_by_id_cache := {}
+static var highest_target_rank_cache := 0
 
 
 const PLANET := ContentPackRegistry.STARTER_PLANET
@@ -140,11 +149,61 @@ const PLANET_ITEM_CATALOGS := ContentPackRegistry.PLANET_ITEM_CATALOGS
 const SECONDARY_ITEM_CATALOGS := ContentPackRegistry.SECONDARY_ITEM_CATALOGS
 
 
+static func _ensure_content_indices() -> void:
+	if content_indices_ready:
+		return
+	for index in PLANETS.size():
+		var planet: Dictionary = PLANETS[index]
+		var planet_id := str(planet.get("id", ""))
+		planet_by_id_cache[planet_id] = planet
+		planet_index_by_id_cache[planet_id] = index
+		targets_by_planet_cache[planet_id] = []
+		target_by_planet_tier_cache[planet_id] = {}
+		hunt_events_by_planet_cache[planet_id] = []
+	for target in TARGETS:
+		var target_id := str(target.get("id", ""))
+		var planet_id := str(target.get("planet_id", PLANET.id))
+		target_by_id_cache[target_id] = target
+		highest_target_rank_cache = maxi(highest_target_rank_cache, int(target.get("rank", 0)))
+		var planet_targets: Array = targets_by_planet_cache.get(planet_id, [])
+		planet_targets.append(target)
+		targets_by_planet_cache[planet_id] = planet_targets
+		var planet_tiers: Dictionary = target_by_planet_tier_cache.get(planet_id, {})
+		planet_tiers[int(target.get("chapter_tier", -1))] = target
+		target_by_planet_tier_cache[planet_id] = planet_tiers
+	for event in HUNT_EVENTS:
+		var planet_id := str(event.get("planet_id", PLANET.id))
+		var planet_events: Array = hunt_events_by_planet_cache.get(planet_id, [])
+		planet_events.append(event)
+		hunt_events_by_planet_cache[planet_id] = planet_events
+		for choice in event.get("choices", []):
+			hunt_choice_by_id_cache[str(choice.get("id", ""))] = {"event_id": str(event.get("id", "")), "choice": choice}
+	content_indices_ready = true
+
+
 static func get_planet(planet_id: String) -> Dictionary:
-	for planet in PLANETS:
-		if str(planet.id) == planet_id:
-			return planet.duplicate(true)
+	_ensure_content_indices()
+	if planet_by_id_cache.has(planet_id):
+		return planet_by_id_cache[planet_id].duplicate(true)
 	return PLANET.duplicate(true)
+
+
+static func targets_for_planet(planet_id: String) -> Array[Dictionary]:
+	_ensure_content_indices()
+	var result: Array[Dictionary] = []
+	for target in targets_by_planet_cache.get(planet_id, []):
+		result.append(target.duplicate(true))
+	return result
+
+
+static func target_count_for_planet(planet_id: String) -> int:
+	_ensure_content_indices()
+	return targets_by_planet_cache.get(planet_id, []).size()
+
+
+static func highest_target_rank() -> int:
+	_ensure_content_indices()
+	return highest_target_rank_cache
 
 
 static func is_planet_unlocked(planet_id: String, completed_planets: Array) -> bool:
@@ -156,9 +215,9 @@ static func is_planet_unlocked(planet_id: String, completed_planets: Array) -> b
 static func available_bounties(reputation: int, planet_id := "dustball_prime", chapter_tier := -1) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	var unlocked_tier: int = reputation if chapter_tier < 0 else chapter_tier
-	for target in TARGETS:
-		if str(target.get("planet_id", "dustball_prime")) == planet_id and int(target.rank) <= reputation and int(target.get("chapter_tier", target.rank)) <= unlocked_tier:
-			result.append(target.duplicate(true))
+	for target in targets_for_planet(planet_id):
+		if int(target.rank) <= reputation and int(target.get("chapter_tier", target.rank)) <= unlocked_tier:
+			result.append(target)
 	return result
 
 
@@ -231,16 +290,17 @@ static func canonical_loaded_approach(loaded: Dictionary) -> Dictionary:
 
 
 static func get_target(target_id: String) -> Dictionary:
-	for target in TARGETS:
-		if str(target.get("id", "")) == target_id:
-			return target.duplicate(true)
+	_ensure_content_indices()
+	if target_by_id_cache.has(target_id):
+		return target_by_id_cache[target_id].duplicate(true)
 	return {}
 
 
 static func target_for_planet_tier(planet_id: String, tier: int) -> Dictionary:
-	for target in TARGETS:
-		if str(target.get("planet_id", "")) == planet_id and int(target.get("chapter_tier", -1)) == tier:
-			return target.duplicate(true)
+	_ensure_content_indices()
+	var planet_tiers: Dictionary = target_by_planet_tier_cache.get(planet_id, {})
+	if planet_tiers.has(tier):
+		return planet_tiers[tier].duplicate(true)
 	return {}
 
 
@@ -308,20 +368,23 @@ static func apply_approach(bounty: Dictionary, approach: Dictionary) -> Dictiona
 
 
 static func planet_index_for(planet_id: String) -> int:
-	for index in PLANETS.size():
-		if str(PLANETS[index].id) == planet_id:
-			return index
-	return 0
+	_ensure_content_indices()
+	return int(planet_index_by_id_cache.get(planet_id, 0))
 
 
 static func random_hunt_event(rng: RandomNumberGenerator, planet_id := "dustball_prime") -> Dictionary:
-	var candidates: Array[Dictionary] = []
-	for event in HUNT_EVENTS:
-		if str(event.get("planet_id", "dustball_prime")) == planet_id:
-			candidates.append(event)
+	_ensure_content_indices()
+	var candidates: Array = hunt_events_by_planet_cache.get(planet_id, [])
 	if candidates.is_empty():
-		candidates.append(HUNT_EVENTS[0])
+		return HUNT_EVENTS[0].duplicate(true)
 	return candidates[rng.randi_range(0, candidates.size() - 1)].duplicate(true)
+
+
+static func hunt_choice(choice_id: String) -> Dictionary:
+	_ensure_content_indices()
+	if hunt_choice_by_id_cache.has(choice_id):
+		return hunt_choice_by_id_cache[choice_id].duplicate(true)
+	return {}
 
 
 static func apply_hunt_choice(bounty: Dictionary, choice: Dictionary) -> Dictionary:

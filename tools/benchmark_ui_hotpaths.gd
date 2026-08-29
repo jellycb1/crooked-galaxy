@@ -10,6 +10,7 @@ func _initialize() -> void:
 
 
 func run() -> void:
+	var mature_level := int(Content.PLANETS[-1].get("unlock_level", 1))
 	var state = root.get_node("GameState")
 	state.persistence_enabled = false
 	state.player = state.default_player()
@@ -29,7 +30,7 @@ func run() -> void:
 		if mode == "board_network_warm":
 			scene.selected_board_offer_index = 1
 		if mode == "galaxy_mature":
-			state.player.level = 160
+			state.player.level = mature_level
 		var base_mode: String = "galaxy" if mode == "galaxy_mature" else str(mode).trim_suffix("_cold").trim_suffix("_warm").trim_suffix("_collection").trim_suffix("_confirmation")
 		scene.view_mode = "board" if base_mode == "board_network" else ("career" if base_mode == "career_archive" else base_mode)
 		if mode == "career" or mode == "career_archive":
@@ -50,13 +51,28 @@ func run() -> void:
 	var lookup_checksum := 0
 	for _cycle in 1000:
 		for planet in Content.PLANETS:
-			lookup_checksum += 1 if MissionRules.available_planets(160).any(func(candidate): return str(candidate.id) == str(planet.id)) else 0
+			lookup_checksum += 1 if MissionRules.available_planets(mature_level).any(func(candidate): return str(candidate.id) == str(planet.id)) else 0
 	var allocating_elapsed := Time.get_ticks_usec() - allocating_started
 	var direct_started := Time.get_ticks_usec()
 	for _cycle in 1000:
 		for planet in Content.PLANETS:
-			lookup_checksum += 1 if MissionRules.is_planet_available(str(planet.id), 160) else 0
+			lookup_checksum += 1 if MissionRules.is_planet_available(str(planet.id), mature_level) else 0
 	var direct_elapsed := Time.get_ticks_usec() - direct_started
 	print("GALAXY_UNLOCK_LOOKUP_BENCHMARK allocating=%d us direct=%d us checksum=%d" % [allocating_elapsed, direct_elapsed, lookup_checksum])
+	var linear_target_started := Time.get_ticks_usec()
+	var target_checksum := 0
+	for _cycle in 1000:
+		for requested_target in Content.TARGETS:
+			for candidate in Content.TARGETS:
+				if str(candidate.id) == str(requested_target.id):
+					target_checksum += int(candidate.chapter_tier)
+					break
+	var linear_target_elapsed := Time.get_ticks_usec() - linear_target_started
+	var indexed_target_started := Time.get_ticks_usec()
+	for _cycle in 1000:
+		for requested_target in Content.TARGETS:
+			target_checksum += int(Content.get_target(str(requested_target.id)).chapter_tier)
+	var indexed_target_elapsed := Time.get_ticks_usec() - indexed_target_started
+	print("TARGET_ID_LOOKUP_BENCHMARK linear=%d us indexed=%d us checksum=%d" % [linear_target_elapsed, indexed_target_elapsed, target_checksum])
 	scene.free()
 	quit(0)

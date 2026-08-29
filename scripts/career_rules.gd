@@ -12,7 +12,7 @@ static func milestones(player: Dictionary) -> Array[Dictionary]:
 	for count in captures.values():
 		if int(count) >= 3:
 			has_repeat_target = true
-	var discovered_count := MissionRules.available_planets(int(player.get("level", 1))).size()
+	var discovered_count := MissionRules.available_planet_count(int(player.get("level", 1)))
 	var claimed: Array = player.get("claimed_milestones", [])
 	var definitions: Array[Dictionary] = [
 		{"id": "first_warrant", "name": "PRIMEIRO MANDADO", "description": "Execute sua primeira captura.", "complete": int(player.get("wins", 0)) >= 1, "claimed": claimed.has("first_warrant"), "credits": 40, "scrap": 0},

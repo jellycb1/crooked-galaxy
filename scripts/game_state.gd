@@ -758,7 +758,7 @@ func acquire_or_equip_transport(transport_id: String) -> bool:
 func apply_offline_progress(now_unix: float) -> Dictionary:
 	var last_seen := float(player.get("last_seen_unix", now_unix))
 	var elapsed := maxf(0.0, now_unix - last_seen)
-	var rewards := CoreRules.offline_patrol_rewards(elapsed, MissionRulesScript.available_planets(int(player.get("level", 1))).size(), int(player.get("wins", 0)))
+	var rewards := CoreRules.offline_patrol_rewards(elapsed, MissionRulesScript.available_planet_count(int(player.get("level", 1))), int(player.get("wins", 0)))
 	# A clock rollback must not move the settlement watermark backwards and turn
 	# the same interval into a future patrol payout when the clock catches up.
 	player.last_seen_unix = maxf(last_seen, now_unix)
@@ -1337,9 +1337,7 @@ func claim_reward(equip_item: bool, repeat_contract := false, recycle_item := fa
 	player.captures_by_planet = planet_captures
 	summary.chapter_tier_up = not network_mission and planet_tier(completed_planet_id) > old_chapter_tier
 	var old_reputation := int(player.reputation)
-	var highest_rank := 0
-	for target in ContentDB.TARGETS:
-		highest_rank = maxi(highest_rank, int(target.rank))
+	var highest_rank := ContentDB.highest_target_rank()
 	player.reputation = mini(floori(float(player.wins) / 3.0), highest_rank)
 	summary.rank_up = int(player.reputation) > old_reputation
 	if recycle_item:
