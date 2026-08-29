@@ -27,16 +27,17 @@ const FabricaSois = preload("res://scripts/content/packs/fabrica_sois_recondicio
 const ClinicaPlanetas = preload("res://scripts/content/packs/clinica_planetas_descontinuados.gd")
 const CorreioMinhoca = preload("res://scripts/content/packs/correio_buracos_minhoca.gd")
 const AquarioOceanos = preload("res://scripts/content/packs/aquario_oceanos_confiscados.gd")
+const CentralSonhos = preload("res://scripts/content/packs/central_sonhos_penhorados.gd")
 
 var failures := 0
 
 
 func _init() -> void:
 	check(Registry.validation_errors().is_empty(), "registered planet packs satisfy the complete content contract")
-	check(Registry.PACK_SCRIPTS.size() == 24, "the registry contains all twenty-four current canonical planet packs")
-	check(Registry.PLANETS.size() == 24, "the registry composes all twenty-four planets")
-	check(Registry.TARGETS.size() == 96, "the registry composes all 96 targets")
-	check(Registry.HUNT_EVENTS.size() == 48, "the registry composes all 48 hunt incidents")
+	check(Registry.PACK_SCRIPTS.size() == 25, "the registry contains all twenty-five current canonical planet packs")
+	check(Registry.PLANETS.size() == 25, "the registry composes all twenty-five planets")
+	check(Registry.TARGETS.size() == 100, "the registry composes all 100 targets")
+	check(Registry.HUNT_EVENTS.size() == 50, "the registry composes all 50 hunt incidents")
 	check(Registry.pack_for_planet("dustball_prime") == Dustball.PACK, "registry resolves the canonical Dustball pack")
 	check(Registry.pack_for_planet("congelaria_sa") == Congelaria.PACK, "registry resolves the canonical Congelaria pack")
 	check(Registry.pack_for_planet("micelia_404") == Micelia.PACK, "registry resolves the canonical Micelia pack")
@@ -61,6 +62,7 @@ func _init() -> void:
 	check(Registry.pack_for_planet("clinica_planetas_descontinuados") == ClinicaPlanetas.PACK, "registry resolves the canonical Discontinued Planet Clinic pack")
 	check(Registry.pack_for_planet("correio_buracos_minhoca") == CorreioMinhoca.PACK, "registry resolves the canonical Wormhole Post pack")
 	check(Registry.pack_for_planet("aquario_oceanos_confiscados") == AquarioOceanos.PACK, "registry resolves the canonical Confiscated Oceans Aquarium pack")
+	check(Registry.pack_for_planet("central_sonhos_penhorados") == CentralSonhos.PACK, "registry resolves the canonical Repossessed Dreams Center pack")
 	check(Registry.pack_for_planet("unknown").is_empty(), "unknown planet packs fail closed")
 	var detached := Registry.pack_for_planet("dustball_prime")
 	detached.planet.name = "MUTATED"
@@ -267,6 +269,14 @@ func _init() -> void:
 	check(Content.loot_slots_for_planet("aquario_oceanos_confiscados").count("gloves") == 2, "level-210 loot deepens the universal glove slot")
 	check([AquarioOceanos.TARGETS[0].power, AquarioOceanos.TARGETS[3].power] == [2145, 2323], "level-210 combat anchors are explicit")
 	check(AquarioOceanos.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Confiscated Oceans Aquarium target art remains explicitly assigned to the user asset pipeline")
+	check(Content.PLANETS[24] == CentralSonhos.PLANET, "the level-220 planet follows Confiscated Oceans Aquarium in canonical order")
+	check(Content.TARGETS.slice(96, 100) == CentralSonhos.TARGETS, "ContentDB exposes all four Repossessed Dreams Center targets")
+	check(Content.HUNT_EVENTS.slice(48, 50) == CentralSonhos.EVENTS, "ContentDB exposes both Repossessed Dreams Center incidents")
+	check(Content.PLANET_ITEM_CATALOGS.central_sonhos_penhorados == CentralSonhos.ITEMS, "Repossessed Dreams Center primary equipment remains canonical")
+	check(Content.SECONDARY_ITEM_CATALOGS.central_sonhos_penhorados == CentralSonhos.SECONDARY_ITEMS, "Repossessed Dreams Center helmet catalog remains canonical")
+	check(Content.loot_slots_for_planet("central_sonhos_penhorados").count("helmet") == 2, "level-220 loot deepens the universal helmet slot")
+	check([CentralSonhos.TARGETS[0].power, CentralSonhos.TARGETS[3].power] == [2370, 2564], "level-220 combat anchors are explicit")
+	check(CentralSonhos.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Repossessed Dreams Center target art remains explicitly assigned to the user asset pipeline")
 
 	var forged := Dustball.PACK.duplicate(true)
 	forged.targets.pop_back()
@@ -289,7 +299,7 @@ func _init() -> void:
 	check(not PackContract.is_valid(forged), "planet bosses are reserved for tier three")
 
 	if failures == 0:
-		print("PASS: all twenty-four current planet packs preserve canonical content and slot progression")
+		print("PASS: all twenty-five current planet packs preserve canonical content and slot progression")
 	quit(1 if failures > 0 else 0)
 
 
