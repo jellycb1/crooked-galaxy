@@ -13,6 +13,9 @@ func _init() -> void:
 	var state := StateScript.new()
 	state.persistence_enabled = false
 	var player := state.default_player()
+	# Market stock is day-seeded in production. Pin the audit day so calendar
+	# rollover cannot change which rarity happens to be the cheapest sample.
+	player.economy_day = 20800
 	var previous_reward := 0
 	var previous_stock := 0
 	for level in [1, 4, 8, 13, 19, 30, 50, 75, 100]:
