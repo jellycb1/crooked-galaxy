@@ -1,0 +1,10 @@
+{
+  "provider": "nakama",
+  "nakama_server": "3.40.0",
+  "nakama_common_runtime_types": "1.47.0",
+  "nakama_godot_client": "3.4.0",
+  "database_family": "postgresql",
+  "initial_shard": "international_1",
+  "client_environment": "offline",
+  "remote_endpoint": null
+}

@@ -26,3 +26,10 @@ internal_reference_assets/
 
 # Local visual-direction drafts are review artifacts, never runtime content.
 art_drafts/
+
+# Backend secrets, dependencies, generated runtime and local database state
+backend/.env
+backend/node_modules/
+backend/build/
+backend/data/
+backend/backups/

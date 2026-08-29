@@ -11,6 +11,8 @@ const DEFINITIONS := [
 		"language_policy": "MULTILÍNGUE",
 		"prototype": true,
 		"service_mode": "local_contract",
+		"backend_provider": "nakama",
+		"backend_environment": "offline",
 		"account_backend": false,
 		"clock_backend": false,
 		"profile_backend": false,

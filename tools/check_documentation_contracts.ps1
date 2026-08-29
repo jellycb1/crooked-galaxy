@@ -9,6 +9,8 @@ $AuthorityText = Get-Content -LiteralPath $AuthorityPath -Raw
 $ActiveDocuments = @(
     "Vision.txt",
     "ACCOUNT_SERVER_CONTRACT.md",
+	"BACKEND_VERTICAL_SLICE_CONTRACT.md",
+	"ONLINE_BACKEND_DECISION_2026-08-29.md",
     "MONETIZATION_CONTRACT.md",
     "EQUIPMENT_SYSTEM_CONTRACT.md",
     "YEAR_ONE_CONTENT_CONTRACT.md",

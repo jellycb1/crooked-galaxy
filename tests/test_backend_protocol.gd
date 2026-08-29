@@ -28,6 +28,8 @@ func test_honest_unconfigured_boundary() -> void:
 	check(not service.backend_available() and not service.supports_remote_sessions() and not service.server_clock_available(), "local adapter advertises no remote session or clock")
 	check(not Servers.account_backend_available(Servers.DEFAULT_ID) and not Servers.clock_backend_available(Servers.DEFAULT_ID) and not Servers.profile_backend_available(Servers.DEFAULT_ID), "International 1 keeps every remote foundation flag disabled")
 	check(not Servers.agency_backend_available(Servers.DEFAULT_ID), "Agency availability remains gated behind its server authority")
+	var server := Servers.get_definition(Servers.DEFAULT_ID)
+	check(str(server.backend_provider) == "nakama" and str(server.backend_environment) == "offline", "International 1 records the selected provider without claiming a deployment")
 
 
 func test_authenticated_session_boundary() -> void:
