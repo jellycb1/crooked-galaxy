@@ -15,7 +15,7 @@ Crooked Galaxy is Android-first, fully playable in Portuguese and English, and c
 - Eight cosmetic-only races with 81 appearance recipes each; race never changes mechanics.
 - Five attributes: Strength, Vitality, Dexterity, Intelligence, and Cunning.
 - One universal nine-slot equipment model for every current and future class.
-- Twenty-seven modular mission worlds through level 240, containing 108 targets and 54 incidents.
+- Twenty-eight modular mission worlds through level 250, containing 112 targets and 56 incidents.
 - Three deterministic interplanetary warrant offers after the guided first capture.
 - Wall-clock hunts that continue while navigating other interfaces, suspending, closing, or reopening the game.
 - Permanent transports that reduce travel time only; fuel cost remains tied to base route length.
