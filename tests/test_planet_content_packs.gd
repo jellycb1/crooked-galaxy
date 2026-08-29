@@ -37,16 +37,17 @@ const OficinaRealidades = preload("res://scripts/content/packs/oficina_realidade
 const SeguradoraApocalipses = preload("res://scripts/content/packs/seguradora_apocalipses_evitaveis.gd")
 const LeilaoImperios = preload("res://scripts/content/packs/leilao_imperios_falidos.gd")
 const FabricaCoincidencias = preload("res://scripts/content/packs/fabrica_coincidencias_industriais.gd")
+const CentralReinicios = preload("res://scripts/content/packs/central_reinicios_cosmicos.gd")
 
 var failures := 0
 
 
 func _init() -> void:
 	check(Registry.validation_errors().is_empty(), "registered planet packs satisfy the complete content contract")
-	check(Registry.PACK_SCRIPTS.size() == 34, "the registry contains all thirty-four current canonical planet packs")
-	check(Registry.PLANETS.size() == 34, "the registry composes all thirty-four planets")
-	check(Registry.TARGETS.size() == 136, "the registry composes all 136 targets")
-	check(Registry.HUNT_EVENTS.size() == 68, "the registry composes all 68 hunt incidents")
+	check(Registry.PACK_SCRIPTS.size() == 35, "the registry contains the complete thirty-five-world launch catalog")
+	check(Registry.PLANETS.size() == 35, "the registry composes all thirty-five planets")
+	check(Registry.TARGETS.size() == 140, "the registry composes all 140 targets")
+	check(Registry.HUNT_EVENTS.size() == 70, "the registry composes all 70 hunt incidents")
 	check(Registry.pack_for_planet("dustball_prime") == Dustball.PACK, "registry resolves the canonical Dustball pack")
 	check(Registry.pack_for_planet("congelaria_sa") == Congelaria.PACK, "registry resolves the canonical Congelaria pack")
 	check(Registry.pack_for_planet("micelia_404") == Micelia.PACK, "registry resolves the canonical Micelia pack")
@@ -81,6 +82,7 @@ func _init() -> void:
 	check(Registry.pack_for_planet("seguradora_apocalipses_evitaveis") == SeguradoraApocalipses.PACK, "registry resolves the canonical Preventable Apocalypse Insurance pack")
 	check(Registry.pack_for_planet("leilao_imperios_falidos") == LeilaoImperios.PACK, "registry resolves the canonical Bankrupt Empire Auction pack")
 	check(Registry.pack_for_planet("fabrica_coincidencias_industriais") == FabricaCoincidencias.PACK, "registry resolves the canonical Industrial Coincidence Factory pack")
+	check(Registry.pack_for_planet("central_reinicios_cosmicos") == CentralReinicios.PACK, "registry resolves the canonical Cosmic Restart Center pack")
 	check(Registry.pack_for_planet("unknown").is_empty(), "unknown planet packs fail closed")
 	var detached := Registry.pack_for_planet("dustball_prime")
 	detached.planet.name = "MUTATED"
@@ -331,6 +333,10 @@ func _init() -> void:
 	check(Content.PLANET_ITEM_CATALOGS.fabrica_coincidencias_industriais == FabricaCoincidencias.ITEMS and Content.SECONDARY_ITEM_CATALOGS.fabrica_coincidencias_industriais == FabricaCoincidencias.SECONDARY_ITEMS, "Industrial Coincidence Factory equipment remains canonical")
 	check(Content.loot_slots_for_planet("fabrica_coincidencias_industriais").count("gloves") == 2 and [FabricaCoincidencias.TARGETS[0].power, FabricaCoincidencias.TARGETS[3].power] == [5389, 5822], "level-310 gloves and combat anchors are explicit")
 	check(FabricaCoincidencias.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Industrial Coincidence Factory art remains assigned to the user pipeline")
+	check(Content.PLANETS[34] == CentralReinicios.PLANET and Content.TARGETS.slice(136, 140) == CentralReinicios.TARGETS and Content.HUNT_EVENTS.slice(68, 70) == CentralReinicios.EVENTS, "level-320 pack completes canonical launch order")
+	check(Content.PLANET_ITEM_CATALOGS.central_reinicios_cosmicos == CentralReinicios.ITEMS and Content.SECONDARY_ITEM_CATALOGS.central_reinicios_cosmicos == CentralReinicios.SECONDARY_ITEMS, "Cosmic Restart Center equipment remains canonical")
+	check(Content.loot_slots_for_planet("central_reinicios_cosmicos").count("helmet") == 2 and [CentralReinicios.TARGETS[0].power, CentralReinicios.TARGETS[3].power] == [5868, 6338], "level-320 helmet and combat anchors are explicit")
+	check(CentralReinicios.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Cosmic Restart Center art remains assigned to the user pipeline")
 
 	var forged := Dustball.PACK.duplicate(true)
 	forged.targets.pop_back()
@@ -353,7 +359,7 @@ func _init() -> void:
 	check(not PackContract.is_valid(forged), "planet bosses are reserved for tier three")
 
 	if failures == 0:
-		print("PASS: all thirty-four current planet packs preserve canonical content and slot progression")
+		print("PASS: all thirty-five launch planet packs preserve canonical content and slot progression")
 	quit(1 if failures > 0 else 0)
 
 

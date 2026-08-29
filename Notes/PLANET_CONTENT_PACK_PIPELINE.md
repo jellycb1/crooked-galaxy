@@ -1,6 +1,6 @@
 # Crooked Galaxy — pipeline modular de conteúdo planetário
 
-Estado: migração concluída e pipeline continuado com trinta e quatro planetas até ao nível 310.
+Estado: catálogo planetário de lançamento concluído com trinta e cinco planetas até ao nível 320.
 
 ## Objetivo
 
@@ -95,5 +95,6 @@ Um pacote novo só entra no registry quando:
 | Seguradora de Apocalipses Evitáveis | `seguradora_apocalipses_evitaveis.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e implantes | Novo · nível 290 |
 | Leilão de Impérios Falidos | `leilao_imperios_falidos.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e botas | Novo · nível 300 |
 | Fábrica de Coincidências Industriais | `fabrica_coincidencias_industriais.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e luvas | Novo · nível 310 |
+| Central de Reinícios Cósmicos | `central_reinicios_cosmicos.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e capacetes | Novo · nível 320 |
 
-O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Os vinte e sete packs novos entre os níveis 50 e 310 provam que planetas entram por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus 108 retratos e 81 ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos.
+O catálogo de lançamento está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Os vinte e oito packs novos entre os níveis 50 e 320 provam que planetas entram por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus 112 retratos e 84 ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos. Expansões além do nível 320 ficam congeladas até uma auditoria transversal confirmar que os restantes sistemas de lançamento sustentam estes 35 mundos.

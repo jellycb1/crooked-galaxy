@@ -298,7 +298,7 @@ Todos são componentes pequenos e reutilizam o retrato do alvo e ícones globais
 
 ### 6.4 Incidentes de viagem
 
-Conteúdo atual: 68 incidentes, dois por cada um dos trinta e quatro planetas de gameplay. Cada incidente contém três opções/ícones de escolha no código.
+Conteúdo atual: 70 incidentes, dois por cada um dos trinta e cinco planetas de gameplay. Cada incidente contém três opções/ícones de escolha no código.
 
 Produção recomendada por incidente:
 
@@ -306,7 +306,7 @@ Produção recomendada por incidente:
 - 3 pictogramas de escolha podem reutilizar uma biblioteca comum;
 - 1 variação visual para resultado positivo/negativo feita por cor e efeitos, não por nova pintura.
 
-Meta de lançamento: 70 incidentes se mantivermos dois por cada um dos 35 planetas. Faltam 36 identidades de incidente para o catálogo anual.
+Meta de lançamento: 70 incidentes, dois por cada um dos 35 planetas. O catálogo lógico está completo; as 70 identidades visuais permanecem entregas externas pendentes.
 
 Para controlar custo, criar primeiro 12 pictogramas universais de decisão: atacar, negociar, hackear, fugir, investigar, reparar, arriscar, pagar, ajudar, roubar, esperar e improvisar.
 
@@ -318,10 +318,10 @@ Para controlar custo, criar primeiro 12 pictogramas universais de decisão: atac
 
 | Conteúdo | Atual | Meta de lançamento | Falta |
 | --- | ---: | ---: | ---: |
-| Planetas | 17 | 35 | 18 |
-| Alvos | 68 | 140 | 72 |
+| Planetas | 35 | 35 | — |
+| Alvos | 140 | 140 | — |
 | Alvos por planeta | 4 | 4 | — |
-| Incidentes | 34 | 70 recomendados | 36 |
+| Incidentes | 70 | 70 | — |
 
 Planetas atuais:
 
@@ -342,6 +342,24 @@ Planetas atuais:
 - Resort do Horizonte de Eventos (assets pendentes do utilizador).
 - Tribunal de Clones Não Autorizados (assets pendentes do utilizador).
 - Mosteiro da Gravidade Reversa (assets pendentes do utilizador).
+- Mercado de Memórias Usadas (assets pendentes do utilizador);
+- Estaleiro de Naufrágios Temporais (assets pendentes do utilizador);
+- Bolsa de Luas Fracionadas (assets pendentes do utilizador);
+- Fábrica de Sóis Recondicionados (assets pendentes do utilizador);
+- Clínica de Planetas Descontinuados (assets pendentes do utilizador);
+- Correio de Buracos de Minhoca (assets pendentes do utilizador);
+- Aquário de Oceanos Confiscados (assets pendentes do utilizador);
+- Central de Sonhos Penhorados (assets pendentes do utilizador);
+- Canil de Asteroides Domésticos (assets pendentes do utilizador);
+- Cartório do Último Horizonte (assets pendentes do utilizador);
+- Universidade de Vilania por Correspondência (assets pendentes do utilizador);
+- Agência de Deuses Reformados (assets pendentes do utilizador);
+- Reserva de Espécies Impossíveis (assets pendentes do utilizador);
+- Oficina de Realidades Defeituosas (assets pendentes do utilizador);
+- Seguradora de Apocalipses Evitáveis (assets pendentes do utilizador);
+- Leilão de Impérios Falidos (assets pendentes do utilizador);
+- Fábrica de Coincidências Industriais (assets pendentes do utilizador);
+- Central de Reinícios Cósmicos (assets pendentes do utilizador).
 
 ### 7.2 Pacote visual mínimo por planeta
 
@@ -406,7 +424,7 @@ Formato recomendado:
 
 Quantidade:
 
-- atual: 40 identidades precisam de arte;
+- atual: 140 identidades precisam de arte;
 - lançamento anual: 140;
 - estado aprovado atual: 0/140 arte final; símbolos/emoji são `TEMP`.
 
@@ -958,11 +976,11 @@ Estas capturas são a matriz de validação. Não representam 102 ilustrações 
 | --- | ---: |
 | Ilustrações de classe | 3 |
 | Bases modulares de raça e camadas | aproximadamente 96 unidades |
-| Retratos dos 136 alvos atuais | 136 |
-| Habitats dos 34 planetas atuais | 34 |
-| Camadas de arena dos 34 planetas | 34 |
-| Medalhões dos 34 planetas atuais | 34 |
-| Incidentes atuais | 50 |
+| Retratos dos 140 alvos atuais | 140 |
+| Habitats dos 35 planetas atuais | 35 |
+| Camadas de arena dos 35 planetas | 35 |
+| Medalhões dos 35 planetas atuais | 35 |
+| Incidentes atuais | 70 |
 | Transportes | 4 |
 | NPCs de serviço | 5 |
 | Inimigos atuais da Fenda | 24 |
@@ -975,12 +993,12 @@ Estas capturas são a matriz de validação. Não representam 102 ilustrações 
 
 | Família | Meta total | Falta após conteúdo atual |
 | --- | ---: | ---: |
-| Habitats | 35 | 5 |
-| Arenas/camadas de chão | 35 | 5 |
-| Medalhões | 35 | 5 |
-| Alvos | 140 | 20 |
-| Incidentes | 70 | 10 |
-| Packs materiais planetários para equipamento | 35 | 5 packs |
+| Habitats | 35 | 35 assets visuais |
+| Arenas/camadas de chão | 35 | 35 assets visuais |
+| Medalhões | 35 | 35 assets visuais |
+| Alvos | 140 | 140 assets visuais |
+| Incidentes | 70 | 70 assets visuais |
+| Packs materiais planetários para equipamento | 35 | 35 packs visuais |
 
 Fenda, eventos sazonais e futuros transportes ainda não têm uma meta anual fechada. Devem usar templates escaláveis e receber orçamento separado.
 
@@ -1012,17 +1030,17 @@ Nada se expande antes de estes testes funcionarem juntos numa captura 450×800.
 
 ### Lote 2 — ciclo central atual
 
-1. trinta e quatro habitats e medalhões;
-2. 136 alvos;
-3. 68 incidentes;
-4. trinta e quatro arenas;
+1. trinta e cinco habitats e medalhões;
+2. 140 alvos;
+3. 70 incidentes;
+4. trinta e cinco arenas;
 5. VFX de combate;
 6. vitória, derrota e recompensa.
 
 ### Lote 3 — equipamento, economia e mobilidade
 
 1. kit modular de itens;
-2. packs visuais dos trinta e quatro planetas;
+2. packs visuais dos trinta e cinco planetas;
 3. quatro transportes;
 4. mercado e ícones premium;
 5. recibos e estados de compra.

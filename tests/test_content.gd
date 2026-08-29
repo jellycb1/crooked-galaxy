@@ -89,7 +89,7 @@ func _init() -> void:
 	check(ContentDB.procedural_collection_ids().size() >= 100 and ContentDB.procedural_collection_ids().all(func(id): return str(id).contains("::")), "finite template families expose a bounded multi-variant collection catalog")
 	check(ContentDB.procedural_collection_entries().size() * 5 == ContentDB.procedural_collection_ids().size(), "every collectible template exposes exactly the five canonical series variants")
 	check(ContentDB.procedural_collection_total() == ContentDB.procedural_collection_ids().size(), "hot collection counts avoid rebuilding or exposing the canonical identifier cache")
-	check(ContentDB.procedural_collection_total() == 2120, "thirty-four authored planet packs expose the documented bounded 2120-series catalog")
+	check(ContentDB.procedural_collection_total() == 2180, "the thirty-five authored launch packs expose the documented bounded 2180-series catalog")
 	check(int(premium_omega_loot.power) == int(canonical_omega_loot.power), "contract danger does not inflate the dropped equipment tier")
 	check(str(ContentDB.target_for_planet_tier("dustball_prime", 1).id) == "baron_boom", "planet tier resolves the next warrant deterministically")
 	check(ContentDB.planet_tier_from_target_captures("dustball_prime", {"gloop": 9}) == 1, "farming the first warrant cannot skip sequential tiers")
@@ -241,6 +241,10 @@ func _init() -> void:
 	coincidence_rng.seed = 3100310
 	var coincidence_gloves := ContentDB.generate_loot(ContentDB.TARGETS[132], coincidence_rng, 3, "gloves")
 	check(str(coincidence_gloves.slot) == "gloves" and str(coincidence_gloves.origin_planet_id) == "fabrica_coincidencias_industriais", "the level-310 pack produces canonical themed glove equipment")
+	var restart_rng := RandomNumberGenerator.new()
+	restart_rng.seed = 3200320
+	var restart_helmet := ContentDB.generate_loot(ContentDB.TARGETS[136], restart_rng, 3, "helmet")
+	check(str(restart_helmet.slot) == "helmet" and str(restart_helmet.origin_planet_id) == "central_reinicios_cosmicos", "the level-320 pack produces canonical themed helmet equipment")
 	for secondary_case in [
 		{"target": ContentDB.TARGETS[4], "slot": "helmet"},
 		{"target": ContentDB.TARGETS[8], "slot": "gloves"},
