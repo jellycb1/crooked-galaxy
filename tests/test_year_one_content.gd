@@ -19,7 +19,7 @@ func _init() -> void:
 	check(YearOne.days_for_hunts(1825, 5) == 365 and YearOne.days_for_hunts(1825, 20) == 92, "pacing conversion exposes faster content consumption instead of treating five hunts as a cap")
 	check(MonetizationRules.DAILY_HUNT_FUEL == 100 and MonetizationRules.HUNT_FUEL_REFILL_AMOUNT == 20 and MonetizationRules.HUNT_FUEL_REFILL_COSTS == [1, 5, 20], "the year-one model uses the approved transparent fuel reserve and refill ladder")
 	check(YearOne.days_for_hunts(0, 0) == 0, "pacing conversion handles an empty horizon safely")
-	check(ContentDB.PLANETS.size() == 25 and ContentDB.TARGETS.size() == 100, "the audit distinguishes implemented planet packs from the launch catalog")
+	check(ContentDB.PLANETS.size() == 26 and ContentDB.TARGETS.size() == 104, "the audit distinguishes implemented planet packs from the launch catalog")
 	for index in ContentDB.PLANETS.size():
 		check(int(ContentDB.PLANETS[index].unlock_level) == levels[index], "implemented planet %d follows the year-one unlock contract" % (index + 1))
 
@@ -50,7 +50,7 @@ func _init() -> void:
 		CoreRules.apply_xp(player, int(standard.xp))
 		if seen_targets.size() == ContentDB.TARGETS.size():
 			break
-	check(int(player.level) >= 220 and seen_targets.size() == ContentDB.TARGETS.size(), "one bounded post-year continuation reaches level 220 and exposes every implemented target identity")
+	check(int(player.level) >= 230 and seen_targets.size() == ContentDB.TARGETS.size(), "one bounded post-year continuation reaches level 230 and exposes every implemented target identity")
 	state.free()
 	finish()
 
