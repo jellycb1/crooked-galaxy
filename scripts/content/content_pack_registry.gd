@@ -24,8 +24,9 @@ const EstaleiroNaufragiosTemporais = preload("res://scripts/content/packs/estale
 const BolsaLuasFracionadas = preload("res://scripts/content/packs/bolsa_luas_fracionadas.gd")
 const FabricaSoisRecondicionados = preload("res://scripts/content/packs/fabrica_sois_recondicionados.gd")
 const ClinicaPlanetasDescontinuados = preload("res://scripts/content/packs/clinica_planetas_descontinuados.gd")
+const CorreioBuracosMinhoca = preload("res://scripts/content/packs/correio_buracos_minhoca.gd")
 
-const PACK_SCRIPTS := [DustballPrime, Congelaria, Micelia404, FerroVelhoOmega, CassinoQuasar, AeropolisPenhora, ArquivoAbissalN9, VerdantiaPatenteada, CaldeiraGarantia, CondominioLunar7, NecropoleSolarUmbral, CentralTempestades24h, MuseuAmanhaObsoleto, BibliotecaSilencioTaxado, ResortHorizonteEventos, TribunalClonesNaoAutorizados, MosteiroGravidadeReversa, MercadoMemoriasUsadas, EstaleiroNaufragiosTemporais, BolsaLuasFracionadas, FabricaSoisRecondicionados, ClinicaPlanetasDescontinuados]
+const PACK_SCRIPTS := [DustballPrime, Congelaria, Micelia404, FerroVelhoOmega, CassinoQuasar, AeropolisPenhora, ArquivoAbissalN9, VerdantiaPatenteada, CaldeiraGarantia, CondominioLunar7, NecropoleSolarUmbral, CentralTempestades24h, MuseuAmanhaObsoleto, BibliotecaSilencioTaxado, ResortHorizonteEventos, TribunalClonesNaoAutorizados, MosteiroGravidadeReversa, MercadoMemoriasUsadas, EstaleiroNaufragiosTemporais, BolsaLuasFracionadas, FabricaSoisRecondicionados, ClinicaPlanetasDescontinuados, CorreioBuracosMinhoca]
 
 # This registry owns the deterministic public composition order. ContentDB
 # remains the stable facade consumed by gameplay, saves and tests.
@@ -53,9 +54,10 @@ const PLANETS := [
 	BolsaLuasFracionadas.PLANET,
 	FabricaSoisRecondicionados.PLANET,
 	ClinicaPlanetasDescontinuados.PLANET,
+	CorreioBuracosMinhoca.PLANET,
 ]
-const TARGETS := DustballPrime.TARGETS + Congelaria.TARGETS + Micelia404.TARGETS + FerroVelhoOmega.TARGETS + CassinoQuasar.TARGETS + AeropolisPenhora.TARGETS + ArquivoAbissalN9.TARGETS + VerdantiaPatenteada.TARGETS + CaldeiraGarantia.TARGETS + CondominioLunar7.TARGETS + NecropoleSolarUmbral.TARGETS + CentralTempestades24h.TARGETS + MuseuAmanhaObsoleto.TARGETS + BibliotecaSilencioTaxado.TARGETS + ResortHorizonteEventos.TARGETS + TribunalClonesNaoAutorizados.TARGETS + MosteiroGravidadeReversa.TARGETS + MercadoMemoriasUsadas.TARGETS + EstaleiroNaufragiosTemporais.TARGETS + BolsaLuasFracionadas.TARGETS + FabricaSoisRecondicionados.TARGETS + ClinicaPlanetasDescontinuados.TARGETS
-const HUNT_EVENTS := DustballPrime.EVENTS + Congelaria.EVENTS + Micelia404.EVENTS + FerroVelhoOmega.EVENTS + CassinoQuasar.EVENTS + AeropolisPenhora.EVENTS + ArquivoAbissalN9.EVENTS + VerdantiaPatenteada.EVENTS + CaldeiraGarantia.EVENTS + CondominioLunar7.EVENTS + NecropoleSolarUmbral.EVENTS + CentralTempestades24h.EVENTS + MuseuAmanhaObsoleto.EVENTS + BibliotecaSilencioTaxado.EVENTS + ResortHorizonteEventos.EVENTS + TribunalClonesNaoAutorizados.EVENTS + MosteiroGravidadeReversa.EVENTS + MercadoMemoriasUsadas.EVENTS + EstaleiroNaufragiosTemporais.EVENTS + BolsaLuasFracionadas.EVENTS + FabricaSoisRecondicionados.EVENTS + ClinicaPlanetasDescontinuados.EVENTS
+const TARGETS := DustballPrime.TARGETS + Congelaria.TARGETS + Micelia404.TARGETS + FerroVelhoOmega.TARGETS + CassinoQuasar.TARGETS + AeropolisPenhora.TARGETS + ArquivoAbissalN9.TARGETS + VerdantiaPatenteada.TARGETS + CaldeiraGarantia.TARGETS + CondominioLunar7.TARGETS + NecropoleSolarUmbral.TARGETS + CentralTempestades24h.TARGETS + MuseuAmanhaObsoleto.TARGETS + BibliotecaSilencioTaxado.TARGETS + ResortHorizonteEventos.TARGETS + TribunalClonesNaoAutorizados.TARGETS + MosteiroGravidadeReversa.TARGETS + MercadoMemoriasUsadas.TARGETS + EstaleiroNaufragiosTemporais.TARGETS + BolsaLuasFracionadas.TARGETS + FabricaSoisRecondicionados.TARGETS + ClinicaPlanetasDescontinuados.TARGETS + CorreioBuracosMinhoca.TARGETS
+const HUNT_EVENTS := DustballPrime.EVENTS + Congelaria.EVENTS + Micelia404.EVENTS + FerroVelhoOmega.EVENTS + CassinoQuasar.EVENTS + AeropolisPenhora.EVENTS + ArquivoAbissalN9.EVENTS + VerdantiaPatenteada.EVENTS + CaldeiraGarantia.EVENTS + CondominioLunar7.EVENTS + NecropoleSolarUmbral.EVENTS + CentralTempestades24h.EVENTS + MuseuAmanhaObsoleto.EVENTS + BibliotecaSilencioTaxado.EVENTS + ResortHorizonteEventos.EVENTS + TribunalClonesNaoAutorizados.EVENTS + MosteiroGravidadeReversa.EVENTS + MercadoMemoriasUsadas.EVENTS + EstaleiroNaufragiosTemporais.EVENTS + BolsaLuasFracionadas.EVENTS + FabricaSoisRecondicionados.EVENTS + ClinicaPlanetasDescontinuados.EVENTS + CorreioBuracosMinhoca.EVENTS
 const STARTER_ITEM_CATALOG := DustballPrime.ITEMS
 const PLANET_ITEM_CATALOGS := {
 	"congelaria_sa": Congelaria.ITEMS,
@@ -79,6 +81,7 @@ const PLANET_ITEM_CATALOGS := {
 	"bolsa_luas_fracionadas": BolsaLuasFracionadas.ITEMS,
 	"fabrica_sois_recondicionados": FabricaSoisRecondicionados.ITEMS,
 	"clinica_planetas_descontinuados": ClinicaPlanetasDescontinuados.ITEMS,
+	"correio_buracos_minhoca": CorreioBuracosMinhoca.ITEMS,
 }
 const SECONDARY_ITEM_CATALOGS := {
 	"congelaria_sa": Congelaria.SECONDARY_ITEMS,
@@ -102,6 +105,7 @@ const SECONDARY_ITEM_CATALOGS := {
 	"bolsa_luas_fracionadas": BolsaLuasFracionadas.SECONDARY_ITEMS,
 	"fabrica_sois_recondicionados": FabricaSoisRecondicionados.SECONDARY_ITEMS,
 	"clinica_planetas_descontinuados": ClinicaPlanetasDescontinuados.SECONDARY_ITEMS,
+	"correio_buracos_minhoca": CorreioBuracosMinhoca.SECONDARY_ITEMS,
 }
 
 

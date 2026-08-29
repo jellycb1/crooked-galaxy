@@ -1,6 +1,6 @@
 # Crooked Galaxy — pipeline modular de conteúdo planetário
 
-Estado: migração concluída e pipeline continuado com vinte e dois planetas até ao nível 190.
+Estado: migração concluída e pipeline continuado com vinte e três planetas até ao nível 200.
 
 ## Objetivo
 
@@ -83,5 +83,6 @@ Um pacote novo só entra no registry quando:
 | Bolsa de Luas Fracionadas | `bolsa_luas_fracionadas.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e capacetes | Novo · nível 170 |
 | Fábrica de Sóis Recondicionados | `fabrica_sois_recondicionados.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e rigs | Novo · nível 180 |
 | Clínica de Planetas Descontinuados | `clinica_planetas_descontinuados.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e implantes | Novo · nível 190 |
+| Correio de Buracos de Minhoca | `correio_buracos_minhoca.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e botas | Novo · nível 200 |
 
-O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Os quinze packs novos entre os níveis 50 e 190 provam que planetas entram por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus 60 retratos e 45 ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos.
+O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Os dezasseis packs novos entre os níveis 50 e 200 provam que planetas entram por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus 64 retratos e 48 ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos.

@@ -25,16 +25,17 @@ const EstaleiroTemporal = preload("res://scripts/content/packs/estaleiro_naufrag
 const BolsaLuas = preload("res://scripts/content/packs/bolsa_luas_fracionadas.gd")
 const FabricaSois = preload("res://scripts/content/packs/fabrica_sois_recondicionados.gd")
 const ClinicaPlanetas = preload("res://scripts/content/packs/clinica_planetas_descontinuados.gd")
+const CorreioMinhoca = preload("res://scripts/content/packs/correio_buracos_minhoca.gd")
 
 var failures := 0
 
 
 func _init() -> void:
 	check(Registry.validation_errors().is_empty(), "registered planet packs satisfy the complete content contract")
-	check(Registry.PACK_SCRIPTS.size() == 22, "the registry contains all twenty-two current canonical planet packs")
-	check(Registry.PLANETS.size() == 22, "the registry composes all twenty-two planets")
-	check(Registry.TARGETS.size() == 88, "the registry composes all 88 targets")
-	check(Registry.HUNT_EVENTS.size() == 44, "the registry composes all 44 hunt incidents")
+	check(Registry.PACK_SCRIPTS.size() == 23, "the registry contains all twenty-three current canonical planet packs")
+	check(Registry.PLANETS.size() == 23, "the registry composes all twenty-three planets")
+	check(Registry.TARGETS.size() == 92, "the registry composes all 92 targets")
+	check(Registry.HUNT_EVENTS.size() == 46, "the registry composes all 46 hunt incidents")
 	check(Registry.pack_for_planet("dustball_prime") == Dustball.PACK, "registry resolves the canonical Dustball pack")
 	check(Registry.pack_for_planet("congelaria_sa") == Congelaria.PACK, "registry resolves the canonical Congelaria pack")
 	check(Registry.pack_for_planet("micelia_404") == Micelia.PACK, "registry resolves the canonical Micelia pack")
@@ -57,6 +58,7 @@ func _init() -> void:
 	check(Registry.pack_for_planet("bolsa_luas_fracionadas") == BolsaLuas.PACK, "registry resolves the canonical Fractional Moon Exchange pack")
 	check(Registry.pack_for_planet("fabrica_sois_recondicionados") == FabricaSois.PACK, "registry resolves the canonical Refurbished Sun Factory pack")
 	check(Registry.pack_for_planet("clinica_planetas_descontinuados") == ClinicaPlanetas.PACK, "registry resolves the canonical Discontinued Planet Clinic pack")
+	check(Registry.pack_for_planet("correio_buracos_minhoca") == CorreioMinhoca.PACK, "registry resolves the canonical Wormhole Post pack")
 	check(Registry.pack_for_planet("unknown").is_empty(), "unknown planet packs fail closed")
 	var detached := Registry.pack_for_planet("dustball_prime")
 	detached.planet.name = "MUTATED"
@@ -247,6 +249,14 @@ func _init() -> void:
 	check(Content.loot_slots_for_planet("clinica_planetas_descontinuados").count("implant") == 2, "level-190 loot deepens the universal implant slot")
 	check([ClinicaPlanetas.TARGETS[0].power, ClinicaPlanetas.TARGETS[3].power] == [1740, 1896], "level-190 combat anchors are explicit")
 	check(ClinicaPlanetas.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Discontinued Planet Clinic target art remains explicitly assigned to the user asset pipeline")
+	check(Content.PLANETS[22] == CorreioMinhoca.PLANET, "the level-200 planet follows Discontinued Planet Clinic in canonical order")
+	check(Content.TARGETS.slice(88, 92) == CorreioMinhoca.TARGETS, "ContentDB exposes all four Wormhole Post targets")
+	check(Content.HUNT_EVENTS.slice(44, 46) == CorreioMinhoca.EVENTS, "ContentDB exposes both Wormhole Post incidents")
+	check(Content.PLANET_ITEM_CATALOGS.correio_buracos_minhoca == CorreioMinhoca.ITEMS, "Wormhole Post primary equipment remains canonical")
+	check(Content.SECONDARY_ITEM_CATALOGS.correio_buracos_minhoca == CorreioMinhoca.SECONDARY_ITEMS, "Wormhole Post boot catalog remains canonical")
+	check(Content.loot_slots_for_planet("correio_buracos_minhoca").count("boots") == 2, "level-200 loot deepens the universal boot slot")
+	check([CorreioMinhoca.TARGETS[0].power, CorreioMinhoca.TARGETS[3].power] == [1936, 2104], "level-200 combat anchors are explicit")
+	check(CorreioMinhoca.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Wormhole Post target art remains explicitly assigned to the user asset pipeline")
 
 	var forged := Dustball.PACK.duplicate(true)
 	forged.targets.pop_back()
@@ -269,7 +279,7 @@ func _init() -> void:
 	check(not PackContract.is_valid(forged), "planet bosses are reserved for tier three")
 
 	if failures == 0:
-		print("PASS: all twenty-two current planet packs preserve canonical content and slot progression")
+		print("PASS: all twenty-three current planet packs preserve canonical content and slot progression")
 	quit(1 if failures > 0 else 0)
 
 

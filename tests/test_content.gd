@@ -89,7 +89,7 @@ func _init() -> void:
 	check(ContentDB.procedural_collection_ids().size() >= 100 and ContentDB.procedural_collection_ids().all(func(id): return str(id).contains("::")), "finite template families expose a bounded multi-variant collection catalog")
 	check(ContentDB.procedural_collection_entries().size() * 5 == ContentDB.procedural_collection_ids().size(), "every collectible template exposes exactly the five canonical series variants")
 	check(ContentDB.procedural_collection_total() == ContentDB.procedural_collection_ids().size(), "hot collection counts avoid rebuilding or exposing the canonical identifier cache")
-	check(ContentDB.procedural_collection_total() == 1400, "twenty-two authored planet packs expose the documented bounded 1400-series catalog")
+	check(ContentDB.procedural_collection_total() == 1460, "twenty-three authored planet packs expose the documented bounded 1460-series catalog")
 	check(int(premium_omega_loot.power) == int(canonical_omega_loot.power), "contract danger does not inflate the dropped equipment tier")
 	check(str(ContentDB.target_for_planet_tier("dustball_prime", 1).id) == "baron_boom", "planet tier resolves the next warrant deterministically")
 	check(ContentDB.planet_tier_from_target_captures("dustball_prime", {"gloop": 9}) == 1, "farming the first warrant cannot skip sequential tiers")
@@ -193,6 +193,10 @@ func _init() -> void:
 	planet_clinic_rng.seed = 1900190
 	var planet_clinic_implant := ContentDB.generate_loot(ContentDB.TARGETS[84], planet_clinic_rng, 3, "implant")
 	check(str(planet_clinic_implant.slot) == "implant" and str(planet_clinic_implant.origin_planet_id) == "clinica_planetas_descontinuados" and not str(planet_clinic_implant.name).is_empty(), "the level-190 pack produces canonical themed implant equipment")
+	var wormhole_post_rng := RandomNumberGenerator.new()
+	wormhole_post_rng.seed = 2000200
+	var wormhole_post_boots := ContentDB.generate_loot(ContentDB.TARGETS[88], wormhole_post_rng, 3, "boots")
+	check(str(wormhole_post_boots.slot) == "boots" and str(wormhole_post_boots.origin_planet_id) == "correio_buracos_minhoca" and not str(wormhole_post_boots.name).is_empty(), "the level-200 pack produces canonical themed boot equipment")
 	for secondary_case in [
 		{"target": ContentDB.TARGETS[4], "slot": "helmet"},
 		{"target": ContentDB.TARGETS[8], "slot": "gloves"},
