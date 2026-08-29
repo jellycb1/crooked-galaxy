@@ -1,0 +1,130 @@
+class_name NakamaBackendAdapter
+extends RefCounted
+
+const Deployment = preload("res://scripts/backend_deployment_rules.gd")
+const Protocol = preload("res://scripts/backend_protocol_rules.gd")
+
+const CLOCK_RPC := "cg_clock"
+const DEVELOPMENT_PROVIDER := "nakama_device"
+const DEFAULT_TIMEOUT_SECONDS := 5
+
+var _configuration: Dictionary = {}
+var _client = null
+var _session = null
+
+
+func configure(configuration: Dictionary) -> bool:
+	clear_runtime()
+	var canonical := Deployment.canonicalize_endpoint(configuration)
+	if canonical.is_empty() or not Deployment.secret_safe_for_client(canonical):
+		return false
+	_configuration = canonical
+	return true
+
+
+func is_configured() -> bool:
+	return not _configuration.is_empty() and bool(_configuration.get("configured", false))
+
+
+func configuration_summary() -> Dictionary:
+	if not is_configured():
+		return {}
+	return {
+		"provider_id": str(_configuration.provider_id),
+		"environment": str(_configuration.environment),
+		"host": str(_configuration.host),
+		"port": int(_configuration.port),
+		"ssl": bool(_configuration.ssl),
+	}
+
+
+func has_authenticated_session() -> bool:
+	return _session != null and not _session.is_exception() and bool(_session.valid) and not bool(_session.expired)
+
+
+func authenticate_development(device_id: String, username := "") -> Dictionary:
+	if not is_configured() or str(_configuration.environment) != Deployment.ENV_LOCAL:
+		return _failure("local_endpoint_required")
+	if not _valid_development_identifier(device_id, 16, 128):
+		return _failure("invalid_device_id")
+	if not username.is_empty() and not _valid_development_identifier(username, 3, 32):
+		return _failure("invalid_username")
+	var singleton := _nakama_singleton()
+	if singleton == null:
+		return _failure("nakama_addon_unavailable")
+	var scheme := "https" if bool(_configuration.ssl) else "http"
+	_client = singleton.create_client(
+		str(_configuration.client_key),
+		str(_configuration.host),
+		int(_configuration.port),
+		scheme,
+		DEFAULT_TIMEOUT_SECONDS,
+		NakamaLogger.LOG_LEVEL.ERROR
+	)
+	var requested_username: Variant = null if username.is_empty() else username
+	var result = await _client.authenticate_device_async(device_id, requested_username, true)
+	if result == null or result.is_exception() or not bool(result.valid) or bool(result.expired):
+		_session = null
+		return _failure("authentication_failed")
+	_session = result
+	return {
+		"ok": true,
+		"provider_id": DEVELOPMENT_PROVIDER,
+		"account_id": str(_session.user_id),
+		"username": str(_session.username),
+		"created": bool(_session.created),
+		"expires_at_unix_ms": int(_session.expire_time) * 1000,
+		"authority": "server",
+	}
+
+
+func sample_server_clock() -> Dictionary:
+	if not has_authenticated_session() or _client == null:
+		return _failure("authenticated_session_required")
+	var client_sent_unix_ms := _now_unix_ms()
+	var response = await _client.rpc_async(_session, CLOCK_RPC, JSON.stringify({}))
+	var client_received_unix_ms := _now_unix_ms()
+	if response == null or response.is_exception():
+		return _failure("clock_rpc_failed")
+	var envelope = JSON.parse_string(str(response.payload))
+	if not envelope is Dictionary or str(envelope.get("shard_id", "")) != Protocol.DEFAULT_SHARD_ID:
+		return _failure("invalid_clock_envelope")
+	var sample := Protocol.canonical_clock_sample(envelope, client_sent_unix_ms, client_received_unix_ms)
+	if sample.is_empty():
+		return _failure("invalid_clock_sample")
+	sample.ok = true
+	sample.api_version = int(envelope.api_version)
+	sample.shard_id = str(envelope.shard_id)
+	return sample
+
+
+func clear_runtime() -> void:
+	_session = null
+	_client = null
+	_configuration = {}
+
+
+func _nakama_singleton() -> Node:
+	var main_loop := Engine.get_main_loop()
+	if main_loop == null or not main_loop is SceneTree:
+		return null
+	return main_loop.root.get_node_or_null("Nakama")
+
+
+static func _now_unix_ms() -> int:
+	return int(round(Time.get_unix_time_from_system() * 1000.0))
+
+
+static func _valid_development_identifier(value: String, minimum: int, maximum: int) -> bool:
+	if value.length() < minimum or value.length() > maximum:
+		return false
+	for index in value.length():
+		var code := value.unicode_at(index)
+		var allowed := (code >= 97 and code <= 122) or (code >= 48 and code <= 57) or code in [45, 95]
+		if not allowed:
+			return false
+	return true
+
+
+static func _failure(code: String) -> Dictionary:
+	return {"ok": false, "error_code": code}

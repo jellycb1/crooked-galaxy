@@ -1,6 +1,6 @@
 # Backend vertical slice contract
 
-Status: active protocol boundary. Version 1 now has a local authenticated clock implementation; no remote provider or endpoint is configured in the current APK.
+Status: active protocol boundary. Version 1 now has a local authenticated server and official Godot-client clock implementation; no remote provider or endpoint is configured in the current APK.
 
 ## Product truth
 
@@ -8,7 +8,7 @@ Crooked Galaxy remains device-authoritative and `local_only`. `International 1` 
 
 This slice deliberately does not persist credentials, contact a server, alter the player-save schema or move progress authority away from the device. It creates the stable seam required before those changes can be made safely.
 
-The separate `backend/` development stack now proves Nakama health, development device authentication and the authenticated `cg_clock` RPC on loopback. This is server evidence, not client activation: the exported game still contains no SDK, endpoint or credential and all online capability flags remain disabled.
+The separate `backend/` development stack proves Nakama health, development device authentication and the authenticated `cg_clock` RPC on loopback. The pinned SDK is now present and independently proves the same path through Godot, but normal boot supplies it no endpoint or credential. All online capability flags remain disabled; the next implementation boundary is authoritative character ownership and revisioned profile state.
 
 ## Session boundary
 

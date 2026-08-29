@@ -47,6 +47,7 @@ $Tests = @(
 	"test_account_boundary.gd",
 	"test_backend_protocol.gd",
 	"test_backend_deployment_rules.gd",
+	"test_nakama_backend_adapter.gd",
 	"test_agency_rules.gd",
 	"test_simulation_builds.gd",
     "test_balance_guards.gd",
@@ -112,6 +113,8 @@ Write-Host "`n[reference boundaries]"
 & (Join-Path $PSScriptRoot "check_reference_boundaries.ps1")
 Write-Host "`n[backend workspace]"
 & (Join-Path $PSScriptRoot "check_backend_workspace.ps1")
+Write-Host "`n[Nakama Godot add-on]"
+& (Join-Path $PSScriptRoot "check_nakama_addon.ps1")
 foreach ($TestFile in $Tests) {
     Write-Host "`n[$TestFile]"
     $LogFile = Join-Path $LogRoot "$TestFile.log"

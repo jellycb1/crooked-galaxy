@@ -1,0 +1,20 @@
+{
+  "name": "nakama-godot",
+  "version": "3.4.0",
+  "tag": "v3.4.0",
+  "commit": "14b7f7078a9822c15b0424624e4c883c87730cee",
+  "source": "https://github.com/heroiclabs/nakama-godot/releases/tag/v3.4.0",
+  "archive": "nakama-3.4.0.zip",
+  "archive_bytes": 90474,
+  "archive_sha256": "540c7ff3556ef114188b93750626fe93cd5e5d151c5850061eb7a163ba7c6f3e",
+  "license": "Apache-2.0",
+  "core_file_sha256": {
+    "Nakama.gd": "d90a05f9adb6f1cb78266e2aa10f69de9213dceadcb9298fda6b96986b47dfb3",
+    "client/NakamaClient.gd": "26d825d0d57072c0cb0c1a24afc21ac845b4c533233a206564d5786f5749f89e",
+    "client/NakamaHTTPAdapter.gd": "143f077343146afb85a4150e13015e631e3f0bcc67606c4b3691944b1812a3d1",
+    "api/NakamaAPI.gd": "0e52ee92b44e5fc47957400996ad35b0f8b731d225cc49dfc44f75e617adeca9",
+    "api/NakamaSession.gd": "b0d0d6dbd1ba1cb0caa54d78a675b52e19253857757a724239c46947cf323829",
+    "utils/NakamaAsyncResult.gd": "5a116a8a6780ddeeb19da2253a1cdbcbc02b13adfe0df29ad380ac61bb506fa9",
+    "LICENSE": "8c6db340475136df3c1201d458fa5755698eace76e510471ecc9d857d6083dac"
+  }
+}

@@ -1,6 +1,6 @@
 # Online backend decision — 29 August 2026
 
-Status: active architecture decision. Nakama is selected and the local loopback foundation passes its integration smoke test; no remote environment, production credential, client add-on or online product claim exists yet.
+Status: active architecture decision. Nakama is selected; the local loopback foundation and official Godot-client authentication/clock path pass end to end. No remote environment, production credential or online product claim exists yet.
 
 ## Decision
 
@@ -56,9 +56,11 @@ Docker Desktop now runs the pinned Nakama `3.40.0` image and PostgreSQL `16.8` o
 
 The official Heroic Labs Docker Hub repository is used as its documented fallback because the Heroic Labs Scarf gateway returned HTTP 429 during the first pinned pull. Both sources resolve the same Heroic Labs image/tag; no version was relaxed.
 
+The official Nakama Godot `3.4.0` release is vendored with its Apache-2.0 license, source tag, commit, archive size, SHA-256 and guarded core-file hashes. It is registered as the documented `Nakama` autoload. A Crooked Galaxy adapter starts inert, canonicalizes only reviewed endpoints, keeps the Nakama session in memory, returns no bearer tokens and uses error-level logging. Its local integration test injects the generated client key only into the Godot child process, authenticates a stable test-only app-private device identity, invokes `cg_clock`, validates protocol version, shard, authority and latency, then discards the session.
+
 ## Immediate gate
 
-The reproducible local server prerequisite is complete. The next gate is to vendor and checksum the pinned official Godot client, introduce an offline-safe adapter, and prove development authentication plus clock sampling from the game client. `account_backend`, `clock_backend`, `profile_backend`, `agency_backend` and billing remain false until their individual end-to-end gates pass; the existence of a local server alone enables none of them.
+The local server and Godot transport prerequisites are complete. The next gate is server-owned character creation/snapshot/commit with ownership verification, conditional revision, idempotency and conflict recovery. `account_backend`, `clock_backend`, `profile_backend`, `agency_backend` and billing remain false until their individual product gates pass; transport evidence alone enables none of them.
 
 ## Official references consulted
 
