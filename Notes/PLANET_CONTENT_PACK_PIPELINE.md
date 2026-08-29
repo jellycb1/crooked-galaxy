@@ -1,6 +1,6 @@
 # Crooked Galaxy — pipeline modular de conteúdo planetário
 
-Estado: migração concluída e pipeline continuado com trinta e dois planetas até ao nível 290.
+Estado: migração concluída e pipeline continuado com trinta e três planetas até ao nível 300.
 
 ## Objetivo
 
@@ -93,5 +93,6 @@ Um pacote novo só entra no registry quando:
 | Reserva de Espécies Impossíveis | `reserva_especies_impossiveis.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e capacetes | Novo · nível 270 |
 | Oficina de Realidades Defeituosas | `oficina_realidades_defeituosas.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e rigs | Novo · nível 280 |
 | Seguradora de Apocalipses Evitáveis | `seguradora_apocalipses_evitaveis.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e implantes | Novo · nível 290 |
+| Leilão de Impérios Falidos | `leilao_imperios_falidos.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e botas | Novo · nível 300 |
 
-O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Os vinte e cinco packs novos entre os níveis 50 e 290 provam que planetas entram por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus 100 retratos e 75 ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos.
+O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Os vinte e seis packs novos entre os níveis 50 e 300 provam que planetas entram por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus 104 retratos e 78 ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos.
