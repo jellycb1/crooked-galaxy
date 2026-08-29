@@ -19,7 +19,7 @@ func _init() -> void:
 	check(YearOne.days_for_hunts(1825, 5) == 365 and YearOne.days_for_hunts(1825, 20) == 92, "pacing conversion exposes faster content consumption instead of treating five hunts as a cap")
 	check(MonetizationRules.DAILY_HUNT_FUEL == 100 and MonetizationRules.HUNT_FUEL_REFILL_AMOUNT == 20 and MonetizationRules.HUNT_FUEL_REFILL_COSTS == [1, 5, 20], "the year-one model uses the approved transparent fuel reserve and refill ladder")
 	check(YearOne.days_for_hunts(0, 0) == 0, "pacing conversion handles an empty horizon safely")
-	check(ContentDB.PLANETS.size() == 21 and ContentDB.TARGETS.size() == 84, "the audit distinguishes implemented planet packs from the launch catalog")
+	check(ContentDB.PLANETS.size() == 22 and ContentDB.TARGETS.size() == 88, "the audit distinguishes implemented planet packs from the launch catalog")
 	for index in ContentDB.PLANETS.size():
 		check(int(ContentDB.PLANETS[index].unlock_level) == levels[index], "implemented planet %d follows the year-one unlock contract" % (index + 1))
 
@@ -41,7 +41,7 @@ func _init() -> void:
 	check(year_end_worlds == 17 and seen_planets.size() == year_end_worlds, "the five-hunt reference sees every world unlocked by its documented year-end level")
 	var level_150_planet_seen := ContentDB.TARGETS.any(func(target): return str(target.planet_id) == str(ContentDB.PLANETS[-1].id) and seen_targets.has(str(target.id)))
 	check(not level_150_planet_seen, "content beyond the reference year-end level does not leak into its board")
-	for _hunt in 1300:
+	for _hunt in 1600:
 		var offers := MissionRules.board_offers(player)
 		for offer in offers:
 			seen_targets[str(offer.id)] = true
@@ -50,7 +50,7 @@ func _init() -> void:
 		CoreRules.apply_xp(player, int(standard.xp))
 		if seen_targets.size() == ContentDB.TARGETS.size():
 			break
-	check(int(player.level) >= 180 and seen_targets.size() == ContentDB.TARGETS.size(), "one bounded post-year continuation reaches level 180 and exposes every implemented target identity")
+	check(int(player.level) >= 190 and seen_targets.size() == ContentDB.TARGETS.size(), "one bounded post-year continuation reaches level 190 and exposes every implemented target identity")
 	state.free()
 	finish()
 

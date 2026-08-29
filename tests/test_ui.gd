@@ -422,7 +422,7 @@ func run_smoke_test() -> void:
 	check(not planet_motifs.has("unknown") and planet_motifs.size() == visible_planets.size() - pending_planet_motifs, "every visible completed planet resolves a distinct visual motif")
 	check(pending_planet_motifs == visible_planets.filter(func(planet): return str(planet.get("visual_delivery", "")) == "pending_user_asset").size(), "visible pending planets retain the explicit user-art boundary")
 	check(scene.find_child("PrimaryNavBadge_galaxy", true, false) != null, "persistent unseen destinations produce a global Galaxy navigation badge")
-	state.player.level = 160
+	state.player.level = int(ContentDB.PLANETS[-1].unlock_level)
 	scene.render()
 	await process_frame
 	check(scene.find_children("GalaxyPlanetIcon_*", "Control", true, false).size() == ContentDB.PLANETS.size(), "the bounded map never hides a world once its level is unlocked")
