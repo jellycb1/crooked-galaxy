@@ -16,7 +16,7 @@ func _init() -> void:
 	var elapsed := 0.0
 	var discovery := {1: {"wins": 0, "seconds": 0.0}}
 	var known_worlds := MissionRulesScript.available_planets(int(player.level)).size()
-	for _capture in 8000:
+	for _capture in 8500:
 		var offers := MissionRulesScript.board_offers(player)
 		check(offers.size() == 3, "standard progression always retains three generated offers")
 		if offers.size() < 2:
@@ -68,6 +68,7 @@ func _init() -> void:
 	check(in_range(discovery, 31, 5600, 6800, 280), "the defective-reality-repair-shop expansion arrives at its level-280 contract")
 	check(in_range(discovery, 32, 5900, 7200, 290), "the preventable-apocalypse-insurance expansion arrives at its level-290 contract")
 	check(in_range(discovery, 33, 6200, 7600, 300), "the bankrupt-empire-auction expansion arrives at its level-300 contract")
+	check(in_range(discovery, 34, 6500, 8000, 310), "the industrial-coincidence-factory expansion arrives at its level-310 contract")
 	check(float(discovery[2].seconds) < float(discovery[3].seconds) and float(discovery[3].seconds) < float(discovery[4].seconds) and float(discovery[4].seconds) < float(discovery[5].seconds), "cumulative mission time grows monotonically across world discoveries")
 	check(seconds_in_range(discovery, 2, 1100.0, 1300.0), "Congelaria enters after roughly twenty minutes of standard base waits")
 	check(seconds_in_range(discovery, 3, 5500.0, 5800.0), "Micelia enters after roughly ninety minutes of standard base waits")
@@ -101,6 +102,7 @@ func _init() -> void:
 	check(float(discovery[31].seconds) > float(discovery[30].seconds), "Defective Reality Repair Shop extends the cumulative route ladder")
 	check(float(discovery[32].seconds) > float(discovery[31].seconds), "Preventable Apocalypse Insurance extends the cumulative route ladder")
 	check(float(discovery[33].seconds) > float(discovery[32].seconds), "Bankrupt Empire Auction extends the cumulative route ladder")
+	check(float(discovery[34].seconds) > float(discovery[33].seconds), "Industrial Coincidence Factory extends the cumulative route ladder")
 
 	finish()
 

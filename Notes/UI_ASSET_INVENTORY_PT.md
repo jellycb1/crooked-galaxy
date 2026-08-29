@@ -298,7 +298,7 @@ Todos são componentes pequenos e reutilizam o retrato do alvo e ícones globais
 
 ### 6.4 Incidentes de viagem
 
-Conteúdo atual: 66 incidentes, dois por cada um dos trinta e três planetas de gameplay. Cada incidente contém três opções/ícones de escolha no código.
+Conteúdo atual: 68 incidentes, dois por cada um dos trinta e quatro planetas de gameplay. Cada incidente contém três opções/ícones de escolha no código.
 
 Produção recomendada por incidente:
 
@@ -958,10 +958,10 @@ Estas capturas são a matriz de validação. Não representam 102 ilustrações 
 | --- | ---: |
 | Ilustrações de classe | 3 |
 | Bases modulares de raça e camadas | aproximadamente 96 unidades |
-| Retratos dos 132 alvos atuais | 132 |
-| Habitats dos 33 planetas atuais | 33 |
-| Camadas de arena dos 33 planetas | 33 |
-| Medalhões dos 33 planetas atuais | 33 |
+| Retratos dos 136 alvos atuais | 136 |
+| Habitats dos 34 planetas atuais | 34 |
+| Camadas de arena dos 34 planetas | 34 |
+| Medalhões dos 34 planetas atuais | 34 |
 | Incidentes atuais | 50 |
 | Transportes | 4 |
 | NPCs de serviço | 5 |
@@ -1012,17 +1012,17 @@ Nada se expande antes de estes testes funcionarem juntos numa captura 450×800.
 
 ### Lote 2 — ciclo central atual
 
-1. trinta e três habitats e medalhões;
-2. 132 alvos;
-3. 66 incidentes;
-4. trinta e três arenas;
+1. trinta e quatro habitats e medalhões;
+2. 136 alvos;
+3. 68 incidentes;
+4. trinta e quatro arenas;
 5. VFX de combate;
 6. vitória, derrota e recompensa.
 
 ### Lote 3 — equipamento, economia e mobilidade
 
 1. kit modular de itens;
-2. packs visuais dos trinta e três planetas;
+2. packs visuais dos trinta e quatro planetas;
 3. quatro transportes;
 4. mercado e ícones premium;
 5. recibos e estados de compra.

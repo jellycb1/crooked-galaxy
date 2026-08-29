@@ -36,16 +36,17 @@ const ReservaEspecies = preload("res://scripts/content/packs/reserva_especies_im
 const OficinaRealidades = preload("res://scripts/content/packs/oficina_realidades_defeituosas.gd")
 const SeguradoraApocalipses = preload("res://scripts/content/packs/seguradora_apocalipses_evitaveis.gd")
 const LeilaoImperios = preload("res://scripts/content/packs/leilao_imperios_falidos.gd")
+const FabricaCoincidencias = preload("res://scripts/content/packs/fabrica_coincidencias_industriais.gd")
 
 var failures := 0
 
 
 func _init() -> void:
 	check(Registry.validation_errors().is_empty(), "registered planet packs satisfy the complete content contract")
-	check(Registry.PACK_SCRIPTS.size() == 33, "the registry contains all thirty-three current canonical planet packs")
-	check(Registry.PLANETS.size() == 33, "the registry composes all thirty-three planets")
-	check(Registry.TARGETS.size() == 132, "the registry composes all 132 targets")
-	check(Registry.HUNT_EVENTS.size() == 66, "the registry composes all 66 hunt incidents")
+	check(Registry.PACK_SCRIPTS.size() == 34, "the registry contains all thirty-four current canonical planet packs")
+	check(Registry.PLANETS.size() == 34, "the registry composes all thirty-four planets")
+	check(Registry.TARGETS.size() == 136, "the registry composes all 136 targets")
+	check(Registry.HUNT_EVENTS.size() == 68, "the registry composes all 68 hunt incidents")
 	check(Registry.pack_for_planet("dustball_prime") == Dustball.PACK, "registry resolves the canonical Dustball pack")
 	check(Registry.pack_for_planet("congelaria_sa") == Congelaria.PACK, "registry resolves the canonical Congelaria pack")
 	check(Registry.pack_for_planet("micelia_404") == Micelia.PACK, "registry resolves the canonical Micelia pack")
@@ -79,6 +80,7 @@ func _init() -> void:
 	check(Registry.pack_for_planet("oficina_realidades_defeituosas") == OficinaRealidades.PACK, "registry resolves the canonical Defective Reality Repair Shop pack")
 	check(Registry.pack_for_planet("seguradora_apocalipses_evitaveis") == SeguradoraApocalipses.PACK, "registry resolves the canonical Preventable Apocalypse Insurance pack")
 	check(Registry.pack_for_planet("leilao_imperios_falidos") == LeilaoImperios.PACK, "registry resolves the canonical Bankrupt Empire Auction pack")
+	check(Registry.pack_for_planet("fabrica_coincidencias_industriais") == FabricaCoincidencias.PACK, "registry resolves the canonical Industrial Coincidence Factory pack")
 	check(Registry.pack_for_planet("unknown").is_empty(), "unknown planet packs fail closed")
 	var detached := Registry.pack_for_planet("dustball_prime")
 	detached.planet.name = "MUTATED"
@@ -325,6 +327,10 @@ func _init() -> void:
 	check(Content.PLANET_ITEM_CATALOGS.leilao_imperios_falidos == LeilaoImperios.ITEMS and Content.SECONDARY_ITEM_CATALOGS.leilao_imperios_falidos == LeilaoImperios.SECONDARY_ITEMS, "Bankrupt Empire Auction equipment remains canonical")
 	check(Content.loot_slots_for_planet("leilao_imperios_falidos").count("boots") == 2 and [LeilaoImperios.TARGETS[0].power, LeilaoImperios.TARGETS[3].power] == [4946, 5343], "level-300 boots and combat anchors are explicit")
 	check(LeilaoImperios.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Bankrupt Empire Auction art remains assigned to the user pipeline")
+	check(Content.PLANETS[33] == FabricaCoincidencias.PLANET and Content.TARGETS.slice(132, 136) == FabricaCoincidencias.TARGETS and Content.HUNT_EVENTS.slice(66, 68) == FabricaCoincidencias.EVENTS, "level-310 pack is composed in canonical order")
+	check(Content.PLANET_ITEM_CATALOGS.fabrica_coincidencias_industriais == FabricaCoincidencias.ITEMS and Content.SECONDARY_ITEM_CATALOGS.fabrica_coincidencias_industriais == FabricaCoincidencias.SECONDARY_ITEMS, "Industrial Coincidence Factory equipment remains canonical")
+	check(Content.loot_slots_for_planet("fabrica_coincidencias_industriais").count("gloves") == 2 and [FabricaCoincidencias.TARGETS[0].power, FabricaCoincidencias.TARGETS[3].power] == [5389, 5822], "level-310 gloves and combat anchors are explicit")
+	check(FabricaCoincidencias.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Industrial Coincidence Factory art remains assigned to the user pipeline")
 
 	var forged := Dustball.PACK.duplicate(true)
 	forged.targets.pop_back()
@@ -347,7 +353,7 @@ func _init() -> void:
 	check(not PackContract.is_valid(forged), "planet bosses are reserved for tier three")
 
 	if failures == 0:
-		print("PASS: all thirty-three current planet packs preserve canonical content and slot progression")
+		print("PASS: all thirty-four current planet packs preserve canonical content and slot progression")
 	quit(1 if failures > 0 else 0)
 
 
