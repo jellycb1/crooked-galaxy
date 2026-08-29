@@ -41,7 +41,7 @@ Accepted and duplicate receipts must bind the exact command identity and advance
 
 1. Deploy provider authentication and server UTC against a test environment.
 2. Make character snapshots and profile commits pass ownership, revision, idempotency and conflict tests. **Complete on local loopback; staging remains pending.**
-3. Exercise offline cache and reconnect without automatic field merging.
+3. Exercise offline cache and reconnect without automatic field merging. **Rules and crash-safe read-only cache complete; normal-boot/staging exercise remains pending.**
 4. Implement server-owned Agency roster and warrant records using the same command receipts.
 5. Enable each capability flag independently only after end-to-end evidence exists.
 

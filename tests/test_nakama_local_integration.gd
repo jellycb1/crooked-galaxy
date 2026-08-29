@@ -52,6 +52,9 @@ func run_integration() -> void:
 		{"palette": "native", "eyes": "standard", "feature": "classic", "marking": "clean"}
 	)
 	check(bool(replay.get("ok", false)) and bool(replay.get("idempotent_replay", false)), "Godot creation retry recovered the same server character")
+	var session_summary: Dictionary = await adapter.get_session_summary()
+	check(bool(session_summary.get("ok", false)) and str(session_summary.get("session_state", "")) == "authenticated", "Godot canonicalized the authenticated post-creation session")
+	check(str(session_summary.get("active_character_id", "")) == str(authentication.get("account_id", "")) and session_summary.get("owned_character_ids", []).size() == 1, "session binds exactly the account-owned active character")
 	var initial_revision := int(replay.get("revision", -1))
 	var nonce := str(int(Time.get_unix_time_from_system() * 1000.0))
 	var commit: Dictionary = await adapter.commit_profile(

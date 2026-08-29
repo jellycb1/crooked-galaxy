@@ -94,6 +94,13 @@ $CreateReplay = Invoke-CgRpc -Name "cg_character_create" -Payload $CreatePayload
 if ($CreateReplay.idempotent_replay -ne $true -or [int]$CreateReplay.revision -ne 0) {
     throw "Character creation did not replay idempotently."
 }
+$SessionSummary = Invoke-CgRpc -Name "cg_session" -Payload @{}
+if ([string]$SessionSummary.account_id -ne $AccountId -or [string]$SessionSummary.active_character_id -ne $AccountId -or [string]$SessionSummary.session_state -ne "authenticated") {
+    throw "Authenticated session summary did not bind the owned active character."
+}
+if (@($SessionSummary.owned_character_ids).Count -ne 1 -or [string]$SessionSummary.owned_character_ids[0] -ne $AccountId) {
+    throw "Session summary returned an invalid owned-character set."
+}
 
 $CommandId = "commit-$RunId"
 $CommitPayload = @{

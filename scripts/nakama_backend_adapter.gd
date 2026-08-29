@@ -5,6 +5,7 @@ const Deployment = preload("res://scripts/backend_deployment_rules.gd")
 const Protocol = preload("res://scripts/backend_protocol_rules.gd")
 
 const CLOCK_RPC := "cg_clock"
+const SESSION_RPC := "cg_session"
 const CHARACTER_GET_RPC := "cg_character_get"
 const CHARACTER_CREATE_RPC := "cg_character_create"
 const CHARACTER_COMMIT_RPC := "cg_character_commit"
@@ -114,6 +115,17 @@ func get_character() -> Dictionary:
 		return _failure("invalid_character_snapshot")
 	canonical.ok = true
 	canonical.exists = true
+	return canonical
+
+
+func get_session_summary() -> Dictionary:
+	var envelope := await _rpc_dictionary(SESSION_RPC, {})
+	if envelope.is_empty():
+		return _failure("session_summary_failed")
+	var canonical := Protocol.canonical_session_summary(envelope, _now_unix_ms())
+	if canonical.is_empty() or str(canonical.get("account_id", "")) != account_id():
+		return _failure("invalid_session_summary")
+	canonical.ok = true
 	return canonical
 
 

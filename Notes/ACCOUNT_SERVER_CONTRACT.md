@@ -1,6 +1,6 @@
 # Account and International 1 contract
 
-Status: active boundary. The current build is device-authoritative; remote states in this document are future requirements, not implemented claims.
+Status: active boundary. The current build is device-authoritative. Local loopback character authority plus inactive cache/reconnect rules are implemented, but the normal APK still makes no online claim.
 
 ## Current product truth
 
@@ -40,8 +40,12 @@ No automatic merge of currencies, inventory, claimed rewards, combat phases, or 
 
 ## Future online adapter boundary
 
-A real provider may later supply credentials, authenticated session refresh, server revision fetch, and atomic profile upload/download. It must preserve the same stable account, character, server, and locale fields. Expired authentication may fall back to `offline_cached` only after a previously acknowledged server snapshot exists; this local test build cannot manufacture that state.
+A real provider may later supply credentials, authenticated session refresh, server revision fetch, and atomic profile upload/download. It must preserve the same stable account, character, server, and locale fields. Expired authentication may fall back to `offline_cached` only after a previously acknowledged server snapshot exists. The inactive cache implementation now validates ownership/revision, writes atomically, expires after seven days, and opens only as read-only `cached_server`: economy, social actions and billing are prohibited. Normal boot does not configure or use it yet.
 
-The provider-neutral wire validation, server-clock sampling, secret separation, revisioned command envelope and idempotent receipt policy are now executable in `backend_protocol_rules.gd` and normative in `BACKEND_VERTICAL_SLICE_CONTRACT.md`. This is protocol preparation, not a deployed backend: all remote capability flags remain false and the local save remains unchanged.
+On reconnect, an uncontested server snapshot replaces the cache as a unit. Exact pending commands retain their original idempotency keys and may retry only while the server revision is unchanged. A server advance with pending work requires conflict review; a foreign owner, malformed queue or revision regression is rejected. No path uploads or merges fields automatically.
+
+An established local-test character and a pristine revision-zero remote character produce a one-time explicit choice: keep the remote baseline or request a reviewed local import. “Merge” is not an option, the offer disappears after a recorded decision, and it is never shown over progressed remote state. The actual trusted server import operation remains deliberately unimplemented.
+
+The provider-neutral wire validation, server-clock sampling, secret separation, revisioned command envelope, idempotent receipt, cache and reconnect policies are executable in `backend_protocol_rules.gd` and `profile_sync_rules.gd`, and normative in `BACKEND_VERTICAL_SLICE_CONTRACT.md`. This is protocol preparation, not a deployed backend: all remote capability flags remain false and the local save remains unchanged.
 
 Arena, rankings, Bounty Agencies and future Consortiums must depend on server-authoritative character snapshots and cannot be built on the current device-authoritative save. Agency membership belongs to one character on one shard, is revisioned independently from the player save, and must never be reconstructed from local claims. The active social design is defined in `BOUNTY_AGENCY_CONTRACT.md`.

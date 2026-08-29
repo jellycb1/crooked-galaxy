@@ -57,12 +57,12 @@ foreach ($IgnoredPath in @(".env", "node_modules/", "build/", "data/", "backups/
         throw "Docker build context does not exclude $IgnoredPath."
     }
 }
-foreach ($RpcName in @("cg_clock", "cg_character_get", "cg_character_create", "cg_character_commit")) {
+foreach ($RpcName in @("cg_clock", "cg_session", "cg_character_get", "cg_character_create", "cg_character_commit")) {
     if (-not $RuntimeSource.Contains("registerRpc(`"$RpcName`"")) {
         throw "Required authoritative RPC is missing: $RpcName"
     }
 }
-foreach ($AuthorityGuard in @('permissionWrite: 0', 'version: "*"', 'Object.keys(change).length !== 2', 'credits: 25', 'xp: 0')) {
+foreach ($AuthorityGuard in @('permissionWrite: 0', 'version: "*"', 'payload.length > 4096', 'Object.keys(change).length !== 2', 'credits: 25', 'xp: 0')) {
     if (-not $RuntimeSource.Contains($AuthorityGuard)) {
         throw "Character authority guard is missing: $AuthorityGuard"
     }

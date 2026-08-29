@@ -1,0 +1,107 @@
+class_name ProfileSyncRules
+extends RefCounted
+
+const Protocol = preload("res://scripts/backend_protocol_rules.gd")
+
+const CACHE_SCHEMA := 1
+const MAX_CACHE_AGE_MS := 604800000
+
+const ACTION_USE_REMOTE := "use_remote_snapshot"
+const ACTION_RETRY_PENDING := "retry_pending_commands"
+const ACTION_REVIEW_CONFLICT := "review_conflict"
+const ACTION_REJECT_REMOTE := "reject_remote_state"
+
+const MIGRATION_NONE := "none"
+const MIGRATION_CHOICE_REQUIRED := "choice_required"
+const MIGRATION_KEEP_REMOTE := "keep_remote"
+const MIGRATION_REQUEST_IMPORT := "request_local_import"
+
+
+static func make_read_only_cache(snapshot: Dictionary, account_id: String, character_id: String, cached_at_unix_ms: int) -> Dictionary:
+	var canonical := Protocol.canonical_character_snapshot(snapshot, account_id, character_id)
+	if canonical.is_empty() or cached_at_unix_ms < int(canonical.server_unix_ms) or cached_at_unix_ms > Protocol.MAX_UNIX_MS:
+		return {}
+	return {
+		"cache_schema": CACHE_SCHEMA,
+		"account_id": account_id,
+		"character_id": character_id,
+		"server_revision": int(canonical.revision),
+		"cached_at_unix_ms": cached_at_unix_ms,
+		"snapshot": canonical,
+	}
+
+
+static func open_read_only_cache(cache: Dictionary, account_id: String, character_id: String, now_unix_ms: int) -> Dictionary:
+	if int(cache.get("cache_schema", -1)) != CACHE_SCHEMA or str(cache.get("account_id", "")) != account_id or str(cache.get("character_id", "")) != character_id:
+		return {}
+	var cached_at := int(cache.get("cached_at_unix_ms", -1))
+	if cached_at < 0 or now_unix_ms < cached_at or now_unix_ms - cached_at > MAX_CACHE_AGE_MS:
+		return {}
+	var snapshot_value = cache.get("snapshot", null)
+	if not snapshot_value is Dictionary:
+		return {}
+	var canonical := Protocol.canonical_character_snapshot(snapshot_value, account_id, character_id)
+	if canonical.is_empty() or int(cache.get("server_revision", -1)) != int(canonical.revision):
+		return {}
+	return {
+		"state": "offline_cached",
+		"authority": "cached_server",
+		"read_only": true,
+		"economic_mutations_allowed": false,
+		"social_actions_allowed": false,
+		"billing_allowed": false,
+		"age_ms": now_unix_ms - cached_at,
+		"snapshot": canonical,
+	}
+
+
+static func reconnect_action(cached_revision: int, remote_revision: int, pending_commands: Array, remote_owned: bool) -> String:
+	if not remote_owned or cached_revision < 0 or remote_revision < 0 or remote_revision < cached_revision:
+		return ACTION_REJECT_REMOTE
+	if pending_commands.is_empty():
+		return ACTION_USE_REMOTE
+	if not _valid_pending_commands(pending_commands):
+		return ACTION_REJECT_REMOTE
+	if remote_revision == cached_revision:
+		return ACTION_RETRY_PENDING
+	return ACTION_REVIEW_CONFLICT
+
+
+static func migration_offer(local_player: Dictionary, remote_snapshot: Dictionary, already_decided: bool) -> String:
+	if already_decided or not _established_local_profile(local_player) or not _pristine_remote_profile(remote_snapshot):
+		return MIGRATION_NONE
+	return MIGRATION_CHOICE_REQUIRED
+
+
+static func canonical_migration_choice(choice: String, offer: String) -> String:
+	if offer != MIGRATION_CHOICE_REQUIRED:
+		return MIGRATION_NONE
+	if choice in [MIGRATION_KEEP_REMOTE, MIGRATION_REQUEST_IMPORT]:
+		return choice
+	return MIGRATION_NONE
+
+
+static func _valid_pending_commands(commands: Array) -> bool:
+	var identities := {}
+	for command in commands:
+		if not command is Dictionary:
+			return false
+		var command_id := str(command.get("command_id", ""))
+		var idempotency_key := str(command.get("idempotency_key", ""))
+		if command_id.is_empty() or idempotency_key.is_empty() or identities.has(idempotency_key):
+			return false
+		identities[idempotency_key] = command_id
+	return true
+
+
+static func _established_local_profile(player: Dictionary) -> bool:
+	return not player.is_empty() and str(player.get("character_id", "")).length() > 0 \
+		and (int(player.get("level", 1)) > 1 or int(player.get("xp", 0)) > 0 or int(player.get("wins", 0)) > 0)
+
+
+static func _pristine_remote_profile(snapshot: Dictionary) -> bool:
+	if str(snapshot.get("authority", "")) != "server" or int(snapshot.get("revision", -1)) != 0:
+		return false
+	var profile = snapshot.get("profile", null)
+	return profile is Dictionary and int(profile.get("level", -1)) == 1 and int(profile.get("xp", -1)) == 0 \
+		and int(profile.get("credits", -1)) == 25 and int(profile.get("warp_chips", -1)) == 0 and int(profile.get("scrap", -1)) == 0

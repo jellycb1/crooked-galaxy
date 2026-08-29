@@ -28,6 +28,7 @@ function requireUser(context: nkruntime.Context): string {
 
 function parsePayload(payload: string): {[key: string]: any} {
   if (!payload) return {};
+  if (payload.length > 4096) throw Error("Payload exceeds the protocol limit.");
   const parsed = JSON.parse(payload);
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw Error("Object payload required.");
   return parsed;
@@ -45,7 +46,7 @@ function validHunterName(value: any): boolean {
 }
 
 function canonicalAppearance(value: any): {[key: string]: string} | null {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  if (!value || typeof value !== "object" || Array.isArray(value) || Object.keys(value).length !== 4) return null;
   const clean: {[key: string]: string} = {};
   const categories = ["palette", "eyes", "feature", "marking"];
   for (let index = 0; index < categories.length; index++) {
@@ -80,12 +81,36 @@ function rpcCharacterGet(context: nkruntime.Context, _logger: nkruntime.Logger, 
   return JSON.stringify(snapshot(object.value as StoredCharacter));
 }
 
+function rpcSessionSummary(context: nkruntime.Context, _logger: nkruntime.Logger, nk: nkruntime.Nakama, _payload: string): string {
+  const userId = requireUser(context);
+  if (!readCharacter(nk, userId)) throw Error("Active character required.");
+  const now = Date.now();
+  const userSessionExp = context.userSessionExp;
+  if (typeof userSessionExp !== "number") throw Error("Valid authenticated session required.");
+  const expiresAt = userSessionExp * 1000;
+  if (expiresAt <= now) throw Error("Valid authenticated session required.");
+  const safeSessionId = context.sessionId || (userId + "." + String(userSessionExp));
+  return JSON.stringify({
+    api_version: CG_API_VERSION,
+    provider_id: "nakama",
+    account_id: userId,
+    session_id: safeSessionId,
+    session_state: "authenticated",
+    shard_id: CG_SHARD_ID,
+    active_character_id: userId,
+    owned_character_ids: [userId],
+    authority: "server",
+    issued_at_unix_ms: now,
+    expires_at_unix_ms: expiresAt
+  });
+}
+
 function rpcCharacterCreate(context: nkruntime.Context, logger: nkruntime.Logger, nk: nkruntime.Nakama, payload: string): string {
   const userId = requireUser(context);
   const request = parsePayload(payload);
   const idempotencyKey = request.idempotency_key;
   const appearance = canonicalAppearance(request.appearance);
-  if (!validIdentifier(idempotencyKey) || !validHunterName(request.hunter_name) || !CLASS_IDS[request.class_id] || !SPECIES_IDS[request.species_id] || !appearance) throw Error("Invalid character creation payload.");
+  if (Object.keys(request).length !== 5 || !validIdentifier(idempotencyKey) || !validHunterName(request.hunter_name) || !CLASS_IDS[request.class_id] || !SPECIES_IDS[request.species_id] || !appearance) throw Error("Invalid character creation payload.");
   const fingerprint = [request.hunter_name, request.class_id, request.species_id, appearance.palette, appearance.eyes, appearance.feature, appearance.marking].join("|");
   const receiptObjects = nk.storageRead([{collection: RECEIPT_COLLECTION, key: idempotencyKey, userId: userId}]);
   if (receiptObjects.length === 1) {
@@ -123,7 +148,7 @@ function commitReceipt(request: {[key: string]: any}, userId: string, status: st
 function rpcCharacterCommit(context: nkruntime.Context, logger: nkruntime.Logger, nk: nkruntime.Nakama, payload: string): string {
   const userId = requireUser(context);
   const request = parsePayload(payload);
-  if (!validIdentifier(request.command_id) || !validIdentifier(request.idempotency_key) || request.operation !== "profile_commit" || request.shard_id !== CG_SHARD_ID || request.character_id !== userId || typeof request.expected_revision !== "number" || request.expected_revision < 0) throw Error("Invalid profile command envelope.");
+  if (Object.keys(request).length !== 9 || request.api_version !== CG_API_VERSION || !validIdentifier(request.command_id) || !validIdentifier(request.idempotency_key) || !validIdentifier(request.session_id) || request.operation !== "profile_commit" || request.shard_id !== CG_SHARD_ID || request.character_id !== userId || typeof request.expected_revision !== "number" || request.expected_revision < 0 || Math.floor(request.expected_revision) !== request.expected_revision) throw Error("Invalid profile command envelope.");
   const object = readCharacter(nk, userId);
   if (!object) return JSON.stringify(commitReceipt(request, userId, "rejected", 0, "character_missing"));
   const current = object.value as StoredCharacter;
@@ -156,6 +181,7 @@ function rpcCharacterCommit(context: nkruntime.Context, logger: nkruntime.Logger
 
 const InitModule: nkruntime.InitModule = function (_context: nkruntime.Context, logger: nkruntime.Logger, _nk: nkruntime.Nakama, initializer: nkruntime.Initializer): void {
   initializer.registerRpc("cg_clock", rpcCrookedGalaxyClock);
+  initializer.registerRpc("cg_session", rpcSessionSummary);
   initializer.registerRpc("cg_character_get", rpcCharacterGet);
   initializer.registerRpc("cg_character_create", rpcCharacterCreate);
   initializer.registerRpc("cg_character_commit", rpcCharacterCommit);
