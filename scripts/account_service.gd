@@ -12,6 +12,14 @@ func backend_available() -> bool:
 	return false
 
 
+func supports_remote_sessions() -> bool:
+	return false
+
+
+func server_clock_available() -> bool:
+	return false
+
+
 func create_session(locale_id: String, server_id: String, character_id: String) -> Dictionary:
 	return Rules.create_local_account(locale_id, server_id, character_id)
 

@@ -2,6 +2,8 @@
 
 Estado: direção de produto aprovada e fundação de regras implementada. Não existe ainda backend, membership real, UI social ou recompensa online; o cliente local não deve fingir o contrário.
 
+O protocolo partilhado de versão da API, UTC do servidor, snapshots de personagem, comandos idempotentes e recibos está definido em `BACKEND_VERTICAL_SLICE_CONTRACT.md`. Os registos de Agência podem especializar esse envelope, mas nunca contorná-lo.
+
 ## Identidade
 
 O equivalente temático de uma guild chama-se **Agência de Caçadores** em português e **Bounty Agency** em inglês. Uma Agência reúne caçadores independentes para localizar e capturar procurados grandes demais para uma investigação individual.

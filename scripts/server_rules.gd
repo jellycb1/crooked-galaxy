@@ -12,6 +12,8 @@ const DEFINITIONS := [
 		"prototype": true,
 		"service_mode": "local_contract",
 		"account_backend": false,
+		"clock_backend": false,
+		"profile_backend": false,
 		"agency_backend": false,
 		"progress_authority": "device",
 	},
@@ -39,3 +41,15 @@ static func short_name_for(server_id: String) -> String:
 
 static func agency_backend_available(server_id: String) -> bool:
 	return bool(get_definition(server_id).get("agency_backend", false))
+
+
+static func account_backend_available(server_id: String) -> bool:
+	return bool(get_definition(server_id).get("account_backend", false))
+
+
+static func clock_backend_available(server_id: String) -> bool:
+	return bool(get_definition(server_id).get("clock_backend", false))
+
+
+static func profile_backend_available(server_id: String) -> bool:
+	return bool(get_definition(server_id).get("profile_backend", false))
