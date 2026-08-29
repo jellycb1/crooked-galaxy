@@ -14,7 +14,7 @@ Com o eixo planetário fechado em 35 mundos, esta auditoria mede se missões, eq
 | Equipamento | nove espaços universais e 2 180 séries normais | Variedade e cauda de coleção suficientes; nenhuma de 100 carreiras completou o catálogo após 5 000 contratos. |
 | Retenção curta | três objetivos diários | Ciclo limitado e honesto de 1/3/5 caçadas, sem obrigação premium. |
 | Retenção semanal | três metas e um Mandado Negro | Um motivo semanal funcional, reutilizando bosses desbloqueados sem reativar campanha linear. |
-| Fenda | duas realidades, 24 primeiras vitórias | Teste diário de build coerente, mas apenas 24 dias únicos e final mecânico no nível 155. |
+| Fenda | três realidades, 36 primeiras vitórias | Teste diário de build coerente até aos checkpoints de nível 215; continua a ser uma escada finita, não retenção anual isolada. |
 | Economia | Mercado, Oficina, quatro transportes e incidentes pagos | Créditos perdem pressão após os transportes; uma carreira padrão conserva 136 391 créditos ao fim de 200 vitórias. |
 | Carreira antes deste batch | oito marcos | Terminava no quinto mundo, cinco capturas de embalo e 25 de sucata reciclada, muito antes do horizonte anual. |
 
@@ -32,8 +32,8 @@ Esses pagamentos são reconhecimento, não uma nova curva de poder. O total de C
 
 ## Proteção executável
 
-`test_launch_content_coverage.gd` fixa num único gate as contagens dos cinco eixos, os 24 primeiros clears atuais da Fenda, as 2 180 séries e os dezenove marcos até 3 000 caçadas/35 mundos. Testes de regras, persistência, UI, texto e mobile protegem derivação, resgate único, tradução PT/EN, paginação leve e apresentação do progresso.
+`test_launch_content_coverage.gd` fixa num único gate as contagens dos cinco eixos, os 36 primeiros clears atuais da Fenda, as 2 180 séries e os dezenove marcos até 3 000 caçadas/35 mundos. Testes de regras, persistência, UI, texto e mobile protegem derivação, resgate único, tradução PT/EN, paginação leve e apresentação do progresso.
 
 ## Continuação implementada
 
-A Oficina passou a cobrar um serviço em Créditos além da Sucata, conforme `WORKSHOP_CREDIT_SERVICE_AUDIT_2026-08-29.md`. A simulação preserva os quatro transportes e absorve medianamente 17,4% do saldo que seria retido após 200 contratos. Com a utilidade recorrente estabilizada, a próxima prioridade pode regressar à profundidade de build: uma terceira realidade da Fenda com doze inimigos, chave gameplay-only e envelope de recompensas compatível com esta economia.
+A Oficina passou a cobrar um serviço em Créditos além da Sucata, conforme `WORKSHOP_CREDIT_SERVICE_AUDIT_2026-08-29.md`. A simulação preserva os quatro transportes e absorve medianamente 17,4% do saldo que seria retido após 200 contratos. A continuação seguinte acrescenta a terceira realidade da Fenda, com doze inimigos, chave gameplay-only, 36 dias totais de primeira conclusão e envelope de recompensas compatível com esta economia.

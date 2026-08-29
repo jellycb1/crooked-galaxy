@@ -16,7 +16,7 @@ func _init() -> void:
 	var rift_victories := 0
 	for reality in ChallengeRules.REALITIES:
 		rift_victories += reality.stages.size()
-	check(ChallengeRules.REALITIES.size() == 2 and rift_victories == 24, "the current Rift contributes exactly 24 first-clear days")
+	check(ChallengeRules.REALITIES.size() == 3 and rift_victories == 36, "the current Rift contributes exactly 36 first-clear days")
 
 	var complete_player := {
 		"wins": 3000,

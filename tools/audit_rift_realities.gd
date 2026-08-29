@@ -13,11 +13,16 @@ func _init() -> void:
 	for reality in Challenge.REALITIES:
 		var reality_id := str(reality.id)
 		print("\n%s · unlock L%d" % [str(reality.name), int(reality.unlock_level)])
+		var total_credits := 0
+		var total_xp := 0
 		for stage_index in reality.stages.size():
 			# The first reality is an aspirational ladder, not twelve encounters
 			# intended for its level-8 unlock day. Reuse the exact checkpoints
 			# protected by test_challenges instead of printing a misleading L8 wall.
 			var projected_level: int = int(FirstRealitySimulation.CHECKPOINTS[stage_index].level) if reality_id == Challenge.FIRST_REALITY_ID else int(reality.unlock_level) + stage_index * 5
+			var stage := Challenge.stage_at(stage_index, reality_id)
+			total_credits += int(stage.credits)
+			total_xp += int(stage.xp)
 			var odds: Array[float] = []
 			var players: Array[Dictionary] = []
 			for policy in Builds.POLICIES:
@@ -27,10 +32,11 @@ func _init() -> void:
 				else:
 					apply_prior_rewards(player, reality_id, stage_index)
 				players.append(player)
-				odds.append(Rules.bounty_odds(player, Challenge.stage_at(stage_index, reality_id)))
+				odds.append(Rules.bounty_odds(player, stage))
 			odds.sort()
-			var factor := suggested_factor(players, Challenge.stage_at(stage_index, reality_id)) if reality_id != Challenge.FIRST_REALITY_ID else 1.0
-			print("  enemy %02d · L%d · %d-%d%% · factor %.2f · P%d D%d H%d" % [stage_index + 1, projected_level, roundi(odds[0] * 100.0), roundi(odds[-1] * 100.0), factor, int(Challenge.stage_at(stage_index, reality_id).power), int(Challenge.stage_at(stage_index, reality_id).defense), int(Challenge.stage_at(stage_index, reality_id).health)])
+			var factor := suggested_factor(players, stage) if reality_id != Challenge.FIRST_REALITY_ID else 1.0
+			print("  enemy %02d · L%d · %d-%d%% · factor %.2f · P%d D%d H%d · %d cr/%d xp" % [stage_index + 1, projected_level, roundi(odds[0] * 100.0), roundi(odds[-1] * 100.0), factor, int(stage.power), int(stage.defense), int(stage.health), int(stage.credits), int(stage.xp)])
+		print("  FIRST-CLEAR TOTAL · %d Credits · %d XP" % [total_credits, total_xp])
 	quit(0)
 
 

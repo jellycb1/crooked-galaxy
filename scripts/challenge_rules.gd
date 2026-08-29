@@ -2,6 +2,7 @@ class_name ChallengeRules
 extends RefCounted
 
 const MonetizationRulesScript = preload("res://scripts/monetization_rules.gd")
+const MissionRulesScript = preload("res://scripts/mission_rules.gd")
 
 const UNLOCK_PLANET_ID := "dustball_prime"
 const UNLOCK_LEVEL := 8
@@ -273,6 +274,85 @@ const FROZEN_VERDICT_IDENTITIES := [
 	},
 ]
 
+# Authored identity layer for the third reality. It deliberately reuses the
+# universal slot/trait ladder while giving every sealed reward and opponent a
+# distinct collectible identity. Visual delivery remains external; runtime
+# portraits continue through the documented procedural fallback.
+const REJECTED_FUTURES_IDENTITIES := [
+	{
+		"name": "Fiscal de Vistos Temporais", "title": "ANDAR 1 · FRONTEIRA DO AMANHÃ",
+		"description": "Recusa futuros sem fotografia recente e deporta viajantes para o ontem de onde supostamente vieram.",
+		"attacks": ["Visto Cronológico", "Deportação Retroativa", "Fila do Amanhã"],
+		"reward": {"name": "Arnês de Fronteira Temporal", "description": "Transporta documentos válidos em linhas temporais que ainda não reconheceram o caçador."},
+	},
+	{
+		"name": "Prefeita que Ainda Não Nasceu", "title": "ANDAR 2 · CÂMARA PREMATURA",
+		"description": "Governa por procuração fetal, inaugura ruínas futuras e culpa o presente pela baixa execução do orçamento.",
+		"attacks": ["Decreto Pré-Natal", "Obra Ainda Demolida", "Orçamento do Futuro"],
+		"reward": {"name": "Colete da Administração Prematura", "description": "Organiza recursos municipais antes de a cidade cometer o erro de existir."},
+	},
+	{
+		"name": "Sindicato dos Eus Alternativos", "title": "ANDAR 3 · ASSEMBLEIA PARALELA",
+		"description": "Mil versões da mesma pessoa exigem salários distintos, férias simultâneas e uma única cadeira na direção.",
+		"attacks": ["Greve Multiversal", "Piquete Duplicado", "Negociação Infinita"],
+		"reward": {"name": "Plataforma dos Mil Turnos", "description": "Distribui tarefas por versões alternativas que nunca assinaram o contrato original."},
+	},
+	{
+		"name": "Contrabandista de Amanhãs", "title": "ANDAR 4 · CAIS NÃO OCORRIDO",
+		"description": "Importa manhãs ensolaradas, exporta segundas-feiras e esconde décadas inteiras em contentores diplomáticos.",
+		"attacks": ["Década Contrabandeada", "Segunda-Feira Exportada", "Alvorada Clandestina"],
+		"reward": {"name": "Nódulo de Alfândega Prospectiva", "description": "Reconhece acontecimentos proibidos antes de eles chegarem ao controlo fronteiriço."},
+	},
+	{
+		"name": "Carreira que Nunca Aconteceu", "title": "ANDAR 5 · RECURSOS HUMANOS HIPOTÉTICOS",
+		"description": "Foi promovida do nada, gere funcionários imaginários e exige indemnização por décadas que ninguém trabalhou.",
+		"attacks": ["Promoção Inexistente", "Avaliação Hipotética", "Despedimento Preventivo"],
+		"reward": {"name": "Córtex do Currículo Impossível", "description": "Recorda competências adquiridas em empregos que a realidade se recusou a financiar."},
+	},
+	{
+		"name": "Demolidor de Previsões", "title": "ANDAR 6 · ESTALEIRO CONTRAFACTUAL",
+		"description": "Derruba edifícios antes da licença, recicla destinos cancelados e deixa a fatura para o universo aprovado.",
+		"attacks": ["Martelo de Probabilidade", "Destino Demolido", "Entulho Causal"],
+		"reward": {"name": "Interface de Demolição Causal", "description": "Marca estruturas condenadas mesmo quando só existem como uma possibilidade inconveniente."},
+	},
+	{
+		"name": "Cobrador Contrafactual", "title": "ANDAR 7 · FINANÇAS DO IMPOSSÍVEL",
+		"description": "Tributa rendimentos que poderia ter recebido e aplica juros a decisões financeiramente responsáveis.",
+		"attacks": ["Imposto Hipotético", "Juro do Talvez", "Penhora Contrafactual"],
+		"reward": {"name": "Sinalizador de Dívida Improvável", "description": "Aponta para a versão da conta onde outra pessoa ainda parece ser responsável."},
+	},
+	{
+		"name": "Nostalgia da Próxima Semana", "title": "ANDAR 8 · MEMÓRIA ANTECIPADA",
+		"description": "Sente falta de acontecimentos futuros, coleciona recordações por estrear e considera o presente demasiado moderno.",
+		"attacks": ["Saudade Antecipada", "Memória por Estrear", "Passado da Próxima Terça"],
+		"reward": {"name": "Isca de Recordação Futura", "description": "Convence ameaças de que já falharam o caçador numa lembrança particularmente convincente."},
+	},
+	{
+		"name": "Ministro dos Resultados Impossíveis", "title": "ANDAR 9 · GOVERNO DO TALVEZ",
+		"description": "Anuncia metas incompatíveis, celebra estatísticas inexistentes e demite a matemática quando os números discordam.",
+		"attacks": ["Meta Incompatível", "Estatística Inventada", "Matemática Demitida"],
+		"reward": {"name": "Assistente Ministerial do Talvez", "description": "Encontra uma interpretação favorável sempre que os factos insistem em aparecer."},
+	},
+	{
+		"name": "Reformado de Outra Linha Temporal", "title": "ANDAR 10 · PENSÃO PARALELA",
+		"description": "Cobra reformas de sete futuros, trabalha em todos eles e protesta contra a idade atual do universo.",
+		"attacks": ["Pensão Séptupla", "Antiguidade Paralela", "Greve de Reformados Futuros"],
+		"reward": {"name": "Nó de Antiguidade Paralela", "description": "Mantém benefícios acumulados em carreiras que nunca ocorreram nesta linha temporal."},
+	},
+	{
+		"name": "Último Sobrevivente Homologado", "title": "ANDAR 11 · ABRIGO CERTIFICADO",
+		"description": "Sobreviveu oficialmente a apocalipses cancelados e recusa dividir o título com vítimas não credenciadas.",
+		"attacks": ["Apocalipse Certificado", "Abrigo Exclusivo", "Sobrevivência por Decreto"],
+		"reward": {"name": "Segundo Certificado de Sobrevivência", "description": "Repete o instante exato em que o desastre percebe que preencheu o formulário errado."},
+	},
+	{
+		"name": "Futuro que Despediu o Presente", "title": "ANDAR 12 · RESCISÃO DA REALIDADE",
+		"description": "Declarou o agora obsoleto, assumiu o cargo com efeitos retroativos e terceirizou o fim do tempo.",
+		"attacks": ["Rescisão do Agora", "Obsolescência Imediata", "Futuro Terceirizado"],
+		"reward": {"name": "Prisma do Presente Obsoleto", "description": "Divide o agora em alternativas negociáveis antes que o futuro consiga cancelá-las."},
+	},
+]
+
 const FIRST_REALITY_ID := "dead_customs"
 const REALITIES := [
 	{
@@ -298,6 +378,10 @@ const REALITIES := [
 		"health_bonus": 2500,
 		"credits_multiplier": 1.65,
 		"xp_multiplier": 1.55,
+		"reward_level_start": 100,
+		"reward_level_step": 5,
+		"credit_reward_ratio": 1.25,
+		"xp_reward_ratio": 1.25,
 		# Calibrated against representative level 100–155 builds in five-level
 		# steps. This preserves a readable dungeon wall without four trivial
 		# opening enemies or an impossible final spike.
@@ -305,6 +389,32 @@ const REALITIES := [
 		"reward_power_bonus": 1,
 		"key_pity_hunts": 5,
 		"identity_stages": FROZEN_VERDICT_IDENTITIES,
+		"stages": STAGES,
+	},
+	{
+		"id": "rejected_futures",
+		"key_id": "rejected_futures_key",
+		"name": "Cidade dos Futuros Recusados",
+		"description": "Uma metrópole construída com linhas temporais sem licença, futuros indeferidos e amanhãs que se recusaram a desaparecer.",
+		"unlock_level": 160,
+		"previous_reality_id": "frozen_verdict",
+		"stat_multiplier": 1.80,
+		"power_bonus": 900,
+		"defense_bonus": 400,
+		"health_bonus": 7000,
+		"credits_multiplier": 2.45,
+		"xp_multiplier": 2.30,
+		"reward_level_start": 160,
+		"reward_level_step": 5,
+		"credit_reward_ratio": 1.25,
+		"xp_reward_ratio": 1.25,
+		# Calibrated across the three class policies at levels 160–215. The
+		# descending factors counter the steeper inherited base ladder while the
+		# additive mature-reality pressure keeps every encounter above reality two.
+		"difficulty_multipliers": [0.85, 0.83, 0.82, 0.85, 0.83, 0.83, 0.83, 0.83, 0.81, 0.78, 0.73, 0.68],
+		"reward_power_bonus": 2,
+		"key_pity_hunts": 7,
+		"identity_stages": REJECTED_FUTURES_IDENTITIES,
 		"stages": STAGES,
 	},
 ]
@@ -443,6 +553,11 @@ static func stage_at(index: int, reality_id := FIRST_REALITY_ID) -> Dictionary:
 				stage[stat_key] = maxi(1, roundi(float(stage[stat_key]) * float(difficulty_multipliers[index])))
 		stage.credits = maxi(1, roundi(float(stage.get("credits", 1)) * float(definition.get("credits_multiplier", stat_multiplier))))
 		stage.xp = maxi(1, roundi(float(stage.get("xp", 1)) * float(definition.get("xp_multiplier", stat_multiplier))))
+		if definition.has("reward_level_start"):
+			var reward_level := int(definition.reward_level_start) + index * int(definition.get("reward_level_step", 0))
+			stage.credits = maxi(1, roundi(float(MissionRulesScript.standard_credit_reward(reward_level)) * float(definition.get("credit_reward_ratio", 1.0))))
+			stage.xp = maxi(1, roundi(float(MissionRulesScript.standard_xp_reward(reward_level)) * float(definition.get("xp_reward_ratio", 1.0))))
+			stage["reward_level"] = reward_level
 	stage["reward_power_bonus"] = int(definition.get("reward_power_bonus", 0))
 	stage["localization_stage_id"] = str(stage.id)
 	var anomaly := anomaly_profile(str(stage.get("anomaly_id", "")))

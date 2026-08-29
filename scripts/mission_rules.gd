@@ -35,6 +35,16 @@ static func available_planet_count(level: int) -> int:
 	return result
 
 
+static func standard_credit_reward(level: int) -> float:
+	var mission_level := maxi(1, level)
+	return maxf(1.0, 32.0 + 1.35 * mission_level * mission_level)
+
+
+static func standard_xp_reward(level: int) -> float:
+	var mission_level := maxi(1, level)
+	return maxf(1.0, 36.0 + 7.0 * mission_level)
+
+
 static func is_planet_available(planet_id: String, level: int) -> bool:
 	# This check runs once per visible Galaxy card. Avoid constructing and deeply
 	# duplicating the complete unlocked catalog for every card.
@@ -207,8 +217,8 @@ static func scale_offer_level(template: Dictionary, planet: Dictionary, mission_
 	offer["power"] = maxi(1, roundi((11.0 + (mission_level - 1) * 5.0) * pressure_mult))
 	offer["defense"] = maxi(0, roundi((4.0 + (mission_level - 1) * 2.5) * pressure_mult))
 	offer["health"] = maxi(1, roundi((70.0 + (mission_level - 1) * 35.0) * pressure_mult))
-	offer["credits"] = maxi(1, roundi((32.0 + 1.35 * mission_level * mission_level) * reward_mult))
-	offer["xp"] = maxi(1, roundi((36.0 + 7.0 * mission_level) * reward_mult))
+	offer["credits"] = maxi(1, roundi(standard_credit_reward(mission_level) * reward_mult))
+	offer["xp"] = maxi(1, roundi(standard_xp_reward(mission_level) * reward_mult))
 	offer["loot_power"] = int(offer.power)
 	offer["base_travel_duration"] = float(planet.get("travel_duration", 300.0))
 	offer["travel_duration"] = mission_travel_duration(planet, mission_level)

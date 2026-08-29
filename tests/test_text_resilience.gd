@@ -67,10 +67,13 @@ func run_text_audit() -> void:
 	scene.render()
 	await audit_scaled_screen(scene, "complete career")
 
-	state.player.challenge_floor = 2
+	state.player.level = 170
+	state.player.rift_reality_keys = ["dead_customs_key", "frozen_verdict_key", "rejected_futures_key"]
+	state.player.selected_rift_reality_id = "rejected_futures"
+	state.player.rift_reality_progress = {"dead_customs": 12, "frozen_verdict": 12, "rejected_futures": 2}
 	scene.view_mode = "challenges"
 	scene.render()
-	await audit_scaled_screen(scene, "Fenda anomaly dossier")
+	await audit_scaled_screen(scene, "three-reality Fenda anomaly dossier")
 
 	state.player.inventory = [
 		{"id": "long_weapon", "name": "Desatomizador Interplanetário de Garantias Vencidas", "slot": "weapon", "power": 44, "rarity": "Épico", "color": "#d789ff", "origin_planet_id": "cassino_quasar", "trait": ContentDB.ITEM_TRAITS.weapon[1].duplicate(true)},

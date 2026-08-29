@@ -1,6 +1,6 @@
 # Fenda Clandestina — contrato de realidades diárias
 
-Estado: fundação implementada em 28 de agosto de 2026. Valores da segunda realidade são um primeiro envelope de balanceamento e precisam de validação física quando o perfil de nível 100 estiver disponível.
+Estado: fundação e três realidades implementadas. Os envelopes determinísticos estão protegidos; apresentação e sensação física tardias continuam pendentes de um save Android nos níveis correspondentes.
 
 ## Loop ativo
 
@@ -17,6 +17,7 @@ Estado: fundação implementada em 28 de agosto de 2026. Valores da segunda real
 - A realidade seguinte só pode entregar a chave quando a anterior está completa e o nível mínimo foi alcançado.
 - A chave surge em caçadas normais, não dentro da própria Fenda. Isto devolve o jogador ao loop principal e evita que um sistema diário fechado se alimente sozinho.
 - A segunda chave exige nível 100 e tem proteção de azar de cinco caçadas elegíveis. A aquisição seleciona a realidade nova, mas ambas continuam acessíveis por separadores.
+- A terceira chave exige a conclusão do Veredito Congelado e nível 160. Surge em no máximo sete caçadas normais elegíveis, seleciona a Cidade dos Futuros Recusados e preserva acesso às duas realidades anteriores.
 - O save schema 22 migra o antigo `challenge_floor` para a primeira realidade, preserva progresso e inicializa os novos campos sem inventar uma chave avançada.
 
 ## Informação e surpresa
@@ -34,6 +35,10 @@ Após a vitória, o recibo revela o conteúdo completo e permite equipar, guarda
 
 ## Conteúdo inicial e envelope
 
-A primeira realidade conserva os doze inimigos e seis anomalias já auditados. A segunda, **Veredito do Tempo Congelado**, possui agora doze inimigos, 36 ataques e doze artefactos narrativamente próprios, do Oficial do Segundo Congelado ao Veredito que Nunca Degela. Os IDs compostos e a linhagem mecânica dos artefactos foram preservados para que saves interrompidos e recompensas já possuídas continuem válidos. A realidade acrescenta pressão vertical acima do final anterior e entrega artefactos com +1 poder adicional, mantendo os mesmos espaços e traços universais do envelope auditado. `tools/audit_rift_realities.gd` calibra os encontros contra as três classes e builds representativas dos níveis 100–155, em passos de cinco níveis; o envelope atual fica entre 47% e 82%, sem abertura trivial nem parede terminal impossível.
+A primeira realidade conserva os doze inimigos e seis anomalias já auditados. A segunda, **Veredito do Tempo Congelado**, possui doze inimigos, 36 ataques e doze artefactos narrativamente próprios, do Oficial do Segundo Congelado ao Veredito que Nunca Degela. Os IDs compostos e a linhagem mecânica dos artefactos preservam saves interrompidos e recompensas já possuídas; o envelope das três classes nos níveis 100–155 fica entre 47% e 82%.
 
-O sistema atual prova 24 vitórias e 24 identidades de inimigo de primeira conclusão, distribuídas por no mínimo 24 dias bem-sucedidos. Não pretende sozinho preencher 365 dias: realidades adicionais, eventos rotativos, Arena e coleção permanente continuarão necessários. Uma realidade futura deve sempre trazer doze inimigos, uma chave gameplay-only, traduções completas, envelope de combate simulado e um contrato visual documentado. A mecânica pode usar o fallback existente enquanto a arte fornecida pelo utilizador permanece pendente; nenhum asset substituto deve ser criado por Codex.
+A terceira, **Cidade dos Futuros Recusados**, acrescenta doze identidades, 36 ataques e doze artefactos próprios, do Fiscal de Vistos Temporais ao Futuro que Despediu o Presente. Ela ocupa os checkpoints 160–215, entrega +2 poder sobre a linhagem base sem trocar espaços ou traços universais e paga recursos dentro da economia normal. A auditoria das três classes mede 47–88% de chance, com cada encontro entre 40% e 90% e spread máximo de 30 pontos percentuais. Assim, aumenta pressão e identidade sem criar uma classe obrigatória nem equipamento premium.
+
+As duas realidades avançadas pagam em cada primeira vitória 1,25× os Créditos e XP de um mandado padrão do respetivo checkpoint. O Veredito totaliza 335 703 Créditos/13 929 XP; a Cidade totaliza 718 428 Créditos/20 229 XP ao longo de doze dias mínimos. Cada pagamento avançado cobre entre um e dois primeiros serviços de calibração da peça do mesmo nível. O recurso continua gameplay-only, limitado a uma primeira vitória por inimigo e uma entrada global por dia; não há repetição paga nem geração depois de a realidade terminar.
+
+O sistema atual prova 36 vitórias e 36 identidades de inimigo de primeira conclusão, distribuídas por no mínimo 36 dias bem-sucedidos. Não pretende sozinho preencher 365 dias: eventos rotativos, Arena e coleção permanente continuarão necessários. Uma realidade futura deve sempre trazer doze inimigos, uma chave gameplay-only, traduções completas, envelope de combate simulado e um contrato visual documentado. A mecânica pode usar o fallback existente enquanto a arte fornecida pelo utilizador permanece pendente; nenhum asset substituto deve ser criado por Codex.

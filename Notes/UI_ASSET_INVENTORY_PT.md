@@ -983,8 +983,8 @@ Estas capturas são a matriz de validação. Não representam 102 ilustrações 
 | Incidentes atuais | 70 |
 | Transportes | 4 |
 | NPCs de serviço | 5 |
-| Inimigos atuais da Fenda | 24 |
-| Fundos/emblemas das duas realidades | 6–8 unidades |
+| Inimigos atuais da Fenda | 36 |
+| Fundos/emblemas/chaves das três realidades | 9–12 unidades |
 | Ícones globais/nav/atributos/slots/ações | aproximadamente 50–65 vetores |
 | Kit modular inicial de equipamento | 90 unidades base, antes dos packs planetários |
 | Kit de VFX e selos | aproximadamente 22 |
@@ -1048,8 +1048,8 @@ Nada se expande antes de estes testes funcionarem juntos numa captura 450×800.
 ### Lote 4 — Fenda e retenção
 
 1. portal;
-2. duas realidades;
-3. 24 inimigos;
+2. três realidades;
+3. 36 inimigos;
 4. chaves e recompensas;
 5. objetivos, operações e arquivo.
 

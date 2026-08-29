@@ -350,7 +350,7 @@ A distorted version of the normal dossier frame with broken geometry, displaced 
 
 REALITY KEYS
 
-Dead Universe Customs uses a dead bureaucratic seal transformed into a cosmic key. Frozen Time Verdict uses a frozen clock, judicial emblem, or suspended temporal mechanism.
+Dead Universe Customs uses a dead bureaucratic seal transformed into a cosmic key. Frozen Time Verdict uses a frozen clock, judicial emblem, or suspended temporal mechanism. City of Rejected Futures uses a denied visa, split timeline, or canceled tomorrow transformed into an unstable key.
 
 REALITY EMBLEMS
 
@@ -358,15 +358,15 @@ One memorable symbol per reality, suitable for lists, progress, and completion.
 
 REALITY BACKGROUNDS
 
-Dead Universe Customs is an abandoned cosmic border office processing travelers from extinct universes. Frozen Time Verdict is a courthouse or judgment chamber trapped inside frozen time.
+Dead Universe Customs is an abandoned cosmic border office processing travelers from extinct universes. Frozen Time Verdict is a courthouse or judgment chamber trapped inside frozen time. City of Rejected Futures is an impossible metropolis assembled from canceled timelines, unfinished civic buildings, contradictory signs, and tomorrow's traffic arriving early.
 
 RIFT ENEMIES
 
-Twenty-four surreal enemy portraits use the same readable character language as normal targets, but with stranger anatomy, temporal damage, dimensional corruption, or impossible bureaucratic equipment.
+Thirty-six surreal enemy portraits use the same readable character language as normal targets, but with stranger anatomy, temporal damage, dimensional corruption, or impossible bureaucratic equipment. The twelve City of Rejected Futures identities must remain visually distinct from both earlier realities and may use duplicated silhouettes, premature architecture, rejected documents, and counterfactual machinery.
 
 RIFT REWARDS AND ANOMALIES
 
-Twenty-four special reward icons should use the modular equipment language and remain hidden until earned. A reusable anomaly-symbol family represents corrupted rules, enhanced enemies, restricted defenses, time distortion, and unstable reality.
+Thirty-six special reward icons should use the modular equipment language and remain hidden until earned. A reusable anomaly-symbol family represents corrupted rules, enhanced enemies, restricted defenses, time distortion, and unstable reality.
 
 
 19. DAILY, WEEKLY, CAREER, AND AFK SYSTEMS
@@ -439,8 +439,8 @@ The final launch presentation requires a finished App Icon, Game Logo, Boot Spla
 - 30 current incident illustrations.
 - 4 transport illustrations.
 - 5 service NPC busts.
-- 24 current Rift enemy portraits.
-- 2 Rift backgrounds, 2 reality emblems, 2 keys, and the main portal.
+- 36 current Rift enemy portraits.
+- 3 Rift backgrounds, 3 reality emblems, 3 keys, and the main portal.
 - A modular equipment kit for all 9 universal slots.
 - Approximately 50–65 essential interface symbols.
 - A compact reusable family of frames, stamps, reward marks, and combat effects.

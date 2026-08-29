@@ -49,10 +49,15 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 	var reality: Dictionary = status.reality
 	var floor := int(status.progress)
 	if state.player.get("rift_reality_keys", []).size() > 1:
-		var reality_tabs := VBoxContainer.new()
-		reality_tabs.name = "ChallengeRealityTabs"
-		reality_tabs.add_theme_constant_override("separation", 7)
-		content.add_child(reality_tabs)
+		var reality_selector := OptionButton.new()
+		reality_selector.name = "ChallengeRealitySelector"
+		reality_selector.custom_minimum_size.y = UIDesignSystem.TOUCH_TARGET_MIN
+		reality_selector.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		reality_selector.fit_to_longest_item = false
+		reality_selector.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		reality_selector.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
+		var keyed_reality_ids: Array[String] = []
+		var selected_index := 0
 		for reality_definition in ChallengeRulesScript.REALITIES:
 			var candidate_id := str(reality_definition.id)
 			if not ChallengeRulesScript.has_reality_key(state.player, candidate_id):
@@ -60,12 +65,13 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 			var candidate_floor := ChallengeRulesScript.progress(state.player, candidate_id)
 			var candidate_name := t(LocaleRules.content_key("rift_reality", candidate_id, "name"), str(reality_definition.name))
 			var tab_text := t("RIFT_REALITY_TAB", "%s · %d/12", [candidate_name.to_upper(), candidate_floor])
-			var tab := host.primary_action(tab_text, host.CORAL) if candidate_id == reality_id else host.secondary_action(tab_text, host.CYAN)
-			tab.name = "ChallengeRealityTab_%s" % candidate_id
-			tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			tab.disabled = candidate_id == reality_id
-			tab.pressed.connect(Callable(state, "select_rift_reality").bind(candidate_id))
-			reality_tabs.add_child(tab)
+			keyed_reality_ids.append(candidate_id)
+			reality_selector.add_item(tab_text)
+			if candidate_id == reality_id:
+				selected_index = keyed_reality_ids.size() - 1
+		reality_selector.select(selected_index)
+		reality_selector.item_selected.connect(func(index: int): state.select_rift_reality(keyed_reality_ids[index]))
+		content.add_child(reality_selector)
 	var reality_panel := host.panel(VBoxContainer.new(), Color("#17152b"), 15, 11)
 	reality_panel.name = "ChallengeRealityPanel"
 	var reality_copy := reality_panel.get_child(0) as VBoxContainer

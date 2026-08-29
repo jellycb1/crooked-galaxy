@@ -140,6 +140,21 @@ func run_test() -> void:
 	var legacy_second_reward: Dictionary = state.pending_loot.duplicate(true)
 	legacy_second_reward.erase("localization_reward_id")
 	check(state.localized_item_field(legacy_second_reward, "name") == "Suspended Deadline Harness", "pre-update second-reality artifacts localize from their stable composite instance id")
+	state.player.level = 160
+	state.player.rift_reality_keys = ["dead_customs_key", "frozen_verdict_key", "rejected_futures_key"]
+	state.player.selected_rift_reality_id = "rejected_futures"
+	state.player.rift_reality_progress = {"dead_customs": 12, "frozen_verdict": 12, "rejected_futures": 0}
+	state.phase = state.Phase.BOARD
+	scene.view_mode = "challenges"
+	scene.render()
+	await process_frame
+	check(has_label(scene, "City of Rejected Futures") and has_label(scene, "Temporal Visa Inspector") and has_label(scene, "FLOOR 1 · TOMORROW'S BORDER") and not has_label(scene, "Temporal Border Harness"), "English third reality localizes its own dossier while keeping the artifact sealed")
+	state.current_bounty = Challenge.stage_at(0, "rejected_futures")
+	state.pending_loot = Challenge.reward_for(state.current_bounty, ContentDB.ITEM_TRAITS)
+	state.phase = state.Phase.REWARD
+	scene.render()
+	await process_frame
+	check(has_label(scene, "Temporal Border Harness") and not has_label(scene, "Suspended Deadline Harness"), "English third-reality victory reveals its distinct artifact only after combat")
 
 	for planet_index in ContentDB.PLANETS.size():
 		var planet: Dictionary = ContentDB.PLANETS[planet_index]

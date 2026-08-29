@@ -447,6 +447,17 @@ func run_mobile_audit() -> void:
 	await process_frame
 	check_touch_targets(scene, "Fenda anomaly dossier")
 	check(scene.find_child("ChallengeScroll", true, false) != null and scene.find_child("ChallengeAnomalyRule", true, false) != null, "Fenda anomaly explanation remains reachable in the portrait scroller")
+	state.player.level = 160
+	state.player.rift_reality_keys = ["dead_customs_key", "frozen_verdict_key", "rejected_futures_key"]
+	state.player.selected_rift_reality_id = "rejected_futures"
+	state.player.rift_reality_progress = {ChallengeRules.FIRST_REALITY_ID: 12, "frozen_verdict": 12, "rejected_futures": 0}
+	scene.render()
+	await process_frame
+	await process_frame
+	check_touch_targets(scene, "three-reality Fenda selector")
+	var reality_selector := scene.find_child("ChallengeRealitySelector", true, false) as OptionButton
+	check(reality_selector != null and reality_selector.item_count == 3 and reality_selector.custom_minimum_size.y >= UIDesignSystem.TOUCH_TARGET_MIN and scene.find_child("ChallengeEnterAction", true, false) != null, "all three keyed realities and the fixed daily action remain reachable on Android")
+	state.player.selected_rift_reality_id = ChallengeRules.FIRST_REALITY_ID
 	state.player.challenge_floor = 11
 	state.player.rift_reality_progress = {ChallengeRules.FIRST_REALITY_ID: 11}
 	scene.render()

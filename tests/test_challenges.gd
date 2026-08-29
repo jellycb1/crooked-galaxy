@@ -5,6 +5,7 @@ const StateScript = preload("res://scripts/game_state.gd")
 const Simulator = preload("res://tools/simulate_challenges.gd")
 const Builds = preload("res://tools/simulation_builds.gd")
 const Monetization = preload("res://scripts/monetization_rules.gd")
+const MissionRules = preload("res://scripts/mission_rules.gd")
 const DAY_SECONDS := 86400.0
 
 var failures := 0
@@ -200,11 +201,90 @@ func run_audit() -> void:
 	check(unique_second_rewards.size() == 12, "all twelve sealed second-reality artifacts have distinct authored identities")
 	scene.render()
 	await process_frame
-	check(scene.find_child("ChallengeRealityTab_dead_customs", true, false) != null and scene.find_child("ChallengeRealityTab_frozen_verdict", true, false) != null, "the Rift exposes only the two realities whose keys are owned")
+	var two_reality_selector := scene.find_child("ChallengeRealitySelector", true, false) as OptionButton
+	check(two_reality_selector != null and two_reality_selector.item_count == 2, "the Rift selector exposes only the two realities whose keys are owned")
 	check(state.select_rift_reality(Challenge.FIRST_REALITY_ID) and Challenge.current_stage(state.player).is_empty(), "the player can revisit a completed keyed reality without losing either ladder")
+
+	state.player.level = 160
+	state.player.rift_reality_progress = {Challenge.FIRST_REALITY_ID: 12, "frozen_verdict": 12}
+	var third_key_hunts := 0
+	var third_reality := {}
+	while third_reality.is_empty() and third_key_hunts < 7:
+		state.player.wins = int(state.player.wins) + 1
+		third_reality = Challenge.record_eligible_hunt_for_key(state.player)
+		third_key_hunts += 1
+	check(not third_reality.is_empty() and third_key_hunts <= 7, "completing the frozen verdict makes the third gameplay key drop within seven eligible hunts")
+	check(state.player.rift_reality_keys == ["dead_customs_key", "frozen_verdict_key", "rejected_futures_key"] and str(state.player.selected_rift_reality_id) == "rejected_futures", "the third key is permanent, sequential, and selects the new reality")
+	var third_opening := Challenge.current_stage(state.player)
+	var third_reward := Challenge.reward_for(third_opening, ContentDB.ITEM_TRAITS)
+	check(str(third_opening.id).begins_with("rejected_futures__") and int(third_reality.unlock_level) == 160 and int(third_opening.power) > int(Challenge.stage_at(0, "frozen_verdict").power), "the third reality opens at its mature checkpoint with a stable composite enemy")
+	check(str(third_opening.name) == "Fiscal de Vistos Temporais" and str(third_opening.attacks[0]) == "Visto Cronológico", "the third reality opens with its own authored enemy and combat vocabulary")
+	check(str(third_reward.name) == "Arnês de Fronteira Temporal" and int(third_reward.power) == 3 and str(third_reward.localization_reward_id).begins_with("rejected_futures__"), "the third reality owns a stronger but still lateral sealed artifact identity")
+	var all_prior_names := first_names + second_names
+	var unique_third_names := {}
+	var unique_third_rewards := {}
+	for identity_index in Challenge.STAGES.size():
+		var identity_stage := Challenge.stage_at(identity_index, "rejected_futures")
+		unique_third_names[str(identity_stage.name)] = true
+		unique_third_rewards[str(identity_stage.reward.name)] = true
+		check(not all_prior_names.has(str(identity_stage.name)), "third-reality enemy %d does not recycle a prior identity" % (identity_index + 1))
+	check(unique_third_names.size() == 12 and unique_third_rewards.size() == 12, "all third-reality enemies and sealed artifacts are authored and unique")
+	for advanced_reality in [{"id": "frozen_verdict", "start": 100}, {"id": "rejected_futures", "start": 160}]:
+		for reward_index in Challenge.STAGES.size():
+			var reward_level := int(advanced_reality.start) + reward_index * 5
+			var advanced_stage := Challenge.stage_at(reward_index, str(advanced_reality.id))
+			var expected_credits := roundi(MissionRules.standard_credit_reward(reward_level) * 1.25)
+			var expected_xp := roundi(MissionRules.standard_xp_reward(reward_level) * 1.25)
+			var calibration_service := CoreRules.equipment_upgrade_credit_cost({"item_level": reward_level, "power": 1})
+			check(int(advanced_stage.credits) == expected_credits and int(advanced_stage.xp) == expected_xp, "%s enemy %d pays the explicit 1.25x standard first-clear envelope" % [str(advanced_reality.id), reward_index + 1])
+			check(int(advanced_stage.credits) >= calibration_service and int(advanced_stage.credits) <= calibration_service * 2, "%s enemy %d funds between one and two first workshop services" % [str(advanced_reality.id), reward_index + 1])
+	for stage_index in Challenge.STAGES.size():
+		var projected_level := 160 + stage_index * 5
+		var class_odds: Array[float] = []
+		for policy in Builds.POLICIES:
+			var mature_player := mature_rift_player(projected_level, policy)
+			apply_reality_rewards(mature_player, "rejected_futures", stage_index)
+			class_odds.append(CoreRules.bounty_odds(mature_player, Challenge.stage_at(stage_index, "rejected_futures")))
+		class_odds.sort()
+		check(class_odds[0] >= 0.40 and class_odds[2] <= 0.90, "third-reality enemy %d stays viable and aspirational across all classes (%d-%d%%)" % [stage_index + 1, roundi(class_odds[0] * 100.0), roundi(class_odds[2] * 100.0)])
+		check(class_odds[2] - class_odds[0] <= 0.30, "third-reality enemy %d keeps class spread within 30 percentage points" % (stage_index + 1))
+	scene.render()
+	await process_frame
+	var three_reality_selector := scene.find_child("ChallengeRealitySelector", true, false) as OptionButton
+	check(three_reality_selector != null and three_reality_selector.item_count == 3 and three_reality_selector.selected == 2, "the keyed selector exposes all three owned realities without revealing future content")
+	check(scene.find_child("ChallengeCurrentDossier", true, false) != null and scene.find_child("ChallengeEnterAction", true, false) != null, "the third-reality dossier retains its scrollable evidence and fixed daily action")
 	scene.queue_free()
 	await process_frame
 	finish()
+
+
+func mature_rift_player(level: int, policy: Dictionary) -> Dictionary:
+	var player := state_default_player()
+	player.level = level
+	player.base_power = 10 + (level - 1) * 2
+	player.stat_points = (level - 1) * CoreRules.ATTRIBUTE_POINTS_PER_LEVEL
+	var prior_mission_power := 11 + maxi(0, level - 2) * 5
+	var gear_power := maxi(1, roundi(float(prior_mission_power) * 0.55))
+	player.weapon = {"id": "third_rift_weapon", "slot": "weapon", "power": gear_power}
+	player.armor = {"id": "third_rift_armor", "slot": "armor", "power": gear_power}
+	Builds.configure_player(player, policy)
+	return player
+
+
+func state_default_player() -> Dictionary:
+	var probe = StateScript.new()
+	probe.persistence_enabled = false
+	var player: Dictionary = probe.default_player()
+	probe.free()
+	return player
+
+
+func apply_reality_rewards(player: Dictionary, reality_id: String, stage_index: int) -> void:
+	for reward_index in stage_index:
+		var reward := Challenge.reward_for(Challenge.stage_at(reward_index, reality_id), ContentDB.ITEM_TRAITS)
+		if CoreRules.is_upgrade_for_player(player, reward):
+			player[str(reward.slot)] = reward
+	CoreRules.clear_bounty_odds_cache()
 
 
 func check(condition: bool, description: String) -> void:
