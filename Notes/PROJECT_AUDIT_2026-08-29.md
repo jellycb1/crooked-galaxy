@@ -56,7 +56,7 @@ A simulação atual de 40 carreiras × 200 contratos termina no nível 33 com os
 
 Saves continuam atómicos, versionados, migráveis, recuperáveis por backup e protegidos contra duplicação de recompensa. O benchmark local mede 11,5 ms de mediana e 13,7 ms de p95 com 120 itens, sem justificar enfraquecer a garantia do backup mais recente.
 
-O limite de conta está correto, mas ainda é apenas um contrato local. Antes de lançamento ou faturação real faltam autenticação, refresh, relógio de servidor, perfil autoritativo, carteira, recibos idempotentes, recuperação de compras, conflitos, telemetria e moderação. Arena, rankings e Sindicatos não podem confiar no save atual do dispositivo.
+O limite de conta está correto, mas ainda é apenas um contrato local. Antes de lançamento ou faturação real faltam autenticação, refresh, relógio de servidor, perfil autoritativo, carteira, recibos idempotentes, recuperação de compras, conflitos, telemetria e moderação. Arena, rankings e Agências de Caçadores não podem confiar no save atual do dispositivo. A fundação 0.87.0 define membership por shard, cargos, revisões e Mandado coletivo sem gravar uma guild falsa no perfil local.
 
 ## UI, Android e desempenho
 

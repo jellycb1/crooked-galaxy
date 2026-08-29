@@ -76,3 +76,11 @@ Estado das aplicações:
 - Conveniências limitadas que respeitem os princípios acima.
 
 Não integrar faturação real antes de conta remota, recibos idempotentes, carteira e relógio de servidor, recuperação de compra e proteção contra repetição estarem implementados.
+
+## Agências de Caçadores
+
+- Warp Chips não compram Informação, contribuição, tentativa, dano, Prestígio, cargo, membership ou ranking de Agência.
+- Recargas de combustível nunca ultrapassam as três contribuições diárias de Informação por Agente.
+- O Procurado Galáctico concede uma tentativa gratuita por Agente/dia e não aceita repetição premium.
+- Recompensas coletivas podem conceder Créditos, Sucata, Prestígio e apresentação, mas não equipamento superior exclusivo nem vantagem de combate obrigatória.
+- Agências, Mandados coletivos e respetivas recompensas permanecem indisponíveis até existir backend autoritativo.

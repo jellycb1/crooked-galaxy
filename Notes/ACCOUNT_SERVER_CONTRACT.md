@@ -42,4 +42,4 @@ No automatic merge of currencies, inventory, claimed rewards, combat phases, or 
 
 A real provider may later supply credentials, authenticated session refresh, server revision fetch, and atomic profile upload/download. It must preserve the same stable account, character, server, and locale fields. Expired authentication may fall back to `offline_cached` only after a previously acknowledged server snapshot exists; this local test build cannot manufacture that state.
 
-Arena, rankings, and syndicates must depend on server-authoritative character snapshots and cannot be built on the current device-authoritative save.
+Arena, rankings, Bounty Agencies and future Consortiums must depend on server-authoritative character snapshots and cannot be built on the current device-authoritative save. Agency membership belongs to one character on one shard, is revisioned independently from the player save, and must never be reconstructed from local claims. The active social design is defined in `BOUNTY_AGENCY_CONTRACT.md`.

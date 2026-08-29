@@ -28,6 +28,7 @@ Quando dois documentos discordarem, aplica-se o documento de maior autoridade. V
 | --- | --- |
 | `Vision.txt` | Fantasia central, tom, ciclo e princípios do produto. |
 | `ACCOUNT_SERVER_CONTRACT.md` | Conta, personagem, International 1 e futura autoridade remota. |
+| `BOUNTY_AGENCY_CONTRACT.md` | Agências de Caçadores, Mandado coletivo, cargos, justiça e autoridade social. |
 | `MONETIZATION_CONTRACT.md` | Limites comerciais, moedas e ausência de anúncios/passe. |
 | `EQUIPMENT_SYSTEM_CONTRACT.md` | Inventário universal, geração, raridade e proteção. |
 | `YEAR_ONE_CONTENT_CONTRACT.md` | Escala de 365 dias, curva e teto de produção. |

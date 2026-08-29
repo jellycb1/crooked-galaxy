@@ -12,6 +12,7 @@ const DEFINITIONS := [
 		"prototype": true,
 		"service_mode": "local_contract",
 		"account_backend": false,
+		"agency_backend": false,
 		"progress_authority": "device",
 	},
 ]
@@ -34,3 +35,7 @@ static func server_name_for(server_id: String) -> String:
 
 static func short_name_for(server_id: String) -> String:
 	return str(get_definition(server_id).get("short_name", "LOCAL"))
+
+
+static func agency_backend_available(server_id: String) -> bool:
+	return bool(get_definition(server_id).get("agency_backend", false))

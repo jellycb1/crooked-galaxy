@@ -2,6 +2,7 @@ extends SceneTree
 
 const Accounts = preload("res://scripts/account_rules.gd")
 const Service = preload("res://scripts/account_service.gd")
+const Servers = preload("res://scripts/server_rules.gd")
 const State = preload("res://scripts/game_state.gd")
 
 var failures := 0
@@ -10,6 +11,7 @@ var failures := 0
 func _init() -> void:
 	var service = Service.new()
 	check(service.provider_id() == Accounts.LOCAL_PROVIDER_ID and not service.backend_available(), "replaceable account adapter reports the honest local provider and no backend")
+	check(not Servers.agency_backend_available(Servers.DEFAULT_ID), "International 1 never advertises a social backend before one exists")
 	var account := Accounts.create_local_account("en", "international_1")
 	check(str(account.provider_id) == Accounts.LOCAL_PROVIDER_ID and str(account.authority) == "device", "local test account declares its real provider and progress authority")
 	check(str(account.session_state) == Accounts.SESSION_LOCAL_READY and str(account.sync_state) == Accounts.SYNC_LOCAL_ONLY, "local session never impersonates authentication or synchronization")
