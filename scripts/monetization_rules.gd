@@ -9,6 +9,8 @@ const DAILY_HUNT_FUEL := 100
 const HUNT_FUEL_REFILL_AMOUNT := 20
 const HUNT_FUEL_REFILL_COSTS := [1, 5, 20]
 const MAX_HUNT_FUEL_REFILLS_PER_DAY := 3
+const RIFT_RETRY_COSTS := [1, 5, 20]
+const MAX_RIFT_RETRIES_PER_DAY := 3
 const SECONDS_PER_DAY := 86400.0
 
 
@@ -70,3 +72,28 @@ static func can_refill_hunt_fuel(player: Dictionary) -> bool:
 static func hunt_fuel_refill_cost(player: Dictionary) -> int:
 	var count := hunt_fuel_refill_count(player)
 	return int(HUNT_FUEL_REFILL_COSTS[count]) if count < HUNT_FUEL_REFILL_COSTS.size() else 0
+
+
+static func rift_retry_count(player: Dictionary) -> int:
+	return clampi(int(player.get("rift_retry_count", 0)), 0, MAX_RIFT_RETRIES_PER_DAY)
+
+
+static func rift_retry_cost(player: Dictionary) -> int:
+	var count := rift_retry_count(player)
+	return int(RIFT_RETRY_COSTS[count]) if count < RIFT_RETRY_COSTS.size() else 0
+
+
+static func rift_daily_success_probability(per_attempt_probability: float, paid_retries: int) -> float:
+	var probability := clampf(per_attempt_probability, 0.0, 1.0)
+	var attempts := 1 + clampi(paid_retries, 0, MAX_RIFT_RETRIES_PER_DAY)
+	return 1.0 - pow(1.0 - probability, attempts)
+
+
+static func expected_rift_retry_chip_spend(per_attempt_probability: float, paid_retries: int) -> float:
+	var probability := clampf(per_attempt_probability, 0.0, 1.0)
+	var retries := clampi(paid_retries, 0, MAX_RIFT_RETRIES_PER_DAY)
+	var expected_spend := 0.0
+	for retry_index in retries:
+		# Retry N is bought only after the free attempt and every earlier retry fail.
+		expected_spend += pow(1.0 - probability, retry_index + 1) * float(RIFT_RETRY_COSTS[retry_index])
+	return expected_spend

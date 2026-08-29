@@ -112,8 +112,11 @@ func _init() -> void:
 	var legacy_rift_item := Challenge.reward_for(advanced_stage, Content.ITEM_TRAITS)
 	legacy_rift_item.erase("item_level")
 	var leveled_rift := SaveMigrations.migrate({"version": 24, "player": {"rig": legacy_rift_item, "inventory": [legacy_rift_item]}, "pending_loot": legacy_rift_item})
-	check(int(leveled_rift.version) == 25 and int(leveled_rift.player.rig.item_level) == 100, "schema twenty-five restores the authored economy level of an equipped advanced Rift artifact")
+	check(int(leveled_rift.version) == SaveMigrations.CURRENT_VERSION and int(leveled_rift.player.rig.item_level) == 100, "schema twenty-five restores the authored economy level of an equipped advanced Rift artifact")
 	check(int(leveled_rift.player.inventory[0].item_level) == 100 and int(leveled_rift.pending_loot.item_level) == 100, "schema twenty-five repairs stored and pending advanced Rift artifacts without changing their identity")
+	var retry_ready := SaveMigrations.migrate({"version": 25, "player": {"rift_reality_keys": ["dead_customs_key", "frozen_verdict_key"]}})
+	check(int(retry_ready.version) == 26 and int(retry_ready.player.rift_victory_day) == -1 and int(retry_ready.player.rift_retry_count) == 0 and str(retry_ready.player.rift_attempt_stage_id).is_empty(), "schema twenty-six initializes a neutral daily Rift attempt ledger")
+	check(retry_ready.player.rift_seen_key_ids == ["dead_customs_key", "frozen_verdict_key"] and int(retry_ready.player.rift_key_roll_day) == -1, "schema twenty-six never replays old key ceremonies or invents an eligible key day")
 
 	if failures == 0:
 		print("PASS: save migrations are deterministic and non-destructive")

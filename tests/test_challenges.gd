@@ -29,6 +29,23 @@ func run_audit() -> void:
 	state.player.level = Challenge.UNLOCK_LEVEL
 	state.player.capture_streak = 4
 	check(Challenge.is_unlocked(state.player) and Challenge.progress(state.player) == 0, "hunter level opens the first floor without inventing progress")
+	var portal_scene: Control = load("res://scenes/main.tscn").instantiate()
+	root.add_child(portal_scene)
+	await process_frame
+	portal_scene.view_mode = "challenges"
+	portal_scene.render()
+	await process_frame
+	check(portal_scene.find_child("ChallengePortalReveal", true, false) != null and portal_scene.find_child("ChallengeCurrentDossier", true, false) == null, "a newly obtained key opens the portal ceremony before revealing its enemy")
+	var portal_skip := portal_scene.find_child("ChallengePortalSkip", true, false) as Button
+	portal_skip.pressed.emit()
+	await process_frame
+	var portal_continue := portal_scene.find_child("ChallengePortalContinue", true, false) as Button
+	check(portal_continue != null and not portal_continue.disabled, "portal ceremony can be stabilized immediately without losing its key")
+	portal_continue.pressed.emit()
+	await process_frame
+	check(state.player.rift_seen_key_ids == ["dead_customs_key"], "approaching the stabilized portal persists the reveal exactly once")
+	portal_scene.queue_free()
+	await process_frame
 	var anomaly_counts := {}
 	var reward_families := Challenge.REWARD_SECTORS
 	for index in Challenge.STAGES.size():
@@ -124,18 +141,40 @@ func run_audit() -> void:
 	check(int(state.player.wins) == wins_before and state.player.captures_by_target == captures_before and int(state.player.capture_streak) == 4, "challenge does not contaminate rank, target mastery, or warrant streak")
 	check(str(state.player.rig.id) == "rift_customs_drone_reward", "the universal rig slot accepts the first challenge reward")
 
-	check(not state.start_challenge(str(Challenge.STAGES[1].id), 100.0 * DAY_SECONDS) and state.last_notice_context == "challenge_entry_used", "claim opens the enemy but never grants a second entry on the same UTC day")
+	check(not state.start_challenge(str(Challenge.STAGES[1].id), 100.0 * DAY_SECONDS) and state.last_notice_context == "challenge_victory_lock", "a victory closes the Rift for the rest of the UTC day")
 	check(state.start_challenge(str(Challenge.STAGES[1].id), 101.0 * DAY_SECONDS), "the next UTC day restores exactly one entry")
 	state.player_hp = 0
 	state.finish_combat(false)
 	check(state.phase == state.Phase.BOARD and int(state.player.challenge_floor) == 1, "defeat leaves challenge progress on the current floor")
 	check(int(state.player.capture_streak) == 4 and state.last_notice_context == "challenge_defeat", "challenge defeat preserves warrant streak and exposes its own recovery context")
+	state.player.warp_chips = 26
+	check(int(Challenge.attempt_status(state.player, 101.0 * DAY_SECONDS).retry_cost) == 1, "the first same-day repetition exposes the one-chip price")
+	check(not state.start_challenge(str(Challenge.STAGES[1].id), 101.0 * DAY_SECONDS) and int(state.player.warp_chips) == 26, "a paid repetition cannot bypass explicit price confirmation")
+	for retry in [{"cost": 1, "remaining": 25}, {"cost": 5, "remaining": 20}, {"cost": 20, "remaining": 0}]:
+		check(state.start_challenge(str(Challenge.STAGES[1].id), 101.0 * DAY_SECONDS, int(retry.cost)) and int(state.player.warp_chips) == int(retry.remaining), "confirmed Rift repetition atomically charges ◆ %d" % int(retry.cost))
+		state.player_hp = 0
+		state.finish_combat(false)
+	check(not Challenge.entry_available(state.player, 101.0 * DAY_SECONDS) and not state.start_challenge(str(Challenge.STAGES[1].id), 101.0 * DAY_SECONDS, 20), "three paid defeats exhaust the bounded daily repetition ladder")
 	state.player.rift_entry_day = Monetization.utc_day_id()
+	state.player.rift_retry_count = 0
+	state.player.warp_chips = 1
 
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
 	scene.view_mode = "challenges"
+	scene.render()
+	await process_frame
+	var retry_action := scene.find_child("ChallengeEnterAction", true, false) as Button
+	check(retry_action != null and not retry_action.disabled and "◆ 1" in retry_action.text, "a same-day defeat offers the exact first retry price in the fixed action")
+	retry_action.pressed.emit()
+	await process_frame
+	check(scene.find_child("ChallengeRetryConfirmation", true, false) != null and scene.find_child("ChallengeRetryConfirm", true, false) != null, "paid retry requires a second explicit confirmation before charging")
+	var retry_cancel := scene.find_child("ChallengeRetryCancel", true, false) as Button
+	retry_cancel.pressed.emit()
+	await process_frame
+	check(int(state.player.warp_chips) == 1 and scene.find_child("ChallengeRetryConfirmation", true, false) == null, "cancelling the retry closes confirmation without charging")
+	state.player.rift_retry_count = 3
 	scene.render()
 	await process_frame
 	check(scene.find_child("ChallengeProgressTrack", true, false) != null, "unlocked ladder renders persistent floor progress")
@@ -176,10 +215,12 @@ func run_audit() -> void:
 	var discovered_reality := {}
 	while discovered_reality.is_empty() and key_hunts < 5:
 		state.player.wins = int(state.player.wins) + 1
-		discovered_reality = Challenge.record_eligible_hunt_for_key(state.player)
+		discovered_reality = Challenge.record_eligible_hunt_for_key(state.player, float(200 + key_hunts) * DAY_SECONDS)
 		key_hunts += 1
-	check(not discovered_reality.is_empty() and key_hunts <= 5, "completing the prior reality makes the next gameplay key drop within its bounded hunt pity")
+	check(not discovered_reality.is_empty() and key_hunts <= 5, "completing the prior reality makes the next gameplay key drop within its bounded eligible-day pity")
 	check(state.player.rift_reality_keys == ["dead_customs_key", "frozen_verdict_key"] and str(state.player.selected_rift_reality_id) == "frozen_verdict", "a discovered key is permanent, unique, and selects its newly opened reality")
+	check(Challenge.record_eligible_hunt_for_key(state.player, float(200 + key_hunts - 1) * DAY_SECONDS).is_empty(), "additional hunts on the same day never accelerate key discovery")
+	check(state.acknowledge_rift_key("frozen_verdict_key"), "the second portal can be stabilized after its key ceremony")
 	var second_opening := Challenge.current_stage(state.player)
 	var second_reward := Challenge.reward_for(second_opening, ContentDB.ITEM_TRAITS)
 	check(str(second_opening.id).begins_with("frozen_verdict__") and int(second_opening.power) >= int(Challenge.STAGES[11].power), "the second reality owns canonical composite enemies and opens above the first reality finale")
@@ -211,10 +252,11 @@ func run_audit() -> void:
 	var third_reality := {}
 	while third_reality.is_empty() and third_key_hunts < 7:
 		state.player.wins = int(state.player.wins) + 1
-		third_reality = Challenge.record_eligible_hunt_for_key(state.player)
+		third_reality = Challenge.record_eligible_hunt_for_key(state.player, float(300 + third_key_hunts) * DAY_SECONDS)
 		third_key_hunts += 1
-	check(not third_reality.is_empty() and third_key_hunts <= 7, "completing the frozen verdict makes the third gameplay key drop within seven eligible hunts")
+	check(not third_reality.is_empty() and third_key_hunts <= 7, "completing the frozen verdict makes the third gameplay key drop within seven eligible days")
 	check(state.player.rift_reality_keys == ["dead_customs_key", "frozen_verdict_key", "rejected_futures_key"] and str(state.player.selected_rift_reality_id) == "rejected_futures", "the third key is permanent, sequential, and selects the new reality")
+	check(state.acknowledge_rift_key("rejected_futures_key"), "the third portal ceremony permanently reveals its destination")
 	var third_opening := Challenge.current_stage(state.player)
 	var third_reward := Challenge.reward_for(third_opening, ContentDB.ITEM_TRAITS)
 	check(str(third_opening.id).begins_with("rejected_futures__") and int(third_reality.unlock_level) == 160 and int(third_opening.power) > int(Challenge.stage_at(0, "frozen_verdict").power), "the third reality opens at its mature checkpoint with a stable composite enemy")

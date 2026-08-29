@@ -761,21 +761,23 @@ Reutiliza combustível, relógio e Ficha Warp. Não necessita de ilustração pr
 | --- | ---: | --- |
 | Portal/Fenda principal | 1 | `FALTA/GATE` |
 | Moldura corrompida da Fenda | 1 | `FALTA` |
-| Chave por realidade | 2 atuais | `FALTA` |
-| Emblema por realidade | 2 atuais | `FALTA` |
-| Fundo por realidade | 2 atuais | `FALTA/GATE` |
-| Inimigos/andares | 24 identidades atuais | `TEMP`; arte `FALTA/GATE` |
-| Recompensas especiais | 24 ícones/reutilização modular | `TEMP` |
+| Chave por realidade | 3 atuais | `FALTA` |
+| Emblema por realidade | 3 atuais | `FALTA` |
+| Fundo por realidade | 3 atuais | `FALTA/GATE` |
+| Inimigos/andares | 36 identidades atuais | `TEMP`; arte `FALTA/GATE` |
+| Recompensas especiais | 36 ícones/reutilização modular | `TEMP` |
+| Sequência de abertura | anéis, núcleo, distorção e encaixe da chave | `CODE/TEMP`; arte/VFX final `FALTA/GATE` |
 | Perfis de anomalia | conjunto de símbolos | `CODE/TEMP` |
 
 Realidades atuais:
 
 - Alfândega do Universo Morto;
 - Veredito do Tempo Congelado.
+- Cidade dos Futuros Recusados.
 
 O jogador vê apenas o inimigo atual, não a tabela completa de drops. Portanto a UI não precisa de ilustrações antecipadas de recompensa por andar; ícones só aparecem quando a recompensa é obtida.
 
-Produção recomendada: 24 retratos de inimigo podem usar o mesmo contrato técnico dos alvos normais, mas precisam de linguagem mais surreal. Não misturar estes 24 com os 140 alvos planetários na contagem.
+Produção recomendada: 36 retratos de inimigo podem usar o mesmo contrato técnico dos alvos normais, mas precisam de linguagem mais surreal. Não misturar estes 36 com os 140 alvos planetários na contagem. A cerimónia de chave precisa de uma entrega própria inspirada no conceito de construção de portal — sem copiar geometria, composição, símbolos ou animação de outra obra — e deve ser validada a 450×800 antes de substituir o fallback procedural.
 
 ---
 

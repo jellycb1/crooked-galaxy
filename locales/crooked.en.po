@@ -3543,7 +3543,7 @@ msgid "RIFT_STAGE_RIFT_NULL_WARDEN_NAME"
 msgstr "Null Sector Warden"
 
 msgid "RIFT_SUBTITLE"
-msgstr "One key opens each reality. One entry crosses the Rift per day."
+msgstr "One key opens each reality. Victory closes the day; defeat allows three retries."
 
 msgid "RIFT_KEY"
 msgstr "KEY"
@@ -3621,7 +3621,7 @@ msgid "RIFT_REWARD_TOTAL"
 msgstr "◈ %d CREDITS · %d XP"
 
 msgid "RIFT_RULES"
-msgstr "One entry per day · no fuel · defeat keeps the current enemy and preserves warrant momentum."
+msgstr "One free attempt · no fuel · victory closes the day · defeat allows up to three retries for ◆ 1/5/20."
 
 msgid "RIFT_START"
 msgstr "ENTER THE RIFT · ENEMY %d/12"
@@ -3638,8 +3638,65 @@ msgstr "The Rift yields superior equipment and resources, but reveals them only 
 msgid "RIFT_NOTICE_ENTRY_USED"
 msgstr "Today's entry has already been used. The Rift stabilizes again at midnight UTC."
 
+msgid "RIFT_VICTORY_LOCKED"
+msgstr "VICTORY RECORDED · REOPENS AT 00:00 UTC"
+
+msgid "RIFT_RETRY_LIMIT"
+msgstr "RETRIES EXHAUSTED · REOPENS AT 00:00 UTC"
+
+msgid "RIFT_RETRY_UNAFFORDABLE"
+msgstr "NOT ENOUGH CHIPS · ◆ %d REQUIRED"
+
+msgid "RIFT_RETRY_PREPARE"
+msgstr "PREPARE RETRY · ◆ %d · %d REMAIN"
+
+msgid "RIFT_RETRY_CONFIRMATION"
+msgstr "CONFIRM RETRY %d/3 · spending ◆ %d repeats the same enemy, anomaly, and sealed reward."
+
+msgid "RIFT_RETRY_CONFIRM"
+msgstr "RETRY · ◆ %d"
+
+msgid "RIFT_NOTICE_VICTORY_LOCK"
+msgstr "Today's victory stabilized the Rift. A new incursion opens at midnight UTC."
+
+msgid "RIFT_NOTICE_RETRY_BLOCKED"
+msgstr "A Rift retry is not available for this encounter."
+
+msgid "RIFT_PORTAL_KEY_DETECTED"
+msgstr "REALITY KEY DETECTED"
+
+msgid "RIFT_PORTAL_OPENING"
+msgstr "RIFT APERTURE IN PROGRESS"
+
+msgid "RIFT_PORTAL_DESTINATION"
+msgstr "DESTINATION STABILIZED · %s"
+
+msgid "RIFT_PORTAL_DESCRIPTION"
+msgstr "The key locks into the mechanism and tears open a permanent passage to the new reality."
+
+msgid "RIFT_PORTAL_APPROACH"
+msgstr "APPROACH THE PORTAL"
+
+msgid "RIFT_PORTAL_SKIP"
+msgstr "STABILIZE IMMEDIATELY"
+
+msgid "RIFT_PORTAL_STABILIZED_NOTICE"
+msgstr "Portal stabilized. The new reality is accessible."
+
 msgid "MENU_RIFT_ENTRY_USED"
 msgstr "DAILY ENTRY USED"
+
+msgid "MENU_RIFT_PORTAL_READY"
+msgstr "NEW KEY · PORTAL READY TO OPEN"
+
+msgid "MENU_RIFT_VICTORY"
+msgstr "TODAY'S VICTORY RECORDED"
+
+msgid "MENU_RIFT_RETRY"
+msgstr "RETRY AVAILABLE · ◆ %d"
+
+msgid "MENU_RIFT_RETRIES_USED"
+msgstr "TODAY'S RETRIES EXHAUSTED"
 
 msgid "RIFT_REWARD_FLOOR_CLEAR"
 msgstr "CLANDESTINE RIFT · FLOOR %d CLEARED"

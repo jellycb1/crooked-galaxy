@@ -6,7 +6,7 @@ const StateScript = preload("res://scripts/game_state.gd")
 const TransportRules = preload("res://scripts/transport_rules.gd")
 const MonetizationRules = preload("res://scripts/monetization_rules.gd")
 const YearOne = preload("res://scripts/year_one_content_rules.gd")
-const XP_MILESTONES := [4, 8, 13, 19, 30, 50, 100, 200, 300, 320, 500]
+const XP_MILESTONES := [4, 8, 13, 19, 30, 50, 100, 160, 200, 215, 300, 320, 500]
 
 
 func _init() -> void:

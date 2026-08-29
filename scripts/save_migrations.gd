@@ -4,7 +4,7 @@ extends RefCounted
 const Content = preload("res://scripts/content_db.gd")
 const Challenge = preload("res://scripts/challenge_rules.gd")
 
-const CURRENT_VERSION := 25
+const CURRENT_VERSION := 26
 const BASE_ATTRIBUTE_VALUE := 10
 const ATTRIBUTE_POINTS_PER_LEVEL := 2
 
@@ -88,6 +88,9 @@ static func migrate(payload: Dictionary) -> Dictionary:
 			24:
 				migrated = migrate_v24_to_v25(migrated)
 				version = 25
+			25:
+				migrated = migrate_v25_to_v26(migrated)
+				version = 26
 			_:
 				return {}
 		migrated.version = version
@@ -450,3 +453,17 @@ static func apply_advanced_rift_item_level(item: Dictionary) -> void:
 	var stage := Challenge.get_stage(item_id.trim_suffix("_reward"))
 	if stage.has("reward_level"):
 		item.item_level = int(stage.reward_level)
+
+
+static func migrate_v25_to_v26(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	var player: Dictionary = migrated.get("player", {})
+	player.rift_victory_day = -1
+	player.rift_retry_count = 0
+	player.rift_attempt_stage_id = ""
+	player.rift_key_roll_day = -1
+	# Existing hunters have already experienced their owned keys. Only keys
+	# earned after this schema use the first-visit portal reveal.
+	player.rift_seen_key_ids = player.get("rift_reality_keys", []).duplicate()
+	migrated.player = player
+	return migrated

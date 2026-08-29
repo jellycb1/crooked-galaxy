@@ -36,17 +36,20 @@ Estado das aplicações:
 
 1. **ATIVO — Mercado:** até três renovações por dia. A terceira seleção contém pelo menos um item Raro compatível, mas não garante que seja melhoria.
 2. **ATIVO — Combustível de caça:** reserva diária de 100 unidades; missões normais consomem o equivalente aos minutos da rota-base, limitado a 100 por missão. Rotas de 124–140 minutos preservam toda a espera e o valor dos transportes, mas nunca tornam a primeira caçada diária dependente de recarga. Cada recarga concede 20 e segue a escada diária 1/5/20. Faturação e autoridade continuam locais e não representam uma loja real.
-3. **PLANEADO — Reduções de tempo:** Células de Salto poderão reduzir cinco minutos e deverão existir também como recompensa jogável, com limite diário. Ainda não fazem parte do cliente atual.
-4. **FUTURO — Arena:** saltos de cooldown poderão usar a mesma escada, sempre limitados a três por dia e sem alterar probabilidades de vitória.
+3. **ATIVO — Repetições da Fenda após derrota:** a tentativa gratuita é sempre a primeira. Somente após perder, o jogador pode repetir o mesmo inimigo até três vezes por 1/5/20 Fichas. Uma vitória encerra a Fenda até ao próximo dia UTC; comprar repetições nunca permite uma segunda recompensa diária.
+4. **PLANEADO — Reduções de tempo:** Células de Salto poderão reduzir cinco minutos e deverão existir também como recompensa jogável, com limite diário. Ainda não fazem parte do cliente atual.
+5. **FUTURO — Arena:** saltos de cooldown poderão usar a mesma escada, sempre limitados a três por dia e sem alterar probabilidades de vitória.
 
 ## Fenda: limite de integridade comercial
 
-- A Fenda concede exatamente uma entrada global por dia UTC, partilhada por todas as realidades abertas. A entrada é consumida ao iniciar o combate, inclusive quando existe derrota.
-- Não se vende entrada adicional, repetição após derrota, salto de inimigo, alteração do inimigo, chave, probabilidade de vitória nem revelação antecipada da recompensa.
+- A Fenda concede exatamente uma tentativa gratuita global por dia UTC, partilhada por todas as realidades abertas.
+- Uma vitória bloqueia imediatamente novas lutas até ao próximo dia UTC, mesmo antes de o artefacto ser recebido. Assim nunca existe mais de uma primeira vitória, recompensa ou avanço por dia.
+- Uma derrota mantém o mesmo inimigo, anomalia e recompensa selada. Nesse dia podem ser compradas no máximo três repetições desse confronto, por 1/5/20 Fichas, sempre com confirmação explícita. Perder as três encerra o dia; nenhuma repetição é transportada ou reembolsada.
+- Não se vende entrada depois de vitória, salto ou alteração de inimigo, chave, probabilidade de vitória nem revelação antecipada da recompensa.
 - Cada realidade contém doze inimigos sequenciais e exige uma chave permanente. A primeira chave é descoberta ao atingir o nível 8; chaves seguintes entram apenas por caçadas normais depois de completar a realidade anterior e alcançar o nível exigido.
 - O contador oculto de uma chave tem proteção contra azar e não aceita Fichas de Dobra. Na segunda realidade, a chave surge no máximo após cinco caçadas elegíveis.
 - Antes da luta, o jogador vê somente o inimigo atual, as regras da anomalia e a promessa genérica de recompensa superior. Item, raridade, espaço, Créditos e XP permanecem selados até à vitória.
-- A Fenda não consome combustível e não avança Turno Diário, reputação, domínio de alvos ou embalo dos mandados. Assim, funciona como compromisso diário de build e não como multiplicador pago da progressão normal.
+- A Fenda não consome combustível e não avança Turno Diário, reputação, domínio de alvos ou embalo dos mandados. A monetização reduz apenas dias perdidos por derrota; não multiplica vitórias nem recompensas diárias.
 
 ## Transportes e conveniência
 

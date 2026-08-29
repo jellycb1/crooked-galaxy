@@ -129,7 +129,12 @@ func default_player() -> Dictionary:
 		"rift_reality_progress": {},
 		"selected_rift_reality_id": ChallengeRulesScript.FIRST_REALITY_ID,
 		"rift_entry_day": -1,
+		"rift_victory_day": -1,
+		"rift_retry_count": 0,
+		"rift_attempt_stage_id": "",
 		"rift_key_hunt_progress": {},
+		"rift_key_roll_day": -1,
+		"rift_seen_key_ids": [],
 		"base_power": 10,
 		"attributes": CoreRules.default_attributes(),
 		"stat_points": 0,
@@ -329,14 +334,32 @@ func rift_status(unix_time := -1.0) -> Dictionary:
 		save_game()
 	var reality_id := ChallengeRulesScript.selected_reality_id(player)
 	var reality := ChallengeRulesScript.reality_definition(reality_id)
+	var attempt := ChallengeRulesScript.attempt_status(player, unix_time)
 	return {
 		"unlocked": ChallengeRulesScript.is_unlocked(player),
 		"reality_id": reality_id,
 		"reality": reality,
 		"progress": ChallengeRulesScript.progress(player, reality_id),
-		"entry_available": ChallengeRulesScript.entry_available(player, unix_time),
+		"entry_available": bool(attempt.can_attempt),
 		"entry_day": int(player.get("rift_entry_day", -1)),
+		"attempt": attempt,
+		"unseen_key_reality": ChallengeRulesScript.unseen_key_reality(player),
 	}
+
+
+func acknowledge_rift_key(key_id: String) -> bool:
+	if phase != Phase.BOARD or not player.get("rift_reality_keys", []).has(key_id):
+		return false
+	var seen: Array = player.get("rift_seen_key_ids", []).duplicate()
+	if seen.has(key_id):
+		return true
+	seen.append(key_id)
+	player.rift_seen_key_ids = seen
+	last_notice = LocaleRulesScript.text("RIFT_PORTAL_STABILIZED_NOTICE", "Portal estabilizado. A nova realidade está acessível.")
+	last_notice_context = "challenge_portal"
+	var saved := save_game()
+	changed.emit()
+	return saved
 
 
 func select_rift_reality(reality_id: String) -> bool:
@@ -352,27 +375,47 @@ func select_rift_reality(reality_id: String) -> bool:
 	return true
 
 
-func start_challenge(stage_id: String, unix_time := -1.0) -> bool:
+func start_challenge(stage_id: String, unix_time := -1.0, expected_retry_cost := -1) -> bool:
 	if phase != Phase.BOARD or requires_onboarding() or not ChallengeRulesScript.is_unlocked(player):
 		return false
 	normalize_rift_foundation()
-	if not ChallengeRulesScript.entry_available(player, unix_time):
-		last_notice = LocaleRulesScript.text("RIFT_NOTICE_ENTRY_USED", "A entrada diária já foi consumida. A Fenda estabiliza novamente à meia-noite UTC.")
-		last_notice_context = "challenge_entry_used"
-		save_game()
-		changed.emit()
-		return false
 	var stage := ChallengeRulesScript.get_stage(stage_id)
 	var reality_id := str(stage.get("reality_id", ""))
 	if stage.is_empty() or not ChallengeRulesScript.has_reality_key(player, reality_id) or int(stage.get("challenge_index", -1)) != ChallengeRulesScript.progress(player, reality_id):
 		return false
+	var reality := ChallengeRulesScript.reality_definition(reality_id)
+	if not player.get("rift_seen_key_ids", []).has(str(reality.get("key_id", ""))):
+		return false
+	var attempt := ChallengeRulesScript.attempt_status(player, unix_time)
+	if bool(attempt.won_today):
+		last_notice = LocaleRulesScript.text("RIFT_NOTICE_VICTORY_LOCK", "A vitória de hoje estabilizou a Fenda. Uma nova incursão abre à meia-noite UTC.")
+		last_notice_context = "challenge_victory_lock"
+		save_game()
+		changed.emit()
+		return false
+	var retry_cost := 0
+	if bool(attempt.attempted_today):
+		retry_cost = int(attempt.retry_cost)
+		if not bool(attempt.retry_available) or not bool(attempt.can_afford_retry) or str(attempt.retry_stage_id) != stage_id:
+			last_notice = LocaleRulesScript.text("RIFT_NOTICE_RETRY_BLOCKED", "A repetição da Fenda não está disponível para este confronto.")
+			last_notice_context = "challenge_retry_blocked"
+			save_game()
+			changed.emit()
+			return false
+		if int(expected_retry_cost) != retry_cost:
+			return false
+		player.warp_chips = int(player.get("warp_chips", 0)) - retry_cost
+		player.rift_retry_count = int(attempt.retry_count) + 1
+	else:
+		player.rift_entry_day = int(attempt.day)
+		player.rift_retry_count = 0
+		player.rift_attempt_stage_id = stage_id
 	last_notice = ""
 	last_notice_context = ""
 	combat_summary = {}
 	combat_events = []
 	current_bounty = stage
 	player.selected_rift_reality_id = reality_id
-	player.rift_entry_day = MonetizationRulesScript.utc_day_id(unix_time)
 	offered_approaches = []
 	hunt_event = {}
 	begin_combat()
@@ -1208,6 +1251,7 @@ func finish_combat(won: bool) -> void:
 	combat_summary.enemy_hp_remaining = enemy_hp
 	if won:
 		if bool(current_bounty.get("challenge", false)):
+			player.rift_victory_day = int(player.get("rift_entry_day", MonetizationRulesScript.utc_day_id()))
 			pending_loot = ChallengeRulesScript.reward_for(current_bounty, ContentDB.ITEM_TRAITS)
 		else:
 			var target_id := str(current_bounty.get("id", ""))
@@ -2273,7 +2317,7 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	if fuel_remaining != int(sanitized.get("hunt_fuel", MonetizationRulesScript.DAILY_HUNT_FUEL)):
 		sanitized.hunt_fuel = fuel_remaining
 		repaired = true
-	for day_key in ["economy_day", "daily_hunt_chip_day", "rift_entry_day"]:
+	for day_key in ["economy_day", "daily_hunt_chip_day", "rift_entry_day", "rift_victory_day", "rift_key_roll_day"]:
 		var day_value = sanitized.get(day_key, -1)
 		if not (day_value is int or day_value is float) or float(day_value) != float(int(day_value)) or int(day_value) < -1:
 			sanitized[day_key] = -1
@@ -2336,6 +2380,26 @@ func sanitize_loaded_player(loaded: Dictionary) -> Dictionary:
 	else:
 		repaired = true
 	sanitized.rift_key_hunt_progress = clean_key_hunt_progress
+	var clean_rift_retry_count := clampi(int(sanitized.get("rift_retry_count", 0)), 0, MonetizationRulesScript.MAX_RIFT_RETRIES_PER_DAY)
+	if clean_rift_retry_count != int(sanitized.get("rift_retry_count", 0)):
+		sanitized.rift_retry_count = clean_rift_retry_count
+		repaired = true
+	var attempt_stage_id := str(sanitized.get("rift_attempt_stage_id", ""))
+	if not attempt_stage_id.is_empty() and ChallengeRulesScript.get_stage(attempt_stage_id).is_empty():
+		sanitized.rift_attempt_stage_id = ""
+		repaired = true
+	var seen_key_ids: Array = []
+	var loaded_seen_keys = sanitized.get("rift_seen_key_ids", [])
+	if loaded_seen_keys is Array:
+		for key_id in loaded_seen_keys:
+			var seen_id := str(key_id)
+			if clean_rift_keys.has(seen_id) and not seen_key_ids.has(seen_id):
+				seen_key_ids.append(seen_id)
+			else:
+				repaired = true
+	else:
+		repaired = true
+	sanitized.rift_seen_key_ids = seen_key_ids
 	if not MarketRulesScript.purchase_records_are_safe(sanitized.get("market_purchased_offer_ids", [])):
 		sanitized.market_purchased_offer_ids = []
 		repaired = true

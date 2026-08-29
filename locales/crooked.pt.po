@@ -3543,7 +3543,7 @@ msgid "RIFT_STAGE_RIFT_NULL_WARDEN_NAME"
 msgstr "Carcereiro do Setor Nulo"
 
 msgid "RIFT_SUBTITLE"
-msgstr "Uma chave abre cada realidade. Uma entrada atravessa a Fenda por dia."
+msgstr "Uma chave abre cada realidade. Vitória fecha o dia; derrota permite três repetições."
 
 msgid "RIFT_KEY"
 msgstr "CHAVE"
@@ -3621,7 +3621,7 @@ msgid "RIFT_REWARD_TOTAL"
 msgstr "◈ %d CRÉDITOS · %d XP"
 
 msgid "RIFT_RULES"
-msgstr "Uma entrada por dia · sem combustível · derrota mantém o inimigo atual e preserva o embalo dos mandados."
+msgstr "Uma tentativa gratuita · sem combustível · vitória fecha o dia · derrota permite até três repetições por ◆ 1/5/20."
 
 msgid "RIFT_START"
 msgstr "ENTRAR NA FENDA · INIMIGO %d/12"
@@ -3638,8 +3638,65 @@ msgstr "A Fenda entrega equipamento e recursos superiores, mas só revela o cont
 msgid "RIFT_NOTICE_ENTRY_USED"
 msgstr "A entrada diária já foi consumida. A Fenda estabiliza novamente à meia-noite UTC."
 
+msgid "RIFT_VICTORY_LOCKED"
+msgstr "VITÓRIA REGISTADA · REABRE ÀS 00:00 UTC"
+
+msgid "RIFT_RETRY_LIMIT"
+msgstr "REPETIÇÕES ESGOTADAS · REABRE ÀS 00:00 UTC"
+
+msgid "RIFT_RETRY_UNAFFORDABLE"
+msgstr "FICHAS INSUFICIENTES · NECESSÁRIO ◆ %d"
+
+msgid "RIFT_RETRY_PREPARE"
+msgstr "PREPARAR REPETIÇÃO · ◆ %d · RESTAM %d"
+
+msgid "RIFT_RETRY_CONFIRMATION"
+msgstr "CONFIRMAR REPETIÇÃO %d/3 · gastar ◆ %d repete o mesmo inimigo, anomalia e recompensa selada."
+
+msgid "RIFT_RETRY_CONFIRM"
+msgstr "REPETIR · ◆ %d"
+
+msgid "RIFT_NOTICE_VICTORY_LOCK"
+msgstr "A vitória de hoje estabilizou a Fenda. Uma nova incursão abre à meia-noite UTC."
+
+msgid "RIFT_NOTICE_RETRY_BLOCKED"
+msgstr "A repetição da Fenda não está disponível para este confronto."
+
+msgid "RIFT_PORTAL_KEY_DETECTED"
+msgstr "CHAVE DE REALIDADE DETETADA"
+
+msgid "RIFT_PORTAL_OPENING"
+msgstr "ABERTURA DE FENDA EM CURSO"
+
+msgid "RIFT_PORTAL_DESTINATION"
+msgstr "DESTINO ESTABILIZADO · %s"
+
+msgid "RIFT_PORTAL_DESCRIPTION"
+msgstr "A chave encaixa no mecanismo e rasga uma passagem permanente para a nova realidade."
+
+msgid "RIFT_PORTAL_APPROACH"
+msgstr "APROXIMAR-SE DO PORTAL"
+
+msgid "RIFT_PORTAL_SKIP"
+msgstr "ESTABILIZAR IMEDIATAMENTE"
+
+msgid "RIFT_PORTAL_STABILIZED_NOTICE"
+msgstr "Portal estabilizado. A nova realidade está acessível."
+
 msgid "MENU_RIFT_ENTRY_USED"
 msgstr "ENTRADA DIÁRIA USADA"
+
+msgid "MENU_RIFT_PORTAL_READY"
+msgstr "NOVA CHAVE · PORTAL POR ABRIR"
+
+msgid "MENU_RIFT_VICTORY"
+msgstr "VITÓRIA DE HOJE REGISTADA"
+
+msgid "MENU_RIFT_RETRY"
+msgstr "REPETIÇÃO DISPONÍVEL · ◆ %d"
+
+msgid "MENU_RIFT_RETRIES_USED"
+msgstr "REPETIÇÕES DE HOJE ESGOTADAS"
 
 msgid "RIFT_REWARD_FLOOR_CLEAR"
 msgstr "FENDA CLANDESTINA · ANDAR %d LIMPO"

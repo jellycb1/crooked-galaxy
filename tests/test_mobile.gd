@@ -441,6 +441,8 @@ func run_mobile_audit() -> void:
 	state.player.completed_planets = ["dustball_prime"]
 	state.player.level = maxi(ChallengeRules.UNLOCK_LEVEL, int(state.player.get("level", 1)))
 	state.player.challenge_floor = 0
+	state.player.rift_reality_keys = ["dead_customs_key"]
+	state.player.rift_seen_key_ids = ["dead_customs_key"]
 	scene.view_mode = "challenges"
 	scene.render()
 	await process_frame
@@ -449,6 +451,7 @@ func run_mobile_audit() -> void:
 	check(scene.find_child("ChallengeScroll", true, false) != null and scene.find_child("ChallengeAnomalyRule", true, false) != null, "Fenda anomaly explanation remains reachable in the portrait scroller")
 	state.player.level = 160
 	state.player.rift_reality_keys = ["dead_customs_key", "frozen_verdict_key", "rejected_futures_key"]
+	state.player.rift_seen_key_ids = state.player.rift_reality_keys.duplicate()
 	state.player.selected_rift_reality_id = "rejected_futures"
 	state.player.rift_reality_progress = {ChallengeRules.FIRST_REALITY_ID: 12, "frozen_verdict": 12, "rejected_futures": 0}
 	scene.render()

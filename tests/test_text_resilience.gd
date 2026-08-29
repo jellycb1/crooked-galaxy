@@ -69,6 +69,7 @@ func run_text_audit() -> void:
 
 	state.player.level = 170
 	state.player.rift_reality_keys = ["dead_customs_key", "frozen_verdict_key", "rejected_futures_key"]
+	state.player.rift_seen_key_ids = state.player.rift_reality_keys.duplicate()
 	state.player.selected_rift_reality_id = "rejected_futures"
 	state.player.rift_reality_progress = {"dead_customs": 12, "frozen_verdict": 12, "rejected_futures": 2}
 	scene.view_mode = "challenges"

@@ -387,7 +387,7 @@ const REALITIES := [
 		# opening enemies or an impossible final spike.
 		"difficulty_multipliers": [1.23, 1.22, 1.21, 1.24, 1.19, 1.12, 1.13, 1.12, 1.09, 1.04, 0.97, 0.87],
 		"reward_power_bonus": 1,
-		"key_pity_hunts": 5,
+		"key_pity_days": 5,
 		"identity_stages": FROZEN_VERDICT_IDENTITIES,
 		"stages": STAGES,
 	},
@@ -413,7 +413,7 @@ const REALITIES := [
 		# additive mature-reality pressure keeps every encounter above reality two.
 		"difficulty_multipliers": [0.85, 0.83, 0.82, 0.85, 0.83, 0.83, 0.83, 0.83, 0.81, 0.78, 0.73, 0.68],
 		"reward_power_bonus": 2,
-		"key_pity_hunts": 7,
+		"key_pity_days": 7,
 		"identity_stages": REJECTED_FUTURES_IDENTITIES,
 		"stages": STAGES,
 	},
@@ -462,7 +462,32 @@ static func selected_reality_id(player: Dictionary) -> String:
 
 
 static func entry_available(player: Dictionary, unix_time := -1.0) -> bool:
-	return int(player.get("rift_entry_day", -1)) != MonetizationRulesScript.utc_day_id(unix_time)
+	var status := attempt_status(player, unix_time)
+	return bool(status.can_attempt)
+
+
+static func attempt_status(player: Dictionary, unix_time := -1.0) -> Dictionary:
+	var day := MonetizationRulesScript.utc_day_id(unix_time)
+	var attempted_today := int(player.get("rift_entry_day", -1)) == day
+	var won_today := int(player.get("rift_victory_day", -1)) == day
+	var retry_count := MonetizationRulesScript.rift_retry_count(player) if attempted_today else 0
+	var retries_remaining := maxi(0, MonetizationRulesScript.MAX_RIFT_RETRIES_PER_DAY - retry_count)
+	var retry_cost := MonetizationRulesScript.rift_retry_cost(player) if attempted_today and not won_today else 0
+	var retry_stage_id := str(player.get("rift_attempt_stage_id", "")) if attempted_today else ""
+	var can_pay := retry_cost > 0 and int(player.get("warp_chips", 0)) >= retry_cost
+	return {
+		"day": day,
+		"free_attempt": not attempted_today,
+		"attempted_today": attempted_today,
+		"won_today": won_today,
+		"retry_count": retry_count,
+		"retries_remaining": retries_remaining,
+		"retry_cost": retry_cost,
+		"retry_stage_id": retry_stage_id,
+		"can_attempt": not won_today and (not attempted_today or (retries_remaining > 0 and can_pay)),
+		"retry_available": attempted_today and not won_today and retries_remaining > 0,
+		"can_afford_retry": can_pay,
+	}
 
 
 static func next_key_reality(player: Dictionary) -> Dictionary:
@@ -477,16 +502,20 @@ static func next_key_reality(player: Dictionary) -> Dictionary:
 	return {}
 
 
-static func record_eligible_hunt_for_key(player: Dictionary) -> Dictionary:
+static func record_eligible_hunt_for_key(player: Dictionary, unix_time := -1.0) -> Dictionary:
 	var reality := next_key_reality(player)
 	if reality.is_empty():
 		return {}
+	var day := MonetizationRulesScript.utc_day_id(unix_time)
+	if int(player.get("rift_key_roll_day", -1)) == day:
+		return {}
+	player.rift_key_roll_day = day
 	var counters: Dictionary = player.get("rift_key_hunt_progress", {}).duplicate(true)
 	var reality_id := str(reality.id)
 	var attempts := int(counters.get(reality_id, 0)) + 1
 	counters[reality_id] = attempts
 	player.rift_key_hunt_progress = counters
-	var pity := maxi(1, int(reality.get("key_pity_hunts", 5)))
+	var pity := maxi(1, int(reality.get("key_pity_days", reality.get("key_pity_hunts", 5))))
 	var deterministic_roll := posmod(int(player.get("wins", 0)) * 31 + int(player.get("level", 1)) * 17 + reality_id.hash(), pity)
 	if attempts < pity and deterministic_roll != 0:
 		return {}
@@ -498,6 +527,15 @@ static func record_eligible_hunt_for_key(player: Dictionary) -> Dictionary:
 	player.rift_reality_progress = progress_by_reality
 	player.selected_rift_reality_id = reality_id
 	return reality
+
+
+static func unseen_key_reality(player: Dictionary) -> Dictionary:
+	var seen: Array = player.get("rift_seen_key_ids", [])
+	for reality in REALITIES:
+		var key_id := str(reality.key_id)
+		if player.get("rift_reality_keys", []).has(key_id) and not seen.has(key_id):
+			return reality.duplicate(true)
+	return {}
 
 
 static func sector_slot_for_floor(floor: int) -> String:

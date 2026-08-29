@@ -240,6 +240,8 @@ func apply_safe_area() -> void:
 func render() -> void:
 	if view_mode != "market":
 		market_refresh_confirmation = false
+	if view_mode != "challenges":
+		rift_retry_confirmation = false
 	if GameState.phase not in [GameState.Phase.BOARD, GameState.Phase.BRIEFING]:
 		fuel_refill_confirmation = false
 	var previous_focus_name := ""
@@ -1014,7 +1016,20 @@ func build_frontier_menu() -> void:
 	))
 	var rift_status := GameState.rift_status()
 	var challenge_floor := int(rift_status.progress)
-	var challenge_detail := t("MENU_RIFT_LOCKED", "DESBLOQUEIA NO NÍVEL %d", [ChallengeRulesScript.UNLOCK_LEVEL]) if not bool(rift_status.unlocked) else (t("MENU_RIFT_COMPLETE", "REALIDADE CONCLUÍDA") if challenge_floor >= ChallengeRulesScript.STAGES.size() else (t("MENU_RIFT_ENTRY_USED", "ENTRADA DIÁRIA USADA") if not bool(rift_status.entry_available) else t("MENU_RIFT_FLOOR", "INIMIGO %d DE %d", [challenge_floor + 1, ChallengeRulesScript.STAGES.size()])))
+	var challenge_detail := t("MENU_RIFT_LOCKED", "DESBLOQUEIA NO NÍVEL %d", [ChallengeRulesScript.UNLOCK_LEVEL])
+	if bool(rift_status.unlocked):
+		if not rift_status.unseen_key_reality.is_empty():
+			challenge_detail = t("MENU_RIFT_PORTAL_READY", "NOVA CHAVE · PORTAL POR ABRIR")
+		elif challenge_floor >= ChallengeRulesScript.STAGES.size():
+			challenge_detail = t("MENU_RIFT_COMPLETE", "REALIDADE CONCLUÍDA")
+		elif bool(rift_status.attempt.won_today):
+			challenge_detail = t("MENU_RIFT_VICTORY", "VITÓRIA DE HOJE REGISTADA")
+		elif bool(rift_status.attempt.attempted_today) and bool(rift_status.attempt.retry_available):
+			challenge_detail = t("MENU_RIFT_RETRY", "REPETIÇÃO DISPONÍVEL · ◆ %d", [int(rift_status.attempt.retry_cost)])
+		elif bool(rift_status.attempt.attempted_today):
+			challenge_detail = t("MENU_RIFT_RETRIES_USED", "REPETIÇÕES DE HOJE ESGOTADAS")
+		else:
+			challenge_detail = t("MENU_RIFT_FLOOR", "INIMIGO %d DE %d", [challenge_floor + 1, ChallengeRulesScript.STAGES.size()])
 	hub_grid.add_child(board_hub_action(t("MENU_RIFT", "FENDA"), challenge_detail, CORAL, "contracts", "BoardChallengeAction", func():
 		view_mode = "challenges"
 		render()

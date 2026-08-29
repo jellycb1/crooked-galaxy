@@ -103,6 +103,8 @@ func run_test() -> void:
 	state.player.completed_planets = ["dustball_prime"]
 	state.player.level = Challenge.UNLOCK_LEVEL
 	state.player.challenge_floor = 0
+	state.player.rift_reality_keys = ["dead_customs_key"]
+	state.player.rift_seen_key_ids = ["dead_customs_key"]
 	state.phase = state.Phase.BOARD
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
@@ -124,6 +126,7 @@ func run_test() -> void:
 
 	state.player.level = 100
 	state.player.rift_reality_keys = ["dead_customs_key", "frozen_verdict_key"]
+	state.player.rift_seen_key_ids = state.player.rift_reality_keys.duplicate()
 	state.player.selected_rift_reality_id = "frozen_verdict"
 	state.player.rift_reality_progress = {"dead_customs": 12, "frozen_verdict": 0}
 	state.phase = state.Phase.BOARD
@@ -142,6 +145,7 @@ func run_test() -> void:
 	check(state.localized_item_field(legacy_second_reward, "name") == "Suspended Deadline Harness", "pre-update second-reality artifacts localize from their stable composite instance id")
 	state.player.level = 160
 	state.player.rift_reality_keys = ["dead_customs_key", "frozen_verdict_key", "rejected_futures_key"]
+	state.player.rift_seen_key_ids = state.player.rift_reality_keys.duplicate()
 	state.player.selected_rift_reality_id = "rejected_futures"
 	state.player.rift_reality_progress = {"dead_customs": 12, "frozen_verdict": 12, "rejected_futures": 0}
 	state.phase = state.Phase.BOARD
