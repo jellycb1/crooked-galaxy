@@ -401,8 +401,8 @@ func run_mobile_audit() -> void:
 	await process_frame
 	check_touch_targets(scene, "transport galaxy status")
 	check(scene.find_child("GalaxyTransportIcon", true, false) != null and scene.find_child("GalaxyHangarAction", true, false) != null, "galaxy map carries the active transport identity and hangar route")
-	var expected_galaxy_cards := mini(ContentDB.PLANETS.size(), MissionRules.available_planets(int(state.player.level)).size() + 2)
-	check(scene.find_children("GalaxyPlanetIcon_*", "Control", true, false).size() == expected_galaxy_cards and scene.find_child("GalaxyDistantSignals", true, false) != null, "mobile galaxy bounds route cards and summarizes distant signals")
+	var expected_galaxy_cards := mini(scene.GALAXY_ROUTES_PER_PAGE, mini(ContentDB.PLANETS.size(), MissionRules.available_planets(int(state.player.level)).size() + 2))
+	check(scene.find_children("GalaxyPlanetIcon_*", "Control", true, false).size() == expected_galaxy_cards and scene.find_child("GalaxyPageNavigation", true, false) != null, "mobile galaxy bounds route cards to one navigable page")
 	scene.view_mode = "arsenal"
 	scene.render()
 	await process_frame

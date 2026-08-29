@@ -68,11 +68,12 @@ func _init() -> void:
 	factory.hangar_scroll_position = 140
 	factory.inventory_scroll_position = 160
 	factory.galaxy_scroll_position = 180
+	factory.galaxy_page_index = 3
 	factory.galaxy_focus_planet_id = "congelaria_sa"
 	factory.reset_transient_navigation()
 	check(factory.view_mode == "board" and factory.inventory_filter == "all" and factory.inventory_sort == "power" and factory.inventory_page == 0 and factory.arsenal_section == "equipped" and factory.board_section == "bounties", "factory reset restores default hub navigation")
 	check(factory.briefing_context.is_empty() and factory.career_section == "progress" and factory.career_scroll_position == 0 and factory.career_archive_planet_index == 0 and not factory.career_section_switch_pending, "factory reset clears stale briefing and career positions")
-	check(factory.market_scroll_position == 0 and factory.hangar_scroll_position == 0 and factory.inventory_scroll_position == 0 and factory.galaxy_scroll_position == 0 and factory.galaxy_focus_planet_id.is_empty(), "factory reset clears remembered commerce, inventory, and Galaxy positions")
+	check(factory.market_scroll_position == 0 and factory.hangar_scroll_position == 0 and factory.inventory_scroll_position == 0 and factory.galaxy_scroll_position == 0 and factory.galaxy_page_index == -1 and factory.galaxy_focus_planet_id.is_empty(), "factory reset clears remembered commerce, inventory, and Galaxy positions")
 
 	for control in [title, button, outlined, rebuild_title, rebuild_body, rebuild_primary, rebuild_secondary, metric, rebuild_focal, portrait, equipment, card, matching_card, illustrated, matching_illustrated]:
 		control.free()

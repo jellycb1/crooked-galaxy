@@ -409,8 +409,9 @@ func run_smoke_test() -> void:
 	check(scene.find_child("GalaxyRoutes", true, false) != null, "galaxy map renders unlocked routes")
 	var planet_icons := scene.find_children("GalaxyPlanetIcon_*", "Control", true, false)
 	var visible_planets := ContentDB.PLANETS.slice(0, mini(ContentDB.PLANETS.size(), MissionRules.available_planets(int(state.player.level)).size() + 2))
-	check(planet_icons.size() == visible_planets.size(), "the galaxy renders unlocked routes plus exactly two future signals")
-	check(scene.find_child("GalaxyDistantSignals", true, false) != null, "distant locked content collapses into one lightweight discovery summary")
+	var first_page_planets := visible_planets.slice(0, mini(visible_planets.size(), scene.GALAXY_ROUTES_PER_PAGE))
+	check(planet_icons.size() == first_page_planets.size(), "the galaxy renders one bounded route page instead of constructing every known world")
+	check(scene.find_child("GalaxyPageNavigation", true, false) != null, "the bounded galaxy exposes explicit route-page navigation")
 	var planet_motifs := {}
 	var pending_planet_motifs := 0
 	for icon in planet_icons:
@@ -420,13 +421,22 @@ func run_smoke_test() -> void:
 			check(icon.motif_id() == "unknown", "pending user-authored planets retain the generic visual fallback")
 		else:
 			planet_motifs[icon.motif_id()] = true
-	check(not planet_motifs.has("unknown") and planet_motifs.size() == visible_planets.size() - pending_planet_motifs, "every visible completed planet resolves a distinct visual motif")
-	check(pending_planet_motifs == visible_planets.filter(func(planet): return str(planet.get("visual_delivery", "")) == "pending_user_asset").size(), "visible pending planets retain the explicit user-art boundary")
+	check(not planet_motifs.has("unknown") and planet_motifs.size() == first_page_planets.size() - pending_planet_motifs, "every paged completed planet resolves a distinct visual motif")
+	check(pending_planet_motifs == first_page_planets.filter(func(planet): return str(planet.get("visual_delivery", "")) == "pending_user_asset").size(), "paged pending planets retain the explicit user-art boundary")
 	check(scene.find_child("PrimaryNavBadge_galaxy", true, false) != null, "persistent unseen destinations produce a global Galaxy navigation badge")
 	state.player.level = int(ContentDB.PLANETS[-1].unlock_level)
+	scene.galaxy_page_index = 0
 	scene.render()
 	await process_frame
-	check(scene.find_children("GalaxyPlanetIcon_*", "Control", true, false).size() == ContentDB.PLANETS.size(), "the bounded map never hides a world once its level is unlocked")
+	var mature_page_next := scene.find_child("GalaxyPageNext", true, false) as Button
+	check(scene.find_children("GalaxyPlanetIcon_*", "Control", true, false).size() == scene.GALAXY_ROUTES_PER_PAGE and not mature_page_next.disabled, "a mature catalog constructs only one page and exposes the remaining routes")
+	mature_page_next.pressed.emit()
+	await process_frame
+	check(scene.galaxy_page_index == 1 and scene.find_child("GalaxyPlanet_%s" % str(ContentDB.PLANETS[scene.GALAXY_ROUTES_PER_PAGE].id), true, false) != null, "Galaxy page navigation advances by one bounded group without losing routes")
+	scene.galaxy_page_index = ceili(float(ContentDB.PLANETS.size()) / float(scene.GALAXY_ROUTES_PER_PAGE)) - 1
+	scene.render()
+	await process_frame
+	check(scene.find_child("GalaxyPlanet_%s" % str(ContentDB.PLANETS[-1].id), true, false) != null and (scene.find_child("GalaxyPageNext", true, false) as Button).disabled, "Galaxy pagination reaches the final unlocked world without truncating the catalog")
 	check(scene.find_child("GalaxyDistantSignals", true, false) == null, "the distant-signal summary disappears when the current catalog is fully unlocked")
 	state.player.level = 19
 	scene.view_mode = "board"
@@ -453,20 +463,21 @@ func run_smoke_test() -> void:
 	check(scene.find_children("BoardOfferSelector_*", "Button", true, false).size() == 3 and scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "level-30 expansion joins the same compact renewable mission network")
 	scene.view_mode = "galaxy"
 	scene.galaxy_scroll_position = 0
+	scene.galaxy_page_index = 0
 	scene.galaxy_focus_planet_id = "aeropolis_penhora"
 	scene.render()
 	await process_frame
 	await process_frame
 	check(scene.find_child("GalaxyPlanetProgress_aeropolis_penhora", true, false) != null, "galaxy map names the active year-one expansion objective")
 	var focused_galaxy_scroll := scene.find_child("GalaxyScroll", true, false) as ScrollContainer
-	check(focused_galaxy_scroll != null and focused_galaxy_scroll.scroll_vertical > 0 and scene.galaxy_focus_planet_id.is_empty(), "Galaxy discovery focus scrolls a late-catalog planet into view without retaining a stale request")
+	check(focused_galaxy_scroll != null and scene.galaxy_page_index == 1 and scene.galaxy_focus_planet_id.is_empty(), "Galaxy discovery focus opens the late-catalog planet's page without retaining a stale request")
 	var acknowledge_aeropolis := scene.find_child("GalaxyAcknowledge_aeropolis_penhora", true, false) as Button
 	check(acknowledge_aeropolis != null, "focused new destination exposes one explicit acknowledgement")
 	acknowledge_aeropolis.pressed.emit()
 	await process_frame
 	await process_frame
 	focused_galaxy_scroll = scene.find_child("GalaxyScroll", true, false) as ScrollContainer
-	check(focused_galaxy_scroll != null and focused_galaxy_scroll.scroll_vertical > 0 and scene.find_child("GalaxyAcknowledge_aeropolis_penhora", true, false) == null, "acknowledging a destination preserves its late-catalog Galaxy context while clearing only the new marker")
+	check(focused_galaxy_scroll != null and scene.galaxy_page_index == 1 and scene.find_child("GalaxyAcknowledge_aeropolis_penhora", true, false) == null, "acknowledging a destination preserves its Galaxy page while clearing only the new marker")
 	state.afk_report = {"minutes": 95, "credits": 380, "scrap": 6, "capped": false}
 	state.last_notice = "SAVE RECUPERADO: progresso válido preservado; registros inconsistentes foram isolados."
 	state.last_notice_context = "system_recovery"

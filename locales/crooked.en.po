@@ -7047,6 +7047,15 @@ msgid "GALAXY_DISTANT_SIGNALS"
 msgstr "%d DISTANT SIGNALS"
 msgid "GALAXY_DISTANT_SIGNALS_HINT"
 msgstr "New routes will be decoded as the hunter license advances."
+
+msgid "GALAXY_PAGE"
+msgstr "ROUTES %d–%d OF %d · PAGE %d/%d"
+
+msgid "GALAXY_PREVIOUS_PAGE"
+msgstr "PREVIOUS ROUTES"
+
+msgid "GALAXY_NEXT_PAGE"
+msgstr "NEXT ROUTES"
 msgid "PLANET_BOLSA_LUAS_FRACIONADAS_NAME"
 msgstr "Fractional Moon Exchange"
 msgid "PLANET_BOLSA_LUAS_FRACIONADAS_SUBTITLE"

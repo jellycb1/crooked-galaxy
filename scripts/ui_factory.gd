@@ -47,6 +47,7 @@ var collection_planet_index := 0
 var collection_scroll_position := 0
 var daily_scroll_position := 0
 var galaxy_scroll_position := 0
+var galaxy_page_index := -1
 var galaxy_focus_planet_id := ""
 var market_refresh_confirmation := false
 var market_selected_offer_index := 0
@@ -89,6 +90,7 @@ func reset_transient_navigation() -> void:
 	collection_scroll_position = 0
 	daily_scroll_position = 0
 	galaxy_scroll_position = 0
+	galaxy_page_index = -1
 	galaxy_focus_planet_id = ""
 	market_refresh_confirmation = false
 	market_selected_offer_index = 0

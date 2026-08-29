@@ -7047,6 +7047,15 @@ msgid "GALAXY_DISTANT_SIGNALS"
 msgstr "%d SINAIS DISTANTES"
 msgid "GALAXY_DISTANT_SIGNALS_HINT"
 msgstr "Novas rotas serão decifradas à medida que a licença de caçador evolui."
+
+msgid "GALAXY_PAGE"
+msgstr "ROTAS %d–%d DE %d · PÁGINA %d/%d"
+
+msgid "GALAXY_PREVIOUS_PAGE"
+msgstr "ROTAS ANTERIORES"
+
+msgid "GALAXY_NEXT_PAGE"
+msgstr "ROTAS SEGUINTES"
 msgid "PLANET_BOLSA_LUAS_FRACIONADAS_NAME"
 msgstr "Bolsa de Luas Fracionadas"
 msgid "PLANET_BOLSA_LUAS_FRACIONADAS_SUBTITLE"

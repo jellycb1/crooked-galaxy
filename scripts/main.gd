@@ -55,6 +55,7 @@ var last_hunt_remaining := -1
 var last_hunt_percent := -1
 const IDLE_BACKGROUND_PREFETCH := ["workshop", "world", "combat"]
 const GALAXY_LOCKED_PREVIEW_COUNT := 2
+const GALAXY_ROUTES_PER_PAGE := 5
 
 
 func _ready() -> void:
@@ -1440,6 +1441,19 @@ func build_galaxy_map() -> void:
 	)
 	transport_row.add_child(open_hangar)
 	content.add_child(transport_status)
+	var visible_planets := galaxy_visible_planets(int(GameState.player.get("level", 1)))
+	var page_count := maxi(1, ceili(float(visible_planets.size()) / float(GALAXY_ROUTES_PER_PAGE)))
+	if not galaxy_focus_planet_id.is_empty():
+		var focus_index := galaxy_planet_index(visible_planets, galaxy_focus_planet_id)
+		if focus_index >= 0:
+			galaxy_page_index = floori(float(focus_index) / float(GALAXY_ROUTES_PER_PAGE))
+	elif galaxy_page_index < 0:
+		var current_index := galaxy_planet_index(visible_planets, str(GameState.player.get("current_planet_id", ContentDB.PLANET.id)))
+		galaxy_page_index = floori(float(maxi(0, current_index)) / float(GALAXY_ROUTES_PER_PAGE))
+	galaxy_page_index = clampi(galaxy_page_index, 0, page_count - 1)
+	var page_start := galaxy_page_index * GALAXY_ROUTES_PER_PAGE
+	var page_end := mini(visible_planets.size(), page_start + GALAXY_ROUTES_PER_PAGE)
+	content.add_child(galaxy_page_navigation(page_start, page_end, visible_planets.size(), page_count))
 	var route_scroll := ScrollContainer.new()
 	route_scroll.name = "GalaxyScroll"
 	route_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -1450,11 +1464,10 @@ func build_galaxy_map() -> void:
 	route.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	route.add_theme_constant_override("separation", 14)
 	route_scroll.add_child(route)
-	var visible_planets := galaxy_visible_planets(int(GameState.player.get("level", 1)))
-	for planet in visible_planets:
+	for planet in visible_planets.slice(page_start, page_end):
 		route.add_child(planet_card(planet))
 	var concealed_count := ContentDB.PLANETS.size() - visible_planets.size()
-	if concealed_count > 0:
+	if concealed_count > 0 and galaxy_page_index == page_count - 1:
 		var distant_signals := panel(VBoxContainer.new(), Color("#0b1228"), 16, 12)
 		distant_signals.name = "GalaxyDistantSignals"
 		var signal_copy := distant_signals.get_child(0) as VBoxContainer
@@ -1471,6 +1484,51 @@ func galaxy_visible_planets(level: int) -> Array:
 	var unlocked_count := MissionRulesScript.available_planet_count(level)
 	var visible_count := mini(ContentDB.PLANETS.size(), unlocked_count + GALAXY_LOCKED_PREVIEW_COUNT)
 	return ContentDB.PLANETS.slice(0, visible_count)
+
+
+func galaxy_planet_index(planets: Array, planet_id: String) -> int:
+	for index in range(planets.size()):
+		if str(planets[index].get("id", "")) == planet_id:
+			return index
+	return -1
+
+
+func galaxy_page_navigation(page_start: int, page_end: int, visible_count: int, page_count: int) -> PanelContainer:
+	var navigation := panel(HBoxContainer.new(), Color("#142541"), 12, 10)
+	navigation.name = "GalaxyPageNavigation"
+	var row := navigation.get_child(0) as HBoxContainer
+	row.add_theme_constant_override("separation", 8)
+	var previous := secondary_action("‹", CYAN)
+	previous.name = "GalaxyPagePrevious"
+	previous.custom_minimum_size = Vector2(UIDesignSystem.TOUCH_TARGET_MIN, UIDesignSystem.TOUCH_TARGET_MIN)
+	previous.disabled = galaxy_page_index <= 0
+	previous.tooltip_text = t("GALAXY_PREVIOUS_PAGE", "ROTAS ANTERIORES")
+	previous.pressed.connect(func(): change_galaxy_page(-1, page_count))
+	row.add_child(previous)
+	var range_label := label(t("GALAXY_PAGE", "ROTAS %d–%d DE %d · PÁGINA %d/%d", [page_start + 1, page_end, visible_count, galaxy_page_index + 1, page_count]), UIDesignSystem.FONT_CAPTION, MUTED, HORIZONTAL_ALIGNMENT_CENTER)
+	range_label.name = "GalaxyPageRange"
+	range_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	range_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	range_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	row.add_child(range_label)
+	var next := secondary_action("›", CYAN)
+	next.name = "GalaxyPageNext"
+	next.custom_minimum_size = Vector2(UIDesignSystem.TOUCH_TARGET_MIN, UIDesignSystem.TOUCH_TARGET_MIN)
+	next.disabled = galaxy_page_index >= page_count - 1
+	next.tooltip_text = t("GALAXY_NEXT_PAGE", "ROTAS SEGUINTES")
+	next.pressed.connect(func(): change_galaxy_page(1, page_count))
+	row.add_child(next)
+	return navigation
+
+
+func change_galaxy_page(direction: int, page_count: int) -> void:
+	var next_page := clampi(galaxy_page_index + direction, 0, maxi(0, page_count - 1))
+	if next_page == galaxy_page_index:
+		return
+	galaxy_page_index = next_page
+	galaxy_scroll_position = 0
+	galaxy_focus_planet_id = ""
+	render()
 
 
 func focus_galaxy_planet(expected_generation: int, planet_id: String, final_pass: bool) -> void:
