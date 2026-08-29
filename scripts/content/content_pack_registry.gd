@@ -32,8 +32,9 @@ const CartorioUltimoHorizonte = preload("res://scripts/content/packs/cartorio_ul
 const UniversidadeVilaniaCorrespondencia = preload("res://scripts/content/packs/universidade_vilania_correspondencia.gd")
 const AgenciaDeusesReformados = preload("res://scripts/content/packs/agencia_deuses_reformados.gd")
 const ReservaEspeciesImpossiveis = preload("res://scripts/content/packs/reserva_especies_impossiveis.gd")
+const OficinaRealidadesDefeituosas = preload("res://scripts/content/packs/oficina_realidades_defeituosas.gd")
 
-const PACK_SCRIPTS := [DustballPrime, Congelaria, Micelia404, FerroVelhoOmega, CassinoQuasar, AeropolisPenhora, ArquivoAbissalN9, VerdantiaPatenteada, CaldeiraGarantia, CondominioLunar7, NecropoleSolarUmbral, CentralTempestades24h, MuseuAmanhaObsoleto, BibliotecaSilencioTaxado, ResortHorizonteEventos, TribunalClonesNaoAutorizados, MosteiroGravidadeReversa, MercadoMemoriasUsadas, EstaleiroNaufragiosTemporais, BolsaLuasFracionadas, FabricaSoisRecondicionados, ClinicaPlanetasDescontinuados, CorreioBuracosMinhoca, AquarioOceanosConfiscados, CentralSonhosPenhorados, CanilAsteroidesDomesticos, CartorioUltimoHorizonte, UniversidadeVilaniaCorrespondencia, AgenciaDeusesReformados, ReservaEspeciesImpossiveis]
+const PACK_SCRIPTS := [DustballPrime, Congelaria, Micelia404, FerroVelhoOmega, CassinoQuasar, AeropolisPenhora, ArquivoAbissalN9, VerdantiaPatenteada, CaldeiraGarantia, CondominioLunar7, NecropoleSolarUmbral, CentralTempestades24h, MuseuAmanhaObsoleto, BibliotecaSilencioTaxado, ResortHorizonteEventos, TribunalClonesNaoAutorizados, MosteiroGravidadeReversa, MercadoMemoriasUsadas, EstaleiroNaufragiosTemporais, BolsaLuasFracionadas, FabricaSoisRecondicionados, ClinicaPlanetasDescontinuados, CorreioBuracosMinhoca, AquarioOceanosConfiscados, CentralSonhosPenhorados, CanilAsteroidesDomesticos, CartorioUltimoHorizonte, UniversidadeVilaniaCorrespondencia, AgenciaDeusesReformados, ReservaEspeciesImpossiveis, OficinaRealidadesDefeituosas]
 
 # This registry owns the deterministic public composition order. ContentDB
 # remains the stable facade consumed by gameplay, saves and tests.
@@ -69,9 +70,10 @@ const PLANETS := [
 	UniversidadeVilaniaCorrespondencia.PLANET,
 	AgenciaDeusesReformados.PLANET,
 	ReservaEspeciesImpossiveis.PLANET,
+	OficinaRealidadesDefeituosas.PLANET,
 ]
-const TARGETS := DustballPrime.TARGETS + Congelaria.TARGETS + Micelia404.TARGETS + FerroVelhoOmega.TARGETS + CassinoQuasar.TARGETS + AeropolisPenhora.TARGETS + ArquivoAbissalN9.TARGETS + VerdantiaPatenteada.TARGETS + CaldeiraGarantia.TARGETS + CondominioLunar7.TARGETS + NecropoleSolarUmbral.TARGETS + CentralTempestades24h.TARGETS + MuseuAmanhaObsoleto.TARGETS + BibliotecaSilencioTaxado.TARGETS + ResortHorizonteEventos.TARGETS + TribunalClonesNaoAutorizados.TARGETS + MosteiroGravidadeReversa.TARGETS + MercadoMemoriasUsadas.TARGETS + EstaleiroNaufragiosTemporais.TARGETS + BolsaLuasFracionadas.TARGETS + FabricaSoisRecondicionados.TARGETS + ClinicaPlanetasDescontinuados.TARGETS + CorreioBuracosMinhoca.TARGETS + AquarioOceanosConfiscados.TARGETS + CentralSonhosPenhorados.TARGETS + CanilAsteroidesDomesticos.TARGETS + CartorioUltimoHorizonte.TARGETS + UniversidadeVilaniaCorrespondencia.TARGETS + AgenciaDeusesReformados.TARGETS + ReservaEspeciesImpossiveis.TARGETS
-const HUNT_EVENTS := DustballPrime.EVENTS + Congelaria.EVENTS + Micelia404.EVENTS + FerroVelhoOmega.EVENTS + CassinoQuasar.EVENTS + AeropolisPenhora.EVENTS + ArquivoAbissalN9.EVENTS + VerdantiaPatenteada.EVENTS + CaldeiraGarantia.EVENTS + CondominioLunar7.EVENTS + NecropoleSolarUmbral.EVENTS + CentralTempestades24h.EVENTS + MuseuAmanhaObsoleto.EVENTS + BibliotecaSilencioTaxado.EVENTS + ResortHorizonteEventos.EVENTS + TribunalClonesNaoAutorizados.EVENTS + MosteiroGravidadeReversa.EVENTS + MercadoMemoriasUsadas.EVENTS + EstaleiroNaufragiosTemporais.EVENTS + BolsaLuasFracionadas.EVENTS + FabricaSoisRecondicionados.EVENTS + ClinicaPlanetasDescontinuados.EVENTS + CorreioBuracosMinhoca.EVENTS + AquarioOceanosConfiscados.EVENTS + CentralSonhosPenhorados.EVENTS + CanilAsteroidesDomesticos.EVENTS + CartorioUltimoHorizonte.EVENTS + UniversidadeVilaniaCorrespondencia.EVENTS + AgenciaDeusesReformados.EVENTS + ReservaEspeciesImpossiveis.EVENTS
+const TARGETS := DustballPrime.TARGETS + Congelaria.TARGETS + Micelia404.TARGETS + FerroVelhoOmega.TARGETS + CassinoQuasar.TARGETS + AeropolisPenhora.TARGETS + ArquivoAbissalN9.TARGETS + VerdantiaPatenteada.TARGETS + CaldeiraGarantia.TARGETS + CondominioLunar7.TARGETS + NecropoleSolarUmbral.TARGETS + CentralTempestades24h.TARGETS + MuseuAmanhaObsoleto.TARGETS + BibliotecaSilencioTaxado.TARGETS + ResortHorizonteEventos.TARGETS + TribunalClonesNaoAutorizados.TARGETS + MosteiroGravidadeReversa.TARGETS + MercadoMemoriasUsadas.TARGETS + EstaleiroNaufragiosTemporais.TARGETS + BolsaLuasFracionadas.TARGETS + FabricaSoisRecondicionados.TARGETS + ClinicaPlanetasDescontinuados.TARGETS + CorreioBuracosMinhoca.TARGETS + AquarioOceanosConfiscados.TARGETS + CentralSonhosPenhorados.TARGETS + CanilAsteroidesDomesticos.TARGETS + CartorioUltimoHorizonte.TARGETS + UniversidadeVilaniaCorrespondencia.TARGETS + AgenciaDeusesReformados.TARGETS + ReservaEspeciesImpossiveis.TARGETS + OficinaRealidadesDefeituosas.TARGETS
+const HUNT_EVENTS := DustballPrime.EVENTS + Congelaria.EVENTS + Micelia404.EVENTS + FerroVelhoOmega.EVENTS + CassinoQuasar.EVENTS + AeropolisPenhora.EVENTS + ArquivoAbissalN9.EVENTS + VerdantiaPatenteada.EVENTS + CaldeiraGarantia.EVENTS + CondominioLunar7.EVENTS + NecropoleSolarUmbral.EVENTS + CentralTempestades24h.EVENTS + MuseuAmanhaObsoleto.EVENTS + BibliotecaSilencioTaxado.EVENTS + ResortHorizonteEventos.EVENTS + TribunalClonesNaoAutorizados.EVENTS + MosteiroGravidadeReversa.EVENTS + MercadoMemoriasUsadas.EVENTS + EstaleiroNaufragiosTemporais.EVENTS + BolsaLuasFracionadas.EVENTS + FabricaSoisRecondicionados.EVENTS + ClinicaPlanetasDescontinuados.EVENTS + CorreioBuracosMinhoca.EVENTS + AquarioOceanosConfiscados.EVENTS + CentralSonhosPenhorados.EVENTS + CanilAsteroidesDomesticos.EVENTS + CartorioUltimoHorizonte.EVENTS + UniversidadeVilaniaCorrespondencia.EVENTS + AgenciaDeusesReformados.EVENTS + ReservaEspeciesImpossiveis.EVENTS + OficinaRealidadesDefeituosas.EVENTS
 const STARTER_ITEM_CATALOG := DustballPrime.ITEMS
 const PLANET_ITEM_CATALOGS := {
 	"congelaria_sa": Congelaria.ITEMS,
@@ -103,6 +105,7 @@ const PLANET_ITEM_CATALOGS := {
 	"universidade_vilania_correspondencia": UniversidadeVilaniaCorrespondencia.ITEMS,
 	"agencia_deuses_reformados": AgenciaDeusesReformados.ITEMS,
 	"reserva_especies_impossiveis": ReservaEspeciesImpossiveis.ITEMS,
+	"oficina_realidades_defeituosas": OficinaRealidadesDefeituosas.ITEMS,
 }
 const SECONDARY_ITEM_CATALOGS := {
 	"congelaria_sa": Congelaria.SECONDARY_ITEMS,
@@ -134,6 +137,7 @@ const SECONDARY_ITEM_CATALOGS := {
 	"universidade_vilania_correspondencia": UniversidadeVilaniaCorrespondencia.SECONDARY_ITEMS,
 	"agencia_deuses_reformados": AgenciaDeusesReformados.SECONDARY_ITEMS,
 	"reserva_especies_impossiveis": ReservaEspeciesImpossiveis.SECONDARY_ITEMS,
+	"oficina_realidades_defeituosas": OficinaRealidadesDefeituosas.SECONDARY_ITEMS,
 }
 
 
