@@ -62,7 +62,7 @@ foreach ($RpcName in @("cg_clock", "cg_session", "cg_character_get", "cg_charact
         throw "Required authoritative RPC is missing: $RpcName"
     }
 }
-foreach ($AuthorityGuard in @('permissionWrite: 0', 'version: "*"', 'payload.length > 4096', 'Object.keys(change).length !== 2', 'credits: 25', 'xp: 0')) {
+foreach ($AuthorityGuard in @('permissionWrite: 0', 'version: "*"', 'payload.length > 4096', 'validStoredCharacter', 'Object.keys(change).length !== 2', 'credits: 25', 'xp: 0')) {
     if (-not $RuntimeSource.Contains($AuthorityGuard)) {
         throw "Character authority guard is missing: $AuthorityGuard"
     }

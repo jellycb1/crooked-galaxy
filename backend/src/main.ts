@@ -63,7 +63,19 @@ function readCharacter(nk: nkruntime.Nakama, userId: string): nkruntime.StorageO
   return objects.length === 1 ? objects[0] : null;
 }
 
-function snapshot(value: StoredCharacter): {[key: string]: any} {
+function validNonnegativeInteger(value: any): boolean {
+  return typeof value === "number" && value >= 0 && Math.floor(value) === value;
+}
+
+function validStoredCharacter(value: any, expectedUserId: string): boolean {
+  if (!value || typeof value !== "object" || value.api_version !== CG_API_VERSION || value.account_id !== expectedUserId || value.character_id !== expectedUserId || value.shard_id !== CG_SHARD_ID || !validNonnegativeInteger(value.revision)) return false;
+  const profile = value.profile;
+  if (!profile || typeof profile !== "object" || Object.keys(profile).length !== 10 || profile.character_id !== expectedUserId || !validHunterName(profile.hunter_name) || !CLASS_IDS[profile.class_id] || !SPECIES_IDS[profile.species_id] || !canonicalAppearance(profile.appearance)) return false;
+  return validNonnegativeInteger(profile.level) && profile.level >= 1 && validNonnegativeInteger(profile.xp) && validNonnegativeInteger(profile.credits) && validNonnegativeInteger(profile.warp_chips) && validNonnegativeInteger(profile.scrap);
+}
+
+function snapshot(value: StoredCharacter, expectedUserId: string): {[key: string]: any} {
+  if (!validStoredCharacter(value, expectedUserId)) throw Error("Stored character failed integrity validation.");
   return {api_version: CG_API_VERSION, authority: "server", shard_id: CG_SHARD_ID, account_id: value.account_id,
     character_id: value.character_id, revision: value.revision, server_unix_ms: Date.now(), profile: value.profile};
 }
@@ -78,7 +90,7 @@ function rpcCharacterGet(context: nkruntime.Context, _logger: nkruntime.Logger, 
   const userId = requireUser(context);
   const object = readCharacter(nk, userId);
   if (!object) return JSON.stringify({api_version: CG_API_VERSION, authority: "server", shard_id: CG_SHARD_ID, account_id: userId, exists: false, server_unix_ms: Date.now()});
-  return JSON.stringify(snapshot(object.value as StoredCharacter));
+  return JSON.stringify(snapshot(object.value as StoredCharacter, userId));
 }
 
 function rpcSessionSummary(context: nkruntime.Context, _logger: nkruntime.Logger, nk: nkruntime.Nakama, _payload: string): string {
@@ -118,7 +130,7 @@ function rpcCharacterCreate(context: nkruntime.Context, logger: nkruntime.Logger
     if (receipt.operation !== "character_create" || receipt.fingerprint !== fingerprint) throw Error("Idempotency key was already used for another command.");
     const existing = readCharacter(nk, userId);
     if (!existing) throw Error("Character receipt exists without character state.");
-    const replay = snapshot(existing.value as StoredCharacter);
+    const replay = snapshot(existing.value as StoredCharacter, userId);
     replay.created = false; replay.idempotent_replay = true;
     return JSON.stringify(replay);
   }
@@ -128,12 +140,26 @@ function rpcCharacterCreate(context: nkruntime.Context, logger: nkruntime.Logger
     profile: {character_id: userId, hunter_name: request.hunter_name, class_id: request.class_id, species_id: request.species_id,
       appearance: appearance, level: 1, xp: 0, credits: 25, warp_chips: 0, scrap: 0}
   };
-  nk.multiUpdate(null, [
-    {collection: CHARACTER_COLLECTION, key: CHARACTER_KEY, userId: userId, value: value, version: "*", permissionRead: 0, permissionWrite: 0},
-    {collection: RECEIPT_COLLECTION, key: idempotencyKey, userId: userId, value: {operation: "character_create", fingerprint: fingerprint}, version: "*", permissionRead: 0, permissionWrite: 0}
-  ], null, null);
+  try {
+    nk.multiUpdate(null, [
+      {collection: CHARACTER_COLLECTION, key: CHARACTER_KEY, userId: userId, value: value, version: "*", permissionRead: 0, permissionWrite: 0},
+      {collection: RECEIPT_COLLECTION, key: idempotencyKey, userId: userId, value: {operation: "character_create", fingerprint: fingerprint}, version: "*", permissionRead: 0, permissionWrite: 0}
+    ], null, null);
+  } catch (_error) {
+    const racedReceipts = nk.storageRead([{collection: RECEIPT_COLLECTION, key: idempotencyKey, userId: userId}]);
+    const racedCharacter = readCharacter(nk, userId);
+    if (racedReceipts.length === 1 && racedCharacter) {
+      const racedReceipt = racedReceipts[0].value as {[key: string]: any};
+      if (racedReceipt.operation === "character_create" && racedReceipt.fingerprint === fingerprint) {
+        const replay = snapshot(racedCharacter.value as StoredCharacter, userId);
+        replay.created = false; replay.idempotent_replay = true;
+        return JSON.stringify(replay);
+      }
+    }
+    throw Error("Character creation conflict.");
+  }
   logger.info("Created authoritative launch character for account %s.", userId);
-  const response = snapshot(value); response.created = true; response.idempotent_replay = false;
+  const response = snapshot(value, userId); response.created = true; response.idempotent_replay = false;
   return JSON.stringify(response);
 }
 
@@ -141,7 +167,7 @@ function commitReceipt(request: {[key: string]: any}, userId: string, status: st
   const response: {[key: string]: any} = {api_version: CG_API_VERSION, authority: "server", command_id: request.command_id,
     idempotency_key: request.idempotency_key, operation: "profile_commit", shard_id: CG_SHARD_ID, character_id: userId,
     status: status, server_revision: revision, server_unix_ms: Date.now(), reason_code: reason};
-  if (state) response.snapshot = snapshot(state);
+  if (state) response.snapshot = snapshot(state, userId);
   return response;
 }
 
@@ -152,6 +178,7 @@ function rpcCharacterCommit(context: nkruntime.Context, logger: nkruntime.Logger
   const object = readCharacter(nk, userId);
   if (!object) return JSON.stringify(commitReceipt(request, userId, "rejected", 0, "character_missing"));
   const current = object.value as StoredCharacter;
+  if (!validStoredCharacter(current, userId)) throw Error("Stored character failed integrity validation.");
   const change = request.payload;
   const appearance = change && canonicalAppearance(change.appearance);
   if (!change || typeof change !== "object" || !validHunterName(change.hunter_name) || !appearance || Object.keys(change).length !== 2) return JSON.stringify(commitReceipt(request, userId, "rejected", current.revision, "invalid_profile_change", current));
@@ -173,6 +200,11 @@ function rpcCharacterCommit(context: nkruntime.Context, logger: nkruntime.Logger
   } catch (_error) {
     const latest = readCharacter(nk, userId);
     if (!latest) throw Error("Character disappeared during commit.");
+    const racedReceipts = nk.storageRead([{collection: RECEIPT_COLLECTION, key: request.idempotency_key, userId: userId}]);
+    if (racedReceipts.length === 1) {
+      const racedReceipt = racedReceipts[0].value as {[key: string]: any};
+      if (racedReceipt.operation === "profile_commit" && racedReceipt.fingerprint === fingerprint) return JSON.stringify(commitReceipt(request, userId, "duplicate", racedReceipt.server_revision, "", latest.value as StoredCharacter));
+    }
     return JSON.stringify(commitReceipt(request, userId, "conflict", (latest.value as StoredCharacter).revision, "revision_conflict", latest.value as StoredCharacter));
   }
   logger.info("Committed character profile revision %d for account %s.", updated.revision, userId);

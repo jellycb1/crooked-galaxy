@@ -143,4 +143,38 @@ if ([int]$Final.revision -ne 1 -or [int]$Final.profile.credits -ne 25 -or [strin
     throw "Final authoritative snapshot changed after rejected or conflicting commands."
 }
 
-Write-Host "PASS: local Nakama auth, UTC, owned character creation, idempotency, conflict handling, and progression forgery rejection are valid."
+# Exercise real concurrent writes against a second fresh account. Both callers
+# use the exact same command identity, as a mobile retry may after a timeout.
+$RaceDeviceId = "cg-race-smoke-$RunId"
+$RaceUsername = "race_$($RunId.Substring(0, 20))"
+$RaceAuthUri = "http://127.0.0.1:7350/v2/account/authenticate/device?create=true&username=$RaceUsername"
+$RaceSession = Invoke-RestMethod -Method Post -Uri $RaceAuthUri -Headers $AuthHeaders -ContentType "application/json" -Body (@{ id = $RaceDeviceId } | ConvertTo-Json -Compress)
+$RaceHeaders = @{ Authorization = "Bearer $($RaceSession.token)" }
+$RaceCreateInner = @{
+    idempotency_key = "race-create-$RunId"; hunter_name = "Race Trace"; class_id = "warrant_breaker"; species_id = "mothari"; appearance = $Appearance
+} | ConvertTo-Json -Depth 10 -Compress
+$RaceCreateBody = ConvertTo-Json -InputObject $RaceCreateInner -Compress
+$RaceCreates = @(1..2 | ForEach-Object -Parallel {
+    $Envelope = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:7350/v2/rpc/cg_character_create" -Headers $using:RaceHeaders -ContentType "application/json" -Body $using:RaceCreateBody
+    return [string]$Envelope.payload | ConvertFrom-Json
+} -ThrottleLimit 2)
+if ($RaceCreates.Count -ne 2 -or @($RaceCreates | Where-Object { $_.revision -eq 0 }).Count -ne 2 -or @($RaceCreates | Where-Object { $_.idempotent_replay -eq $true }).Count -ne 1) {
+    throw "Concurrent identical creation did not resolve to one creation and one idempotent replay."
+}
+$RaceAccountId = [string]$RaceCreates[0].account_id
+$RaceCommandInner = @{
+    api_version = 1; command_id = "race-commit-$RunId"; idempotency_key = "race-receipt-$RunId"; operation = "profile_commit"
+    session_id = $RaceAccountId; shard_id = "international_1"; character_id = $RaceAccountId; expected_revision = 0
+    payload = @{ hunter_name = "Race Vector"; appearance = @{ palette = "warm"; eyes = "wide"; feature = "subtle"; marking = "spots" } }
+} | ConvertTo-Json -Depth 10 -Compress
+$RaceCommandBody = ConvertTo-Json -InputObject $RaceCommandInner -Compress
+$RaceCommits = @(1..2 | ForEach-Object -Parallel {
+    $Envelope = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:7350/v2/rpc/cg_character_commit" -Headers $using:RaceHeaders -ContentType "application/json" -Body $using:RaceCommandBody
+    return [string]$Envelope.payload | ConvertFrom-Json
+} -ThrottleLimit 2)
+$RaceStatuses = @($RaceCommits | ForEach-Object { [string]$_.status })
+if ($RaceCommits.Count -ne 2 -or -not $RaceStatuses.Contains("accepted") -or -not $RaceStatuses.Contains("duplicate") -or @($RaceCommits | Where-Object { $_.server_revision -eq 1 }).Count -ne 2) {
+    throw "Concurrent identical commit did not resolve to one acceptance and one duplicate receipt."
+}
+
+Write-Host "PASS: local Nakama auth/session, UTC, owned character authority, concurrent idempotency, conflicts, and progression forgery rejection are valid."
