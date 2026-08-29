@@ -22,8 +22,9 @@ const MosteiroGravidadeReversa = preload("res://scripts/content/packs/mosteiro_g
 const MercadoMemoriasUsadas = preload("res://scripts/content/packs/mercado_memorias_usadas.gd")
 const EstaleiroNaufragiosTemporais = preload("res://scripts/content/packs/estaleiro_naufragios_temporais.gd")
 const BolsaLuasFracionadas = preload("res://scripts/content/packs/bolsa_luas_fracionadas.gd")
+const FabricaSoisRecondicionados = preload("res://scripts/content/packs/fabrica_sois_recondicionados.gd")
 
-const PACK_SCRIPTS := [DustballPrime, Congelaria, Micelia404, FerroVelhoOmega, CassinoQuasar, AeropolisPenhora, ArquivoAbissalN9, VerdantiaPatenteada, CaldeiraGarantia, CondominioLunar7, NecropoleSolarUmbral, CentralTempestades24h, MuseuAmanhaObsoleto, BibliotecaSilencioTaxado, ResortHorizonteEventos, TribunalClonesNaoAutorizados, MosteiroGravidadeReversa, MercadoMemoriasUsadas, EstaleiroNaufragiosTemporais, BolsaLuasFracionadas]
+const PACK_SCRIPTS := [DustballPrime, Congelaria, Micelia404, FerroVelhoOmega, CassinoQuasar, AeropolisPenhora, ArquivoAbissalN9, VerdantiaPatenteada, CaldeiraGarantia, CondominioLunar7, NecropoleSolarUmbral, CentralTempestades24h, MuseuAmanhaObsoleto, BibliotecaSilencioTaxado, ResortHorizonteEventos, TribunalClonesNaoAutorizados, MosteiroGravidadeReversa, MercadoMemoriasUsadas, EstaleiroNaufragiosTemporais, BolsaLuasFracionadas, FabricaSoisRecondicionados]
 
 # This registry owns the deterministic public composition order. ContentDB
 # remains the stable facade consumed by gameplay, saves and tests.
@@ -49,9 +50,10 @@ const PLANETS := [
 	MercadoMemoriasUsadas.PLANET,
 	EstaleiroNaufragiosTemporais.PLANET,
 	BolsaLuasFracionadas.PLANET,
+	FabricaSoisRecondicionados.PLANET,
 ]
-const TARGETS := DustballPrime.TARGETS + Congelaria.TARGETS + Micelia404.TARGETS + FerroVelhoOmega.TARGETS + CassinoQuasar.TARGETS + AeropolisPenhora.TARGETS + ArquivoAbissalN9.TARGETS + VerdantiaPatenteada.TARGETS + CaldeiraGarantia.TARGETS + CondominioLunar7.TARGETS + NecropoleSolarUmbral.TARGETS + CentralTempestades24h.TARGETS + MuseuAmanhaObsoleto.TARGETS + BibliotecaSilencioTaxado.TARGETS + ResortHorizonteEventos.TARGETS + TribunalClonesNaoAutorizados.TARGETS + MosteiroGravidadeReversa.TARGETS + MercadoMemoriasUsadas.TARGETS + EstaleiroNaufragiosTemporais.TARGETS + BolsaLuasFracionadas.TARGETS
-const HUNT_EVENTS := DustballPrime.EVENTS + Congelaria.EVENTS + Micelia404.EVENTS + FerroVelhoOmega.EVENTS + CassinoQuasar.EVENTS + AeropolisPenhora.EVENTS + ArquivoAbissalN9.EVENTS + VerdantiaPatenteada.EVENTS + CaldeiraGarantia.EVENTS + CondominioLunar7.EVENTS + NecropoleSolarUmbral.EVENTS + CentralTempestades24h.EVENTS + MuseuAmanhaObsoleto.EVENTS + BibliotecaSilencioTaxado.EVENTS + ResortHorizonteEventos.EVENTS + TribunalClonesNaoAutorizados.EVENTS + MosteiroGravidadeReversa.EVENTS + MercadoMemoriasUsadas.EVENTS + EstaleiroNaufragiosTemporais.EVENTS + BolsaLuasFracionadas.EVENTS
+const TARGETS := DustballPrime.TARGETS + Congelaria.TARGETS + Micelia404.TARGETS + FerroVelhoOmega.TARGETS + CassinoQuasar.TARGETS + AeropolisPenhora.TARGETS + ArquivoAbissalN9.TARGETS + VerdantiaPatenteada.TARGETS + CaldeiraGarantia.TARGETS + CondominioLunar7.TARGETS + NecropoleSolarUmbral.TARGETS + CentralTempestades24h.TARGETS + MuseuAmanhaObsoleto.TARGETS + BibliotecaSilencioTaxado.TARGETS + ResortHorizonteEventos.TARGETS + TribunalClonesNaoAutorizados.TARGETS + MosteiroGravidadeReversa.TARGETS + MercadoMemoriasUsadas.TARGETS + EstaleiroNaufragiosTemporais.TARGETS + BolsaLuasFracionadas.TARGETS + FabricaSoisRecondicionados.TARGETS
+const HUNT_EVENTS := DustballPrime.EVENTS + Congelaria.EVENTS + Micelia404.EVENTS + FerroVelhoOmega.EVENTS + CassinoQuasar.EVENTS + AeropolisPenhora.EVENTS + ArquivoAbissalN9.EVENTS + VerdantiaPatenteada.EVENTS + CaldeiraGarantia.EVENTS + CondominioLunar7.EVENTS + NecropoleSolarUmbral.EVENTS + CentralTempestades24h.EVENTS + MuseuAmanhaObsoleto.EVENTS + BibliotecaSilencioTaxado.EVENTS + ResortHorizonteEventos.EVENTS + TribunalClonesNaoAutorizados.EVENTS + MosteiroGravidadeReversa.EVENTS + MercadoMemoriasUsadas.EVENTS + EstaleiroNaufragiosTemporais.EVENTS + BolsaLuasFracionadas.EVENTS + FabricaSoisRecondicionados.EVENTS
 const STARTER_ITEM_CATALOG := DustballPrime.ITEMS
 const PLANET_ITEM_CATALOGS := {
 	"congelaria_sa": Congelaria.ITEMS,
@@ -73,6 +75,7 @@ const PLANET_ITEM_CATALOGS := {
 	"mercado_memorias_usadas": MercadoMemoriasUsadas.ITEMS,
 	"estaleiro_naufragios_temporais": EstaleiroNaufragiosTemporais.ITEMS,
 	"bolsa_luas_fracionadas": BolsaLuasFracionadas.ITEMS,
+	"fabrica_sois_recondicionados": FabricaSoisRecondicionados.ITEMS,
 }
 const SECONDARY_ITEM_CATALOGS := {
 	"congelaria_sa": Congelaria.SECONDARY_ITEMS,
@@ -94,6 +97,7 @@ const SECONDARY_ITEM_CATALOGS := {
 	"mercado_memorias_usadas": MercadoMemoriasUsadas.SECONDARY_ITEMS,
 	"estaleiro_naufragios_temporais": EstaleiroNaufragiosTemporais.SECONDARY_ITEMS,
 	"bolsa_luas_fracionadas": BolsaLuasFracionadas.SECONDARY_ITEMS,
+	"fabrica_sois_recondicionados": FabricaSoisRecondicionados.SECONDARY_ITEMS,
 }
 
 

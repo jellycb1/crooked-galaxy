@@ -23,16 +23,17 @@ const MosteiroGravidade = preload("res://scripts/content/packs/mosteiro_gravidad
 const MercadoMemorias = preload("res://scripts/content/packs/mercado_memorias_usadas.gd")
 const EstaleiroTemporal = preload("res://scripts/content/packs/estaleiro_naufragios_temporais.gd")
 const BolsaLuas = preload("res://scripts/content/packs/bolsa_luas_fracionadas.gd")
+const FabricaSois = preload("res://scripts/content/packs/fabrica_sois_recondicionados.gd")
 
 var failures := 0
 
 
 func _init() -> void:
 	check(Registry.validation_errors().is_empty(), "registered planet packs satisfy the complete content contract")
-	check(Registry.PACK_SCRIPTS.size() == 20, "the registry contains all twenty current canonical planet packs")
-	check(Registry.PLANETS.size() == 20, "the registry composes all twenty planets")
-	check(Registry.TARGETS.size() == 80, "the registry composes all 80 targets")
-	check(Registry.HUNT_EVENTS.size() == 40, "the registry composes all 40 hunt incidents")
+	check(Registry.PACK_SCRIPTS.size() == 21, "the registry contains all twenty-one current canonical planet packs")
+	check(Registry.PLANETS.size() == 21, "the registry composes all twenty-one planets")
+	check(Registry.TARGETS.size() == 84, "the registry composes all 84 targets")
+	check(Registry.HUNT_EVENTS.size() == 42, "the registry composes all 42 hunt incidents")
 	check(Registry.pack_for_planet("dustball_prime") == Dustball.PACK, "registry resolves the canonical Dustball pack")
 	check(Registry.pack_for_planet("congelaria_sa") == Congelaria.PACK, "registry resolves the canonical Congelaria pack")
 	check(Registry.pack_for_planet("micelia_404") == Micelia.PACK, "registry resolves the canonical Micelia pack")
@@ -53,6 +54,7 @@ func _init() -> void:
 	check(Registry.pack_for_planet("mercado_memorias_usadas") == MercadoMemorias.PACK, "registry resolves the canonical Used Memory Market pack")
 	check(Registry.pack_for_planet("estaleiro_naufragios_temporais") == EstaleiroTemporal.PACK, "registry resolves the canonical Temporal Wreck Shipyard pack")
 	check(Registry.pack_for_planet("bolsa_luas_fracionadas") == BolsaLuas.PACK, "registry resolves the canonical Fractional Moon Exchange pack")
+	check(Registry.pack_for_planet("fabrica_sois_recondicionados") == FabricaSois.PACK, "registry resolves the canonical Refurbished Sun Factory pack")
 	check(Registry.pack_for_planet("unknown").is_empty(), "unknown planet packs fail closed")
 	var detached := Registry.pack_for_planet("dustball_prime")
 	detached.planet.name = "MUTATED"
@@ -227,6 +229,14 @@ func _init() -> void:
 	check(Content.loot_slots_for_planet("bolsa_luas_fracionadas").count("helmet") == 2, "level-170 loot deepens the universal helmet slot")
 	check([BolsaLuas.TARGETS[0].power, BolsaLuas.TARGETS[3].power] == [1388, 1522], "level-170 combat anchors are explicit")
 	check(BolsaLuas.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Fractional Moon Exchange target art remains explicitly assigned to the user asset pipeline")
+	check(Content.PLANETS[20] == FabricaSois.PLANET, "the level-180 planet follows Fractional Moon Exchange in canonical order")
+	check(Content.TARGETS.slice(80, 84) == FabricaSois.TARGETS, "ContentDB exposes all four Refurbished Sun Factory targets")
+	check(Content.HUNT_EVENTS.slice(40, 42) == FabricaSois.EVENTS, "ContentDB exposes both Refurbished Sun Factory incidents")
+	check(Content.PLANET_ITEM_CATALOGS.fabrica_sois_recondicionados == FabricaSois.ITEMS, "Refurbished Sun Factory primary equipment remains canonical")
+	check(Content.SECONDARY_ITEM_CATALOGS.fabrica_sois_recondicionados == FabricaSois.SECONDARY_ITEMS, "Refurbished Sun Factory rig catalog remains canonical")
+	check(Content.loot_slots_for_planet("fabrica_sois_recondicionados").count("rig") == 2, "level-180 loot deepens the universal rig slot")
+	check([FabricaSois.TARGETS[0].power, FabricaSois.TARGETS[3].power] == [1557, 1702], "level-180 combat anchors are explicit")
+	check(FabricaSois.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Refurbished Sun Factory target art remains explicitly assigned to the user asset pipeline")
 
 	var forged := Dustball.PACK.duplicate(true)
 	forged.targets.pop_back()
@@ -249,7 +259,7 @@ func _init() -> void:
 	check(not PackContract.is_valid(forged), "planet bosses are reserved for tier three")
 
 	if failures == 0:
-		print("PASS: all twenty current planet packs preserve canonical content and slot progression")
+		print("PASS: all twenty-one current planet packs preserve canonical content and slot progression")
 	quit(1 if failures > 0 else 0)
 
 
