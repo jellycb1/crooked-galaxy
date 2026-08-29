@@ -89,7 +89,7 @@ func _init() -> void:
 	check(ContentDB.procedural_collection_ids().size() >= 100 and ContentDB.procedural_collection_ids().all(func(id): return str(id).contains("::")), "finite template families expose a bounded multi-variant collection catalog")
 	check(ContentDB.procedural_collection_entries().size() * 5 == ContentDB.procedural_collection_ids().size(), "every collectible template exposes exactly the five canonical series variants")
 	check(ContentDB.procedural_collection_total() == ContentDB.procedural_collection_ids().size(), "hot collection counts avoid rebuilding or exposing the canonical identifier cache")
-	check(ContentDB.procedural_collection_total() == 1820, "twenty-nine authored planet packs expose the documented bounded 1820-series catalog")
+	check(ContentDB.procedural_collection_total() == 1880, "thirty authored planet packs expose the documented bounded 1880-series catalog")
 	check(int(premium_omega_loot.power) == int(canonical_omega_loot.power), "contract danger does not inflate the dropped equipment tier")
 	check(str(ContentDB.target_for_planet_tier("dustball_prime", 1).id) == "baron_boom", "planet tier resolves the next warrant deterministically")
 	check(ContentDB.planet_tier_from_target_captures("dustball_prime", {"gloop": 9}) == 1, "farming the first warrant cannot skip sequential tiers")
@@ -221,6 +221,10 @@ func _init() -> void:
 	gods_rng.seed = 2600260
 	var gods_gloves := ContentDB.generate_loot(ContentDB.TARGETS[112], gods_rng, 3, "gloves")
 	check(str(gods_gloves.slot) == "gloves" and str(gods_gloves.origin_planet_id) == "agencia_deuses_reformados", "the level-260 pack produces canonical themed glove equipment")
+	var reserve_rng := RandomNumberGenerator.new()
+	reserve_rng.seed = 2700270
+	var reserve_helmet := ContentDB.generate_loot(ContentDB.TARGETS[116], reserve_rng, 3, "helmet")
+	check(str(reserve_helmet.slot) == "helmet" and str(reserve_helmet.origin_planet_id) == "reserva_especies_impossiveis", "the level-270 pack produces canonical themed helmet equipment")
 	for secondary_case in [
 		{"target": ContentDB.TARGETS[4], "slot": "helmet"},
 		{"target": ContentDB.TARGETS[8], "slot": "gloves"},

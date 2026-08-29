@@ -4,11 +4,11 @@ Estado: fundação executável revista para a curva quadrática, 28 de agosto de
 
 ## Promessa mensurável
 
-O teto de produção conserva margem sobre o perfil mecanicamente mais rápido hoje possível: 160 unidades de combustível por dia e escolha sistemática da rota mais barata entre os três mandados. Nos vinte e nove planetas atuais, esse perfil completa 3 263 caçadas e termina o ano no nível 200. As rotas de 104, 108, 112 e 116 minutos preservam a longa espera e o valor dos transportes; os níveis 210–260 ficam além deste perfil anual. O catálogo até nível 320 permanece como margem de segurança para futuras alterações de rotas, XP e economia.
+O teto de produção conserva margem sobre o perfil mecanicamente mais rápido hoje possível: 160 unidades de combustível por dia e escolha sistemática da rota mais barata entre os três mandados. Nos trinta planetas atuais, esse perfil completa 3 263 caçadas e termina o ano no nível 200. As rotas de 108, 112, 116 e 120 minutos preservam a longa espera e o valor dos transportes; os níveis 210–270 ficam além deste perfil anual. O catálogo até nível 320 permanece como margem de segurança para futuras alterações de rotas, XP e economia.
 
 Os cinco planetas iniciais mantêm os níveis 1, 4, 8, 13 e 19. A partir daí, um planeta é desbloqueado a cada dez níveis: 30, 40, 50 e assim sucessivamente até 320. Isso define 35 planetas e, com quatro identidades de alvo por planeta, 140 alvos no catálogo completo de lançamento.
 
-O conteúdo de gameplay cobre agora vinte e nove planetas e 116 alvos até ao nível 260; faltam 6 habitats e 24 identidades para cumprir este eixo. A Agência de Deuses Reformados continua o pipeline com recolocação divina, milagres auditados, quatro alvos, dois incidentes, famílias de equipamento e tradução integral. Os assets visuais dos vinte e dois packs mais recentes pertencem ao pipeline de entregas do utilizador e permanecem em fallback explícito.
+O conteúdo de gameplay cobre agora trinta planetas e 120 alvos até ao nível 270; faltam 5 habitats e 20 identidades para cumprir este eixo. A Reserva de Espécies Impossíveis continua o pipeline com fauna paradoxal, jaulas probabilísticas, quatro alvos, dois incidentes, famílias de equipamento e tradução integral. Os assets visuais dos vinte e três packs mais recentes pertencem ao pipeline de entregas do utilizador e permanecem em fallback explícito.
 
 ## Curva de progressão
 
@@ -23,7 +23,7 @@ Cinco caçadas padrão por dia continuam a ser uma referência comparável, não
 | 160 | Mandado padrão | 5,5 | 148 | 12 | 139 | — |
 | 160 | Rota mais barata | 8,9 | 200 | 7 | 68 | — |
 
-Esta projeção já incorpora as rotas progressivas até 104 minutos do Canil de Asteroides Domésticos, 108 minutos do Cartório do Último Horizonte, 112 minutos da Universidade de Vilania por Correspondência e 116 minutos da Agência de Deuses Reformados. Futuros planetas tendem a aumentar a duração média e reduzir o número de caçadas na mesma reserva; o nível 320 continua um teto de segurança de produção, não uma promessa de que todo jogador verá cada planeta no primeiro ano.
+Esta projeção já incorpora as rotas progressivas até 108 minutos do Cartório do Último Horizonte, 112 minutos da Universidade de Vilania por Correspondência, 116 minutos da Agência de Deuses Reformados e 120 minutos da Reserva de Espécies Impossíveis. Futuros planetas tendem a aumentar a duração média e reduzir o número de caçadas na mesma reserva; o nível 320 continua um teto de segurança de produção, não uma promessa de que todo jogador verá cada planeta no primeiro ano.
 
 ## Comportamento da rede de missões
 
@@ -42,7 +42,7 @@ Esta projeção já incorpora as rotas progressivas até 104 minutos do Canil de
 
 Trinta e cinco planetas não são, por si só, 365 dias de jogo. O plano anual completo também precisa de escadas permanentes de equipamento, Fenda/desafios, coleção, objetivos e rotações especiais. A primeira fundação de retenção semanal já existe em Operações: metas 8/20/35 e um Mandado Negro rotativo entre elites desbloqueados. Ela reutiliza conteúdo sem substituir a dívida de produção de habitats e identidades. Este contrato mede sobretudo o eixo planeta–alvo e impede que a variedade visual acabe silenciosamente para o jogador de maior intensidade.
 
-O teste `test_year_one_content.gd` executa 1 825 caçadas de referência, confirma o nível 140 nesse perfil e protege o catálogo de 35 planetas/140 alvos; a auditoria padrão desbloqueia o conteúdo atual de nível 260 na caçada 5 213, após 3 649,0 horas de rota-base acumulada. A auditoria `tools/audit_year_one_pacing.gd` mede tanto os perfis fixos como os quatro perfis reais de combustível. Qualquer alteração futura à experiência, reserva, custos de rota ou cadência de planetas deve atualizar simultaneamente a regra, este documento e a simulação.
+O teste `test_year_one_content.gd` executa 1 825 caçadas de referência, confirma o nível 140 nesse perfil e protege o catálogo de 35 planetas/140 alvos; a auditoria padrão desbloqueia o conteúdo atual de nível 270 na caçada 5 570, após 4 016,1 horas de rota-base acumulada. A auditoria `tools/audit_year_one_pacing.gd` mede tanto os perfis fixos como os quatro perfis reais de combustível. Qualquer alteração futura à experiência, reserva, custos de rota ou cadência de planetas deve atualizar simultaneamente a regra, este documento e a simulação.
 
 ## Entrega 0.45.0 — descoberta persistente
 
