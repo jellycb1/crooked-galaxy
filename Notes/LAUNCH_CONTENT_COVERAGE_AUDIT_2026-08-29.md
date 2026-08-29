@@ -34,6 +34,6 @@ Esses pagamentos são reconhecimento, não uma nova curva de poder. O total de C
 
 `test_launch_content_coverage.gd` fixa num único gate as contagens dos cinco eixos, os 24 primeiros clears atuais da Fenda, as 2 180 séries e os dezenove marcos até 3 000 caçadas/35 mundos. Testes de regras, persistência, UI, texto e mobile protegem derivação, resgate único, tradução PT/EN, paginação leve e apresentação do progresso.
 
-## Próxima prioridade
+## Continuação implementada
 
-O próximo problema de maior impacto é a utilidade dos Créditos depois da compra dos quatro transportes. A solução deve ser uma despesa recorrente, voluntária e transparente que preserve o Mercado premium como venda de novas escolhas, não uma melhoria garantida. Só depois dessa decisão económica se deve produzir uma terceira realidade da Fenda; acrescentar doze inimigos antes de estabilizar a recompensa de longo prazo aumentaria conteúdo sem resolver o excedente que ele próprio paga.
+A Oficina passou a cobrar um serviço em Créditos além da Sucata, conforme `WORKSHOP_CREDIT_SERVICE_AUDIT_2026-08-29.md`. A simulação preserva os quatro transportes e absorve medianamente 17,4% do saldo que seria retido após 200 contratos. Com a utilidade recorrente estabilizada, a próxima prioridade pode regressar à profundidade de build: uma terceira realidade da Fenda com doze inimigos, chave gameplay-only e envelope de recompensas compatível com esta economia.

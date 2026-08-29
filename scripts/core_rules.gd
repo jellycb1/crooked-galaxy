@@ -369,9 +369,27 @@ static func equipment_upgrade_cost(item: Dictionary) -> int:
 	return maxi(4, 3 + ceili(float(int(item.get("power", 1))) * 0.8))
 
 
+static func equipment_upgrade_credit_cost(item: Dictionary) -> int:
+	var level := equipment_service_level(item)
+	var base := maxi(60, 20 + level * level)
+	return base + int(item.get("power_upgrades", 0)) * maxi(25, ceili(float(base) * 0.25))
+
+
 static func equipment_integrity_upgrade_cost(item: Dictionary) -> int:
 	var level := int(item.get("integrity_upgrades", 0))
 	return maxi(6, 5 + level * 4 + ceili(float(int(item.get("power", 1))) * 0.45))
+
+
+static func equipment_integrity_credit_cost(item: Dictionary) -> int:
+	var item_level := equipment_service_level(item)
+	var base := maxi(75, 30 + roundi(float(item_level * item_level) * 0.80))
+	return base + int(item.get("integrity_upgrades", 0)) * maxi(30, ceili(float(base) * 0.30))
+
+
+static func equipment_service_level(item: Dictionary) -> int:
+	if item.has("item_level"):
+		return clampi(int(item.get("item_level", 1)), 1, 1000000)
+	return maxi(1, roundi(float(int(item.get("power", 1))) / 10.0))
 
 
 static func can_upgrade_integrity(item: Dictionary) -> bool:

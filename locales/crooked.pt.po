@@ -2838,7 +2838,7 @@ msgid "ARSENAL_CONTRACT_RECEIPT"
 msgstr "RECIBO DE CONTRATO"
 
 msgid "ARSENAL_WORKSHOP_STATUS"
-msgstr "OFICINA · %d SUCATA · PODER TOTAL %d"
+msgstr "OFICINA · ◈ %d · %d SUCATA · PODER TOTAL %d"
 
 msgid "ARSENAL_KIT_INACTIVE"
 msgstr "KIT PLANETÁRIO · INATIVO · combine arma e armadura da mesma origem"
@@ -2910,7 +2910,7 @@ msgid "ARSENAL_NEXT_INVESTMENT"
 msgstr "PRÓXIMO INVESTIMENTO"
 
 msgid "ARSENAL_NO_AFFORDABLE_UPGRADE"
-msgstr "Nenhuma melhoria está ao alcance da sucata atual."
+msgstr "Nenhuma melhoria cabe nos saldos atuais de Créditos e Sucata."
 
 msgid "ARSENAL_HEALTH_GAIN"
 msgstr "+%d VIDA"
@@ -2931,7 +2931,10 @@ msgid "ARSENAL_APPLY"
 msgstr "APLICAR"
 
 msgid "ARSENAL_APPLY_TOOLTIP"
-msgstr "Executa a melhoria com o melhor ganho projetado por sucata."
+msgstr "Executa a melhoria com o melhor ganho projetado pelo custo total da oficina."
+
+msgid "ARSENAL_WORKSHOP_COST_IMPACT"
+msgstr "◈ %d · %d sucata · %s"
 
 msgid "ARSENAL_FILTER_ALL"
 msgstr "TODOS"
@@ -3002,11 +3005,17 @@ msgstr "CAL %d · REF %d/%d · +%d VIDA"
 msgid "ARSENAL_UPGRADE_POWER"
 msgstr "+1 PODER · %d"
 
+msgid "ARSENAL_UPGRADE_POWER_DUAL"
+msgstr "+1 PODER\n◈ %d · %d SUC"
+
 msgid "ARSENAL_RECOMMENDED_TOOLTIP"
-msgstr "Melhor ganho projetado por sucata contra o alvo do teste de campo."
+msgstr "Melhor ganho projetado pelo custo total contra o alvo do teste de campo."
 
 msgid "ARSENAL_REINFORCE_HEALTH"
 msgstr "+%d VIDA · %d"
+
+msgid "ARSENAL_REINFORCE_HEALTH_DUAL"
+msgstr "+%d VIDA\n◈ %d · %d SUC"
 
 msgid "ARSENAL_MAX_INTEGRITY"
 msgstr "INTEGRIDADE MÁX."
@@ -3057,10 +3066,10 @@ msgid "LOADOUT_RESERVE"
 msgstr "RESERVA"
 
 msgid "WORKSHOP_NOTICE_CALIBRATED"
-msgstr "%s calibrado para +%d poder."
+msgstr "%s calibrado para +%d poder. Serviço: %d créditos e %d sucata."
 
 msgid "WORKSHOP_NOTICE_REINFORCED"
-msgstr "%s reforçado: +%d vida total."
+msgstr "%s reforçado: +%d vida total. Serviço: %d créditos e %d sucata."
 
 msgid "ATTRIBUTE_NOTICE_CONFIRMED_SINGULAR"
 msgstr "%d ponto de atributo confirmado."

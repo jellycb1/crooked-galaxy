@@ -491,7 +491,9 @@ func on_primary_navigation(destination_id: String) -> void:
 		"arsenal":
 			view_mode = "arsenal"
 			var failed_contract := not GameState.combat_summary.is_empty() and not bool(GameState.combat_summary.get("won", true))
-			var funded_field_test := GameState.last_notice_context == "reward_equipped" and int(GameState.player.get("scrap", 0)) >= mini(CoreRules.equipment_upgrade_cost(GameState.player.weapon), CoreRules.equipment_upgrade_cost(GameState.player.armor))
+			var funded_weapon := int(GameState.player.get("scrap", 0)) >= CoreRules.equipment_upgrade_cost(GameState.player.weapon) and int(GameState.player.get("credits", 0)) >= CoreRules.equipment_upgrade_credit_cost(GameState.player.weapon)
+			var funded_armor := int(GameState.player.get("scrap", 0)) >= CoreRules.equipment_upgrade_cost(GameState.player.armor) and int(GameState.player.get("credits", 0)) >= CoreRules.equipment_upgrade_credit_cost(GameState.player.armor)
+			var funded_field_test := GameState.last_notice_context == "reward_equipped" and (funded_weapon or funded_armor)
 			if failed_contract or funded_field_test:
 				arsenal_section = "workshop"
 			elif GameState.collection_rewards_ready() > 0:
@@ -547,8 +549,10 @@ func update_primary_navigation() -> void:
 		badges.hunter = available_points
 	var equipped_receipt := GameState.last_notice_context == "reward_equipped"
 	var scrap := int(GameState.player.get("scrap", 0))
-	var cheapest_calibration := mini(CoreRules.equipment_upgrade_cost(GameState.player.weapon), CoreRules.equipment_upgrade_cost(GameState.player.armor))
-	if equipped_receipt and scrap >= cheapest_calibration:
+	var credits := int(GameState.player.get("credits", 0))
+	var weapon_funded := scrap >= CoreRules.equipment_upgrade_cost(GameState.player.weapon) and credits >= CoreRules.equipment_upgrade_credit_cost(GameState.player.weapon)
+	var armor_funded := scrap >= CoreRules.equipment_upgrade_cost(GameState.player.armor) and credits >= CoreRules.equipment_upgrade_credit_cost(GameState.player.armor)
+	if equipped_receipt and (weapon_funded or armor_funded):
 		labels.arsenal = t("NAV_TEST", "TESTAR")
 		badges.arsenal = 1
 	var collection_ready := GameState.collection_rewards_ready()

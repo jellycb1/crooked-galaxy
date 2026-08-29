@@ -21,7 +21,7 @@ Crooked Galaxy is Android-first, fully playable in Portuguese and English, and c
 - Permanent transports that reduce travel time only; fuel cost remains tied to base route length.
 - A bounded Galaxy map that renders unlocked routes plus two future signals, keeping early Android navigation light while preserving discovery.
 - Automatic combat with class signatures, enemy profiles, build odds, tactical equipment, and persisted evidence.
-- Procedural item instances, three active rarities, planet kits, traits, workshop investment, two loadouts, protection, recycling, pagination, and a 2,180-series collection.
+- Procedural item instances, three active rarities, planet kits, traits, dual-cost Credit/Scrap workshop investment, two loadouts, protection, recycling, pagination, and a 2,180-series collection.
 - Daily objectives, weekly Operations, target mastery, capture streaks, nineteen career milestones spanning 3,000 hunts and all 35 worlds, and an eight-hour AFK patrol cap.
 - Two keyed Fenda Clandestina realities with twelve enemies each and one global entry per UTC day.
 - Local monetization simulation using Credits, Scrap, and Warp Chips; no real-money billing is integrated.

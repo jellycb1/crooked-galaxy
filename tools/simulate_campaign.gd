@@ -278,15 +278,17 @@ func spend_workshop_scrap(state: StateScript) -> int:
 		for slot in ["weapon", "armor"]:
 			var item: Dictionary = state.player[slot]
 			var power_cost := Rules.equipment_upgrade_cost(item)
-			if power_cost <= int(state.player.scrap):
-				choices.append({"kind": "power", "slot": slot, "cost": power_cost, "value": 10.0 if slot == "armor" else 8.0})
+			var power_credit_cost := Rules.equipment_upgrade_credit_cost(item)
+			if power_cost <= int(state.player.scrap) and power_credit_cost <= int(state.player.credits):
+				choices.append({"kind": "power", "slot": slot, "cost": power_cost, "credit_cost": power_credit_cost, "value": 10.0 if slot == "armor" else 8.0})
 			if Rules.can_upgrade_integrity(item):
 				var health_cost := Rules.equipment_integrity_upgrade_cost(item)
-				if health_cost <= int(state.player.scrap):
-					choices.append({"kind": "health", "slot": slot, "cost": health_cost, "value": 8.0})
+				var health_credit_cost := Rules.equipment_integrity_credit_cost(item)
+				if health_cost <= int(state.player.scrap) and health_credit_cost <= int(state.player.credits):
+					choices.append({"kind": "health", "slot": slot, "cost": health_cost, "credit_cost": health_credit_cost, "value": 8.0})
 		if choices.is_empty():
 			return actions
-		choices.sort_custom(func(a, b): return float(a.value) / float(a.cost) > float(b.value) / float(b.cost))
+		choices.sort_custom(func(a, b): return float(a.value) / (float(a.cost) + float(a.credit_cost) / 100.0) > float(b.value) / (float(b.cost) + float(b.credit_cost) / 100.0))
 		var best: Dictionary = choices[0]
 		if str(best.kind) == "power":
 			state.upgrade_equipped(str(best.slot))

@@ -1710,16 +1710,18 @@ func upgrade_equipped(slot: String) -> bool:
 	if phase != Phase.BOARD or not CoreRules.is_equipment_slot(slot) or player.get(slot, {}).is_empty():
 		return false
 	var item: Dictionary = player[slot]
-	var cost := CoreRules.equipment_upgrade_cost(item)
-	if int(player.get("scrap", 0)) < cost:
+	var scrap_cost := CoreRules.equipment_upgrade_cost(item)
+	var credit_cost := CoreRules.equipment_upgrade_credit_cost(item)
+	if int(player.get("scrap", 0)) < scrap_cost or int(player.get("credits", 0)) < credit_cost:
 		return false
-	player.scrap = int(player.scrap) - cost
+	player.scrap = int(player.scrap) - scrap_cost
+	player.credits = int(player.credits) - credit_cost
 	item = item.duplicate(true)
 	item.power = int(item.power) + 1
 	item.power_upgrades = int(item.get("power_upgrades", 0)) + 1
 	player[slot] = item
 	sync_item_to_inventory(item)
-	last_notice = LocaleRulesScript.text("WORKSHOP_NOTICE_CALIBRATED", "%s calibrado para +%d poder.", [localized_item_field(item, "name"), int(item.power)])
+	last_notice = LocaleRulesScript.text("WORKSHOP_NOTICE_CALIBRATED", "%s calibrado para +%d poder. Serviço: %d créditos e %d sucata.", [localized_item_field(item, "name"), int(item.power), credit_cost, scrap_cost])
 	last_notice_context = "workshop"
 	save_game()
 	changed.emit()
@@ -1732,15 +1734,17 @@ func reinforce_equipped(slot: String) -> bool:
 	var item: Dictionary = player[slot]
 	if not CoreRules.can_upgrade_integrity(item):
 		return false
-	var cost := CoreRules.equipment_integrity_upgrade_cost(item)
-	if int(player.get("scrap", 0)) < cost:
+	var scrap_cost := CoreRules.equipment_integrity_upgrade_cost(item)
+	var credit_cost := CoreRules.equipment_integrity_credit_cost(item)
+	if int(player.get("scrap", 0)) < scrap_cost or int(player.get("credits", 0)) < credit_cost:
 		return false
-	player.scrap = int(player.scrap) - cost
+	player.scrap = int(player.scrap) - scrap_cost
+	player.credits = int(player.credits) - credit_cost
 	item = item.duplicate(true)
 	item.integrity_upgrades = int(item.get("integrity_upgrades", 0)) + 1
 	player[slot] = item
 	sync_item_to_inventory(item)
-	last_notice = LocaleRulesScript.text("WORKSHOP_NOTICE_REINFORCED", "%s reforçado: +%d vida total.", [localized_item_field(item, "name"), int(item.integrity_upgrades) * CoreRules.INTEGRITY_HEALTH_PER_LEVEL])
+	last_notice = LocaleRulesScript.text("WORKSHOP_NOTICE_REINFORCED", "%s reforçado: +%d vida total. Serviço: %d créditos e %d sucata.", [localized_item_field(item, "name"), int(item.integrity_upgrades) * CoreRules.INTEGRITY_HEALTH_PER_LEVEL, credit_cost, scrap_cost])
 	last_notice_context = "workshop"
 	save_game()
 	changed.emit()

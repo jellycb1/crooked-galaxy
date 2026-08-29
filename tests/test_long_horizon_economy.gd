@@ -27,9 +27,12 @@ func _init() -> void:
 		var prices: Array = MarketRulesScript.offers(player).map(func(offer): return int(offer.price))
 		var cheapest := int(prices.min())
 		var ratio := float(reward) / float(maxi(1, cheapest))
+		var service_cost := CoreRulesScript.equipment_upgrade_credit_cost({"item_level": level, "power": 1, "power_upgrades": 0})
+		var service_ratio := float(service_cost) / float(maxi(1, reward))
 		check(reward >= previous_reward and cheapest >= previous_stock, "contract income and catch-up stock stay monotonic at level %d" % level)
 		check(ratio >= 0.08 and ratio <= 2.0, "one standard warrant remains between 8%% and 200%% of catch-up stock at level %d" % level)
 		check(MarketRulesScript.refresh_cost(player) < cheapest, "refresh remains a meaningful but cheaper alternative to buying stock at level %d" % level)
+		check(service_ratio >= 0.50 and service_ratio <= 2.0, "one first calibration service remains worth between half and two standard warrants at level %d" % level)
 		previous_reward = reward
 		previous_stock = cheapest
 

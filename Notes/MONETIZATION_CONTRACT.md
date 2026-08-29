@@ -1,6 +1,6 @@
 # Crooked Galaxy — contrato de monetização
 
-Estado: direção aprovada e combustível implementado na simulação local. Os princípios e limites são fixos; valores numéricos continuam sujeitos a testes e telemetria.
+Estado: direção aprovada, com combustível, Mercado premium limitado e serviço recorrente da Oficina implementados na simulação local. Os princípios e limites são fixos; valores numéricos continuam sujeitos a testes e telemetria.
 
 ## Princípios inegociáveis
 
@@ -13,7 +13,7 @@ Estado: direção aprovada e combustível implementado na simulação local. Os 
 
 ## Moedas
 
-- **Créditos:** moeda normal de jogo. Compra equipamento apresentado no mercado, transportes permanentes e outros sistemas de progressão normal.
+- **Créditos:** moeda normal de jogo. Compra equipamento apresentado no mercado, transportes permanentes e o serviço recorrente de calibração/reforço da Oficina.
 - **Sucata:** recurso de oficina, obtido sobretudo ao reciclar equipamento e dominar alvos.
 - **Fichas de Dobra / Warp Chips:** moeda premium. Pode ser comprada e também obtida em quantidades controladas ao jogar.
 
@@ -55,6 +55,14 @@ Estado das aplicações:
 - O transporte permanente de 50% já existe por Créditos no nível 13. Uma licença temporária premium de 14 dias só poderá existir como antecipação, nunca como exclusividade ou melhoria acima desse teto.
 - Espaços adicionais de personagem, loadout ou inventário podem ser vendidos apenas quando o espaço gratuito for confortável e não criar dor artificial.
 - Alterações de nome, aparência, espécie, classe ou respec podem ter custos normais/premium definidos quando esses fluxos forem finais.
+
+## Oficina e utilidade recorrente dos Créditos
+
+- Calibração e reforço continuam limitados por Sucata, mas pagam também um serviço em Créditos.
+- O custo deriva do nível persistido da peça e cresce com intervenções anteriores; não depende da classe nem do poder equipado do jogador.
+- A transação mostra e exige os dois valores antes de deduzir ambos atomicamente.
+- Em 40 carreiras de 200 contratos, o serviço mediano absorve 23 707 Créditos, ou 17,4% do saldo que seria retido, preservando a aquisição dos quatro transportes.
+- O serviço é progressão normal e nunca aceita Fichas de Dobra. Não adiciona rerolls, raridade, atributos, probabilidade de vitória ou equipamento exclusivo.
 
 ## Produtos futuros permitidos
 

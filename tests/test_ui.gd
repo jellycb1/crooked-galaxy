@@ -230,6 +230,7 @@ func run_smoke_test() -> void:
 	state.player.captures_by_planet = {}
 	scene.render()
 	await process_frame
+	state.player.credits = 500
 	state.claim_reward(true)
 	await process_frame
 	scene.board_section = "destinations"

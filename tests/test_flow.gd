@@ -206,16 +206,23 @@ func _init() -> void:
 	check(int(state.player.scrap_recycled_total) == 16, "career tracks lifetime recycled scrap")
 	var equipped_power := int(state.player[str(claimed_item.slot)].power)
 	var upgrade_cost := CoreRules.equipment_upgrade_cost(state.player[str(claimed_item.slot)])
+	var upgrade_credit_cost := CoreRules.equipment_upgrade_credit_cost(state.player[str(claimed_item.slot)])
+	state.player.credits = 5000
+	var credits_before_upgrade := int(state.player.credits)
 	check(state.upgrade_equipped(str(claimed_item.slot)), "scrap upgrades equipped gear")
 	check(int(state.player.scrap) == 16 - upgrade_cost, "workshop charges the visible upgrade cost")
+	check(int(state.player.credits) == credits_before_upgrade - upgrade_credit_cost, "workshop charges the visible calibration service atomically")
 	check(int(state.player[str(claimed_item.slot)].power) == equipped_power + 1, "workshop adds one equipment power")
 	check(int(state.player[str(claimed_item.slot)].power_upgrades) == 1, "power calibration count stays on equipped gear")
 	check(int(state.inventory_item_by_id(str(claimed_item.id)).get("power_upgrades", 0)) == 1, "power calibration is synchronized to the inventory copy")
 	state.player.scrap = 100
 	var health_before_reinforcement := CoreRules.max_health(state.player)
 	var reinforce_cost := CoreRules.equipment_integrity_upgrade_cost(state.player[str(claimed_item.slot)])
+	var reinforce_credit_cost := CoreRules.equipment_integrity_credit_cost(state.player[str(claimed_item.slot)])
+	var credits_before_reinforcement := int(state.player.credits)
 	check(state.reinforce_equipped(str(claimed_item.slot)), "workshop can reinforce equipped integrity")
 	check(int(state.player.scrap) == 100 - reinforce_cost, "integrity reinforcement charges its visible cost")
+	check(int(state.player.credits) == credits_before_reinforcement - reinforce_credit_cost, "integrity service deducts Credits in the same transaction")
 	check(CoreRules.max_health(state.player) == health_before_reinforcement + CoreRules.INTEGRITY_HEALTH_PER_LEVEL, "integrity reinforcement raises maximum health")
 	check(int(state.player[str(claimed_item.slot)].integrity_upgrades) == 1, "reinforcement level stays on equipped gear")
 	var reinforced_inventory_item := state.inventory_item_by_id(str(claimed_item.id))
@@ -224,9 +231,21 @@ func _init() -> void:
 	reinforcement_cap_state.persistence_enabled = false
 	reinforcement_cap_state.player = reinforcement_cap_state.default_player()
 	reinforcement_cap_state.player.scrap = 100
+	reinforcement_cap_state.player.credits = 1000
 	reinforcement_cap_state.player.weapon.integrity_upgrades = CoreRules.MAX_INTEGRITY_UPGRADES
 	check(not reinforcement_cap_state.reinforce_equipped("weapon") and int(reinforcement_cap_state.player.scrap) == 100, "workshop rejects reinforcement beyond the cap without charging scrap")
+	check(int(reinforcement_cap_state.player.credits) == 1000, "capped reinforcement cannot charge a service fee")
 	reinforcement_cap_state.free()
+	var unfunded_service_state = StateScript.new()
+	unfunded_service_state.persistence_enabled = false
+	unfunded_service_state.player = unfunded_service_state.default_player()
+	unfunded_service_state.player.scrap = 100
+	unfunded_service_state.player.credits = CoreRules.equipment_upgrade_credit_cost(unfunded_service_state.player.weapon) - 1
+	var unfunded_scrap := int(unfunded_service_state.player.scrap)
+	var unfunded_credits := int(unfunded_service_state.player.credits)
+	check(not unfunded_service_state.upgrade_equipped("weapon"), "workshop rejects a calibration without its complete Credit service fee")
+	check(int(unfunded_service_state.player.scrap) == unfunded_scrap and int(unfunded_service_state.player.credits) == unfunded_credits and int(unfunded_service_state.player.weapon.power) == 1, "unfunded dual-cost calibration is fully side-effect free")
+	unfunded_service_state.free()
 	var milestones := state.career_milestones()
 	check(milestones.size() == 19, "career exposes the complete derived milestone ladder")
 	check(bool(milestones[0].complete), "first capture completes its career milestone")

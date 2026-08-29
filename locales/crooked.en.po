@@ -2838,7 +2838,7 @@ msgid "ARSENAL_CONTRACT_RECEIPT"
 msgstr "CONTRACT RECEIPT"
 
 msgid "ARSENAL_WORKSHOP_STATUS"
-msgstr "WORKSHOP · %d SCRAP · TOTAL POWER %d"
+msgstr "WORKSHOP · ◈ %d · %d SCRAP · TOTAL POWER %d"
 
 msgid "ARSENAL_KIT_INACTIVE"
 msgstr "PLANETARY KIT · INACTIVE · match weapon and armor from the same origin"
@@ -2910,7 +2910,7 @@ msgid "ARSENAL_NEXT_INVESTMENT"
 msgstr "NEXT INVESTMENT"
 
 msgid "ARSENAL_NO_AFFORDABLE_UPGRADE"
-msgstr "No upgrade is within reach of the current scrap."
+msgstr "No upgrade fits the current Credit and Scrap balances."
 
 msgid "ARSENAL_HEALTH_GAIN"
 msgstr "+%d HEALTH"
@@ -2931,7 +2931,10 @@ msgid "ARSENAL_APPLY"
 msgstr "APPLY"
 
 msgid "ARSENAL_APPLY_TOOLTIP"
-msgstr "Applies the upgrade with the best projected gain per scrap."
+msgstr "Applies the upgrade with the best projected gain for the complete workshop cost."
+
+msgid "ARSENAL_WORKSHOP_COST_IMPACT"
+msgstr "◈ %d · %d scrap · %s"
 
 msgid "ARSENAL_FILTER_ALL"
 msgstr "ALL"
@@ -3002,11 +3005,17 @@ msgstr "CAL %d · REINF %d/%d · +%d HEALTH"
 msgid "ARSENAL_UPGRADE_POWER"
 msgstr "+1 POWER · %d"
 
+msgid "ARSENAL_UPGRADE_POWER_DUAL"
+msgstr "+1 POWER\n◈ %d · %d SCR"
+
 msgid "ARSENAL_RECOMMENDED_TOOLTIP"
-msgstr "Best projected gain per scrap against the field-test target."
+msgstr "Best projected gain for the complete cost against the field-test target."
 
 msgid "ARSENAL_REINFORCE_HEALTH"
 msgstr "+%d HEALTH · %d"
+
+msgid "ARSENAL_REINFORCE_HEALTH_DUAL"
+msgstr "+%d HEALTH\n◈ %d · %d SCR"
 
 msgid "ARSENAL_MAX_INTEGRITY"
 msgstr "MAX INTEGRITY"
@@ -3057,10 +3066,10 @@ msgid "LOADOUT_RESERVE"
 msgstr "RESERVE"
 
 msgid "WORKSHOP_NOTICE_CALIBRATED"
-msgstr "%s calibrated to +%d power."
+msgstr "%s calibrated to +%d power. Service: %d credits and %d scrap."
 
 msgid "WORKSHOP_NOTICE_REINFORCED"
-msgstr "%s reinforced: +%d total health."
+msgstr "%s reinforced: +%d total health. Service: %d credits and %d scrap."
 
 msgid "ATTRIBUTE_NOTICE_CONFIRMED_SINGULAR"
 msgstr "%d attribute point confirmed."

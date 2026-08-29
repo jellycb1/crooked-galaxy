@@ -63,7 +63,8 @@ Estes ficheiros são evidência datada. Podem explicar uma decisão, mas as suas
 - `PROJECT_STATE_AUDIT_2026-08-28.md`;
 - `LAUNCH_CONTENT_COVERAGE_AUDIT_2026-08-29.md`;
 - `UI_IDENTITY_AUDIT_2026-08-26.md`;
-- `UI_REBUILD_BLUEPRINT_2026-08-27.md`.
+- `UI_REBUILD_BLUEPRINT_2026-08-27.md`;
+- `WORKSHOP_CREDIT_SERVICE_AUDIT_2026-08-29.md`.
 
 ## Artefactos locais
 

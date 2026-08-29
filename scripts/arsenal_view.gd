@@ -307,7 +307,7 @@ static func build_equipped_section(host: CrookedUIFactory, content: VBoxContaine
 		notice.name = "WorkshopNotice"
 		notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		section.add_child(notice)
-	section.add_child(host.readable_body(text("ARSENAL_WORKSHOP_STATUS", "OFICINA · %d SUCATA · PODER TOTAL %d", [int(state.player.get("scrap", 0)), Rules.player_power(state.player)]), host.GOLD))
+	section.add_child(host.readable_body(text("ARSENAL_WORKSHOP_STATUS", "OFICINA · ◈ %d · %d SUCATA · PODER TOTAL %d", [int(state.player.get("credits", 0)), int(state.player.get("scrap", 0)), Rules.player_power(state.player)]), host.GOLD))
 	var set_origin := Rules.equipment_set_origin(state.player)
 	var set_text := text("ARSENAL_KIT_INACTIVE", "KIT PLANETÁRIO · INATIVO · combine arma e armadura da mesma origem")
 	var set_color := host.MUTED
@@ -329,7 +329,7 @@ static func build_workshop_section(host: CrookedUIFactory, content: VBoxContaine
 		var notice := host.readable_caption("%s · %s" % [notice_title, state.last_notice], host.LIME)
 		notice.name = "WorkshopNotice"
 		section.add_child(notice)
-	section.add_child(host.readable_body(text("ARSENAL_WORKSHOP_STATUS", "OFICINA · %d SUCATA · PODER TOTAL %d", [int(state.player.get("scrap", 0)), Rules.player_power(state.player)]), host.GOLD))
+	section.add_child(host.readable_body(text("ARSENAL_WORKSHOP_STATUS", "OFICINA · ◈ %d · %d SUCATA · PODER TOTAL %d", [int(state.player.get("credits", 0)), int(state.player.get("scrap", 0)), Rules.player_power(state.player)]), host.GOLD))
 	section.add_child(field_readiness_card(host, state, readiness))
 	var workshop_recommendation := recommended_workshop_action(state, readiness)
 	section.add_child(workshop_recommendation_card(host, state, workshop_recommendation, readiness))
@@ -603,18 +603,23 @@ static func recommended_workshop_action(state: StateScript, readiness: Dictionar
 		var slot := str(candidate.slot)
 		var kind := str(candidate.kind)
 		var cost := int(candidate.cost)
+		var credit_cost := int(candidate.credit_cost)
 		var simulated: Dictionary = candidate.player
 		var item: Dictionary = state.player[slot]
 		var projected_odds := Rules.bounty_odds(simulated, target)
 		var odds_gain := maxf(0.0, projected_odds - current_odds)
 		var score_gain := maxf(0.0, Rules.player_build_score(simulated) - current_score)
-		var value := odds_gain / float(cost) + score_gain / float(cost) * 0.00001
+		# Scrap remains the scarce workshop resource; Credits contribute a smaller
+		# normalized service weight so equal Scrap choices prefer the cheaper job.
+		var normalized_cost := float(cost) + float(credit_cost) / 100.0
+		var value := odds_gain / normalized_cost + score_gain / normalized_cost * 0.00001
 		if value > best_value:
 			best_value = value
 			best = {
 				"slot": slot,
 				"kind": kind,
 				"cost": cost,
+				"credit_cost": credit_cost,
 				"odds": projected_odds,
 				"current_odds": current_odds,
 				"odds_gain": odds_gain,
@@ -627,14 +632,15 @@ static func recommended_workshop_action(state: StateScript, readiness: Dictionar
 static func workshop_projection_candidates(state: StateScript) -> Array[Dictionary]:
 	var candidates: Array[Dictionary] = []
 	var scrap := int(state.player.get("scrap", 0))
+	var credits := int(state.player.get("credits", 0))
 	for slot in ["weapon", "armor"]:
 		var item: Dictionary = state.player[slot]
-		var actions := [{"kind": "power", "cost": Rules.equipment_upgrade_cost(item)}]
+		var actions := [{"kind": "power", "cost": Rules.equipment_upgrade_cost(item), "credit_cost": Rules.equipment_upgrade_credit_cost(item)}]
 		if Rules.can_upgrade_integrity(item):
-			actions.append({"kind": "integrity", "cost": Rules.equipment_integrity_upgrade_cost(item)})
+			actions.append({"kind": "integrity", "cost": Rules.equipment_integrity_upgrade_cost(item), "credit_cost": Rules.equipment_integrity_credit_cost(item)})
 		for action in actions:
 			var cost := int(action.cost)
-			if cost > scrap:
+			if cost > scrap or int(action.credit_cost) > credits:
 				continue
 			var simulated := state.player.duplicate(true)
 			var simulated_item: Dictionary = simulated[slot].duplicate(true)
@@ -643,7 +649,7 @@ static func workshop_projection_candidates(state: StateScript) -> Array[Dictiona
 			else:
 				simulated_item.integrity_upgrades = int(simulated_item.get("integrity_upgrades", 0)) + 1
 			simulated[slot] = simulated_item
-			candidates.append({"slot": slot, "kind": str(action.kind), "cost": cost, "player": simulated})
+			candidates.append({"slot": slot, "kind": str(action.kind), "cost": cost, "credit_cost": int(action.credit_cost), "player": simulated})
 	return candidates
 
 
@@ -664,7 +670,7 @@ static func workshop_recommendation_card(host: CrookedUIFactory, state: StateScr
 	row.add_child(copy)
 	if recommendation.is_empty():
 		copy.add_child(host.label(text("ARSENAL_NEXT_INVESTMENT", "PRÓXIMO INVESTIMENTO"), UIDesignSystem.FONT_CAPTION, host.GOLD))
-		var unavailable := host.label(text("ARSENAL_NO_AFFORDABLE_UPGRADE", "Nenhuma melhoria está ao alcance da sucata atual."), UIDesignSystem.FONT_BODY, host.MUTED)
+		var unavailable := host.label(text("ARSENAL_NO_AFFORDABLE_UPGRADE", "Nenhuma melhoria cabe nos saldos atuais de Créditos e Sucata."), UIDesignSystem.FONT_BODY, host.MUTED)
 		unavailable.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		copy.add_child(unavailable)
 		return card
@@ -681,13 +687,13 @@ static func workshop_recommendation_card(host: CrookedUIFactory, state: StateScr
 	var impact := text("ARSENAL_TEST_IMPACT", "%d%% → %d%% no teste", [current_percent, projected_percent])
 	if projected_percent == current_percent:
 		impact = text("ARSENAL_ODDS_CAPPED", "chance já no limite · impacto de build +%d", [maxi(1, roundi(float(recommendation.get("score_gain", 1.0))))])
-	copy.add_child(host.label(text("ARSENAL_SCRAP_IMPACT", "%d sucata · %s", [int(recommendation.cost), impact]), UIDesignSystem.FONT_CAPTION, host.LIME))
+	copy.add_child(host.label(text("ARSENAL_WORKSHOP_COST_IMPACT", "◈ %d · %d sucata · %s", [int(recommendation.credit_cost), int(recommendation.cost), impact]), UIDesignSystem.FONT_CAPTION, host.LIME))
 	var apply := host.action_button(text("ARSENAL_APPLY", "APLICAR"), host.LIME, true)
 	apply.name = "RecommendedWorkshopAction"
 	apply.custom_minimum_size = Vector2(132, UIDesignSystem.SECONDARY_ACTION_HEIGHT)
 	apply.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 	apply.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	apply.tooltip_text = text("ARSENAL_APPLY_TOOLTIP", "Executa a melhoria com o melhor ganho projetado por sucata.")
+	apply.tooltip_text = text("ARSENAL_APPLY_TOOLTIP", "Executa a melhoria com o melhor ganho projetado pelo custo total da oficina.")
 	if kind == "power":
 		apply.pressed.connect(func(): state.upgrade_equipped(slot))
 	else:
@@ -885,8 +891,10 @@ static func workshop_upgrade_card(host: CrookedUIFactory, state: StateScript, sl
 	var item: Dictionary = state.player[slot]
 	var power_cost := Rules.equipment_upgrade_cost(item)
 	var integrity_cost := Rules.equipment_integrity_upgrade_cost(item)
-	var power_affordable := int(state.player.get("scrap", 0)) >= power_cost
-	var integrity_affordable := int(state.player.get("scrap", 0)) >= integrity_cost
+	var power_credit_cost := Rules.equipment_upgrade_credit_cost(item)
+	var integrity_credit_cost := Rules.equipment_integrity_credit_cost(item)
+	var power_affordable := int(state.player.get("scrap", 0)) >= power_cost and int(state.player.get("credits", 0)) >= power_credit_cost
+	var integrity_affordable := int(state.player.get("scrap", 0)) >= integrity_cost and int(state.player.get("credits", 0)) >= integrity_credit_cost
 	var integrity_level := int(item.get("integrity_upgrades", 0))
 	var calibration_level := int(item.get("power_upgrades", 0))
 	var integrity_available := Rules.can_upgrade_integrity(item)
@@ -924,10 +932,10 @@ static func workshop_upgrade_card(host: CrookedUIFactory, state: StateScript, sl
 	var actions := VBoxContainer.new()
 	actions.add_theme_constant_override("separation", 5)
 	row.add_child(actions)
-	var improve := host.action_button(text("ARSENAL_UPGRADE_POWER", "+1 PODER · %d", [power_cost]), host.LIME if power_affordable else host.MUTED, true)
+	var improve := host.action_button(text("ARSENAL_UPGRADE_POWER_DUAL", "+1 PODER\n◈ %d · %d SUC", [power_credit_cost, power_cost]), host.LIME if power_affordable else host.MUTED, true)
 	if str(recommendation.get("slot", "")) == slot and str(recommendation.get("kind", "")) == "power":
 		improve.text = "★ " + improve.text
-		improve.tooltip_text = text("ARSENAL_RECOMMENDED_TOOLTIP", "Melhor ganho projetado por sucata contra o alvo do teste de campo.")
+		improve.tooltip_text = text("ARSENAL_RECOMMENDED_TOOLTIP", "Melhor ganho projetado pelo custo total contra o alvo do teste de campo.")
 	improve.name = "Upgrade_%s" % slot
 	improve.disabled = not power_affordable
 	improve.custom_minimum_size = Vector2(168, UIDesignSystem.SECONDARY_ACTION_HEIGHT)
@@ -935,11 +943,11 @@ static func workshop_upgrade_card(host: CrookedUIFactory, state: StateScript, sl
 	improve.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	improve.pressed.connect(func(): state.upgrade_equipped(slot))
 	actions.add_child(improve)
-	var reinforce_text := text("ARSENAL_REINFORCE_HEALTH", "+%d VIDA · %d", [Rules.INTEGRITY_HEALTH_PER_LEVEL, integrity_cost]) if integrity_available else text("ARSENAL_MAX_INTEGRITY", "INTEGRIDADE MÁX.")
+	var reinforce_text := text("ARSENAL_REINFORCE_HEALTH_DUAL", "+%d VIDA\n◈ %d · %d SUC", [Rules.INTEGRITY_HEALTH_PER_LEVEL, integrity_credit_cost, integrity_cost]) if integrity_available else text("ARSENAL_MAX_INTEGRITY", "INTEGRIDADE MÁX.")
 	var reinforce := host.action_button(reinforce_text, host.CYAN if integrity_affordable and integrity_available else host.MUTED, true)
 	if str(recommendation.get("slot", "")) == slot and str(recommendation.get("kind", "")) == "integrity":
 		reinforce.text = "★ " + reinforce.text
-		reinforce.tooltip_text = text("ARSENAL_RECOMMENDED_TOOLTIP", "Melhor ganho projetado por sucata contra o alvo do teste de campo.")
+		reinforce.tooltip_text = text("ARSENAL_RECOMMENDED_TOOLTIP", "Melhor ganho projetado pelo custo total contra o alvo do teste de campo.")
 	reinforce.name = "Reinforce_%s" % slot
 	reinforce.disabled = not integrity_affordable or not integrity_available
 	reinforce.custom_minimum_size = Vector2(168, UIDesignSystem.SECONDARY_ACTION_HEIGHT)

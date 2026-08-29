@@ -79,6 +79,13 @@ func run_text_audit() -> void:
 	scene.view_mode = "arsenal"
 	scene.render()
 	await audit_scaled_screen(scene, "verbose arsenal")
+	state.player.credits = 10000000
+	state.player.scrap = 1000000
+	state.player.weapon = {"id": "mature_weapon", "name": "Desatomizador Interplanetário", "slot": "weapon", "power": 5000, "item_level": 320, "power_upgrades": 4, "rarity": "Épico", "color": "#d789ff"}
+	state.player.armor = {"id": "mature_armor", "name": "Couraça do Último Contrato", "slot": "armor", "power": 4800, "item_level": 320, "integrity_upgrades": 4, "rarity": "Épico", "color": "#d789ff"}
+	scene.arsenal_section = "workshop"
+	scene.render()
+	await audit_scaled_screen(scene, "mature dual-cost workshop")
 
 	state.player.credits = 99999
 	scene.view_mode = "market"

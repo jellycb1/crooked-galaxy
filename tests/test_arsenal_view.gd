@@ -18,6 +18,7 @@ func _init() -> void:
 	state.player.captures_by_target = {"gloop": 1}
 	state.player.captures_by_planet = {"dustball_prime": 1}
 	state.player.scrap = 20
+	state.player.credits = 5000
 	state.player.weapon.origin_planet_id = "dustball_prime"
 	state.player.armor.origin_planet_id = "dustball_prime"
 	state.player.inventory = [
@@ -55,7 +56,8 @@ func _init() -> void:
 	var reinforce_weapon := host.find_child("Reinforce_weapon", true, false) as Button
 	check(upgrade_weapon != null and reinforce_weapon != null and upgrade_weapon.get_theme_font_size("font_size") >= UIDesignSystem.FONT_CAPTION and reinforce_weapon.get_theme_font_size("font_size") >= UIDesignSystem.FONT_CAPTION, "dense workshop actions retain the shared caption floor")
 	check(recommendation_action != null and UIDesignSystem.is_safe_touch_target(recommendation_action.custom_minimum_size.y) and UIDesignSystem.is_safe_touch_target(upgrade_weapon.custom_minimum_size.y) and UIDesignSystem.is_safe_touch_target(reinforce_weapon.custom_minimum_size.y), "every workshop transaction remains a safe physical Android touch target")
-	check(not recommendation.is_empty() and int(recommendation.cost) <= int(state.player.scrap) and recommendation.has("current_odds") and recommendation.has("score_gain"), "workshop recommendation carries an affordable, auditable impact projection")
+	check(upgrade_weapon.text.contains("◈") and upgrade_weapon.text.contains("SUC") and reinforce_weapon.text.contains("◈"), "workshop actions expose both currencies before confirmation")
+	check(not recommendation.is_empty() and int(recommendation.cost) <= int(state.player.scrap) and int(recommendation.credit_cost) <= int(state.player.credits) and recommendation.has("current_odds") and recommendation.has("score_gain"), "workshop recommendation carries an affordable, auditable dual-cost projection")
 	check(host.find_child("FieldReadiness", true, false) != null, "isolated arsenal translates upgrades into next-warrant odds")
 	var readiness := ArsenalScript.field_readiness(state)
 	check(str(readiness.target.id) == "baron_boom", "field test selects the next planet-tier target")
@@ -98,7 +100,10 @@ func _init() -> void:
 	var recovery_readiness := ArsenalScript.field_readiness(state)
 	check(str(recovery_readiness.target.id) == "baron_boom" and bool(recovery_readiness.recovery_focus), "field test keeps the defeated warrant in focus instead of projecting a locked tier")
 	var power_before_recovery_upgrade := int(state.player.weapon.power)
+	var credits_before_recovery_upgrade := int(state.player.credits)
+	var recovery_service_cost := CoreRules.equipment_upgrade_credit_cost(state.player.weapon)
 	check(state.upgrade_equipped("weapon") and int(state.player.weapon.power) == power_before_recovery_upgrade + 1, "recovery workshop accepts a real upgrade transaction")
+	check(int(state.player.credits) == credits_before_recovery_upgrade - recovery_service_cost, "recovery workshop records the Credit service expense")
 	var recovery_after_upgrade := ArsenalScript.field_readiness(state)
 	check(str(recovery_after_upgrade.target.id) == "baron_boom", "upgrade transaction preserves revenge focus")
 	clear_children(content)

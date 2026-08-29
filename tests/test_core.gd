@@ -39,6 +39,10 @@ func test_power_and_health() -> void:
 	check(Rules.max_health(player) == 127, "equipment reinforcement contributes persistent maximum health")
 	check(Rules.equipment_integrity_upgrade_cost({"power": 10, "integrity_upgrades": 0}) == 10, "integrity cost scales from item power")
 	check(Rules.equipment_integrity_upgrade_cost({"power": 10, "integrity_upgrades": 2}) == 18, "integrity cost rises with reinforcement level")
+	check(Rules.equipment_upgrade_credit_cost({"power": 100, "item_level": 10, "power_upgrades": 0}) == 120, "calibration service follows item level rather than raw power")
+	check(Rules.equipment_upgrade_credit_cost({"power": 100, "item_level": 10, "power_upgrades": 2}) == 180, "repeated calibration service becomes progressively more expensive")
+	check(Rules.equipment_integrity_credit_cost({"power": 100, "item_level": 10, "integrity_upgrades": 0}) == 110 and Rules.equipment_integrity_credit_cost({"power": 100, "item_level": 10, "integrity_upgrades": 2}) == 176, "reinforcement service scales with level and prior work")
+	check(Rules.equipment_upgrade_credit_cost({"power": 1}) == 60 and Rules.equipment_integrity_credit_cost({"power": 1}) == 75, "legacy starter gear retains a bounded service floor")
 	check(Rules.can_upgrade_integrity({"integrity_upgrades": 4}) and not Rules.can_upgrade_integrity({"integrity_upgrades": 5}), "integrity reinforcement has an explicit cap")
 	var tactical_player := {
 		"level": 1,
