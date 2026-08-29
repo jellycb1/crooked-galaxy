@@ -16,7 +16,7 @@ func _init() -> void:
 	var elapsed := 0.0
 	var discovery := {1: {"wins": 0, "seconds": 0.0}}
 	var known_worlds := MissionRulesScript.available_planets(int(player.level)).size()
-	for _capture in 5700:
+	for _capture in 6100:
 		var offers := MissionRulesScript.board_offers(player)
 		check(offers.size() == 3, "standard progression always retains three generated offers")
 		if offers.size() < 2:
@@ -63,6 +63,7 @@ func _init() -> void:
 	check(in_range(discovery, 26, 4100, 4800, 230), "the domestic-asteroid expansion arrives at its level-230 contract")
 	check(in_range(discovery, 27, 4400, 5200, 240), "the last-horizon-registry expansion arrives at its level-240 contract")
 	check(in_range(discovery, 28, 4700, 5600, 250), "the correspondence-villainy-university expansion arrives at its level-250 contract")
+	check(in_range(discovery, 29, 5000, 6000, 260), "the retired-gods-agency expansion arrives at its level-260 contract")
 	check(float(discovery[2].seconds) < float(discovery[3].seconds) and float(discovery[3].seconds) < float(discovery[4].seconds) and float(discovery[4].seconds) < float(discovery[5].seconds), "cumulative mission time grows monotonically across world discoveries")
 	check(seconds_in_range(discovery, 2, 1100.0, 1300.0), "Congelaria enters after roughly twenty minutes of standard base waits")
 	check(seconds_in_range(discovery, 3, 5500.0, 5800.0), "Micelia enters after roughly ninety minutes of standard base waits")
@@ -91,6 +92,7 @@ func _init() -> void:
 	check(float(discovery[26].seconds) > float(discovery[25].seconds), "Domestic Asteroid Kennel extends the cumulative route ladder")
 	check(float(discovery[27].seconds) > float(discovery[26].seconds), "Last Horizon Registry extends the cumulative route ladder")
 	check(float(discovery[28].seconds) > float(discovery[27].seconds), "Correspondence Villainy University extends the cumulative route ladder")
+	check(float(discovery[29].seconds) > float(discovery[28].seconds), "Retired Gods Agency extends the cumulative route ladder")
 
 	finish()
 
