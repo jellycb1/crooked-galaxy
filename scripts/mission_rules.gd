@@ -17,6 +17,7 @@ const EARLY_TRAVEL_BANDS := [
 	{"minimum_level": 4, "multiplier": 0.60},
 	{"minimum_level": 1, "multiplier": 0.40},
 ]
+const MAX_MISSION_FUEL_COST := 100
 
 
 static func available_planets(level: int) -> Array[Dictionary]:
@@ -238,7 +239,7 @@ static func scale_offer_level(template: Dictionary, planet: Dictionary, mission_
 	offer["starter_travel_discount"] = starter_travel_discount(mission_level)
 	offer["pursuit_duration"] = 20.0 + minf(100.0, float(mission_level) * 4.0)
 	offer["duration"] = ceili(float(offer.travel_duration) + float(offer.pursuit_duration))
-	offer["fuel_cost"] = maxi(1, ceili(float(offer.base_travel_duration) / 60.0))
+	offer["fuel_cost"] = clampi(ceili(float(offer.base_travel_duration) / 60.0), 1, MAX_MISSION_FUEL_COST)
 	return offer
 
 

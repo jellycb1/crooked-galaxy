@@ -333,12 +333,57 @@ static func build_workshop_section(host: CrookedUIFactory, content: VBoxContaine
 	section.add_child(field_readiness_card(host, state, readiness))
 	var workshop_recommendation := recommended_workshop_action(state, readiness)
 	section.add_child(workshop_recommendation_card(host, state, workshop_recommendation, readiness))
+	section.add_child(workshop_slot_selector(host, state))
 	var equipped_row := VBoxContainer.new()
 	equipped_row.name = "EquippedWorkbench"
 	equipped_row.add_theme_constant_override("separation", 8)
 	section.add_child(equipped_row)
-	equipped_row.add_child(workshop_upgrade_card(host, state, "weapon", workshop_recommendation))
-	equipped_row.add_child(workshop_upgrade_card(host, state, "armor", workshop_recommendation))
+	var selected_slot := resolved_workshop_slot(host, state)
+	equipped_row.add_child(workshop_upgrade_card(host, state, selected_slot, workshop_recommendation))
+
+
+static func resolved_workshop_slot(host: CrookedUIFactory, state: StateScript) -> String:
+	var selected := str(host.workshop_slot)
+	if Rules.EQUIPMENT_SLOTS.has(selected) and not state.player.get(selected, {}).is_empty():
+		return selected
+	for slot in Rules.EQUIPMENT_SLOTS:
+		if not state.player.get(slot, {}).is_empty():
+			host.workshop_slot = slot
+			return slot
+	return "weapon"
+
+
+static func workshop_slot_selector(host: CrookedUIFactory, state: StateScript) -> PanelContainer:
+	var card := host.panel(VBoxContainer.new(), Color("#13233e"), 12, 10)
+	card.name = "WorkshopSlotSelector"
+	var box := card.get_child(0) as VBoxContainer
+	box.add_theme_constant_override("separation", 7)
+	box.add_child(host.label(text("ARSENAL_WORKSHOP_SLOT_TITLE", "PEÇA NA BANCADA · ESCOLHA UM ESPAÇO EQUIPADO"), UIDesignSystem.FONT_CAPTION, host.CYAN))
+	var grid := GridContainer.new()
+	grid.name = "WorkshopSlotGrid"
+	grid.columns = 3
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 6)
+	box.add_child(grid)
+	var selected := resolved_workshop_slot(host, state)
+	for slot_value in Rules.EQUIPMENT_SLOTS:
+		var slot := str(slot_value)
+		var item: Dictionary = state.player.get(slot, {})
+		var active: bool = slot == selected
+		var action := host.action_button(EquipmentPresentation.localized_slot(slot).to_upper(), host.GOLD if active else (host.CYAN if not item.is_empty() else host.MUTED), true)
+		action.name = "WorkshopSlot_%s" % slot
+		action.custom_minimum_size = Vector2(0, UIDesignSystem.TOUCH_TARGET_MIN)
+		action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		action.disabled = item.is_empty()
+		action.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
+		action.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		var slot_id: String = slot
+		action.pressed.connect(func():
+			host.workshop_slot = slot_id
+			host.call("render")
+		)
+		grid.add_child(action)
+	return card
 
 
 static func scrollable_section(content: VBoxContainer, node_name: String) -> VBoxContainer:
@@ -496,19 +541,35 @@ static func field_readiness_target_context(state: StateScript) -> Dictionary:
 
 
 static func field_readiness_projection_player(player: Dictionary, kind: String) -> Dictionary:
-	var projected := player.duplicate(true)
+	var best: Dictionary = {}
+	var best_score := Rules.player_build_score(player)
 	if kind == "power":
-		var powered_weapon: Dictionary = projected.get("weapon", {}).duplicate(true)
-		powered_weapon.power = int(powered_weapon.get("power", 0)) + 1
-		projected.weapon = powered_weapon
-		return projected
-	for slot in ["weapon", "armor"]:
-		var candidate: Dictionary = projected.get(slot, {}).duplicate(true)
-		if Rules.can_upgrade_integrity(candidate):
-			candidate.integrity_upgrades = int(candidate.get("integrity_upgrades", 0)) + 1
-			projected[slot] = candidate
-			return projected
-	return {}
+		for slot in Rules.EQUIPMENT_SLOTS:
+			var item: Dictionary = player.get(slot, {})
+			if item.is_empty():
+				continue
+			var projected := player.duplicate(true)
+			var powered: Dictionary = item.duplicate(true)
+			powered.power = int(powered.get("power", 0)) + 1
+			projected[slot] = powered
+			var score := Rules.player_build_score(projected)
+			if best.is_empty() or score > best_score:
+				best = projected
+				best_score = score
+		return best if not best.is_empty() else player.duplicate(true)
+	for slot in Rules.EQUIPMENT_SLOTS:
+		var item: Dictionary = player.get(slot, {})
+		if item.is_empty() or not Rules.can_upgrade_integrity(item):
+			continue
+		var projected := player.duplicate(true)
+		var reinforced: Dictionary = item.duplicate(true)
+		reinforced.integrity_upgrades = int(reinforced.get("integrity_upgrades", 0)) + 1
+		projected[slot] = reinforced
+		var score := Rules.player_build_score(projected)
+		if best.is_empty() or score > best_score:
+			best = projected
+			best_score = score
+	return best
 
 
 static func warm_field_readiness_step(state: StateScript, step: int) -> bool:
@@ -633,8 +694,10 @@ static func workshop_projection_candidates(state: StateScript) -> Array[Dictiona
 	var candidates: Array[Dictionary] = []
 	var scrap := int(state.player.get("scrap", 0))
 	var credits := int(state.player.get("credits", 0))
-	for slot in ["weapon", "armor"]:
+	for slot in Rules.EQUIPMENT_SLOTS:
 		var item: Dictionary = state.player[slot]
+		if item.is_empty():
+			continue
 		var actions := [{"kind": "power", "cost": Rules.equipment_upgrade_cost(item), "credit_cost": Rules.equipment_upgrade_credit_cost(item)}]
 		if Rules.can_upgrade_integrity(item):
 			actions.append({"kind": "integrity", "cost": Rules.equipment_integrity_upgrade_cost(item), "credit_cost": Rules.equipment_integrity_credit_cost(item)})
@@ -654,7 +717,7 @@ static func workshop_projection_candidates(state: StateScript) -> Array[Dictiona
 
 
 static func host_slot_fallback(slot: String) -> String:
-	return text("ARSENAL_EQUIPPED_WEAPON", "Arma equipada") if slot == "weapon" else text("ARSENAL_EQUIPPED_ARMOR", "Armadura equipada")
+	return EquipmentPresentation.localized_slot(slot)
 
 
 static func workshop_recommendation_card(host: CrookedUIFactory, state: StateScript, recommendation: Dictionary, readiness: Dictionary = {}) -> PanelContainer:

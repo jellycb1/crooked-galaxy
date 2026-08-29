@@ -27,6 +27,7 @@ var inventory_filter := "all"
 var inventory_sort := "power"
 var inventory_page := 0
 var arsenal_section := "equipped"
+var workshop_slot := "weapon"
 var board_section := "bounties"
 var board_details_open := false
 var hunter_section := "profile"
@@ -67,6 +68,7 @@ func reset_transient_navigation() -> void:
 	inventory_sort = "power"
 	inventory_page = 0
 	arsenal_section = "equipped"
+	workshop_slot = "weapon"
 	board_section = "bounties"
 	board_details_open = false
 	hunter_section = "profile"

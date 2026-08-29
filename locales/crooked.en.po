@@ -9586,3 +9586,6 @@ msgid "BOARD_WEEKLY_ROUTE"
 msgstr "WEEKLY CIRCUIT"
 msgid "WEEKLY_NOTICE_ALL_PAYMENTS_CLAIMED"
 msgstr "%d weekly payouts claimed: +%d credits · +%d scrap."
+
+msgid "ARSENAL_WORKSHOP_SLOT_TITLE"
+msgstr "WORKBENCH ITEM · CHOOSE AN EQUIPPED SLOT"

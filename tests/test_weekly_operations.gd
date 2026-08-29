@@ -91,7 +91,7 @@ func _init() -> void:
 	check(repaired.player.weekly_route_planet_ids.is_empty() and repaired.player.weekly_route_captures.is_empty() and not bool(repaired.player.weekly_route_claimed), "loaded circuit identity, progress, and claim types cannot be forged")
 
 	var migrated := SaveMigrations.migrate({"version": 22, "player": {"level": 7}})
-	check(int(migrated.version) == 24 and int(migrated.player.weekly_cycle_id) == -1, "schema twenty-three initializes a neutral weekly cycle without inventing progress")
+	check(int(migrated.version) == SaveMigrations.CURRENT_VERSION and int(migrated.player.weekly_cycle_id) == -1, "schema twenty-three initializes a neutral weekly cycle without inventing progress")
 	check(migrated.player.claimed_weekly_objectives.is_empty() and not bool(migrated.player.weekly_special_completed), "weekly migration never claims content for an existing hunter")
 	check(migrated.player.weekly_route_planet_ids.is_empty() and migrated.player.weekly_route_captures.is_empty() and not bool(migrated.player.weekly_route_claimed), "schema twenty-four initializes a neutral circuit snapshot without inventing captures")
 	state.free()

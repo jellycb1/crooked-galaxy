@@ -235,8 +235,10 @@ func run_audit() -> void:
 			var advanced_stage := Challenge.stage_at(reward_index, str(advanced_reality.id))
 			var expected_credits := roundi(MissionRules.standard_credit_reward(reward_level) * 1.25)
 			var expected_xp := roundi(MissionRules.standard_xp_reward(reward_level) * 1.25)
-			var calibration_service := CoreRules.equipment_upgrade_credit_cost({"item_level": reward_level, "power": 1})
+			var advanced_reward := Challenge.reward_for(advanced_stage, ContentDB.ITEM_TRAITS)
+			var calibration_service := CoreRules.equipment_upgrade_credit_cost(advanced_reward)
 			check(int(advanced_stage.credits) == expected_credits and int(advanced_stage.xp) == expected_xp, "%s enemy %d pays the explicit 1.25x standard first-clear envelope" % [str(advanced_reality.id), reward_index + 1])
+			check(int(advanced_reward.item_level) == reward_level, "%s reward %d carries its authored economy level into inventory" % [str(advanced_reality.id), reward_index + 1])
 			check(int(advanced_stage.credits) >= calibration_service and int(advanced_stage.credits) <= calibration_service * 2, "%s enemy %d funds between one and two first workshop services" % [str(advanced_reality.id), reward_index + 1])
 	for stage_index in Challenge.STAGES.size():
 		var projected_level := 160 + stage_index * 5

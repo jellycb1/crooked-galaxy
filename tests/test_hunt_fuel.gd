@@ -55,6 +55,14 @@ func _init() -> void:
 	var repaired: Dictionary = refill.sanitize_loaded_player(malformed)
 	check(bool(repaired.repaired) and int(repaired.player.hunt_fuel_refill_count) == 3 and int(repaired.player.hunt_fuel) == 160, "save sanitizer bounds fuel and premium refill count")
 	check(MonetizationRules.mission_fuel_cost({"challenge": true}) == 0, "Fenda challenges remain outside normal hunt fuel")
+	var late_player := refill.default_player()
+	late_player.level = 320
+	late_player.base_power = 648
+	var late_planet: Dictionary = ContentDB.PLANETS[-1]
+	var late_target: Dictionary = ContentDB.targets_for_planet(str(late_planet.id))[0]
+	var late_offer := MissionRules.offer_for_target(late_player, late_target)
+	check(int(late_offer.base_travel_duration) == int(late_planet.travel_duration) and int(late_offer.base_travel_duration) > MonetizationRules.DAILY_HUNT_FUEL * 60, "late destinations preserve their authored long travel wait")
+	check(int(late_offer.fuel_cost) == MonetizationRules.DAILY_HUNT_FUEL and MonetizationRules.mission_fuel_cost(late_offer) == MonetizationRules.DAILY_HUNT_FUEL, "one normal late route never exceeds the free daily fuel reserve")
 
 	var fuel_save := "res://.godot/crooked_galaxy_fuel_test_%s.json" % OS.get_process_id()
 	remove_save_family(fuel_save)

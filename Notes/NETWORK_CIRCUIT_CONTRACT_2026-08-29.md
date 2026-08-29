@@ -12,7 +12,7 @@ O Circuito da Rede é a camada semanal repetível que devolve destinos já conhe
 - O snapshot não muda se outro planeta for desbloqueado durante a semana.
 - Com os 35 mundos desbloqueados, doze circuitos consecutivos apresentam todo o catálogo pelo menos uma vez.
 - Um destino do circuito ocupa sempre um dos três mandados normais. A apresentação prioritária de um mundo recém-desbloqueado continua preservada noutro cartão.
-- Alvos, pressões, combustível, duração, XP, Créditos, loot e incidentes continuam a usar exatamente as regras normais do mandado escolhido.
+- Alvos, pressões, combustível, duração, XP, Créditos, loot e incidentes continuam a usar exatamente as regras normais do mandado escolhido. A duração autorada pode chegar a 140 minutos; o combustível normal fica limitado à reserva gratuita de 100 por uma missão, sem reduzir essa espera.
 
 ## Progresso e pagamento
 
@@ -24,7 +24,7 @@ O Circuito da Rede é a camada semanal repetível que devolve destinos já conhe
 
 ## Limites comerciais
 
-O Circuito não pode ser renovado, acelerado ou repetido com Fichas de Dobra. Não cria combustível, loot exclusivo, atributos, níveis, entradas de Fenda nem multiplicadores de poder. Caçadas realizadas com uma recarga de combustível já permitida podem naturalmente avançar a rota, mas seis capturas cabem no perfil gratuito e o pagamento não escala com gasto premium.
+O Circuito não pode ser renovado, acelerado ou repetido com Fichas de Dobra. Não cria combustível, loot exclusivo, atributos, níveis, entradas de Fenda nem multiplicadores de poder. Caçadas realizadas com uma recarga de combustível já permitida podem naturalmente avançar a rota, mas seis capturas cabem no perfil gratuito. A simulação conjunta conclui quatro a cinco dos cinco circuitos completos possíveis consoante a estratégia de escolha, sem gasto premium; o pagamento não escala com recargas.
 
 ## Apresentação
 

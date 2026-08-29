@@ -2,8 +2,9 @@ class_name SaveMigrations
 extends RefCounted
 
 const Content = preload("res://scripts/content_db.gd")
+const Challenge = preload("res://scripts/challenge_rules.gd")
 
-const CURRENT_VERSION := 24
+const CURRENT_VERSION := 25
 const BASE_ATTRIBUTE_VALUE := 10
 const ATTRIBUTE_POINTS_PER_LEVEL := 2
 
@@ -84,6 +85,9 @@ static func migrate(payload: Dictionary) -> Dictionary:
 			23:
 				migrated = migrate_v23_to_v24(migrated)
 				version = 24
+			24:
+				migrated = migrate_v24_to_v25(migrated)
+				version = 25
 			_:
 				return {}
 		migrated.version = version
@@ -413,3 +417,36 @@ static func migrate_v23_to_v24(payload: Dictionary) -> Dictionary:
 		player.weekly_route_claimed = false
 	migrated.player = player
 	return migrated
+
+
+static func migrate_v24_to_v25(payload: Dictionary) -> Dictionary:
+	var migrated := payload.duplicate(true)
+	var player: Dictionary = migrated.get("player", {})
+	for slot in ["weapon", "helmet", "armor", "gloves", "boots", "rig", "implant", "gadget", "relic"]:
+		var item = player.get(slot, {})
+		if item is Dictionary:
+			apply_advanced_rift_item_level(item)
+			player[slot] = item
+	var inventory = player.get("inventory", [])
+	if inventory is Array:
+		for index in inventory.size():
+			if inventory[index] is Dictionary:
+				apply_advanced_rift_item_level(inventory[index])
+		player.inventory = inventory
+	migrated.player = player
+	var pending = migrated.get("pending_loot", {})
+	if pending is Dictionary:
+		apply_advanced_rift_item_level(pending)
+		migrated.pending_loot = pending
+	return migrated
+
+
+static func apply_advanced_rift_item_level(item: Dictionary) -> void:
+	if item.has("item_level") or str(item.get("challenge_origin", "")) != "fenda_clandestina":
+		return
+	var item_id := str(item.get("id", ""))
+	if not item_id.ends_with("_reward"):
+		return
+	var stage := Challenge.get_stage(item_id.trim_suffix("_reward"))
+	if stage.has("reward_level"):
+		item.item_level = int(stage.reward_level)

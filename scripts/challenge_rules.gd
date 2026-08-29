@@ -610,6 +610,8 @@ static func reward_for(stage: Dictionary, traits: Dictionary) -> Dictionary:
 		"color": str(colors.get(rarity, colors.Comum)),
 		"challenge_origin": "fenda_clandestina",
 	}
+	if stage.has("reward_level"):
+		item["item_level"] = int(stage.reward_level)
 	var trait_id := str(definition.get("trait_id", ""))
 	for modification in traits.get(str(definition.slot), []):
 		if str(modification.id) == trait_id:

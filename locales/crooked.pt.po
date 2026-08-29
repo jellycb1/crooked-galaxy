@@ -9586,3 +9586,6 @@ msgid "BOARD_WEEKLY_ROUTE"
 msgstr "CIRCUITO SEMANAL"
 msgid "WEEKLY_NOTICE_ALL_PAYMENTS_CLAIMED"
 msgstr "%d pagamentos semanais resgatados: +%d créditos · +%d sucata."
+
+msgid "ARSENAL_WORKSHOP_SLOT_TITLE"
+msgstr "PEÇA NA BANCADA · ESCOLHA UM ESPAÇO EQUIPADO"

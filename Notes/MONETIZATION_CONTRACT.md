@@ -35,7 +35,7 @@ Dentro de cada sistema e dia UTC, os três usos premium custam **1, 5 e 20** Fic
 Estado das aplicações:
 
 1. **ATIVO — Mercado:** até três renovações por dia. A terceira seleção contém pelo menos um item Raro compatível, mas não garante que seja melhoria.
-2. **ATIVO — Combustível de caça:** reserva diária de 100 unidades; missões normais consomem o equivalente aos minutos da rota-base. Cada recarga concede 20 e segue a escada diária 1/5/20. Faturação e autoridade continuam locais e não representam uma loja real.
+2. **ATIVO — Combustível de caça:** reserva diária de 100 unidades; missões normais consomem o equivalente aos minutos da rota-base, limitado a 100 por missão. Rotas de 124–140 minutos preservam toda a espera e o valor dos transportes, mas nunca tornam a primeira caçada diária dependente de recarga. Cada recarga concede 20 e segue a escada diária 1/5/20. Faturação e autoridade continuam locais e não representam uma loja real.
 3. **PLANEADO — Reduções de tempo:** Células de Salto poderão reduzir cinco minutos e deverão existir também como recompensa jogável, com limite diário. Ainda não fazem parte do cliente atual.
 4. **FUTURO — Arena:** saltos de cooldown poderão usar a mesma escada, sempre limitados a três por dia e sem alterar probabilidades de vitória.
 
@@ -62,6 +62,7 @@ Estado das aplicações:
 - O custo deriva do nível persistido da peça e cresce com intervenções anteriores; não depende da classe nem do poder equipado do jogador.
 - A transação mostra e exige os dois valores antes de deduzir ambos atomicamente.
 - Em 40 carreiras de 200 contratos, o serviço mediano absorve 23 707 Créditos, ou 17,4% do saldo que seria retido, preservando a aquisição dos quatro transportes.
+- As recompensas avançadas da Fenda persistem o seu checkpoint como `item_level`; cada primeira vitória financia 1,69 serviços iniciais da própria peça, sem transformar a entrada diária em produto premium.
 - O serviço é progressão normal e nunca aceita Fichas de Dobra. Não adiciona rerolls, raridade, atributos, probabilidade de vitória ou equipamento exclusivo.
 
 ## Produtos futuros permitidos

@@ -1,6 +1,8 @@
 extends SceneTree
 
 const SaveMigrations = preload("res://scripts/save_migrations.gd")
+const Challenge = preload("res://scripts/challenge_rules.gd")
+const Content = preload("res://scripts/content_db.gd")
 
 var failures := 0
 
@@ -100,12 +102,18 @@ func _init() -> void:
 	check(SaveMigrations.migrate({"version": 0}).is_empty(), "unversioned saves are rejected")
 	check(SaveMigrations.migrate({"version": SaveMigrations.CURRENT_VERSION + 1}).is_empty(), "future saves are rejected")
 	var fuel_migration := SaveMigrations.migrate({"version": 20, "player": {"credits": 5}})
-	check(int(fuel_migration.version) == 24 and int(fuel_migration.player.hunt_fuel) == 100 and int(fuel_migration.player.hunt_fuel_refill_count) == 0, "schema twenty receives a full neutral daily fuel reserve")
+	check(int(fuel_migration.version) == SaveMigrations.CURRENT_VERSION and int(fuel_migration.player.hunt_fuel) == 100 and int(fuel_migration.player.hunt_fuel_refill_count) == 0, "schema twenty receives a full neutral daily fuel reserve")
 	var rift_migration := SaveMigrations.migrate({"version": 21, "player": {"level": 29, "challenge_floor": 6}})
 	check(rift_migration.player.rift_reality_keys == ["dead_customs_key"], "schema twenty-two preserves the earned key for an established Rift hunter")
 	check(int(rift_migration.player.rift_reality_progress.dead_customs) == 6 and int(rift_migration.player.rift_entry_day) == -1, "schema twenty-two maps legacy floors without inventing a consumed daily entry")
-	check(int(rift_migration.version) == 24 and int(rift_migration.player.weekly_cycle_id) == -1 and rift_migration.player.claimed_weekly_objectives.is_empty(), "schema twenty-three adds neutral weekly operations to established Rift saves")
+	check(int(rift_migration.version) == SaveMigrations.CURRENT_VERSION and int(rift_migration.player.weekly_cycle_id) == -1 and rift_migration.player.claimed_weekly_objectives.is_empty(), "schema twenty-three adds neutral weekly operations to established Rift saves")
 	check(rift_migration.player.weekly_route_planet_ids.is_empty() and rift_migration.player.weekly_route_captures.is_empty() and not bool(rift_migration.player.weekly_route_claimed), "schema twenty-four adds a neutral Network Circuit to established weekly saves")
+	var advanced_stage := Challenge.stage_at(0, "frozen_verdict")
+	var legacy_rift_item := Challenge.reward_for(advanced_stage, Content.ITEM_TRAITS)
+	legacy_rift_item.erase("item_level")
+	var leveled_rift := SaveMigrations.migrate({"version": 24, "player": {"rig": legacy_rift_item, "inventory": [legacy_rift_item]}, "pending_loot": legacy_rift_item})
+	check(int(leveled_rift.version) == 25 and int(leveled_rift.player.rig.item_level) == 100, "schema twenty-five restores the authored economy level of an equipped advanced Rift artifact")
+	check(int(leveled_rift.player.inventory[0].item_level) == 100 and int(leveled_rift.pending_loot.item_level) == 100, "schema twenty-five repairs stored and pending advanced Rift artifacts without changing their identity")
 
 	if failures == 0:
 		print("PASS: save migrations are deterministic and non-destructive")

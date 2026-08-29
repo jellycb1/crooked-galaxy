@@ -18,9 +18,10 @@ func _init() -> void:
 	state.player.captures_by_target = {"gloop": 1}
 	state.player.captures_by_planet = {"dustball_prime": 1}
 	state.player.scrap = 20
-	state.player.credits = 5000
+	state.player.credits = 50000
 	state.player.weapon.origin_planet_id = "dustball_prime"
 	state.player.armor.origin_planet_id = "dustball_prime"
+	state.player.rig = {"id": "rift_rig", "name": "Arnês da Fenda", "slot": "rig", "power": 0, "rarity": "Raro", "color": "#58d9ff", "item_level": 100}
 	state.player.inventory = [
 		{"id": "view_weapon", "name": "Arma de Vista", "slot": "weapon", "power": 5, "rarity": "Raro", "color": "#58d9ff"},
 		{"id": "view_armor", "name": "Armadura de Vista", "slot": "armor", "power": 4, "rarity": "Comum", "color": "#b9c2d9"},
@@ -43,10 +44,13 @@ func _init() -> void:
 	check(workshop_notice != null and workshop_notice.text.contains("+6 sucata"), "isolated arsenal preserves the transaction that funded the workshop")
 	var readiness_target := host.find_child("FieldReadinessTarget", true, false) as Label
 	check(workshop_notice.get_theme_font_size("font_size") >= 18 and readiness_target != null and readiness_target.get_theme_font_size("font_size") >= 18, "workshop receipts and field-test context meet the Android readability floor")
-	check(host.find_child("Upgrade_weapon", true, false) != null and host.find_child("Reinforce_armor", true, false) != null, "isolated arsenal builds both workshop paths")
-	check(host.find_child("EquippedWorkbenchIcon_weapon", true, false) != null and host.find_child("EquippedWorkbenchIcon_armor", true, false) != null, "equipped workbench gives both slots immediate visual identity")
+	var workshop_grid := host.find_child("WorkshopSlotGrid", true, false) as GridContainer
+	check(workshop_grid != null and workshop_grid.get_child_count() == CoreRules.EQUIPMENT_SLOTS.size(), "workshop exposes the same universal nine-slot equipment contract")
+	check(not (host.find_child("WorkshopSlot_weapon", true, false) as Button).disabled and not (host.find_child("WorkshopSlot_rig", true, false) as Button).disabled and (host.find_child("WorkshopSlot_relic", true, false) as Button).disabled, "workbench selector enables equipped slots and disables empty ones")
+	check(host.find_child("Upgrade_weapon", true, false) != null and host.find_child("Reinforce_weapon", true, false) != null and host.find_child("Upgrade_armor", true, false) == null, "workshop renders one selected mobile dossier instead of competing upgrade cards")
+	check(host.find_child("EquippedWorkbenchIcon_weapon", true, false) != null and host.find_child("EquippedWorkbenchIcon_armor", true, false) == null, "selected workbench item owns the single visual identity")
 	var recommended_buttons := host.find_children("*", "Button", true, false).filter(func(button): return str(button.text).begins_with("★"))
-	check(recommended_buttons.size() == 1, "workshop marks exactly one affordable best-value action")
+	check(recommended_buttons.size() <= 1, "selected workbench marks at most one affordable best-value action")
 	var recommendation := ArsenalScript.recommended_workshop_action(state)
 	var recommendation_card := host.find_child("WorkshopRecommendation", true, false) as PanelContainer
 	var recommendation_action := host.find_child("RecommendedWorkshopAction", true, false) as Button
@@ -58,6 +62,15 @@ func _init() -> void:
 	check(recommendation_action != null and UIDesignSystem.is_safe_touch_target(recommendation_action.custom_minimum_size.y) and UIDesignSystem.is_safe_touch_target(upgrade_weapon.custom_minimum_size.y) and UIDesignSystem.is_safe_touch_target(reinforce_weapon.custom_minimum_size.y), "every workshop transaction remains a safe physical Android touch target")
 	check(upgrade_weapon.text.contains("◈") and upgrade_weapon.text.contains("SUC") and reinforce_weapon.text.contains("◈"), "workshop actions expose both currencies before confirmation")
 	check(not recommendation.is_empty() and int(recommendation.cost) <= int(state.player.scrap) and int(recommendation.credit_cost) <= int(state.player.credits) and recommendation.has("current_odds") and recommendation.has("score_gain"), "workshop recommendation carries an affordable, auditable dual-cost projection")
+	check(ArsenalScript.workshop_projection_candidates(state).any(func(candidate): return str(candidate.slot) == "rig"), "workshop projections include non-weapon and non-armor equipment")
+	host.workshop_slot = "rig"
+	clear_children(content)
+	ArsenalScript.build(host, content, state)
+	check(host.find_child("Upgrade_rig", true, false) != null and host.find_child("Reinforce_rig", true, false) != null and host.find_child("EquippedWorkbenchIcon_rig", true, false) != null, "a Rift rig receives the complete universal workshop service")
+	check((host.find_child("Upgrade_rig", true, false) as Button).text.contains("◈ 10020"), "advanced Rift item preserves its level-scaled first calibration price")
+	host.workshop_slot = "weapon"
+	clear_children(content)
+	ArsenalScript.build(host, content, state)
 	check(host.find_child("FieldReadiness", true, false) != null, "isolated arsenal translates upgrades into next-warrant odds")
 	var readiness := ArsenalScript.field_readiness(state)
 	check(str(readiness.target.id) == "baron_boom", "field test selects the next planet-tier target")

@@ -42,7 +42,9 @@ static func mission_fuel_cost(mission: Dictionary) -> int:
 	if not bool(mission.get("mission_offer", false)) or bool(mission.get("challenge", false)):
 		return 0
 	var base_seconds := maxf(0.0, float(mission.get("base_travel_duration", mission.get("travel_duration", 0.0))))
-	return maxi(1, ceili(base_seconds / 60.0))
+	# Every unlocked destination must remain playable from the free daily reserve.
+	# Long routes retain their real wait, but never become a premium fuel gate.
+	return clampi(ceili(base_seconds / 60.0), 1, DAILY_HUNT_FUEL)
 
 
 static func hunt_fuel_remaining(player: Dictionary) -> int:
