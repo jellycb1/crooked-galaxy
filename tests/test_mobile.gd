@@ -90,7 +90,7 @@ func run_mobile_audit() -> void:
 	scene.render()
 	await process_frame
 	check(find_label_with_text(scene, "HUNTER CAREER") != null and find_label_with_text(scene, "LEVEL 4 HUNTER") != null and find_label_with_text(scene, "7 CAPTURES · 2/35 KNOWN WORLDS") != null and find_label_with_text(scene, "NEXT LEVEL") != null and (scene.find_child("CareerProgressJump", true, false) as Button).text == "PROGRESS" and (scene.find_child("CareerArchiveJump", true, false) as Button).text == "WANTED · 140", "English career covers hunter progression, XP, discovered worlds, and section navigation")
-	check(find_label_with_text(scene, "NEXT MASTERY · GLOOP THE INCONVENIENT") != null and find_label_with_text(scene, "PLANETARY PROGRESS") != null and find_label_with_text(scene, "CLANDESTINE RIFT") != null and find_label_with_text(scene, "FIRST WARRANT") != null, "English career covers mastery direction, planetary ladder, parallel progress, and milestones")
+	check(find_label_with_text(scene, "NEXT MASTERY · GLOOP THE INCONVENIENT") != null and find_label_with_text(scene, "PLANETARY PROGRESS") != null and find_label_with_text(scene, "CLANDESTINE RIFT") != null and find_label_with_text(scene, "FIRST WARRANT") != null and find_label_with_text(scene, "PROGRESS 1 / 1") != null, "English career covers mastery direction, planetary ladder, parallel progress, and milestone progress")
 	state.claim_career_milestone("first_warrant")
 	await process_frame
 	check(state.last_notice.begins_with("Milestone claimed: FIRST WARRANT.") and find_label_with_text(scene, "CAREER RECEIPT") != null and find_label_with_text(scene, state.last_notice) != null, "English career claim uses the localized milestone identity and visible transaction receipt")

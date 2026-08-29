@@ -61,6 +61,7 @@ Estes ficheiros são evidência datada. Podem explicar uma decisão, mas as suas
 - `PACING_INTERFACE_SCALABILITY_2026-08-28.md`;
 - `POLISH_PERFORMANCE_QOL_2026-08-28.md`;
 - `PROJECT_STATE_AUDIT_2026-08-28.md`;
+- `LAUNCH_CONTENT_COVERAGE_AUDIT_2026-08-29.md`;
 - `UI_IDENTITY_AUDIT_2026-08-26.md`;
 - `UI_REBUILD_BLUEPRINT_2026-08-27.md`.
 

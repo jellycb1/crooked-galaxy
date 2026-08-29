@@ -228,7 +228,7 @@ func _init() -> void:
 	check(not reinforcement_cap_state.reinforce_equipped("weapon") and int(reinforcement_cap_state.player.scrap) == 100, "workshop rejects reinforcement beyond the cap without charging scrap")
 	reinforcement_cap_state.free()
 	var milestones := state.career_milestones()
-	check(milestones.size() == 8, "career exposes eight derived milestones")
+	check(milestones.size() == 19, "career exposes the complete derived milestone ladder")
 	check(bool(milestones[0].complete), "first capture completes its career milestone")
 	var credits_before_milestone := int(state.player.credits)
 	check(state.career_rewards_ready() == 1, "completed career milestone advertises a pending reward")

@@ -32,6 +32,7 @@ $Tests = @(
 	"test_mission_pacing.gd",
 	"test_long_horizon_economy.gd",
 	"test_year_one_content.gd",
+	"test_launch_content_coverage.gd",
 	"test_planet_content_packs.gd",
 	"test_content_indices.gd",
 	"test_mission_network_compatibility.gd",

@@ -49,7 +49,7 @@ func audit_bulk_profiles() -> void:
 	var profiles := [
 		{"name": "early", "wins": 1},
 		{"name": "mid", "wins": 5, "captures_by_target": {"gloop": 3}, "completed_count": 1, "scrap_recycled_total": 25, "best_capture_streak": 5},
-		{"name": "complete", "wins": 30, "captures_by_target": {"gloop": 10}, "completed_count": ContentDB.PLANETS.size(), "scrap_recycled_total": 25, "best_capture_streak": 10},
+		{"name": "complete", "wins": 3000, "captures_by_target": {"gloop": 10}, "completed_count": ContentDB.PLANETS.size(), "scrap_recycled_total": 25, "best_capture_streak": 10},
 	]
 	for profile in profiles:
 		var source := configured_state(profile)
@@ -80,7 +80,7 @@ func audit_bulk_profiles() -> void:
 
 func complete_state() -> StateScript:
 	return configured_state({
-		"wins": 30,
+		"wins": 3000,
 		"captures_by_target": {"gloop": 10},
 		"completed_count": ContentDB.PLANETS.size(),
 		"scrap_recycled_total": 25,
@@ -96,9 +96,8 @@ func configured_state(profile: Dictionary) -> StateScript:
 	state.player.captures_by_target = profile.get("captures_by_target", {}).duplicate(true)
 	state.player.scrap_recycled_total = int(profile.get("scrap_recycled_total", 0))
 	state.player.best_capture_streak = int(profile.get("best_capture_streak", 0))
-	var discovery_levels := [1, 4, 8, 13, 19]
 	var requested_discoveries := int(profile.get("completed_count", 0))
-	state.player.level = discovery_levels[mini(discovery_levels.size() - 1, requested_discoveries)] if requested_discoveries > 0 else 1
+	state.player.level = int(ContentDB.PLANETS[mini(ContentDB.PLANETS.size() - 1, requested_discoveries - 1)].unlock_level) if requested_discoveries > 0 else 1
 	var completed: Array = []
 	for index in int(profile.get("completed_count", 0)):
 		completed.append(str(ContentDB.PLANETS[index].id))

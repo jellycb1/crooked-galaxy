@@ -1,6 +1,7 @@
 extends SceneTree
 
 const Challenge = preload("res://scripts/challenge_rules.gd")
+const Career = preload("res://scripts/career_rules.gd")
 const Core = preload("res://scripts/core_rules.gd")
 const Locales = preload("res://scripts/locale_rules.gd")
 const State = preload("res://scripts/game_state.gd")
@@ -81,6 +82,11 @@ func run_test() -> void:
 	for anomaly_id in Challenge.ANOMALY_PROFILES:
 		for field in ["name", "description", "favored_axis"]:
 			check_translation("RIFT_ANOMALY_%s_%s" % [str(anomaly_id).to_upper(), field.to_upper()], "Rift anomaly %s" % field)
+	var launch_career := {"wins": 3000, "level": 320, "captures_by_target": {"gloop": 3}, "scrap_recycled_total": 25, "best_capture_streak": 5, "claimed_milestones": []}
+	for milestone in Career.milestones(launch_career):
+		var prefix := "CAREER_MILESTONE_%s" % str(milestone.id).to_upper()
+		for field in ["NAME", "DESCRIPTION"]:
+			check_catalog_key(pt_keys, en_keys, "%s_%s" % [prefix, field], "career milestone %s" % field.to_lower())
 
 	var state = root.get_node_or_null("GameState")
 	check(state != null, "autoload exists for bilingual rendering audit")

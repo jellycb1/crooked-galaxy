@@ -29,6 +29,8 @@ func _init() -> void:
 	check(host.find_children("CareerPlanetIcon_*", "Control", true, false).size() == 1, "career materializes only the selected planet instead of the full launch catalog")
 	check(host.find_child("CareerProgressPlanetNavigation", true, false) != null and host.find_child("CareerProgressPlanetNext", true, false) != null, "career keeps every destination reachable through a touch-safe pager")
 	check(host.find_children("CareerMilestone_*", "PanelContainer", true, false).size() == 1 and host.find_child("CareerMilestoneNavigation", true, false) != null, "career materializes one milestone dossier at a time")
+	var milestone_progress := host.find_child("CareerMilestoneProgress_first_warrant", true, false) as ProgressBar
+	check(milestone_progress != null and milestone_progress.value == 1 and milestone_progress.max_value == 1, "career milestone dossier exposes exact visual progress")
 	check(host.find_child("CareerClaimReceipt", true, false) == null, "career does not mislabel unrelated state as a milestone receipt")
 	check(host.find_child("CareerScroll", true, false) != null, "isolated career builds its archive scroller")
 	check(host.find_child("CareerProgressJump", true, false) != null, "career provides a direct route back to progression")

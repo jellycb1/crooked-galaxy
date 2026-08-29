@@ -516,6 +516,18 @@ static func milestone_card(host: CrookedUIFactory, state: StateScript, milestone
 	var milestone_description := host.label(str(milestone.description), UIDesignSystem.FONT_CAPTION, host.MUTED)
 	milestone_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(milestone_description)
+	var current := clampi(int(milestone.get("current", 0)), 0, maxi(1, int(milestone.get("target", 1))))
+	var target := maxi(1, int(milestone.get("target", 1)))
+	copy.add_child(host.label(t("CAREER_MILESTONE_PROGRESS", "PROGRESSO %d / %d", [current, target]), UIDesignSystem.FONT_CAPTION, host.LIME if complete else host.CYAN))
+	var progress := ProgressBar.new()
+	progress.name = "CareerMilestoneProgress_%s" % str(milestone.id)
+	progress.max_value = target
+	progress.value = current
+	progress.show_percentage = false
+	progress.custom_minimum_size = Vector2(0, 8)
+	progress.add_theme_stylebox_override("background", host.box_style(Color("#091126"), 4))
+	progress.add_theme_stylebox_override("fill", host.box_style(host.LIME if complete else host.CYAN, 4))
+	copy.add_child(progress)
 	var reward_text := "◈ %d" % int(milestone.credits)
 	if int(milestone.scrap) > 0:
 		reward_text += t("CAREER_REWARD_SCRAP", " · %d sucata", [int(milestone.scrap)])
