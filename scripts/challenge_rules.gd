@@ -462,6 +462,33 @@ static func selected_reality_id(player: Dictionary) -> String:
 	return selected if has_reality_key(player, selected) else FIRST_REALITY_ID
 
 
+static func active_progress_reality_id(player: Dictionary) -> String:
+	var selected := selected_reality_id(player)
+	var selected_definition := reality_definition(selected)
+	if not selected_definition.is_empty() and progress(player, selected) < selected_definition.stages.size():
+		return selected
+	for reality in REALITIES:
+		var reality_id := str(reality.id)
+		if has_reality_key(player, reality_id) and progress(player, reality_id) < reality.stages.size():
+			return reality_id
+	return selected
+
+
+static func next_unowned_reality(player: Dictionary) -> Dictionary:
+	for reality in REALITIES:
+		if not has_reality_key(player, str(reality.id)):
+			return reality.duplicate(true)
+	return {}
+
+
+static func all_realities_complete(player: Dictionary) -> bool:
+	for reality in REALITIES:
+		var reality_id := str(reality.id)
+		if not has_reality_key(player, reality_id) or progress(player, reality_id) < reality.stages.size():
+			return false
+	return true
+
+
 static func entry_available(player: Dictionary, unix_time := -1.0) -> bool:
 	var status := attempt_status(player, unix_time)
 	return bool(status.can_attempt)

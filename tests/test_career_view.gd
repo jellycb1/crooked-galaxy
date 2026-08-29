@@ -101,8 +101,34 @@ func _init() -> void:
 	clear_children(content)
 	CareerViewScript.build(host, content, state)
 	var completed_challenge := host.find_child("CareerChallengeProgress", true, false)
-	check(find_text(completed_challenge).contains("12/12 ANDARES") and find_text(completed_challenge).contains("COMPLETA"), "career renders the complete twelve-floor archive without a stale sector")
-	check(host.find_child("CareerChallengeAction", true, false) == null, "completed Rift removes its entry action")
+	check(find_text(completed_challenge).contains("12/12 LIMPOS") and find_text(completed_challenge).contains("PRÓXIMA CHAVE NO NÍVEL 100"), "career distinguishes a completed reality from the complete multi-reality Rift")
+	check(host.find_child("CareerChallengeAction", true, false) != null, "completed first reality retains access while the next key remains pending")
+	state.player.level = 100
+	state.player.rift_reality_keys = ["dead_customs_key", "frozen_verdict_key"]
+	state.player.rift_seen_key_ids = state.player.rift_reality_keys.duplicate()
+	state.player.selected_rift_reality_id = ChallengeRules.FIRST_REALITY_ID
+	state.player.rift_reality_progress = {ChallengeRules.FIRST_REALITY_ID: 12, "frozen_verdict": 3}
+	clear_children(content)
+	CareerViewScript.build(host, content, state)
+	var active_reality_card := host.find_child("CareerChallengeProgress", true, false)
+	check(find_text(active_reality_card).contains("VEREDITO DO TEMPO CONGELADO") and find_text(active_reality_card).contains("3/12 LIMPOS"), "career advances from a selected completed reality to another owned incomplete reality")
+	var active_reality_action := host.find_child("CareerChallengeAction", true, false) as Button
+	active_reality_action.pressed.emit()
+	check(str(state.player.selected_rift_reality_id) == "frozen_verdict", "career route selects the incomplete reality before opening the Rift")
+	state.phase = state.Phase.BOARD
+	state.player.rift_reality_keys = ["dead_customs_key", "frozen_verdict_key", "rejected_futures_key"]
+	state.player.rift_seen_key_ids = state.player.rift_reality_keys.duplicate()
+	state.player.selected_rift_reality_id = "rejected_futures"
+	state.player.rift_reality_progress = {ChallengeRules.FIRST_REALITY_ID: 12, "frozen_verdict": 12, "rejected_futures": 12}
+	clear_children(content)
+	CareerViewScript.build(host, content, state)
+	var complete_rift_card := host.find_child("CareerChallengeProgress", true, false)
+	check(find_text(complete_rift_card).contains("ARQUIVO CONCLUÍDO") and find_text(complete_rift_card).contains("COMPLETA"), "career reserves complete-Rift language for all three owned and cleared realities")
+	check(host.find_child("CareerChallengeAction", true, false) == null, "the fully completed current Rift removes the now-empty progress route")
+	state.player.level = 19
+	state.player.rift_reality_keys = ["dead_customs_key"]
+	state.player.rift_seen_key_ids = state.player.rift_reality_keys.duplicate()
+	state.player.selected_rift_reality_id = ChallengeRules.FIRST_REALITY_ID
 	state.player.challenge_floor = 0
 	state.player.rift_reality_progress = {ChallengeRules.FIRST_REALITY_ID: 0}
 	clear_children(content)

@@ -1015,13 +1015,23 @@ func build_frontier_menu() -> void:
 		render()
 	))
 	var rift_status := GameState.rift_status()
-	var challenge_floor := int(rift_status.progress)
+	var active_rift_reality_id := ChallengeRulesScript.active_progress_reality_id(GameState.player) if bool(rift_status.unlocked) else ChallengeRulesScript.FIRST_REALITY_ID
+	var active_rift_reality := ChallengeRulesScript.reality_definition(active_rift_reality_id)
+	var challenge_floor := ChallengeRulesScript.progress(GameState.player, active_rift_reality_id) if bool(rift_status.unlocked) else 0
 	var challenge_detail := t("MENU_RIFT_LOCKED", "DESBLOQUEIA NO NÍVEL %d", [ChallengeRulesScript.UNLOCK_LEVEL])
 	if bool(rift_status.unlocked):
 		if not rift_status.unseen_key_reality.is_empty():
 			challenge_detail = t("MENU_RIFT_PORTAL_READY", "NOVA CHAVE · PORTAL POR ABRIR")
+		elif ChallengeRulesScript.all_realities_complete(GameState.player):
+			challenge_detail = t("MENU_RIFT_COMPLETE", "FENDA CONCLUÍDA")
 		elif challenge_floor >= ChallengeRulesScript.STAGES.size():
-			challenge_detail = t("MENU_RIFT_COMPLETE", "REALIDADE CONCLUÍDA")
+			var next_reality := ChallengeRulesScript.next_unowned_reality(GameState.player)
+			if not next_reality.is_empty() and int(GameState.player.get("level", 1)) < int(next_reality.unlock_level):
+				challenge_detail = t("MENU_RIFT_NEXT_KEY_LEVEL", "REALIDADE CONCLUÍDA · CHAVE NO NÍVEL %d", [int(next_reality.unlock_level)])
+			else:
+				var key_days := int(GameState.player.get("rift_key_hunt_progress", {}).get(str(next_reality.get("id", "")), 0))
+				var pity_days := int(next_reality.get("key_pity_days", 1))
+				challenge_detail = t("MENU_RIFT_KEY_SEARCH", "PROCURE A CHAVE EM CAÇADAS · %d/%d DIAS", [key_days, pity_days])
 		elif bool(rift_status.attempt.won_today):
 			challenge_detail = t("MENU_RIFT_VICTORY", "VITÓRIA DE HOJE REGISTADA")
 		elif bool(rift_status.attempt.attempted_today) and bool(rift_status.attempt.retry_available):
@@ -1029,10 +1039,14 @@ func build_frontier_menu() -> void:
 		elif bool(rift_status.attempt.attempted_today):
 			challenge_detail = t("MENU_RIFT_RETRIES_USED", "REPETIÇÕES DE HOJE ESGOTADAS")
 		else:
-			challenge_detail = t("MENU_RIFT_FLOOR", "INIMIGO %d DE %d", [challenge_floor + 1, ChallengeRulesScript.STAGES.size()])
+			var active_stage := ChallengeRulesScript.current_stage(GameState.player, active_rift_reality_id)
+			challenge_detail = t("MENU_RIFT_FLOOR", "INIMIGO %d DE %d · NÍVEL %d", [challenge_floor + 1, ChallengeRulesScript.STAGES.size(), int(active_stage.get("recommended_level", active_rift_reality.get("unlock_level", 1)))])
 	hub_grid.add_child(board_hub_action(t("MENU_RIFT", "FENDA"), challenge_detail, CORAL, "contracts", "BoardChallengeAction", func():
 		view_mode = "challenges"
-		render()
+		if active_rift_reality_id != str(rift_status.reality_id):
+			GameState.select_rift_reality(active_rift_reality_id)
+		else:
+			render()
 	))
 	var daily_ready := GameState.daily_rewards_ready()
 	var weekly_ready := GameState.weekly_rewards_ready()

@@ -437,9 +437,12 @@ static func format_duration(seconds: float) -> String:
 static func challenge_progress_card(host: CrookedUIFactory, state: StateScript) -> PanelContainer:
 	var rift_status := state.rift_status()
 	var unlocked := bool(rift_status.unlocked)
-	var floor := int(rift_status.progress)
+	var reality_id := ChallengeRulesScript.active_progress_reality_id(state.player) if unlocked else ChallengeRulesScript.FIRST_REALITY_ID
+	var reality := ChallengeRulesScript.reality_definition(reality_id)
+	var floor := ChallengeRulesScript.progress(state.player, reality_id) if unlocked else 0
 	var total := ChallengeRulesScript.STAGES.size()
-	var complete := floor >= total
+	var reality_complete := floor >= total
+	var complete := unlocked and ChallengeRulesScript.all_realities_complete(state.player)
 	var accent: Color = host.CORAL if unlocked else host.MUTED
 	var card := host.panel(HBoxContainer.new(), Color("#181630") if unlocked else Color("#0a1025"), 12, 11)
 	card.name = "CareerChallengeProgress"
@@ -452,6 +455,8 @@ static func challenge_progress_card(host: CrookedUIFactory, state: StateScript) 
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(copy)
 	copy.add_child(host.label(t("RIFT_TITLE", "FENDA CLANDESTINA"), UIDesignSystem.FONT_BODY, host.LIME if complete else accent))
+	if unlocked and not reality.is_empty():
+		copy.add_child(host.label(localized_content_field("rift_reality", reality, "name").to_upper(), UIDesignSystem.FONT_CAPTION, host.CORAL if not reality_complete else host.LIME))
 	var progress := ProgressBar.new()
 	progress.name = "CareerChallengeBar"
 	progress.max_value = total
@@ -464,9 +469,19 @@ static func challenge_progress_card(host: CrookedUIFactory, state: StateScript) 
 	var detail := t("CAREER_RIFT_LOCKED", "BLOQUEADA · DESBLOQUEIA NO NÍVEL %d", [ChallengeRulesScript.UNLOCK_LEVEL])
 	if complete:
 		detail = t("CAREER_RIFT_COMPLETE", "%d/%d ANDARES · ARQUIVO CONCLUÍDO", [floor, total])
+	elif reality_complete:
+		var next_reality := ChallengeRulesScript.next_unowned_reality(state.player)
+		if next_reality.is_empty():
+			detail = t("CAREER_RIFT_REALITY_COMPLETE", "%d/%d ANDARES · REALIDADE CONCLUÍDA", [floor, total])
+		elif int(state.player.get("level", 1)) < int(next_reality.unlock_level):
+			detail = t("CAREER_RIFT_NEXT_KEY_LEVEL", "%d/%d LIMPOS · PRÓXIMA CHAVE NO NÍVEL %d", [floor, total, int(next_reality.unlock_level)])
+		else:
+			var key_days := int(state.player.get("rift_key_hunt_progress", {}).get(str(next_reality.id), 0))
+			var pity_days := int(next_reality.get("key_pity_days", 1))
+			detail = t("CAREER_RIFT_NEXT_KEY_HUNTS", "%d/%d LIMPOS · PROCURE A CHAVE EM CAÇADAS · %d/%d DIAS", [floor, total, key_days, pity_days])
 	elif unlocked:
-		var stage := ChallengeRulesScript.current_stage(state.player, str(rift_status.reality_id))
-		detail = t("CAREER_RIFT_NEXT", "%d/%d LIMPOS · PRÓXIMO: %s", [floor, total, localized_content_field("rift_stage", stage, "name").to_upper()])
+		var stage := ChallengeRulesScript.current_stage(state.player, reality_id)
+		detail = t("CAREER_RIFT_NEXT", "%d/%d LIMPOS · PRÓXIMO: %s · NÍVEL %d", [floor, total, localized_content_field("rift_stage", stage, "name").to_upper(), int(stage.recommended_level)])
 	var detail_label := host.label(detail, UIDesignSystem.FONT_CAPTION, host.MUTED)
 	detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(detail_label)
@@ -493,6 +508,8 @@ static func challenge_progress_card(host: CrookedUIFactory, state: StateScript) 
 		action.custom_minimum_size = Vector2(104, 72)
 		action.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 		action.pressed.connect(func():
+			if ChallengeRulesScript.has_reality_key(state.player, reality_id):
+				state.select_rift_reality(reality_id)
 			host.view_mode = "challenges"
 			if host.has_method("render"):
 				host.call("render")

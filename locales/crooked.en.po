@@ -462,10 +462,16 @@ msgid "MENU_RIFT_LOCKED"
 msgstr "UNLOCKS AT LEVEL %d"
 
 msgid "MENU_RIFT_COMPLETE"
-msgstr "ARCHIVE COMPLETE"
+msgstr "RIFT COMPLETE"
+
+msgid "MENU_RIFT_NEXT_KEY_LEVEL"
+msgstr "REALITY COMPLETE · KEY AT LEVEL %d"
+
+msgid "MENU_RIFT_KEY_SEARCH"
+msgstr "SEARCH HUNTS FOR THE KEY · %d/%d DAYS"
 
 msgid "MENU_RIFT_FLOOR"
-msgstr "FLOOR %d OF %d"
+msgstr "ENEMY %d OF %d · LEVEL %d"
 
 msgid "MENU_RIFT"
 msgstr "RIFT"
@@ -3330,7 +3336,16 @@ msgid "CAREER_RIFT_COMPLETE"
 msgstr "%d/%d FLOORS · ARCHIVE COMPLETE"
 
 msgid "CAREER_RIFT_NEXT"
-msgstr "%d/%d CLEARED · NEXT: %s"
+msgstr "%d/%d CLEARED · NEXT: %s · LEVEL %d"
+
+msgid "CAREER_RIFT_REALITY_COMPLETE"
+msgstr "%d/%d FLOORS · REALITY COMPLETE"
+
+msgid "CAREER_RIFT_NEXT_KEY_LEVEL"
+msgstr "%d/%d CLEARED · NEXT KEY AT LEVEL %d"
+
+msgid "CAREER_RIFT_NEXT_KEY_HUNTS"
+msgstr "%d/%d CLEARED · SEARCH HUNTS FOR THE KEY · %d/%d DAYS"
 
 msgid "CAREER_LOCKED_FEMININE"
 msgstr "LOCKED"

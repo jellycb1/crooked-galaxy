@@ -247,6 +247,7 @@ func run_audit() -> void:
 	var two_reality_selector := scene.find_child("ChallengeRealitySelector", true, false) as OptionButton
 	check(two_reality_selector != null and two_reality_selector.item_count == 2, "the Rift selector exposes only the two realities whose keys are owned")
 	check(state.select_rift_reality(Challenge.FIRST_REALITY_ID) and Challenge.current_stage(state.player).is_empty(), "the player can revisit a completed keyed reality without losing either ladder")
+	check(Challenge.active_progress_reality_id(state.player) == "frozen_verdict", "long-term progress resolves an owned incomplete reality when the selected archive is complete")
 
 	state.player.level = 160
 	state.player.rift_reality_progress = {Challenge.FIRST_REALITY_ID: 12, "frozen_verdict": 12}
@@ -258,6 +259,7 @@ func run_audit() -> void:
 		third_key_hunts += 1
 	check(not third_reality.is_empty() and third_key_hunts <= 7, "completing the frozen verdict makes the third gameplay key drop within seven eligible days")
 	check(state.player.rift_reality_keys == ["dead_customs_key", "frozen_verdict_key", "rejected_futures_key"] and str(state.player.selected_rift_reality_id) == "rejected_futures", "the third key is permanent, sequential, and selects the new reality")
+	check(not Challenge.all_realities_complete(state.player), "owning every key never masquerades as completing every reality")
 	check(state.acknowledge_rift_key("rejected_futures_key"), "the third portal ceremony permanently reveals its destination")
 	var third_opening := Challenge.current_stage(state.player)
 	var third_reward := Challenge.reward_for(third_opening, ContentDB.ITEM_TRAITS)

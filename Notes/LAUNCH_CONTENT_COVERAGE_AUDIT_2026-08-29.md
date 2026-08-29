@@ -14,7 +14,7 @@ Com o eixo planetário fechado em 35 mundos, esta auditoria mede se missões, eq
 | Equipamento | nove espaços universais e 2 180 séries normais | Variedade e cauda de coleção suficientes; nenhuma de 100 carreiras completou o catálogo após 5 000 contratos. |
 | Retenção curta | três objetivos diários | Ciclo limitado e honesto de 1/3/5 caçadas, sem obrigação premium. |
 | Retenção semanal | três metas, um Circuito da Rede e um Mandado Negro | Volume, variedade planetária e alvo especial são decisões distintas sem criar outra energia ou campanha linear. |
-| Fenda | três realidades, 36 primeiras vitórias | Teste diário de build coerente até aos checkpoints de nível 215; continua a ser uma escada finita, não retenção anual isolada. |
+| Fenda | três realidades, 36 primeiras vitórias | Teste diário de build coerente nos checkpoints 8–215; a cronologia corrigida ultrapassa o primeiro ano mesmo no perfil máximo. |
 | Economia | Mercado, Oficina, quatro transportes e incidentes pagos | Créditos perdem pressão após os transportes; uma carreira padrão conserva 136 391 créditos ao fim de 200 vitórias. |
 | Carreira antes deste batch | oito marcos | Terminava no quinto mundo, cinco capturas de embalo e 25 de sucata reciclada, muito antes do horizonte anual. |
 
@@ -41,3 +41,9 @@ A Oficina passou a cobrar um serviço em Créditos além da Sucata, conforme `WO
 O Circuito da Rede fecha a lacuna repetível seguinte sem expandir o catálogo: até três mundos por semana, duas capturas em cada, um cartão garantido no quadro e 250 Créditos/18 Sucata resgatáveis uma vez. Doze semanas cobrem os 35 mundos; o sistema reutiliza os 140 alvos através das regras normais de rotação e não altera combustível, tempo, pressão ou pagamento dos mandados.
 
 A auditoria conjunta posterior fecha a lacuna de evidência da Fenda: 36 primeiras vitórias representam 15,1–23,9% da renda bruta dos três perfis, financiam os quatro transportes e 202–405 intervenções sem saldo negativo. Artefactos avançados guardam o seu nível económico e os nove espaços recebem serviço; viagens tardias mantêm até 140 minutos mas uma missão normal nunca excede a reserva gratuita de 100 combustível. Resultados completos estão em `RIFT_36_DAY_ECONOMY_AUDIT_2026-08-29.md`.
+
+## Correção cronológica e continuidade
+
+A primeira leitura dos 36 clears confundia “uma vitória possível por dia” com “um inimigo equilibrado por dia”. A cronologia checkpoint-aware posterior prova que os inimigos foram balanceados para níveis 8–90, 100–155 e 160–215. O perfil máximo chega apenas ao nono inimigo da terceira realidade no primeiro ano; a quarta realidade deixa de ser uma lacuna de lançamento.
+
+Essa correção revelou um problema de navegação mais imediato: Carreira e Menu tratavam a realidade selecionada em 12/12 como conclusão de toda a Fenda. Agora ambos procuram uma realidade possuída ainda incompleta, mostram o seu nome, próximo inimigo e nível recomendado, e selecionam-na antes de abrir. Quando a realidade atual termina sem nova chave, apresentam o nível da próxima chave ou os dias elegíveis já realizados; somente 36/36 com todas as três chaves usa “Fenda concluída”. Isto preserva a escada anual existente sem criar outra checklist diária ou conteúdo vertical prematuro.

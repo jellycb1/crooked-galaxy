@@ -134,7 +134,12 @@ if (Test-Path -LiteralPath $LogRoot) {
     if ($ResolvedLogParent -ne [System.IO.Path]::GetFullPath($ExpectedLogParent).TrimEnd([System.IO.Path]::DirectorySeparatorChar)) {
         throw "Refusing to prune test logs outside the project log directory: $ResolvedLogParent"
     }
-    $OldLogRuns = @(Get-ChildItem -LiteralPath $ResolvedLogParent -Directory | Sort-Object LastWriteTimeUtc -Descending | Select-Object -Skip $RetainedLogRuns)
+    # Only prune run directories created by this script. Focused/manual test
+    # directories use descriptive names and may still be held open by Godot.
+    $ManagedLogRuns = @(Get-ChildItem -LiteralPath $ResolvedLogParent -Directory | Where-Object {
+        $_.Name -match '^[0-9a-fA-F]{32}$'
+    })
+    $OldLogRuns = @($ManagedLogRuns | Sort-Object LastWriteTimeUtc -Descending | Select-Object -Skip $RetainedLogRuns)
     foreach ($OldLogRun in $OldLogRuns) {
         $ResolvedOldLogRun = [System.IO.Path]::GetFullPath($OldLogRun.FullName)
         if (-not $ResolvedOldLogRun.StartsWith($ResolvedLogParent + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {

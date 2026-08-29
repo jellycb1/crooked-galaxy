@@ -462,10 +462,16 @@ msgid "MENU_RIFT_LOCKED"
 msgstr "DESBLOQUEIA NO NÍVEL %d"
 
 msgid "MENU_RIFT_COMPLETE"
-msgstr "ARQUIVO CONCLUÍDO"
+msgstr "FENDA CONCLUÍDA"
+
+msgid "MENU_RIFT_NEXT_KEY_LEVEL"
+msgstr "REALIDADE CONCLUÍDA · CHAVE NO NÍVEL %d"
+
+msgid "MENU_RIFT_KEY_SEARCH"
+msgstr "PROCURE A CHAVE EM CAÇADAS · %d/%d DIAS"
 
 msgid "MENU_RIFT_FLOOR"
-msgstr "ANDAR %d DE %d"
+msgstr "INIMIGO %d DE %d · NÍVEL %d"
 
 msgid "MENU_RIFT"
 msgstr "FENDA"
@@ -3330,7 +3336,16 @@ msgid "CAREER_RIFT_COMPLETE"
 msgstr "%d/%d ANDARES · ARQUIVO CONCLUÍDO"
 
 msgid "CAREER_RIFT_NEXT"
-msgstr "%d/%d LIMPOS · PRÓXIMO: %s"
+msgstr "%d/%d LIMPOS · PRÓXIMO: %s · NÍVEL %d"
+
+msgid "CAREER_RIFT_REALITY_COMPLETE"
+msgstr "%d/%d ANDARES · REALIDADE CONCLUÍDA"
+
+msgid "CAREER_RIFT_NEXT_KEY_LEVEL"
+msgstr "%d/%d LIMPOS · PRÓXIMA CHAVE NO NÍVEL %d"
+
+msgid "CAREER_RIFT_NEXT_KEY_HUNTS"
+msgstr "%d/%d LIMPOS · PROCURE A CHAVE EM CAÇADAS · %d/%d DIAS"
 
 msgid "CAREER_LOCKED_FEMININE"
 msgstr "BLOQUEADA"
