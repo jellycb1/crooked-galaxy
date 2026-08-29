@@ -1,6 +1,6 @@
 # Backend vertical slice contract
 
-Status: active protocol boundary. Version 1 now has a local authenticated server and official Godot-client clock implementation; no remote provider or endpoint is configured in the current APK.
+Status: active protocol boundary. Version 1 now has a local authenticated server plus official Godot-client clock and character-authority implementation; no remote provider or endpoint is configured in the current APK.
 
 ## Product truth
 
@@ -8,7 +8,7 @@ Crooked Galaxy remains device-authoritative and `local_only`. `International 1` 
 
 This slice deliberately does not persist credentials, contact a server, alter the player-save schema or move progress authority away from the device. It creates the stable seam required before those changes can be made safely.
 
-The separate `backend/` development stack proves Nakama health, development device authentication and the authenticated `cg_clock` RPC on loopback. The pinned SDK is now present and independently proves the same path through Godot, but normal boot supplies it no endpoint or credential. All online capability flags remain disabled; the next implementation boundary is authoritative character ownership and revisioned profile state.
+The separate `backend/` development stack proves Nakama health, development device authentication and authenticated clock/character RPCs on loopback. The pinned SDK independently proves the same path through Godot, but normal boot supplies it no endpoint or credential. All online capability flags remain disabled; the next implementation boundary is explicit offline cache/reconnect behavior and one-time migration from current local saves.
 
 ## Session boundary
 
@@ -24,6 +24,8 @@ Daily attempts, weekly resets, Agency contribution limits and future commerce re
 
 A remote profile is acceptable only when account, character and shard match the requested ownership tuple. The server supplies its revision and UTC timestamp; the embedded profile must repeat the same character ID and contain no credentials. A foreign or malformed snapshot is rejected as a unit. Currencies, inventory, claims and social state are never field-merged.
 
+The local implementation gives each authenticated account exactly one launch character. Class, species, name and all four appearance choices are mandatory. The server itself supplies level 1, zero XP, 25 credits and zero premium/scrap balances. Class and species are immutable after creation; the current profile commit permits only name and appearance. Storage is server-write-only and the account ID is also the owned character ID for this first-character slice.
+
 ## Commands and receipts
 
 Every mutation carries API version, command ID, idempotency key, operation, session, shard, character, expected revision and payload. Version 1 reserves these operations:
@@ -38,7 +40,7 @@ Accepted and duplicate receipts must bind the exact command identity and advance
 ## Activation order
 
 1. Deploy provider authentication and server UTC against a test environment.
-2. Make character snapshots and profile commits pass ownership, revision, idempotency and conflict tests.
+2. Make character snapshots and profile commits pass ownership, revision, idempotency and conflict tests. **Complete on local loopback; staging remains pending.**
 3. Exercise offline cache and reconnect without automatic field merging.
 4. Implement server-owned Agency roster and warrant records using the same command receipts.
 5. Enable each capability flag independently only after end-to-end evidence exists.

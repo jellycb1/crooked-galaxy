@@ -32,6 +32,55 @@ func run_integration() -> void:
 	check(bool(clock.get("ok", false)) and int(clock.get("api_version", 0)) == 1, "Godot client invoked protocol-v1 clock RPC")
 	check(str(clock.get("shard_id", "")) == "international_1" and str(clock.get("authority", "")) == "server", "clock binds the canonical shard and server authority")
 	check(int(clock.get("round_trip_ms", -1)) >= 0 and int(clock.get("round_trip_ms", 30001)) <= 30000, "clock round trip satisfies the protocol latency bound")
+	var before_character: Dictionary = await adapter.get_character()
+	check(bool(before_character.get("ok", false)), "Godot client fetched the account character boundary")
+	var creation: Dictionary = await adapter.create_character(
+		"godot-create-00000001",
+		"Godot Trace",
+		"contract_hacker",
+		"synthetic",
+		{"palette": "native", "eyes": "standard", "feature": "classic", "marking": "clean"}
+	)
+	check(bool(creation.get("ok", false)), "Godot client created or idempotently recovered the mandatory character")
+	check(str(creation.get("account_id", "")) == str(authentication.get("account_id", "")) and str(creation.get("character_id", "")) == str(authentication.get("account_id", "")), "authoritative character ownership matches the authenticated account")
+	check(int(creation.get("revision", -1)) >= 0 and int(creation.get("profile", {}).get("credits", -1)) == 25, "Godot accepted the server-owned launch baseline")
+	var replay: Dictionary = await adapter.create_character(
+		"godot-create-00000001",
+		"Godot Trace",
+		"contract_hacker",
+		"synthetic",
+		{"palette": "native", "eyes": "standard", "feature": "classic", "marking": "clean"}
+	)
+	check(bool(replay.get("ok", false)) and bool(replay.get("idempotent_replay", false)), "Godot creation retry recovered the same server character")
+	var initial_revision := int(replay.get("revision", -1))
+	var nonce := str(int(Time.get_unix_time_from_system() * 1000.0))
+	var commit: Dictionary = await adapter.commit_profile(
+		"godot-commit-%s" % nonce,
+		"godot-receipt-%s" % nonce,
+		initial_revision,
+		"Godot Vector",
+		{"palette": "cool", "eyes": "narrow", "feature": "bold", "marking": "stripe"}
+	)
+	check(bool(commit.get("ok", false)) and str(commit.get("status", "")) == "accepted", "Godot profile command was accepted")
+	check(int(commit.get("server_revision", -1)) == initial_revision + 1 and int(commit.get("snapshot", {}).get("profile", {}).get("credits", -1)) == 25, "accepted commit advanced one revision without client-authored progression")
+	var duplicate: Dictionary = await adapter.commit_profile(
+		"godot-commit-%s" % nonce,
+		"godot-receipt-%s" % nonce,
+		initial_revision,
+		"Godot Vector",
+		{"palette": "cool", "eyes": "narrow", "feature": "bold", "marking": "stripe"}
+	)
+	check(bool(duplicate.get("ok", false)) and str(duplicate.get("status", "")) == "duplicate", "Godot retried an accepted command idempotently")
+	var conflict: Dictionary = await adapter.commit_profile(
+		"godot-stale-%s" % nonce,
+		"godot-stale-receipt-%s" % nonce,
+		initial_revision,
+		"Godot Vector",
+		{"palette": "cool", "eyes": "narrow", "feature": "bold", "marking": "stripe"}
+	)
+	check(bool(conflict.get("ok", false)) and str(conflict.get("status", "")) == "conflict", "Godot receives an explicit conflict for stale profile state")
+	var final_character: Dictionary = await adapter.get_character()
+	check(bool(final_character.get("ok", false)) and int(final_character.get("revision", -1)) == initial_revision + 1, "Godot refetched the final authoritative character snapshot")
 	adapter.clear_runtime()
 	check(not adapter.has_authenticated_session(), "memory-only session is discarded after the integration proof")
 	finish()
@@ -39,7 +88,7 @@ func run_integration() -> void:
 
 func finish() -> void:
 	if failures == 0:
-		print("PASS: official Nakama Godot client authenticated and sampled authoritative UTC end to end")
+		print("PASS: official Nakama Godot client authenticated, created, committed, retried, conflicted, and refetched authoritative state")
 		quit(0)
 	else:
 		printerr("FAIL: %d local Nakama integration issue(s)" % failures)

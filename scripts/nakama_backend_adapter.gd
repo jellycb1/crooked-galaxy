@@ -5,6 +5,9 @@ const Deployment = preload("res://scripts/backend_deployment_rules.gd")
 const Protocol = preload("res://scripts/backend_protocol_rules.gd")
 
 const CLOCK_RPC := "cg_clock"
+const CHARACTER_GET_RPC := "cg_character_get"
+const CHARACTER_CREATE_RPC := "cg_character_create"
+const CHARACTER_COMMIT_RPC := "cg_character_commit"
 const DEVELOPMENT_PROVIDER := "nakama_device"
 const DEFAULT_TIMEOUT_SECONDS := 5
 
@@ -98,6 +101,70 @@ func sample_server_clock() -> Dictionary:
 	return sample
 
 
+func get_character() -> Dictionary:
+	var envelope := await _rpc_dictionary(CHARACTER_GET_RPC, {})
+	if envelope.is_empty():
+		return _failure("character_get_failed")
+	if envelope.get("exists", true) == false:
+		if str(envelope.get("account_id", "")) != account_id() or str(envelope.get("authority", "")) != "server":
+			return _failure("invalid_missing_character_envelope")
+		return {"ok": true, "exists": false, "account_id": account_id(), "authority": "server"}
+	var canonical := Protocol.canonical_character_snapshot(envelope, account_id(), account_id())
+	if canonical.is_empty():
+		return _failure("invalid_character_snapshot")
+	canonical.ok = true
+	canonical.exists = true
+	return canonical
+
+
+func create_character(idempotency_key: String, hunter_name: String, class_id: String, species_id: String, appearance: Dictionary) -> Dictionary:
+	var envelope := await _rpc_dictionary(CHARACTER_CREATE_RPC, {
+		"idempotency_key": idempotency_key,
+		"hunter_name": hunter_name,
+		"class_id": class_id,
+		"species_id": species_id,
+		"appearance": appearance,
+	})
+	if envelope.is_empty():
+		return _failure("character_create_failed")
+	var canonical := Protocol.canonical_character_snapshot(envelope, account_id(), account_id())
+	if canonical.is_empty():
+		return _failure("invalid_created_character")
+	canonical.ok = true
+	canonical.created = bool(envelope.get("created", false))
+	canonical.idempotent_replay = bool(envelope.get("idempotent_replay", false))
+	return canonical
+
+
+func commit_profile(command_id: String, idempotency_key: String, expected_revision: int, hunter_name: String, appearance: Dictionary) -> Dictionary:
+	if not has_authenticated_session():
+		return _failure("authenticated_session_required")
+	var command := Protocol.make_command(command_id, idempotency_key, "profile_commit", account_id(), account_id(), expected_revision, {
+		"hunter_name": hunter_name,
+		"appearance": appearance,
+	})
+	if command.is_empty():
+		return _failure("invalid_profile_command")
+	var envelope := await _rpc_dictionary(CHARACTER_COMMIT_RPC, command)
+	if envelope.is_empty():
+		return _failure("character_commit_failed")
+	var receipt := Protocol.canonical_command_receipt(envelope, command)
+	if receipt.is_empty():
+		return _failure("invalid_profile_receipt")
+	var snapshot_envelope = envelope.get("snapshot", {})
+	if snapshot_envelope is Dictionary and not snapshot_envelope.is_empty():
+		var canonical_snapshot := Protocol.canonical_character_snapshot(snapshot_envelope, account_id(), account_id())
+		if canonical_snapshot.is_empty():
+			return _failure("invalid_commit_snapshot")
+		receipt.snapshot = canonical_snapshot
+	receipt.ok = true
+	return receipt
+
+
+func account_id() -> String:
+	return str(_session.user_id) if has_authenticated_session() else ""
+
+
 func clear_runtime() -> void:
 	_session = null
 	_client = null
@@ -113,6 +180,16 @@ func _nakama_singleton() -> Node:
 
 static func _now_unix_ms() -> int:
 	return int(round(Time.get_unix_time_from_system() * 1000.0))
+
+
+func _rpc_dictionary(rpc_id: String, payload: Dictionary) -> Dictionary:
+	if not has_authenticated_session() or _client == null:
+		return {}
+	var response = await _client.rpc_async(_session, rpc_id, JSON.stringify(payload))
+	if response == null or response.is_exception():
+		return {}
+	var parsed = JSON.parse_string(str(response.payload))
+	return parsed if parsed is Dictionary else {}
 
 
 static func _valid_development_identifier(value: String, minimum: int, maximum: int) -> bool:

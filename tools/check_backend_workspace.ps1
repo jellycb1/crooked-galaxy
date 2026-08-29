@@ -22,6 +22,8 @@ $Compose = Get-Content -LiteralPath (Join-Path $BackendRoot "docker-compose.yml"
 $LocalConfig = Get-Content -LiteralPath (Join-Path $BackendRoot "local.yml") -Raw
 $EnvironmentExample = Get-Content -LiteralPath (Join-Path $BackendRoot ".env.example") -Raw
 $DockerIgnore = Get-Content -LiteralPath (Join-Path $BackendRoot ".dockerignore") -Raw
+$RuntimeSource = Get-Content -LiteralPath (Join-Path $BackendRoot "src/main.ts") -Raw
+$DirectTest = Get-Content -LiteralPath (Join-Path $BackendRoot "test_local.ps1") -Raw
 if (-not $Dockerfile.Contains("nakama:$($Lock.nakama_server)") -or
     [string]$Package.devDependencies.'nakama-runtime' -ne "github:heroiclabs/nakama-common#v$($Lock.nakama_common_runtime_types)" -or
     -not $ServerRules.Contains("SERVER_VERSION := `"$($Lock.nakama_server)`"") -or
@@ -53,6 +55,21 @@ foreach ($SecretKey in $SecretKeys) {
 foreach ($IgnoredPath in @(".env", "node_modules/", "build/", "data/", "backups/")) {
     if (-not $DockerIgnore.Contains($IgnoredPath)) {
         throw "Docker build context does not exclude $IgnoredPath."
+    }
+}
+foreach ($RpcName in @("cg_clock", "cg_character_get", "cg_character_create", "cg_character_commit")) {
+    if (-not $RuntimeSource.Contains("registerRpc(`"$RpcName`"")) {
+        throw "Required authoritative RPC is missing: $RpcName"
+    }
+}
+foreach ($AuthorityGuard in @('permissionWrite: 0', 'version: "*"', 'Object.keys(change).length !== 2', 'credits: 25', 'xp: 0')) {
+    if (-not $RuntimeSource.Contains($AuthorityGuard)) {
+        throw "Character authority guard is missing: $AuthorityGuard"
+    }
+}
+foreach ($Proof in @('idempotent_replay', 'status -ne "conflict"', 'credits = 999999', 'invalid_profile_change')) {
+    if (-not $DirectTest.Contains($Proof)) {
+        throw "Direct backend authority proof is missing: $Proof"
     }
 }
 $TrackedSecrets = @(& git -C $ProjectRoot ls-files -- "backend/.env" "backend/node_modules" "backend/build" "backend/data" "backend/backups")

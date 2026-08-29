@@ -23,17 +23,29 @@ if ($Health.StatusCode -ne 200) {
     throw "Nakama health endpoint did not return HTTP 200."
 }
 
-$DeviceId = "cg-local-smoke-00000001"
+$RunId = [Guid]::NewGuid().ToString("N")
+$DeviceId = "cg-local-smoke-$RunId"
 $BasicBytes = [Text.Encoding]::UTF8.GetBytes("${ServerKey}:")
 $Basic = [Convert]::ToBase64String($BasicBytes)
 $AuthHeaders = @{ Authorization = "Basic $Basic" }
-$AuthUri = "http://127.0.0.1:7350/v2/account/authenticate/device?create=true&username=cg_local_smoke"
+$Username = "cg_$($RunId.Substring(0, 20))"
+$AuthUri = "http://127.0.0.1:7350/v2/account/authenticate/device?create=true&username=$Username"
 $Session = Invoke-RestMethod -Method Post -Uri $AuthUri -Headers $AuthHeaders -ContentType "application/json" -Body (@{ id = $DeviceId } | ConvertTo-Json -Compress)
 if ([string]::IsNullOrWhiteSpace([string]$Session.token)) {
     throw "Nakama device authentication returned no session token."
 }
 
 $RpcHeaders = @{ Authorization = "Bearer $($Session.token)" }
+function Invoke-CgRpc {
+    param(
+        [Parameter(Mandatory = $true)][string]$Name,
+        [Parameter(Mandatory = $true)][hashtable]$Payload
+    )
+    $InnerJson = $Payload | ConvertTo-Json -Depth 10 -Compress
+    $OuterJson = ConvertTo-Json -InputObject $InnerJson -Compress
+    $Envelope = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:7350/v2/rpc/$Name" -Headers $RpcHeaders -ContentType "application/json" -Body $OuterJson
+    return [string]$Envelope.payload | ConvertFrom-Json
+}
 $AnonymousRejected = $false
 try {
     Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:7350/v2/rpc/cg_clock" -ContentType "application/json" -Body '"{}"' | Out-Null
@@ -58,4 +70,70 @@ if ([int64]$Clock.server_unix_ms -lt $Before -or [int64]$Clock.server_unix_ms -g
     throw "Clock RPC timestamp falls outside the observed UTC request window."
 }
 
-Write-Host "PASS: local Nakama health, authenticated session, and authoritative Crooked Galaxy UTC RPC are valid."
+$Missing = Invoke-CgRpc -Name "cg_character_get" -Payload @{}
+if ($Missing.exists -ne $false -or [string]::IsNullOrWhiteSpace([string]$Missing.account_id)) {
+    throw "Fresh account did not return the canonical missing-character result."
+}
+$AccountId = [string]$Missing.account_id
+$Appearance = @{ palette = "native"; eyes = "standard"; feature = "classic"; marking = "clean" }
+$CreatePayload = @{
+    idempotency_key = "create-$RunId"
+    hunter_name = "Nova Trace"
+    class_id = "orbit_gunslinger"
+    species_id = "terran"
+    appearance = $Appearance
+}
+$Created = Invoke-CgRpc -Name "cg_character_create" -Payload $CreatePayload
+if ($Created.created -ne $true -or [int]$Created.revision -ne 0 -or [int]$Created.profile.level -ne 1 -or [int]$Created.profile.credits -ne 25) {
+    throw "Authoritative character creation did not apply the fixed launch baseline."
+}
+if ([string]$Created.character_id -ne $AccountId -or [string]$Created.profile.class_id -ne "orbit_gunslinger") {
+    throw "Created character is not owned by the authenticated account."
+}
+$CreateReplay = Invoke-CgRpc -Name "cg_character_create" -Payload $CreatePayload
+if ($CreateReplay.idempotent_replay -ne $true -or [int]$CreateReplay.revision -ne 0) {
+    throw "Character creation did not replay idempotently."
+}
+
+$CommandId = "commit-$RunId"
+$CommitPayload = @{
+    api_version = 1
+    command_id = $CommandId
+    idempotency_key = "receipt-$RunId"
+    operation = "profile_commit"
+    session_id = $AccountId
+    shard_id = "international_1"
+    character_id = $AccountId
+    expected_revision = 0
+    payload = @{ hunter_name = "Nova Vector"; appearance = @{ palette = "cool"; eyes = "narrow"; feature = "bold"; marking = "stripe" } }
+}
+$Accepted = Invoke-CgRpc -Name "cg_character_commit" -Payload $CommitPayload
+if ([string]$Accepted.status -ne "accepted" -or [int]$Accepted.server_revision -ne 1 -or [int]$Accepted.snapshot.profile.credits -ne 25) {
+    throw "Valid cosmetic profile commit was not accepted without altering server-owned progression."
+}
+$Duplicate = Invoke-CgRpc -Name "cg_character_commit" -Payload $CommitPayload
+if ([string]$Duplicate.status -ne "duplicate" -or [int]$Duplicate.server_revision -ne 1) {
+    throw "Accepted profile command did not replay from its idempotency receipt."
+}
+$StalePayload = $CommitPayload.Clone()
+$StalePayload.command_id = "stale-$RunId"
+$StalePayload.idempotency_key = "stale-receipt-$RunId"
+$Stale = Invoke-CgRpc -Name "cg_character_commit" -Payload $StalePayload
+if ([string]$Stale.status -ne "conflict" -or [int]$Stale.server_revision -ne 1) {
+    throw "Stale profile revision was not rejected as an explicit conflict."
+}
+$ForgedPayload = $CommitPayload.Clone()
+$ForgedPayload.command_id = "forged-$RunId"
+$ForgedPayload.idempotency_key = "forged-receipt-$RunId"
+$ForgedPayload.expected_revision = 1
+$ForgedPayload.payload = @{ hunter_name = "Nova Vector"; appearance = $Appearance; credits = 999999 }
+$Forged = Invoke-CgRpc -Name "cg_character_commit" -Payload $ForgedPayload
+if ([string]$Forged.status -ne "rejected" -or [string]$Forged.reason_code -ne "invalid_profile_change") {
+    throw "Client-authored currency mutation was not rejected."
+}
+$Final = Invoke-CgRpc -Name "cg_character_get" -Payload @{}
+if ([int]$Final.revision -ne 1 -or [int]$Final.profile.credits -ne 25 -or [string]$Final.profile.hunter_name -ne "Nova Vector") {
+    throw "Final authoritative snapshot changed after rejected or conflicting commands."
+}
+
+Write-Host "PASS: local Nakama auth, UTC, owned character creation, idempotency, conflict handling, and progression forgery rejection are valid."

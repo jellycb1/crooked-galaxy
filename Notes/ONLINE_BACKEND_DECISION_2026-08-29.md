@@ -1,6 +1,6 @@
 # Online backend decision — 29 August 2026
 
-Status: active architecture decision. Nakama is selected; the local loopback foundation and official Godot-client authentication/clock path pass end to end. No remote environment, production credential or online product claim exists yet.
+Status: active architecture decision. Nakama is selected; the local loopback authentication, clock and authoritative character path pass end to end through both HTTP and the official Godot client. No remote environment, production credential or online product claim exists yet.
 
 ## Decision
 
@@ -60,7 +60,7 @@ The official Nakama Godot `3.4.0` release is vendored with its Apache-2.0 licens
 
 ## Immediate gate
 
-The local server and Godot transport prerequisites are complete. The next gate is server-owned character creation/snapshot/commit with ownership verification, conditional revision, idempotency and conflict recovery. `account_backend`, `clock_backend`, `profile_backend`, `agency_backend` and billing remain false until their individual product gates pass; transport evidence alone enables none of them.
+The local server, Godot transport and first character-authority gate are complete. An account can create exactly one mandatory character; the server owns its starting progression; snapshots bind ownership; profile cosmetics use conditional revisions and idempotent receipts; stale revisions conflict; and injected currency fields are rejected. The next gate is offline cache/reconnect plus an explicit one-time local-save migration policy, followed by TLS staging. `account_backend`, `clock_backend`, `profile_backend`, `agency_backend` and billing remain false until their individual product gates pass; loopback evidence alone enables none of them.
 
 ## Official references consulted
 
