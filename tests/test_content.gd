@@ -89,7 +89,7 @@ func _init() -> void:
 	check(ContentDB.procedural_collection_ids().size() >= 100 and ContentDB.procedural_collection_ids().all(func(id): return str(id).contains("::")), "finite template families expose a bounded multi-variant collection catalog")
 	check(ContentDB.procedural_collection_entries().size() * 5 == ContentDB.procedural_collection_ids().size(), "every collectible template exposes exactly the five canonical series variants")
 	check(ContentDB.procedural_collection_total() == ContentDB.procedural_collection_ids().size(), "hot collection counts avoid rebuilding or exposing the canonical identifier cache")
-	check(ContentDB.procedural_collection_total() == 1460, "twenty-three authored planet packs expose the documented bounded 1460-series catalog")
+	check(ContentDB.procedural_collection_total() == 1520, "twenty-four authored planet packs expose the documented bounded 1520-series catalog")
 	check(int(premium_omega_loot.power) == int(canonical_omega_loot.power), "contract danger does not inflate the dropped equipment tier")
 	check(str(ContentDB.target_for_planet_tier("dustball_prime", 1).id) == "baron_boom", "planet tier resolves the next warrant deterministically")
 	check(ContentDB.planet_tier_from_target_captures("dustball_prime", {"gloop": 9}) == 1, "farming the first warrant cannot skip sequential tiers")
@@ -197,6 +197,10 @@ func _init() -> void:
 	wormhole_post_rng.seed = 2000200
 	var wormhole_post_boots := ContentDB.generate_loot(ContentDB.TARGETS[88], wormhole_post_rng, 3, "boots")
 	check(str(wormhole_post_boots.slot) == "boots" and str(wormhole_post_boots.origin_planet_id) == "correio_buracos_minhoca" and not str(wormhole_post_boots.name).is_empty(), "the level-200 pack produces canonical themed boot equipment")
+	var aquarium_rng := RandomNumberGenerator.new()
+	aquarium_rng.seed = 2100210
+	var aquarium_gloves := ContentDB.generate_loot(ContentDB.TARGETS[92], aquarium_rng, 3, "gloves")
+	check(str(aquarium_gloves.slot) == "gloves" and str(aquarium_gloves.origin_planet_id) == "aquario_oceanos_confiscados" and not str(aquarium_gloves.name).is_empty(), "the level-210 pack produces canonical themed glove equipment")
 	for secondary_case in [
 		{"target": ContentDB.TARGETS[4], "slot": "helmet"},
 		{"target": ContentDB.TARGETS[8], "slot": "gloves"},
