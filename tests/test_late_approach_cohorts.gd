@@ -5,7 +5,7 @@ const Contracts = preload("res://scripts/contract_rules.gd")
 const Missions = preload("res://scripts/mission_rules.gd")
 const Builds = preload("res://tools/simulation_builds.gd")
 
-const CHECKPOINT_LEVELS := [30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230]
+const CHECKPOINT_LEVELS := [30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240]
 
 var failures := 0
 

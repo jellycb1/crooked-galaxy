@@ -29,16 +29,17 @@ const CorreioMinhoca = preload("res://scripts/content/packs/correio_buracos_minh
 const AquarioOceanos = preload("res://scripts/content/packs/aquario_oceanos_confiscados.gd")
 const CentralSonhos = preload("res://scripts/content/packs/central_sonhos_penhorados.gd")
 const CanilAsteroides = preload("res://scripts/content/packs/canil_asteroides_domesticos.gd")
+const CartorioHorizonte = preload("res://scripts/content/packs/cartorio_ultimo_horizonte.gd")
 
 var failures := 0
 
 
 func _init() -> void:
 	check(Registry.validation_errors().is_empty(), "registered planet packs satisfy the complete content contract")
-	check(Registry.PACK_SCRIPTS.size() == 26, "the registry contains all twenty-six current canonical planet packs")
-	check(Registry.PLANETS.size() == 26, "the registry composes all twenty-six planets")
-	check(Registry.TARGETS.size() == 104, "the registry composes all 104 targets")
-	check(Registry.HUNT_EVENTS.size() == 52, "the registry composes all 52 hunt incidents")
+	check(Registry.PACK_SCRIPTS.size() == 27, "the registry contains all twenty-seven current canonical planet packs")
+	check(Registry.PLANETS.size() == 27, "the registry composes all twenty-seven planets")
+	check(Registry.TARGETS.size() == 108, "the registry composes all 108 targets")
+	check(Registry.HUNT_EVENTS.size() == 54, "the registry composes all 54 hunt incidents")
 	check(Registry.pack_for_planet("dustball_prime") == Dustball.PACK, "registry resolves the canonical Dustball pack")
 	check(Registry.pack_for_planet("congelaria_sa") == Congelaria.PACK, "registry resolves the canonical Congelaria pack")
 	check(Registry.pack_for_planet("micelia_404") == Micelia.PACK, "registry resolves the canonical Micelia pack")
@@ -65,6 +66,7 @@ func _init() -> void:
 	check(Registry.pack_for_planet("aquario_oceanos_confiscados") == AquarioOceanos.PACK, "registry resolves the canonical Confiscated Oceans Aquarium pack")
 	check(Registry.pack_for_planet("central_sonhos_penhorados") == CentralSonhos.PACK, "registry resolves the canonical Repossessed Dreams Center pack")
 	check(Registry.pack_for_planet("canil_asteroides_domesticos") == CanilAsteroides.PACK, "registry resolves the canonical Domestic Asteroid Kennel pack")
+	check(Registry.pack_for_planet("cartorio_ultimo_horizonte") == CartorioHorizonte.PACK, "registry resolves the canonical Last Horizon Registry pack")
 	check(Registry.pack_for_planet("unknown").is_empty(), "unknown planet packs fail closed")
 	var detached := Registry.pack_for_planet("dustball_prime")
 	detached.planet.name = "MUTATED"
@@ -283,6 +285,10 @@ func _init() -> void:
 	check(Content.PLANET_ITEM_CATALOGS.canil_asteroides_domesticos == CanilAsteroides.ITEMS and Content.SECONDARY_ITEM_CATALOGS.canil_asteroides_domesticos == CanilAsteroides.SECONDARY_ITEMS, "Domestic Asteroid Kennel equipment remains canonical")
 	check(Content.loot_slots_for_planet("canil_asteroides_domesticos").count("rig") == 2 and [CanilAsteroides.TARGETS[0].power, CanilAsteroides.TARGETS[3].power] == [2620, 2834], "level-230 rig and combat anchors are explicit")
 	check(CanilAsteroides.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Domestic Asteroid Kennel art remains assigned to the user pipeline")
+	check(Content.PLANETS[26] == CartorioHorizonte.PLANET and Content.TARGETS.slice(104, 108) == CartorioHorizonte.TARGETS and Content.HUNT_EVENTS.slice(52, 54) == CartorioHorizonte.EVENTS, "level-240 pack is composed in canonical order")
+	check(Content.PLANET_ITEM_CATALOGS.cartorio_ultimo_horizonte == CartorioHorizonte.ITEMS and Content.SECONDARY_ITEM_CATALOGS.cartorio_ultimo_horizonte == CartorioHorizonte.SECONDARY_ITEMS, "Last Horizon Registry equipment remains canonical")
+	check(Content.loot_slots_for_planet("cartorio_ultimo_horizonte").count("implant") == 2 and [CartorioHorizonte.TARGETS[0].power, CartorioHorizonte.TARGETS[3].power] == [2890, 3126], "level-240 implant and combat anchors are explicit")
+	check(CartorioHorizonte.TARGETS.all(func(target): return str(target.get("visual_delivery", "")) == "pending_user_asset"), "Last Horizon Registry art remains assigned to the user pipeline")
 
 	var forged := Dustball.PACK.duplicate(true)
 	forged.targets.pop_back()
@@ -305,7 +311,7 @@ func _init() -> void:
 	check(not PackContract.is_valid(forged), "planet bosses are reserved for tier three")
 
 	if failures == 0:
-		print("PASS: all twenty-six current planet packs preserve canonical content and slot progression")
+		print("PASS: all twenty-seven current planet packs preserve canonical content and slot progression")
 	quit(1 if failures > 0 else 0)
 
 

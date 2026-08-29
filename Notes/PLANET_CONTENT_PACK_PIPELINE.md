@@ -1,6 +1,6 @@
 # Crooked Galaxy — pipeline modular de conteúdo planetário
 
-Estado: migração concluída e pipeline continuado com vinte e seis planetas até ao nível 230.
+Estado: migração concluída e pipeline continuado com vinte e sete planetas até ao nível 240.
 
 ## Objetivo
 
@@ -87,5 +87,6 @@ Um pacote novo só entra no registry quando:
 | Aquário de Oceanos Confiscados | `aquario_oceanos_confiscados.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e luvas | Novo · nível 210 |
 | Central de Sonhos Penhorados | `central_sonhos_penhorados.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e capacetes | Novo · nível 220 |
 | Canil de Asteroides Domésticos | `canil_asteroides_domesticos.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e rigs | Novo · nível 230 |
+| Cartório do Último Horizonte | `cartorio_ultimo_horizonte.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e implantes | Novo · nível 240 |
 
-O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Os dezanove packs novos entre os níveis 50 e 230 provam que planetas entram por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus 76 retratos e 57 ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos.
+O catálogo atual está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Os vinte packs novos entre os níveis 50 e 240 provam que planetas entram por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus 80 retratos e 60 ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos.
