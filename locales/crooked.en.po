@@ -3623,6 +3623,9 @@ msgstr "◈ %d CREDITS · %d XP"
 msgid "RIFT_RULES"
 msgstr "One free attempt · no fuel · victory closes the day · defeat allows up to three retries for ◆ 1/5/20."
 
+msgid "RIFT_RECOMMENDED_LEVEL"
+msgstr "RECOMMENDED ENVELOPE · LEVEL %d"
+
 msgid "RIFT_START"
 msgstr "ENTER THE RIFT · ENEMY %d/12"
 

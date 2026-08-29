@@ -8,6 +8,7 @@ const UNLOCK_PLANET_ID := "dustball_prime"
 const UNLOCK_LEVEL := 8
 const FLOORS_PER_SECTOR := 3
 const REWARD_SECTORS := ["rig", "implant", "gadget", "relic"]
+const FIRST_REALITY_RECOMMENDED_LEVELS := [8, 11, 15, 16, 22, 29, 32, 38, 45, 55, 70, 90]
 
 const ANOMALY_PROFILES := {
 	"volatile_opening": {
@@ -597,6 +598,7 @@ static func stage_at(index: int, reality_id := FIRST_REALITY_ID) -> Dictionary:
 			stage.xp = maxi(1, roundi(float(MissionRulesScript.standard_xp_reward(reward_level)) * float(definition.get("xp_reward_ratio", 1.0))))
 			stage["reward_level"] = reward_level
 	stage["reward_power_bonus"] = int(definition.get("reward_power_bonus", 0))
+	stage["recommended_level"] = FIRST_REALITY_RECOMMENDED_LEVELS[index] if reality_id == FIRST_REALITY_ID else int(definition.get("reward_level_start", definition.unlock_level)) + index * int(definition.get("reward_level_step", 0))
 	stage["localization_stage_id"] = str(stage.id)
 	var anomaly := anomaly_profile(str(stage.get("anomaly_id", "")))
 	if anomaly.is_empty():

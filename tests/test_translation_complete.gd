@@ -113,7 +113,7 @@ func run_test() -> void:
 	scene.view_mode = "challenges"
 	scene.render()
 	await process_frame
-	check(has_label(scene, "CLANDESTINE RIFT") and has_label(scene, "Customs of the Dead Universe") and has_label(scene, "FLOOR 1 · ILLEGAL SCREENING") and has_label(scene, "Dead Customs Drone") and has_label(scene, "VOLATILE CHAMBER") and has_label(scene, "SEALED REWARD") and not has_label(scene, "Broken Seal Rig"), "English Rift dossier localizes the reality and current enemy while keeping the reward concealed")
+	check(has_label(scene, "CLANDESTINE RIFT") and has_label(scene, "Customs of the Dead Universe") and has_label(scene, "FLOOR 1 · ILLEGAL SCREENING") and has_label(scene, "Dead Customs Drone") and has_label(scene, "RECOMMENDED ENVELOPE · LEVEL 8") and has_label(scene, "VOLATILE CHAMBER") and has_label(scene, "SEALED REWARD") and not has_label(scene, "Broken Seal Rig"), "English Rift dossier localizes the reality, current enemy, and authored checkpoint while keeping the reward concealed")
 	var enter := scene.find_child("ChallengeEnterAction", true, false) as Button
 	check(enter != null and enter.text == "ENTER THE RIFT · ENEMY 1/12", "English Rift daily entry action is localized")
 

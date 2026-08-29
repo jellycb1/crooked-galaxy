@@ -6,7 +6,7 @@ const StateScript = preload("res://scripts/game_state.gd")
 const TransportRules = preload("res://scripts/transport_rules.gd")
 const MonetizationRules = preload("res://scripts/monetization_rules.gd")
 const YearOne = preload("res://scripts/year_one_content_rules.gd")
-const XP_MILESTONES := [4, 8, 13, 19, 30, 50, 100, 160, 200, 215, 300, 320, 500]
+const XP_MILESTONES := [4, 8, 13, 19, 30, 50, 100, 160, 170, 180, 190, 200, 215, 300, 320, 500]
 
 
 func _init() -> void:
@@ -128,14 +128,15 @@ static func simulate_fuel_days(days: int, strategy: String, daily_fuel: int, qua
 			remaining -= cost
 			fuel_spent += cost
 			player.wins = int(player.wins) + 1
+			var previous_level := int(player.level)
 			if quadratic_xp_coefficient < 0.0:
 				CoreRules.apply_xp(player, int(selected.xp))
 			else:
 				apply_projected_xp(player, int(selected.xp), quadratic_xp_coefficient)
 			hunts += 1
-			for milestone in XP_MILESTONES:
-				if int(player.level) >= milestone and not milestone_days.has(milestone):
-					milestone_days[milestone] = day_index + 1
+			for reached_level in range(previous_level + 1, int(player.level) + 1):
+				if not milestone_days.has(reached_level):
+					milestone_days[reached_level] = day_index + 1
 	return {"hunts": hunts, "level": int(player.level), "fuel_spent": fuel_spent, "milestone_days": milestone_days}
 
 

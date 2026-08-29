@@ -181,6 +181,8 @@ func run_audit() -> void:
 	for slot in reward_families:
 		check(scene.find_child("ChallengeSector_%s" % slot.capitalize(), true, false) != null, "compact progress track exposes the %s sector" % slot)
 	check(scene.find_child("ChallengeCurrentDossier", true, false) != null and scene.find_child("ChallengeHiddenReward", true, false) != null, "current enemy and sealed-reward promise share one readable dossier")
+	var recommended_level_label := scene.find_child("ChallengeRecommendedLevel", true, false) as Label
+	check(recommended_level_label != null and str(Challenge.FIRST_REALITY_RECOMMENDED_LEVELS[1]) in recommended_level_label.text, "the current enemy exposes its authored build checkpoint without revealing future floors")
 	check(scene.find_child("ChallengeRewardPreview", true, false) == null, "the unopened Rift never exposes item, slot, rarity, credits, or XP")
 	var challenge_dossier := scene.find_child("ChallengeCurrentDossier", true, false) as PanelContainer
 	check(challenge_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "the current Rift enemy uses the approved focal frame")

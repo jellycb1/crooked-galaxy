@@ -141,6 +141,9 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 	row.add_child(copy)
 	copy.add_child(host.label(localized_stage_field(stage, "title"), UIDesignSystem.FONT_CAPTION, host.CORAL))
 	copy.add_child(host.label(localized_stage_field(stage, "name"), UIDesignSystem.FONT_EMPHASIS, host.INK))
+	var recommended_level := host.label(t("RIFT_RECOMMENDED_LEVEL", "ENVELOPE RECOMENDADO · NÍVEL %d", [int(stage.recommended_level)]), UIDesignSystem.FONT_CAPTION, host.GOLD)
+	recommended_level.name = "ChallengeRecommendedLevel"
+	copy.add_child(recommended_level)
 	var description := host.label(localized_stage_field(stage, "description"), UIDesignSystem.FONT_CAPTION, host.MUTED)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(description)

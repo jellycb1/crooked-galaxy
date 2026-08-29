@@ -48,11 +48,11 @@ O teste `test_year_one_content.gd` executa 1 825 caçadas de referência, confir
 
 A Fenda usa a mesma curva de nível, mas não combustível. Cada realidade abre por chave sequencial, oferece no máximo uma vitória por dia e permite 0–3 repetições somente após derrota. A projeção reproduzível em `tools/audit_rift_year_one_chronology.gd` usa 55% por tentativa como baseline declarado, não como promessa individual de combate.
 
-- Gratuito padrão: nível 120 no fim do ano; conclusões esperadas das realidades 1/2 nos dias 23/254; nível 160 não é alcançado.
-- Gratuito de rota barata: nível 162; conclusões esperadas nos dias 23/134/371, deixando a terceira em curso no fim do ano.
-- 160 combustível, rota barata e três repetições quando necessário: nível 200; conclusões esperadas nos dias 13/82/224 e cerca de 123 Fichas gastas em repetições durante os dias de progressão da Fenda.
+- Gratuito padrão: nível 120 no fim do ano; conclui a primeira realidade por volta do dia 182 e alcança cinco inimigos da segunda.
+- Gratuito de rota barata: nível 162; conclui as duas primeiras por volta dos dias 90/323 e alcança o primeiro inimigo da terceira.
+- 160 combustível, rota barata e três repetições quando necessário: nível 200; conclui as duas primeiras por volta dos dias 55/194, alcança nove inimigos da terceira e gasta cerca de 113 Fichas em repetições nos dias de progressão.
 
-O resultado prova que as 36 identidades atuais são uma escada anual espaçada para perfis gratuitos, mas deixam aproximadamente 141 dias sem novo andar para o perfil mecanicamente mais rápido. Uma quarta realidade não deve ser acrescentada apenas para elevar contagens: precisa de nível de abertura posterior ao 200 ou de outra condição transversal que impeça consumo prematuro, mantendo a chave gameplay-only e o máximo de uma vitória diária.
+O resultado prova que as 36 identidades atuais ultrapassam o primeiro ano até para o perfil mecanicamente mais rápido: o nível 200 só chega no dia 364, deixando ainda os checkpoints 205/210/215. A primeira projeção que indicava uma lacuna de 141 dias foi rejeitada porque ignorava o nível recomendado de cada inimigo. Uma quarta realidade não deve ser produzida antes de uma projeção de segundo ano e de builds representativas acima do nível 215.
 
 ## Entrega 0.45.0 — descoberta persistente
 

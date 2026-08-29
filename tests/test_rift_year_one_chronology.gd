@@ -16,11 +16,12 @@ func _init() -> void:
 	var premium_result := Model.simulate(Model.PROFILES[2])
 	check(float(premium_result.daily_success_probability) > float(free_result.daily_success_probability), "paid retries reduce defeat delay without multiplying the one-victory daily cap")
 	check(float(premium_result.expected_days_per_clear) >= 1.0, "even four successful attempts cannot clear more than one enemy per day")
-	check(int(free_result.authored_clears_reached) < Challenge.REALITIES.size() * 12, "the free balanced level curve does not pretend every advanced gate is reachable in year one")
-	check(int(premium_result.authored_clears_reached) == Challenge.REALITIES.size() * 12, "the fastest audited progression reaches all currently authored realities")
+	check(int(free_result.authored_stages_reached) < Challenge.REALITIES.size() * 12, "the free balanced level curve does not pretend every advanced floor is reachable in year one")
+	check(int(premium_result.authored_stages_reached) < Challenge.REALITIES.size() * 12, "the fastest profile cannot bypass the authored level-205/210/215 encounter checkpoints")
 	var premium_realities: Array = premium_result.realities
 	check(float(premium_realities[1].eligible_day) > float(premium_realities[0].expected_completion_day), "the second key remains sequential and level-gated")
 	check(float(premium_realities[2].eligible_day) > float(premium_realities[1].expected_completion_day), "the third key remains sequential and level-gated")
+	check(not bool(premium_realities[2].completed_in_year) and int(premium_realities[2].stages_reached) == 9, "the current third reality preserves three post-year-one enemies for the fastest approved profile")
 	finish()
 
 
