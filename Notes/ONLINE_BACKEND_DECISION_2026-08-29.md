@@ -48,6 +48,8 @@ Capabilities are activated separately. A configured URL never enables a feature 
 
 Begin with local open-source development. Compare a small managed deployment against a single-node self-hosted staging environment only after request volume can be measured. Production must budget backups, monitoring, TLS, database maintenance, incident response and regional latency; the cheapest virtual machine is not the real operational cost.
 
+The staging provider is now fixed as Hetzner: one disposable CX33 x86 cloud server in Nuremberg plus a separate Storage Box for encrypted off-host database archives. This is a staging choice, not a production-topology decision. A single CX33 provides no high availability and must never be represented as launch-ready production infrastructure.
+
 Current published reference points are volatile and must be rechecked before spending: Supabase advertises Free and USD 25/month Pro tiers with included MAU/function quotas; Firebase offers free quotas with pay-as-you-go Google Cloud services; PlayFab uses multiple consumption meters; Heroic Cloud charges active deployment capacity and add-ons.
 
 ## Local foundation evidence

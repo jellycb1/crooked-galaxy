@@ -1,6 +1,6 @@
 # Nakama TLS staging runbook
 
-Status: active operations contract. The staging package is locally validated but no external host or DNS name is currently provisioned.
+Status: active operations contract. Hetzner is selected for staging and backup infrastructure; no cloud server, Storage Box or DNS name is currently provisioned.
 
 ## Purpose and boundary
 
@@ -10,10 +10,12 @@ The checked-in topology pins PostgreSQL 16.8, Nakama 3.40.0, runtime types 1.47.
 
 ## Host prerequisites
 
-- A disposable Linux host with current Docker Engine, Compose and PowerShell 7 (`pwsh`) for the checked-in operational scripts.
+- One disposable Hetzner Cloud CX33 x86 server in Nuremberg, running Ubuntu 24.04 LTS, current Docker Engine, Compose and PowerShell 7 (`pwsh`) for the checked-in operational scripts.
 - A dedicated DNS A/AAAA record pointing at that host.
 - Inbound 80/tcp and 443/tcp; 443/udp is optional HTTP/3. Never expose 5432, 7350 or 7351 publicly.
-- Restricted SSH access, automatic security updates, adequate disk monitoring and a protected off-host destination for encrypted backups.
+- A stateful Hetzner Cloud Firewall: SSH restricted to the operator source whenever practical; 80/tcp, 443/tcp and optional 443/udp public; all other inbound traffic denied.
+- Restricted SSH key access, automatic security updates and adequate disk monitoring.
+- A separate Hetzner Storage Box with SSH-key access for encrypted Borg archives. It is off-host recovery, not a mounted PostgreSQL data volume. Hetzner server snapshots/backups supplement this copy but never replace database dumps and restore drills.
 - A real operator e-mail for ACME expiry/problem notices.
 
 Caddy automatic HTTPS requires correct DNS, externally reachable ports 80/443 and persistent writable certificate storage. Do not start staging with a production hostname, reuse the local `.env`, disable TLS verification, or put credentials in shell history, tickets or chat.
@@ -34,6 +36,8 @@ Do not place the staging endpoint in `server_rules.gd` or the normal Android con
 
 Before every runtime or database change, create a verified dump with `backup_staging.ps1`, run `restore_drill.ps1` against that dump, and copy the dump plus SHA-256 to protected off-host storage. The drill creates a random isolated PostgreSQL container/volume, performs a complete error-stopping restore, verifies the public schema and removes only those exact disposable resources. Record commit, image digests, UTC deployment time and smoke-test result. Deploy one reviewed commit, rebuild, wait for health, then rerun the public test.
 
+For the selected all-Hetzner arrangement, “off-host” means the independent Storage Box, not another directory or attached volume on the CX33. Use Borg with repository encryption and an explicit remote version over Storage Box SSH port 23. Keep the recovery key outside both services. The transfer automation remains a pending gate and must be tested by downloading and restoring one archive before it can be called operational.
+
 A rollback means restoring the previous reviewed commit and compatible runtime image. Database rollback is never inferred from a code rollback. If a migration changed stored data, stop writes and use the rehearsed isolated-restore evidence before planning restoration of the actual service. Never run `pg_restore` over the active staging or production database.
 
 ## Evidence required before APK activation
@@ -53,3 +57,5 @@ Only after all evidence is recorded may account, clock and profile flags be cons
 - Heroic Labs Docker deployment and server configuration: <https://heroiclabs.com/docs/nakama/getting-started/configuration/docker-configuration/> and <https://heroiclabs.com/docs/nakama/getting-started/configuration/>.
 - Caddy reverse proxy and automatic HTTPS: <https://caddyserver.com/docs/caddyfile/directives/reverse_proxy> and <https://caddyserver.com/docs/automatic-https>.
 - Official Caddy container image: <https://hub.docker.com/_/caddy/>.
+- Hetzner Storage Box SSH/rsync/Borg access and cloud backup semantics: <https://docs.hetzner.com/storage/storage-box/access/access-ssh-rsync-borg/> and <https://docs.hetzner.com/cloud/servers/backups-snapshots/overview/>.
+- Hetzner Cloud Firewall behavior: <https://docs.hetzner.com/cloud/firewalls/faq/>.

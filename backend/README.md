@@ -37,3 +37,5 @@ The staging operator environment requires PowerShell 7 in addition to Docker Eng
 5. Run `backup_staging.ps1` before deployments and schema/runtime changes. It writes an ignored custom-format PostgreSQL dump, validates it with `pg_restore --list`, finalizes atomically and records SHA-256. Run `restore_drill.ps1 -BackupPath <dump>` regularly; it verifies the checksum and restores into an isolated disposable PostgreSQL volume without touching staging.
 
 No staging host, domain or credential is committed or provisioned automatically. A successful deployment test is evidence for staging only; it does not change the APK capability flags or authorize production.
+
+The selected external target is a disposable Hetzner CX33 x86 instance in Nuremberg with a separate Hetzner Storage Box for encrypted off-host archives. Neither resource currently exists in repository state. Cloud-server snapshots are supplemental recovery only; the checked-in PostgreSQL dump and isolated restore proof remain mandatory.
