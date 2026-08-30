@@ -2,8 +2,10 @@ class_name ProfileSyncRules
 extends RefCounted
 
 const Protocol = preload("res://scripts/backend_protocol_rules.gd")
+const Economy = preload("res://scripts/remote_economy_rules.gd")
 
 const CACHE_SCHEMA := 1
+const AUTHORITY_CACHE_SCHEMA := 2
 const MAX_CACHE_AGE_MS := 604800000
 
 const ACTION_USE_REMOTE := "use_remote_snapshot"
@@ -51,6 +53,72 @@ static func open_read_only_cache(cache: Dictionary, account_id: String, characte
 		"billing_allowed": false,
 		"age_ms": now_unix_ms - cached_at,
 		"snapshot": canonical,
+	}
+
+
+static func canonical_authority_unit(character_snapshot: Dictionary, economy_snapshot: Dictionary, build_snapshot: Dictionary, account_id: String, character_id: String) -> Dictionary:
+	var character := Protocol.canonical_character_snapshot(character_snapshot, account_id, character_id)
+	var economy := Economy.canonical_economy_snapshot(economy_snapshot, account_id, character_id)
+	var build := Economy.canonical_build_snapshot(build_snapshot, account_id, character_id)
+	if character.is_empty() or economy.is_empty() or build.is_empty():
+		return {}
+	var revision := int(character.revision)
+	if int(economy.revision) != revision or int(build.revision) != revision:
+		return {}
+	var profile: Dictionary = character.profile
+	var wallet: Dictionary = economy.economy
+	for key in ["level", "xp", "credits", "warp_chips", "scrap"]:
+		if not profile.has(key) or typeof(profile[key]) not in [TYPE_INT, TYPE_FLOAT] or int(profile[key]) != int(wallet[key]):
+			return {}
+	if int(build.build.inventory_revision) != int(wallet.inventory_revision) or build.build.inventory.size() != int(wallet.inventory_count):
+		return {}
+	return {"revision": revision, "character": character, "economy": economy, "build": build}
+
+
+static func make_read_only_authority_cache(character_snapshot: Dictionary, economy_snapshot: Dictionary, build_snapshot: Dictionary, account_id: String, character_id: String, cached_at_unix_ms: int) -> Dictionary:
+	var unit := canonical_authority_unit(character_snapshot, economy_snapshot, build_snapshot, account_id, character_id)
+	if unit.is_empty():
+		return {}
+	var latest_server_time := maxi(int(unit.character.server_unix_ms), maxi(int(unit.economy.server_unix_ms), int(unit.build.server_unix_ms)))
+	if cached_at_unix_ms < latest_server_time or cached_at_unix_ms > Protocol.MAX_UNIX_MS:
+		return {}
+	return {
+		"cache_schema": AUTHORITY_CACHE_SCHEMA,
+		"account_id": account_id,
+		"character_id": character_id,
+		"server_revision": int(unit.revision),
+		"cached_at_unix_ms": cached_at_unix_ms,
+		"character_snapshot": unit.character,
+		"economy_snapshot": unit.economy,
+		"build_snapshot": unit.build,
+	}
+
+
+static func open_read_only_authority_cache(cache: Dictionary, account_id: String, character_id: String, now_unix_ms: int) -> Dictionary:
+	if int(cache.get("cache_schema", -1)) != AUTHORITY_CACHE_SCHEMA or str(cache.get("account_id", "")) != account_id or str(cache.get("character_id", "")) != character_id:
+		return {}
+	var cached_at := int(cache.get("cached_at_unix_ms", -1))
+	if cached_at < 0 or now_unix_ms < cached_at or now_unix_ms - cached_at > MAX_CACHE_AGE_MS:
+		return {}
+	for key in ["character_snapshot", "economy_snapshot", "build_snapshot"]:
+		if not cache.get(key, null) is Dictionary:
+			return {}
+	var unit := canonical_authority_unit(cache.character_snapshot, cache.economy_snapshot, cache.build_snapshot, account_id, character_id)
+	if unit.is_empty() or int(cache.get("server_revision", -1)) != int(unit.revision):
+		return {}
+	return {
+		"state": "offline_cached",
+		"authority": "cached_server",
+		"read_only": true,
+		"economic_mutations_allowed": false,
+		"social_actions_allowed": false,
+		"billing_allowed": false,
+		"age_ms": now_unix_ms - cached_at,
+		"revision": int(unit.revision),
+		"snapshot": unit.character,
+		"character_snapshot": unit.character,
+		"economy_snapshot": unit.economy,
+		"build_snapshot": unit.build,
 	}
 
 

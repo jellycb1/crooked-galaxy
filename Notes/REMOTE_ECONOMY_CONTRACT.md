@@ -6,7 +6,7 @@ The reusable Godot session coordinator now owns the lifecycle around this adapte
 
 The explicit staging path also owns one reusable command dispatcher. It keeps character, economy, build and the presented hunt board as one revision-locked authority unit, blocks concurrent mutations while an outcome is uncertain and permits a retry only with the byte-equivalent command identity already held in memory. Profile commits and economic commands therefore share the same sequencing boundary. Every known receipt is followed by a full character/economy/build/board refetch; conflict and rejection are never resolved through local field merge or automatic intent replay. A profile or board cannot be presented when it belongs to another revision. Pending mutations are not written into the offline cache.
 
-Disconnect is a coordinated state change rather than loss of transport. The dispatcher must close first, clearing its owned account, revision, character, board, economy and build views. It cannot close over an uncertain command. Only after that boundary is inert may the session coordinator expose the bounded read-only cache.
+Disconnect is a coordinated state change rather than loss of transport. The coordinator first adopts a canonical character/economy/build unit whose owner, revision, wallet and inventory counts agree. The dispatcher must then close, clearing its owned account, revision, character, board, economy and build views; it cannot close over an uncertain command. Only after that boundary is inert may the coordinator atomically persist and reopen the bounded read-only unit. Expiring hunt offers and pending commands never enter that cache.
 
 ## Product truth
 

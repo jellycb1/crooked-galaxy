@@ -60,12 +60,16 @@ func run(configuration: Dictionary, device_id: String, cache_path: String) -> Di
 	if not bool(hunt_evidence.get("ok", false)):
 		return hunt_evidence
 	var authoritative: Dictionary = dispatcher.character_snapshot()
+	var authoritative_economy: Dictionary = dispatcher.economy_snapshot()
+	var authoritative_build: Dictionary = dispatcher.build_snapshot()
 	if not bool(authoritative.get("ok", false)) or int(authoritative.get("revision", -1)) != int(hunt_evidence.get("final_revision", -2)):
 		return _failure("post_hunt_profile_refetch_failed")
-	if not coordinator.accept_authoritative_snapshot(authoritative):
+	if not coordinator.accept_authoritative_unit(authoritative, authoritative_economy, authoritative_build):
 		return _failure("coordinator_snapshot_failed")
 
-	var cached_at := maxi(int(Time.get_unix_time_from_system() * 1000.0), int(authoritative.get("server_unix_ms", 0)))
+	var latest_server_time := maxi(int(authoritative.get("server_unix_ms", 0)),
+		maxi(int(authoritative_economy.get("server_unix_ms", 0)), int(authoritative_build.get("server_unix_ms", 0))))
+	var cached_at := maxi(int(Time.get_unix_time_from_system() * 1000.0), latest_server_time)
 	var dispatcher_closed: Dictionary = dispatcher.close_for_disconnect()
 	if not bool(dispatcher_closed.get("ok", false)):
 		return _failure("command_dispatcher_disconnect_failed")

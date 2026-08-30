@@ -3,6 +3,7 @@ extends RefCounted
 
 const Protocol = preload("res://scripts/backend_protocol_rules.gd")
 const Economy = preload("res://scripts/remote_economy_rules.gd")
+const Sync = preload("res://scripts/profile_sync_rules.gd")
 
 const STATE_INERT := "inert"
 const STATE_READY := "ready"
@@ -213,9 +214,16 @@ func _refresh_authoritative_unit(expected_revision := -1) -> Dictionary:
 	if canonical_character.is_empty() or canonical_economy.is_empty() or canonical_build.is_empty() or canonical_board.is_empty():
 		_state = STATE_STALE
 		return _failure("invalid_authoritative_unit")
-	var character_revision := int(canonical_character.revision)
-	var economy_revision := int(canonical_economy.revision)
-	var build_revision := int(canonical_build.revision)
+	var unit := Sync.canonical_authority_unit(canonical_character, canonical_economy, canonical_build, _account_id, _account_id)
+	if unit.is_empty():
+		_state = STATE_STALE
+		return _failure("contradictory_authoritative_unit")
+	canonical_character = unit.character
+	canonical_economy = unit.economy
+	canonical_build = unit.build
+	var character_revision := int(unit.revision)
+	var economy_revision := int(unit.revision)
+	var build_revision := int(unit.revision)
 	var board_revision := int(canonical_board.revision)
 	if character_revision != economy_revision or economy_revision != build_revision or economy_revision != board_revision \
 		or (expected_revision >= 0 and economy_revision != expected_revision):

@@ -12,7 +12,7 @@ func _init() -> void:
 		"api_version": 1, "authority": "server", "shard_id": "international_1",
 		"account_id": "account_1", "character_id": "character_1", "revision": 4,
 		"server_unix_ms": server_time,
-		"profile": {"character_id": "character_1", "hunter_name": "Nova", "level": 7, "credits": 80},
+		"profile": {"character_id": "character_1", "hunter_name": "Nova", "level": 7, "xp": 0, "credits": 80, "warp_chips": 0, "scrap": 0},
 	}
 	var cache := Sync.make_read_only_cache(snapshot, "account_1", "character_1", server_time + 1000)
 	check(not cache.is_empty(), "authoritative owned snapshot creates a bounded cache envelope")
@@ -33,6 +33,27 @@ func _init() -> void:
 	check(store.load_snapshot("foreign", "character_1", server_time + 2000).is_empty(), "persistent cache never crosses account ownership")
 	store.clear()
 	check(store.load_snapshot("account_1", "character_1", server_time + 2000).is_empty(), "explicit cache removal clears primary, staging, and backup copies")
+	var economy := make_economy_snapshot(4, server_time)
+	var build := make_build_snapshot(4, server_time)
+	var authority_cache := Sync.make_read_only_authority_cache(snapshot, economy, build, "account_1", "character_1", server_time + 1000)
+	check(not authority_cache.is_empty() and int(authority_cache.cache_schema) == Sync.AUTHORITY_CACHE_SCHEMA, "matching profile, economy, and build create one composite cache envelope")
+	var authority_opened := Sync.open_read_only_authority_cache(authority_cache, "account_1", "character_1", server_time + 2000)
+	check(bool(authority_opened.get("read_only", false)) and int(authority_opened.get("revision", -1)) == 4
+		and int(authority_opened.economy_snapshot.economy.credits) == 80 and int(authority_opened.build_snapshot.build.base_power) == 10,
+		"composite cache reopens all three owned views at one read-only revision")
+	check(not authority_opened.has("hunt_board") and not bool(authority_opened.get("economic_mutations_allowed", true)), "offline cache excludes expiring offers and every mutation capability")
+	var split_build := build.duplicate(true)
+	split_build.revision = 5
+	check(Sync.make_read_only_authority_cache(snapshot, economy, split_build, "account_1", "character_1", server_time + 1000).is_empty(), "split profile/economy/build revisions cannot enter the cache")
+	var contradictory_economy := economy.duplicate(true)
+	contradictory_economy.economy.credits = 81
+	check(Sync.make_read_only_authority_cache(snapshot, contradictory_economy, build, "account_1", "character_1", server_time + 1000).is_empty(), "same-revision wallet contradictions fail closed")
+	store.clear()
+	check(store.write_authority_unit(snapshot, economy, build, "account_1", "character_1", server_time + 1000), "composite authority cache writes through the atomic store")
+	var stored_unit := store.load_authority_unit("account_1", "character_1", server_time + 2000)
+	check(int(stored_unit.get("revision", -1)) == 4 and bool(stored_unit.get("read_only", false)), "persistent composite cache restores the exact authority revision")
+	check(store.load_authority_unit("foreign", "character_1", server_time + 2000).is_empty(), "persistent composite cache cannot cross ownership")
+	store.clear()
 
 	var pending := [{"command_id": "command_1", "idempotency_key": "receipt_1"}]
 	check(Sync.reconnect_action(4, 4, pending, true) == Sync.ACTION_RETRY_PENDING, "reconnect retries the exact pending command when the server has not advanced")
@@ -67,3 +88,24 @@ func check(condition: bool, description: String) -> void:
 	if not condition:
 		failures += 1
 		printerr("  FAIL: %s" % description)
+
+
+func make_economy_snapshot(revision: int, server_time: int) -> Dictionary:
+	return {
+		"api_version": 1, "authority": "server", "shard_id": "international_1",
+		"account_id": "account_1", "character_id": "character_1", "revision": revision, "server_unix_ms": server_time,
+		"economy": {"level": 7, "xp": 0, "credits": 80, "warp_chips": 0, "scrap": 0, "fuel": 100,
+			"max_fuel": 100, "inventory_revision": 0, "inventory_count": 0, "active_hunt": {}, "pending_reward": {}},
+	}
+
+
+func make_build_snapshot(revision: int, server_time: int) -> Dictionary:
+	var equipment := {}
+	for slot in ["weapon", "helmet", "armor", "gloves", "boots", "rig", "implant", "gadget", "relic"]:
+		equipment[slot] = {}
+	return {
+		"api_version": 1, "authority": "server", "shard_id": "international_1",
+		"account_id": "account_1", "character_id": "character_1", "revision": revision, "server_unix_ms": server_time,
+		"build": {"base_power": 10, "attributes": {"strength": 10, "vitality": 10, "dexterity": 10, "intelligence": 10, "cunning": 10},
+			"stat_points": 0, "inventory_revision": 0, "equipment": equipment, "inventory": []},
+	}

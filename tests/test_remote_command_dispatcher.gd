@@ -16,6 +16,7 @@ class FakeAdapter extends RefCounted:
 	var split_character_revision := false
 	var split_revision := false
 	var split_board_revision := false
+	var contradictory_wallet := false
 	var hunter_name := "Nova"
 
 	func account_id() -> String:
@@ -82,7 +83,7 @@ class FakeAdapter extends RefCounted:
 		return {
 			"ok": true, "api_version": 1, "authority": "server", "shard_id": "international_1",
 			"account_id": owned_account, "character_id": owned_account, "revision": value, "server_unix_ms": 2000000000000,
-			"economy": {"level": 1, "xp": 0, "credits": 25, "warp_chips": 0, "scrap": 0, "fuel": 100,
+			"economy": {"level": 1, "xp": 0, "credits": 26 if contradictory_wallet else 25, "warp_chips": 0, "scrap": 0, "fuel": 100,
 				"max_fuel": 100, "inventory_revision": 0, "inventory_count": 0, "active_hunt": {}, "pending_reward": {}},
 		}
 
@@ -173,6 +174,12 @@ func _init() -> void:
 	var split_character = Dispatcher.new(split_character_adapter, "account_1")
 	var split_character_boot: Dictionary = await split_character.bootstrap()
 	check(not bool(split_character_boot.get("ok", false)) and split_character.state() == Dispatcher.STATE_STALE, "a character from another revision fails closed before presentation")
+	var contradictory_adapter = FakeAdapter.new()
+	contradictory_adapter.contradictory_wallet = true
+	var contradictory = Dispatcher.new(contradictory_adapter, "account_1")
+	var contradictory_boot: Dictionary = await contradictory.bootstrap()
+	check(not bool(contradictory_boot.get("ok", false)) and contradictory.state() == Dispatcher.STATE_STALE,
+		"same-revision profile/economy contradictions fail closed before presentation or caching")
 	var profile_adapter = FakeAdapter.new()
 	var profile_dispatcher = Dispatcher.new(profile_adapter, "account_1")
 	await profile_dispatcher.bootstrap(4)

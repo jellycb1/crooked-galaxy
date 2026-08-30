@@ -19,6 +19,8 @@ var _state := STATE_INERT
 var _account_id := ""
 var _clock_sample: Dictionary = {}
 var _character_snapshot: Dictionary = {}
+var _economy_snapshot: Dictionary = {}
+var _build_snapshot: Dictionary = {}
 var _configuration_summary: Dictionary = {}
 var _pending_cutover_offer := Sync.MIGRATION_NONE
 
@@ -47,7 +49,8 @@ func safe_summary() -> Dictionary:
 		"server_revision": int(_character_snapshot.get("revision", -1)),
 		"clock_round_trip_ms": int(_clock_sample.get("round_trip_ms", -1)),
 		"read_only": _state == STATE_OFFLINE_CACHE,
-		"economic_mutations_allowed": _state == STATE_READY,
+		"authority_unit_ready": not _economy_snapshot.is_empty() and not _build_snapshot.is_empty(),
+		"economic_mutations_allowed": _state == STATE_READY and not _economy_snapshot.is_empty() and not _build_snapshot.is_empty(),
 	}
 
 
@@ -114,7 +117,21 @@ func accept_authoritative_snapshot(snapshot: Dictionary) -> bool:
 	canonical.ok = true
 	canonical.exists = true
 	_character_snapshot = canonical
+	_economy_snapshot = {}
+	_build_snapshot = {}
 	_state = STATE_READY
+	return true
+
+
+func accept_authoritative_unit(character_snapshot: Dictionary, economy_snapshot: Dictionary, build_snapshot: Dictionary) -> bool:
+	if _state != STATE_READY:
+		return false
+	var unit := Sync.canonical_authority_unit(character_snapshot, economy_snapshot, build_snapshot, _account_id, _account_id)
+	if unit.is_empty():
+		return false
+	_character_snapshot = unit.character
+	_economy_snapshot = unit.economy
+	_build_snapshot = unit.build
 	return true
 
 
@@ -143,15 +160,17 @@ func archive_local_cutover(choice: String, save_path: String, archive_root := Cu
 
 
 func cache_and_disconnect(cache_path: String, now_unix_ms := -1) -> Dictionary:
-	if _state != STATE_READY or cache_path.is_empty():
-		return _failure("authoritative_snapshot_required")
+	if _state != STATE_READY or cache_path.is_empty() or _economy_snapshot.is_empty() or _build_snapshot.is_empty():
+		return _failure("complete_authoritative_unit_required")
 	var cached_at := now_unix_ms
 	if cached_at < 0:
-		cached_at = maxi(int(Time.get_unix_time_from_system() * 1000.0), int(_character_snapshot.get("server_unix_ms", 0)))
+		var latest_server_time := maxi(int(_character_snapshot.get("server_unix_ms", 0)),
+			maxi(int(_economy_snapshot.get("server_unix_ms", 0)), int(_build_snapshot.get("server_unix_ms", 0))))
+		cached_at = maxi(int(Time.get_unix_time_from_system() * 1000.0), latest_server_time)
 	_cache_store = CacheStoreScript.new()
 	_cache_store.cache_path = cache_path
 	_cache_store.clear()
-	if not _cache_store.write_snapshot(_character_snapshot, _account_id, _account_id, cached_at):
+	if not _cache_store.write_authority_unit(_character_snapshot, _economy_snapshot, _build_snapshot, _account_id, _account_id, cached_at):
 		_cache_store.clear()
 		_cache_store = null
 		return _failure("cache_write_failed")
@@ -159,7 +178,7 @@ func cache_and_disconnect(cache_path: String, now_unix_ms := -1) -> Dictionary:
 	_configuration_summary = {}
 	_clock_sample = {}
 	_state = STATE_OFFLINE_CACHE
-	var offline: Dictionary = _cache_store.load_snapshot(_account_id, _account_id, cached_at)
+	var offline: Dictionary = _cache_store.load_authority_unit(_account_id, _account_id, cached_at)
 	if not bool(offline.get("read_only", false)) or bool(offline.get("economic_mutations_allowed", true)):
 		_cache_store.clear()
 		return _failure("cache_open_failed")
@@ -193,6 +212,8 @@ func reset_runtime() -> void:
 	_account_id = ""
 	_clock_sample = {}
 	_character_snapshot = {}
+	_economy_snapshot = {}
+	_build_snapshot = {}
 	_configuration_summary = {}
 	_pending_cutover_offer = Sync.MIGRATION_NONE
 

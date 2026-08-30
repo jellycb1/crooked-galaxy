@@ -55,6 +55,25 @@ class FakeAdapter extends RefCounted:
 			"profile": {"character_id": "account_1", "hunter_name": "Nova", "level": 1, "xp": 0, "credits": 25, "warp_chips": 0, "scrap": 0},
 		}
 
+	func make_economy(revision: int) -> Dictionary:
+		return {
+			"api_version": 1, "authority": "server", "shard_id": "international_1",
+			"account_id": "account_1", "character_id": "account_1", "revision": revision, "server_unix_ms": 2000000000000,
+			"economy": {"level": 1, "xp": 0, "credits": 25, "warp_chips": 0, "scrap": 0, "fuel": 100,
+				"max_fuel": 100, "inventory_revision": 0, "inventory_count": 0, "active_hunt": {}, "pending_reward": {}},
+		}
+
+	func make_build(revision: int) -> Dictionary:
+		var equipment := {}
+		for slot in ["weapon", "helmet", "armor", "gloves", "boots", "rig", "implant", "gadget", "relic"]:
+			equipment[slot] = {}
+		return {
+			"api_version": 1, "authority": "server", "shard_id": "international_1",
+			"account_id": "account_1", "character_id": "account_1", "revision": revision, "server_unix_ms": 2000000000000,
+			"build": {"base_power": 10, "attributes": {"strength": 10, "vitality": 10, "dexterity": 10, "intelligence": 10, "cunning": 10},
+				"stat_points": 0, "inventory_revision": 0, "equipment": equipment, "inventory": []},
+		}
+
 
 func _init() -> void:
 	var rejected_adapter = FakeAdapter.new()
@@ -78,7 +97,7 @@ func _init() -> void:
 	forged.profile.access_token = "must_not_cross_the_boundary"
 	check(not coordinator.accept_authoritative_snapshot(forged) and int(coordinator.character_snapshot().revision) == 0, "coordinator independently rejects nested credentials without replacing server truth")
 	var safe := coordinator.safe_summary()
-	check(not safe.configuration.has("client_key") and bool(safe.economic_mutations_allowed), "coordinator summary is credential-free and mutations require live authority")
+	check(not safe.configuration.has("client_key") and not bool(safe.economic_mutations_allowed) and not bool(safe.authority_unit_ready), "profile-only authority is credential-free but cannot advertise economic mutations")
 
 	var local_player := {"character_id": "local_character", "level": 8, "xp": 420, "wins": 12}
 	check(coordinator.prepare_local_cutover(local_player, false) == Sync.MIGRATION_CUTOVER_REQUIRED, "established local progress requires the archival cutover")
@@ -92,9 +111,17 @@ func _init() -> void:
 	check(not bool(ambiguous.get("ok", false)) and FileAccess.file_exists(save_path), "ambiguous migration cannot archive, delete, or import local progress")
 	var archived := coordinator.archive_local_cutover(Sync.MIGRATION_ARCHIVE_AND_START_REMOTE, save_path, archive_root)
 	check(bool(archived.get("ok", false)) and FileAccess.file_exists(save_path), "confirmed cutover archives while preserving the active local source")
+	check(not bool(coordinator.cache_and_disconnect(cache_path, now_ms).get("ok", false)), "profile-only disconnect cannot create a misleading economy cache")
+	var split_build := adapter.make_build(1)
+	check(not coordinator.accept_authoritative_unit(created, adapter.make_economy(0), split_build), "split authority revisions are rejected before caching")
+	check(coordinator.accept_authoritative_unit(created, adapter.make_economy(0), adapter.make_build(0)), "matching character, economy, and build become one cacheable authority unit")
+	check(bool(coordinator.safe_summary().authority_unit_ready) and bool(coordinator.safe_summary().economic_mutations_allowed), "complete live authority is distinguished from profile-only readiness")
 
 	var offline: Dictionary = coordinator.cache_and_disconnect(cache_path, now_ms)
-	check(bool(offline.get("ok", false)) and bool(offline.get("read_only", false)) and coordinator.state() == Coordinator.STATE_OFFLINE_CACHE, "disconnect reopens only a read-only server cache")
+	check(bool(offline.get("ok", false)) and bool(offline.get("read_only", false)) and coordinator.state() == Coordinator.STATE_OFFLINE_CACHE
+		and int(offline.get("revision", -1)) == 0 and int(offline.economy_snapshot.economy.credits) == 25
+		and int(offline.build_snapshot.build.base_power) == 10 and not offline.has("hunt_board"),
+		"disconnect reopens profile, economy, and build together while excluding expiring offers")
 	check(not bool(coordinator.safe_summary().economic_mutations_allowed), "offline coordinator cannot advertise economic mutations")
 	var remote_next := adapter.make_snapshot(1)
 	check(coordinator.reconnect_action(offline, remote_next) == Sync.ACTION_USE_REMOTE, "uncontested newer server revision replaces the read-only cache")

@@ -8,6 +8,15 @@ var cache_path := "user://crooked_galaxy_server_cache.json"
 
 func write_snapshot(snapshot: Dictionary, account_id: String, character_id: String, cached_at_unix_ms: int) -> bool:
 	var cache := Sync.make_read_only_cache(snapshot, account_id, character_id, cached_at_unix_ms)
+	return _write_cache(cache)
+
+
+func write_authority_unit(character_snapshot: Dictionary, economy_snapshot: Dictionary, build_snapshot: Dictionary, account_id: String, character_id: String, cached_at_unix_ms: int) -> bool:
+	var cache := Sync.make_read_only_authority_cache(character_snapshot, economy_snapshot, build_snapshot, account_id, character_id, cached_at_unix_ms)
+	return _write_cache(cache)
+
+
+func _write_cache(cache: Dictionary) -> bool:
 	if cache.is_empty():
 		return false
 	var staging_path := "%s.tmp" % cache_path
@@ -39,6 +48,17 @@ func load_snapshot(account_id: String, character_id: String, now_unix_ms: int) -
 		if parsed.is_empty():
 			continue
 		var opened := Sync.open_read_only_cache(parsed, account_id, character_id, now_unix_ms)
+		if not opened.is_empty():
+			return opened
+	return {}
+
+
+func load_authority_unit(account_id: String, character_id: String, now_unix_ms: int) -> Dictionary:
+	for path in ["%s.tmp" % cache_path, cache_path, "%s.bak" % cache_path]:
+		var parsed := _read_dictionary(path)
+		if parsed.is_empty():
+			continue
+		var opened := Sync.open_read_only_authority_cache(parsed, account_id, character_id, now_unix_ms)
 		if not opened.is_empty():
 			return opened
 	return {}
