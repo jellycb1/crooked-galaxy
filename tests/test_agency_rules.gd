@@ -24,6 +24,17 @@ func _init() -> void:
 	var second_director := snapshot.duplicate(true)
 	second_director.members[1].role_id = Agency.ROLE_DIRECTOR
 	check(Agency.canonical_agency_snapshot(second_director).is_empty(), "an Agency has exactly one Director")
+	var invalid_recruitment := snapshot.duplicate(true)
+	invalid_recruitment.recruitment_mode = "unreviewed"
+	check(Agency.canonical_agency_snapshot(invalid_recruitment).is_empty(), "authoritative Agency snapshots reject unknown recruitment modes")
+	check(Agency.valid_creation_profile({"name": "Orion Recovery", "recruitment_mode": "application", "preferred_locale": "multi"}), "Agency creation accepts only the bounded public profile")
+	check(not Agency.valid_creation_profile({"name": " Orion Recovery", "recruitment_mode": "application", "preferred_locale": "multi"}), "Agency creation rejects ambiguous display-name whitespace")
+	var directory := Agency.canonical_directory_summary({"authority": "server", "shard_id": Agency.SHARD_ID, "agency_id": "agency_orion",
+		"name": "Orion Recovery", "revision": 9, "member_count": 24, "recruitment_mode": "application", "preferred_locale": "multi"})
+	check(not directory.is_empty() and bool(directory.has_capacity), "directory summaries expose bounded discovery metadata without a roster")
+	directory = Agency.canonical_directory_summary({"authority": "server", "shard_id": Agency.SHARD_ID, "agency_id": "agency_orion",
+		"name": "Orion Recovery", "revision": 9, "member_count": 25, "recruitment_mode": "application", "preferred_locale": "multi"})
+	check(not bool(directory.has_capacity), "full Agencies are explicit without leaking member identities")
 	check(Agency.canonical_agency_snapshot(agency_snapshot(Agency.MEMBER_LIMIT + 1)).is_empty(), "Agency membership is bounded to twenty-five Agents")
 	check(Agency.create_weekly_warrant(agency_snapshot(Agency.MIN_WARRANT_MEMBERS - 1), 42).is_empty(), "a weekly collective warrant requires four eligible Agents")
 	var inactive_roster := agency_snapshot(6)

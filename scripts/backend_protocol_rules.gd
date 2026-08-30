@@ -2,6 +2,7 @@ class_name BackendProtocolRules
 extends RefCounted
 
 const Economy = preload("res://scripts/remote_economy_rules.gd")
+const Agency = preload("res://scripts/agency_rules.gd")
 
 const API_VERSION := 1
 const DEFAULT_SHARD_ID := "international_1"
@@ -22,6 +23,7 @@ const ACTION_STOP := "stop"
 
 const ALLOWED_OPERATIONS := {
 	"profile_commit": true,
+	"agency_create": true,
 	"agency_apply": true,
 	"agency_leave": true,
 	"agency_contribute_intel": true,
@@ -169,6 +171,8 @@ static func _valid_operation_payload(operation: String, payload: Dictionary) -> 
 	match operation:
 		"profile_commit":
 			return _has_exact_keys(payload, ["hunter_name", "appearance"])
+		"agency_create":
+			return Agency.valid_creation_profile(payload)
 		"agency_apply", "agency_leave":
 			return _has_exact_identifier_keys(payload, ["agency_id"])
 		"agency_contribute_intel":

@@ -42,6 +42,8 @@ O APK local atual mantém `agency_backend = false`. Não deve mostrar roster inv
 
 O limite `RemoteAgencyDispatcher` existe apenas como infraestrutura online isolada. Ele exige ownership autenticado, mantém revisão social separada da economia, aceita uma única intenção de candidatura/saída por vez, repete resultados incertos apenas com a identidade original e apaga toda a apresentação social ao fechar. Não é autoload, não entra em `GameState` e não possui cache offline. O RPC local `cg_agency_membership_get` devolve apenas o estado verdadeiro `none` para uma personagem autenticada; ainda não permite descobrir, criar, candidatar-se ou sair de uma Agência.
 
+O contrato futuro de descoberta expõe páginas de no máximo 25 resumos, sem nomes ou IDs de membros: identidade e nome da Agência, revisão social, contagem, modo de recrutamento, locale preferido e capacidade calculada. Cursores e IDs duplicados falham fechados. A criação envia apenas nome sem espaços exteriores, modo `open`/`application`/`invite` e locale `pt`/`en`/`multi`; o servidor gera o ID e nunca aceita roster, cargo, Prestígio ou saldo do cliente. Este envelope está reservado e testado, mas não está ligado ao dispatcher nem implementado no backend.
+
 ## Mandado de Agência semanal
 
 Cada semana UTC produz um Mandado com roster e metas estáveis quando existem pelo menos quatro Agentes elegíveis. Agências menores continuam válidas, mas precisam recrutar antes de abrir uma operação coletiva. A atividade possui três fases.

@@ -14,6 +14,32 @@ const OP_LEAVE := "agency_leave"
 const OPERATIONS := [OP_APPLY, OP_LEAVE]
 
 
+static func canonical_directory_page(response: Dictionary) -> Dictionary:
+	if int(response.get("api_version", -1)) != API_VERSION or str(response.get("authority", "")) != "server" \
+		or str(response.get("shard_id", "")) != SHARD_ID:
+		return {}
+	var server_unix_ms := int(response.get("server_unix_ms", -1))
+	var cursor := str(response.get("cursor", ""))
+	var next_cursor := str(response.get("next_cursor", ""))
+	var loaded_agencies = response.get("agencies", null)
+	if server_unix_ms < 1000000000000 or server_unix_ms > 4102444800000 or not loaded_agencies is Array \
+		or loaded_agencies.size() > Agency.DIRECTORY_PAGE_LIMIT or (not cursor.is_empty() and not Agency.valid_identifier(cursor)) \
+		or (not next_cursor.is_empty() and not Agency.valid_identifier(next_cursor)):
+		return {}
+	var agencies: Array[Dictionary] = []
+	var agency_ids := {}
+	for loaded in loaded_agencies:
+		if not loaded is Dictionary:
+			return {}
+		var canonical := Agency.canonical_directory_summary(loaded)
+		if canonical.is_empty() or agency_ids.has(str(canonical.agency_id)):
+			return {}
+		agency_ids[str(canonical.agency_id)] = true
+		agencies.append(canonical)
+	return {"api_version": API_VERSION, "authority": "server", "shard_id": SHARD_ID, "server_unix_ms": server_unix_ms,
+		"cursor": cursor, "next_cursor": next_cursor, "agencies": agencies}
+
+
 static func canonical_membership_snapshot(response: Dictionary, expected_account_id: String, expected_character_id: String) -> Dictionary:
 	if int(response.get("api_version", -1)) != API_VERSION or str(response.get("authority", "")) != "server" \
 		or str(response.get("shard_id", "")) != SHARD_ID or str(response.get("account_id", "")) != expected_account_id \

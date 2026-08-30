@@ -44,6 +44,16 @@ class FakeAdapter extends RefCounted:
 
 
 func _init() -> void:
+	var directory_page := RemoteAgency.canonical_directory_page({"api_version": 1, "authority": "server", "shard_id": "international_1",
+		"server_unix_ms": 2000000000000, "cursor": "", "next_cursor": "page_2", "agencies": [
+			{"authority": "server", "shard_id": "international_1", "agency_id": "agency_1", "name": "Nova Office", "revision": 2,
+				"member_count": 2, "recruitment_mode": "application", "preferred_locale": "multi"}]})
+	check(not directory_page.is_empty() and directory_page.agencies.size() == 1 and str(directory_page.next_cursor) == "page_2",
+		"Agency directory page is bounded and roster-free")
+	var duplicate_page := directory_page.duplicate(true)
+	duplicate_page.erase("ok")
+	duplicate_page.agencies.append(duplicate_page.agencies[0].duplicate(true))
+	check(RemoteAgency.canonical_directory_page(duplicate_page).is_empty(), "Agency directory rejects duplicate identities")
 	var adapter = FakeAdapter.new()
 	var dispatcher = Dispatcher.new(adapter, "account_1")
 	check(bool((await dispatcher.bootstrap(0)).get("ok", false)) and dispatcher.snapshot().membership_state == RemoteAgency.STATE_NONE,

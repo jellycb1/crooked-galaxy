@@ -89,6 +89,12 @@ func test_idempotent_commands_and_receipts() -> void:
 	var secret_command := Protocol.make_command("cmd_1002", "idem_1002", "profile_commit", "session_44", "hunter_7", 19, {"nested": {"refresh_token": "leak"}})
 	check(secret_command.is_empty(), "commands reject credentials even when nested in payloads")
 	check(Protocol.make_command("cmd_1003", "idem_1003", "unknown_operation", "session_44", "hunter_7", 19, {}).is_empty(), "unregistered remote operations are rejected")
+	var create_agency := Protocol.make_command("cmd_1004", "idem_1004", "agency_create", "session_44", "hunter_7", 0,
+		{"name": "Orion Recovery", "recruitment_mode": "application", "preferred_locale": "multi"})
+	check(not create_agency.is_empty() and not create_agency.payload.has("agency_id"), "Agency creation sends only reviewed profile intent and leaves identity to the server")
+	check(Protocol.make_command("cmd_1005", "idem_1005", "agency_create", "session_44", "hunter_7", 0,
+		{"name": "Orion Recovery", "recruitment_mode": "application", "preferred_locale": "multi", "prestige": 999}).is_empty(),
+		"Agency creation cannot author identity, prestige, roster, or extra state")
 
 	var accepted_response := valid_receipt_for(command, Protocol.RECEIPT_ACCEPTED, 20)
 	var accepted := Protocol.canonical_command_receipt(accepted_response, command)

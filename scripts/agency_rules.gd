@@ -8,12 +8,15 @@ const MIN_CHARACTER_LEVEL := 8
 const DAILY_INTEL_LIMIT := 3
 const DAILY_CAPTURE_ATTEMPT_LIMIT := 1
 const MAX_WEEKLY_EVENT_IDS := 1024
+const DIRECTORY_PAGE_LIMIT := 25
 
 const ROLE_DIRECTOR := "director"
 const ROLE_COORDINATOR := "coordinator"
 const ROLE_AGENT := "agent"
 const ROLE_RECRUIT := "recruit"
 const ROLES := [ROLE_DIRECTOR, ROLE_COORDINATOR, ROLE_AGENT, ROLE_RECRUIT]
+const RECRUITMENT_MODES := ["open", "application", "invite"]
+const PREFERRED_LOCALES := ["pt", "en", "multi"]
 
 const PERMISSION_MANAGE_PROFILE := "manage_profile"
 const PERMISSION_MANAGE_APPLICATIONS := "manage_applications"
@@ -44,7 +47,10 @@ static func canonical_agency_snapshot(snapshot: Dictionary) -> Dictionary:
 	var name := str(snapshot.get("name", "")).strip_edges()
 	var revision := int(snapshot.get("revision", -1))
 	var loaded_members = snapshot.get("members", [])
-	if not valid_identifier(agency_id) or not valid_display_name(name) or revision < 0:
+	var recruitment_mode := str(snapshot.get("recruitment_mode", ""))
+	var preferred_locale := str(snapshot.get("preferred_locale", ""))
+	if not valid_identifier(agency_id) or not valid_display_name(name) or revision < 0 \
+		or recruitment_mode not in RECRUITMENT_MODES or preferred_locale not in PREFERRED_LOCALES:
 		return {}
 	if not loaded_members is Array or loaded_members.is_empty() or loaded_members.size() > MEMBER_LIMIT:
 		return {}
@@ -76,9 +82,32 @@ static func canonical_agency_snapshot(snapshot: Dictionary) -> Dictionary:
 		"name": name,
 		"revision": revision,
 		"members": members,
-		"recruitment_mode": canonical_recruitment_mode(str(snapshot.get("recruitment_mode", "application"))),
-		"preferred_locale": canonical_preferred_locale(str(snapshot.get("preferred_locale", "multi"))),
+		"recruitment_mode": recruitment_mode,
+		"preferred_locale": preferred_locale,
 	}
+
+
+static func canonical_directory_summary(snapshot: Dictionary) -> Dictionary:
+	if str(snapshot.get("authority", "")) != "server" or str(snapshot.get("shard_id", "")) != SHARD_ID:
+		return {}
+	var agency_id := str(snapshot.get("agency_id", ""))
+	var name := str(snapshot.get("name", "")).strip_edges()
+	var revision := int(snapshot.get("revision", -1))
+	var member_count := int(snapshot.get("member_count", -1))
+	var recruitment_mode := str(snapshot.get("recruitment_mode", ""))
+	var preferred_locale := str(snapshot.get("preferred_locale", ""))
+	if not valid_identifier(agency_id) or not valid_display_name(name) or revision < 0 or member_count < 1 or member_count > MEMBER_LIMIT \
+		or recruitment_mode not in RECRUITMENT_MODES or preferred_locale not in PREFERRED_LOCALES:
+		return {}
+	return {"authority": "server", "shard_id": SHARD_ID, "agency_id": agency_id, "name": name, "revision": revision,
+		"member_count": member_count, "recruitment_mode": recruitment_mode, "preferred_locale": preferred_locale,
+		"has_capacity": member_count < MEMBER_LIMIT}
+
+
+static func valid_creation_profile(value: Dictionary) -> bool:
+	return value.size() == 3 and value.has("name") and value.has("recruitment_mode") and value.has("preferred_locale") \
+		and valid_display_name(str(value.name).strip_edges()) and str(value.name) == str(value.name).strip_edges() \
+		and str(value.recruitment_mode) in RECRUITMENT_MODES and str(value.preferred_locale) in PREFERRED_LOCALES
 
 
 static func create_weekly_warrant(agency_snapshot: Dictionary, week_id: int) -> Dictionary:
@@ -225,11 +254,11 @@ static func transaction_result(accepted: bool, warrant: Dictionary, reason: Stri
 
 
 static func canonical_recruitment_mode(mode: String) -> String:
-	return mode if mode in ["open", "application", "invite"] else "application"
+	return mode if mode in RECRUITMENT_MODES else "application"
 
 
 static func canonical_preferred_locale(locale_id: String) -> String:
-	return locale_id if locale_id in ["pt", "en", "multi"] else "multi"
+	return locale_id if locale_id in PREFERRED_LOCALES else "multi"
 
 
 static func valid_identifier(value: String) -> bool:
