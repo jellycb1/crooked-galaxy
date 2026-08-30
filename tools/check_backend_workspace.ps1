@@ -7,7 +7,7 @@ $Required = @(
     "README.md", "stack-lock.json", ".env.example", ".dockerignore", "Dockerfile", "docker-compose.yml",
     "local.yml", "package.json", "tsconfig.json", "src/main.ts", "prepare_local_env.ps1", "test_local.ps1", "test_godot_client.ps1",
     ".env.staging.example", "staging.yml", "Caddyfile.staging", "docker-compose.staging.yml",
-    "prepare_staging_env.ps1", "validate_staging.ps1", "backup_staging.ps1", "restore_drill.ps1", "test_staging.ps1",
+    "prepare_staging_env.ps1", "validate_staging.ps1", "backup_staging.ps1", "restore_drill.ps1", "test_staging.ps1", "test_godot_staging_boot.ps1",
     "bootstrap_hetzner_staging.sh", "finalize_hetzner_ssh.sh", "backup_offsite_borg.sh", "restore_offsite_drill.sh",
     "systemd/crooked-galaxy-offsite-backup.service", "systemd/crooked-galaxy-offsite-backup.timer"
 )
@@ -21,6 +21,7 @@ $Lock = Get-Content -LiteralPath (Join-Path $BackendRoot "stack-lock.json") -Raw
 $Dockerfile = Get-Content -LiteralPath (Join-Path $BackendRoot "Dockerfile") -Raw
 $Package = Get-Content -LiteralPath (Join-Path $BackendRoot "package.json") -Raw | ConvertFrom-Json
 $ServerRules = Get-Content -LiteralPath (Join-Path $ProjectRoot "scripts/backend_deployment_rules.gd") -Raw
+$ServerDefinitions = Get-Content -LiteralPath (Join-Path $ProjectRoot "scripts/server_rules.gd") -Raw
 $ExportPresets = Get-Content -LiteralPath (Join-Path $ProjectRoot "export_presets.cfg") -Raw
 $Compose = Get-Content -LiteralPath (Join-Path $BackendRoot "docker-compose.yml") -Raw
 $LocalConfig = Get-Content -LiteralPath (Join-Path $BackendRoot "local.yml") -Raw
@@ -41,6 +42,10 @@ $OffsiteBackup = Get-Content -LiteralPath (Join-Path $BackendRoot "backup_offsit
 $OffsiteRestore = Get-Content -LiteralPath (Join-Path $BackendRoot "restore_offsite_drill.sh") -Raw
 $OffsiteService = Get-Content -LiteralPath (Join-Path $BackendRoot "systemd/crooked-galaxy-offsite-backup.service") -Raw
 $OffsiteTimer = Get-Content -LiteralPath (Join-Path $BackendRoot "systemd/crooked-galaxy-offsite-backup.timer") -Raw
+$StagingBootTest = Get-Content -LiteralPath (Join-Path $BackendRoot "test_godot_staging_boot.ps1") -Raw
+$ProjectConfig = Get-Content -LiteralPath (Join-Path $ProjectRoot "project.godot") -Raw
+$StagingBootProbe = Get-Content -LiteralPath (Join-Path $ProjectRoot "scripts/staging_boot_probe.gd") -Raw
+$StagingClientProbe = Get-Content -LiteralPath (Join-Path $ProjectRoot "scripts/staging_client_probe.gd") -Raw
 if (-not $Dockerfile.Contains("nakama:$($Lock.nakama_server)") -or
     [string]$Package.devDependencies.'nakama-runtime' -ne "github:heroiclabs/nakama-common#v$($Lock.nakama_common_runtime_types)" -or
     -not $ServerRules.Contains("SERVER_VERSION := `"$($Lock.nakama_server)`"") -or
@@ -115,6 +120,21 @@ foreach ($ServiceGuard in @('User=cgdeploy', 'NoNewPrivileges=true', 'ProtectSys
 }
 foreach ($TimerGuard in @('OnCalendar=', 'RandomizedDelaySec=45m', 'Persistent=true')) {
     if (-not $OffsiteTimer.Contains($TimerGuard)) { throw "Offsite systemd timer guard is missing: $TimerGuard" }
+}
+foreach ($ClientProbeGuard in @('CG_STAGING_NAKAMA_SERVER_KEY', '--smoke-test', '--staging-boot-probe', '.env.staging', '$ClientKey = $null')) {
+    if (-not $StagingBootTest.Contains($ClientProbeGuard)) { throw "Staging normal-boot probe guard is missing: $ClientProbeGuard" }
+}
+if (-not $ProjectConfig.Contains('StagingBootProbe="*res://scripts/staging_boot_probe.gd"') -or
+    -not $StagingBootProbe.Contains('PROBE_ARGUMENT := "--staging-boot-probe"') -or
+    -not $StagingBootProbe.Contains('CG_STAGING_NAKAMA_HOST') -or
+    -not $StagingClientProbe.Contains('read_only_cache_verified') -or
+    -not $StagingClientProbe.Contains('reconnect_verified') -or
+    -not $StagingClientProbe.Contains('archive_cutover_verified') -or
+    -not $StagingClientProbe.Contains('may_seed_server_progress')) {
+    throw "The inert normal-boot staging probe is incomplete."
+}
+if ($StagingBootProbe.Contains('staging-api.crookedgalaxy.com') -or -not $ServerDefinitions.Contains('"backend_environment": "offline"')) {
+    throw "The exported game must contain neither a staging endpoint nor an activated backend environment."
 }
 foreach ($RpcName in @("cg_clock", "cg_session", "cg_character_get", "cg_character_create", "cg_character_commit")) {
     if (-not $RuntimeSource.Contains("registerRpc(`"$RpcName`"")) {

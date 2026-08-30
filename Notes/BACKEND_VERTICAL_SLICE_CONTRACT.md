@@ -1,6 +1,6 @@
 # Backend vertical slice contract
 
-Status: active protocol boundary. Version 1 now has a local authenticated server plus official Godot-client clock and character-authority implementation; no remote provider or endpoint is configured in the current APK.
+Status: active protocol boundary. Version 1 now has a local authenticated server plus an official Godot-client public-TLS staging proof; no remote endpoint or client key is configured in the current APK.
 
 ## Product truth
 
@@ -8,7 +8,7 @@ Crooked Galaxy remains device-authoritative and `local_only`. `International 1` 
 
 This slice deliberately does not persist credentials, contact a server, alter the player-save schema or move progress authority away from the device. It creates the stable seam required before those changes can be made safely.
 
-The separate `backend/` development stack proves Nakama health, development device authentication and authenticated clock/character RPCs on loopback. The pinned SDK independently proves the same path through Godot, but normal boot supplies it no endpoint or credential. Inactive read-only cache and reconnect rules now pass without field merging. A pinned, unactivated TLS staging package is ready for a dedicated host and DNS name; all online capability flags remain disabled. Existing device-authoritative saves are preserved only as local archives at cutover and never imported into the server economy. Public staging must separately prove normal-boot reconnect behavior.
+The separate `backend/` development stack proves Nakama health, development device authentication and authenticated clock/character RPCs on loopback. The pinned SDK now also proves the same ownership, commit, idempotency, conflict, read-only cache and reconnect path through the normal main-scene boot against public TLS staging. A new disposable account additionally binds a pristine revision-zero remote baseline to an exact three-member local-save archive whose manifest forbids seeding server progress; source files remain intact throughout the proof. The probe requires explicit command-line activation plus process-only host and client-key injection; the exported APK contains neither value and ordinary boot remains offline. Physical Android certificate, lifecycle and real-save confirmation remain separate.
 
 ## Session boundary
 
@@ -42,8 +42,8 @@ Accepted and duplicate receipts must bind the exact command identity and advance
 ## Activation order
 
 1. Deploy provider authentication and server UTC against a test environment.
-2. Make character snapshots and profile commits pass ownership, revision, idempotency and conflict tests. **Complete on local loopback; staging remains pending.**
-3. Exercise offline cache and reconnect without automatic field merging. **Rules and crash-safe read-only cache complete; normal-boot/staging exercise remains pending.**
+2. Make character snapshots and profile commits pass ownership, revision, idempotency and conflict tests. **Complete on local loopback and public TLS staging through the official Godot client.**
+3. Exercise offline cache and reconnect without automatic field merging. **Crash-safe rules and a normal main-scene staging reconnect pass on Windows; physical Android lifecycle evidence remains pending.**
 4. Implement server-owned Agency roster and warrant records using the same command receipts.
 5. Enable each capability flag independently only after end-to-end evidence exists.
 

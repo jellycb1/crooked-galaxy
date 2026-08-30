@@ -19,6 +19,9 @@ func _init() -> void:
 	check(str(summary.environment) == "local" and str(summary.host) == "127.0.0.1" and int(summary.port) == 7350, "safe configuration summary preserves connection identity")
 	check(not summary.has("client_key") and not summary.has("server_key") and not summary.has("password"), "configuration summary never exposes credentials")
 	check(not adapter.has_authenticated_session(), "configuration alone cannot claim an authenticated session")
+	check(adapter.configure({
+		"provider_id": "nakama", "environment": "staging", "host": "staging-api.crookedgalaxy.com", "port": 443, "ssl": true, "client_key": "staging_public_key_1234",
+	}), "adapter accepts the canonical TLS-only staging endpoint")
 	adapter.clear_runtime()
 	check(not adapter.is_configured() and not adapter.has_authenticated_session(), "runtime clear removes endpoint and memory-only session state")
 	if failures == 0:

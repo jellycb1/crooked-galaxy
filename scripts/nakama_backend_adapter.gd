@@ -49,6 +49,16 @@ func has_authenticated_session() -> bool:
 func authenticate_development(device_id: String, username := "") -> Dictionary:
 	if not is_configured() or str(_configuration.environment) != Deployment.ENV_LOCAL:
 		return _failure("local_endpoint_required")
+	return await _authenticate_test_device(device_id, username)
+
+
+func authenticate_staging_test(device_id: String, username := "") -> Dictionary:
+	if not is_configured() or str(_configuration.environment) != Deployment.ENV_STAGING:
+		return _failure("staging_endpoint_required")
+	return await _authenticate_test_device(device_id, username)
+
+
+func _authenticate_test_device(device_id: String, username: String) -> Dictionary:
 	if not _valid_development_identifier(device_id, 16, 128):
 		return _failure("invalid_device_id")
 	if not username.is_empty() and not _valid_development_identifier(username, 3, 32):
@@ -73,7 +83,7 @@ func authenticate_development(device_id: String, username := "") -> Dictionary:
 	_session = result
 	return {
 		"ok": true,
-		"provider_id": DEVELOPMENT_PROVIDER,
+		"provider_id": DEVELOPMENT_PROVIDER if str(_configuration.environment) == Deployment.ENV_LOCAL else "nakama_staging_device",
 		"account_id": str(_session.user_id),
 		"username": str(_session.username),
 		"created": bool(_session.created),
