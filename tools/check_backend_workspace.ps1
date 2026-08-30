@@ -7,7 +7,8 @@ $Required = @(
     "README.md", "stack-lock.json", ".env.example", ".dockerignore", "Dockerfile", "docker-compose.yml",
     "local.yml", "package.json", "tsconfig.json", "src/main.ts", "prepare_local_env.ps1", "test_local.ps1", "test_godot_client.ps1",
     ".env.staging.example", "staging.yml", "Caddyfile.staging", "docker-compose.staging.yml",
-    "prepare_staging_env.ps1", "validate_staging.ps1", "backup_staging.ps1", "restore_drill.ps1", "test_staging.ps1"
+    "prepare_staging_env.ps1", "validate_staging.ps1", "backup_staging.ps1", "restore_drill.ps1", "test_staging.ps1",
+    "bootstrap_hetzner_staging.sh", "finalize_hetzner_ssh.sh"
 )
 foreach ($RelativePath in $Required) {
     if (-not (Test-Path -LiteralPath (Join-Path $BackendRoot $RelativePath) -PathType Leaf)) {
@@ -31,6 +32,8 @@ $StagingProxy = Get-Content -LiteralPath (Join-Path $BackendRoot "Caddyfile.stag
 $StagingEnvironmentExample = Get-Content -LiteralPath (Join-Path $BackendRoot ".env.staging.example") -Raw
 $StagingValidator = Get-Content -LiteralPath (Join-Path $BackendRoot "validate_staging.ps1") -Raw
 $RestoreDrill = Get-Content -LiteralPath (Join-Path $BackendRoot "restore_drill.ps1") -Raw
+$HostBootstrap = Get-Content -LiteralPath (Join-Path $BackendRoot "bootstrap_hetzner_staging.sh") -Raw
+$SshFinalizer = Get-Content -LiteralPath (Join-Path $BackendRoot "finalize_hetzner_ssh.sh") -Raw
 if (-not $Dockerfile.Contains("nakama:$($Lock.nakama_server)") -or
     [string]$Package.devDependencies.'nakama-runtime' -ne "github:heroiclabs/nakama-common#v$($Lock.nakama_common_runtime_types)" -or
     -not $ServerRules.Contains("SERVER_VERSION := `"$($Lock.nakama_server)`"") -or
@@ -84,6 +87,12 @@ foreach ($ValidationGuard in @("EndsWith('.invalid')", "EndsWith('.test')", 'Has
 }
 foreach ($RestoreGuard in @('Get-FileHash', '--exit-on-error', 'information_schema.tables', 'cg-restore-drill-', 'volume rm')) {
     if (-not $RestoreDrill.Contains($RestoreGuard)) { throw "Isolated restore guard is missing: $RestoreGuard" }
+}
+foreach ($BootstrapGuard in @('Ubuntu 24.04 x86_64', 'PasswordAuthentication no', 'PermitRootLogin prohibit-password', 'download.docker.com/linux/ubuntu', 'packages.microsoft.com/config/ubuntu', 'unattended-upgrades', 'max-size')) {
+    if (-not $HostBootstrap.Contains($BootstrapGuard)) { throw "Hetzner bootstrap guard is missing: $BootstrapGuard" }
+}
+foreach ($FinalGuard in @('SUDO_USER', 'cgdeploy', 'PermitRootLogin no', 'AllowUsers cgdeploy', 'sshd -t')) {
+    if (-not $SshFinalizer.Contains($FinalGuard)) { throw "Hetzner SSH finalizer guard is missing: $FinalGuard" }
 }
 foreach ($RpcName in @("cg_clock", "cg_session", "cg_character_get", "cg_character_create", "cg_character_commit")) {
     if (-not $RuntimeSource.Contains("registerRpc(`"$RpcName`"")) {

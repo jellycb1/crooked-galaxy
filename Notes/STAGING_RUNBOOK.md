@@ -1,6 +1,6 @@
 # Nakama TLS staging runbook
 
-Status: active operations contract. The Hetzner CX33 exists at `2.29.2.190` and `crookedgalaxy.com` is owned; `staging-api.crookedgalaxy.com` is the canonical staging hostname. DNS, SSH access, Storage Box and deployment are not yet validated.
+Status: active operations contract. The Hetzner CX33 exists at `2.29.2.190`, and `staging-api.crookedgalaxy.com` resolves to it. Ubuntu 24.04, the key-only `cgdeploy` administration path, Docker/Compose, PowerShell, automatic updates and bounded container logs are validated. Cloud Firewall, application deployment, public TLS proof and Storage Box recovery remain pending.
 
 ## Purpose and boundary
 
@@ -17,6 +17,10 @@ The checked-in topology pins PostgreSQL 16.8, Nakama 3.40.0, runtime types 1.47.
 - Restricted SSH key access, automatic security updates and adequate disk monitoring.
 - A separate Hetzner Storage Box in Falkenstein with SSH-key access for encrypted Borg archives. It is off-host and cross-region recovery, not a mounted PostgreSQL data volume. Hetzner server snapshots/backups supplement this copy but never replace database dumps and restore drills.
 - A real operator e-mail for ACME expiry/problem notices.
+
+## Validated host bootstrap
+
+Run `backend/bootstrap_hetzner_staging.sh` only from the initial root key session. It updates Ubuntu, creates `cgdeploy`, installs the official Docker and Microsoft packages, disables password authentication and retains root key access only for the validation window. Open a separate `cgdeploy` session and prove key login, non-interactive sudo, Docker and `sshd -t` before running `backend/finalize_hetzner_ssh.sh` through `cgdeploy` sudo. The finalizer refuses a direct root invocation and leaves `AllowUsers cgdeploy` plus `PermitRootLogin no`. Keep the Hetzner Rescue path available for break-glass recovery; do not weaken the checked-in policy to recover an operator workstation.
 
 Caddy automatic HTTPS requires correct DNS, externally reachable ports 80/443 and persistent writable certificate storage. Do not start staging with a production hostname, reuse the local `.env`, disable TLS verification, or put credentials in shell history, tickets or chat.
 
