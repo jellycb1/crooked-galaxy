@@ -73,6 +73,7 @@ Estes ficheiros são evidência datada. Podem explicar uma decisão, mas as suas
 - `WORKSHOP_CREDIT_SERVICE_AUDIT_2026-08-29.md`.
 - `RIFT_36_DAY_ECONOMY_AUDIT_2026-08-29.md`.
 - `RIFT_YEAR_ONE_CHRONOLOGY_AUDIT_2026-08-29.md`.
+- `STAGING_OFFSITE_BACKUP_EVIDENCE_2026-08-30.md`.
 
 ## Artefactos locais
 

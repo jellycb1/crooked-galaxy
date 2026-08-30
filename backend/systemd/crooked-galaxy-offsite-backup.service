@@ -1,0 +1,23 @@
+[Unit]
+Description=Crooked Galaxy encrypted staging database backup
+Documentation=https://docs.hetzner.com/storage/storage-box/access/access-ssh-rsync-borg/
+Wants=network-online.target
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+User=cgdeploy
+Group=cgdeploy
+WorkingDirectory=/opt/crooked-galaxy/backend
+Environment=BORG_CONFIG_PATH=/home/cgdeploy/.config/crooked-galaxy/offsite-backup.env
+ExecStart=/opt/crooked-galaxy/backend/backup_offsite_borg.sh
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/opt/crooked-galaxy/backend/backups /home/cgdeploy/.cache/borg /home/cgdeploy/.config/borg /home/cgdeploy/.local/state/crooked-galaxy
+
+[Install]
+WantedBy=multi-user.target

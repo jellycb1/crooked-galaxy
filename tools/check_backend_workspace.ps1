@@ -8,7 +8,8 @@ $Required = @(
     "local.yml", "package.json", "tsconfig.json", "src/main.ts", "prepare_local_env.ps1", "test_local.ps1", "test_godot_client.ps1",
     ".env.staging.example", "staging.yml", "Caddyfile.staging", "docker-compose.staging.yml",
     "prepare_staging_env.ps1", "validate_staging.ps1", "backup_staging.ps1", "restore_drill.ps1", "test_staging.ps1",
-    "bootstrap_hetzner_staging.sh", "finalize_hetzner_ssh.sh"
+    "bootstrap_hetzner_staging.sh", "finalize_hetzner_ssh.sh", "backup_offsite_borg.sh", "restore_offsite_drill.sh",
+    "systemd/crooked-galaxy-offsite-backup.service", "systemd/crooked-galaxy-offsite-backup.timer"
 )
 foreach ($RelativePath in $Required) {
     if (-not (Test-Path -LiteralPath (Join-Path $BackendRoot $RelativePath) -PathType Leaf)) {
@@ -36,6 +37,10 @@ $StagingBackup = Get-Content -LiteralPath (Join-Path $BackendRoot "backup_stagin
 $RestoreDrill = Get-Content -LiteralPath (Join-Path $BackendRoot "restore_drill.ps1") -Raw
 $HostBootstrap = Get-Content -LiteralPath (Join-Path $BackendRoot "bootstrap_hetzner_staging.sh") -Raw
 $SshFinalizer = Get-Content -LiteralPath (Join-Path $BackendRoot "finalize_hetzner_ssh.sh") -Raw
+$OffsiteBackup = Get-Content -LiteralPath (Join-Path $BackendRoot "backup_offsite_borg.sh") -Raw
+$OffsiteRestore = Get-Content -LiteralPath (Join-Path $BackendRoot "restore_offsite_drill.sh") -Raw
+$OffsiteService = Get-Content -LiteralPath (Join-Path $BackendRoot "systemd/crooked-galaxy-offsite-backup.service") -Raw
+$OffsiteTimer = Get-Content -LiteralPath (Join-Path $BackendRoot "systemd/crooked-galaxy-offsite-backup.timer") -Raw
 if (-not $Dockerfile.Contains("nakama:$($Lock.nakama_server)") -or
     [string]$Package.devDependencies.'nakama-runtime' -ne "github:heroiclabs/nakama-common#v$($Lock.nakama_common_runtime_types)" -or
     -not $ServerRules.Contains("SERVER_VERSION := `"$($Lock.nakama_server)`"") -or
@@ -98,6 +103,18 @@ foreach ($BootstrapGuard in @('Ubuntu 24.04 x86_64', 'PasswordAuthentication no'
 }
 foreach ($FinalGuard in @('SUDO_USER', 'cgdeploy', 'PermitRootLogin no', 'AllowUsers cgdeploy', 'sshd -t')) {
     if (-not $SshFinalizer.Contains($FinalGuard)) { throw "Hetzner SSH finalizer guard is missing: $FinalGuard" }
+}
+foreach ($OffsiteGuard in @('backup_staging.ps1', 'sha256sum --check --strict', 'borg create', 'borg prune', '--keep-daily 14', '--keep-weekly 8', '--keep-monthly 12', 'borg compact', 'flock -n')) {
+    if (-not $OffsiteBackup.Contains($OffsiteGuard)) { throw "Offsite backup guard is missing: $OffsiteGuard" }
+}
+foreach ($RecoveryGuard in @('mktemp -d', 'borg extract', 'sha256sum --check --strict', 'restore_drill.ps1', 'trap cleanup EXIT')) {
+    if (-not $OffsiteRestore.Contains($RecoveryGuard)) { throw "Offsite restore guard is missing: $RecoveryGuard" }
+}
+foreach ($ServiceGuard in @('User=cgdeploy', 'NoNewPrivileges=true', 'ProtectSystem=strict', 'ReadWritePaths=')) {
+    if (-not $OffsiteService.Contains($ServiceGuard)) { throw "Offsite systemd service guard is missing: $ServiceGuard" }
+}
+foreach ($TimerGuard in @('OnCalendar=', 'RandomizedDelaySec=45m', 'Persistent=true')) {
+    if (-not $OffsiteTimer.Contains($TimerGuard)) { throw "Offsite systemd timer guard is missing: $TimerGuard" }
 }
 foreach ($RpcName in @("cg_clock", "cg_session", "cg_character_get", "cg_character_create", "cg_character_commit")) {
     if (-not $RuntimeSource.Contains("registerRpc(`"$RpcName`"")) {

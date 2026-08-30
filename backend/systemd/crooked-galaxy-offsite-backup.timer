@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily Crooked Galaxy encrypted staging database backup
+
+[Timer]
+OnCalendar=*-*-* 03:20:00 UTC
+RandomizedDelaySec=45m
+Persistent=true
+Unit=crooked-galaxy-offsite-backup.service
+
+[Install]
+WantedBy=timers.target

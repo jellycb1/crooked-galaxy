@@ -1,6 +1,6 @@
 # Nakama TLS staging runbook
 
-Status: active operations contract. The Hetzner CX33 exists at `2.29.2.190`, and `staging-api.crookedgalaxy.com` resolves to it. Ubuntu 24.04, the key-only `cgdeploy` administration path, Docker/Compose, PowerShell, automatic updates, bounded container logs, the Cloud Firewall, the complete application stack and public TLS are validated. A checksummed local PostgreSQL dump also passed an isolated restore. Independent encrypted Storage Box transfer and cross-region recovery remain pending.
+Status: active operations contract. The Hetzner CX33 exists at `2.29.2.190`, and `staging-api.crookedgalaxy.com` resolves to it. Ubuntu 24.04, the key-only `cgdeploy` administration path, Docker/Compose, PowerShell, automatic updates, bounded container logs, the Cloud Firewall, the complete application stack and public TLS are validated. A checksummed local PostgreSQL dump also passed an isolated restore. The dedicated Falkenstein Storage Box is provisioned; encrypted archive and recovery evidence are recorded separately once the first drill passes.
 
 ## Purpose and boundary
 
@@ -43,6 +43,10 @@ Do not place the staging endpoint in `server_rules.gd` or the normal Android con
 Before every runtime or database change, create a verified dump with `backup_staging.ps1`, run `restore_drill.ps1` against that dump, and copy the dump plus SHA-256 to protected off-host storage. The drill creates a random isolated PostgreSQL container/volume, performs a complete error-stopping restore, verifies the public schema and removes only those exact disposable resources. Record commit, image digests, UTC deployment time and smoke-test result. Deploy one reviewed commit, rebuild, wait for health, then rerun the public test.
 
 For the selected all-Hetzner arrangement, “off-host” means the independent Storage Box, not another directory or attached volume on the CX33. Use Borg with repository encryption and an explicit remote version over Storage Box SSH port 23. Keep the recovery key outside both services. The transfer automation remains a pending gate and must be tested by downloading and restoring one archive before it can be called operational.
+
+The checked-in `backup_offsite_borg.sh` runs the local dump transaction, validates its checksum, creates one encrypted Borg archive, applies retention only after success, compacts the repository and confirms the new archive. Retention is 14 daily, 8 weekly and 12 monthly recovery points. `restore_offsite_drill.sh <archive>` downloads one archive into a unique temporary directory, verifies its checksum and invokes the existing isolated PostgreSQL restore drill. Neither script accepts a live database as a restore destination.
+
+The operator-owned `/home/cgdeploy/.config/crooked-galaxy/offsite-backup.env` and passphrase file are mode `0600`, outside Git and readable only by `cgdeploy`. The private SSH key is dedicated to this Storage Box. The Borg recovery key export and passphrase require an independently protected copy outside both the CX33 and the Storage Box; losing both makes encrypted archives unrecoverable. The systemd timer runs daily at 03:20 UTC with up to 45 minutes of jitter and persistent catch-up after downtime. Inspect `systemctl status crooked-galaxy-offsite-backup.service` and the journal after failures; never suppress failed runs.
 
 A rollback means restoring the previous reviewed commit and compatible runtime image. Database rollback is never inferred from a code rollback. If a migration changed stored data, stop writes and use the rehearsed isolated-restore evidence before planning restoration of the actual service. Never run `pg_restore` over the active staging or production database.
 

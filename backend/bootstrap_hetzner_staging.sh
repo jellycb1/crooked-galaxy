@@ -19,7 +19,7 @@ fi
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get full-upgrade -y
-apt-get install -y ca-certificates curl git gnupg jq unattended-upgrades sudo
+apt-get install -y borgbackup ca-certificates curl git gnupg jq unattended-upgrades sudo
 timedatectl set-timezone UTC
 
 if ! id -u cgdeploy >/dev/null 2>&1; then
