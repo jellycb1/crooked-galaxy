@@ -23,7 +23,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	back.pressed.connect(func(): host.call("open_frontier_menu"))
 	title_row.add_child(back)
 
-	var scroller := ScrollContainer.new()
+	var scroller := TouchScrollContainer.new()
 	scroller.name = "SettingsScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED

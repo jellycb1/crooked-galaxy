@@ -116,7 +116,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	for index in offers.size():
 		selectors.add_child(offer_selector(host, offers[index], index, index == host.market_selected_offer_index))
 
-	var scroller := ScrollContainer.new()
+	var scroller := TouchScrollContainer.new()
 	scroller.name = "MarketScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED

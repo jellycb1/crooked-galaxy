@@ -98,7 +98,7 @@ Continuar code-native para garantir tradução, toque e estados. Precisamos defi
 - slider;
 - dropdown;
 - tabs;
-- scrollbar e indicador de arrasto;
+- listas sem scrollbar visível (a rolagem é comunicada pelo conteúdo cortado e controlada apenas por arrasto direto, roda do rato ou comando);
 - botão voltar;
 - fechar modal;
 - informação/detalhes.

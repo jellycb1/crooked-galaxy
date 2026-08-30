@@ -7,6 +7,13 @@ var _last_touch_position := Vector2.ZERO
 var _is_dragging := false
 
 
+func _ready() -> void:
+	_hide_scroll_rails()
+	# Most lists are assembled before their first frame, but defer once so cards
+	# added immediately after the scroller also participate in finger dragging.
+	call_deferred("_prepare_touch_descendants")
+
+
 func _input(event: InputEvent) -> void:
 	if not is_visible_in_tree():
 		return
@@ -40,3 +47,27 @@ func reset_touch_drag() -> void:
 	_touch_origin = Vector2.ZERO
 	_last_touch_position = Vector2.ZERO
 	_is_dragging = false
+
+
+func _hide_scroll_rails() -> void:
+	for bar in [get_v_scroll_bar(), get_h_scroll_bar()]:
+		bar.modulate = Color.TRANSPARENT
+		bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bar.custom_minimum_size = Vector2.ZERO
+
+
+func _prepare_touch_descendants() -> void:
+	_prepare_control_tree(self)
+
+
+func _prepare_control_tree(root: Control) -> void:
+	for child in root.get_children():
+		if not child is Control or child is ScrollBar:
+			continue
+		var control := child as Control
+		if child is Container or child is BaseButton:
+			control.mouse_filter = Control.MOUSE_FILTER_PASS
+		elif not child is LineEdit and not child is TextEdit and not child is Slider:
+			control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if control.get_child_count() > 0:
+			_prepare_control_tree(control)

@@ -387,7 +387,7 @@ static func workshop_slot_selector(host: CrookedUIFactory, state: StateScript) -
 
 
 static func scrollable_section(content: VBoxContainer, node_name: String) -> VBoxContainer:
-	var scroller := ScrollContainer.new()
+	var scroller := TouchScrollContainer.new()
 	scroller.name = node_name
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -414,7 +414,7 @@ static func build_inventory_section(host: CrookedUIFactory, content: VBoxContain
 	collection_box.add_child(collection_hint)
 	content.add_child(collection_panel)
 	content.add_child(inventory_toolbar(host, state))
-	var scroller := ScrollContainer.new()
+	var scroller := TouchScrollContainer.new()
 	scroller.name = "InventoryScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED

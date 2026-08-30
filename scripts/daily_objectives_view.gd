@@ -47,7 +47,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		WeeklyOperationsViewScript.build_content(host, content, state)
 		return
 
-	var scroller := ScrollContainer.new()
+	var scroller := TouchScrollContainer.new()
 	scroller.name = "DailyObjectivesScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED

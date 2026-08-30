@@ -29,9 +29,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.scroll_deadzone = 8
-	if step in ["class", "species"]:
-		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
-		scroll.get_v_scroll_bar().custom_minimum_size.x = 24
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	content.add_child(scroll)
 	var stack := VBoxContainer.new()
 	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL

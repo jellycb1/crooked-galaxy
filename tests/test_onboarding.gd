@@ -125,7 +125,7 @@ func run_test() -> void:
 	var species_scroll := scene.find_child("OnboardingScroll", true, false) as ScrollContainer
 	var fixed_species_confirm := scene.find_child("OnboardingSpeciesConfirm", true, false) as Button
 	check(fixed_species_confirm != null and fixed_species_confirm.get_parent() != species_scroll.get_child(0), "species confirmation stays outside the long scrolling roster")
-	check(species_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_SHOW_ALWAYS and species_scroll.get_v_scroll_bar().custom_minimum_size.x >= 24, "species roster exposes a permanently visible, finger-sized vertical scroll rail")
+	check(species_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO and species_scroll.get_v_scroll_bar().modulate.a == 0.0 and species_scroll.get_v_scroll_bar().mouse_filter == Control.MOUSE_FILTER_IGNORE, "species roster remains finger-scrollable without a visible or touch-blocking scroll rail")
 	check((scene.find_child("OnboardingSpeciesAction_synthetic", true, false) as Button).mouse_filter == Control.MOUSE_FILTER_PASS, "species actions propagate touch motion to their scrolling parent")
 	check_onboarding_touch_targets(scene, "species")
 	await process_frame

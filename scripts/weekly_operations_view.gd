@@ -8,7 +8,7 @@ const ContentDB = preload("res://scripts/content_db.gd")
 
 
 static func build_content(host: CrookedUIFactory, content: VBoxContainer, state: StateScript) -> void:
-	var scroller := ScrollContainer.new()
+	var scroller := TouchScrollContainer.new()
 	scroller.name = "DailyObjectivesScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED

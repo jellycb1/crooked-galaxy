@@ -121,7 +121,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 		content.add_child(notice)
 
 	var stage := ChallengeRulesScript.current_stage(state.player, reality_id)
-	var scroller := ScrollContainer.new()
+	var scroller := TouchScrollContainer.new()
 	scroller.name = "ChallengeScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED

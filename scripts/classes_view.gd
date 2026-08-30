@@ -39,7 +39,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var pending_id := host.class_draft if not host.class_draft.is_empty() else current_id
 	if pending_id.is_empty() and not ClassRulesScript.DEFINITIONS.is_empty():
 		pending_id = str(ClassRulesScript.DEFINITIONS[0].id)
-	var scroller := ScrollContainer.new()
+	var scroller := TouchScrollContainer.new()
 	scroller.name = "ClassScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED

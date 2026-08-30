@@ -62,7 +62,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var effective_upgrade := Rules.is_upgrade_for_player(state.player, item)
 	content.add_child(host.center_label(local_text("REWARD_CONTRACT_COMPLETE", "CONTRATO CONCLUÍDO · %s", [localized_content("target", state.current_bounty, "name").to_upper()]), UIDesignSystem.FONT_CAPTION, host.LIME))
 	content.add_child(host.center_label(local_text("REWARD_CAPTURED", "RECOMPENSA CAPTURADA"), UIDesignSystem.FONT_SECTION_TITLE, host.INK))
-	var reward_scroll := ScrollContainer.new()
+	var reward_scroll := TouchScrollContainer.new()
 	reward_scroll.name = "RewardScroll"
 	reward_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	reward_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -296,7 +296,7 @@ static func build_challenge_reward(host: CrookedUIFactory, content: VBoxContaine
 	var effective_upgrade := Rules.is_upgrade_for_player(state.player, item)
 	content.add_child(host.center_label(local_text("RIFT_REWARD_FLOOR_CLEAR", "FENDA CLANDESTINA · ANDAR %d LIMPO", [int(state.current_bounty.get("challenge_index", 0)) + 1]), UIDesignSystem.FONT_CAPTION, host.LIME))
 	content.add_child(host.center_label(local_text("RIFT_REWARD_ARTIFACT", "ARTEFATO RECUPERADO"), UIDesignSystem.FONT_SECTION_TITLE, host.INK))
-	var reward_scroll := ScrollContainer.new()
+	var reward_scroll := TouchScrollContainer.new()
 	reward_scroll.name = "ChallengeRewardScroll"
 	reward_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	reward_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED

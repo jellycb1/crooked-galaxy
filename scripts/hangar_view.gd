@@ -100,7 +100,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	for index in TransportRulesScript.DEFINITIONS.size():
 		selectors.add_child(transport_selector(host, state, TransportRulesScript.DEFINITIONS[index], index, index == host.hangar_selected_transport_index))
 
-	var scroller := ScrollContainer.new()
+	var scroller := TouchScrollContainer.new()
 	scroller.name = "HangarScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED

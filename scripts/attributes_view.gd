@@ -59,7 +59,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 
 	var drafted := draft_total(host.attribute_draft)
 	var available := maxi(0, int(state.player.get("stat_points", 0)) - drafted)
-	var scroller := ScrollContainer.new()
+	var scroller := TouchScrollContainer.new()
 	scroller.name = "AttributeScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED

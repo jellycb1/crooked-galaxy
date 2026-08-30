@@ -983,7 +983,7 @@ func build_frontier_menu() -> void:
 	var section_label := label(t("MENU_SECTION", "SERVIÇOS E PROGRESSO"), UIDesignSystem.FONT_CAPTION, CYAN)
 	section_label.name = "FrontierMenuSection"
 	content.add_child(section_label)
-	var menu_scroll := ScrollContainer.new()
+	var menu_scroll := TouchScrollContainer.new()
 	menu_scroll.name = "FrontierMenuScroll"
 	menu_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	menu_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -1115,7 +1115,7 @@ func build_board_bounties() -> void:
 		var streak_notice := notice_banner(t("BOARD_STREAK", "EMBALO ×%d · próximo contrato recebe +%d%% de créditos · derrota ou abandono encerra a sequência", [streak, int(next_reward.bonus_percent)]), GOLD)
 		streak_notice.name = "StreakNotice"
 		content.add_child(streak_notice)
-	var scroller := ScrollContainer.new()
+	var scroller := TouchScrollContainer.new()
 	scroller.name = "BountyScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -1454,7 +1454,7 @@ func build_galaxy_map() -> void:
 	var page_start := galaxy_page_index * GALAXY_ROUTES_PER_PAGE
 	var page_end := mini(visible_planets.size(), page_start + GALAXY_ROUTES_PER_PAGE)
 	content.add_child(galaxy_page_navigation(page_start, page_end, visible_planets.size(), page_count))
-	var route_scroll := ScrollContainer.new()
+	var route_scroll := TouchScrollContainer.new()
 	route_scroll.name = "GalaxyScroll"
 	route_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	route_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -2010,7 +2010,7 @@ func build_briefing() -> void:
 		profile_copy.add_child(label(t("ENEMY_PROFILE_RESPONSE", "RESPOSTA · %s", [t("ENEMY_PROFILE_%s_RESPONSE" % profile_id.to_upper(), str(profile.response))]), UIDesignSystem.FONT_CAPTION, LIME))
 		deferred_profile_card = profile_card
 
-	var scroller := ScrollContainer.new()
+	var scroller := TouchScrollContainer.new()
 	scroller.name = "BriefingScroll"
 	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
