@@ -3,6 +3,7 @@ extends RefCounted
 
 const Adapter = preload("res://scripts/nakama_backend_adapter.gd")
 const Coordinator = preload("res://scripts/remote_session_coordinator.gd")
+const Dispatcher = preload("res://scripts/remote_command_dispatcher.gd")
 
 
 func run(configuration: Dictionary, device_id: String, cache_path: String) -> Dictionary:
@@ -50,7 +51,11 @@ func run(configuration: Dictionary, device_id: String, cache_path: String) -> Di
 	var profile_after_commit: Dictionary = await adapter.get_character()
 	if not bool(profile_after_commit.get("ok", false)) or int(profile_after_commit.get("revision", -1)) != initial_revision + 1:
 		return _failure("authoritative_refetch_failed")
-	var hunt_evidence: Dictionary = await _prove_authoritative_hunt(adapter, nonce, int(profile_after_commit.revision))
+	var dispatcher = Dispatcher.new(adapter, account_id)
+	var dispatcher_boot: Dictionary = await dispatcher.bootstrap(int(profile_after_commit.revision))
+	if not bool(dispatcher_boot.get("ok", false)):
+		return _failure("command_dispatcher_bootstrap_failed")
+	var hunt_evidence: Dictionary = await _prove_authoritative_hunt(dispatcher, adapter, nonce)
 	if not bool(hunt_evidence.get("ok", false)):
 		return hunt_evidence
 	var authoritative: Dictionary = await adapter.get_character()
@@ -97,6 +102,8 @@ func run(configuration: Dictionary, device_id: String, cache_path: String) -> Di
 		"reward_claim_verified": true,
 		"reward_receipt_verified": true,
 		"economy_replay_protection_verified": true,
+		"command_dispatcher_verified": true,
+		"full_unit_refresh_verified": true,
 		"inventory_equip_verified": true,
 		"equipped_item_protection_verified": true,
 		"content_hash": str(hunt_evidence.get("content_hash", "")),
@@ -109,12 +116,13 @@ func run(configuration: Dictionary, device_id: String, cache_path: String) -> Di
 	return evidence
 
 
-func _prove_authoritative_hunt(adapter, nonce: String, expected_revision: int) -> Dictionary:
-	var economy: Dictionary = await adapter.get_economy()
-	var build: Dictionary = await adapter.get_build()
+func _prove_authoritative_hunt(dispatcher, adapter, nonce: String) -> Dictionary:
+	var economy: Dictionary = dispatcher.economy_snapshot()
+	var build: Dictionary = dispatcher.build_snapshot()
 	var board: Dictionary = await adapter.get_hunt_board()
 	if not bool(economy.get("ok", false)) or not bool(build.get("ok", false)) or not bool(board.get("ok", false)):
 		return _failure("authoritative_economy_reads_failed")
+	var expected_revision: int = dispatcher.revision()
 	if int(economy.revision) != expected_revision or int(build.revision) != expected_revision or int(board.revision) != expected_revision:
 		return _failure("economy_revision_mismatch")
 	if board.offers.is_empty():
@@ -123,56 +131,58 @@ func _prove_authoritative_hunt(adapter, nonce: String, expected_revision: int) -
 	var approach_id := "quiet_net" if offer.approach_ids.has("quiet_net") else str(offer.approach_ids[0])
 	var accept_command := "staging-hunt-accept-%s" % nonce
 	var accept_key := "staging-hunt-accept-receipt-%s" % nonce
-	var accepted: Dictionary = await adapter.accept_hunt(accept_command, accept_key, expected_revision, str(board.board_id), str(offer.offer_id), str(offer.target_id), approach_id)
-	if not _receipt_with_snapshot(accepted, "accepted", expected_revision + 1, "economy"):
+	var accepted: Dictionary = await dispatcher.dispatch(accept_command, accept_key, "hunt_accept",
+		{"board_id": str(board.board_id), "offer_id": str(offer.offer_id), "target_id": str(offer.target_id), "approach_id": approach_id})
+	if not _dispatch_result(accepted, "accepted", expected_revision + 1):
 		return _failure("hunt_accept_failed")
-	var duplicate: Dictionary = await adapter.accept_hunt(accept_command, accept_key, expected_revision, str(board.board_id), str(offer.offer_id), str(offer.target_id), approach_id)
-	if not _receipt_with_snapshot(duplicate, "duplicate", expected_revision + 1, "economy"):
+	var duplicate: Dictionary = await dispatcher.replay_last_completed_explicit_test()
+	if not _dispatch_result(duplicate, "duplicate", expected_revision + 1):
 		return _failure("hunt_accept_replay_failed")
-	var active: Dictionary = accepted.snapshot.economy.active_hunt
+	var active: Dictionary = dispatcher.economy_snapshot().economy.active_hunt
 	if active.is_empty() or str(active.get("approach_id", "")) != approach_id:
 		return _failure("active_hunt_snapshot_failed")
 	var hunt_id := str(active.hunt_id)
-	var early: Dictionary = await adapter.resolve_hunt("staging-hunt-early-%s" % nonce, "staging-hunt-early-receipt-%s" % nonce, expected_revision + 1, hunt_id)
-	if not _receipt_with_snapshot(early, "rejected", expected_revision + 1, "economy") or str(early.get("reason_code", "")) != "hunt_not_ready":
+	var early: Dictionary = await dispatcher.dispatch("staging-hunt-early-%s" % nonce, "staging-hunt-early-receipt-%s" % nonce,
+		"hunt_resolve", {"hunt_id": hunt_id})
+	if not _dispatch_result(early, "rejected", expected_revision + 1) or str(early.receipt.get("reason_code", "")) != "hunt_not_ready":
 		return _failure("hunt_deadline_not_enforced")
 	var resolves_at := int(active.resolves_at_unix_ms)
 	var accepted_at := int(active.accepted_at_unix_ms)
 	await _wait_until_unix_ms(resolves_at + 750)
 	var resolve_command := "staging-hunt-resolve-%s" % nonce
 	var resolve_key := "staging-hunt-resolve-receipt-%s" % nonce
-	var resolved: Dictionary = await adapter.resolve_hunt(resolve_command, resolve_key, expected_revision + 1, hunt_id)
-	if not _receipt_with_snapshot(resolved, "accepted", expected_revision + 2, "economy"):
+	var resolved: Dictionary = await dispatcher.dispatch(resolve_command, resolve_key, "hunt_resolve", {"hunt_id": hunt_id})
+	if not _dispatch_result(resolved, "accepted", expected_revision + 2):
 		return _failure("hunt_resolve_failed")
-	var pending: Dictionary = resolved.snapshot.economy.pending_reward
+	var pending: Dictionary = dispatcher.economy_snapshot().economy.pending_reward
 	if pending.is_empty() or str(pending.get("hunt_id", "")) != hunt_id:
 		return _failure("starter_hunt_did_not_win")
-	var resolve_duplicate: Dictionary = await adapter.resolve_hunt(resolve_command, resolve_key, expected_revision + 1, hunt_id)
-	if not _receipt_with_snapshot(resolve_duplicate, "duplicate", expected_revision + 2, "economy"):
+	var resolve_duplicate: Dictionary = await dispatcher.replay_last_completed_explicit_test()
+	if not _dispatch_result(resolve_duplicate, "duplicate", expected_revision + 2):
 		return _failure("hunt_resolve_replay_failed")
-	var claim: Dictionary = await adapter.claim_reward("staging-reward-claim-%s" % nonce, "staging-reward-claim-receipt-%s" % nonce,
-		expected_revision + 2, hunt_id, str(pending.reward_id), "store")
-	if not _receipt_with_snapshot(claim, "accepted", expected_revision + 3, "economy") or not claim.snapshot.economy.pending_reward.is_empty():
+	var claim: Dictionary = await dispatcher.dispatch("staging-reward-claim-%s" % nonce, "staging-reward-claim-receipt-%s" % nonce,
+		"reward_claim", {"hunt_id": hunt_id, "reward_id": str(pending.reward_id), "decision": "store"})
+	if not _dispatch_result(claim, "accepted", expected_revision + 3) or not dispatcher.economy_snapshot().economy.pending_reward.is_empty():
 		return _failure("reward_claim_failed")
-	var rewarded_build: Dictionary = await adapter.get_build()
+	var rewarded_build: Dictionary = dispatcher.build_snapshot()
 	if not bool(rewarded_build.get("ok", false)) or int(rewarded_build.revision) != expected_revision + 3 or rewarded_build.build.inventory.size() != 1:
 		return _failure("reward_inventory_failed")
 	var item_id := str(rewarded_build.build.inventory[0].id)
-	var equipped: Dictionary = await adapter.equip_item("staging-equip-%s" % nonce, "staging-equip-receipt-%s" % nonce, expected_revision + 3, item_id)
-	if not _receipt_with_snapshot(equipped, "accepted", expected_revision + 4, "build"):
+	var equipped: Dictionary = await dispatcher.dispatch("staging-equip-%s" % nonce, "staging-equip-receipt-%s" % nonce,
+		"inventory_equip", {"item_id": item_id})
+	if not _dispatch_result(equipped, "accepted", expected_revision + 4):
 		return _failure("inventory_equip_failed")
-	var protected: Dictionary = await adapter.recycle_item("staging-recycle-protected-%s" % nonce, "staging-recycle-protected-receipt-%s" % nonce, expected_revision + 4, item_id)
-	if not _receipt_with_snapshot(protected, "rejected", expected_revision + 4, "build") or str(protected.get("reason_code", "")) != "item_equipped":
+	var protected: Dictionary = await dispatcher.dispatch("staging-recycle-protected-%s" % nonce, "staging-recycle-protected-receipt-%s" % nonce,
+		"inventory_recycle", {"item_id": item_id})
+	if not _dispatch_result(protected, "rejected", expected_revision + 4) or str(protected.receipt.get("reason_code", "")) != "item_equipped":
 		return _failure("equipped_item_protection_failed")
 	return {"ok": true, "final_revision": expected_revision + 4, "content_hash": str(board.content_hash),
 		"hunt_duration_seconds": int(ceil(float(resolves_at - accepted_at) / 1000.0))}
 
 
-static func _receipt_with_snapshot(receipt: Dictionary, status: String, revision: int, snapshot_kind: String) -> bool:
-	if not bool(receipt.get("ok", false)) or str(receipt.get("status", "")) != status or int(receipt.get("server_revision", -1)) != revision:
-		return false
-	var snapshot = receipt.get("snapshot", null)
-	return snapshot is Dictionary and int(snapshot.get("revision", -1)) == revision and snapshot.has(snapshot_kind)
+static func _dispatch_result(result: Dictionary, status: String, revision: int) -> bool:
+	return bool(result.get("ok", false)) and str(result.get("status", "")) == status and int(result.get("revision", -1)) == revision \
+		and result.get("receipt", null) is Dictionary and int(result.receipt.get("server_revision", -1)) == revision
 
 
 static func _wait_until_unix_ms(deadline_unix_ms: int) -> void:

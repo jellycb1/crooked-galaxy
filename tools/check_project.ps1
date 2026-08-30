@@ -51,6 +51,7 @@ $Tests = @(
 	"test_backend_deployment_rules.gd",
 	"test_nakama_backend_adapter.gd",
 	"test_remote_session_coordinator.gd",
+	"test_remote_command_dispatcher.gd",
 	"test_profile_sync_rules.gd",
 	"test_local_save_cutover_archive.gd",
 	"test_agency_rules.gd",
