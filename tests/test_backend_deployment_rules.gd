@@ -46,6 +46,31 @@ func _init() -> void:
 	all_evidence.refund_path_verified = true
 	var all_ready := Deployment.capability_activation(all_evidence)
 	check(all_ready.economy and all_ready.agency and all_ready.billing, "economy, Agency, and billing each require their ordered end-to-end evidence")
+	var client_without_release_proof := Deployment.normal_client_activation(all_evidence, {})
+	check(not client_without_release_proof.account and not client_without_release_proof.economy, "technical staging evidence cannot activate the normal client")
+	var common_release_gates := {
+		"physical_android_tls_verified": true,
+		"physical_android_lifecycle_verified": true,
+		"real_save_cutover_verified": true,
+		"normal_login_flow_verified": true,
+		"deliberate_activation_approved": true,
+	}
+	var profile_client := Deployment.normal_client_activation(all_evidence, common_release_gates)
+	check(profile_client.account and profile_client.clock and profile_client.profile and not profile_client.economy, "normal account/profile activation remains separate from physical hunt and build proof")
+	var economy_release_gates := common_release_gates.duplicate(true)
+	economy_release_gates.physical_authoritative_hunt_verified = true
+	economy_release_gates.physical_build_mutations_verified = true
+	var economy_client := Deployment.normal_client_activation(all_evidence, economy_release_gates)
+	check(economy_client.economy and not economy_client.agency and not economy_client.billing, "physical economy evidence activates neither Agency nor billing")
+	var complete_release_gates := economy_release_gates.duplicate(true)
+	complete_release_gates.agency_client_flow_verified = true
+	complete_release_gates.agency_activation_approved = true
+	complete_release_gates.billing_platform_flow_verified = true
+	complete_release_gates.billing_activation_approved = true
+	var complete_client := Deployment.normal_client_activation(all_evidence, complete_release_gates)
+	check(complete_client.agency and complete_client.billing, "Agency and billing require independent product evidence and approval")
+	var pending := Deployment.pending_normal_client_gates(all_evidence, common_release_gates)
+	check(pending.has("physical_authoritative_hunt_verified") and pending.has("physical_build_mutations_verified") and not pending.has("technical_economy"), "pending gate diagnostics separate missing physical proof from completed server authority")
 	check(not Deployment.secret_safe_for_client({"host": "game.example", "google_credentials_json": "secret"}), "server OAuth credentials are forbidden from client configuration")
 	check(Deployment.secret_safe_for_client(staging), "canonical client endpoint contains no server secret")
 	var probe_now := 2000000000

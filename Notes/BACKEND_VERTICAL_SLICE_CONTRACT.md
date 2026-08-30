@@ -48,6 +48,6 @@ Accepted and duplicate receipts must bind the exact command identity and advance
 3. Exercise offline cache and reconnect without automatic field merging. **Crash-safe rules and a normal main-scene staging reconnect pass on Windows; physical Android lifecycle evidence remains pending.**
 4. Implement server-owned normal hunts, economy/build snapshots, reward claims, attribute allocation and inventory mutations using the same command receipts. **Implemented and proven against live loopback plus public-TLS staging Nakama/PostgreSQL with a generated 35-world catalog, frozen accepted-hunt builds and deterministic class/build combat; physical Android evidence and client activation remain pending.**
 5. Implement server-owned Agency roster and warrant records using verified normal-hunt evidence.
-6. Enable each capability flag independently only after end-to-end evidence exists.
+6. Enable each capability flag independently only after end-to-end evidence exists. Technical staging evidence is not sufficient: the normal-client gate additionally requires physical Android TLS/lifecycle, a real-save archival cutover, the normal login flow and explicit activation approval. Economy then requires physical authoritative-hunt and build-mutation evidence; Agency and billing retain separate product-flow approvals.
 
 Agency UI, ranking and rewards remain prohibited before steps 1–4. Billing is a separate server-verified boundary and is not implied by this protocol.

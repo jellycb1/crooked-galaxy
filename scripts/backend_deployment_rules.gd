@@ -24,6 +24,18 @@ const CAP_ECONOMY := "economy"
 const CAP_AGENCY := "agency"
 const CAP_BILLING := "billing"
 
+const RELEASE_GATE_PHYSICAL_TLS := "physical_android_tls_verified"
+const RELEASE_GATE_PHYSICAL_LIFECYCLE := "physical_android_lifecycle_verified"
+const RELEASE_GATE_REAL_SAVE_CUTOVER := "real_save_cutover_verified"
+const RELEASE_GATE_NORMAL_LOGIN := "normal_login_flow_verified"
+const RELEASE_GATE_ACTIVATION_APPROVED := "deliberate_activation_approved"
+const RELEASE_GATE_PHYSICAL_HUNT := "physical_authoritative_hunt_verified"
+const RELEASE_GATE_PHYSICAL_BUILD := "physical_build_mutations_verified"
+const RELEASE_GATE_AGENCY_FLOW := "agency_client_flow_verified"
+const RELEASE_GATE_AGENCY_APPROVED := "agency_activation_approved"
+const RELEASE_GATE_BILLING_FLOW := "billing_platform_flow_verified"
+const RELEASE_GATE_BILLING_APPROVED := "billing_activation_approved"
+
 
 static func current_client_configuration() -> Dictionary:
 	return {
@@ -115,10 +127,71 @@ static func capability_activation(evidence: Dictionary) -> Dictionary:
 	}
 
 
+static func normal_client_activation(evidence: Dictionary, release_gates: Dictionary) -> Dictionary:
+	var technical := capability_activation(evidence)
+	var common_release_ready := _all_release_gates(release_gates, [
+		RELEASE_GATE_PHYSICAL_TLS,
+		RELEASE_GATE_PHYSICAL_LIFECYCLE,
+		RELEASE_GATE_REAL_SAVE_CUTOVER,
+		RELEASE_GATE_NORMAL_LOGIN,
+		RELEASE_GATE_ACTIVATION_APPROVED,
+	])
+	var account := bool(technical.account) and common_release_ready
+	var clock := account and bool(technical.clock)
+	var profile := clock and bool(technical.profile)
+	var economy := profile and bool(technical.economy) and _all_release_gates(release_gates, [
+		RELEASE_GATE_PHYSICAL_HUNT,
+		RELEASE_GATE_PHYSICAL_BUILD,
+	])
+	var agency := economy and bool(technical.agency) and _all_release_gates(release_gates, [
+		RELEASE_GATE_AGENCY_FLOW,
+		RELEASE_GATE_AGENCY_APPROVED,
+	])
+	var billing := economy and bool(technical.billing) and _all_release_gates(release_gates, [
+		RELEASE_GATE_BILLING_FLOW,
+		RELEASE_GATE_BILLING_APPROVED,
+	])
+	return {
+		CAP_ACCOUNT: account,
+		CAP_CLOCK: clock,
+		CAP_PROFILE: profile,
+		CAP_ECONOMY: economy,
+		CAP_AGENCY: agency,
+		CAP_BILLING: billing,
+	}
+
+
+static func pending_normal_client_gates(evidence: Dictionary, release_gates: Dictionary) -> Array[String]:
+	var pending: Array[String] = []
+	var technical := capability_activation(evidence)
+	for capability in [CAP_ACCOUNT, CAP_CLOCK, CAP_PROFILE, CAP_ECONOMY]:
+		if not bool(technical.get(capability, false)):
+			pending.append("technical_%s" % capability)
+	for gate in [
+		RELEASE_GATE_PHYSICAL_TLS,
+		RELEASE_GATE_PHYSICAL_LIFECYCLE,
+		RELEASE_GATE_REAL_SAVE_CUTOVER,
+		RELEASE_GATE_NORMAL_LOGIN,
+		RELEASE_GATE_ACTIVATION_APPROVED,
+		RELEASE_GATE_PHYSICAL_HUNT,
+		RELEASE_GATE_PHYSICAL_BUILD,
+	]:
+		if not bool(release_gates.get(gate, false)):
+			pending.append(gate)
+	return pending
+
+
 static func secret_safe_for_client(configuration: Dictionary) -> bool:
 	for key in configuration:
 		var normalized := str(key).to_lower()
 		if normalized in ["password", "database_url", "session_encryption_key", "refresh_encryption_key", "runtime_http_key", "google_credentials_json", "iap_private_key", "client_secret"]:
+			return false
+	return true
+
+
+static func _all_release_gates(release_gates: Dictionary, required: Array) -> bool:
+	for gate in required:
+		if not bool(release_gates.get(str(gate), false)):
 			return false
 	return true
 

@@ -1,6 +1,6 @@
 # Remote economy vertical-slice contract
 
-Status: vertical slice implemented, compiled and proven against live loopback plus public-TLS Hetzner staging Nakama/PostgreSQL. Windows normal-boot lifecycle evidence passes; gameplay activation, physical Android evidence and production save migration remain disabled or pending.
+Status: vertical slice implemented, compiled and proven against live loopback plus public-TLS Hetzner staging Nakama/PostgreSQL. Windows normal-boot lifecycle evidence passes; a fail-closed normal-client gate now prevents staging evidence alone from activating gameplay. Physical Android evidence, real-save archival cutover and deliberate activation remain disabled or pending.
 
 ## Product truth
 
