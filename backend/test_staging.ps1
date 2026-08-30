@@ -60,6 +60,12 @@ $Summary = Invoke-StagingRpc -Name "cg_session" -Payload @{}
 if ([string]$Summary.account_id -ne $AccountId -or [string]$Summary.active_character_id -ne $AccountId -or @($Summary.owned_character_ids).Count -ne 1) {
     throw "Staging session does not bind exactly one owned active character."
 }
+$AgencyMembership = Invoke-StagingRpc -Name "cg_agency_membership_get" -Payload @{}
+if ([string]$AgencyMembership.account_id -ne $AccountId -or [string]$AgencyMembership.character_id -ne $AccountId `
+    -or [string]$AgencyMembership.membership_state -ne "none" -or [int]$AgencyMembership.revision -ne 0 `
+    -or -not [string]::IsNullOrEmpty([string]$AgencyMembership.agency_id) -or @($AgencyMembership.agency.PSObject.Properties).Count -ne 0) {
+    throw "Fresh staging character did not return the canonical independent no-Agency membership snapshot."
+}
 $Build = Invoke-StagingRpc -Name "cg_build_get" -Payload @{}
 if ([int]$Build.revision -ne 0 -or [int]$Build.build.base_power -ne 10 -or [int]$Build.build.stat_points -ne 0 -or @($Build.build.inventory).Count -ne 0 -or [string]$Build.build.equipment.weapon.id -ne "starter_weapon") {
     throw "Staging exact starter build snapshot is invalid."
@@ -92,4 +98,4 @@ if ([string]$Conflict.status -ne "conflict" -or [int]$Conflict.server_revision -
     throw "Staging stale revision did not return the canonical conflict."
 }
 
-Write-Host "PASS: public TLS, HSTS, authentication, UTC, character/build ownership, authority rejection, revisions, idempotency, and conflicts pass on staging."
+Write-Host "PASS: public TLS, HSTS, authentication, UTC, character/build/Agency ownership, authority rejection, revisions, idempotency, and conflicts pass on staging."
