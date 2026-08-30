@@ -38,4 +38,4 @@ The staging operator environment requires PowerShell 7 in addition to Docker Eng
 
 No staging host, domain or credential is committed or provisioned automatically. A successful deployment test is evidence for staging only; it does not change the APK capability flags or authorize production.
 
-The selected external target is a disposable Hetzner CX33 x86 instance in Nuremberg with a separate Hetzner Storage Box for encrypted off-host archives. Neither resource currently exists in repository state. Cloud-server snapshots are supplemental recovery only; the checked-in PostgreSQL dump and isolated restore proof remain mandatory.
+The selected external target is a disposable Hetzner CX33 x86 instance in Helsinki with a separate Falkenstein Storage Box for encrypted cross-region archives. Neither resource currently exists in repository state. Cloud-server snapshots are supplemental recovery only; the checked-in PostgreSQL dump and isolated restore proof remain mandatory.

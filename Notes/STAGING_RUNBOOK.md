@@ -10,12 +10,12 @@ The checked-in topology pins PostgreSQL 16.8, Nakama 3.40.0, runtime types 1.47.
 
 ## Host prerequisites
 
-- One disposable Hetzner Cloud CX33 x86 server in Nuremberg, running Ubuntu 24.04 LTS, current Docker Engine, Compose and PowerShell 7 (`pwsh`) for the checked-in operational scripts.
+- One disposable Hetzner Cloud CX33 x86 server in Helsinki, running Ubuntu 24.04 LTS, current Docker Engine, Compose and PowerShell 7 (`pwsh`) for the checked-in operational scripts. Helsinki is the selected currently available CX33 location; do not silently substitute a smaller host merely to obtain another region.
 - A dedicated DNS A/AAAA record pointing at that host.
 - Inbound 80/tcp and 443/tcp; 443/udp is optional HTTP/3. Never expose 5432, 7350 or 7351 publicly.
 - A stateful Hetzner Cloud Firewall: SSH restricted to the operator source whenever practical; 80/tcp, 443/tcp and optional 443/udp public; all other inbound traffic denied.
 - Restricted SSH key access, automatic security updates and adequate disk monitoring.
-- A separate Hetzner Storage Box with SSH-key access for encrypted Borg archives. It is off-host recovery, not a mounted PostgreSQL data volume. Hetzner server snapshots/backups supplement this copy but never replace database dumps and restore drills.
+- A separate Hetzner Storage Box in Falkenstein with SSH-key access for encrypted Borg archives. It is off-host and cross-region recovery, not a mounted PostgreSQL data volume. Hetzner server snapshots/backups supplement this copy but never replace database dumps and restore drills.
 - A real operator e-mail for ACME expiry/problem notices.
 
 Caddy automatic HTTPS requires correct DNS, externally reachable ports 80/443 and persistent writable certificate storage. Do not start staging with a production hostname, reuse the local `.env`, disable TLS verification, or put credentials in shell history, tickets or chat.
