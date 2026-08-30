@@ -1,6 +1,6 @@
 # Nakama TLS staging runbook
 
-Status: active operations contract. The Hetzner CX33 exists at `2.29.2.190`, and `staging-api.crookedgalaxy.com` resolves to it. Ubuntu 24.04, the key-only `cgdeploy` administration path, Docker/Compose, PowerShell, automatic updates and bounded container logs are validated. Cloud Firewall, application deployment, public TLS proof and Storage Box recovery remain pending.
+Status: active operations contract. The Hetzner CX33 exists at `2.29.2.190`, and `staging-api.crookedgalaxy.com` resolves to it. Ubuntu 24.04, the key-only `cgdeploy` administration path, Docker/Compose, PowerShell, automatic updates, bounded container logs, the Cloud Firewall, the complete application stack and public TLS are validated. A checksummed local PostgreSQL dump also passed an isolated restore. Independent encrypted Storage Box transfer and cross-region recovery remain pending.
 
 ## Purpose and boundary
 
@@ -23,6 +23,8 @@ The checked-in topology pins PostgreSQL 16.8, Nakama 3.40.0, runtime types 1.47.
 Run `backend/bootstrap_hetzner_staging.sh` only from the initial root key session. It updates Ubuntu, creates `cgdeploy`, installs the official Docker and Microsoft packages, disables password authentication and retains root key access only for the validation window. Open a separate `cgdeploy` session and prove key login, non-interactive sudo, Docker and `sshd -t` before running `backend/finalize_hetzner_ssh.sh` through `cgdeploy` sudo. The finalizer refuses a direct root invocation and leaves `AllowUsers cgdeploy` plus `PermitRootLogin no`. Keep the Hetzner Rescue path available for break-glass recovery; do not weaken the checked-in policy to recover an operator workstation.
 
 Caddy automatic HTTPS requires correct DNS, externally reachable ports 80/443 and persistent writable certificate storage. Do not start staging with a production hostname, reuse the local `.env`, disable TLS verification, or put credentials in shell history, tickets or chat.
+
+The validated Cloud Firewall named `crooked-galaxy-staging` is applied to the CX33. Its inbound rules are TCP 22, TCP 80, TCP 443 and UDP 443 for both IP families; all unspecified inbound traffic is dropped and outbound traffic remains allowed. SSH is key-only with direct root login disabled. Restrict port 22 to a stable operator CIDR later if one becomes available, but never apply an unverified transient address that could remove the only normal administration path.
 
 ## First deployment
 
