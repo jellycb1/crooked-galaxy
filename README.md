@@ -134,6 +134,19 @@ Build and inspect the ARM64 Android test APK:
 .\tools\check_android_export.ps1
 ```
 
+With one USB-debugging physical device connected and authorized, rebuild, install
+without deleting its app data, and run the disposable TLS staging proof:
+
+```powershell
+pwsh .\backend\test_android_staging_boot.ps1
+```
+
+The harness obtains the staging client key over the protected SSH operator path,
+delivers a five-minute one-use configuration to the debug app's private data area,
+and deletes it before networking. It never embeds the staging endpoint/key in the
+APK and never loads or writes the tester's real save. Logs and device metadata are
+written only to ignored `artifacts/android-staging/` evidence folders.
+
 Publish a newly verified APK to the stable internal-testing release:
 
 ```powershell

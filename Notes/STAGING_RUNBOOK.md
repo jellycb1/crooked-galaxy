@@ -36,7 +36,7 @@ The validated Cloud Firewall named `crooked-galaxy-staging` is applied to the CX
 6. Verify Caddy obtained a publicly trusted certificate, then run `backend/test_staging.ps1` from outside the host/network.
 7. Inspect startup logs for one Crooked Galaxy runtime registration, migration success, certificate success and no default-key warnings.
 
-Do not place the staging endpoint in `server_rules.gd` or the normal Android configuration. A separate tester-only configuration and normal-boot reconnect exercise are later gates.
+Do not place the staging endpoint in `server_rules.gd` or the normal Android configuration. Desktop normal-boot validation uses process-only environment values. Physical Android validation uses `backend/test_android_staging_boot.ps1`: it installs the debug APK in place, obtains the client key over SSH, streams a five-minute configuration through `run-as` into the app-private `user://` mailbox, and launches the ordinary main scene. The game deletes that mailbox before parsing or networking, disables all real-save persistence for the probe, and exits after sanitized evidence. The physical execution itself remains a gate until a USB-authorized device is attached.
 
 ## Deploy and rollback discipline
 
@@ -61,6 +61,16 @@ A rollback means restoring the previous reviewed commit and compatible runtime i
 - Existing internal local-save treatment is explicitly decided and tested; no automatic field merge exists.
 
 Only after all evidence is recorded may account, clock and profile flags be considered independently. Agency, Arena, rankings and billing remain separate later gates.
+
+## Physical Android staging command
+
+Prerequisites are PowerShell 7, the existing protected SSH operator identity, Android SDK Platform-Tools, and exactly one physical device with USB debugging authorized. From the repository root run:
+
+```powershell
+pwsh ./backend/test_android_staging_boot.ps1
+```
+
+The default path first runs the complete Android export gate, then performs `adb install -r`; it never uninstalls the package or clears application data. Use `-SkipBuild` only when the current local APK has already passed that exact gate. `-Serial` selects one device when several are attached, and emulators are rejected unless `-AllowEmulator` is explicit. A timeout or any probe failure leaves sanitized `logcat.txt`, package metadata and device metadata under the ignored evidence directory. The cleanup block removes the exact mailbox on both success and failure and clears the key and payload variables.
 
 ## Official operating references
 

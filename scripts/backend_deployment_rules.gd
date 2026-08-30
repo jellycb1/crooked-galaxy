@@ -11,6 +11,12 @@ const ENV_LOCAL := "local"
 const ENV_STAGING := "staging"
 const ENV_PRODUCTION := "production"
 
+const STAGING_PROBE_ARGUMENT := "--staging-boot-probe"
+const ANDROID_STAGING_PROBE_PATH := "user://crooked_galaxy_android_staging_probe.json"
+const ANDROID_STAGING_PROBE_MODE := "android_staging_probe_v1"
+const ANDROID_STAGING_PROBE_SCHEMA := 1
+const ANDROID_STAGING_PROBE_MAX_LIFETIME_SECONDS := 600
+
 const CAP_ACCOUNT := "account"
 const CAP_CLOCK := "clock"
 const CAP_PROFILE := "profile"
@@ -28,6 +34,37 @@ static func current_client_configuration() -> Dictionary:
 		"ssl": false,
 		"client_key": "",
 	}
+
+
+static func staging_probe_requested() -> bool:
+	return OS.get_cmdline_user_args().has(STAGING_PROBE_ARGUMENT) or (
+		OS.get_name() == "Android" and FileAccess.file_exists(ANDROID_STAGING_PROBE_PATH)
+	)
+
+
+static func canonicalize_android_staging_probe(payload: Dictionary, now_unix: int) -> Dictionary:
+	if int(payload.get("schema", 0)) != ANDROID_STAGING_PROBE_SCHEMA or str(payload.get("mode", "")) != ANDROID_STAGING_PROBE_MODE:
+		return {}
+	var expires_at_unix := int(payload.get("expires_at_unix", 0))
+	if expires_at_unix <= now_unix or expires_at_unix > now_unix + ANDROID_STAGING_PROBE_MAX_LIFETIME_SECONDS:
+		return {}
+	var device_id := str(payload.get("device_id", "")).strip_edges().to_lower()
+	if device_id.length() < 16 or device_id.length() > 128:
+		return {}
+	for character in device_id:
+		if "abcdefghijklmnopqrstuvwxyz0123456789_-".find(character) < 0:
+			return {}
+	var configuration := canonicalize_endpoint({
+		"provider_id": PROVIDER_ID,
+		"environment": ENV_STAGING,
+		"host": str(payload.get("host", "")),
+		"port": 443,
+		"ssl": true,
+		"client_key": str(payload.get("client_key", "")),
+	})
+	if configuration.is_empty():
+		return {}
+	return {"configuration": configuration, "device_id": device_id}
 
 
 static func canonicalize_endpoint(configuration: Dictionary) -> Dictionary:

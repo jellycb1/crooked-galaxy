@@ -44,6 +44,22 @@ func _init() -> void:
 	check(all_ready.agency and all_ready.billing, "Agency and billing each require their independent end-to-end evidence")
 	check(not Deployment.secret_safe_for_client({"host": "game.example", "google_credentials_json": "secret"}), "server OAuth credentials are forbidden from client configuration")
 	check(Deployment.secret_safe_for_client(staging), "canonical client endpoint contains no server secret")
+	var probe_now := 2000000000
+	var android_probe := Deployment.canonicalize_android_staging_probe({
+		"schema": 1,
+		"mode": "android_staging_probe_v1",
+		"host": "staging.crookedgalaxy.example",
+		"client_key": "staging_public_key_1234",
+		"device_id": "cg-android-physical-0001",
+		"expires_at_unix": probe_now + 300,
+	}, probe_now)
+	check(not android_probe.is_empty() and str(android_probe.device_id) == "cg-android-physical-0001", "short-lived Android mailbox canonicalizes into the existing TLS contract")
+	check(Deployment.canonicalize_android_staging_probe({
+		"schema": 1, "mode": "android_staging_probe_v1", "host": "staging.crookedgalaxy.example", "client_key": "staging_public_key_1234", "device_id": "cg-android-physical-0001", "expires_at_unix": probe_now,
+	}, probe_now).is_empty(), "expired Android mailbox is rejected")
+	check(Deployment.canonicalize_android_staging_probe({
+		"schema": 1, "mode": "android_staging_probe_v1", "host": "staging.crookedgalaxy.example", "client_key": "staging_public_key_1234", "device_id": "cg-android-physical-0001", "expires_at_unix": probe_now + 601,
+	}, probe_now).is_empty(), "overlong Android mailbox cannot become a durable configuration")
 
 	if failures == 0:
 		print("PASS: Nakama deployment choice, endpoint safety, and staged capability activation are explicit")

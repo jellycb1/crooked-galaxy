@@ -22,6 +22,7 @@ const AccountRulesScript = preload("res://scripts/account_rules.gd")
 const AccountServiceScript = preload("res://scripts/account_service.gd")
 const HuntTimingRulesScript = preload("res://scripts/hunt_timing_rules.gd")
 const AttributePackageRulesScript = preload("res://scripts/attribute_package_rules.gd")
+const BackendDeploymentRulesScript = preload("res://scripts/backend_deployment_rules.gd")
 
 signal changed
 signal combat_event(message: String)
@@ -70,7 +71,7 @@ func _ready() -> void:
 	onboarding_gate_enabled = true
 	TranslationServer.set_locale(LocaleRulesScript.DEFAULT_ID)
 	rng.randomize()
-	if OS.get_cmdline_user_args().has("--smoke-test"):
+	if OS.get_cmdline_user_args().has("--smoke-test") or BackendDeploymentRulesScript.staging_probe_requested():
 		persistence_enabled = false
 		player = default_player()
 		return

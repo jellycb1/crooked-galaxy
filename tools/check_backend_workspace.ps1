@@ -7,7 +7,7 @@ $Required = @(
     "README.md", "stack-lock.json", ".env.example", ".dockerignore", "Dockerfile", "docker-compose.yml",
     "local.yml", "package.json", "tsconfig.json", "src/main.ts", "prepare_local_env.ps1", "test_local.ps1", "test_godot_client.ps1",
     ".env.staging.example", "staging.yml", "Caddyfile.staging", "docker-compose.staging.yml",
-    "prepare_staging_env.ps1", "validate_staging.ps1", "backup_staging.ps1", "restore_drill.ps1", "test_staging.ps1", "test_godot_staging_boot.ps1",
+    "prepare_staging_env.ps1", "validate_staging.ps1", "backup_staging.ps1", "restore_drill.ps1", "test_staging.ps1", "test_godot_staging_boot.ps1", "test_android_staging_boot.ps1",
     "bootstrap_hetzner_staging.sh", "finalize_hetzner_ssh.sh", "backup_offsite_borg.sh", "restore_offsite_drill.sh",
     "systemd/crooked-galaxy-offsite-backup.service", "systemd/crooked-galaxy-offsite-backup.timer"
 )
@@ -43,9 +43,11 @@ $OffsiteRestore = Get-Content -LiteralPath (Join-Path $BackendRoot "restore_offs
 $OffsiteService = Get-Content -LiteralPath (Join-Path $BackendRoot "systemd/crooked-galaxy-offsite-backup.service") -Raw
 $OffsiteTimer = Get-Content -LiteralPath (Join-Path $BackendRoot "systemd/crooked-galaxy-offsite-backup.timer") -Raw
 $StagingBootTest = Get-Content -LiteralPath (Join-Path $BackendRoot "test_godot_staging_boot.ps1") -Raw
+$AndroidStagingBootTest = Get-Content -LiteralPath (Join-Path $BackendRoot "test_android_staging_boot.ps1") -Raw
 $ProjectConfig = Get-Content -LiteralPath (Join-Path $ProjectRoot "project.godot") -Raw
 $StagingBootProbe = Get-Content -LiteralPath (Join-Path $ProjectRoot "scripts/staging_boot_probe.gd") -Raw
 $StagingClientProbe = Get-Content -LiteralPath (Join-Path $ProjectRoot "scripts/staging_client_probe.gd") -Raw
+$GameStateSource = Get-Content -LiteralPath (Join-Path $ProjectRoot "scripts/game_state.gd") -Raw
 if (-not $Dockerfile.Contains("nakama:$($Lock.nakama_server)") -or
     [string]$Package.devDependencies.'nakama-runtime' -ne "github:heroiclabs/nakama-common#v$($Lock.nakama_common_runtime_types)" -or
     -not $ServerRules.Contains("SERVER_VERSION := `"$($Lock.nakama_server)`"") -or
@@ -125,13 +127,18 @@ foreach ($ClientProbeGuard in @('CG_STAGING_NAKAMA_SERVER_KEY', '--smoke-test', 
     if (-not $StagingBootTest.Contains($ClientProbeGuard)) { throw "Staging normal-boot probe guard is missing: $ClientProbeGuard" }
 }
 if (-not $ProjectConfig.Contains('StagingBootProbe="*res://scripts/staging_boot_probe.gd"') -or
-    -not $StagingBootProbe.Contains('PROBE_ARGUMENT := "--staging-boot-probe"') -or
-    -not $StagingBootProbe.Contains('CG_STAGING_NAKAMA_HOST') -or
+    -not $ServerRules.Contains('STAGING_PROBE_ARGUMENT := "--staging-boot-probe"') -or
+	-not $StagingBootProbe.Contains('CG_STAGING_NAKAMA_HOST') -or
     -not $StagingClientProbe.Contains('read_only_cache_verified') -or
     -not $StagingClientProbe.Contains('reconnect_verified') -or
     -not $StagingClientProbe.Contains('archive_cutover_verified') -or
     -not $StagingClientProbe.Contains('may_seed_server_progress')) {
     throw "The inert normal-boot staging probe is incomplete."
+}
+foreach ($AndroidProbeGuard in @('install -r', 'run-as', 'umask 077', 'expires_at_unix', 'logcat -c', 'am force-stop', '$ClientKey = $null', 'staging_probe_requested()')) {
+    if (-not $AndroidStagingBootTest.Contains($AndroidProbeGuard) -and -not $StagingBootProbe.Contains($AndroidProbeGuard) -and -not $ServerRules.Contains($AndroidProbeGuard) -and -not $GameStateSource.Contains($AndroidProbeGuard)) {
+        throw "Physical Android staging guard is missing: $AndroidProbeGuard"
+    }
 }
 if ($StagingBootProbe.Contains('staging-api.crookedgalaxy.com') -or -not $ServerDefinitions.Contains('"backend_environment": "offline"')) {
     throw "The exported game must contain neither a staging endpoint nor an activated backend environment."
