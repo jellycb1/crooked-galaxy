@@ -55,7 +55,7 @@ func run(configuration: Dictionary, device_id: String, cache_path: String) -> Di
 	var dispatcher_boot: Dictionary = await dispatcher.bootstrap(int(profile_after_commit.revision))
 	if not bool(dispatcher_boot.get("ok", false)):
 		return _failure("command_dispatcher_bootstrap_failed")
-	var hunt_evidence: Dictionary = await _prove_authoritative_hunt(dispatcher, adapter, nonce)
+	var hunt_evidence: Dictionary = await _prove_authoritative_hunt(dispatcher, nonce)
 	if not bool(hunt_evidence.get("ok", false)):
 		return hunt_evidence
 	var authoritative: Dictionary = await adapter.get_character()
@@ -116,10 +116,10 @@ func run(configuration: Dictionary, device_id: String, cache_path: String) -> Di
 	return evidence
 
 
-func _prove_authoritative_hunt(dispatcher, adapter, nonce: String) -> Dictionary:
+func _prove_authoritative_hunt(dispatcher, nonce: String) -> Dictionary:
 	var economy: Dictionary = dispatcher.economy_snapshot()
 	var build: Dictionary = dispatcher.build_snapshot()
-	var board: Dictionary = await adapter.get_hunt_board()
+	var board: Dictionary = dispatcher.hunt_board()
 	if not bool(economy.get("ok", false)) or not bool(build.get("ok", false)) or not bool(board.get("ok", false)):
 		return _failure("authoritative_economy_reads_failed")
 	var expected_revision: int = dispatcher.revision()

@@ -14,6 +14,7 @@ class FakeAdapter extends RefCounted:
 	var submitted: Array[Dictionary] = []
 	var forge_receipt := false
 	var split_revision := false
+	var split_board_revision := false
 
 	func account_id() -> String:
 		return owned_account
@@ -23,6 +24,9 @@ class FakeAdapter extends RefCounted:
 
 	func get_build() -> Dictionary:
 		return make_build(revision + (1 if split_revision else 0))
+
+	func get_hunt_board() -> Dictionary:
+		return make_board(revision + (1 if split_board_revision else 0))
 
 	func accept_hunt(command_id: String, key: String, expected: int, board_id: String, offer_id: String, target_id: String, approach_id: String) -> Dictionary:
 		return submit(command_id, key, "hunt_accept", expected, {"board_id": board_id, "offer_id": offer_id, "target_id": target_id, "approach_id": approach_id})
@@ -82,12 +86,23 @@ class FakeAdapter extends RefCounted:
 				"stat_points": 0, "inventory_revision": 0, "equipment": equipment, "inventory": []},
 		}
 
+	func make_board(value: int) -> Dictionary:
+		return {
+			"ok": true, "api_version": 1, "authority": "server", "shard_id": "international_1",
+			"account_id": owned_account, "character_id": owned_account, "revision": value, "server_unix_ms": 2000000000000,
+			"board_id": "board_1", "content_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			"offers": [{"offer_id": "offer_1", "target_id": "target_1", "planet_id": "planet_1", "role_id": "capture",
+				"approach_ids": ["quiet_net"], "duration_seconds": 60, "fuel_cost": 10,
+				"approaches": [{"approach_id": "quiet_net", "duration_seconds": 60, "fuel_cost": 10}]}],
+		}
+
 
 func _init() -> void:
 	var adapter = FakeAdapter.new()
 	var dispatcher = Dispatcher.new(adapter, "account_1")
 	var boot: Dictionary = await dispatcher.bootstrap(4)
-	check(bool(boot.get("ok", false)) and dispatcher.state() == Dispatcher.STATE_READY and dispatcher.revision() == 4, "matching economy and build snapshots bootstrap one authoritative unit")
+	check(bool(boot.get("ok", false)) and dispatcher.state() == Dispatcher.STATE_READY and dispatcher.revision() == 4, "matching economy, build, and hunt-board snapshots bootstrap one authoritative unit")
+	check(int(dispatcher.hunt_board().revision) == 4 and str(dispatcher.hunt_board().board_id) == "board_1", "the board exposed to callers belongs to the same accepted revision")
 
 	var invalid: Dictionary = await dispatcher.dispatch("bad_1", "idem_bad_1", "hunt_accept", {"board_id": "board_1", "offer_id": "offer_1", "target_id": "target_1", "approach_id": "quiet_net", "fuel": 0})
 	check(not bool(invalid.get("ok", false)) and adapter.submitted.is_empty(), "client authority fields are rejected before transport")
@@ -128,6 +143,11 @@ func _init() -> void:
 	var split = Dispatcher.new(split_adapter, "account_1")
 	var split_boot: Dictionary = await split.bootstrap()
 	check(not bool(split_boot.get("ok", false)) and split.state() == Dispatcher.STATE_STALE, "split economy/build revisions fail closed")
+	var split_board_adapter = FakeAdapter.new()
+	split_board_adapter.split_board_revision = true
+	var split_board = Dispatcher.new(split_board_adapter, "account_1")
+	var split_board_boot: Dictionary = await split_board.bootstrap()
+	check(not bool(split_board_boot.get("ok", false)) and split_board.state() == Dispatcher.STATE_STALE, "a board from another revision fails closed before presentation")
 	var foreign = Dispatcher.new(adapter, "foreign_account")
 	var foreign_boot: Dictionary = await foreign.bootstrap()
 	check(not bool(foreign_boot.get("ok", false)) and foreign.state() == Dispatcher.STATE_INERT, "foreign adapter ownership cannot bootstrap")

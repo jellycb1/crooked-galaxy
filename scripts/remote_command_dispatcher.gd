@@ -14,6 +14,7 @@ var _state := STATE_INERT
 var _revision := -1
 var _economy_snapshot: Dictionary = {}
 var _build_snapshot: Dictionary = {}
+var _hunt_board: Dictionary = {}
 var _pending_command: Dictionary = {}
 var _last_completed_command: Dictionary = {}
 
@@ -41,6 +42,10 @@ func economy_snapshot() -> Dictionary:
 
 func build_snapshot() -> Dictionary:
 	return _build_snapshot.duplicate(true)
+
+
+func hunt_board() -> Dictionary:
+	return _hunt_board.duplicate(true)
 
 
 func safe_summary() -> Dictionary:
@@ -166,21 +171,26 @@ func _route(command: Dictionary) -> Dictionary:
 func _refresh_authoritative_unit(expected_revision := -1) -> Dictionary:
 	var economy_response: Dictionary = await _adapter.get_economy()
 	var build_response: Dictionary = await _adapter.get_build()
+	var board_response: Dictionary = await _adapter.get_hunt_board()
 	var canonical_economy := Economy.canonical_economy_snapshot(economy_response, _account_id, _account_id)
 	var canonical_build := Economy.canonical_build_snapshot(build_response, _account_id, _account_id)
-	if canonical_economy.is_empty() or canonical_build.is_empty():
+	var canonical_board := Economy.canonical_hunt_board(board_response, _account_id, _account_id)
+	if canonical_economy.is_empty() or canonical_build.is_empty() or canonical_board.is_empty():
 		_state = STATE_STALE
 		return _failure("invalid_authoritative_unit")
 	var economy_revision := int(canonical_economy.revision)
 	var build_revision := int(canonical_build.revision)
-	if economy_revision != build_revision or (expected_revision >= 0 and economy_revision != expected_revision):
+	var board_revision := int(canonical_board.revision)
+	if economy_revision != build_revision or economy_revision != board_revision \
+		or (expected_revision >= 0 and economy_revision != expected_revision):
 		_state = STATE_STALE
 		return _failure("authoritative_revision_mismatch")
 	_economy_snapshot = canonical_economy
 	_build_snapshot = canonical_build
+	_hunt_board = canonical_board
 	_revision = economy_revision
 	_state = STATE_READY
-	return {"ok": true, "revision": _revision, "economy": economy_snapshot(), "build": build_snapshot()}
+	return {"ok": true, "revision": _revision, "economy": economy_snapshot(), "build": build_snapshot(), "hunt_board": hunt_board()}
 
 
 static func _failure(code: String) -> Dictionary:
