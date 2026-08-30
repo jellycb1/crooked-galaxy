@@ -12,9 +12,8 @@ const ACTION_REVIEW_CONFLICT := "review_conflict"
 const ACTION_REJECT_REMOTE := "reject_remote_state"
 
 const MIGRATION_NONE := "none"
-const MIGRATION_CHOICE_REQUIRED := "choice_required"
-const MIGRATION_KEEP_REMOTE := "keep_remote"
-const MIGRATION_REQUEST_IMPORT := "request_local_import"
+const MIGRATION_CUTOVER_REQUIRED := "archive_local_start_remote_required"
+const MIGRATION_ARCHIVE_AND_START_REMOTE := "archive_local_start_remote"
 
 
 static func make_read_only_cache(snapshot: Dictionary, account_id: String, character_id: String, cached_at_unix_ms: int) -> Dictionary:
@@ -70,14 +69,14 @@ static func reconnect_action(cached_revision: int, remote_revision: int, pending
 static func migration_offer(local_player: Dictionary, remote_snapshot: Dictionary, already_decided: bool) -> String:
 	if already_decided or not _established_local_profile(local_player) or not _pristine_remote_profile(remote_snapshot):
 		return MIGRATION_NONE
-	return MIGRATION_CHOICE_REQUIRED
+	return MIGRATION_CUTOVER_REQUIRED
 
 
 static func canonical_migration_choice(choice: String, offer: String) -> String:
-	if offer != MIGRATION_CHOICE_REQUIRED:
+	if offer != MIGRATION_CUTOVER_REQUIRED:
 		return MIGRATION_NONE
-	if choice in [MIGRATION_KEEP_REMOTE, MIGRATION_REQUEST_IMPORT]:
-		return choice
+	if choice == MIGRATION_ARCHIVE_AND_START_REMOTE:
+		return MIGRATION_ARCHIVE_AND_START_REMOTE
 	return MIGRATION_NONE
 
 

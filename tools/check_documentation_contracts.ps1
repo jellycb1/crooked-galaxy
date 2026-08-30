@@ -76,6 +76,8 @@ $InventoryText = Get-Content -LiteralPath (Join-Path $NotesRoot "UI_ASSET_INVENT
 $ReadmePath = Join-Path $ProjectRoot "README.md"
 $ReadmeText = Get-Content -LiteralPath $ReadmePath -Raw
 $ReadmeLines = @(Get-Content -LiteralPath $ReadmePath)
+$SyncText = Get-Content -LiteralPath (Join-Path $ProjectRoot "scripts/profile_sync_rules.gd") -Raw
+$AccountContractText = Get-Content -LiteralPath (Join-Path $NotesRoot "ACCOUNT_SERVER_CONTRACT.md") -Raw
 
 if (-not $AgentsText.Contains("Codex must not generate") -or $AgentsText.Contains("Generate one draft")) {
     throw "AGENTS.md has conflicting visual-authorship instructions."
@@ -93,6 +95,11 @@ if ($ReadmeLines.Count -gt 220 -or
     -not $ReadmeText.Contains("Notes/README.md") -or
     $ReadmeText.Contains("transactional decisions hide the dock")) {
     throw "README.md has returned to an oversized or conflicting implementation chronicle."
+}
+if (-not $SyncText.Contains('MIGRATION_ARCHIVE_AND_START_REMOTE') -or
+    $SyncText.Contains('MIGRATION_REQUEST_IMPORT') -or
+    -not $AccountContractText.Contains('never imported or merged into the online economy')) {
+    throw "The device-save archival cutover no longer fails closed against online economy import."
 }
 
 Write-Host "PASS: active instructions are classified, linked, status-marked, and contradiction-free."

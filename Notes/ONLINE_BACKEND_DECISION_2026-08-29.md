@@ -31,7 +31,7 @@ Nakama does not make client writes trustworthy automatically. Character progress
 
 The first production model is server-authoritative. A previously synchronized character may open in a clearly marked cached state, but economic mutations remain pending until server confirmation. Agency, ranking and billing require connectivity. No field-wise merge of currencies, inventory, claims, timers or social state is allowed.
 
-For the first migration from the current local test build, the player chooses one side when local and remote profiles both contain progress. The server records a one-time import receipt and never accepts the same local profile twice.
+For the first transition from the current local test build, the app preserves the old save as a non-authoritative local archive and begins from the pristine server character. Device-authored progression is never imported into the online economy. Any internal-tester recognition is a separate server-side entitlement, not evidence extracted from a local save.
 
 ## Deployment phases
 
@@ -60,7 +60,7 @@ The official Nakama Godot `3.4.0` release is vendored with its Apache-2.0 licens
 
 ## Immediate gate
 
-The local server, Godot transport and first character-authority gate are complete. An account can create exactly one mandatory character; the server owns its starting progression; snapshots bind ownership; profile cosmetics use conditional revisions and idempotent receipts; stale revisions conflict; and injected currency fields are rejected. Inactive client rules now add an atomic seven-day read-only cache, exact-command reconnect, explicit conflict review and one-time local-versus-pristine-remote choice without field merging. A pinned TLS staging topology, secret generator/validator, remote protocol test, atomic backup and destructive-safe isolated restore drill are prepared and locally validated. The next external gate is provisioning a dedicated host and DNS record, then recording public TLS and normal-boot reconnect evidence; the trusted server-side local-import transaction remains a separate implementation gate. `account_backend`, `clock_backend`, `profile_backend`, `agency_backend` and billing remain false until their individual product gates pass; prepared infrastructure alone enables none of them.
+The local server, Godot transport and first character-authority gate are complete. An account can create exactly one mandatory character; the server owns its starting progression; snapshots bind ownership; profile cosmetics use conditional revisions and idempotent receipts; stale revisions conflict; and injected currency fields are rejected. Inactive client rules now add an atomic seven-day read-only cache, exact-command reconnect, explicit conflict review and a one-time archival cutover from established local progress to a pristine remote baseline without importing or merging device claims. A pinned TLS staging topology, secret generator/validator, remote protocol test, atomic backup and destructive-safe isolated restore drill are prepared and locally validated. The next external gate is provisioning a dedicated host and DNS record, then recording public TLS and normal-boot reconnect evidence. `account_backend`, `clock_backend`, `profile_backend`, `agency_backend` and billing remain false until their individual product gates pass; prepared infrastructure alone enables none of them.
 
 ## Official references consulted
 

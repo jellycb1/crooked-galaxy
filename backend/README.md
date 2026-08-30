@@ -22,7 +22,7 @@ Docker Desktop/Compose is available. The local stack builds the pinned TypeScrip
 
 The Nakama base image is pulled from the official Heroic Labs Docker Hub repository. Heroic Labs documents this as the supported fallback for its rate-limited `registry.heroiclabs.com` gateway; the immutable version tag remains pinned by `stack-lock.json`. `.dockerignore` also prevents local secrets and generated state from entering the Docker build context.
 
-The exported game remains `offline`, `local_only` and device-authoritative: the SDK is present but receives no endpoint at normal boot. Local character authority and the inactive read-only cache/reconnect policy pass, but public staging, normal-boot remote exercise and migration from existing local saves remain intentionally incomplete. See `Notes/ONLINE_BACKEND_DECISION_2026-08-29.md` and `Notes/BACKEND_VERTICAL_SLICE_CONTRACT.md`.
+The exported game remains `offline`, `local_only` and device-authoritative: the SDK is present but receives no endpoint at normal boot. Local character authority and the inactive read-only cache/reconnect/cutover policy pass, but public staging and normal-boot remote exercise remain intentionally incomplete. Existing device-authored saves will be archived rather than imported into the online economy. See `Notes/ONLINE_BACKEND_DECISION_2026-08-29.md` and `Notes/BACKEND_VERTICAL_SLICE_CONTRACT.md`.
 
 ## TLS staging package
 

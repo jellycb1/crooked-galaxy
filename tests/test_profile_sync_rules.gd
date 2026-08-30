@@ -45,14 +45,15 @@ func _init() -> void:
 	var local := {"character_id": "local_character_primary", "level": 8, "xp": 900, "wins": 12}
 	var pristine_remote := {"authority": "server", "revision": 0, "profile": {"level": 1, "xp": 0, "credits": 25, "warp_chips": 0, "scrap": 0}}
 	var offer := Sync.migration_offer(local, pristine_remote, false)
-	check(offer == Sync.MIGRATION_CHOICE_REQUIRED, "established local progress versus pristine remote requires one explicit choice")
-	check(Sync.canonical_migration_choice(Sync.MIGRATION_REQUEST_IMPORT, offer) == Sync.MIGRATION_REQUEST_IMPORT, "explicit local import request is preserved")
-	check(Sync.canonical_migration_choice(Sync.MIGRATION_KEEP_REMOTE, offer) == Sync.MIGRATION_KEEP_REMOTE, "explicit remote reset choice is preserved")
+	check(offer == Sync.MIGRATION_CUTOVER_REQUIRED, "established local progress versus pristine remote requires one explicit archival cutover")
+	check(Sync.canonical_migration_choice(Sync.MIGRATION_ARCHIVE_AND_START_REMOTE, offer) == Sync.MIGRATION_ARCHIVE_AND_START_REMOTE, "explicit archival cutover preserves the authoritative remote baseline")
+	check(Sync.canonical_migration_choice("request_local_import", offer) == Sync.MIGRATION_NONE, "untrusted local progress cannot enter the server economy")
+	check(Sync.canonical_migration_choice("keep_remote", offer) == Sync.MIGRATION_NONE, "legacy ambiguous migration choices fail closed")
 	check(Sync.canonical_migration_choice("merge", offer) == Sync.MIGRATION_NONE, "field merge is not a migration option")
 	check(Sync.migration_offer(local, pristine_remote, true) == Sync.MIGRATION_NONE, "recorded migration decision cannot be offered twice")
 	var progressed_remote := pristine_remote.duplicate(true)
 	progressed_remote.revision = 1
-	check(Sync.migration_offer(local, progressed_remote, false) == Sync.MIGRATION_NONE, "local import is never offered over progressed remote state")
+	check(Sync.migration_offer(local, progressed_remote, false) == Sync.MIGRATION_NONE, "cutover is never offered over progressed remote state")
 
 	if failures == 0:
 		print("PASS: offline cache, reconnect, and one-time migration decisions never merge or invent authority")

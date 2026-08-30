@@ -8,7 +8,7 @@ Crooked Galaxy remains device-authoritative and `local_only`. `International 1` 
 
 This slice deliberately does not persist credentials, contact a server, alter the player-save schema or move progress authority away from the device. It creates the stable seam required before those changes can be made safely.
 
-The separate `backend/` development stack proves Nakama health, development device authentication and authenticated clock/character RPCs on loopback. The pinned SDK independently proves the same path through Godot, but normal boot supplies it no endpoint or credential. Inactive read-only cache and reconnect rules now pass without field merging. A pinned, unactivated TLS staging package is ready for a dedicated host and DNS name; all online capability flags remain disabled. The remaining implementation boundary is the one-time trusted migration from current local saves, while public staging must separately prove normal-boot reconnect behavior.
+The separate `backend/` development stack proves Nakama health, development device authentication and authenticated clock/character RPCs on loopback. The pinned SDK independently proves the same path through Godot, but normal boot supplies it no endpoint or credential. Inactive read-only cache and reconnect rules now pass without field merging. A pinned, unactivated TLS staging package is ready for a dedicated host and DNS name; all online capability flags remain disabled. Existing device-authoritative saves are preserved only as local archives at cutover and never imported into the server economy. Public staging must separately prove normal-boot reconnect behavior.
 
 ## Session boundary
 
@@ -23,6 +23,8 @@ Daily attempts, weekly resets, Agency contribution limits and future commerce re
 ## Character snapshots
 
 A remote profile is acceptable only when account, character and shard match the requested ownership tuple. The server supplies its revision and UTC timestamp; the embedded profile must repeat the same character ID and contain no credentials. A foreign or malformed snapshot is rejected as a unit. Currencies, inventory, claims and social state are never field-merged.
+
+The online cutover never treats the current local save as trusted input. When established local progress meets a pristine revision-zero remote character, the only accepted transition archives the local file and starts the remote baseline. No client RPC accepts local level, XP, currencies, equipment, rewards, timers or completion claims. A future tester recognition, if any, requires an independent server-side entitlement and audit trail.
 
 The local implementation gives each authenticated account exactly one launch character. Class, species, name and all four appearance choices are mandatory. The server itself supplies level 1, zero XP, 25 credits and zero premium/scrap balances. Class and species are immutable after creation; the current profile commit permits only name and appearance. Storage is server-write-only and the account ID is also the owned character ID for this first-character slice.
 
