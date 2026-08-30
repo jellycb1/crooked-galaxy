@@ -63,6 +63,17 @@ func _ready() -> void:
 	GameState.changed.connect(render)
 	get_tree().set_auto_accept_quit(false)
 	render()
+	enable_idle_processor_mode_after_first_paint()
+
+
+func enable_idle_processor_mode_after_first_paint() -> void:
+	# Enabling this in project.godot can put Android's first SurfaceView frame to
+	# sleep before it is presented, leaving a black screen until the first touch.
+	# Let the boot scene paint twice, then retain the static-screen CPU saving.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	OS.low_processor_usage_mode_sleep_usec = 10000
+	OS.low_processor_usage_mode = true
 
 
 func _notification(what: int) -> void:
@@ -1220,7 +1231,10 @@ func bounty_offer_selector(bounty: Dictionary, offer_index: int, selected: bool)
 	var accent := GOLD if selected or route_active else Color(str(destination.accent))
 	var selector := action_button(localized_content_field("target", bounty, "name"), accent, true)
 	selector.name = "BoardOfferSelector_%d" % offer_index
-	selector.custom_minimum_size = Vector2(0, 204)
+	# English target names and the optional weekly-route marker need one extra
+	# line. Reserve it instead of allowing the payout row to escape the button.
+	selector.custom_minimum_size = Vector2(0, 226)
+	selector.clip_contents = true
 	selector.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	selector.tooltip_text = "%s · %s" % [localized_content_field("target", bounty, "name"), localized_content_field("planet", destination, "name")]
 	for theme_color in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
@@ -1255,13 +1269,14 @@ func bounty_offer_selector(bounty: Dictionary, offer_index: int, selected: bool)
 	target_name.name = "BoardOfferTarget_%d" % offer_index
 	target_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	target_name.max_lines_visible = 2
-	target_name.custom_minimum_size.y = 46
+	target_name.custom_minimum_size.y = 42
 	target_name.clip_text = true
 	target_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	copy.add_child(target_name)
 	if route_active:
 		var route_marker := label(t("BOARD_WEEKLY_ROUTE", "CIRCUITO SEMANAL"), UIDesignSystem.FONT_CAPTION, GOLD, HORIZONTAL_ALIGNMENT_CENTER)
 		route_marker.name = "BoardWeeklyRoute_%d" % offer_index
+		route_marker.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		route_marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		copy.add_child(route_marker)
 	var planet_name := label(localized_content_field("planet", destination, "name").to_upper(), UIDesignSystem.FONT_CAPTION, accent, HORIZONTAL_ALIGNMENT_CENTER)

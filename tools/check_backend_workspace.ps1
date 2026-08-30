@@ -57,8 +57,9 @@ if (-not $Dockerfile.Contains("nakama:$($Lock.nakama_server)") -or
 if (-not $StagingCompose.Contains("caddy:$($Lock.caddy)@$($Lock.caddy_image_digest)") -or -not $Dockerfile.Contains("COPY staging.yml /nakama/data/staging.yml")) {
     throw "Staging proxy or Nakama configuration pin diverged."
 }
-if (($ExportPresets | Select-String -Pattern 'exclude_filter="backend/\*,' -AllMatches).Matches.Count -ne 2) {
-    throw "Backend workspace must stay outside Desktop and Android exports."
+$BackendExportExclusions = [regex]::Matches($ExportPresets, '(?m)^exclude_filter="[^"]*backend/\*')
+if ($BackendExportExclusions.Count -ne 2) {
+	throw "Backend workspace must stay outside Desktop and Android exports."
 }
 $NodeName = [regex]::Match($LocalConfig, '(?m)^name:\s*(\S+)\s*$').Groups[1].Value
 if ([string]::IsNullOrWhiteSpace($NodeName) -or $NodeName.Length -gt 16) {

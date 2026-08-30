@@ -44,6 +44,13 @@ func _init() -> void:
 	var repeat_value := host.find_child("RewardRepeatValue", true, false) as Label
 	check(repeat_value != null and repeat_value.text.contains("EMBALO ×2") and repeat_value.text.contains("+5% SOBRE O PAGAMENTO") and not repeat_value.text.contains("CRÉDITOS"), "regular reward promises only the approach-invariant next streak value")
 	check(host.find_child("ClaimAndRepeat", true, false) != null and host.find_child("ClaimAndBoard", true, false) != null, "isolated reward preserves repeat and board decisions")
+	host.view_mode = "menu"
+	host.board_section = "operations"
+	(host.find_child("ClaimAndBoard", true, false) as Button).pressed.emit()
+	check(state.phase == state.Phase.BOARD and host.view_mode == "board" and host.board_section == "bounties", "ordinary reward action returns to the contract board it names")
+	state.phase = state.Phase.REWARD
+	state.current_bounty = ContentDB.TARGETS[0].duplicate(true)
+	state.pending_loot = reward_item(6)
 
 	clear_content(content)
 	state.current_bounty = MissionRules.offer_for_target(state.player, ContentDB.TARGETS[0])

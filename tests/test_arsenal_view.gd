@@ -196,6 +196,7 @@ func _init() -> void:
 	var first_planet_family_count := ContentDB.procedural_collection_entries().filter(func(entry): return str(entry.planet_id) == str(ContentDB.PLANETS[0].id)).size()
 	check(host.find_children("CollectionPlanet_*", "PanelContainer", true, false).size() == 1 and host.find_child("CollectionPlanetNavigation", true, false) != null, "series catalog renders one navigable planet at a time for mobile performance")
 	check(host.find_children("CollectionFamily_*", "VBoxContainer", true, false).size() == first_planet_family_count, "series catalog exposes every discovered and missing family from the active planet")
+	check(host.find_children("CollectionFamilyCard_*", "PanelContainer", true, false).size() == first_planet_family_count and host.find_children("CollectionFamilyProgress_*", "ProgressBar", true, false).size() == first_planet_family_count, "series catalog separates every family into a scannable card with visual progress")
 	state.last_notice = "Rota confirmada: Congelária S.A."
 	state.last_notice_context = "travel"
 	host.arsenal_section = "equipped"

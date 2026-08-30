@@ -73,6 +73,7 @@ func run_smoke_test() -> void:
 	await process_frame
 	check(scene.find_child("BoardChoiceHint", true, false) != null, "expanded board explains the renewable three-offer choice")
 	check(scene.find_children("BoardOfferSelector_*", "Button", true, false).size() == 3 and scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "the normal board keeps three compact choices and one expanded dossier")
+	check(scene.find_children("BoardOfferSelector_*", "Button", true, false).all(func(node): return (node as Button).clip_contents and (node as Button).custom_minimum_size.y >= 220.0), "compact tickets contain their optional weekly marker and payout row on narrow English layouts")
 	check(scene.find_children("BoardOfferTarget_*", "Label", true, false).size() == 3 and scene.find_children("BoardOfferOdds_*", "Label", true, false).all(func(node): return str(node.text).contains("%")), "every compact ticket names its target and exposes actual build odds")
 	check(scene.find_children("BoardOfferSummary_*", "Label", true, false).all(func(node): return str(node.text).contains("◈") and (str(node.text).contains("s") or str(node.text).contains("min"))), "every compact ticket compares streak-adjusted payment and effective total time")
 	var initial_dossier_name := str(scene.find_children("BountyCard_*", "PanelContainer", true, false)[0].name)

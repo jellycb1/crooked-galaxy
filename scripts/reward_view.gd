@@ -285,6 +285,11 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 		if unlocks_new_planet:
 			host.view_mode = "galaxy"
 			host.galaxy_focus_planet_id = str(new_planets[0].id)
+		else:
+			# The claim mutates the phase back to BOARD, but the shell keeps its
+			# independent destination. Make the button's promised route explicit.
+			host.view_mode = "board"
+			host.board_section = "bounties"
 		state.claim_reward(effective_upgrade)
 	)
 	content.add_child(claim)

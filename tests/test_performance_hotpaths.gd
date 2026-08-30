@@ -32,6 +32,8 @@ func _init() -> void:
 	check(miss_time <= MISS_BUDGET_USEC, "uncached field odds remain suitable for a mobile interaction frame (%d us)" % miss_time)
 	check(hit_time <= HIT_BUDGET_USEC, "cached field odds remain effectively immediate (%d us)" % hit_time)
 	check(hit_time * 5 < miss_time, "the deterministic odds cache retains a material hot-path benefit")
+	var main_source := FileAccess.get_file_as_string("res://scripts/main.gd")
+	check(main_source.contains("enable_idle_processor_mode_after_first_paint()") and main_source.contains("await get_tree().process_frame") and main_source.contains("OS.low_processor_usage_mode = true"), "static-screen sleeping is enabled only after Android has presented its first frame")
 	if failures == 0:
 		print("PASS: combat odds hot paths stay within interaction budgets (misses=%d us, hits=%d us)" % [miss_time, hit_time])
 	quit(1 if failures > 0 else 0)

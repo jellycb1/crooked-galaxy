@@ -65,6 +65,8 @@ func run_attributes_test() -> void:
 	check(scene.find_children("HunterEquipment_*", "PanelContainer", true, false).size() == Rules.EQUIPMENT_SLOTS.size(), "the hunter sheet shows the complete universal equipment contract")
 	var helmet_label := scene.find_child("HunterEquipmentLabel_helmet", true, false) as Label
 	check(helmet_label != null and helmet_label.get_theme_font_size("font_size") >= UIDesignSystem.FONT_CAPTION, "compact universal equipment labels remain readable on Android")
+	var relic_label := scene.find_child("HunterEquipmentLabel_relic", true, false) as Label
+	check(relic_label != null and relic_label.text == "RELÍQUIA", "narrow hunter grid uses the localized compact relic label without truncation")
 	check(scene.find_child("HunterCombatStatus", true, false) != null and scene.find_child("HunterArsenalAction", true, false) != null, "the hunter sheet exposes combat status and an equipment-management route")
 	(scene.find_child("HunterTab_attributes", true, false) as Button).pressed.emit()
 	await process_frame

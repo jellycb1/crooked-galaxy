@@ -6,7 +6,8 @@
 # Local exports and runtime logs
 builds/*
 !builds/.gdignore
-artifacts/
+artifacts/*
+!artifacts/.gdignore
 logs/
 Notes/*.apk
 

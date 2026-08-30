@@ -1916,6 +1916,12 @@ msgstr "GADGET"
 msgid "SLOT_RELIC"
 msgstr "RELÍQUIA ALIENÍGENA"
 
+msgid "HUNTER_SLOT_RELIC_SHORT"
+msgstr "RELÍQUIA"
+
+msgid "ARSENAL_COLLECTION_SEALED"
+msgstr "ARQUIVO SELADO · 0/5"
+
 msgid "EQUIPMENT_DELTA_POWER"
 msgstr "%+d PODER"
 

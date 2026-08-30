@@ -264,7 +264,7 @@ static func collection_milestones_panel(host: CrookedUIFactory, state: StateScri
 static func collection_family_row(host: CrookedUIFactory, discovered: Array, entry: Dictionary) -> VBoxContainer:
 	var row := VBoxContainer.new()
 	row.name = "CollectionFamily_%s" % str(entry.template_id)
-	row.add_theme_constant_override("separation", 2)
+	row.add_theme_constant_override("separation", 4)
 	var found_variants: Array[String] = []
 	var missing_variants: Array[String] = []
 	for variant_id in EquipmentGenerationRules.VARIANT_IDS:
@@ -284,17 +284,50 @@ static func collection_family_row(host: CrookedUIFactory, discovered: Array, ent
 		"variant_id": "standard",
 	}
 	var family_name := EquipmentPresentation.localized_item_field(representative, "name") if not found_variants.is_empty() else text("ARSENAL_COLLECTION_UNKNOWN", "SÉRIE DESCONHECIDA")
-	var title := host.label(text("ARSENAL_COLLECTION_FAMILY", "%s · %s · %d/5", [family_name, EquipmentPresentation.localized_slot(str(entry.slot)).to_upper(), found_variants.size()]), UIDesignSystem.FONT_CAPTION, host.INK if not found_variants.is_empty() else host.MUTED)
-	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	row.add_child(title)
-	var status_text := text("ARSENAL_COLLECTION_FOUND", "REGISTADAS · %s", [", ".join(found_variants)]) if not found_variants.is_empty() else text("ARSENAL_COLLECTION_NONE", "NENHUMA VARIANTE REGISTADA")
-	var status := host.label(status_text, UIDesignSystem.FONT_CAPTION, host.LIME if not found_variants.is_empty() else host.MUTED)
-	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	row.add_child(status)
+	var discovered_family := not found_variants.is_empty()
+	var card := host.panel(VBoxContainer.new(), Color("#0c1830") if discovered_family else Color("#080f22"), 10, 9)
+	card.name = "CollectionFamilyCard_%s" % str(entry.template_id)
+	row.add_child(card)
+	var card_box := card.get_child(0) as VBoxContainer
+	card_box.add_theme_constant_override("separation", 5)
+	var heading := HBoxContainer.new()
+	heading.add_theme_constant_override("separation", 8)
+	card_box.add_child(heading)
+	var marker := host.center_label("✓" if found_variants.size() == EquipmentGenerationRules.VARIANT_IDS.size() else (str(found_variants.size()) if discovered_family else "?"), UIDesignSystem.FONT_BODY, host.LIME if discovered_family else host.MUTED)
+	marker.name = "CollectionFamilyMarker_%s" % str(entry.template_id)
+	marker.custom_minimum_size = Vector2(34, 34)
+	heading.add_child(marker)
+	var identity := VBoxContainer.new()
+	identity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	identity.add_theme_constant_override("separation", 0)
+	heading.add_child(identity)
+	var title_text := family_name if discovered_family else EquipmentPresentation.localized_slot(str(entry.slot)).to_upper()
+	var title := host.label(title_text, UIDesignSystem.FONT_CAPTION, host.INK if discovered_family else host.MUTED)
+	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	identity.add_child(title)
+	var progress_text := "%s · %d/5" % [EquipmentPresentation.localized_slot(str(entry.slot)).to_upper(), found_variants.size()] if discovered_family else text("ARSENAL_COLLECTION_SEALED", "ARQUIVO SELADO · 0/5")
+	var slot_and_progress := host.label(progress_text, UIDesignSystem.FONT_CAPTION, host.CYAN if discovered_family else host.MUTED)
+	slot_and_progress.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	identity.add_child(slot_and_progress)
+	var progress := ProgressBar.new()
+	progress.name = "CollectionFamilyProgress_%s" % str(entry.template_id)
+	progress.custom_minimum_size = Vector2(0, 6)
+	progress.max_value = EquipmentGenerationRules.VARIANT_IDS.size()
+	progress.value = found_variants.size()
+	progress.show_percentage = false
+	progress.add_theme_stylebox_override("background", host.box_style(Color("#050a18"), 3))
+	progress.add_theme_stylebox_override("fill", host.box_style(host.LIME if discovered_family else host.MUTED.darkened(0.45), 3))
+	card_box.add_child(progress)
+	if discovered_family:
+		var status_text := text("ARSENAL_COLLECTION_FOUND", "REGISTADAS · %s", [", ".join(found_variants)])
+		var status := host.label(status_text, UIDesignSystem.FONT_CAPTION, host.LIME)
+		status.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		card_box.add_child(status)
 	if not missing_variants.is_empty() and not found_variants.is_empty():
 		var missing := host.label(text("ARSENAL_COLLECTION_MISSING", "EM FALTA · %s", [", ".join(missing_variants)]), UIDesignSystem.FONT_CAPTION, host.MUTED)
-		missing.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		row.add_child(missing)
+		missing.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		missing.tooltip_text = ", ".join(missing_variants)
+		card_box.add_child(missing)
 	return row
 
 

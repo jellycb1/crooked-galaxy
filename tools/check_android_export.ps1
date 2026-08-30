@@ -39,6 +39,10 @@ Require-ConfigMatch $ProjectText '^window/handheld/orientation=1$' "handheld ori
 Require-ConfigMatch $ProjectText '^window/stretch/aspect="expand"$' "modern portrait screens must expand instead of letterboxing"
 Require-ConfigMatch $ProjectText '^renderer/rendering_method.mobile="gl_compatibility"$' "mobile renderer must remain GL Compatibility"
 Require-ConfigMatch $ProjectText '^textures/vram_compression/import_etc2_astc=true$' "mobile texture compression must remain enabled"
+$MainSource = Get-Content -LiteralPath (Join-Path $ProjectRoot "scripts\main.gd") -Raw
+if (-not $MainSource.Contains("enable_idle_processor_mode_after_first_paint()") -or -not $MainSource.Contains("OS.low_processor_usage_mode = true")) {
+    throw "Android-first configuration drift: static-screen sleep must be enabled only after the initial paint."
+}
 Require-ConfigMatch $PresetText '^architectures/armeabi-v7a=false$' "32-bit ARM must remain excluded from the compact APK"
 Require-ConfigMatch $PresetText '^architectures/arm64-v8a=true$' "64-bit ARM must remain enabled"
 Require-ConfigMatch $PresetText '^architectures/x86=false$' "x86 must remain excluded from the device APK"

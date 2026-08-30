@@ -272,7 +272,10 @@ static func compact_equipment_slot(host: CrookedUIFactory, item_value: Variant, 
 	slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var box := slot.get_child(0) as VBoxContainer
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	var slot_label := host.center_label(EquipmentPresentation.localized_slot(slot_id).to_upper(), UIDesignSystem.FONT_CAPTION, host.MUTED)
+	var compact_slot_name := EquipmentPresentation.localized_slot(slot_id).to_upper()
+	if slot_id == "relic":
+		compact_slot_name = text("HUNTER_SLOT_RELIC_SHORT", "RELÍQUIA")
+	var slot_label := host.center_label(compact_slot_name, UIDesignSystem.FONT_CAPTION, host.MUTED)
 	slot_label.name = "HunterEquipmentLabel_%s" % slot_id
 	slot_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	box.add_child(slot_label)

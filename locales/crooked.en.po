@@ -1916,6 +1916,12 @@ msgstr "GADGET"
 msgid "SLOT_RELIC"
 msgstr "ALIEN RELIC"
 
+msgid "HUNTER_SLOT_RELIC_SHORT"
+msgstr "RELIC"
+
+msgid "ARSENAL_COLLECTION_SEALED"
+msgstr "SEALED RECORD · 0/5"
+
 msgid "EQUIPMENT_DELTA_POWER"
 msgstr "%+d POWER"
 
