@@ -47,6 +47,10 @@ Require-ConfigMatch $PresetText '^screen/immersive_mode=true$' "immersive mode m
 Require-ConfigMatch $PresetText '^permissions/internet=true$' "the Android client must retain network access for staged online integration"
 Require-ConfigMatch $PresetText '^custom_features=""$' "the Android APK must not enable reference placeholders"
 Require-ConfigMatch $PresetText '^include_filter=""$' "the Android APK must not include staged reference files"
+$ArtifactExclusions = [regex]::Matches($PresetText, '^exclude_filter="[^"]*artifacts/\*[^"]*"$', [System.Text.RegularExpressions.RegexOptions]::Multiline)
+if ($ArtifactExclusions.Count -ne 2) {
+    throw "Android-first configuration drift: both platform exports must exclude local test evidence."
+}
 
 $ProjectVersion = [regex]::Match($ProjectText, 'config/version="([^"]+)"').Groups[1].Value
 $AndroidVersion = [regex]::Match($PresetText, 'version/name="([^"]+)"').Groups[1].Value
