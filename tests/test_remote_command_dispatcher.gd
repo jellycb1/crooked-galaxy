@@ -151,6 +151,22 @@ func _init() -> void:
 	var foreign = Dispatcher.new(adapter, "foreign_account")
 	var foreign_boot: Dictionary = await foreign.bootstrap()
 	check(not bool(foreign_boot.get("ok", false)) and foreign.state() == Dispatcher.STATE_INERT, "foreign adapter ownership cannot bootstrap")
+	var close_adapter = FakeAdapter.new()
+	var close_dispatcher = Dispatcher.new(close_adapter, "account_1")
+	await close_dispatcher.bootstrap()
+	var closed: Dictionary = close_dispatcher.close_for_disconnect()
+	check(bool(closed.get("ok", false)) and close_dispatcher.state() == Dispatcher.STATE_INERT and close_dispatcher.revision() == -1,
+		"explicit disconnect closes the mutation boundary")
+	check(close_dispatcher.economy_snapshot().is_empty() and close_dispatcher.build_snapshot().is_empty() and close_dispatcher.hunt_board().is_empty()
+		and not bool(close_dispatcher.safe_summary().mutations_allowed) and str(close_dispatcher.safe_summary().account_id).is_empty(),
+		"closed dispatcher retains no owned online presentation or mutation state")
+	var pending_close_adapter = FakeAdapter.new()
+	var pending_close = Dispatcher.new(pending_close_adapter, "account_1")
+	await pending_close.bootstrap()
+	pending_close_adapter.transport_failures = 1
+	await pending_close.dispatch("pending_close_1", "pending_close_idem_1", "hunt_resolve", {"hunt_id": "hunt_1"})
+	check(not bool(pending_close.close_for_disconnect().get("ok", false)) and pending_close.has_pending_command(),
+		"disconnect cannot silently erase a command with unknown outcome")
 
 	if failures == 0:
 		print("PASS: remote command dispatcher preserves authority, exact retries, and full-snapshot conflict recovery")

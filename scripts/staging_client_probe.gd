@@ -65,6 +65,9 @@ func run(configuration: Dictionary, device_id: String, cache_path: String) -> Di
 		return _failure("coordinator_snapshot_failed")
 
 	var cached_at := maxi(int(Time.get_unix_time_from_system() * 1000.0), int(authoritative.get("server_unix_ms", 0)))
+	var dispatcher_closed: Dictionary = dispatcher.close_for_disconnect()
+	if not bool(dispatcher_closed.get("ok", false)):
+		return _failure("command_dispatcher_disconnect_failed")
 	var offline: Dictionary = coordinator.cache_and_disconnect(cache_path, cached_at)
 	if not bool(offline.get("read_only", false)) or bool(offline.get("economic_mutations_allowed", true)):
 		return _failure("cache_open_failed")
@@ -104,6 +107,7 @@ func run(configuration: Dictionary, device_id: String, cache_path: String) -> Di
 		"economy_replay_protection_verified": true,
 		"command_dispatcher_verified": true,
 		"full_unit_refresh_verified": true,
+		"dispatcher_disconnect_verified": true,
 		"inventory_equip_verified": true,
 		"equipped_item_protection_verified": true,
 		"content_hash": str(hunt_evidence.get("content_hash", "")),

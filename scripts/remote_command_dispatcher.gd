@@ -105,6 +105,20 @@ func abandon_pending_for_disconnect() -> Dictionary:
 	return {"ok": true, "abandoned": true, "command": abandoned}
 
 
+func close_for_disconnect() -> Dictionary:
+	if not _pending_command.is_empty():
+		return _failure("pending_command_must_be_resolved")
+	_state = STATE_INERT
+	_revision = -1
+	_economy_snapshot = {}
+	_build_snapshot = {}
+	_hunt_board = {}
+	_last_completed_command = {}
+	_account_id = ""
+	_adapter = null
+	return {"ok": true, "closed": true}
+
+
 func _submit_pending() -> Dictionary:
 	var command := _pending_command.duplicate(true)
 	var response: Dictionary = await _route(command)
