@@ -104,7 +104,7 @@ foreach ($BootstrapGuard in @('Ubuntu 24.04 x86_64', 'PasswordAuthentication no'
 foreach ($FinalGuard in @('SUDO_USER', 'cgdeploy', 'PermitRootLogin no', 'AllowUsers cgdeploy', 'sshd -t')) {
     if (-not $SshFinalizer.Contains($FinalGuard)) { throw "Hetzner SSH finalizer guard is missing: $FinalGuard" }
 }
-foreach ($OffsiteGuard in @('backup_staging.ps1', 'sha256sum --check --strict', 'borg create', 'borg prune', '--keep-daily 14', '--keep-weekly 8', '--keep-monthly 12', 'borg compact', 'flock -n')) {
+foreach ($OffsiteGuard in @('backup_staging.ps1', 'sha256sum --check --strict', 'borg create', 'borg prune', "--glob-archives 'staging-*'", '--keep-daily 14', '--keep-weekly 8', '--keep-monthly 12', 'borg compact', 'flock -n')) {
     if (-not $OffsiteBackup.Contains($OffsiteGuard)) { throw "Offsite backup guard is missing: $OffsiteGuard" }
 }
 foreach ($RecoveryGuard in @('mktemp -d', 'borg extract', 'sha256sum --check --strict', 'restore_drill.ps1', 'trap cleanup EXIT')) {

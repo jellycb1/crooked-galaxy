@@ -57,7 +57,7 @@ archive_name="staging-$(date -u +%Y-%m-%dT%H-%M-%SZ)"
 )
 
 # Retention is applied only after the new, checksummed archive succeeds.
-borg prune --list --prefix 'staging-' --keep-daily 14 --keep-weekly 8 --keep-monthly 12
+borg prune --list --glob-archives 'staging-*' --keep-daily 14 --keep-weekly 8 --keep-monthly 12
 borg compact
 borg info "::${archive_name}" >/dev/null
 

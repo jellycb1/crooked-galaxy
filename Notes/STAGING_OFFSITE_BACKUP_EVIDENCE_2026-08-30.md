@@ -1,6 +1,6 @@
 # Staging offsite backup evidence — 2026-08-30
 
-Status: implementation in progress. Update each pending item only from observed command evidence.
+Status: first encrypted archive and complete recovery drill passed; daily service activation remains pending.
 
 ## Boundary and topology
 
@@ -15,10 +15,10 @@ Status: implementation in progress. Update each pending item only from observed 
 
 - PASS — the VPS reached the Storage Box with the dedicated key and returned its restricted home directory.
 - PASS — local Borg 1.2.8 and Storage Box Borg 1.2.9 are protocol-compatible.
-- PENDING — encrypted repository initialization and independently held recovery material.
-- PENDING — first fresh dump, checksum validation and encrypted archive.
-- PENDING — repository consistency check.
-- PENDING — download, SHA-256 validation and complete isolated PostgreSQL restore.
+- PASS — authenticated `repokey-blake2` repository initialized; recovery key and passphrase copied to an ACL-restricted directory outside the project repository on the operator PC without displaying either secret.
+- PASS — fresh dump `nakama-staging-20260830T064323Z.dump` passed structural validation and SHA-256 before archive `staging-2026-08-30T06-43-23Z` was created.
+- PASS — `borg check --verify-data` completed successfully against the independent repository.
+- PASS — the archive was downloaded, its SHA-256 matched and it restored completely into a disposable PostgreSQL instance with 20 public tables; the drill removed its exact temporary container, volume and recovered files.
 - PENDING — daily systemd timer installation and one successful service invocation.
 
 This evidence applies only to disposable staging. It does not activate the Android online client, production accounts, Agency, Arena, rankings or billing.
