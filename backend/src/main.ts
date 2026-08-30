@@ -164,6 +164,12 @@ function buildSnapshot(value: StoredCharacter, expectedUserId: string): {[key: s
     }};
 }
 
+function emptyAgencyMembershipSnapshot(expectedUserId: string): {[key: string]: any} {
+  return {api_version: CG_API_VERSION, authority: "server", shard_id: CG_SHARD_ID, account_id: expectedUserId,
+    character_id: expectedUserId, revision: 0, server_unix_ms: Date.now(), membership_state: "none",
+    agency_id: "", role_id: "", agency: {}};
+}
+
 function validAllocation(value: any): boolean {
   if (!value || typeof value !== "object" || Array.isArray(value) || Object.keys(value).length === 0 || Object.keys(value).length > ATTRIBUTE_KEYS.length) return false;
   const keys = Object.keys(value); let total = 0;
@@ -470,6 +476,12 @@ function rpcBuildGet(context: nkruntime.Context, _logger: nkruntime.Logger, nk: 
   return JSON.stringify(buildSnapshot(object.value as StoredCharacter, userId));
 }
 
+function rpcAgencyMembershipGet(context: nkruntime.Context, _logger: nkruntime.Logger, nk: nkruntime.Nakama, _payload: string): string {
+  const userId = requireUser(context);
+  if (!readCharacter(nk, userId)) throw Error("Active character required.");
+  return JSON.stringify(emptyAgencyMembershipSnapshot(userId));
+}
+
 function rpcAttributeAllocate(context: nkruntime.Context, _logger: nkruntime.Logger, nk: nkruntime.Nakama, payload: string): string {
   const userId = requireUser(context); const request = parsePayload(payload); const change = request.payload;
   if (!validCommandEnvelope(request, userId, "attribute_allocate") || !exactKeys(change, ["allocations"]) || !validAllocation(change.allocations)) throw Error("Invalid attribute allocation command.");
@@ -746,6 +758,7 @@ const InitModule: nkruntime.InitModule = function (_context: nkruntime.Context, 
   initializer.registerRpc("cg_character_commit", rpcCharacterCommit);
   initializer.registerRpc("cg_economy_get", rpcEconomyGet);
   initializer.registerRpc("cg_build_get", rpcBuildGet);
+  initializer.registerRpc("cg_agency_membership_get", rpcAgencyMembershipGet);
   initializer.registerRpc("cg_attribute_allocate", rpcAttributeAllocate);
   initializer.registerRpc("cg_inventory_equip", rpcInventoryEquip);
   initializer.registerRpc("cg_inventory_recycle", rpcInventoryRecycle);

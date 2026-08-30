@@ -4,6 +4,7 @@ extends RefCounted
 const Deployment = preload("res://scripts/backend_deployment_rules.gd")
 const Protocol = preload("res://scripts/backend_protocol_rules.gd")
 const Economy = preload("res://scripts/remote_economy_rules.gd")
+const RemoteAgency = preload("res://scripts/remote_agency_rules.gd")
 
 const CLOCK_RPC := "cg_clock"
 const SESSION_RPC := "cg_session"
@@ -13,6 +14,7 @@ const CHARACTER_COMMIT_RPC := "cg_character_commit"
 const ECONOMY_GET_RPC := "cg_economy_get"
 const BUILD_GET_RPC := "cg_build_get"
 const HUNT_BOARD_RPC := "cg_hunt_board"
+const AGENCY_MEMBERSHIP_GET_RPC := "cg_agency_membership_get"
 const COMMAND_RPCS := {
 	Economy.OP_HUNT_ACCEPT: "cg_hunt_accept",
 	Economy.OP_HUNT_RESOLVE: "cg_hunt_resolve",
@@ -209,6 +211,15 @@ func get_build() -> Dictionary:
 	var canonical := Economy.canonical_build_snapshot(envelope, account_id(), account_id())
 	if canonical.is_empty():
 		return _failure("invalid_build_snapshot")
+	canonical.ok = true
+	return canonical
+
+
+func get_agency_membership() -> Dictionary:
+	var envelope := await _rpc_dictionary(AGENCY_MEMBERSHIP_GET_RPC, {})
+	var canonical := RemoteAgency.canonical_membership_snapshot(envelope, account_id(), account_id())
+	if canonical.is_empty():
+		return _failure("invalid_agency_membership_snapshot")
 	canonical.ok = true
 	return canonical
 

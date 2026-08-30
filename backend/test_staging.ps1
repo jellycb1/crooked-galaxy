@@ -13,7 +13,7 @@ foreach ($Line in Get-Content -LiteralPath $EnvironmentPath) {
 $BaseUri = "https://$([string]$Values.CG_STAGING_DOMAIN)"
 $ServerKey = [string]$Values.CG_NAKAMA_SERVER_KEY
 
-$Health = Invoke-WebRequest -Method Get -Uri "$BaseUri/healthcheck"
+$Health = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "$BaseUri/healthcheck"
 if ($Health.StatusCode -ne 200 -or [string]$Health.Headers.'Strict-Transport-Security' -notmatch 'max-age=31536000') {
     throw "Staging TLS edge did not return healthy Nakama plus the required HSTS policy."
 }

@@ -19,7 +19,7 @@ func _init() -> void:
 	check(str(summary.environment) == "local" and str(summary.host) == "127.0.0.1" and int(summary.port) == 7350, "safe configuration summary preserves connection identity")
 	check(not summary.has("client_key") and not summary.has("server_key") and not summary.has("password"), "configuration summary never exposes credentials")
 	check(not adapter.has_authenticated_session(), "configuration alone cannot claim an authenticated session")
-	for method_name in ["get_economy", "get_build", "get_hunt_board", "accept_hunt", "resolve_hunt", "claim_reward", "allocate_attributes", "equip_item", "recycle_item"]:
+	for method_name in ["get_economy", "get_build", "get_hunt_board", "get_agency_membership", "accept_hunt", "resolve_hunt", "claim_reward", "allocate_attributes", "equip_item", "recycle_item"]:
 		check(adapter.has_method(method_name), "inert adapter exposes reviewed authority method %s" % method_name)
 	check(adapter.configure({
 		"provider_id": "nakama", "environment": "staging", "host": "staging-api.crookedgalaxy.com", "port": 443, "ssl": true, "client_key": "staging_public_key_1234",

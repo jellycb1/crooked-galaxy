@@ -1,6 +1,7 @@
 extends SceneTree
 
 const Adapter = preload("res://scripts/nakama_backend_adapter.gd")
+const AgencyDispatcher = preload("res://scripts/remote_agency_dispatcher.gd")
 
 var failures := 0
 
@@ -55,6 +56,12 @@ func run_integration() -> void:
 	var session_summary: Dictionary = await adapter.get_session_summary()
 	check(bool(session_summary.get("ok", false)) and str(session_summary.get("session_state", "")) == "authenticated", "Godot canonicalized the authenticated post-creation session")
 	check(str(session_summary.get("active_character_id", "")) == str(authentication.get("account_id", "")) and session_summary.get("owned_character_ids", []).size() == 1, "session binds exactly the account-owned active character")
+	var agency_dispatcher = AgencyDispatcher.new(adapter, str(authentication.get("account_id", "")))
+	var agency_bootstrap: Dictionary = await agency_dispatcher.bootstrap(0)
+	check(bool(agency_bootstrap.get("ok", false)) and str(agency_dispatcher.snapshot().get("membership_state", "")) == "none",
+		"Godot canonicalized the independent server-owned no-Agency membership")
+	check(bool(agency_dispatcher.close().get("ok", false)) and agency_dispatcher.snapshot().is_empty(),
+		"Agency presentation zeroized without clearing the shared authenticated adapter")
 	var initial_revision := int(replay.get("revision", -1))
 	var nonce := str(int(Time.get_unix_time_from_system() * 1000.0))
 	var commit: Dictionary = await adapter.commit_profile(
@@ -91,7 +98,7 @@ func run_integration() -> void:
 
 func finish() -> void:
 	if failures == 0:
-		print("PASS: official Nakama Godot client authenticated, created, committed, retried, conflicted, and refetched authoritative state")
+		print("PASS: official Nakama Godot client authenticated, canonicalized independent Agency membership, committed, retried, conflicted, and refetched authoritative state")
 		quit(0)
 	else:
 		printerr("FAIL: %d local Nakama integration issue(s)" % failures)

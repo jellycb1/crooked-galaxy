@@ -18,7 +18,7 @@ if ([string]::IsNullOrWhiteSpace($ServerKey)) {
     throw "Local Nakama server key is missing."
 }
 
-$Health = Invoke-WebRequest -Method Get -Uri "http://127.0.0.1:7350/healthcheck"
+$Health = Invoke-WebRequest -UseBasicParsing -Method Get -Uri "http://127.0.0.1:7350/healthcheck"
 if ($Health.StatusCode -ne 200) {
     throw "Nakama health endpoint did not return HTTP 200."
 }
@@ -100,6 +100,12 @@ if ([string]$SessionSummary.account_id -ne $AccountId -or [string]$SessionSummar
 }
 if (@($SessionSummary.owned_character_ids).Count -ne 1 -or [string]$SessionSummary.owned_character_ids[0] -ne $AccountId) {
     throw "Session summary returned an invalid owned-character set."
+}
+$AgencyMembership = Invoke-CgRpc -Name "cg_agency_membership_get" -Payload @{}
+if ([string]$AgencyMembership.account_id -ne $AccountId -or [string]$AgencyMembership.character_id -ne $AccountId `
+    -or [string]$AgencyMembership.membership_state -ne "none" -or [int]$AgencyMembership.revision -ne 0 `
+    -or -not [string]::IsNullOrEmpty([string]$AgencyMembership.agency_id) -or @($AgencyMembership.agency.PSObject.Properties).Count -ne 0) {
+    throw "Fresh character did not return the canonical independent no-Agency membership snapshot."
 }
 
 $CommandId = "commit-$RunId"
