@@ -44,6 +44,7 @@ Require-ConfigMatch $PresetText '^architectures/arm64-v8a=true$' "64-bit ARM mus
 Require-ConfigMatch $PresetText '^architectures/x86=false$' "x86 must remain excluded from the device APK"
 Require-ConfigMatch $PresetText '^architectures/x86_64=false$' "x86-64 must remain excluded from the device APK"
 Require-ConfigMatch $PresetText '^screen/immersive_mode=true$' "immersive mode must remain enabled"
+Require-ConfigMatch $PresetText '^permissions/internet=true$' "the Android client must retain network access for staged online integration"
 Require-ConfigMatch $PresetText '^custom_features=""$' "the Android APK must not enable reference placeholders"
 Require-ConfigMatch $PresetText '^include_filter=""$' "the Android APK must not include staged reference files"
 
@@ -107,6 +108,9 @@ if (-not $PackageMatch.Success) {
 }
 if ($PackageMatch.Groups[1].Value -ne $ExpectedPackage -or $PackageMatch.Groups[2].Value -ne $ExpectedVersionCode -or $PackageMatch.Groups[3].Value -ne $ExpectedVersionName) {
     throw "Exported APK metadata does not match export_presets.cfg."
+}
+if ($Badging -notmatch "uses-permission: name='android.permission.INTERNET'") {
+    throw "Exported APK is missing android.permission.INTERNET."
 }
 $MinimumSdk = [regex]::Match($Badging, "(?:minSdkVersion|sdkVersion):'([0-9]+)'")
 $TargetSdk = [regex]::Match($Badging, "targetSdkVersion:'([0-9]+)'")

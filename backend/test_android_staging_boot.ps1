@@ -106,7 +106,8 @@ try {
     $StartInfo.RedirectStandardInput = $true
     $StartInfo.RedirectStandardOutput = $true
     $StartInfo.RedirectStandardError = $true
-    foreach ($Argument in @('-s', $Serial, 'shell', 'run-as', $PackageName, 'sh', '-c', "umask 077; cat > $MailboxRelativePath")) {
+    $MailboxWriteCommand = "'mkdir -p files; umask 077; cat > $MailboxRelativePath'"
+    foreach ($Argument in @('-s', $Serial, 'shell', 'run-as', $PackageName, 'sh', '-c', $MailboxWriteCommand)) {
         [void]$StartInfo.ArgumentList.Add($Argument)
     }
     $Writer = [System.Diagnostics.Process]::new()
@@ -120,7 +121,7 @@ try {
 
     & $Adb -s $Serial logcat -c
     & $Adb -s $Serial shell am force-stop $PackageName
-    & $Adb -s $Serial shell monkey -p $PackageName -c android.intent.category.LAUNCHER 1 | Out-Null
+    & $Adb -s $Serial shell monkey -p $PackageName -c android.intent.category.LAUNCHER 1 *> $null
     if ($LASTEXITCODE -ne 0) { throw "Could not launch Crooked Galaxy on the device." }
 
     $Deadline = [DateTime]::UtcNow.AddSeconds(90)
@@ -136,7 +137,8 @@ try {
     (& $Adb -s $Serial shell dumpsys package $PackageName 2>&1) -join "`n" | Set-Content -LiteralPath (Join-Path $EvidenceDirectory "package.txt") -Encoding utf8
     (& $Adb -s $Serial shell getprop 2>&1) -join "`n" | Select-String -Pattern '\[ro\.product|\[ro\.build\.version|\[ro\.hardware' | Set-Content -LiteralPath (Join-Path $EvidenceDirectory "device.txt") -Encoding utf8
 
-    $MailboxCheck = (& $Adb -s $Serial shell run-as $PackageName sh -c "if test -e $MailboxRelativePath; then echo PRESENT; else echo ABSENT; fi" 2>&1) -join "`n"
+    $MailboxCheckCommand = "'if test -e $MailboxRelativePath; then echo PRESENT; else echo ABSENT; fi'"
+    $MailboxCheck = (& $Adb -s $Serial shell run-as $PackageName sh -c $MailboxCheckCommand 2>&1) -join "`n"
     if ($MailboxCheck -notmatch 'ABSENT') { throw "The one-use mailbox was not deleted before the network proof." }
     if ($ProbeLog.Contains('FAIL: staging normal-boot probe:')) { throw "Physical staging probe reported a failure. See $EvidenceDirectory/logcat.txt." }
     if (-not $ProbeLog.Contains('PASS: normal main-scene boot reached TLS staging')) { throw "Physical staging probe timed out. See $EvidenceDirectory/logcat.txt." }

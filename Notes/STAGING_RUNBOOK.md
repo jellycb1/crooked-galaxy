@@ -52,7 +52,7 @@ A rollback means restoring the previous reviewed commit and compatible runtime i
 
 ## Evidence required before APK activation
 
-- Public certificate chain and hostname pass on physical Android without installing a private CA.
+- Public certificate chain and hostname pass on the Android 15 Pixel 9 AVD without installing a private CA; repeat on unmanaged physical Android when one becomes available.
 - Authentication, session refresh/expiry, character creation and snapshot ownership pass across app restart.
 - Read-only cache opens only after a previously acknowledged snapshot; economy, Agency and billing remain unavailable offline.
 - Same-command retry after simulated timeout produces one mutation; stale revision produces visible conflict recovery.
