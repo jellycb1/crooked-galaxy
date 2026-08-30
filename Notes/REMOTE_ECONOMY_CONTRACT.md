@@ -1,6 +1,6 @@
 # Remote economy vertical-slice contract
 
-Status: local vertical slice implemented, compiled and proven against live loopback Nakama/PostgreSQL. Gameplay activation and production save migration remain disabled or pending.
+Status: vertical slice implemented, compiled and proven against live loopback plus public-TLS Hetzner staging Nakama/PostgreSQL. Windows normal-boot lifecycle evidence passes; gameplay activation, physical Android evidence and production save migration remain disabled or pending.
 
 ## Product truth
 

@@ -101,7 +101,7 @@ foreach ($ProxyGuard in @('admin off', 'max_size 128KB', 'reverse_proxy nakama:7
 foreach ($ValidationGuard in @("EndsWith('.invalid')", "EndsWith('.test')", 'HashSet[string]', 'may not reuse one secret', 'published:\s*"?7350')) {
     if (-not $StagingValidator.Contains($ValidationGuard)) { throw "Staging environment validation guard is missing: $ValidationGuard" }
 }
-foreach ($RestoreGuard in @('Get-FileHash', '--exit-on-error', 'information_schema.tables', 'cg-restore-drill-', 'volume rm')) {
+foreach ($RestoreGuard in @('Get-FileHash', '--exit-on-error', 'information_schema.tables', 'cg-restore-drill-', 'volume rm', 'ConsecutiveReady', 'SELECT 1;')) {
     if (-not $RestoreDrill.Contains($RestoreGuard)) { throw "Isolated restore guard is missing: $RestoreGuard" }
 }
 foreach ($BackupGuard in @('.cg-write-probe-', 'must be writable by the deployment operator', 'PartialChecksumPath', 'Remove-Item -LiteralPath')) {
