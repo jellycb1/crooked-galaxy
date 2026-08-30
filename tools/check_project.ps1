@@ -56,6 +56,7 @@ $Tests = @(
 	"test_profile_sync_rules.gd",
 	"test_local_save_cutover_archive.gd",
 	"test_agency_rules.gd",
+	"test_remote_agency_dispatcher.gd",
 	"test_simulation_builds.gd",
     "test_balance_guards.gd",
 	"test_late_approach_cohorts.gd",

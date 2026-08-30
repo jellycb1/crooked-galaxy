@@ -1,6 +1,6 @@
 # Crooked Galaxy — contrato das Agências de Caçadores
 
-Estado: direção de produto aprovada e fundação de regras implementada. Não existe ainda backend, membership real, UI social ou recompensa online; o cliente local não deve fingir o contrário.
+Estado: direção de produto aprovada, fundação de regras implementada e limite cliente de membership preparado para testes explícitos. Não existe ainda endpoint de backend, membership real, UI social ou recompensa online; o cliente local não deve fingir o contrário.
 
 O protocolo partilhado de versão da API, UTC do servidor, snapshots de personagem, comandos idempotentes e recibos está definido em `BACKEND_VERTICAL_SLICE_CONTRACT.md`. Os registos de Agência podem especializar esse envelope, mas nunca contorná-lo.
 
@@ -39,6 +39,8 @@ Toda mutação social usa revisão esperada e event ID idempotente. O servidor r
 O acesso de produto abre no nível 8, depois de o jogador conhecer mandados, equipamento e progressão básica. O backend pode exigir também onboarding completo, nome aprovado e sessão autenticada.
 
 O APK local atual mantém `agency_backend = false`. Não deve mostrar roster inventado, bots apresentados como jogadores, chat falso ou estado “online”.
+
+O limite `RemoteAgencyDispatcher` existe apenas como infraestrutura online isolada. Ele exige ownership autenticado, mantém revisão social separada da economia, aceita uma única intenção de candidatura/saída por vez, repete resultados incertos apenas com a identidade original e apaga toda a apresentação social ao fechar. Não é autoload, não entra em `GameState`, não possui cache offline e não constitui um endpoint de Agência.
 
 ## Mandado de Agência semanal
 
@@ -97,7 +99,7 @@ Chat, denúncias, bloqueios, moderação de nomes, histórico administrativo e a
 ## Ordem de implementação
 
 1. conta autenticada, relógio e personagem autoritativos;
-2. endpoint de Agência, roster, cargos, candidatura e revisões;
+2. endpoint de Agência, roster, cargos, candidatura e revisões — limite cliente preparado; backend e prova real ainda pendentes;
 3. Mandado semanal e eventos idempotentes;
 4. recompensas e Prestígio transacionais;
 5. UI de Agência e Sede;
