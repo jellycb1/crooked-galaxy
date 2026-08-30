@@ -1,6 +1,6 @@
 # Nakama TLS staging runbook
 
-Status: active operations contract. The Hetzner CX33 exists at `2.29.2.190`, and `staging-api.crookedgalaxy.com` resolves to it. Ubuntu 24.04, the key-only `cgdeploy` administration path, Docker/Compose, PowerShell, automatic updates, bounded container logs, the Cloud Firewall, the complete application stack and public TLS are validated. A checksummed local PostgreSQL dump also passed an isolated restore. The dedicated Falkenstein Storage Box is provisioned; encrypted archive and recovery evidence are recorded separately once the first drill passes.
+Status: active operations contract. The Hetzner CX33 exists at `2.29.2.190`, and `staging-api.crookedgalaxy.com` resolves to it. Ubuntu 24.04, the key-only `cgdeploy` administration path, Docker/Compose, PowerShell, automatic updates, bounded container logs, the Cloud Firewall, the complete application stack and public TLS are validated. The dedicated Falkenstein Storage Box now holds encrypted, checksummed archives; repository verification, a complete isolated restore and the daily systemd execution passed. Exact evidence is recorded in `STAGING_OFFSITE_BACKUP_EVIDENCE_2026-08-30.md`.
 
 ## Purpose and boundary
 
