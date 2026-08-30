@@ -228,7 +228,7 @@ function agencyMembershipSnapshot(nk: nkruntime.Nakama, userId: string): {[key: 
 
 function agencyReceipt(request: {[key: string]: any}, userId: string, status: string, revision: number, reason: string): {[key: string]: any} {
   return {api_version: CG_API_VERSION, authority: "server", command_id: request.command_id, idempotency_key: request.idempotency_key,
-    operation: "agency_create", shard_id: CG_SHARD_ID, character_id: userId, status: status, server_revision: revision,
+    operation: request.operation, shard_id: CG_SHARD_ID, character_id: userId, status: status, server_revision: revision,
     server_unix_ms: Date.now(), reason_code: reason};
 }
 
@@ -593,6 +593,50 @@ function rpcAgencyCreate(context: nkruntime.Context, logger: nkruntime.Logger, n
   return JSON.stringify(agencyReceipt(request, userId, "accepted", 1, ""));
 }
 
+function rpcAgencyApply(context: nkruntime.Context, _logger: nkruntime.Logger, nk: nkruntime.Nakama, payload: string): string {
+  const userId = requireUser(context); const request = parsePayload(payload); const change = request.payload;
+  if (!validCommandEnvelope(request, userId, "agency_apply") || !exactKeys(change, ["agency_id"]) || !validIdentifier(change.agency_id)) throw Error("Invalid Agency application command.");
+  if (!readCharacter(nk, userId)) return JSON.stringify(agencyReceipt(request, userId, "rejected", 0, "character_missing"));
+  const fingerprint = [request.command_id, request.expected_revision, change.agency_id].join("|");
+  const receipts = nk.storageRead([{collection: RECEIPT_COLLECTION, key: request.idempotency_key, userId: userId}]);
+  let saved: {[key: string]: any} | null = receipts.length === 1 ? receipts[0].value as {[key: string]: any} : null;
+  if (saved && (saved.operation !== "agency_apply" || saved.fingerprint !== fingerprint)) {
+    return JSON.stringify(agencyReceipt(request, userId, "rejected", Number(saved.server_revision || 0), "idempotency_mismatch"));
+  }
+  if (saved && saved.phase === "committed") return JSON.stringify(agencyReceipt(request, userId, "duplicate", Number(saved.server_revision), ""));
+  const current = userCgGroup(nk, userId);
+  if (current && current.group) {
+    const currentRevision = Number((current.group.metadata || {}).revision || 0);
+    if (current.group.id !== change.agency_id) return JSON.stringify(agencyReceipt(request, userId, "rejected", currentRevision, "already_member_or_pending"));
+    if (!saved || saved.phase !== "prepared") {
+      const reason = current.state === 3 ? "application_pending" : "already_member";
+      return JSON.stringify(agencyReceipt(request, userId, "rejected", currentRevision, reason));
+    }
+    nk.storageWrite([{collection: RECEIPT_COLLECTION, key: request.idempotency_key, userId: userId,
+      value: {operation: "agency_apply", fingerprint: fingerprint, phase: "committed", server_revision: currentRevision}, permissionRead: 0, permissionWrite: 0}]);
+    return JSON.stringify(agencyReceipt(request, userId, "duplicate", currentRevision, ""));
+  }
+  if (request.expected_revision !== 0) return JSON.stringify(agencyReceipt(request, userId, "conflict", 0, "revision_conflict"));
+  const found = nk.groupsGetId([change.agency_id]);
+  const target = found.length === 1 ? canonicalCgGroup(found[0]) : null;
+  if (!target) return JSON.stringify(agencyReceipt(request, userId, "rejected", 0, "agency_missing"));
+  const revision = Number(target.metadata.revision);
+  if (target.metadata.recruitment_mode === "invite") return JSON.stringify(agencyReceipt(request, userId, "rejected", 0, "invite_only"));
+  if (target.edgeCount >= AGENCY_MEMBER_LIMIT) return JSON.stringify(agencyReceipt(request, userId, "rejected", revision, "agency_full"));
+  if (!saved) {
+    nk.storageWrite([{collection: RECEIPT_COLLECTION, key: request.idempotency_key, userId: userId,
+      value: {operation: "agency_apply", fingerprint: fingerprint, phase: "prepared", server_revision: revision}, permissionRead: 0, permissionWrite: 0}]);
+    saved = {operation: "agency_apply", fingerprint: fingerprint, phase: "prepared", server_revision: revision};
+  }
+  const username = context.username || userId;
+  nk.groupUserJoin(target.id, userId, username);
+  const joined = userCgGroup(nk, userId);
+  if (!joined || !joined.group || joined.group.id !== target.id || (joined.state !== 2 && joined.state !== 3)) throw Error("Agency application edge was not committed.");
+  nk.storageWrite([{collection: RECEIPT_COLLECTION, key: request.idempotency_key, userId: userId,
+    value: {operation: "agency_apply", fingerprint: fingerprint, phase: "committed", server_revision: revision}, permissionRead: 0, permissionWrite: 0}]);
+  return JSON.stringify(agencyReceipt(request, userId, "accepted", revision, ""));
+}
+
 function rpcAttributeAllocate(context: nkruntime.Context, _logger: nkruntime.Logger, nk: nkruntime.Nakama, payload: string): string {
   const userId = requireUser(context); const request = parsePayload(payload); const change = request.payload;
   if (!validCommandEnvelope(request, userId, "attribute_allocate") || !exactKeys(change, ["allocations"]) || !validAllocation(change.allocations)) throw Error("Invalid attribute allocation command.");
@@ -872,6 +916,7 @@ const InitModule: nkruntime.InitModule = function (_context: nkruntime.Context, 
   initializer.registerRpc("cg_agency_membership_get", rpcAgencyMembershipGet);
   initializer.registerRpc("cg_agency_directory", rpcAgencyDirectory);
   initializer.registerRpc("cg_agency_create", rpcAgencyCreate);
+  initializer.registerRpc("cg_agency_apply", rpcAgencyApply);
   initializer.registerRpc("cg_attribute_allocate", rpcAttributeAllocate);
   initializer.registerRpc("cg_inventory_equip", rpcInventoryEquip);
   initializer.registerRpc("cg_inventory_recycle", rpcInventoryRecycle);

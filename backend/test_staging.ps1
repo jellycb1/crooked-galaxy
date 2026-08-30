@@ -97,6 +97,38 @@ for ($AgencyPageIndex = 0; $AgencyPageIndex -lt 20 -and $CreatedSummary.Count -e
 if ($CreatedSummary.Count -ne 1 -or [int]$CreatedSummary[0].member_count -ne 1 -or [string]$CreatedSummary[0].recruitment_mode -ne "application") {
     throw "Created staging Agency is missing from the bounded roster-free directory."
 }
+$DirectorRpcHeaders = $RpcHeaders
+$ApplicantDeviceId = "cg-staging-applicant-$RunId"
+$ApplicantUsername = "stage_ap_$($RunId.Substring(0, 17))"
+$ApplicantAuthUri = "$BaseUri/v2/account/authenticate/device?create=true&username=$ApplicantUsername"
+$ApplicantSession = Invoke-RestMethod -Method Post -Uri $ApplicantAuthUri -Headers $AuthHeaders -ContentType "application/json" -Body (@{ id = $ApplicantDeviceId } | ConvertTo-Json -Compress)
+if ([string]::IsNullOrWhiteSpace([string]$ApplicantSession.token)) { throw "Staging Agency applicant authentication returned no session token." }
+$RpcHeaders = @{ Authorization = "Bearer $($ApplicantSession.token)" }
+$ApplicantMissing = Invoke-StagingRpc -Name "cg_character_get" -Payload @{}
+$ApplicantId = [string]$ApplicantMissing.account_id
+$ApplicantCreated = Invoke-StagingRpc -Name "cg_character_create" -Payload @{
+    idempotency_key = "stage-applicant-create-$RunId"; hunter_name = "Stage Applicant"; class_id = "contract_hacker"; species_id = "synthetic"; appearance = $Appearance
+}
+if ($ApplicantCreated.created -ne $true -or [string]$ApplicantCreated.character_id -ne $ApplicantId) {
+    throw "Staging Agency applicant did not receive an owned character."
+}
+$AgencyApplyPayload = @{
+    api_version = 1; command_id = "stage-agency-apply-$RunId"; idempotency_key = "stage-agency-apply-receipt-$RunId"; operation = "agency_apply"
+    session_id = $ApplicantId; shard_id = "international_1"; character_id = $ApplicantId; expected_revision = 0
+    payload = @{ agency_id = [string]$AgencyMembership.agency_id }
+}
+$AgencyApplied = Invoke-StagingRpc -Name "cg_agency_apply" -Payload $AgencyApplyPayload
+$AgencyApplyReplay = Invoke-StagingRpc -Name "cg_agency_apply" -Payload $AgencyApplyPayload
+if ([string]$AgencyApplied.status -ne "accepted" -or [int]$AgencyApplied.server_revision -ne 1 -or [string]$AgencyApplyReplay.status -ne "duplicate") {
+    throw "Staging Agency application did not preserve exact idempotent intent."
+}
+$ApplicantMembership = Invoke-StagingRpc -Name "cg_agency_membership_get" -Payload @{}
+if ([string]$ApplicantMembership.membership_state -ne "application_pending" -or [string]$ApplicantMembership.agency_id -ne [string]$AgencyMembership.agency_id `
+    -or [int]$ApplicantMembership.revision -ne 1 -or -not [string]::IsNullOrEmpty([string]$ApplicantMembership.role_id) `
+    -or @($ApplicantMembership.agency.PSObject.Properties).Count -ne 0) {
+    throw "Staging application did not expose the canonical roster-free pending snapshot."
+}
+$RpcHeaders = $DirectorRpcHeaders
 $Build = Invoke-StagingRpc -Name "cg_build_get" -Payload @{}
 if ([int]$Build.revision -ne 0 -or [int]$Build.build.base_power -ne 10 -or [int]$Build.build.stat_points -ne 0 -or @($Build.build.inventory).Count -ne 0 -or [string]$Build.build.equipment.weapon.id -ne "starter_weapon") {
     throw "Staging exact starter build snapshot is invalid."
@@ -129,4 +161,4 @@ if ([string]$Conflict.status -ne "conflict" -or [int]$Conflict.server_revision -
     throw "Staging stale revision did not return the canonical conflict."
 }
 
-Write-Host "PASS: public TLS, HSTS, authentication, UTC, character/build ownership, Agency creation/directory, authority rejection, revisions, idempotency, and conflicts pass on staging."
+Write-Host "PASS: public TLS, HSTS, authentication, UTC, character/build ownership, Agency creation/directory/application, authority rejection, revisions, idempotency, and conflicts pass on staging."

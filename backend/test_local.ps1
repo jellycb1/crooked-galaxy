@@ -138,6 +138,38 @@ for ($AgencyPageIndex = 0; $AgencyPageIndex -lt 20 -and $CreatedSummary.Count -e
 if ($CreatedSummary.Count -ne 1 -or [int]$CreatedSummary[0].member_count -ne 1 -or [string]$CreatedSummary[0].recruitment_mode -ne "application") {
     throw "Created Agency is missing from the bounded roster-free directory."
 }
+$DirectorRpcHeaders = $RpcHeaders
+$ApplicantDeviceId = "cg-local-applicant-$RunId"
+$ApplicantUsername = "ap_$($RunId.Substring(0, 20))"
+$ApplicantAuthUri = "http://127.0.0.1:7350/v2/account/authenticate/device?create=true&username=$ApplicantUsername"
+$ApplicantSession = Invoke-RestMethod -Method Post -Uri $ApplicantAuthUri -Headers $AuthHeaders -ContentType "application/json" -Body (@{ id = $ApplicantDeviceId } | ConvertTo-Json -Compress)
+if ([string]::IsNullOrWhiteSpace([string]$ApplicantSession.token)) { throw "Agency applicant authentication returned no session token." }
+$RpcHeaders = @{ Authorization = "Bearer $($ApplicantSession.token)" }
+$ApplicantMissing = Invoke-CgRpc -Name "cg_character_get" -Payload @{}
+$ApplicantId = [string]$ApplicantMissing.account_id
+$ApplicantCreated = Invoke-CgRpc -Name "cg_character_create" -Payload @{
+    idempotency_key = "applicant-create-$RunId"; hunter_name = "Nova Applicant"; class_id = "contract_hacker"; species_id = "synthetic"; appearance = $Appearance
+}
+if ($ApplicantCreated.created -ne $true -or [string]$ApplicantCreated.character_id -ne $ApplicantId) {
+    throw "Agency applicant did not receive an owned launch character."
+}
+$AgencyApplyPayload = @{
+    api_version = 1; command_id = "agency-apply-$RunId"; idempotency_key = "agency-apply-receipt-$RunId"; operation = "agency_apply"
+    session_id = $ApplicantId; shard_id = "international_1"; character_id = $ApplicantId; expected_revision = 0
+    payload = @{ agency_id = [string]$AgencyMembership.agency_id }
+}
+$AgencyApplied = Invoke-CgRpc -Name "cg_agency_apply" -Payload $AgencyApplyPayload
+$AgencyApplyReplay = Invoke-CgRpc -Name "cg_agency_apply" -Payload $AgencyApplyPayload
+if ([string]$AgencyApplied.status -ne "accepted" -or [int]$AgencyApplied.server_revision -ne 1 -or [string]$AgencyApplyReplay.status -ne "duplicate") {
+    throw "Agency application did not preserve exact intent and idempotent replay."
+}
+$ApplicantMembership = Invoke-CgRpc -Name "cg_agency_membership_get" -Payload @{}
+if ([string]$ApplicantMembership.membership_state -ne "application_pending" -or [string]$ApplicantMembership.agency_id -ne [string]$AgencyMembership.agency_id `
+    -or [int]$ApplicantMembership.revision -ne 1 -or -not [string]::IsNullOrEmpty([string]$ApplicantMembership.role_id) `
+    -or @($ApplicantMembership.agency.PSObject.Properties).Count -ne 0) {
+    throw "Application-only Agency did not expose the canonical roster-free pending snapshot."
+}
+$RpcHeaders = $DirectorRpcHeaders
 
 $CommandId = "commit-$RunId"
 $CommitPayload = @{

@@ -71,6 +71,41 @@ func run_integration() -> void:
 	var agency_directory: Dictionary = await adapter.get_agency_directory("")
 	check(bool(agency_directory.get("ok", false)) and agency_directory.get("agencies", []).size() <= 25,
 		"Godot canonicalized a bounded roster-free Agency directory page")
+	var target_agency_id := str(agency_dispatcher.snapshot().get("agency_id", ""))
+	var applicant_adapter = Adapter.new()
+	check(applicant_adapter.configure({
+		"provider_id": "nakama",
+		"environment": "local",
+		"host": "127.0.0.1",
+		"port": 7350,
+		"ssl": false,
+		"client_key": client_key,
+	}), "second Godot adapter accepted the same explicit local deployment boundary")
+	var applicant_auth: Dictionary = await applicant_adapter.authenticate_development("cg-godot-applicant-00000001", "cg_godot_applicant")
+	check(bool(applicant_auth.get("ok", false)), "second official Godot client authenticated an Agency applicant")
+	var applicant_creation: Dictionary = await applicant_adapter.create_character(
+		"godot-applicant-create-00000001",
+		"Godot Applicant",
+		"orbit_gunslinger",
+		"terran",
+		{"palette": "native", "eyes": "standard", "feature": "classic", "marking": "clean"}
+	)
+	check(bool(applicant_creation.get("ok", false)), "Agency applicant created or recovered an owned character")
+	var applicant_dispatcher = AgencyDispatcher.new(applicant_adapter, str(applicant_auth.get("account_id", "")))
+	var applicant_bootstrap: Dictionary = await applicant_dispatcher.bootstrap()
+	check(bool(applicant_bootstrap.get("ok", false)), "Agency applicant bootstrapped independent membership")
+	if str(applicant_dispatcher.snapshot().get("membership_state", "")) == "none":
+		var apply_nonce := str(int(Time.get_unix_time_from_system() * 1000.0))
+		var applied: Dictionary = await applicant_dispatcher.dispatch("godot-apply-%s" % apply_nonce,
+			"godot-apply-receipt-%s" % apply_nonce, "agency_apply", target_agency_id)
+		check(bool(applied.get("ok", false)) and str(applicant_dispatcher.snapshot().get("membership_state", "")) == "application_pending",
+			"Godot submitted an exact application and refetched its roster-free pending state")
+	else:
+		check(str(applicant_dispatcher.snapshot().get("membership_state", "")) == "application_pending" \
+			and str(applicant_dispatcher.snapshot().get("agency_id", "")) == target_agency_id,
+			"repeat integration recovered the existing pending application without resubmitting it")
+	check(bool(applicant_dispatcher.close().get("ok", false)), "applicant Agency runtime zeroized after the proof")
+	applicant_adapter.clear_runtime()
 	check(bool(agency_dispatcher.close().get("ok", false)) and agency_dispatcher.snapshot().is_empty(),
 		"Agency presentation zeroized without clearing the shared authenticated adapter")
 	var initial_revision := int(replay.get("revision", -1))
@@ -109,7 +144,7 @@ func run_integration() -> void:
 
 func finish() -> void:
 	if failures == 0:
-		print("PASS: official Nakama Godot client authenticated, created/recovered Agency membership and directory, committed, retried, conflicted, and refetched authoritative state")
+		print("PASS: official Nakama Godot clients authenticated, created/discovered an Agency, submitted/recovered an application, and proved authoritative command state")
 		quit(0)
 	else:
 		printerr("FAIL: %d local Nakama integration issue(s)" % failures)
