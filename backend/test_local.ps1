@@ -376,6 +376,32 @@ if ($RaceCreates.Count -ne 2 -or @($RaceCreates | Where-Object { $_.revision -eq
     throw "Concurrent identical creation did not resolve to one creation and one idempotent replay."
 }
 $RaceAccountId = [string]$RaceCreates[0].account_id
+$RaceAgencyInnerA = @{
+    api_version = 1; command_id = "race-agency-a-$RunId"; idempotency_key = "race-agency-receipt-a-$RunId"; operation = "agency_apply"
+    session_id = $RaceAccountId; shard_id = "international_1"; character_id = $RaceAccountId; expected_revision = 0
+    payload = @{ agency_id = [string]$AgencyMembership.agency_id }
+} | ConvertTo-Json -Depth 10 -Compress
+$RaceAgencyInnerB = @{
+    api_version = 1; command_id = "race-agency-b-$RunId"; idempotency_key = "race-agency-receipt-b-$RunId"; operation = "agency_apply"
+    session_id = $RaceAccountId; shard_id = "international_1"; character_id = $RaceAccountId; expected_revision = 0
+    payload = @{ agency_id = [string]$AgencyMembership.agency_id }
+} | ConvertTo-Json -Depth 10 -Compress
+$RaceAgencyBodyA = ConvertTo-Json -InputObject $RaceAgencyInnerA -Compress
+$RaceAgencyBodyB = ConvertTo-Json -InputObject $RaceAgencyInnerB -Compress
+$RaceAgencyApplies = @(1..2 | ForEach-Object -Parallel {
+    $Body = if ($_ -eq 1) { $using:RaceAgencyBodyA } else { $using:RaceAgencyBodyB }
+    $Envelope = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:7350/v2/rpc/cg_agency_apply" -Headers $using:RaceHeaders -ContentType "application/json" -Body $Body
+    return [string]$Envelope.payload | ConvertFrom-Json
+} -ThrottleLimit 2)
+if ($RaceAgencyApplies.Count -ne 2 -or @($RaceAgencyApplies | Where-Object { [string]$_.status -eq "accepted" }).Count -ne 1 `
+    -or @($RaceAgencyApplies | Where-Object { [string]$_.status -eq "rejected" }).Count -ne 1) {
+    throw "Concurrent distinct Agency intents did not resolve to exactly one edge and one fail-closed rejection."
+}
+$RaceMembershipEnvelope = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:7350/v2/rpc/cg_agency_membership_get" -Headers $RaceHeaders -ContentType "application/json" -Body '"{}"'
+$RaceMembership = [string]$RaceMembershipEnvelope.payload | ConvertFrom-Json
+if ([string]$RaceMembership.membership_state -ne "application_pending" -or [string]$RaceMembership.agency_id -ne [string]$AgencyMembership.agency_id) {
+    throw "Concurrent Agency intents did not leave exactly one canonical pending membership."
+}
 $RaceCommandInner = @{
     api_version = 1; command_id = "race-commit-$RunId"; idempotency_key = "race-receipt-$RunId"; operation = "profile_commit"
     session_id = $RaceAccountId; shard_id = "international_1"; character_id = $RaceAccountId; expected_revision = 0
@@ -391,4 +417,4 @@ if ($RaceCommits.Count -ne 2 -or -not $RaceStatuses.Contains("accepted") -or -no
     throw "Concurrent identical commit did not resolve to one acceptance and one duplicate receipt."
 }
 
-Write-Host "PASS: local Nakama auth/session, UTC, owned character authority, concurrent idempotency, conflicts, forgery rejection, hunt economy, attributes, equipment, and recycling are valid."
+Write-Host "PASS: local Nakama auth/session, UTC, owned character and Agency concurrency, idempotency, conflicts, forgery rejection, hunt economy, attributes, equipment, and recycling are valid."

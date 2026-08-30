@@ -3,6 +3,9 @@ const CG_SHARD_ID = "international_1";
 const CHARACTER_COLLECTION = "cg_characters_v1";
 const CHARACTER_KEY = "primary";
 const RECEIPT_COLLECTION = "cg_command_receipts_v1";
+const AGENCY_GUARD_COLLECTION = "cg_agency_guard_v1";
+const AGENCY_GUARD_KEY = "membership";
+const AGENCY_GUARD_LEASE_MS = 30000;
 const AGENCY_SCHEMA_VERSION = 1;
 const AGENCY_MEMBER_LIMIT = 25;
 const ATTRIBUTE_KEYS = ["strength", "vitality", "dexterity", "intelligence", "cunning"];
@@ -230,6 +233,26 @@ function agencyReceipt(request: {[key: string]: any}, userId: string, status: st
   return {api_version: CG_API_VERSION, authority: "server", command_id: request.command_id, idempotency_key: request.idempotency_key,
     operation: request.operation, shard_id: CG_SHARD_ID, character_id: userId, status: status, server_revision: revision,
     server_unix_ms: Date.now(), reason_code: reason};
+}
+
+function claimAgencyGuard(nk: nkruntime.Nakama, userId: string, operation: string, fingerprint: string, target: string): string {
+  const now = Date.now(); const value = {operation: operation, fingerprint: fingerprint, target: target, lease_until_unix_ms: now + AGENCY_GUARD_LEASE_MS};
+  try {
+    nk.storageWrite([{collection: AGENCY_GUARD_COLLECTION, key: AGENCY_GUARD_KEY, userId: userId, value: value,
+      version: "*", permissionRead: 0, permissionWrite: 0}]);
+    return "acquired";
+  } catch (_error) {
+    const objects = nk.storageRead([{collection: AGENCY_GUARD_COLLECTION, key: AGENCY_GUARD_KEY, userId: userId}]);
+    if (objects.length !== 1) throw Error("Agency membership guard could not be recovered.");
+    const held = objects[0].value as {[key: string]: any};
+    if (held.operation !== operation || held.fingerprint !== fingerprint || held.target !== target) return "different_busy";
+    if (Number(held.lease_until_unix_ms || 0) > now) return "same_busy";
+    try {
+      nk.storageWrite([{collection: AGENCY_GUARD_COLLECTION, key: AGENCY_GUARD_KEY, userId: userId, value: value,
+        version: objects[0].version, permissionRead: 0, permissionWrite: 0}]);
+      return "acquired";
+    } catch (_takeoverError) { return "same_busy"; }
+  }
 }
 
 function validAllocation(value: any): boolean {
@@ -581,6 +604,9 @@ function rpcAgencyCreate(context: nkruntime.Context, logger: nkruntime.Logger, n
     return JSON.stringify(agencyReceipt(request, userId, "rejected", Number(metadata.revision || 0), "already_member"));
   }
   if (request.expected_revision !== 0) return JSON.stringify(agencyReceipt(request, userId, "conflict", 0, "revision_conflict"));
+  const creationGuard = claimAgencyGuard(nk, userId, "agency_create", fingerprint, profile.name);
+  if (creationGuard === "same_busy") throw Error("Exact Agency creation is still in progress.");
+  if (creationGuard !== "acquired") return JSON.stringify(agencyReceipt(request, userId, "rejected", 0, "membership_command_in_progress"));
   const roles: {[key: string]: string} = {}; roles[userId] = "director";
   const metadata = {cg_schema_version: AGENCY_SCHEMA_VERSION, shard_id: CG_SHARD_ID, revision: 1,
     recruitment_mode: profile.recruitment_mode, preferred_locale: profile.preferred_locale, roles: roles,
@@ -624,6 +650,9 @@ function rpcAgencyApply(context: nkruntime.Context, _logger: nkruntime.Logger, n
   if (target.metadata.recruitment_mode === "invite") return JSON.stringify(agencyReceipt(request, userId, "rejected", 0, "invite_only"));
   if (target.edgeCount >= AGENCY_MEMBER_LIMIT) return JSON.stringify(agencyReceipt(request, userId, "rejected", revision, "agency_full"));
   if (!saved) {
+    const applicationGuard = claimAgencyGuard(nk, userId, "agency_apply", fingerprint, change.agency_id);
+    if (applicationGuard === "same_busy") throw Error("Exact Agency application is still in progress.");
+    if (applicationGuard !== "acquired") return JSON.stringify(agencyReceipt(request, userId, "rejected", 0, "membership_command_in_progress"));
     nk.storageWrite([{collection: RECEIPT_COLLECTION, key: request.idempotency_key, userId: userId,
       value: {operation: "agency_apply", fingerprint: fingerprint, phase: "prepared", server_revision: revision}, permissionRead: 0, permissionWrite: 0}]);
     saved = {operation: "agency_apply", fingerprint: fingerprint, phase: "prepared", server_revision: revision};
