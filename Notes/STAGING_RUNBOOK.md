@@ -1,6 +1,6 @@
 # Nakama TLS staging runbook
 
-Status: active operations contract. Hetzner is selected for staging and backup infrastructure; no cloud server, Storage Box or DNS name is currently provisioned.
+Status: active operations contract. The Hetzner CX33 exists at `2.29.2.190` and `crookedgalaxy.com` is owned; `staging-api.crookedgalaxy.com` is the canonical staging hostname. DNS, SSH access, Storage Box and deployment are not yet validated.
 
 ## Purpose and boundary
 
@@ -11,7 +11,7 @@ The checked-in topology pins PostgreSQL 16.8, Nakama 3.40.0, runtime types 1.47.
 ## Host prerequisites
 
 - One disposable Hetzner Cloud CX33 x86 server in Helsinki, running Ubuntu 24.04 LTS, current Docker Engine, Compose and PowerShell 7 (`pwsh`) for the checked-in operational scripts. Helsinki is the selected currently available CX33 location; do not silently substitute a smaller host merely to obtain another region.
-- A dedicated DNS A/AAAA record pointing at that host.
+- An A record for `staging-api.crookedgalaxy.com` pointing at `2.29.2.190`. Add IPv6 only after its exact host address is configured and tested; the assigned `/64` prefix alone is not an AAAA value.
 - Inbound 80/tcp and 443/tcp; 443/udp is optional HTTP/3. Never expose 5432, 7350 or 7351 publicly.
 - A stateful Hetzner Cloud Firewall: SSH restricted to the operator source whenever practical; 80/tcp, 443/tcp and optional 443/udp public; all other inbound traffic denied.
 - Restricted SSH key access, automatic security updates and adequate disk monitoring.
