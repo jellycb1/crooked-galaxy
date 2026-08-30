@@ -2,21 +2,20 @@ class_name StagingClientProbe
 extends RefCounted
 
 const Adapter = preload("res://scripts/nakama_backend_adapter.gd")
-const Coordinator = preload("res://scripts/remote_session_coordinator.gd")
-const Dispatcher = preload("res://scripts/remote_command_dispatcher.gd")
+const RuntimeBoundary = preload("res://scripts/remote_runtime_boundary.gd")
 
 
 func run(configuration: Dictionary, device_id: String, cache_path: String) -> Dictionary:
 	var adapter = Adapter.new()
-	var coordinator = Coordinator.new(adapter)
-	var connection: Dictionary = await coordinator.connect_explicit_test(configuration, device_id)
+	var runtime = RuntimeBoundary.new(adapter)
+	var connection: Dictionary = await runtime.connect_explicit_test(configuration, device_id)
 	if not bool(connection.get("ok", false)):
 		return _failure("authentication_failed")
 	var account_id := str(connection.get("account_id", ""))
 	var clock: Dictionary = connection.get("clock", {})
 	var snapshot: Dictionary = connection.get("snapshot", {})
 	if not bool(connection.get("character_exists", false)):
-		snapshot = await coordinator.create_explicit_test_character(
+		snapshot = await runtime.create_explicit_test_character(
 			"staging-probe-create-v1",
 			"Staging Trace",
 			"orbit_gunslinger",
@@ -25,26 +24,25 @@ func run(configuration: Dictionary, device_id: String, cache_path: String) -> Di
 		)
 	if not bool(snapshot.get("ok", false)) or str(snapshot.get("account_id", "")) != account_id:
 		return _failure("ownership_failed")
-	if int(snapshot.get("revision", -1)) != 0 or not _prove_archival_cutover(coordinator, device_id):
+	if int(snapshot.get("revision", -1)) != 0 or not _prove_archival_cutover(runtime, device_id):
 		return _failure("archive_cutover_failed")
 
 	var initial_revision := int(snapshot.get("revision", -1))
 	var nonce := str(int(Time.get_unix_time_from_system() * 1000.0))
-	var dispatcher = Dispatcher.new(adapter, account_id)
-	var dispatcher_boot: Dictionary = await dispatcher.bootstrap(initial_revision)
+	var dispatcher_boot: Dictionary = await runtime.bootstrap_authoritative_commands(initial_revision)
 	if not bool(dispatcher_boot.get("ok", false)):
 		return _failure("command_dispatcher_bootstrap_failed")
 	var command_id := "staging-probe-commit-%s" % nonce
 	var receipt_id := "staging-probe-receipt-%s" % nonce
 	var appearance := {"palette": "cool", "eyes": "narrow", "feature": "bold", "marking": "stripe"}
-	var commit: Dictionary = await dispatcher.dispatch(command_id, receipt_id, "profile_commit",
+	var commit: Dictionary = await runtime.dispatch(command_id, receipt_id, "profile_commit",
 		{"hunter_name": "Staging Vector", "appearance": appearance})
 	if not _dispatch_result(commit, "accepted", initial_revision + 1):
 		return _failure("commit_failed")
-	var duplicate: Dictionary = await dispatcher.replay_last_completed_explicit_test()
+	var duplicate: Dictionary = await runtime.replay_last_completed_explicit_test()
 	if not _dispatch_result(duplicate, "duplicate", initial_revision + 1):
 		return _failure("idempotency_failed")
-	var conflict: Dictionary = await dispatcher.prove_conflict_explicit_test(
+	var conflict: Dictionary = await runtime.prove_conflict_explicit_test(
 		"staging-probe-stale-%s" % nonce,
 		"staging-probe-stale-receipt-%s" % nonce,
 		"profile_commit",
@@ -53,37 +51,26 @@ func run(configuration: Dictionary, device_id: String, cache_path: String) -> Di
 	)
 	if not _dispatch_result(conflict, "conflict", initial_revision + 1):
 		return _failure("conflict_failed")
-	var profile_after_commit: Dictionary = dispatcher.character_snapshot()
+	var profile_after_commit: Dictionary = runtime.character_snapshot()
 	if not bool(profile_after_commit.get("ok", false)) or int(profile_after_commit.get("revision", -1)) != initial_revision + 1:
 		return _failure("authoritative_refetch_failed")
-	var hunt_evidence: Dictionary = await _prove_authoritative_hunt(dispatcher, nonce)
+	var hunt_evidence: Dictionary = await _prove_authoritative_hunt(runtime, nonce)
 	if not bool(hunt_evidence.get("ok", false)):
 		return hunt_evidence
-	var authoritative: Dictionary = dispatcher.character_snapshot()
-	var authoritative_economy: Dictionary = dispatcher.economy_snapshot()
-	var authoritative_build: Dictionary = dispatcher.build_snapshot()
+	var authoritative: Dictionary = runtime.character_snapshot()
 	if not bool(authoritative.get("ok", false)) or int(authoritative.get("revision", -1)) != int(hunt_evidence.get("final_revision", -2)):
 		return _failure("post_hunt_profile_refetch_failed")
-	if not coordinator.accept_authoritative_unit(authoritative, authoritative_economy, authoritative_build):
-		return _failure("coordinator_snapshot_failed")
-
-	var latest_server_time := maxi(int(authoritative.get("server_unix_ms", 0)),
-		maxi(int(authoritative_economy.get("server_unix_ms", 0)), int(authoritative_build.get("server_unix_ms", 0))))
-	var cached_at := maxi(int(Time.get_unix_time_from_system() * 1000.0), latest_server_time)
-	var dispatcher_closed: Dictionary = dispatcher.close_for_disconnect()
-	if not bool(dispatcher_closed.get("ok", false)):
-		return _failure("command_dispatcher_disconnect_failed")
-	var offline: Dictionary = coordinator.cache_and_disconnect(cache_path, cached_at)
+	var offline: Dictionary = runtime.cache_and_disconnect(cache_path)
 	if not bool(offline.get("read_only", false)) or bool(offline.get("economic_mutations_allowed", true)):
 		return _failure("cache_open_failed")
 
 	var reconnect_adapter = Adapter.new()
-	var reconnect_coordinator = Coordinator.new(reconnect_adapter)
-	var reconnect_connection: Dictionary = await reconnect_coordinator.connect_explicit_test(configuration, device_id)
+	var reconnect_runtime = RuntimeBoundary.new(reconnect_adapter)
+	var reconnect_connection: Dictionary = await reconnect_runtime.connect_explicit_test(configuration, device_id)
 	var remote: Dictionary = reconnect_connection.get("snapshot", {}) if bool(reconnect_connection.get("ok", false)) else {}
-	var reconnect_action := coordinator.reconnect_action(offline, remote)
-	coordinator.clear_cache()
-	reconnect_coordinator.reset_runtime()
+	var reconnect_action := runtime.reconnect_action(offline, remote)
+	runtime.clear_cache()
+	reconnect_runtime.reset_runtime()
 	if reconnect_action != "use_remote_snapshot":
 		return _failure("reconnect_failed")
 	var evidence := {
@@ -119,9 +106,9 @@ func run(configuration: Dictionary, device_id: String, cache_path: String) -> Di
 		"hunt_duration_seconds": int(hunt_evidence.get("hunt_duration_seconds", 0)),
 	}
 	adapter = null
-	coordinator = null
+	runtime = null
 	reconnect_adapter = null
-	reconnect_coordinator = null
+	reconnect_runtime = null
 	return evidence
 
 
@@ -205,9 +192,9 @@ static func _failure(code: String) -> Dictionary:
 	return {"ok": false, "error_code": code}
 
 
-static func _prove_archival_cutover(coordinator, device_id: String) -> bool:
+static func _prove_archival_cutover(runtime, device_id: String) -> bool:
 	var local_profile := {"character_id": "offline_hunter", "level": 8, "xp": 420, "wins": 12}
-	if coordinator.prepare_local_cutover(local_profile, false) != "archive_local_start_remote_required":
+	if runtime.prepare_local_cutover(local_profile, false) != "archive_local_start_remote_required":
 		return false
 	var save_path := "user://staging_cutover_%s.json" % device_id
 	var archive_root := "user://staging_cutover_archives_%s" % device_id
@@ -226,7 +213,7 @@ static func _prove_archival_cutover(coordinator, device_id: String) -> bool:
 		file.flush()
 		file = null
 	var source_hash := FileAccess.get_sha256(save_path)
-	var result: Dictionary = coordinator.archive_local_cutover("archive_local_start_remote", save_path, archive_root)
+	var result: Dictionary = runtime.archive_local_cutover("archive_local_start_remote", save_path, archive_root)
 	var manifest: Dictionary = result.get("manifest", {})
 	var archive_path := str(result.get("archive_path", ""))
 	var valid: bool = not result.is_empty() \

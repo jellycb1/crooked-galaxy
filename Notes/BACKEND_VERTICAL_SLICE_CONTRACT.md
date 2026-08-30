@@ -56,4 +56,6 @@ Remote profile and economy mutations pass through a separate `RemoteCommandDispa
 
 Before the coordinator writes the read-only disconnect cache, the staging lifecycle must explicitly close the dispatcher. Closing erases its account, revision and all online presentation snapshots and makes mutations unavailable. It refuses to close while a command outcome is uncertain; that command must be retried or explicitly abandoned with its identity returned for diagnostics, never silently discarded.
 
+The explicit staging path composes both objects through one `RemoteRuntimeBoundary`. It owns connection, complete-unit bootstrap, mutation refresh, ordered dispatcher closure, composite cache creation and reconnect comparison. Unknown outcomes block cache and reset; explicit diagnostic abandonment permits zeroization but the resulting stale unit can never be cached. This boundary remains explicit-test-only, is not an autoload and is absent from normal `GameState` startup.
+
 Agency UI, ranking and rewards remain prohibited before steps 1–4. Billing is a separate server-verified boundary and is not implied by this protocol.

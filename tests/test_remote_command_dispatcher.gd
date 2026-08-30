@@ -122,6 +122,9 @@ func _init() -> void:
 	var dispatcher = Dispatcher.new(adapter, "account_1")
 	var boot: Dictionary = await dispatcher.bootstrap(4)
 	check(bool(boot.get("ok", false)) and dispatcher.state() == Dispatcher.STATE_READY and dispatcher.revision() == 4, "matching character, economy, build, and hunt-board snapshots bootstrap one authoritative unit")
+	check(bool(dispatcher.character_snapshot().get("ok", false)) and bool(dispatcher.economy_snapshot().get("ok", false))
+		and bool(dispatcher.build_snapshot().get("ok", false)) and bool(dispatcher.hunt_board().get("ok", false)),
+		"every public canonical view carries an explicit successful-read marker")
 	check(str(dispatcher.character_snapshot().profile.hunter_name) == "Nova", "owned character presentation belongs to the same accepted revision")
 	check(int(dispatcher.hunt_board().revision) == 4 and str(dispatcher.hunt_board().board_id) == "board_1", "the board exposed to callers belongs to the same accepted revision")
 

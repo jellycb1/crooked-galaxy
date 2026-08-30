@@ -231,6 +231,9 @@ func _refresh_authoritative_unit(expected_revision := -1) -> Dictionary:
 		return _failure("authoritative_revision_mismatch")
 	canonical_character.ok = true
 	canonical_character.exists = true
+	canonical_economy.ok = true
+	canonical_build.ok = true
+	canonical_board.ok = true
 	_character_snapshot = canonical_character
 	_economy_snapshot = canonical_economy
 	_build_snapshot = canonical_build

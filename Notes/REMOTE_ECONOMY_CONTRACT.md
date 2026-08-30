@@ -8,6 +8,8 @@ The explicit staging path also owns one reusable command dispatcher. It keeps ch
 
 Disconnect is a coordinated state change rather than loss of transport. The coordinator first adopts a canonical character/economy/build unit whose owner, revision, wallet and inventory counts agree. The dispatcher must then close, clearing its owned account, revision, character, board, economy and build views; it cannot close over an uncertain command. Only after that boundary is inert may the coordinator atomically persist and reopen the bounded read-only unit. Expiring hunt offers and pending commands never enter that cache.
 
+One explicit-test-only runtime boundary now enforces that order for callers. It adopts every known post-command refetch into the coordinator, refuses cache or reset while transport outcome is unknown, and refuses to cache a stale unit even after explicit diagnostic abandonment. The public-TLS probe no longer orchestrates coordinator and dispatcher state independently.
+
 ## Product truth
 
 The current game remains device-authoritative. `economy_backend` is false, normal APK boot has no endpoint, and the existing local progression continues unchanged. The Nakama runtime now proves the server-owned transaction in isolation without presenting local values as server-owned.
