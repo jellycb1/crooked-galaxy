@@ -3,6 +3,8 @@ const CG_SHARD_ID = "international_1";
 const CHARACTER_COLLECTION = "cg_characters_v1";
 const CHARACTER_KEY = "primary";
 const RECEIPT_COLLECTION = "cg_command_receipts_v1";
+const AGENCY_SCHEMA_VERSION = 1;
+const AGENCY_MEMBER_LIMIT = 25;
 const ATTRIBUTE_KEYS = ["strength", "vitality", "dexterity", "intelligence", "cunning"];
 const EQUIPMENT_SLOTS = ["weapon", "helmet", "armor", "gloves", "boots", "rig", "implant", "gadget", "relic"];
 
@@ -168,6 +170,66 @@ function emptyAgencyMembershipSnapshot(expectedUserId: string): {[key: string]: 
   return {api_version: CG_API_VERSION, authority: "server", shard_id: CG_SHARD_ID, account_id: expectedUserId,
     character_id: expectedUserId, revision: 0, server_unix_ms: Date.now(), membership_state: "none",
     agency_id: "", role_id: "", agency: {}};
+}
+
+function validAgencyName(value: any): boolean {
+  return typeof value === "string" && value.length >= 3 && value.length <= 30 && value === value.trim()
+    && value.indexOf("\n") < 0 && value.indexOf("\r") < 0 && value.indexOf("\t") < 0;
+}
+
+function validAgencyProfile(value: any): boolean {
+  return value && typeof value === "object" && !Array.isArray(value) && exactKeys(value, ["name", "preferred_locale", "recruitment_mode"])
+    && validAgencyName(value.name) && ["open", "application", "invite"].indexOf(value.recruitment_mode) >= 0
+    && ["pt", "en", "multi"].indexOf(value.preferred_locale) >= 0;
+}
+
+function canonicalCgGroup(group: nkruntime.Group): nkruntime.Group | null {
+  const metadata = group && group.metadata;
+  if (!group || !validIdentifier(group.id) || !validAgencyName(group.name) || group.maxCount !== AGENCY_MEMBER_LIMIT || !metadata
+      || metadata.cg_schema_version !== AGENCY_SCHEMA_VERSION || metadata.shard_id !== CG_SHARD_ID || !validNonnegativeInteger(metadata.revision)
+      || ["open", "application", "invite"].indexOf(metadata.recruitment_mode) < 0
+      || ["pt", "en", "multi"].indexOf(metadata.preferred_locale) < 0) return null;
+  return group;
+}
+
+function userCgGroup(nk: nkruntime.Nakama, userId: string): nkruntime.UserGroupListUserGroup | null {
+  const response = nk.userGroupsList(userId, 100);
+  const entries = response.userGroups || []; let found: nkruntime.UserGroupListUserGroup | null = null;
+  for (let index = 0; index < entries.length; index++) {
+    if (!entries[index].group || !canonicalCgGroup(entries[index].group as nkruntime.Group)) continue;
+    if (found) throw Error("Character has multiple Crooked Galaxy Agency memberships.");
+    found = entries[index];
+  }
+  return found;
+}
+
+function agencyMembershipSnapshot(nk: nkruntime.Nakama, userId: string): {[key: string]: any} {
+  const entry = userCgGroup(nk, userId);
+  if (!entry || !entry.group) return emptyAgencyMembershipSnapshot(userId);
+  const group = canonicalCgGroup(entry.group); if (!group) throw Error("Agency group failed validation.");
+  const metadata = group.metadata; const revision = Number(metadata.revision);
+  if (entry.state === 3) return {api_version: CG_API_VERSION, authority: "server", shard_id: CG_SHARD_ID, account_id: userId,
+    character_id: userId, revision: revision, server_unix_ms: Date.now(), membership_state: "application_pending",
+    agency_id: group.id, role_id: "", agency: {}};
+  if (typeof entry.state !== "number" || entry.state < 0 || entry.state > 2) throw Error("Unsupported Agency membership state.");
+  const listed = nk.groupUsersList(group.id, AGENCY_MEMBER_LIMIT); const groupUsers = listed.groupUsers || []; const members: any[] = [];
+  for (let index = 0; index < groupUsers.length; index++) {
+    const groupUser = groupUsers[index]; if (!groupUser.user || typeof groupUser.state !== "number" || groupUser.state < 0 || groupUser.state > 2) continue;
+    let role = groupUser.state === 0 ? "director" : (groupUser.state === 1 ? "coordinator" : "agent");
+    if (metadata.roles && (metadata.roles[groupUser.user.userId] === "agent" || metadata.roles[groupUser.user.userId] === "recruit")) role = metadata.roles[groupUser.user.userId];
+    members.push({character_id: groupUser.user.userId, role_id: role, joined_revision: 1, weekly_eligible: true});
+  }
+  const ownRole = entry.state === 0 ? "director" : (entry.state === 1 ? "coordinator" : ((metadata.roles && metadata.roles[userId] === "recruit") ? "recruit" : "agent"));
+  return {api_version: CG_API_VERSION, authority: "server", shard_id: CG_SHARD_ID, account_id: userId, character_id: userId,
+    revision: revision, server_unix_ms: Date.now(), membership_state: "member", agency_id: group.id, role_id: ownRole,
+    agency: {authority: "server", shard_id: CG_SHARD_ID, agency_id: group.id, name: group.name, revision: revision, members: members,
+      recruitment_mode: metadata.recruitment_mode, preferred_locale: metadata.preferred_locale}};
+}
+
+function agencyReceipt(request: {[key: string]: any}, userId: string, status: string, revision: number, reason: string): {[key: string]: any} {
+  return {api_version: CG_API_VERSION, authority: "server", command_id: request.command_id, idempotency_key: request.idempotency_key,
+    operation: "agency_create", shard_id: CG_SHARD_ID, character_id: userId, status: status, server_revision: revision,
+    server_unix_ms: Date.now(), reason_code: reason};
 }
 
 function validAllocation(value: any): boolean {
@@ -479,7 +541,56 @@ function rpcBuildGet(context: nkruntime.Context, _logger: nkruntime.Logger, nk: 
 function rpcAgencyMembershipGet(context: nkruntime.Context, _logger: nkruntime.Logger, nk: nkruntime.Nakama, _payload: string): string {
   const userId = requireUser(context);
   if (!readCharacter(nk, userId)) throw Error("Active character required.");
-  return JSON.stringify(emptyAgencyMembershipSnapshot(userId));
+  return JSON.stringify(agencyMembershipSnapshot(nk, userId));
+}
+
+function rpcAgencyDirectory(context: nkruntime.Context, _logger: nkruntime.Logger, nk: nkruntime.Nakama, payload: string): string {
+  requireUser(context); const request = parsePayload(payload);
+  if (!exactKeys(request, ["cursor"]) || (typeof request.cursor !== "string") || (request.cursor && !validIdentifier(request.cursor))) throw Error("Invalid Agency directory cursor.");
+  const response = nk.groupsList(undefined, undefined, undefined, undefined, AGENCY_MEMBER_LIMIT, request.cursor || undefined);
+  const groups = response.groups || []; const summaries: any[] = [];
+  for (let index = 0; index < groups.length; index++) {
+    const group = canonicalCgGroup(groups[index]); if (!group) continue;
+    summaries.push({authority: "server", shard_id: CG_SHARD_ID, agency_id: group.id, name: group.name,
+      revision: group.metadata.revision, member_count: group.edgeCount, recruitment_mode: group.metadata.recruitment_mode,
+      preferred_locale: group.metadata.preferred_locale});
+  }
+  return JSON.stringify({api_version: CG_API_VERSION, authority: "server", shard_id: CG_SHARD_ID, server_unix_ms: Date.now(),
+    cursor: request.cursor || "", next_cursor: response.cursor || "", agencies: summaries});
+}
+
+function rpcAgencyCreate(context: nkruntime.Context, logger: nkruntime.Logger, nk: nkruntime.Nakama, payload: string): string {
+  const userId = requireUser(context); const request = parsePayload(payload); const profile = request.payload;
+  if (!validCommandEnvelope(request, userId, "agency_create") || !validAgencyProfile(profile)) throw Error("Invalid Agency creation command.");
+  if (!readCharacter(nk, userId)) return JSON.stringify(agencyReceipt(request, userId, "rejected", 0, "character_missing"));
+  const fingerprint = [request.command_id, request.expected_revision, profile.name, profile.recruitment_mode, profile.preferred_locale].join("|");
+  const receipts = nk.storageRead([{collection: RECEIPT_COLLECTION, key: request.idempotency_key, userId: userId}]);
+  if (receipts.length === 1) {
+    const saved = receipts[0].value as {[key: string]: any};
+    if (saved.operation !== "agency_create" || saved.fingerprint !== fingerprint) return JSON.stringify(agencyReceipt(request, userId, "rejected", Number(saved.server_revision || 0), "idempotency_mismatch"));
+    return JSON.stringify(agencyReceipt(request, userId, "duplicate", Number(saved.server_revision), ""));
+  }
+  const current = userCgGroup(nk, userId);
+  if (current && current.group) {
+    const metadata = current.group.metadata || {};
+    if (metadata.creation_idempotency_key === request.idempotency_key && metadata.creation_fingerprint === fingerprint) {
+      nk.storageWrite([{collection: RECEIPT_COLLECTION, key: request.idempotency_key, userId: userId,
+        value: {operation: "agency_create", fingerprint: fingerprint, server_revision: Number(metadata.revision)}, permissionRead: 0, permissionWrite: 0}]);
+      return JSON.stringify(agencyReceipt(request, userId, "duplicate", Number(metadata.revision), ""));
+    }
+    return JSON.stringify(agencyReceipt(request, userId, "rejected", Number(metadata.revision || 0), "already_member"));
+  }
+  if (request.expected_revision !== 0) return JSON.stringify(agencyReceipt(request, userId, "conflict", 0, "revision_conflict"));
+  const roles: {[key: string]: string} = {}; roles[userId] = "director";
+  const metadata = {cg_schema_version: AGENCY_SCHEMA_VERSION, shard_id: CG_SHARD_ID, revision: 1,
+    recruitment_mode: profile.recruitment_mode, preferred_locale: profile.preferred_locale, roles: roles,
+    creation_idempotency_key: request.idempotency_key, creation_fingerprint: fingerprint};
+  const group = nk.groupCreate(userId, profile.name, userId, profile.preferred_locale, "", "", profile.recruitment_mode === "open", metadata, AGENCY_MEMBER_LIMIT);
+  try {
+    nk.storageWrite([{collection: RECEIPT_COLLECTION, key: request.idempotency_key, userId: userId,
+      value: {operation: "agency_create", fingerprint: fingerprint, server_revision: 1}, permissionRead: 0, permissionWrite: 0}]);
+  } catch (error) { logger.warn("Agency %s created with recoverable receipt write failure: %s", group.id, String(error)); }
+  return JSON.stringify(agencyReceipt(request, userId, "accepted", 1, ""));
 }
 
 function rpcAttributeAllocate(context: nkruntime.Context, _logger: nkruntime.Logger, nk: nkruntime.Nakama, payload: string): string {
@@ -759,6 +870,8 @@ const InitModule: nkruntime.InitModule = function (_context: nkruntime.Context, 
   initializer.registerRpc("cg_economy_get", rpcEconomyGet);
   initializer.registerRpc("cg_build_get", rpcBuildGet);
   initializer.registerRpc("cg_agency_membership_get", rpcAgencyMembershipGet);
+  initializer.registerRpc("cg_agency_directory", rpcAgencyDirectory);
+  initializer.registerRpc("cg_agency_create", rpcAgencyCreate);
   initializer.registerRpc("cg_attribute_allocate", rpcAttributeAllocate);
   initializer.registerRpc("cg_inventory_equip", rpcInventoryEquip);
   initializer.registerRpc("cg_inventory_recycle", rpcInventoryRecycle);

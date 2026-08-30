@@ -1,6 +1,6 @@
 # Crooked Galaxy — contrato das Agências de Caçadores
 
-Estado: direção de produto aprovada, fundação de regras implementada, limite cliente preparado e leitura canónica de “sem Agência” provada no backend local. Não existe ainda membership mutável, diretório, roster real, UI social ou recompensa online; o cliente local não deve fingir o contrário.
+Estado: direção de produto aprovada, fundação de regras implementada e criação inicial/diretório/membership real provados no backend local. Não existem ainda candidatura, saída, gestão de roster/cargos, UI social ou recompensa online; o cliente normal não deve fingir o contrário.
 
 O protocolo partilhado de versão da API, UTC do servidor, snapshots de personagem, comandos idempotentes e recibos está definido em `BACKEND_VERTICAL_SLICE_CONTRACT.md`. Os registos de Agência podem especializar esse envelope, mas nunca contorná-lo.
 
@@ -40,9 +40,9 @@ O acesso de produto abre no nível 8, depois de o jogador conhecer mandados, equ
 
 O APK local atual mantém `agency_backend = false`. Não deve mostrar roster inventado, bots apresentados como jogadores, chat falso ou estado “online”.
 
-O limite `RemoteAgencyDispatcher` existe apenas como infraestrutura online isolada. Ele exige ownership autenticado, mantém revisão social separada da economia, aceita uma única intenção de candidatura/saída por vez, repete resultados incertos apenas com a identidade original e apaga toda a apresentação social ao fechar. Não é autoload, não entra em `GameState` e não possui cache offline. O RPC local `cg_agency_membership_get` devolve apenas o estado verdadeiro `none` para uma personagem autenticada; ainda não permite descobrir, criar, candidatar-se ou sair de uma Agência.
+O limite `RemoteAgencyDispatcher` existe apenas como infraestrutura online isolada. Ele exige ownership autenticado, mantém revisão social separada da economia, aceita uma única intenção por vez, repete resultados incertos apenas com a identidade original e apaga toda a apresentação social ao fechar. Não é autoload, não entra em `GameState` e não possui cache offline. Os RPCs locais já leem membership, listam páginas de Diretório e criam uma Agência inicial com o criador como Diretor; candidatura, saída e gestão continuam ausentes.
 
-O contrato futuro de descoberta expõe páginas de no máximo 25 resumos, sem nomes ou IDs de membros: identidade e nome da Agência, revisão social, contagem, modo de recrutamento, locale preferido e capacidade calculada. Cursores e IDs duplicados falham fechados. A criação envia apenas nome sem espaços exteriores, modo `open`/`application`/`invite` e locale `pt`/`en`/`multi`; o servidor gera o ID e nunca aceita roster, cargo, Prestígio ou saldo do cliente. Este envelope está reservado e testado, mas não está ligado ao dispatcher nem implementado no backend.
+O Diretório expõe páginas de no máximo 25 resumos, sem nomes ou IDs de membros: identidade e nome da Agência, revisão social, contagem, modo de recrutamento, locale preferido e capacidade calculada. Cursores e IDs duplicados falham fechados. A criação envia apenas nome sem espaços exteriores, modo `open`/`application`/`invite` e locale `pt`/`en`/`multi`; Nakama gera o ID, cria o grupo com limite 25 e liga o criador como único Diretor. O marcador idempotente fica também nos metadados do grupo para uma repetição recuperar uma criação mesmo se o recibo separado falhar. Roster, cargo, Prestígio e saldo nunca são aceites do cliente.
 
 ## Mandado de Agência semanal
 
@@ -101,7 +101,7 @@ Chat, denúncias, bloqueios, moderação de nomes, histórico administrativo e a
 ## Ordem de implementação
 
 1. conta autenticada, relógio e personagem autoritativos;
-2. endpoint de Agência, roster, cargos, candidatura e revisões — leitura vazia e limite cliente provados localmente; storage, diretório e mutações ainda pendentes;
+2. endpoint de Agência, roster, cargos, candidatura e revisões — criação, Diretório e membership inicial provados localmente; candidatura, saída e gestão ainda pendentes;
 3. Mandado semanal e eventos idempotentes;
 4. recompensas e Prestígio transacionais;
 5. UI de Agência e Sede;

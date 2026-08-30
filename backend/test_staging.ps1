@@ -66,6 +66,37 @@ if ([string]$AgencyMembership.account_id -ne $AccountId -or [string]$AgencyMembe
     -or -not [string]::IsNullOrEmpty([string]$AgencyMembership.agency_id) -or @($AgencyMembership.agency.PSObject.Properties).Count -ne 0) {
     throw "Fresh staging character did not return the canonical independent no-Agency membership snapshot."
 }
+$AgencyDirectoryBefore = Invoke-StagingRpc -Name "cg_agency_directory" -Payload @{ cursor = "" }
+if ([string]$AgencyDirectoryBefore.authority -ne "server" -or [string]$AgencyDirectoryBefore.shard_id -ne "international_1" -or @($AgencyDirectoryBefore.agencies).Count -gt 25) {
+    throw "Staging Agency directory did not return a bounded server page."
+}
+$AgencyCreatePayload = @{
+    api_version = 1; command_id = "stage-agency-$RunId"; idempotency_key = "stage-agency-receipt-$RunId"; operation = "agency_create"
+    session_id = $AccountId; shard_id = "international_1"; character_id = $AccountId; expected_revision = 0
+    payload = @{ name = "Stage $($RunId.Substring(0, 8))"; recruitment_mode = "application"; preferred_locale = "multi" }
+}
+$AgencyCreated = Invoke-StagingRpc -Name "cg_agency_create" -Payload $AgencyCreatePayload
+$AgencyReplay = Invoke-StagingRpc -Name "cg_agency_create" -Payload $AgencyCreatePayload
+if ([string]$AgencyCreated.status -ne "accepted" -or [int]$AgencyCreated.server_revision -ne 1 -or [string]$AgencyReplay.status -ne "duplicate") {
+    throw "Staging Agency creation did not preserve its independent revision and exact idempotency."
+}
+$AgencyMembership = Invoke-StagingRpc -Name "cg_agency_membership_get" -Payload @{}
+if ([string]$AgencyMembership.membership_state -ne "member" -or [string]$AgencyMembership.role_id -ne "director" `
+    -or [int]$AgencyMembership.revision -ne 1 -or @($AgencyMembership.agency.members).Count -ne 1 `
+    -or [string]$AgencyMembership.agency.members[0].character_id -ne $AccountId) {
+    throw "Staging Agency did not bind its creator as the sole canonical Director."
+}
+$AgencyCursor = ""
+$CreatedSummary = @()
+for ($AgencyPageIndex = 0; $AgencyPageIndex -lt 20 -and $CreatedSummary.Count -eq 0; $AgencyPageIndex++) {
+    $AgencyDirectoryAfter = Invoke-StagingRpc -Name "cg_agency_directory" -Payload @{ cursor = $AgencyCursor }
+    $CreatedSummary = @($AgencyDirectoryAfter.agencies | Where-Object { [string]$_.agency_id -eq [string]$AgencyMembership.agency_id })
+    $AgencyCursor = [string]$AgencyDirectoryAfter.next_cursor
+    if ([string]::IsNullOrEmpty($AgencyCursor)) { break }
+}
+if ($CreatedSummary.Count -ne 1 -or [int]$CreatedSummary[0].member_count -ne 1 -or [string]$CreatedSummary[0].recruitment_mode -ne "application") {
+    throw "Created staging Agency is missing from the bounded roster-free directory."
+}
 $Build = Invoke-StagingRpc -Name "cg_build_get" -Payload @{}
 if ([int]$Build.revision -ne 0 -or [int]$Build.build.base_power -ne 10 -or [int]$Build.build.stat_points -ne 0 -or @($Build.build.inventory).Count -ne 0 -or [string]$Build.build.equipment.weapon.id -ne "starter_weapon") {
     throw "Staging exact starter build snapshot is invalid."
@@ -98,4 +129,4 @@ if ([string]$Conflict.status -ne "conflict" -or [int]$Conflict.server_revision -
     throw "Staging stale revision did not return the canonical conflict."
 }
 
-Write-Host "PASS: public TLS, HSTS, authentication, UTC, character/build/Agency ownership, authority rejection, revisions, idempotency, and conflicts pass on staging."
+Write-Host "PASS: public TLS, HSTS, authentication, UTC, character/build ownership, Agency creation/directory, authority rejection, revisions, idempotency, and conflicts pass on staging."

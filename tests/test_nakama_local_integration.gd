@@ -57,9 +57,20 @@ func run_integration() -> void:
 	check(bool(session_summary.get("ok", false)) and str(session_summary.get("session_state", "")) == "authenticated", "Godot canonicalized the authenticated post-creation session")
 	check(str(session_summary.get("active_character_id", "")) == str(authentication.get("account_id", "")) and session_summary.get("owned_character_ids", []).size() == 1, "session binds exactly the account-owned active character")
 	var agency_dispatcher = AgencyDispatcher.new(adapter, str(authentication.get("account_id", "")))
-	var agency_bootstrap: Dictionary = await agency_dispatcher.bootstrap(0)
-	check(bool(agency_bootstrap.get("ok", false)) and str(agency_dispatcher.snapshot().get("membership_state", "")) == "none",
-		"Godot canonicalized the independent server-owned no-Agency membership")
+	var agency_bootstrap: Dictionary = await agency_dispatcher.bootstrap()
+	check(bool(agency_bootstrap.get("ok", false)), "Godot canonicalized independent server-owned Agency membership")
+	if str(agency_dispatcher.snapshot().get("membership_state", "")) == "none":
+		var agency_nonce := str(int(Time.get_unix_time_from_system() * 1000.0))
+		var agency_created: Dictionary = await agency_dispatcher.dispatch_create("godot-agency-%s" % agency_nonce,
+			"godot-agency-receipt-%s" % agency_nonce, "Godot Recovery", "application", "multi")
+		check(bool(agency_created.get("ok", false)) and str(agency_dispatcher.snapshot().get("role_id", "")) == "director",
+			"Godot created an Agency and refetched its sole-Director membership")
+	else:
+		check(str(agency_dispatcher.snapshot().get("membership_state", "")) == "member" and str(agency_dispatcher.snapshot().get("role_id", "")) == "director",
+			"repeat integration recovered the existing owned Agency without creating another")
+	var agency_directory: Dictionary = await adapter.get_agency_directory("")
+	check(bool(agency_directory.get("ok", false)) and agency_directory.get("agencies", []).size() <= 25,
+		"Godot canonicalized a bounded roster-free Agency directory page")
 	check(bool(agency_dispatcher.close().get("ok", false)) and agency_dispatcher.snapshot().is_empty(),
 		"Agency presentation zeroized without clearing the shared authenticated adapter")
 	var initial_revision := int(replay.get("revision", -1))
@@ -98,7 +109,7 @@ func run_integration() -> void:
 
 func finish() -> void:
 	if failures == 0:
-		print("PASS: official Nakama Godot client authenticated, canonicalized independent Agency membership, committed, retried, conflicted, and refetched authoritative state")
+		print("PASS: official Nakama Godot client authenticated, created/recovered Agency membership and directory, committed, retried, conflicted, and refetched authoritative state")
 		quit(0)
 	else:
 		printerr("FAIL: %d local Nakama integration issue(s)" % failures)

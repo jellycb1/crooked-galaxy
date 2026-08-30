@@ -11,7 +11,8 @@ const STATE_MEMBER := "member"
 const STATES := [STATE_NONE, STATE_APPLICATION_PENDING, STATE_MEMBER]
 const OP_APPLY := "agency_apply"
 const OP_LEAVE := "agency_leave"
-const OPERATIONS := [OP_APPLY, OP_LEAVE]
+const OP_CREATE := "agency_create"
+const OPERATIONS := [OP_CREATE, OP_APPLY, OP_LEAVE]
 
 
 static func canonical_directory_page(response: Dictionary) -> Dictionary:

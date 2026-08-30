@@ -107,6 +107,37 @@ if ([string]$AgencyMembership.account_id -ne $AccountId -or [string]$AgencyMembe
     -or -not [string]::IsNullOrEmpty([string]$AgencyMembership.agency_id) -or @($AgencyMembership.agency.PSObject.Properties).Count -ne 0) {
     throw "Fresh character did not return the canonical independent no-Agency membership snapshot."
 }
+$AgencyDirectoryBefore = Invoke-CgRpc -Name "cg_agency_directory" -Payload @{ cursor = "" }
+if ([string]$AgencyDirectoryBefore.authority -ne "server" -or [string]$AgencyDirectoryBefore.shard_id -ne "international_1" -or @($AgencyDirectoryBefore.agencies).Count -gt 25) {
+    throw "Agency directory did not return a bounded server page."
+}
+$AgencyCreatePayload = @{
+    api_version = 1; command_id = "agency-create-$RunId"; idempotency_key = "agency-create-receipt-$RunId"; operation = "agency_create"
+    session_id = $AccountId; shard_id = "international_1"; character_id = $AccountId; expected_revision = 0
+    payload = @{ name = "Nova $($RunId.Substring(0, 8))"; recruitment_mode = "application"; preferred_locale = "multi" }
+}
+$AgencyCreated = Invoke-CgRpc -Name "cg_agency_create" -Payload $AgencyCreatePayload
+$AgencyReplay = Invoke-CgRpc -Name "cg_agency_create" -Payload $AgencyCreatePayload
+if ([string]$AgencyCreated.status -ne "accepted" -or [int]$AgencyCreated.server_revision -ne 1 -or [string]$AgencyReplay.status -ne "duplicate") {
+    throw "Agency creation did not preserve its independent revision and exact idempotency."
+}
+$AgencyMembership = Invoke-CgRpc -Name "cg_agency_membership_get" -Payload @{}
+if ([string]$AgencyMembership.membership_state -ne "member" -or [string]$AgencyMembership.role_id -ne "director" `
+    -or [int]$AgencyMembership.revision -ne 1 -or @($AgencyMembership.agency.members).Count -ne 1 `
+    -or [string]$AgencyMembership.agency.members[0].character_id -ne $AccountId) {
+    throw "Created Agency did not bind its creator as the sole canonical Director."
+}
+$AgencyCursor = ""
+$CreatedSummary = @()
+for ($AgencyPageIndex = 0; $AgencyPageIndex -lt 20 -and $CreatedSummary.Count -eq 0; $AgencyPageIndex++) {
+    $AgencyDirectoryAfter = Invoke-CgRpc -Name "cg_agency_directory" -Payload @{ cursor = $AgencyCursor }
+    $CreatedSummary = @($AgencyDirectoryAfter.agencies | Where-Object { [string]$_.agency_id -eq [string]$AgencyMembership.agency_id })
+    $AgencyCursor = [string]$AgencyDirectoryAfter.next_cursor
+    if ([string]::IsNullOrEmpty($AgencyCursor)) { break }
+}
+if ($CreatedSummary.Count -ne 1 -or [int]$CreatedSummary[0].member_count -ne 1 -or [string]$CreatedSummary[0].recruitment_mode -ne "application") {
+    throw "Created Agency is missing from the bounded roster-free directory."
+}
 
 $CommandId = "commit-$RunId"
 $CommitPayload = @{

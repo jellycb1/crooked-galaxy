@@ -48,11 +48,22 @@ func bootstrap(expected_revision := -1) -> Dictionary:
 func dispatch(command_id: String, idempotency_key: String, operation: String, agency_id: String) -> Dictionary:
 	if _state != STATE_READY or not _pending_command.is_empty():
 		return _failure("ready_agency_runtime_required")
-	if operation not in AgencyRemote.OPERATIONS:
+	if operation not in [AgencyRemote.OP_APPLY, AgencyRemote.OP_LEAVE]:
 		return _failure("invalid_agency_operation")
 	var command := Protocol.make_command(command_id, idempotency_key, operation, _account_id, _account_id, _revision, {"agency_id": agency_id})
 	if command.is_empty():
 		return _failure("invalid_agency_command")
+	_pending_command = command
+	return await _submit_pending()
+
+
+func dispatch_create(command_id: String, idempotency_key: String, name: String, recruitment_mode: String, preferred_locale: String) -> Dictionary:
+	if _state != STATE_READY or not _pending_command.is_empty():
+		return _failure("ready_agency_runtime_required")
+	var command := Protocol.make_command(command_id, idempotency_key, AgencyRemote.OP_CREATE, _account_id, _account_id, _revision,
+		{"name": name, "recruitment_mode": recruitment_mode, "preferred_locale": preferred_locale})
+	if command.is_empty():
+		return _failure("invalid_agency_create_command")
 	_pending_command = command
 	return await _submit_pending()
 
@@ -93,6 +104,9 @@ func _submit_pending() -> Dictionary:
 
 
 func _route(command: Dictionary) -> Dictionary:
+	if str(command.operation) == AgencyRemote.OP_CREATE:
+		return await _adapter.create_agency(str(command.command_id), str(command.idempotency_key), int(command.expected_revision),
+			str(command.payload.name), str(command.payload.recruitment_mode), str(command.payload.preferred_locale))
 	if str(command.operation) == AgencyRemote.OP_APPLY:
 		return await _adapter.apply_to_agency(str(command.command_id), str(command.idempotency_key), int(command.expected_revision), str(command.payload.agency_id))
 	return await _adapter.leave_agency(str(command.command_id), str(command.idempotency_key), int(command.expected_revision), str(command.payload.agency_id))

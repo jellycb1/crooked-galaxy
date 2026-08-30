@@ -15,6 +15,8 @@ const ECONOMY_GET_RPC := "cg_economy_get"
 const BUILD_GET_RPC := "cg_build_get"
 const HUNT_BOARD_RPC := "cg_hunt_board"
 const AGENCY_MEMBERSHIP_GET_RPC := "cg_agency_membership_get"
+const AGENCY_DIRECTORY_RPC := "cg_agency_directory"
+const AGENCY_CREATE_RPC := "cg_agency_create"
 const COMMAND_RPCS := {
 	Economy.OP_HUNT_ACCEPT: "cg_hunt_accept",
 	Economy.OP_HUNT_RESOLVE: "cg_hunt_resolve",
@@ -222,6 +224,30 @@ func get_agency_membership() -> Dictionary:
 		return _failure("invalid_agency_membership_snapshot")
 	canonical.ok = true
 	return canonical
+
+
+func get_agency_directory(cursor := "") -> Dictionary:
+	var envelope := await _rpc_dictionary(AGENCY_DIRECTORY_RPC, {"cursor": cursor})
+	var canonical := RemoteAgency.canonical_directory_page(envelope)
+	if canonical.is_empty():
+		return _failure("invalid_agency_directory_page")
+	canonical.ok = true
+	return canonical
+
+
+func create_agency(command_id: String, idempotency_key: String, expected_revision: int, name: String, recruitment_mode: String, preferred_locale: String) -> Dictionary:
+	if not has_authenticated_session():
+		return _failure("authenticated_session_required")
+	var command := Protocol.make_command(command_id, idempotency_key, RemoteAgency.OP_CREATE, account_id(), account_id(), expected_revision,
+		{"name": name, "recruitment_mode": recruitment_mode, "preferred_locale": preferred_locale})
+	if command.is_empty():
+		return _failure("invalid_agency_create_command")
+	var envelope := await _rpc_dictionary(AGENCY_CREATE_RPC, command)
+	var receipt := Protocol.canonical_command_receipt(envelope, command)
+	if receipt.is_empty():
+		return _failure("invalid_agency_create_receipt")
+	receipt.ok = true
+	return receipt
 
 
 func get_hunt_board() -> Dictionary:
