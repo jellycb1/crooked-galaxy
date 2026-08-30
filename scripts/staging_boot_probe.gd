@@ -55,7 +55,7 @@ func _probe_request() -> Dictionary:
 
 func _finish(result: Dictionary) -> void:
 	if bool(result.get("ok", false)):
-		print("PASS: normal main-scene boot reached TLS staging, archival cutover, authoritative profile, read-only cache, and clean reconnect")
+		print("PASS: normal main-scene boot completed TLS staging, archival cutover, authoritative hunt/reward/equipment, read-only cache, and clean reconnect")
 		call_deferred("_quit_probe", 0)
 	else:
 		printerr("FAIL: staging normal-boot probe: %s" % str(result.get("error_code", "unknown")))

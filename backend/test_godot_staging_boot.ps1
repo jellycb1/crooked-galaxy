@@ -44,4 +44,4 @@ try {
     [Environment]::SetEnvironmentVariable("CG_STAGING_DEVICE_ID", $PreviousDevice, "Process")
     $ClientKey = $null
 }
-Write-Host "PASS: normal Godot boot completed the public TLS, archival-cutover, cache, and reconnect probe without persisting or printing the client key."
+Write-Host "PASS: normal Godot boot completed public TLS, archival cutover, an authored-duration hunt, reward/equipment mutations, cache, and reconnect without persisting or printing the client key."

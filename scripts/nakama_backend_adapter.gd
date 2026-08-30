@@ -3,12 +3,24 @@ extends RefCounted
 
 const Deployment = preload("res://scripts/backend_deployment_rules.gd")
 const Protocol = preload("res://scripts/backend_protocol_rules.gd")
+const Economy = preload("res://scripts/remote_economy_rules.gd")
 
 const CLOCK_RPC := "cg_clock"
 const SESSION_RPC := "cg_session"
 const CHARACTER_GET_RPC := "cg_character_get"
 const CHARACTER_CREATE_RPC := "cg_character_create"
 const CHARACTER_COMMIT_RPC := "cg_character_commit"
+const ECONOMY_GET_RPC := "cg_economy_get"
+const BUILD_GET_RPC := "cg_build_get"
+const HUNT_BOARD_RPC := "cg_hunt_board"
+const COMMAND_RPCS := {
+	Economy.OP_HUNT_ACCEPT: "cg_hunt_accept",
+	Economy.OP_HUNT_RESOLVE: "cg_hunt_resolve",
+	Economy.OP_REWARD_CLAIM: "cg_reward_claim",
+	Economy.OP_ATTRIBUTE_ALLOCATE: "cg_attribute_allocate",
+	Economy.OP_INVENTORY_EQUIP: "cg_inventory_equip",
+	Economy.OP_INVENTORY_RECYCLE: "cg_inventory_recycle",
+}
 const DEVELOPMENT_PROVIDER := "nakama_device"
 const DEFAULT_TIMEOUT_SECONDS := 5
 
@@ -183,6 +195,59 @@ func commit_profile(command_id: String, idempotency_key: String, expected_revisi
 	return receipt
 
 
+func get_economy() -> Dictionary:
+	var envelope := await _rpc_dictionary(ECONOMY_GET_RPC, {})
+	var canonical := Economy.canonical_economy_snapshot(envelope, account_id(), account_id())
+	if canonical.is_empty():
+		return _failure("invalid_economy_snapshot")
+	canonical.ok = true
+	return canonical
+
+
+func get_build() -> Dictionary:
+	var envelope := await _rpc_dictionary(BUILD_GET_RPC, {})
+	var canonical := Economy.canonical_build_snapshot(envelope, account_id(), account_id())
+	if canonical.is_empty():
+		return _failure("invalid_build_snapshot")
+	canonical.ok = true
+	return canonical
+
+
+func get_hunt_board() -> Dictionary:
+	var envelope := await _rpc_dictionary(HUNT_BOARD_RPC, {})
+	var canonical := Economy.canonical_hunt_board(envelope, account_id(), account_id())
+	if canonical.is_empty():
+		return _failure("invalid_hunt_board")
+	canonical.ok = true
+	return canonical
+
+
+func accept_hunt(command_id: String, idempotency_key: String, expected_revision: int, board_id: String, offer_id: String, target_id: String, approach_id: String) -> Dictionary:
+	return await _submit_economy_command(command_id, idempotency_key, Economy.OP_HUNT_ACCEPT, expected_revision,
+		{"board_id": board_id, "offer_id": offer_id, "target_id": target_id, "approach_id": approach_id})
+
+
+func resolve_hunt(command_id: String, idempotency_key: String, expected_revision: int, hunt_id: String) -> Dictionary:
+	return await _submit_economy_command(command_id, idempotency_key, Economy.OP_HUNT_RESOLVE, expected_revision, {"hunt_id": hunt_id})
+
+
+func claim_reward(command_id: String, idempotency_key: String, expected_revision: int, hunt_id: String, reward_id: String, decision: String) -> Dictionary:
+	return await _submit_economy_command(command_id, idempotency_key, Economy.OP_REWARD_CLAIM, expected_revision,
+		{"hunt_id": hunt_id, "reward_id": reward_id, "decision": decision})
+
+
+func allocate_attributes(command_id: String, idempotency_key: String, expected_revision: int, allocations: Dictionary) -> Dictionary:
+	return await _submit_build_command(command_id, idempotency_key, Economy.OP_ATTRIBUTE_ALLOCATE, expected_revision, {"allocations": allocations})
+
+
+func equip_item(command_id: String, idempotency_key: String, expected_revision: int, item_id: String) -> Dictionary:
+	return await _submit_build_command(command_id, idempotency_key, Economy.OP_INVENTORY_EQUIP, expected_revision, {"item_id": item_id})
+
+
+func recycle_item(command_id: String, idempotency_key: String, expected_revision: int, item_id: String) -> Dictionary:
+	return await _submit_build_command(command_id, idempotency_key, Economy.OP_INVENTORY_RECYCLE, expected_revision, {"item_id": item_id})
+
+
 func account_id() -> String:
 	return str(_session.user_id) if has_authenticated_session() else ""
 
@@ -212,6 +277,37 @@ func _rpc_dictionary(rpc_id: String, payload: Dictionary) -> Dictionary:
 		return {}
 	var parsed = JSON.parse_string(str(response.payload))
 	return parsed if parsed is Dictionary else {}
+
+
+func _submit_economy_command(command_id: String, idempotency_key: String, operation: String, expected_revision: int, payload: Dictionary) -> Dictionary:
+	return await _submit_command(command_id, idempotency_key, operation, expected_revision, payload, false)
+
+
+func _submit_build_command(command_id: String, idempotency_key: String, operation: String, expected_revision: int, payload: Dictionary) -> Dictionary:
+	return await _submit_command(command_id, idempotency_key, operation, expected_revision, payload, true)
+
+
+func _submit_command(command_id: String, idempotency_key: String, operation: String, expected_revision: int, payload: Dictionary, build_snapshot: bool) -> Dictionary:
+	if not has_authenticated_session() or not COMMAND_RPCS.has(operation):
+		return _failure("authenticated_session_required")
+	var command := Protocol.make_command(command_id, idempotency_key, operation, account_id(), account_id(), expected_revision, payload)
+	if command.is_empty():
+		return _failure("invalid_%s_command" % operation)
+	var envelope := await _rpc_dictionary(str(COMMAND_RPCS[operation]), command)
+	if envelope.is_empty():
+		return _failure("%s_rpc_failed" % operation)
+	var receipt := Protocol.canonical_command_receipt(envelope, command)
+	if receipt.is_empty():
+		return _failure("invalid_%s_receipt" % operation)
+	var snapshot_envelope = envelope.get("snapshot", {})
+	if snapshot_envelope is Dictionary and not snapshot_envelope.is_empty():
+		var canonical_snapshot := Economy.canonical_build_snapshot(snapshot_envelope, account_id(), account_id()) if build_snapshot \
+			else Economy.canonical_economy_snapshot(snapshot_envelope, account_id(), account_id())
+		if canonical_snapshot.is_empty():
+			return _failure("invalid_%s_snapshot" % operation)
+		receipt.snapshot = canonical_snapshot
+	receipt.ok = true
+	return receipt
 
 
 static func _valid_development_identifier(value: String, minimum: int, maximum: int) -> bool:

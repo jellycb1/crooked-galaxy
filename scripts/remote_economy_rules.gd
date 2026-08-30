@@ -20,6 +20,8 @@ const REWARD_STORE := "store"
 const REWARD_EQUIP := "equip"
 const REWARD_RECYCLE := "recycle"
 const REWARD_DECISIONS := [REWARD_STORE, REWARD_EQUIP, REWARD_RECYCLE]
+const MAX_HUNT_OFFERS := 3
+const MAX_HUNT_APPROACHES := 3
 
 const FORBIDDEN_CLIENT_AUTHORITY_KEYS := {
 	"level": true,
@@ -183,6 +185,62 @@ static func canonical_build_snapshot(response: Dictionary, expected_account_id: 
 			"inventory_revision": int(build.inventory_revision), "equipment": canonical_equipment, "inventory": canonical_inventory}}
 
 
+static func canonical_hunt_board(response: Dictionary, expected_account_id: String, expected_character_id: String) -> Dictionary:
+	if int(response.get("api_version", -1)) != API_VERSION or str(response.get("authority", "")) != "server" or str(response.get("shard_id", "")) != SHARD_ID:
+		return {}
+	if str(response.get("account_id", "")) != expected_account_id or str(response.get("character_id", "")) != expected_character_id:
+		return {}
+	var revision := int(response.get("revision", -1))
+	var server_unix_ms := int(response.get("server_unix_ms", -1))
+	var board_id := str(response.get("board_id", ""))
+	var content_hash := str(response.get("content_hash", ""))
+	var offers = response.get("offers", null)
+	if revision < 0 or not _valid_unix_ms(server_unix_ms) or not _valid_identifier(board_id) or not _valid_hash(content_hash):
+		return {}
+	if not offers is Array or offers.is_empty() or offers.size() > MAX_HUNT_OFFERS:
+		return {}
+	var canonical_offers: Array = []
+	var offer_ids := {}
+	for value in offers:
+		var offer := _canonical_hunt_offer(value)
+		if offer.is_empty() or offer_ids.has(offer.offer_id):
+			return {}
+		offer_ids[offer.offer_id] = true
+		canonical_offers.append(offer)
+	return {"api_version": API_VERSION, "authority": "server", "shard_id": SHARD_ID,
+		"account_id": expected_account_id, "character_id": expected_character_id, "revision": revision,
+		"server_unix_ms": server_unix_ms, "content_hash": content_hash, "board_id": board_id, "offers": canonical_offers}
+
+
+static func _canonical_hunt_offer(value: Variant) -> Dictionary:
+	if not value is Dictionary or not _has_exact_keys(value, ["offer_id", "target_id", "planet_id", "role_id", "approach_ids", "duration_seconds", "fuel_cost", "approaches"]):
+		return {}
+	for key in ["offer_id", "target_id", "planet_id", "role_id"]:
+		if not _valid_identifier(str(value[key])):
+			return {}
+	if not _is_positive_integer(value.duration_seconds) or not _is_positive_integer(value.fuel_cost):
+		return {}
+	if not value.approach_ids is Array or not value.approaches is Array or value.approach_ids.is_empty() or value.approach_ids.size() > MAX_HUNT_APPROACHES or value.approach_ids.size() != value.approaches.size():
+		return {}
+	var approach_ids: Array = []
+	var approaches: Array = []
+	for index in value.approach_ids.size():
+		var approach_id := str(value.approach_ids[index])
+		var approach = value.approaches[index]
+		if not _valid_identifier(approach_id) or approach_ids.has(approach_id) or not approach is Dictionary:
+			return {}
+		for required in ["approach_id", "duration_seconds", "fuel_cost"]:
+			if not approach.has(required):
+				return {}
+		if str(approach.approach_id) != approach_id or not _is_positive_integer(approach.duration_seconds) or not _is_positive_integer(approach.fuel_cost):
+			return {}
+		approach_ids.append(approach_id)
+		approaches.append({"approach_id": approach_id, "duration_seconds": int(approach.duration_seconds), "fuel_cost": int(approach.fuel_cost)})
+	return {"offer_id": str(value.offer_id), "target_id": str(value.target_id), "planet_id": str(value.planet_id),
+		"role_id": str(value.role_id), "approach_ids": approach_ids, "duration_seconds": int(value.duration_seconds),
+		"fuel_cost": int(value.fuel_cost), "approaches": approaches}
+
+
 static func _canonical_item(value: Variant, expected_slot: String, allow_empty: bool) -> Dictionary:
 	if not value is Dictionary:
 		return {}
@@ -282,6 +340,16 @@ static func _valid_identifier(value: String) -> bool:
 		var code := value.unicode_at(index)
 		var allowed := (code >= 97 and code <= 122) or (code >= 48 and code <= 57) or code in [45, 46, 95]
 		if not allowed:
+			return false
+	return true
+
+
+static func _valid_hash(value: String) -> bool:
+	if value.length() != 64:
+		return false
+	for index in value.length():
+		var code := value.unicode_at(index)
+		if not ((code >= 48 and code <= 57) or (code >= 97 and code <= 102)):
 			return false
 	return true
 

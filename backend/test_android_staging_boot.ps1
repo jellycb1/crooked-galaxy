@@ -124,13 +124,15 @@ try {
     & $Adb -s $Serial shell monkey -p $PackageName -c android.intent.category.LAUNCHER 1 *> $null
     if ($LASTEXITCODE -ne 0) { throw "Could not launch Crooked Galaxy on the device." }
 
-    $Deadline = [DateTime]::UtcNow.AddSeconds(90)
+    # A fresh staging hunter follows the real 147-second starter route. Leave
+    # bounded room for Android cold start, TLS, reward mutations and reconnect.
+    $Deadline = [DateTime]::UtcNow.AddSeconds(240)
     $ProbeLog = ""
     do {
         Start-Sleep -Milliseconds 750
         $ProbeLog = (& $Adb -s $Serial logcat -d -v threadtime 2>&1) -join "`n"
         if ($ProbeLog.Contains('FAIL: staging normal-boot probe:')) { break }
-    } while (-not $ProbeLog.Contains('PASS: normal main-scene boot reached TLS staging') -and [DateTime]::UtcNow -lt $Deadline)
+    } while (-not $ProbeLog.Contains('PASS: normal main-scene boot completed TLS staging') -and [DateTime]::UtcNow -lt $Deadline)
 
     if ($ProbeLog.Contains($ClientKey)) { throw "Credential appeared in Android logs; evidence was not written." }
     $ProbeLog | Set-Content -LiteralPath (Join-Path $EvidenceDirectory "logcat.txt") -Encoding utf8
@@ -141,8 +143,8 @@ try {
     $MailboxCheck = (& $Adb -s $Serial shell run-as $PackageName sh -c $MailboxCheckCommand 2>&1) -join "`n"
     if ($MailboxCheck -notmatch 'ABSENT') { throw "The one-use mailbox was not deleted before the network proof." }
     if ($ProbeLog.Contains('FAIL: staging normal-boot probe:')) { throw "Physical staging probe reported a failure. See $EvidenceDirectory/logcat.txt." }
-    if (-not $ProbeLog.Contains('PASS: normal main-scene boot reached TLS staging')) { throw "Physical staging probe timed out. See $EvidenceDirectory/logcat.txt." }
-    Write-Host "PASS: physical Android completed public TLS, archival cutover, authoritative profile, read-only cache, and reconnect."
+    if (-not $ProbeLog.Contains('PASS: normal main-scene boot completed TLS staging')) { throw "Physical staging probe timed out. See $EvidenceDirectory/logcat.txt." }
+    Write-Host "PASS: physical Android completed public TLS, archival cutover, authored hunt/reward/equipment, read-only cache, and reconnect."
     Write-Host "Evidence: $EvidenceDirectory"
 } finally {
     & $Adb -s $Serial shell run-as $PackageName rm -f $MailboxRelativePath 2>$null | Out-Null

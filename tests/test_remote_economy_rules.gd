@@ -11,6 +11,7 @@ func _init() -> void:
 	test_command_intent_boundary()
 	test_authoritative_snapshot_boundary()
 	test_build_authority_boundary()
+	test_hunt_board_boundary()
 	if failures == 0:
 		print("PASS: remote economy commands carry intent only and snapshots preserve server authority")
 		quit(0)
@@ -89,6 +90,32 @@ func test_build_authority_boundary() -> void:
 	var forged := response.duplicate(true)
 	forged.build.inventory[0].power = -1
 	check(Economy.canonical_build_snapshot(forged, "account_42", "hunter_7").is_empty(), "invalid server item values cannot enter the local cache")
+
+
+func test_hunt_board_boundary() -> void:
+	var response := valid_hunt_board()
+	var canonical := Economy.canonical_hunt_board(response, "account_42", "hunter_7")
+	check(not canonical.is_empty() and canonical.offers.size() == 1, "server hunt board preserves selectable authored identities")
+	check(canonical.offers[0].approaches[0].keys().size() == 3 and not canonical.offers[0].approaches[0].has("power"), "client board retains timing and cost but not hidden combat authority")
+	var foreign := response.duplicate(true)
+	foreign.account_id = "account_99"
+	check(Economy.canonical_hunt_board(foreign, "account_42", "hunter_7").is_empty(), "foreign hunt board ownership is rejected")
+	var forged := response.duplicate(true)
+	forged.offers[0].approaches[0].fuel_cost = 0
+	check(Economy.canonical_hunt_board(forged, "account_42", "hunter_7").is_empty(), "invalid hunt cost fails closed")
+	var malformed_hash := response.duplicate(true)
+	malformed_hash.content_hash = "not-a-content-hash"
+	check(Economy.canonical_hunt_board(malformed_hash, "account_42", "hunter_7").is_empty(), "board must bind a valid content manifest hash")
+
+
+func valid_hunt_board() -> Dictionary:
+	var approach := {"offer_id": "offer_0_safe", "target_id": "target_77", "planet_id": "dustball_prime", "role_id": "safe",
+		"approach_id": "quiet_net", "duration_seconds": 147, "fuel_cost": 5, "power": 10, "defense": 4, "health": 70,
+		"credits": 30, "xp": 48, "scrap": 0, "loot_power": 10, "enemy_profile_id": "training", "enemy_modifiers": {}}
+	return {"api_version": 1, "authority": "server", "shard_id": "international_1", "account_id": "account_42", "character_id": "hunter_7",
+		"revision": 22, "server_unix_ms": now_ms, "content_hash": "6c83967b74498707bdca23128004162fb7286e7aec0b3f9062d117b54814cec8",
+		"board_id": "board_6c83967b7449_0", "offers": [{"offer_id": "offer_0_safe", "target_id": "target_77", "planet_id": "dustball_prime", "role_id": "safe",
+			"approach_ids": ["quiet_net"], "duration_seconds": 147, "fuel_cost": 5, "approaches": [approach]}]}
 
 
 func valid_build_snapshot() -> Dictionary:

@@ -1,6 +1,6 @@
 # Crooked Galaxy backend workspace
 
-Status: reproducible local development service implemented; profile authority is deployed to staging, while the new hunt economy remains local-only and disconnected from normal gameplay.
+Status: reproducible local service and authoritative hunt/build economy are deployed and proven on public-TLS staging; every normal gameplay capability remains disabled pending Android lifecycle evidence and deliberate cutover.
 
 The selected foundation is open-source Nakama. Version pins live in `stack-lock.json`. This directory is intentionally excluded from Godot exports.
 
@@ -24,7 +24,7 @@ Docker Desktop/Compose is available. The local stack builds the pinned TypeScrip
 
 The Nakama base image is pulled from the official Heroic Labs Docker Hub repository. Heroic Labs documents this as the supported fallback for its rate-limited `registry.heroiclabs.com` gateway; the immutable version tag remains pinned by `stack-lock.json`. `.dockerignore` also prevents local secrets and generated state from entering the Docker build context.
 
-The exported game remains `offline`, `local_only` and device-authoritative: the SDK is present but receives no endpoint at normal boot. Local character authority and the inactive read-only cache/reconnect/cutover policy pass, but public staging and normal-boot remote exercise remain intentionally incomplete. Existing device-authored saves will be archived rather than imported into the online economy. See `Notes/ONLINE_BACKEND_DECISION_2026-08-29.md` and `Notes/BACKEND_VERTICAL_SLICE_CONTRACT.md`.
+The exported game remains `offline`, `local_only` and device-authoritative: the SDK is present but receives no endpoint at normal boot. Public-TLS staging now proves profile, economy, hunt, reward, build, read-only cache, reconnect and cutover behavior only through an explicit one-use test path. Existing device-authored saves will be archived rather than imported into the online economy. See `Notes/ONLINE_BACKEND_DECISION_2026-08-29.md` and `Notes/BACKEND_VERTICAL_SLICE_CONTRACT.md`.
 
 ## TLS staging package
 
@@ -38,7 +38,7 @@ The staging operator environment requires PowerShell 7 in addition to Docker Eng
 4. Run `test_staging.ps1` from a host that reaches the public DNS name. It proves valid TLS/HSTS, authentication, UTC, ownership, creation, commits, idempotency and conflicts.
 5. Run `backup_staging.ps1` before deployments and schema/runtime changes. It writes an ignored custom-format PostgreSQL dump, validates it with `pg_restore --list`, finalizes atomically and records SHA-256. Run `restore_drill.ps1 -BackupPath <dump>` regularly; it verifies the checksum and restores into an isolated disposable PostgreSQL volume without touching staging.
 6. On the staging host, `backup_offsite_borg.sh` creates a fresh local dump and sends only the dump plus checksum to the encrypted off-host Borg repository. `restore_offsite_drill.sh <archive>` proves download, checksum and a complete isolated restore. Their Borg configuration, passphrase and dedicated SSH key are operator-owned files outside Git. The supplied systemd unit and timer schedule the proven process daily; do not enable the timer before the first manual archive and restore drill succeed.
-7. From the protected operator workstation, `test_godot_staging_boot.ps1` retrieves the staging client key through SSH into process memory and starts the ordinary Godot main scene with an explicit inert probe argument. A fresh disposable account proves trusted TLS, authentication, pristine remote baseline, exact local-save archival without import, ownership, profile revision/idempotency/conflict, crash-safe read-only cache and clean reconnect. The script restores process variables and never prints or persists the key. This is staging evidence only and does not configure the normal APK.
+7. From the protected operator workstation, `test_godot_staging_boot.ps1` retrieves the staging client key through SSH into process memory and starts the ordinary Godot main scene with an explicit inert probe argument. A fresh disposable account proves trusted TLS, authentication, pristine remote baseline, exact local-save archival without import, ownership, profile revision/idempotency/conflict, exact economy/build reads, a real authored-duration hunt, premature-resolution rejection, accept/resolve replay, sealed reward claim, inventory equip/protection, crash-safe read-only cache and clean reconnect. The script restores process variables and never prints or persists the key. This is staging evidence only and does not configure the normal APK.
 
 No staging host, domain or credential is committed or provisioned automatically. A successful deployment test is evidence for staging only; it does not change the APK capability flags or authorize production.
 
