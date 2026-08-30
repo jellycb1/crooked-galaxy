@@ -7,11 +7,13 @@ const Economy = preload("res://scripts/remote_economy_rules.gd")
 const STATE_INERT := "inert"
 const STATE_READY := "ready"
 const STATE_STALE := "stale"
+const PROFILE_COMMIT := "profile_commit"
 
 var _adapter = null
 var _account_id := ""
 var _state := STATE_INERT
 var _revision := -1
+var _character_snapshot: Dictionary = {}
 var _economy_snapshot: Dictionary = {}
 var _build_snapshot: Dictionary = {}
 var _hunt_board: Dictionary = {}
@@ -38,6 +40,10 @@ func has_pending_command() -> bool:
 
 func economy_snapshot() -> Dictionary:
 	return _economy_snapshot.duplicate(true)
+
+
+func character_snapshot() -> Dictionary:
+	return _character_snapshot.duplicate(true)
 
 
 func build_snapshot() -> Dictionary:
@@ -72,8 +78,8 @@ func dispatch(command_id: String, idempotency_key: String, operation: String, pa
 	if not _pending_command.is_empty():
 		return _failure("pending_command_must_be_resolved")
 	var command := Protocol.make_command(command_id, idempotency_key, operation, _account_id, _account_id, _revision, payload)
-	if command.is_empty() or operation not in Economy.OPERATIONS:
-		return _failure("invalid_economy_command")
+	if command.is_empty() or (operation not in Economy.OPERATIONS and operation != PROFILE_COMMIT):
+		return _failure("invalid_remote_command")
 	_pending_command = command
 	return await _submit_pending()
 
@@ -88,6 +94,16 @@ func replay_last_completed_explicit_test() -> Dictionary:
 	if _state != STATE_READY or not _pending_command.is_empty() or _last_completed_command.is_empty():
 		return _failure("completed_command_required")
 	_pending_command = _last_completed_command.duplicate(true)
+	return await _submit_pending()
+
+
+func prove_conflict_explicit_test(command_id: String, idempotency_key: String, operation: String, payload: Dictionary, stale_expected_revision: int) -> Dictionary:
+	if _state != STATE_READY or not _pending_command.is_empty() or stale_expected_revision < 0 or stale_expected_revision >= _revision:
+		return _failure("stale_test_revision_required")
+	var command := Protocol.make_command(command_id, idempotency_key, operation, _account_id, _account_id, stale_expected_revision, payload)
+	if command.is_empty() or (operation not in Economy.OPERATIONS and operation != PROFILE_COMMIT):
+		return _failure("invalid_remote_command")
+	_pending_command = command
 	return await _submit_pending()
 
 
@@ -110,6 +126,7 @@ func close_for_disconnect() -> Dictionary:
 		return _failure("pending_command_must_be_resolved")
 	_state = STATE_INERT
 	_revision = -1
+	_character_snapshot = {}
 	_economy_snapshot = {}
 	_build_snapshot = {}
 	_hunt_board = {}
@@ -167,6 +184,8 @@ func _route(command: Dictionary) -> Dictionary:
 	var key := str(command.idempotency_key)
 	var expected := int(command.expected_revision)
 	match operation:
+		PROFILE_COMMIT:
+			return await _adapter.commit_profile(command_id, key, expected, str(payload.hunter_name), payload.appearance)
 		Economy.OP_HUNT_ACCEPT:
 			return await _adapter.accept_hunt(command_id, key, expected, str(payload.board_id), str(payload.offer_id), str(payload.target_id), str(payload.approach_id))
 		Economy.OP_HUNT_RESOLVE:
@@ -183,28 +202,34 @@ func _route(command: Dictionary) -> Dictionary:
 
 
 func _refresh_authoritative_unit(expected_revision := -1) -> Dictionary:
+	var character_response: Dictionary = await _adapter.get_character()
 	var economy_response: Dictionary = await _adapter.get_economy()
 	var build_response: Dictionary = await _adapter.get_build()
 	var board_response: Dictionary = await _adapter.get_hunt_board()
+	var canonical_character := Protocol.canonical_character_snapshot(character_response, _account_id, _account_id)
 	var canonical_economy := Economy.canonical_economy_snapshot(economy_response, _account_id, _account_id)
 	var canonical_build := Economy.canonical_build_snapshot(build_response, _account_id, _account_id)
 	var canonical_board := Economy.canonical_hunt_board(board_response, _account_id, _account_id)
-	if canonical_economy.is_empty() or canonical_build.is_empty() or canonical_board.is_empty():
+	if canonical_character.is_empty() or canonical_economy.is_empty() or canonical_build.is_empty() or canonical_board.is_empty():
 		_state = STATE_STALE
 		return _failure("invalid_authoritative_unit")
+	var character_revision := int(canonical_character.revision)
 	var economy_revision := int(canonical_economy.revision)
 	var build_revision := int(canonical_build.revision)
 	var board_revision := int(canonical_board.revision)
-	if economy_revision != build_revision or economy_revision != board_revision \
+	if character_revision != economy_revision or economy_revision != build_revision or economy_revision != board_revision \
 		or (expected_revision >= 0 and economy_revision != expected_revision):
 		_state = STATE_STALE
 		return _failure("authoritative_revision_mismatch")
+	canonical_character.ok = true
+	canonical_character.exists = true
+	_character_snapshot = canonical_character
 	_economy_snapshot = canonical_economy
 	_build_snapshot = canonical_build
 	_hunt_board = canonical_board
 	_revision = economy_revision
 	_state = STATE_READY
-	return {"ok": true, "revision": _revision, "economy": economy_snapshot(), "build": build_snapshot(), "hunt_board": hunt_board()}
+	return {"ok": true, "revision": _revision, "character": character_snapshot(), "economy": economy_snapshot(), "build": build_snapshot(), "hunt_board": hunt_board()}
 
 
 static func _failure(code: String) -> Dictionary:

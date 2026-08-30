@@ -30,35 +30,36 @@ func run(configuration: Dictionary, device_id: String, cache_path: String) -> Di
 
 	var initial_revision := int(snapshot.get("revision", -1))
 	var nonce := str(int(Time.get_unix_time_from_system() * 1000.0))
+	var dispatcher = Dispatcher.new(adapter, account_id)
+	var dispatcher_boot: Dictionary = await dispatcher.bootstrap(initial_revision)
+	if not bool(dispatcher_boot.get("ok", false)):
+		return _failure("command_dispatcher_bootstrap_failed")
 	var command_id := "staging-probe-commit-%s" % nonce
 	var receipt_id := "staging-probe-receipt-%s" % nonce
 	var appearance := {"palette": "cool", "eyes": "narrow", "feature": "bold", "marking": "stripe"}
-	var commit: Dictionary = await adapter.commit_profile(command_id, receipt_id, initial_revision, "Staging Vector", appearance)
-	if not bool(commit.get("ok", false)) or str(commit.get("status", "")) != "accepted":
+	var commit: Dictionary = await dispatcher.dispatch(command_id, receipt_id, "profile_commit",
+		{"hunter_name": "Staging Vector", "appearance": appearance})
+	if not _dispatch_result(commit, "accepted", initial_revision + 1):
 		return _failure("commit_failed")
-	var duplicate: Dictionary = await adapter.commit_profile(command_id, receipt_id, initial_revision, "Staging Vector", appearance)
-	if not bool(duplicate.get("ok", false)) or str(duplicate.get("status", "")) != "duplicate":
+	var duplicate: Dictionary = await dispatcher.replay_last_completed_explicit_test()
+	if not _dispatch_result(duplicate, "duplicate", initial_revision + 1):
 		return _failure("idempotency_failed")
-	var conflict: Dictionary = await adapter.commit_profile(
+	var conflict: Dictionary = await dispatcher.prove_conflict_explicit_test(
 		"staging-probe-stale-%s" % nonce,
 		"staging-probe-stale-receipt-%s" % nonce,
-		initial_revision,
-		"Staging Vector",
-		appearance
+		"profile_commit",
+		{"hunter_name": "Staging Vector", "appearance": appearance},
+		initial_revision
 	)
-	if not bool(conflict.get("ok", false)) or str(conflict.get("status", "")) != "conflict":
+	if not _dispatch_result(conflict, "conflict", initial_revision + 1):
 		return _failure("conflict_failed")
-	var profile_after_commit: Dictionary = await adapter.get_character()
+	var profile_after_commit: Dictionary = dispatcher.character_snapshot()
 	if not bool(profile_after_commit.get("ok", false)) or int(profile_after_commit.get("revision", -1)) != initial_revision + 1:
 		return _failure("authoritative_refetch_failed")
-	var dispatcher = Dispatcher.new(adapter, account_id)
-	var dispatcher_boot: Dictionary = await dispatcher.bootstrap(int(profile_after_commit.revision))
-	if not bool(dispatcher_boot.get("ok", false)):
-		return _failure("command_dispatcher_bootstrap_failed")
 	var hunt_evidence: Dictionary = await _prove_authoritative_hunt(dispatcher, nonce)
 	if not bool(hunt_evidence.get("ok", false)):
 		return hunt_evidence
-	var authoritative: Dictionary = await adapter.get_character()
+	var authoritative: Dictionary = dispatcher.character_snapshot()
 	if not bool(authoritative.get("ok", false)) or int(authoritative.get("revision", -1)) != int(hunt_evidence.get("final_revision", -2)):
 		return _failure("post_hunt_profile_refetch_failed")
 	if not coordinator.accept_authoritative_snapshot(authoritative):
