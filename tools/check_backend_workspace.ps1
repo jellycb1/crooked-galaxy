@@ -30,7 +30,9 @@ $DirectTest = Get-Content -LiteralPath (Join-Path $BackendRoot "test_local.ps1")
 $StagingCompose = Get-Content -LiteralPath (Join-Path $BackendRoot "docker-compose.staging.yml") -Raw
 $StagingProxy = Get-Content -LiteralPath (Join-Path $BackendRoot "Caddyfile.staging") -Raw
 $StagingEnvironmentExample = Get-Content -LiteralPath (Join-Path $BackendRoot ".env.staging.example") -Raw
+$StagingEnvironmentPreparer = Get-Content -LiteralPath (Join-Path $BackendRoot "prepare_staging_env.ps1") -Raw
 $StagingValidator = Get-Content -LiteralPath (Join-Path $BackendRoot "validate_staging.ps1") -Raw
+$StagingBackup = Get-Content -LiteralPath (Join-Path $BackendRoot "backup_staging.ps1") -Raw
 $RestoreDrill = Get-Content -LiteralPath (Join-Path $BackendRoot "restore_drill.ps1") -Raw
 $HostBootstrap = Get-Content -LiteralPath (Join-Path $BackendRoot "bootstrap_hetzner_staging.sh") -Raw
 $SshFinalizer = Get-Content -LiteralPath (Join-Path $BackendRoot "finalize_hetzner_ssh.sh") -Raw
@@ -87,6 +89,9 @@ foreach ($ValidationGuard in @("EndsWith('.invalid')", "EndsWith('.test')", 'Has
 }
 foreach ($RestoreGuard in @('Get-FileHash', '--exit-on-error', 'information_schema.tables', 'cg-restore-drill-', 'volume rm')) {
     if (-not $RestoreDrill.Contains($RestoreGuard)) { throw "Isolated restore guard is missing: $RestoreGuard" }
+}
+foreach ($BackupGuard in @('.cg-write-probe-', 'must be writable by the deployment operator', 'PartialChecksumPath', 'Remove-Item -LiteralPath')) {
+    if (-not $StagingEnvironmentPreparer.Contains($BackupGuard) -and -not $StagingBackup.Contains($BackupGuard)) { throw "Staging backup ownership or rollback guard is missing: $BackupGuard" }
 }
 foreach ($BootstrapGuard in @('Ubuntu 24.04 x86_64', 'PasswordAuthentication no', 'PermitRootLogin prohibit-password', 'download.docker.com/linux/ubuntu', 'packages.microsoft.com/config/ubuntu', 'unattended-upgrades', 'max-size')) {
     if (-not $HostBootstrap.Contains($BootstrapGuard)) { throw "Hetzner bootstrap guard is missing: $BootstrapGuard" }

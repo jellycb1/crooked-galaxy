@@ -26,6 +26,16 @@ $EnvironmentPath = Join-Path $PSScriptRoot ".env.staging"
 if (Test-Path -LiteralPath $EnvironmentPath) {
     throw "Refusing to overwrite existing staging credentials: $EnvironmentPath"
 }
+$BackupRoot = Join-Path $PSScriptRoot "backups"
+New-Item -ItemType Directory -Path $BackupRoot -Force | Out-Null
+$WriteProbe = Join-Path $BackupRoot ".cg-write-probe-$([Guid]::NewGuid().ToString('N'))"
+try {
+    [System.IO.File]::WriteAllText($WriteProbe, "probe", [System.Text.UTF8Encoding]::new($false))
+} catch {
+    throw "Staging backup directory must be writable by the deployment operator before Docker starts: $BackupRoot"
+} finally {
+    Remove-Item -LiteralPath $WriteProbe -Force -ErrorAction SilentlyContinue
+}
 $Lines = @(
     "CG_STAGING_DOMAIN=$Domain",
     "CG_ACME_EMAIL=$AcmeEmail",
@@ -38,4 +48,4 @@ $Lines = @(
     "CG_NAKAMA_CONSOLE_SIGNING_KEY=$(New-StagingSecret)"
 )
 [System.IO.File]::WriteAllLines($EnvironmentPath, $Lines, [System.Text.UTF8Encoding]::new($false))
-Write-Host "PASS: staging environment created without printing credentials. Transfer it only through a protected channel."
+Write-Host "PASS: staging environment and writable backup directory created without printing credentials. Transfer the environment only through a protected channel."
