@@ -2,28 +2,20 @@ class_name StagingClientProbe
 extends RefCounted
 
 const Adapter = preload("res://scripts/nakama_backend_adapter.gd")
-const CacheStore = preload("res://scripts/profile_cache_store.gd")
-const Sync = preload("res://scripts/profile_sync_rules.gd")
-const CutoverArchive = preload("res://scripts/local_save_cutover_archive.gd")
+const Coordinator = preload("res://scripts/remote_session_coordinator.gd")
 
 
 func run(configuration: Dictionary, device_id: String, cache_path: String) -> Dictionary:
 	var adapter = Adapter.new()
-	if not adapter.configure(configuration):
-		return _failure("configuration_rejected")
-	var authentication: Dictionary = await adapter.authenticate_staging_test(device_id)
-	if not bool(authentication.get("ok", false)):
+	var coordinator = Coordinator.new(adapter)
+	var connection: Dictionary = await coordinator.connect_explicit_test(configuration, device_id)
+	if not bool(connection.get("ok", false)):
 		return _failure("authentication_failed")
-	var account_id := str(authentication.get("account_id", ""))
-	var clock: Dictionary = await adapter.sample_server_clock()
-	if not bool(clock.get("ok", false)) or str(clock.get("authority", "")) != "server":
-		return _failure("clock_failed")
-
-	var snapshot: Dictionary = await adapter.get_character()
-	if not bool(snapshot.get("ok", false)):
-		return _failure("snapshot_failed")
-	if snapshot.get("exists", true) == false:
-		snapshot = await adapter.create_character(
+	var account_id := str(connection.get("account_id", ""))
+	var clock: Dictionary = connection.get("clock", {})
+	var snapshot: Dictionary = connection.get("snapshot", {})
+	if not bool(connection.get("character_exists", false)):
+		snapshot = await coordinator.create_explicit_test_character(
 			"staging-probe-create-v1",
 			"Staging Trace",
 			"orbit_gunslinger",
@@ -32,7 +24,7 @@ func run(configuration: Dictionary, device_id: String, cache_path: String) -> Di
 		)
 	if not bool(snapshot.get("ok", false)) or str(snapshot.get("account_id", "")) != account_id:
 		return _failure("ownership_failed")
-	if int(snapshot.get("revision", -1)) != 0 or not _prove_archival_cutover(snapshot, device_id):
+	if int(snapshot.get("revision", -1)) != 0 or not _prove_archival_cutover(coordinator, device_id):
 		return _failure("archive_cutover_failed")
 
 	var initial_revision := int(snapshot.get("revision", -1))
@@ -64,34 +56,22 @@ func run(configuration: Dictionary, device_id: String, cache_path: String) -> Di
 	var authoritative: Dictionary = await adapter.get_character()
 	if not bool(authoritative.get("ok", false)) or int(authoritative.get("revision", -1)) != int(hunt_evidence.get("final_revision", -2)):
 		return _failure("post_hunt_profile_refetch_failed")
+	if not coordinator.accept_authoritative_snapshot(authoritative):
+		return _failure("coordinator_snapshot_failed")
 
-	var store = CacheStore.new()
-	store.cache_path = cache_path
-	store.clear()
 	var cached_at := maxi(int(Time.get_unix_time_from_system() * 1000.0), int(authoritative.get("server_unix_ms", 0)))
-	if not store.write_snapshot(authoritative, account_id, account_id, cached_at):
-		return _failure("cache_write_failed")
-	adapter.clear_runtime()
-	var offline: Dictionary = store.load_snapshot(account_id, account_id, cached_at)
+	var offline: Dictionary = coordinator.cache_and_disconnect(cache_path, cached_at)
 	if not bool(offline.get("read_only", false)) or bool(offline.get("economic_mutations_allowed", true)):
-		store.clear()
 		return _failure("cache_open_failed")
 
-	var reconnect = Adapter.new()
-	if not reconnect.configure(configuration):
-		store.clear()
-		return _failure("reconnect_configuration_failed")
-	var reconnect_auth: Dictionary = await reconnect.authenticate_staging_test(device_id)
-	var remote: Dictionary = await reconnect.get_character() if bool(reconnect_auth.get("ok", false)) else {}
-	var reconnect_action := Sync.reconnect_action(
-		int(offline.get("snapshot", {}).get("revision", -1)),
-		int(remote.get("revision", -1)),
-		[],
-		str(remote.get("account_id", "")) == account_id
-	)
-	store.clear()
-	reconnect.clear_runtime()
-	if reconnect_action != Sync.ACTION_USE_REMOTE:
+	var reconnect_adapter = Adapter.new()
+	var reconnect_coordinator = Coordinator.new(reconnect_adapter)
+	var reconnect_connection: Dictionary = await reconnect_coordinator.connect_explicit_test(configuration, device_id)
+	var remote: Dictionary = reconnect_connection.get("snapshot", {}) if bool(reconnect_connection.get("ok", false)) else {}
+	var reconnect_action := coordinator.reconnect_action(offline, remote)
+	coordinator.clear_cache()
+	reconnect_coordinator.reset_runtime()
+	if reconnect_action != "use_remote_snapshot":
 		return _failure("reconnect_failed")
 	var evidence := {
 		"ok": true,
@@ -123,8 +103,9 @@ func run(configuration: Dictionary, device_id: String, cache_path: String) -> Di
 		"hunt_duration_seconds": int(hunt_evidence.get("hunt_duration_seconds", 0)),
 	}
 	adapter = null
-	store = null
-	reconnect = null
+	coordinator = null
+	reconnect_adapter = null
+	reconnect_coordinator = null
 	return evidence
 
 
@@ -205,9 +186,9 @@ static func _failure(code: String) -> Dictionary:
 	return {"ok": false, "error_code": code}
 
 
-static func _prove_archival_cutover(remote_snapshot: Dictionary, device_id: String) -> bool:
+static func _prove_archival_cutover(coordinator, device_id: String) -> bool:
 	var local_profile := {"character_id": "offline_hunter", "level": 8, "xp": 420, "wins": 12}
-	if Sync.migration_offer(local_profile, remote_snapshot, false) != Sync.MIGRATION_CUTOVER_REQUIRED:
+	if coordinator.prepare_local_cutover(local_profile, false) != "archive_local_start_remote_required":
 		return false
 	var save_path := "user://staging_cutover_%s.json" % device_id
 	var archive_root := "user://staging_cutover_archives_%s" % device_id
@@ -226,8 +207,7 @@ static func _prove_archival_cutover(remote_snapshot: Dictionary, device_id: Stri
 		file.flush()
 		file = null
 	var source_hash := FileAccess.get_sha256(save_path)
-	var created_at := maxi(int(Time.get_unix_time_from_system() * 1000.0), int(remote_snapshot.get("server_unix_ms", 0)))
-	var result := CutoverArchive.create(save_path, created_at, archive_root)
+	var result: Dictionary = coordinator.archive_local_cutover("archive_local_start_remote", save_path, archive_root)
 	var manifest: Dictionary = result.get("manifest", {})
 	var archive_path := str(result.get("archive_path", ""))
 	var valid: bool = not result.is_empty() \

@@ -50,4 +50,6 @@ Accepted and duplicate receipts must bind the exact command identity and advance
 5. Implement server-owned Agency roster and warrant records using verified normal-hunt evidence.
 6. Enable each capability flag independently only after end-to-end evidence exists. Technical staging evidence is not sufficient: the normal-client gate additionally requires physical Android TLS/lifecycle, a real-save archival cutover, the normal login flow and explicit activation approval. Economy then requires physical authoritative-hunt and build-mutation evidence; Agency and billing retain separate product-flow approvals.
 
+The Godot client owns one reusable `RemoteSessionCoordinator` boundary for explicit local/staging authentication, authoritative character adoption, archival cutover, read-only cache and reconnect decisions. The staging probe uses this same boundary. It is not an autoload, is not referenced by `GameState`, accepts no production environment and exposes no endpoint or credential through its safe summary; its existence does not activate normal gameplay.
+
 Agency UI, ranking and rewards remain prohibited before steps 1–4. Billing is a separate server-verified boundary and is not implied by this protocol.

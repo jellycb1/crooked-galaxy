@@ -1,6 +1,6 @@
 # Crooked Galaxy backend workspace
 
-Status: reproducible local service and authoritative hunt/build economy are deployed and proven on public-TLS staging; every normal gameplay capability remains disabled pending Android lifecycle evidence and deliberate cutover.
+Status: reproducible local service and authoritative hunt/build economy are deployed and proven on public-TLS staging. A reusable, explicit-test-only Godot session coordinator now exercises the same ownership, archival cutover, read-only cache and reconnect lifecycle; every normal gameplay capability remains disabled pending Android lifecycle evidence and deliberate cutover.
 
 The selected foundation is open-source Nakama. Version pins live in `stack-lock.json`. This directory is intentionally excluded from Godot exports.
 

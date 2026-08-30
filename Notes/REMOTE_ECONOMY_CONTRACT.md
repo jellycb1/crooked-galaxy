@@ -2,6 +2,8 @@
 
 Status: vertical slice implemented, compiled and proven against live loopback plus public-TLS Hetzner staging Nakama/PostgreSQL. Windows normal-boot lifecycle evidence passes; a fail-closed normal-client gate now prevents staging evidence alone from activating gameplay. Physical Android evidence, real-save archival cutover and deliberate activation remain disabled or pending.
 
+The reusable Godot session coordinator now owns the lifecycle around this adapter: explicit non-production connection, server clock and ownership, archival-only local cutover, bounded read-only cache and conflict-safe reconnect. Normal `GameState` does not instantiate it and all release gates remain false.
+
 ## Product truth
 
 The current game remains device-authoritative. `economy_backend` is false, normal APK boot has no endpoint, and the existing local progression continues unchanged. The Nakama runtime now proves the server-owned transaction in isolation without presenting local values as server-owned.
