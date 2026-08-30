@@ -12,3 +12,4 @@ RUN npm run build
 FROM heroiclabs/nakama:3.40.0
 COPY --from=runtime-builder /backend/build/index.js /nakama/data/modules/build/index.js
 COPY local.yml /nakama/data/local.yml
+COPY staging.yml /nakama/data/staging.yml

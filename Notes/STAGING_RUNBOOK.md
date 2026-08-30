@@ -1,0 +1,55 @@
+# Nakama TLS staging runbook
+
+Status: active operations contract. The staging package is locally validated but no external host or DNS name is currently provisioned.
+
+## Purpose and boundary
+
+Staging exists to exercise the exact server and Godot protocol across a real public TLS boundary using disposable accounts. It is never a production database and never validates real purchases. Local, staging and production must use different databases, encryption keys, client keys, console credentials, certificate state and backups.
+
+The checked-in topology pins PostgreSQL 16.8, Nakama 3.40.0, runtime types 1.47.0, the official Godot client 3.4.0 and Caddy 2.11.4-alpine. Caddy is additionally pinned to the reviewed multi-platform image digest. PostgreSQL has no host port. Nakama port 7350 is internal; console 7351 is loopback-only and must be reached through an authenticated SSH tunnel. Caddy alone owns public 80/tcp, 443/tcp and 443/udp.
+
+## Host prerequisites
+
+- A disposable Linux host with current Docker Engine, Compose and PowerShell 7 (`pwsh`) for the checked-in operational scripts.
+- A dedicated DNS A/AAAA record pointing at that host.
+- Inbound 80/tcp and 443/tcp; 443/udp is optional HTTP/3. Never expose 5432, 7350 or 7351 publicly.
+- Restricted SSH access, automatic security updates, adequate disk monitoring and a protected off-host destination for encrypted backups.
+- A real operator e-mail for ACME expiry/problem notices.
+
+Caddy automatic HTTPS requires correct DNS, externally reachable ports 80/443 and persistent writable certificate storage. Do not start staging with a production hostname, reuse the local `.env`, disable TLS verification, or put credentials in shell history, tickets or chat.
+
+## First deployment
+
+1. Clone the reviewed commit on the staging host.
+2. Run `pwsh backend/prepare_staging_env.ps1` with the dedicated DNS hostname and operator e-mail. The ignored file is created once with independent 256-bit values and none are printed.
+3. Run `pwsh backend/validate_staging.ps1`. Inspect `docker compose ... config --services` if the service set differs from `postgres`, `nakama`, `caddy`.
+4. Confirm the host firewall and cloud security group expose only SSH plus 80/443.
+5. Start the staging compose project and wait for PostgreSQL and Nakama health checks.
+6. Verify Caddy obtained a publicly trusted certificate, then run `backend/test_staging.ps1` from outside the host/network.
+7. Inspect startup logs for one Crooked Galaxy runtime registration, migration success, certificate success and no default-key warnings.
+
+Do not place the staging endpoint in `server_rules.gd` or the normal Android configuration. A separate tester-only configuration and normal-boot reconnect exercise are later gates.
+
+## Deploy and rollback discipline
+
+Before every runtime or database change, create a verified dump with `backup_staging.ps1`, run `restore_drill.ps1` against that dump, and copy the dump plus SHA-256 to protected off-host storage. The drill creates a random isolated PostgreSQL container/volume, performs a complete error-stopping restore, verifies the public schema and removes only those exact disposable resources. Record commit, image digests, UTC deployment time and smoke-test result. Deploy one reviewed commit, rebuild, wait for health, then rerun the public test.
+
+A rollback means restoring the previous reviewed commit and compatible runtime image. Database rollback is never inferred from a code rollback. If a migration changed stored data, stop writes and use the rehearsed isolated-restore evidence before planning restoration of the actual service. Never run `pg_restore` over the active staging or production database.
+
+## Evidence required before APK activation
+
+- Public certificate chain and hostname pass on physical Android without installing a private CA.
+- Authentication, session refresh/expiry, character creation and snapshot ownership pass across app restart.
+- Read-only cache opens only after a previously acknowledged snapshot; economy, Agency and billing remain unavailable offline.
+- Same-command retry after simulated timeout produces one mutation; stale revision produces visible conflict recovery.
+- Database backup is copied off-host and restored into an isolated disposable database.
+- Logs contain request correlation without credentials or full player payloads.
+- Existing internal local-save treatment is explicitly decided and tested; no automatic field merge exists.
+
+Only after all evidence is recorded may account, clock and profile flags be considered independently. Agency, Arena, rankings and billing remain separate later gates.
+
+## Official operating references
+
+- Heroic Labs Docker deployment and server configuration: <https://heroiclabs.com/docs/nakama/getting-started/configuration/docker-configuration/> and <https://heroiclabs.com/docs/nakama/getting-started/configuration/>.
+- Caddy reverse proxy and automatic HTTPS: <https://caddyserver.com/docs/caddyfile/directives/reverse_proxy> and <https://caddyserver.com/docs/automatic-https>.
+- Official Caddy container image: <https://hub.docker.com/_/caddy/>.

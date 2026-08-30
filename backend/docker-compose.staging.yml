@@ -1,0 +1,83 @@
+services:
+  postgres:
+    image: postgres:16.8-alpine
+    environment:
+      POSTGRES_DB: nakama
+      POSTGRES_PASSWORD: ${CG_POSTGRES_PASSWORD:?Create backend/.env.staging first}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "nakama"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+    networks:
+      - data
+    volumes:
+      - crooked_galaxy_staging_db:/var/lib/postgresql/data
+      - ./backups:/backups
+
+  nakama:
+    build:
+      context: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - >-
+        /nakama/nakama migrate up --database.address postgres:${CG_POSTGRES_PASSWORD}@postgres:5432/nakama?sslmode=disable &&
+        exec /nakama/nakama --config /nakama/data/staging.yml
+        --database.address postgres:${CG_POSTGRES_PASSWORD}@postgres:5432/nakama?sslmode=disable
+        --socket.server_key ${CG_NAKAMA_SERVER_KEY}
+        --session.encryption_key ${CG_NAKAMA_SESSION_KEY}
+        --session.refresh_encryption_key ${CG_NAKAMA_REFRESH_KEY}
+        --runtime.http_key ${CG_NAKAMA_RUNTIME_HTTP_KEY}
+        --console.password ${CG_NAKAMA_CONSOLE_PASSWORD}
+        --console.signing_key ${CG_NAKAMA_CONSOLE_SIGNING_KEY}
+    healthcheck:
+      test: ["CMD", "/nakama/nakama", "healthcheck"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    networks:
+      - edge
+      - data
+    expose:
+      - "7350"
+    ports:
+      - "127.0.0.1:7351:7351"
+
+  caddy:
+    image: caddy:2.11.4-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648
+    depends_on:
+      nakama:
+        condition: service_healthy
+    environment:
+      CG_STAGING_DOMAIN: ${CG_STAGING_DOMAIN:?Set a staging DNS name}
+      CG_ACME_EMAIL: ${CG_ACME_EMAIL:?Set the ACME operator email}
+    restart: unless-stopped
+    networks:
+      - edge
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    read_only: true
+    tmpfs:
+      - /tmp
+    volumes:
+      - ./Caddyfile.staging:/etc/caddy/Caddyfile:ro
+      - crooked_galaxy_staging_caddy_data:/data
+      - crooked_galaxy_staging_caddy_config:/config
+
+networks:
+  edge:
+  data:
+    internal: true
+
+volumes:
+  crooked_galaxy_staging_db:
+  crooked_galaxy_staging_caddy_data:
+  crooked_galaxy_staging_caddy_config:

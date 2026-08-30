@@ -29,6 +29,7 @@ art_drafts/
 
 # Backend secrets, dependencies, generated runtime and local database state
 backend/.env
+backend/.env.staging
 backend/node_modules/
 backend/build/
 backend/data/

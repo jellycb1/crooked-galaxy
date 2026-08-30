@@ -1,0 +1,31 @@
+{
+	email {$CG_ACME_EMAIL}
+	admin off
+}
+
+{$CG_STAGING_DOMAIN} {
+	encode zstd gzip
+
+	request_body {
+		max_size 128KB
+	}
+
+	reverse_proxy nakama:7350 {
+		health_uri /healthcheck
+		health_interval 10s
+		health_timeout 3s
+		lb_try_duration 5s
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		-Server
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}

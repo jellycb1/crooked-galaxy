@@ -1,0 +1,14 @@
+name: cg-staging
+logger:
+  level: INFO
+  format: JSON
+runtime:
+  js_entrypoint: build/index.js
+session:
+  token_expiry_sec: 7200
+  refresh_token_expiry_sec: 2592000
+socket:
+  max_message_size_bytes: 4096
+  max_request_size_bytes: 131072
+console:
+  username: cgadmin

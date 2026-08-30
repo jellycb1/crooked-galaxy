@@ -4,6 +4,8 @@
   "nakama_common_runtime_types": "1.47.0",
   "nakama_godot_client": "3.4.0",
   "nakama_godot_archive_sha256": "540c7ff3556ef114188b93750626fe93cd5e5d151c5850061eb7a163ba7c6f3e",
+  "caddy": "2.11.4-alpine",
+  "caddy_image_digest": "sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648",
   "database_family": "postgresql",
   "initial_shard": "international_1",
   "client_environment": "offline",

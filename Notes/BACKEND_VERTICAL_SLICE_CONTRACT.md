@@ -8,7 +8,7 @@ Crooked Galaxy remains device-authoritative and `local_only`. `International 1` 
 
 This slice deliberately does not persist credentials, contact a server, alter the player-save schema or move progress authority away from the device. It creates the stable seam required before those changes can be made safely.
 
-The separate `backend/` development stack proves Nakama health, development device authentication and authenticated clock/character RPCs on loopback. The pinned SDK independently proves the same path through Godot, but normal boot supplies it no endpoint or credential. All online capability flags remain disabled; the next implementation boundary is explicit offline cache/reconnect behavior and one-time migration from current local saves.
+The separate `backend/` development stack proves Nakama health, development device authentication and authenticated clock/character RPCs on loopback. The pinned SDK independently proves the same path through Godot, but normal boot supplies it no endpoint or credential. Inactive read-only cache and reconnect rules now pass without field merging. A pinned, unactivated TLS staging package is ready for a dedicated host and DNS name; all online capability flags remain disabled. The remaining implementation boundary is the one-time trusted migration from current local saves, while public staging must separately prove normal-boot reconnect behavior.
 
 ## Session boundary
 

@@ -22,4 +22,18 @@ Docker Desktop/Compose is available. The local stack builds the pinned TypeScrip
 
 The Nakama base image is pulled from the official Heroic Labs Docker Hub repository. Heroic Labs documents this as the supported fallback for its rate-limited `registry.heroiclabs.com` gateway; the immutable version tag remains pinned by `stack-lock.json`. `.dockerignore` also prevents local secrets and generated state from entering the Docker build context.
 
-The exported game remains `offline`, `local_only` and device-authoritative: the SDK is present but receives no endpoint at normal boot. The local character authority gate now passes, but staging, reconnect/cache policy and migration from existing local saves remain intentionally incomplete. See `Notes/ONLINE_BACKEND_DECISION_2026-08-29.md` and `Notes/BACKEND_VERTICAL_SLICE_CONTRACT.md`.
+The exported game remains `offline`, `local_only` and device-authoritative: the SDK is present but receives no endpoint at normal boot. Local character authority and the inactive read-only cache/reconnect policy pass, but public staging, normal-boot remote exercise and migration from existing local saves remain intentionally incomplete. See `Notes/ONLINE_BACKEND_DECISION_2026-08-29.md` and `Notes/BACKEND_VERTICAL_SLICE_CONTRACT.md`.
+
+## TLS staging package
+
+The repository now contains a deployable-but-unactivated staging topology in `docker-compose.staging.yml`. PostgreSQL is isolated on an internal network, Nakama's game API is reachable only through Caddy, the Nakama console binds to loopback for an SSH tunnel, and only ports 80/443 are public. Caddy `2.11.4-alpine` is pinned by tag and image digest, validates the 128 KiB request ceiling, health-checks Nakama, supplies HSTS/security headers and manages public certificates. DNS must already point to the host and ports 80/443 must reach Caddy before startup.
+
+The staging operator environment requires PowerShell 7 in addition to Docker Engine/Compose. On Linux invoke scripts with `pwsh`.
+
+1. On the protected staging host, run `pwsh ./prepare_staging_env.ps1 -Domain <host> -AcmeEmail <operator>` once. It refuses placeholder domains and existing credentials.
+2. Run `validate_staging.ps1`; this renders Compose without starting services and rejects missing secrets, an exposed Nakama API, or a non-loopback console.
+3. Start with `docker compose --env-file .env.staging -f docker-compose.staging.yml up --build -d`.
+4. Run `test_staging.ps1` from a host that reaches the public DNS name. It proves valid TLS/HSTS, authentication, UTC, ownership, creation, commits, idempotency and conflicts.
+5. Run `backup_staging.ps1` before deployments and schema/runtime changes. It writes an ignored custom-format PostgreSQL dump, validates it with `pg_restore --list`, finalizes atomically and records SHA-256. Run `restore_drill.ps1 -BackupPath <dump>` regularly; it verifies the checksum and restores into an isolated disposable PostgreSQL volume without touching staging.
+
+No staging host, domain or credential is committed or provisioned automatically. A successful deployment test is evidence for staging only; it does not change the APK capability flags or authorize production.
