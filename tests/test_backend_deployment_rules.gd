@@ -23,7 +23,7 @@ func _init() -> void:
 	check(Deployment.canonicalize_endpoint({"provider_id": "supabase", "environment": "staging", "host": "game.example", "port": 443, "ssl": true, "client_key": "staging_public_key_1234"}).is_empty(), "unreviewed backend provider cannot be enabled by configuration")
 
 	var no_evidence := Deployment.capability_activation({})
-	check(not no_evidence.account and not no_evidence.clock and not no_evidence.profile and not no_evidence.agency and not no_evidence.billing, "no capability activates from configuration alone")
+	check(not no_evidence.account and not no_evidence.clock and not no_evidence.profile and not no_evidence.economy and not no_evidence.agency and not no_evidence.billing, "no capability activates from configuration alone")
 	var profile_evidence := {
 		"authenticated_session": true,
 		"ownership_verified": true,
@@ -33,15 +33,19 @@ func _init() -> void:
 		"conflict_recovery_verified": true,
 	}
 	var profile_ready := Deployment.capability_activation(profile_evidence)
-	check(profile_ready.account and profile_ready.clock and profile_ready.profile and not profile_ready.agency and not profile_ready.billing, "profile authority activates only after every preceding proof")
+	check(profile_ready.account and profile_ready.clock and profile_ready.profile and not profile_ready.economy and not profile_ready.agency and not profile_ready.billing, "profile authority activates only after every preceding proof")
 	var all_evidence := profile_evidence.duplicate(true)
+	all_evidence.economy_snapshot_verified = true
+	all_evidence.hunt_acceptance_verified = true
+	all_evidence.reward_receipt_verified = true
+	all_evidence.economy_replay_protection_verified = true
 	all_evidence.agency_storage_verified = true
 	all_evidence.agency_authority_verified = true
 	all_evidence.store_receipt_validation_verified = true
 	all_evidence.wallet_replay_protection_verified = true
 	all_evidence.refund_path_verified = true
 	var all_ready := Deployment.capability_activation(all_evidence)
-	check(all_ready.agency and all_ready.billing, "Agency and billing each require their independent end-to-end evidence")
+	check(all_ready.economy and all_ready.agency and all_ready.billing, "economy, Agency, and billing each require their ordered end-to-end evidence")
 	check(not Deployment.secret_safe_for_client({"host": "game.example", "google_credentials_json": "secret"}), "server OAuth credentials are forbidden from client configuration")
 	check(Deployment.secret_safe_for_client(staging), "canonical client endpoint contains no server secret")
 	var probe_now := 2000000000

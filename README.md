@@ -6,7 +6,7 @@ The current playable loop is:
 
 `WARRANT → APPROACH → ASYNCHRONOUS HUNT → INCIDENT → AUTOMATIC COMBAT → REWARD → EQUIPMENT → STRONGER WARRANT`
 
-Crooked Galaxy is Android-first, fully playable in Portuguese and English, and currently device-authoritative. `International 1` is the stable identity of the future global server, but this build does not claim authentication, cloud synchronization, remote economy authority, billing, PvP, rankings, or syndicates.
+Crooked Galaxy is Android-first, fully playable in Portuguese and English, and currently device-authoritative. `International 1` is the stable identity of the future global server, but this build does not claim authentication, cloud synchronization, remote economy authority, billing, PvP, rankings, or syndicates. The isolated Nakama runtime implements one complete remote hunt/economy transaction; the normal game remains disconnected until its live and lifecycle gates pass.
 
 ## Current product state
 
@@ -118,7 +118,7 @@ godot --path . --script res://tools/capture_portraits.gd
 
 Captures are written under `builds/` and are intentionally not retained as source. If the renderer cannot expose a viewport image, the capture process fails instead of recording an empty review.
 
-Before inspecting a supplied raster for acceptance or integrating it, follow `AGENTS.md`, [Notes/ASSET_GENERATION_RULES.md](Notes/ASSET_GENERATION_RULES.md), and [Notes/UI_ASSET_INVENTORY_PT.md](Notes/UI_ASSET_INVENTORY_PT.md). Raw study references never enter production exports.
+Before inspecting a supplied raster for acceptance or integrating it, follow `AGENTS.md`, [Notes/ASSET_GENERATION_RULES.md](Notes/ASSET_GENERATION_RULES.md), and [Notes/UI_ASSET_INVENTORY_PT.md](Notes/UI_ASSET_INVENTORY_PT.md). Modular player portraits additionally follow [Notes/MODULAR_CHARACTER_IMAGE_RULES.md](Notes/MODULAR_CHARACTER_IMAGE_RULES.md). Raw study references never enter production exports.
 
 ## Exports
 

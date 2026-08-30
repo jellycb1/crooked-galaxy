@@ -41,10 +41,19 @@ try {
     $Mount = "$($ResolvedBackup.Replace('\', '/')):/restore/input.dump:ro"
     & $Docker run -d --name $ContainerName -e "POSTGRES_PASSWORD=$DrillPassword" -v "${VolumeName}:/var/lib/postgresql/data" -v $Mount postgres:16.8-alpine | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "Could not start isolated restore-drill database." }
+    # The official image briefly exposes its initialization server before
+    # restarting into the final database. Require several consecutive SQL
+    # probes so the drill cannot race that intentional handoff.
     $Ready = $false
-    for ($Attempt = 0; $Attempt -lt 30; $Attempt += 1) {
-        & $Docker exec $ContainerName pg_isready -U postgres -d postgres 2>$null | Out-Null
-        if ($LASTEXITCODE -eq 0) { $Ready = $true; break }
+    $ConsecutiveReady = 0
+    for ($Attempt = 0; $Attempt -lt 60; $Attempt += 1) {
+        & $Docker exec $ContainerName psql -U postgres -d postgres -Atc "SELECT 1;" 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) {
+            $ConsecutiveReady += 1
+            if ($ConsecutiveReady -ge 6) { $Ready = $true; break }
+        } else {
+            $ConsecutiveReady = 0
+        }
         Start-Sleep -Milliseconds 500
     }
     if (-not $Ready) { throw "Isolated restore-drill database did not become ready." }

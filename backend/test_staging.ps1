@@ -60,6 +60,19 @@ $Summary = Invoke-StagingRpc -Name "cg_session" -Payload @{}
 if ([string]$Summary.account_id -ne $AccountId -or [string]$Summary.active_character_id -ne $AccountId -or @($Summary.owned_character_ids).Count -ne 1) {
     throw "Staging session does not bind exactly one owned active character."
 }
+$Build = Invoke-StagingRpc -Name "cg_build_get" -Payload @{}
+if ([int]$Build.revision -ne 0 -or [int]$Build.build.base_power -ne 10 -or [int]$Build.build.stat_points -ne 0 -or @($Build.build.inventory).Count -ne 0 -or [string]$Build.build.equipment.weapon.id -ne "starter_weapon") {
+    throw "Staging exact starter build snapshot is invalid."
+}
+$UnearnedPoints = @{
+    api_version = 1; command_id = "stage-stats-$RunId"; idempotency_key = "stage-stats-receipt-$RunId"; operation = "attribute_allocate"
+    session_id = $AccountId; shard_id = "international_1"; character_id = $AccountId; expected_revision = 0
+    payload = @{ allocations = @{ strength = 1 } }
+}
+$RejectedPoints = Invoke-StagingRpc -Name "cg_attribute_allocate" -Payload $UnearnedPoints
+if ([string]$RejectedPoints.status -ne "rejected" -or [string]$RejectedPoints.reason_code -ne "insufficient_stat_points" -or [int]$RejectedPoints.server_revision -ne 0) {
+    throw "Staging accepted an unearned attribute allocation."
+}
 
 $Commit = @{
     api_version = 1; command_id = "stage-commit-$RunId"; idempotency_key = "stage-receipt-$RunId"; operation = "profile_commit"
@@ -79,4 +92,4 @@ if ([string]$Conflict.status -ne "conflict" -or [int]$Conflict.server_revision -
     throw "Staging stale revision did not return the canonical conflict."
 }
 
-Write-Host "PASS: public TLS, HSTS, authentication, UTC, character ownership, revisions, idempotency, and conflicts pass on staging."
+Write-Host "PASS: public TLS, HSTS, authentication, UTC, character/build ownership, authority rejection, revisions, idempotency, and conflicts pass on staging."

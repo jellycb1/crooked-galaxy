@@ -4,6 +4,8 @@ logger:
   format: JSON
 runtime:
   js_entrypoint: build/index.js
+  env:
+    - "CG_ENVIRONMENT=staging"
 session:
   token_expiry_sec: 7200
   refresh_token_expiry_sec: 2592000

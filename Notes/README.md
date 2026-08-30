@@ -29,6 +29,7 @@ Quando dois documentos discordarem, aplica-se o documento de maior autoridade. V
 | `Vision.txt` | Fantasia central, tom, ciclo e princípios do produto. |
 | `ACCOUNT_SERVER_CONTRACT.md` | Conta, personagem, International 1 e futura autoridade remota. |
 | `BACKEND_VERTICAL_SLICE_CONTRACT.md` | Protocolo v1 de sessão, UTC, snapshots, comandos idempotentes e recibos remotos. |
+| `REMOTE_ECONOMY_CONTRACT.md` | Autoridade remota de caçadas, economia, recompensas e ordem de ativação anterior a Agências/faturação. |
 | `ONLINE_BACKEND_DECISION_2026-08-29.md` | Seleção de Nakama, alternativas, autenticação, offline, custos e fases de ativação. |
 | `STAGING_RUNBOOK.md` | Topologia TLS, preparação, deploy, backup, rollback e evidência operacional de staging. |
 | `BOUNTY_AGENCY_CONTRACT.md` | Agências de Caçadores, Mandado coletivo, cargos, justiça e autoridade social. |
@@ -49,6 +50,8 @@ Quando dois documentos discordarem, aplica-se o documento de maior autoridade. V
 | `UI_ASSET_INVENTORY_PT.md` | Inventário mestre de assets ainda necessários. |
 | `CHARACTER_ASSET_BRIEF_PT.txt` | Especificação visual das classes e raças para o artista. |
 | `CHARACTER_AND_UI_ASSET_BRIEF_EN.txt` | Brief visual consolidado em inglês para personagens e todos os assets reutilizáveis da UI. |
+| `REQUIRED_ASSET_INVENTORY_EN.txt` | Checklist em inglês contendo apenas nomes e quantidades das entregas visuais. |
+| `MODULAR_CHARACTER_IMAGE_RULES.md` | Regra artística única para produzir as oito raças a partir das 50 referências selecionadas e das descrições aprovadas. |
 | `ASSET_GENERATION_RULES.md` | Gate de receção para material visual fornecido externamente; subordinado à proibição de autoria em `AGENTS.md`. |
 | `ORIGINAL_VISUAL_ASSETS.md` | Proveniência dos assets de produção existentes e experiências rejeitadas. |
 | `REFERENCE_PLACEHOLDERS.md` | Registro arquivado da remoção das antigas referências em runtime. |

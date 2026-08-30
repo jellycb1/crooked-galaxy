@@ -1,6 +1,8 @@
 class_name BackendProtocolRules
 extends RefCounted
 
+const Economy = preload("res://scripts/remote_economy_rules.gd")
+
 const API_VERSION := 1
 const DEFAULT_SHARD_ID := "international_1"
 const MAX_UNIX_MS := 4102444800000
@@ -25,6 +27,12 @@ const ALLOWED_OPERATIONS := {
 	"agency_contribute_intel": true,
 	"agency_capture_attempt": true,
 	"agency_claim_reward": true,
+	"hunt_accept": true,
+	"hunt_resolve": true,
+	"reward_claim": true,
+	"attribute_allocate": true,
+	"inventory_equip": true,
+	"inventory_recycle": true,
 }
 
 const SECRET_KEYS := {
@@ -140,7 +148,7 @@ static func canonical_character_snapshot(response: Dictionary, expected_account_
 static func make_command(command_id: String, idempotency_key: String, operation: String, session_id: String, character_id: String, expected_revision: int, payload: Dictionary) -> Dictionary:
 	if not _valid_identifier(command_id) or not _valid_identifier(idempotency_key) or not _valid_identifier(session_id) or not _valid_identifier(character_id):
 		return {}
-	if not ALLOWED_OPERATIONS.has(operation) or expected_revision < 0 or _contains_secret(payload):
+	if not ALLOWED_OPERATIONS.has(operation) or expected_revision < 0 or _contains_secret(payload) or not _valid_operation_payload(operation, payload):
 		return {}
 	return {
 		"api_version": API_VERSION,
@@ -153,6 +161,41 @@ static func make_command(command_id: String, idempotency_key: String, operation:
 		"expected_revision": expected_revision,
 		"payload": payload.duplicate(true),
 	}
+
+
+static func _valid_operation_payload(operation: String, payload: Dictionary) -> bool:
+	if operation in Economy.OPERATIONS:
+		return Economy.valid_command_payload(operation, payload)
+	match operation:
+		"profile_commit":
+			return _has_exact_keys(payload, ["hunter_name", "appearance"])
+		"agency_apply", "agency_leave":
+			return _has_exact_identifier_keys(payload, ["agency_id"])
+		"agency_contribute_intel":
+			return _has_exact_identifier_keys(payload, ["agency_id", "warrant_id", "event_id"])
+		"agency_capture_attempt":
+			return _has_exact_identifier_keys(payload, ["agency_id", "warrant_id", "event_id", "encounter_id"])
+		"agency_claim_reward":
+			return _has_exact_identifier_keys(payload, ["agency_id", "warrant_id"])
+	return false
+
+
+static func _has_exact_keys(payload: Dictionary, expected: Array) -> bool:
+	if payload.size() != expected.size():
+		return false
+	for key in expected:
+		if not payload.has(key):
+			return false
+	return true
+
+
+static func _has_exact_identifier_keys(payload: Dictionary, expected: Array) -> bool:
+	if not _has_exact_keys(payload, expected):
+		return false
+	for key in expected:
+		if not _valid_identifier(str(payload[key])):
+			return false
+	return true
 
 
 static func canonical_command_receipt(response: Dictionary, command: Dictionary) -> Dictionary:

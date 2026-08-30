@@ -20,6 +20,7 @@ const ANDROID_STAGING_PROBE_MAX_LIFETIME_SECONDS := 600
 const CAP_ACCOUNT := "account"
 const CAP_CLOCK := "clock"
 const CAP_PROFILE := "profile"
+const CAP_ECONOMY := "economy"
 const CAP_AGENCY := "agency"
 const CAP_BILLING := "billing"
 
@@ -101,12 +102,14 @@ static func capability_activation(evidence: Dictionary) -> Dictionary:
 	var account := bool(evidence.get("authenticated_session", false)) and bool(evidence.get("ownership_verified", false))
 	var clock := account and bool(evidence.get("server_clock_verified", false))
 	var profile := clock and bool(evidence.get("snapshot_verified", false)) and bool(evidence.get("idempotent_commit_verified", false)) and bool(evidence.get("conflict_recovery_verified", false))
-	var agency := profile and bool(evidence.get("agency_storage_verified", false)) and bool(evidence.get("agency_authority_verified", false))
-	var billing := profile and bool(evidence.get("store_receipt_validation_verified", false)) and bool(evidence.get("wallet_replay_protection_verified", false)) and bool(evidence.get("refund_path_verified", false))
+	var economy := profile and bool(evidence.get("economy_snapshot_verified", false)) and bool(evidence.get("hunt_acceptance_verified", false)) and bool(evidence.get("reward_receipt_verified", false)) and bool(evidence.get("economy_replay_protection_verified", false))
+	var agency := economy and bool(evidence.get("agency_storage_verified", false)) and bool(evidence.get("agency_authority_verified", false))
+	var billing := economy and bool(evidence.get("store_receipt_validation_verified", false)) and bool(evidence.get("wallet_replay_protection_verified", false)) and bool(evidence.get("refund_path_verified", false))
 	return {
 		CAP_ACCOUNT: account,
 		CAP_CLOCK: clock,
 		CAP_PROFILE: profile,
+		CAP_ECONOMY: economy,
 		CAP_AGENCY: agency,
 		CAP_BILLING: billing,
 	}

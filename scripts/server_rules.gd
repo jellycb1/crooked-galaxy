@@ -16,6 +16,7 @@ const DEFINITIONS := [
 		"account_backend": false,
 		"clock_backend": false,
 		"profile_backend": false,
+		"economy_backend": false,
 		"agency_backend": false,
 		"progress_authority": "device",
 	},
@@ -55,3 +56,7 @@ static func clock_backend_available(server_id: String) -> bool:
 
 static func profile_backend_available(server_id: String) -> bool:
 	return bool(get_definition(server_id).get("profile_backend", false))
+
+
+static func economy_backend_available(server_id: String) -> bool:
+	return bool(get_definition(server_id).get("economy_backend", false))

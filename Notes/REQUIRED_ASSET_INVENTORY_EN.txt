@@ -1,0 +1,439 @@
+CROOKED GALAXY — REQUIRED ASSET INVENTORY
+
+Inventory only. Names and quantities.
+
+
+1. CHARACTER ART
+
+CLASS ILLUSTRATIONS — 3
+- Warrant Breaker
+- Orbit Gunslinger
+- Contract Hacker
+
+MODULAR SPECIES SETS — 8
+- Terran
+- Synthetic
+- Starworn
+- Fungoid
+- Abyssal
+- Mothari
+- Scraproot
+- Glitchlight
+
+MODULAR CHARACTER LAYERS — approximately 96 total
+
+
+2. CORE UI KIT
+
+- Main dossier frame — 1
+- Supporting panel — 1
+- Danger panel — 1
+- Success/receipt panel — 1
+- Item rarity frames — 4
+- Portrait frames — 4
+- Dividers — 3
+- Primary button — 1
+- Secondary button — 1
+- Destructive button — 1
+- Premium button — 1
+- Checkbox — 1
+- Radio button — 1
+- Toggle — 1
+- Slider handle — 1
+- Tab treatment — 1
+- Tooltip frame — 1
+- Confirmation modal frame — 1
+
+
+3. GLOBAL ICONS — 17
+
+- Credits
+- Warp Chips
+- Fuel
+- Scrap
+- Experience
+- Level
+- Power
+- Health
+- Rift Key
+- Time
+- Locked Content
+- New Notification
+- Purchase Completed
+- Error/Unavailable
+- Server Connection
+- Language/International
+- Settings
+
+
+4. MAIN NAVIGATION ICONS — 5
+
+- Warrants
+- Arsenal
+- Hunter
+- Galaxy
+- Menu
+
+
+5. LOGIN AND CHARACTER CREATION — 10
+
+- Game Logo
+- Boot Illustration
+- Login Background
+- Account/Server Icon
+- International 1 Emblem
+- Language Icon
+- Reconnection Icon
+- Maintenance Illustration
+- Update Required Icon
+- Save Recovery Icon
+
+
+6. TARGETS AND MISSIONS
+
+TARGET PORTRAITS
+- Launch/current target — 76
+- First-year total — 140
+
+MISSION PRESSURE ICONS — 3
+- Safe Warrant
+- Standard Warrant
+- Dangerous Warrant
+
+MISSION APPROACH ICONS — 3
+- Corporate Pressure
+- Quick Entry
+- Quiet Network
+
+MISSION STATUS ICONS — 8
+- Boss
+- New Planet
+- Previously Captured
+- Active Mission
+- Incident Waiting
+- Combat Ready
+- Reward Ready
+- Insufficient Fuel
+
+
+7. PLANETS AND GALAXY
+
+CURRENT PLANET PACKAGES — 19
+FIRST-YEAR PLANET PACKAGES — 35
+
+EACH PLANET PACKAGE
+- Habitat Background — 1
+- Planet Medal — 1
+- Planet Silhouette — 1
+- Combat Arena Layer — 1
+- Equipment Ornament Set — 1
+- Incident Illustrations — 2
+
+TOTAL CURRENT INCIDENT ILLUSTRATIONS — 38
+TOTAL FIRST-YEAR INCIDENT ILLUSTRATIONS — 70
+
+
+8. TRAVEL INCIDENT ICONS — 12
+
+- Attack
+- Negotiate
+- Hack
+- Escape
+- Investigate
+- Repair
+- Risk
+- Pay
+- Help
+- Steal
+- Wait
+- Improvise
+
+
+9. COMBAT EFFECTS — 12
+
+- Normal Impact
+- Critical Impact
+- Energy Shot
+- Heavy Strike
+- Hack/Tactical Opening
+- Evasion
+- Block/Damage Reduction
+- Counterattack
+- Healing/Recovery
+- Status Effect
+- Rift Anomaly
+- Defeat Burst
+
+
+10. VICTORY, DEFEAT, AND REWARDS
+
+- Capture Stamp — 1
+- Defeat Stamp — 1
+- Loot Container — 1
+- Rarity Reveals — 4
+
+REWARD ICONS — 10
+- New Item
+- Equipment Upgrade
+- Weaker Item
+- New Collection Entry
+- Recycled Item
+- Level Gained
+- Planet Unlocked
+- New System Unlocked
+- Chapter Completed
+- Recovery Available
+
+
+11. HUNTER INTERFACE
+
+- Hunter Portrait Frame — 1
+- Class Emblems — 3
+- Attribute Icons — 5
+- Equipment Slot Icons — 9
+- Hunter Action Icons — 5
+
+ATTRIBUTE ICONS
+- Strength
+- Vitality
+- Dexterity
+- Intelligence
+- Cunning
+
+EQUIPMENT SLOT ICONS
+- Weapon
+- Helmet
+- Suit
+- Gloves
+- Boots
+- Technical Belt
+- Implant
+- Gadget
+- Relic
+
+HUNTER ACTION ICONS
+- Equip
+- Remove
+- Compare
+- Upgrade
+- Inspect
+
+
+12. MODULAR EQUIPMENT
+
+SLOTS — 9
+- Weapon
+- Helmet
+- Suit
+- Gloves
+- Boots
+- Technical Belt
+- Implant
+- Gadget
+- Relic
+
+PER SLOT
+- Main Silhouettes — 4
+- Interchangeable Attachments — 5
+- Material/Color Mask — 1
+- Rarity Treatments — 4 shared
+- Planet Ornament Sets — 35 shared sets for first year
+
+WEARABLE PORTRAIT LAYERS — 5 slot families
+- Weapon
+- Helmet
+- Suit
+- Gloves
+- Boots
+
+EQUIPMENT TRAIT ICONS — 12
+- Opening Damage
+- Damage Reduction
+- Evasion
+- Accuracy
+- Counterattack
+- Defense Bypass
+- Extra Health
+- Extra Power
+- Critical Effect
+- Fuel/Travel Utility
+- Rift Resistance
+- Collection/Workshop Improvement
+
+
+13. ARSENAL AND WORKSHOP ICONS — 18
+
+- Equip
+- Remove
+- Compare
+- Upgrade Power
+- Reinforce Integrity
+- Recycle
+- Protect/Favorite
+- Locked Item
+- New Item
+- Improved Item
+- Loadout A
+- Loadout B
+- Sorting
+- Filters
+- Pagination
+- Successful Upgrade
+- Failed Upgrade
+- Unavailable Upgrade
+
+
+14. TRANSPORTS AND HANGAR
+
+TRANSPORT ILLUSTRATIONS — 4
+- Licensed Flying Tin
+- Cloned Warp Taxi
+- Repossession Interceptor
+- Executive Escape Yacht
+
+HANGAR ICONS — 7
+- Speed
+- Buy
+- Select
+- Active Transport
+- Required Level
+- Time Saved
+- Transport Comparison
+
+- Ship Platform/Shadow — 1
+
+
+15. MARKET AND MONETIZATION
+
+- Warp Chip — 1
+- Warp Chip Package Illustrations — 5
+- Value Seal — 1
+- Purchase Receipt — 1
+- Secure Purchase Icon — 1
+- Platform Error Icon — 1
+
+MARKET STATUS ICONS — 11
+- Refresh Offers
+- Escalating Cost
+- Sold
+- Out of Stock
+- Insufficient Credits
+- Insufficient Warp Chips
+- Purchase Confirmed
+- Purchase Cancelled
+- Purchase Processing
+- Purchase Failed
+- Restore Purchase
+
+
+16. THE RIFT
+
+- Main Rift Portal — 1
+- Corrupted Rift Frame — 1
+- Reality Keys — 3
+- Reality Emblems — 3
+- Reality Backgrounds — 3
+- Rift Enemy Portraits — 36
+- Rift Reward Icons — 36
+
+ANOMALY ICONS — 5
+- Corrupted Rules
+- Enhanced Enemies
+- Restricted Defenses
+- Time Distortion
+- Unstable Reality
+
+
+17. DAILY AND WEEKLY SYSTEMS
+
+DAILY ICONS — 7
+- Daily Emblem
+- Progress
+- Completed
+- Reward Available
+- Reward Claimed
+- UTC Reset Clock
+- Objective Family Set
+
+WEEKLY ICONS — 7
+- Weekly Operations Emblem
+- 8-Hunt Milestone
+- 20-Hunt Milestone
+- 35-Hunt Milestone
+- Black Warrant Emblem
+- Weekly Completion Stamp
+- Next Rotation Indicator
+
+- Weekly Reward Container — 1
+
+
+18. CAREER AND COLLECTION ICONS — 10
+
+- Career Progression Line
+- Normal Target
+- Captured Target
+- Boss Target
+- Completed Planet
+- Chapter Reward
+- Locked Archive
+- Registered Item Series
+- Collection Completion
+- Mastery Seal
+
+
+19. MENU, SETTINGS, AND SUPPORT ICONS — 20
+
+- Account
+- Server
+- Language
+- Audio
+- Music
+- Vibration
+- Reduced Motion
+- Notifications
+- Text Size
+- Accessibility/Contrast
+- Help
+- Credits
+- Terms
+- Privacy
+- Support
+- Copy Player ID
+- Log Out
+- Delete Account
+- Game Version
+- Connection Diagnostics
+
+
+20. ERROR AND RECOVERY ICONS — 8
+
+- Connection
+- Server
+- Warning
+- Error
+- Security
+- Storage
+- Purchase
+- Update
+
+
+21. INTERFACE NPC BUSTS — 5
+
+- Warrant Clerk
+- Arsenal Mechanic
+- Crooked Market Merchant
+- Hangar Mechanic/Pilot
+- Rift Archivist
+
+
+22. LAUNCH AND STORE ASSETS — 8
+
+- App Icon
+- Game Logo
+- Boot Splash
+- Store Banner/Feature Image
+- Promotional Character Composition
+- Key Art
+- Store Screenshot Set
+- Loading Indicator
+

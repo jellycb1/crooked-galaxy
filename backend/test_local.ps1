@@ -143,6 +143,151 @@ if ([int]$Final.revision -ne 1 -or [int]$Final.profile.credits -ne 25 -or [strin
     throw "Final authoritative snapshot changed after rejected or conflicting commands."
 }
 
+$Economy = Invoke-CgRpc -Name "cg_economy_get" -Payload @{}
+if ([int]$Economy.revision -ne 1 -or [int]$Economy.economy.fuel -ne 100 -or [int]$Economy.economy.inventory_count -ne 0) {
+    throw "Initial authoritative economy snapshot is not canonical."
+}
+$Board = Invoke-CgRpc -Name "cg_hunt_board" -Payload @{}
+if (-not ([string]$Board.board_id).StartsWith("board_") -or ([string]$Board.content_hash).Length -ne 64 -or @($Board.offers).Count -ne 3 -or [int]$Board.offers[0].duration_seconds -ne 2) {
+    throw "Local authoritative hunt board did not expose three accelerated test offers."
+}
+$Offer = $Board.offers[0]
+$AcceptPayload = @{
+    api_version = 1; command_id = "hunt-accept-$RunId"; idempotency_key = "hunt-accept-receipt-$RunId"; operation = "hunt_accept"
+    session_id = $AccountId; shard_id = "international_1"; character_id = $AccountId; expected_revision = 1
+    payload = @{ board_id = [string]$Board.board_id; offer_id = [string]$Offer.offer_id; target_id = [string]$Offer.target_id; approach_id = "quiet_net" }
+}
+$HuntAccepted = Invoke-CgRpc -Name "cg_hunt_accept" -Payload $AcceptPayload
+if ([string]$HuntAccepted.status -ne "accepted" -or [int]$HuntAccepted.server_revision -ne 2 -or [int]$HuntAccepted.snapshot.economy.fuel -ne 95) {
+    throw "Authoritative hunt acceptance did not consume fuel exactly once."
+}
+$AcceptReplay = Invoke-CgRpc -Name "cg_hunt_accept" -Payload $AcceptPayload
+if ([string]$AcceptReplay.status -ne "duplicate" -or [int]$AcceptReplay.snapshot.economy.fuel -ne 95) {
+    throw "Hunt acceptance retry consumed fuel more than once."
+}
+$HuntId = [string]$HuntAccepted.snapshot.economy.active_hunt.hunt_id
+$ResolvePayload = @{
+    api_version = 1; command_id = "hunt-resolve-$RunId"; idempotency_key = "hunt-resolve-receipt-$RunId"; operation = "hunt_resolve"
+    session_id = $AccountId; shard_id = "international_1"; character_id = $AccountId; expected_revision = 2
+    payload = @{ hunt_id = $HuntId }
+}
+$EarlyResolve = Invoke-CgRpc -Name "cg_hunt_resolve" -Payload $ResolvePayload
+if ([string]$EarlyResolve.status -ne "rejected" -or [string]$EarlyResolve.reason_code -ne "hunt_not_ready" -or [int]$EarlyResolve.server_revision -ne 2) {
+    throw "Server UTC gate did not reject an early hunt resolution."
+}
+Start-Sleep -Milliseconds 2200
+$Resolved = Invoke-CgRpc -Name "cg_hunt_resolve" -Payload $ResolvePayload
+if ([string]$Resolved.status -ne "accepted" -or [int]$Resolved.server_revision -ne 3 -or $Resolved.result.won -ne $true -or [string]::IsNullOrWhiteSpace([string]$Resolved.snapshot.economy.pending_reward.reward_id)) {
+    throw "Ready hunt did not create one sealed server reward."
+}
+$ResolveReplay = Invoke-CgRpc -Name "cg_hunt_resolve" -Payload $ResolvePayload
+if ([string]$ResolveReplay.status -ne "duplicate" -or [int]$ResolveReplay.server_revision -ne 3) {
+    throw "Hunt resolution was not idempotent."
+}
+$RewardId = [string]$Resolved.snapshot.economy.pending_reward.reward_id
+$ClaimPayload = @{
+    api_version = 1; command_id = "reward-claim-$RunId"; idempotency_key = "reward-claim-receipt-$RunId"; operation = "reward_claim"
+    session_id = $AccountId; shard_id = "international_1"; character_id = $AccountId; expected_revision = 3
+    payload = @{ hunt_id = $HuntId; reward_id = $RewardId; decision = "store" }
+}
+$Claimed = Invoke-CgRpc -Name "cg_reward_claim" -Payload $ClaimPayload
+if ([string]$Claimed.status -ne "accepted" -or [int]$Claimed.server_revision -ne 4 -or [int]$Claimed.snapshot.economy.credits -ne 52 -or [int]$Claimed.snapshot.economy.xp -ne 49 -or [int]$Claimed.snapshot.economy.inventory_count -ne 1) {
+    throw "Reward claim did not apply the server-authored standard reward exactly once."
+}
+$ClaimReplay = Invoke-CgRpc -Name "cg_reward_claim" -Payload $ClaimPayload
+if ([string]$ClaimReplay.status -ne "duplicate" -or [int]$ClaimReplay.snapshot.economy.credits -ne 52 -or [int]$ClaimReplay.snapshot.economy.inventory_count -ne 1) {
+    throw "Reward claim retry duplicated currency or inventory."
+}
+$EconomyFinal = Invoke-CgRpc -Name "cg_economy_get" -Payload @{}
+if ([int]$EconomyFinal.revision -ne 4 -or @($EconomyFinal.economy.active_hunt.PSObject.Properties).Count -ne 0 -or @($EconomyFinal.economy.pending_reward.PSObject.Properties).Count -ne 0) {
+    throw "Completed hunt left a dangling authoritative transaction."
+}
+
+$BuildAfterFirst = Invoke-CgRpc -Name "cg_build_get" -Payload @{}
+$FirstItemId = [string]@($BuildAfterFirst.build.inventory)[0].id
+if ([int]$BuildAfterFirst.revision -ne 4 -or [int]$BuildAfterFirst.build.stat_points -ne 0 -or @($BuildAfterFirst.build.inventory).Count -ne 1 -or [string]::IsNullOrWhiteSpace($FirstItemId)) {
+    throw "Initial authoritative build snapshot is incomplete."
+}
+$NoPointsPayload = @{
+    api_version = 1; command_id = "stats-empty-$RunId"; idempotency_key = "stats-empty-receipt-$RunId"; operation = "attribute_allocate"
+    session_id = $AccountId; shard_id = "international_1"; character_id = $AccountId; expected_revision = 4
+    payload = @{ allocations = @{ strength = 1 } }
+}
+$NoPoints = Invoke-CgRpc -Name "cg_attribute_allocate" -Payload $NoPointsPayload
+if ([string]$NoPoints.status -ne "rejected" -or [string]$NoPoints.reason_code -ne "insufficient_stat_points" -or [int]$NoPoints.server_revision -ne 4) {
+    throw "Server accepted attribute points the character had not earned."
+}
+
+# A second authored hunt earns level 2 and its two server-issued attribute points.
+$BoardTwo = Invoke-CgRpc -Name "cg_hunt_board" -Payload @{}
+$OfferTwo = $BoardTwo.offers[0]
+$AcceptTwoPayload = @{
+    api_version = 1; command_id = "hunt-accept-two-$RunId"; idempotency_key = "hunt-accept-two-receipt-$RunId"; operation = "hunt_accept"
+    session_id = $AccountId; shard_id = "international_1"; character_id = $AccountId; expected_revision = 4
+    payload = @{ board_id = [string]$BoardTwo.board_id; offer_id = [string]$OfferTwo.offer_id; target_id = [string]$OfferTwo.target_id; approach_id = "quiet_net" }
+}
+$AcceptedTwo = Invoke-CgRpc -Name "cg_hunt_accept" -Payload $AcceptTwoPayload
+if ([string]$AcceptedTwo.status -ne "accepted" -or [int]$AcceptedTwo.server_revision -ne 5) { throw "Second hunt was not accepted." }
+$HuntTwoId = [string]$AcceptedTwo.snapshot.economy.active_hunt.hunt_id
+Start-Sleep -Seconds 3
+$ResolveTwoPayload = @{
+    api_version = 1; command_id = "hunt-resolve-two-$RunId"; idempotency_key = "hunt-resolve-two-receipt-$RunId"; operation = "hunt_resolve"
+    session_id = $AccountId; shard_id = "international_1"; character_id = $AccountId; expected_revision = 5; payload = @{ hunt_id = $HuntTwoId }
+}
+$ResolvedTwo = Invoke-CgRpc -Name "cg_hunt_resolve" -Payload $ResolveTwoPayload
+if ([string]$ResolvedTwo.status -ne "accepted" -or $ResolvedTwo.result.won -ne $true) { throw "Second deterministic starter hunt did not resolve successfully." }
+$RewardTwoId = [string]$ResolvedTwo.snapshot.economy.pending_reward.reward_id
+$ClaimTwoPayload = @{
+    api_version = 1; command_id = "reward-two-$RunId"; idempotency_key = "reward-two-receipt-$RunId"; operation = "reward_claim"
+    session_id = $AccountId; shard_id = "international_1"; character_id = $AccountId; expected_revision = 6
+    payload = @{ hunt_id = $HuntTwoId; reward_id = $RewardTwoId; decision = "store" }
+}
+$ClaimedTwo = Invoke-CgRpc -Name "cg_reward_claim" -Payload $ClaimTwoPayload
+if ([string]$ClaimedTwo.status -ne "accepted" -or [int]$ClaimedTwo.server_revision -ne 7 -or [int]$ClaimedTwo.snapshot.economy.level -ne 2 -or [int]$ClaimedTwo.snapshot.economy.inventory_count -ne 2) {
+    throw "Second reward did not grant the canonical level and inventory progress."
+}
+$BuildLevelTwo = Invoke-CgRpc -Name "cg_build_get" -Payload @{}
+$SecondItemId = [string]@($BuildLevelTwo.build.inventory)[1].id
+if ([int]$BuildLevelTwo.build.stat_points -ne 2 -or [int]$BuildLevelTwo.build.base_power -ne 12 -or [string]::IsNullOrWhiteSpace($SecondItemId)) {
+    throw "Level-up did not expose the server-issued build progress."
+}
+$AllocatePayload = @{
+    api_version = 1; command_id = "stats-allocate-$RunId"; idempotency_key = "stats-allocate-receipt-$RunId"; operation = "attribute_allocate"
+    session_id = $AccountId; shard_id = "international_1"; character_id = $AccountId; expected_revision = 7
+    payload = @{ allocations = @{ strength = 1; vitality = 1 } }
+}
+$Allocated = Invoke-CgRpc -Name "cg_attribute_allocate" -Payload $AllocatePayload
+if ([string]$Allocated.status -ne "accepted" -or [int]$Allocated.server_revision -ne 8 -or [int]$Allocated.snapshot.build.attributes.strength -ne 11 -or [int]$Allocated.snapshot.build.attributes.vitality -ne 11 -or [int]$Allocated.snapshot.build.stat_points -ne 0) {
+    throw "Authoritative attribute allocation did not spend exactly two earned points."
+}
+$AllocatedReplay = Invoke-CgRpc -Name "cg_attribute_allocate" -Payload $AllocatePayload
+if ([string]$AllocatedReplay.status -ne "duplicate" -or [int]$AllocatedReplay.snapshot.build.attributes.strength -ne 11) { throw "Attribute allocation retry spent points twice." }
+$EquipPayload = @{
+    api_version = 1; command_id = "inventory-equip-$RunId"; idempotency_key = "inventory-equip-receipt-$RunId"; operation = "inventory_equip"
+    session_id = $AccountId; shard_id = "international_1"; character_id = $AccountId; expected_revision = 8; payload = @{ item_id = $FirstItemId }
+}
+$Equipped = Invoke-CgRpc -Name "cg_inventory_equip" -Payload $EquipPayload
+$EquippedSlot = [string]@($BuildAfterFirst.build.inventory)[0].slot
+if ([string]$Equipped.status -ne "accepted" -or [int]$Equipped.server_revision -ne 9 -or [string]$Equipped.snapshot.build.equipment.$EquippedSlot.id -ne $FirstItemId -or @($Equipped.snapshot.build.inventory).Count -ne 2) {
+    throw "Equipping an owned item changed ownership or equipped the wrong slot."
+}
+$RecycleEquippedPayload = @{
+    api_version = 1; command_id = "inventory-protected-$RunId"; idempotency_key = "inventory-protected-receipt-$RunId"; operation = "inventory_recycle"
+    session_id = $AccountId; shard_id = "international_1"; character_id = $AccountId; expected_revision = 9; payload = @{ item_id = $FirstItemId }
+}
+$RecycleEquipped = Invoke-CgRpc -Name "cg_inventory_recycle" -Payload $RecycleEquippedPayload
+if ([string]$RecycleEquipped.status -ne "rejected" -or [string]$RecycleEquipped.reason_code -ne "item_equipped") { throw "Equipped inventory item was not protected from recycling." }
+$RecyclePayload = @{
+    api_version = 1; command_id = "inventory-recycle-$RunId"; idempotency_key = "inventory-recycle-receipt-$RunId"; operation = "inventory_recycle"
+    session_id = $AccountId; shard_id = "international_1"; character_id = $AccountId; expected_revision = 9; payload = @{ item_id = $SecondItemId }
+}
+$Recycled = Invoke-CgRpc -Name "cg_inventory_recycle" -Payload $RecyclePayload
+if ([string]$Recycled.status -ne "accepted" -or [int]$Recycled.server_revision -ne 10 -or @($Recycled.snapshot.build.inventory).Count -ne 1 -or [int]$Recycled.result.scrap -lt 1) {
+    throw "Authoritative recycle did not remove exactly one unprotected item."
+}
+$RecycledReplay = Invoke-CgRpc -Name "cg_inventory_recycle" -Payload $RecyclePayload
+if ([string]$RecycledReplay.status -ne "duplicate" -or @($RecycledReplay.snapshot.build.inventory).Count -ne 1) { throw "Recycle retry removed inventory twice." }
+
 # Exercise real concurrent writes against a second fresh account. Both callers
 # use the exact same command identity, as a mobile retry may after a timeout.
 $RaceDeviceId = "cg-race-smoke-$RunId"
@@ -177,4 +322,4 @@ if ($RaceCommits.Count -ne 2 -or -not $RaceStatuses.Contains("accepted") -or -no
     throw "Concurrent identical commit did not resolve to one acceptance and one duplicate receipt."
 }
 
-Write-Host "PASS: local Nakama auth/session, UTC, owned character authority, concurrent idempotency, conflicts, and progression forgery rejection are valid."
+Write-Host "PASS: local Nakama auth/session, UTC, owned character authority, concurrent idempotency, conflicts, forgery rejection, hunt economy, attributes, equipment, and recycling are valid."

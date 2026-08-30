@@ -26,7 +26,7 @@ func _init() -> void:
 func test_honest_unconfigured_boundary() -> void:
 	var service = Service.new()
 	check(not service.backend_available() and not service.supports_remote_sessions() and not service.server_clock_available(), "local adapter advertises no remote session or clock")
-	check(not Servers.account_backend_available(Servers.DEFAULT_ID) and not Servers.clock_backend_available(Servers.DEFAULT_ID) and not Servers.profile_backend_available(Servers.DEFAULT_ID), "International 1 keeps every remote foundation flag disabled")
+	check(not Servers.account_backend_available(Servers.DEFAULT_ID) and not Servers.clock_backend_available(Servers.DEFAULT_ID) and not Servers.profile_backend_available(Servers.DEFAULT_ID) and not Servers.economy_backend_available(Servers.DEFAULT_ID), "International 1 keeps every remote foundation flag disabled")
 	check(not Servers.agency_backend_available(Servers.DEFAULT_ID), "Agency availability remains gated behind its server authority")
 	var server := Servers.get_definition(Servers.DEFAULT_ID)
 	check(str(server.backend_provider) == "nakama" and str(server.backend_environment) == "offline", "International 1 records the selected provider without claiming a deployment")
@@ -82,8 +82,8 @@ func test_character_snapshot() -> void:
 func test_idempotent_commands_and_receipts() -> void:
 	var command := Protocol.make_command("cmd_1001", "idem_1001", "agency_contribute_intel", "session_44", "hunter_7", 19, {
 		"agency_id": "agency_orbit_9",
+		"warrant_id": "warrant_42",
 		"event_id": "hunt_888",
-		"intel": 1,
 	})
 	check(not command.is_empty() and int(command.expected_revision) == 19 and str(command.shard_id) == "international_1", "Agency command carries shard, character, revision, and stable idempotency")
 	var secret_command := Protocol.make_command("cmd_1002", "idem_1002", "profile_commit", "session_44", "hunter_7", 19, {"nested": {"refresh_token": "leak"}})

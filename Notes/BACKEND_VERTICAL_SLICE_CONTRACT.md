@@ -4,7 +4,7 @@ Status: active protocol boundary. Version 1 now has a local authenticated server
 
 ## Product truth
 
-Crooked Galaxy remains device-authoritative and `local_only`. `International 1` is the sole canonical shard, but its account, clock, profile and Agency service flags remain disabled. The client must not display online login, cloud synchronization, Agency membership or server rewards until a real service implements and passes this contract.
+Crooked Galaxy remains device-authoritative and `local_only`. `International 1` is the sole canonical shard, but its account, clock, profile, economy and Agency service flags remain disabled. The client must not display online login, cloud synchronization, Agency membership or server rewards until a real service implements and passes this contract.
 
 This slice deliberately does not persist credentials, contact a server, alter the player-save schema or move progress authority away from the device. It creates the stable seam required before those changes can be made safely.
 
@@ -33,6 +33,8 @@ The local implementation gives each authenticated account exactly one launch cha
 Every mutation carries API version, command ID, idempotency key, operation, session, shard, character, expected revision and payload. Version 1 reserves these operations:
 
 - profile commit;
+- hunt acceptance, resolution and reward claim;
+- attribute allocation, inventory equip and inventory recycle;
 - Agency application and departure;
 - Agency Intel contribution and capture attempt;
 - Agency reward claim.
@@ -44,7 +46,8 @@ Accepted and duplicate receipts must bind the exact command identity and advance
 1. Deploy provider authentication and server UTC against a test environment.
 2. Make character snapshots and profile commits pass ownership, revision, idempotency and conflict tests. **Complete on local loopback and public TLS staging through the official Godot client.**
 3. Exercise offline cache and reconnect without automatic field merging. **Crash-safe rules and a normal main-scene staging reconnect pass on Windows; physical Android lifecycle evidence remains pending.**
-4. Implement server-owned Agency roster and warrant records using the same command receipts.
-5. Enable each capability flag independently only after end-to-end evidence exists.
+4. Implement server-owned normal hunts, economy/build snapshots, reward claims, attribute allocation and inventory mutations using the same command receipts. **Implemented and proven against live loopback Nakama/PostgreSQL with a generated 35-world catalog, frozen accepted-hunt builds and deterministic class/build combat; staging and client activation remain pending.**
+5. Implement server-owned Agency roster and warrant records using verified normal-hunt evidence.
+6. Enable each capability flag independently only after end-to-end evidence exists.
 
 Agency UI, ranking and rewards remain prohibited before steps 1–4. Billing is a separate server-verified boundary and is not implied by this protocol.
