@@ -8,6 +8,7 @@ const AppearanceRules = preload("res://scripts/appearance_rules.gd")
 const TransportRules = preload("res://scripts/transport_rules.gd")
 const ChallengeRules = preload("res://scripts/challenge_rules.gd")
 const ReleaseReadinessRules = preload("res://scripts/release_readiness_rules.gd")
+const ProductionAssetApprovals = preload("res://scripts/production_asset_approvals.gd")
 
 const MAX_LONG_EDGE := {
 	"runtime": 1280,
@@ -88,6 +89,8 @@ const DELIVERY_CONTRACTS := {
 
 const PRODUCTION_BATCH_ORDER := ["style_lock", "identity", "worlds", "transports", "rift"]
 
+static var approved_atomic_set_cache: Dictionary = {}
+
 
 static func is_safe_id(value: String) -> bool:
 	if value.is_empty():
@@ -149,6 +152,15 @@ static func load_texture(kind: String, asset_id: String, variant := "") -> Textu
 	if path.is_empty() or not ResourceLoader.exists(path):
 		return null
 	return ResourceLoader.load(path, "Texture2D", ResourceLoader.CACHE_MODE_REUSE) as Texture2D
+
+
+static func load_approved_texture(kind: String, asset_id: String, variant := "", require_atomic_set := true) -> Texture2D:
+	var path := asset_path(kind, asset_id, variant)
+	if path.is_empty() or not ProductionAssetApprovals.is_approved(path):
+		return null
+	if require_atomic_set and not approved_atomic_set_complete(kind, asset_id, variant):
+		return null
+	return load_texture(kind, asset_id, variant)
 
 
 static func texture_fits_budget(kind: String, texture: Texture2D) -> bool:
@@ -213,6 +225,75 @@ static func production_delivery_manifest() -> Array[Dictionary]:
 		return left_key < right_key
 	)
 	return manifest
+
+
+static func manifest_entry(kind: String, asset_id: String, variant := "") -> Dictionary:
+	for entry in production_delivery_manifest():
+		if str(entry.kind) == kind and str(entry.id) == asset_id and str(entry.variant) == variant:
+			return entry
+	return {}
+
+
+static func approved_atomic_set_complete(kind: String, asset_id: String, variant := "") -> bool:
+	var cache_key := "%s|%s|%s" % [kind, asset_id, variant]
+	if approved_atomic_set_cache.has(cache_key):
+		return bool(approved_atomic_set_cache[cache_key])
+	var entry := manifest_entry(kind, asset_id, variant)
+	if entry.is_empty():
+		approved_atomic_set_cache[cache_key] = false
+		return false
+	var atomic_set := str(entry.atomic_set)
+	for candidate in production_delivery_manifest():
+		if str(candidate.atomic_set) == atomic_set:
+			var path := str(candidate.path)
+			if not ProductionAssetApprovals.is_approved(path) or not ResourceLoader.exists(path):
+				approved_atomic_set_cache[cache_key] = false
+				return false
+	approved_atomic_set_cache[cache_key] = true
+	return true
+
+
+static func rift_asset_id_for_stage(stage_id: String) -> String:
+	for reality in ChallengeRules.REALITIES:
+		var reality_id := str(reality.id)
+		for stage_index in reality.get("stages", []).size():
+			if str(ChallengeRules.stage_at(stage_index, reality_id).get("id", "")) == stage_id:
+				return "%s_%02d" % [reality_id, stage_index + 1]
+	return ""
+
+
+static func approved_character_texture(character_id: String) -> Texture2D:
+	if not ContentDB.get_target(character_id).is_empty():
+		return load_approved_texture("target_portrait", character_id)
+	var rift_asset_id := rift_asset_id_for_stage(character_id)
+	return null if rift_asset_id.is_empty() else load_approved_texture("rift_enemy", rift_asset_id)
+
+
+static func approved_file_errors() -> Array[String]:
+	var errors: Array[String] = []
+	var known_paths := {}
+	for entry in current_required_records():
+		known_paths[str(entry.path)] = entry
+	for path_value in ProductionAssetApprovals.APPROVED_FILES:
+		var path := str(path_value)
+		var expected_hash := ProductionAssetApprovals.expected_sha256(path)
+		if not known_paths.has(path):
+			errors.append("Approved production asset is outside the catalog: %s" % path)
+			continue
+		if expected_hash.length() != 64 or not expected_hash.is_valid_hex_number(false):
+			errors.append("Approved production asset has an invalid SHA-256: %s" % path)
+			continue
+		if not FileAccess.file_exists(path):
+			errors.append("Approved production source is missing: %s" % path)
+			continue
+		if FileAccess.get_sha256(path).to_lower() != expected_hash.to_lower():
+			errors.append("Approved production source hash drifted: %s" % path)
+	var approved_records: Array[Dictionary] = []
+	for path in known_paths:
+		if ProductionAssetApprovals.is_approved(str(path)):
+			approved_records.append(known_paths[path])
+	errors.append_array(technical_errors(approved_records))
+	return errors
 
 
 static func current_required_records() -> Array[Dictionary]:

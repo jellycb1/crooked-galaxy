@@ -15,9 +15,11 @@ $RequiredFiles = @(
 	"Notes/LEVEL_1_30_ASSET_DELIVERY_MANIFEST.md",
 	"scripts/release_readiness_rules.gd",
 	"scripts/asset_intake_rules.gd",
+	"scripts/production_asset_approvals.gd",
 	"tests/test_release_readiness.gd",
 	"tests/test_release_asset_manifest.gd",
 	"tests/test_asset_intake_rules.gd",
+	"tests/test_production_asset_approvals.gd",
 	"tools/audit_release_readiness.gd",
 	"tools/export_release_asset_manifest.gd",
 	"tools/preflight_release_asset_candidates.gd"

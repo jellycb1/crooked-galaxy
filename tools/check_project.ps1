@@ -63,6 +63,7 @@ $Tests = @(
 	"test_touch_scroll_container.gd",
     "test_reference_placeholders.gd",
 	"test_visual_asset_catalog.gd",
+	"test_production_asset_approvals.gd",
 	"test_release_readiness.gd",
 	"test_release_asset_manifest.gd",
 	"test_asset_intake_rules.gd",

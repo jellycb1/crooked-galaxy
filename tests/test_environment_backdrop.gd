@@ -42,6 +42,7 @@ func run() -> void:
 	check(maxi(backdrop.texture_rect.texture.get_width(), backdrop.texture_rect.texture.get_height()) <= 1280, "arsenal environment stays within the Android-first texture budget")
 	backdrop.show_context("combat")
 	check(backdrop.visible and backdrop.texture_rect.texture != null, "original combat environment is runtime-ready")
+	check(not backdrop.using_approved_planet and not backdrop.arena_rect.visible, "unapproved planet art cannot replace or layer over the combat fallback")
 	check(maxi(backdrop.texture_rect.texture.get_width(), backdrop.texture_rect.texture.get_height()) <= 1280, "combat environment stays within the Android-first texture budget")
 	backdrop.show_context("contracts")
 	check(backdrop.texture_rect.texture == contract_texture, "returning to a context reuses its decoded texture instead of blocking navigation on another load")

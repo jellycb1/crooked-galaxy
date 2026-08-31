@@ -1,6 +1,8 @@
 class_name PlanetIcon
 extends Control
 
+const Catalog = preload("res://scripts/visual_asset_catalog.gd")
+
 var planet_id := "dustball"
 var accent := Color("#ffcb58")
 var unlocked := true
@@ -45,6 +47,15 @@ func _draw() -> void:
 	var center := size * 0.5
 	var radius := minf(size.x, size.y) * 0.34
 	var color := accent if unlocked else accent.darkened(0.58)
+	var approved_texture := Catalog.load_approved_texture("planet_icon", planet_id)
+	if approved_texture != null:
+		draw_texture_rect(approved_texture, Rect2(Vector2.ZERO, size), false, Color.WHITE if unlocked else Color(0.42, 0.45, 0.54, 1.0))
+		if current:
+			draw_arc(center, radius + 8.0, 0.0, TAU, 40, Color("#82f6e8"), 2.0, true)
+			draw_circle(center + Vector2(radius + 8.0, 0), 2.6, Color("#82f6e8"))
+		if not unlocked:
+			draw_lock(center, radius)
+		return
 	if current:
 		draw_arc(center, radius + 8.0, 0.0, TAU, 40, Color("#82f6e8"), 2.0, true)
 		draw_circle(center + Vector2(radius + 8.0, 0), 2.6, Color("#82f6e8"))
@@ -91,6 +102,10 @@ func _draw() -> void:
 			draw_circle(center + Vector2(-7, 8), 2.2, Color("#d8ffff"))
 			draw_circle(center + Vector2(6, -9), 1.6, Color("#d8ffff"))
 	if not unlocked:
-		var lock_center := center + Vector2(radius * 0.55, radius * 0.55)
-		draw_rect(Rect2(lock_center - Vector2(5, 2), Vector2(10, 8)), Color("#0b1228"), true)
-		draw_arc(lock_center - Vector2(0, 2), 4.0, PI, TAU, 12, Color("#9aa5ba"), 1.6, true)
+		draw_lock(center, radius)
+
+
+func draw_lock(center: Vector2, radius: float) -> void:
+	var lock_center := center + Vector2(radius * 0.55, radius * 0.55)
+	draw_rect(Rect2(lock_center - Vector2(5, 2), Vector2(10, 8)), Color("#0b1228"), true)
+	draw_arc(lock_center - Vector2(0, 2), 4.0, PI, TAU, 12, Color("#9aa5ba"), 1.6, true)

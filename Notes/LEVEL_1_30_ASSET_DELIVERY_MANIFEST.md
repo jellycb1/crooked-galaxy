@@ -37,3 +37,9 @@ godot --headless --path . --script res://tools/preflight_release_asset_candidate
 ```
 
 When all 17 files are delivered, add `--require-complete`. The preflight rejects missing or unreadable PNGs, incorrect canvas, oversized imports, absent required transparency, unexpected habitat transparency and misaligned modular canvases. Passing it is only the technical gate; reference evidence, manual style review and integrated 450×800 captures remain mandatory before any file enters runtime.
+
+## Runtime approval boundary
+
+The runtime now asks `scripts/visual_asset_catalog.gd` for production art at every planned replacement seam: class promotion, modular species portrait, target and Rift portrait, planet habitat/arena/icon and transport. A candidate is returned only when its exact `res://` path and SHA-256 are recorded in `scripts/production_asset_approvals.gd`. The registry intentionally remains empty while the pilot is in production.
+
+Species and planet replacements are fail-closed and atomic. Even an individually approved file remains invisible until every file in that species or planet set is present and approved. Missing, altered or incomplete sets retain the existing procedural/runtime fallback. `tools/check_project.ps1` validates the registry and stops the build if an approved file disappears, changes hash, leaves the catalog or violates its technical contract.
