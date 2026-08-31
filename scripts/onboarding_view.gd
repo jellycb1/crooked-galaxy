@@ -205,7 +205,9 @@ static func build_appearance(host: CrookedUIFactory, stack: VBoxContainer, state
 	stack.add_child(preview_panel)
 	var preview_copy := host.illustrated_panel_content(preview_panel) as VBoxContainer
 	preview_copy.alignment = BoxContainer.ALIGNMENT_CENTER
-	preview_copy.add_child(host.character_portrait("hunter", 178.0, profile))
+	var preview_portrait := host.character_portrait("hunter", 178.0, profile)
+	preview_portrait.name = "OnboardingAppearancePortrait"
+	preview_copy.add_child(preview_portrait)
 	preview_copy.add_child(host.center_label(SpeciesRulesScript.species_name_for(str(state.player.species_id)), UIDesignSystem.FONT_BODY, host.GOLD))
 	for category in AppearanceRulesScript.CATEGORIES:
 		var selector := host.panel(HBoxContainer.new(), Color("#0d1730"), 12, 8)
@@ -223,18 +225,18 @@ static func build_appearance(host: CrookedUIFactory, stack: VBoxContainer, state
 		row.add_child(copy)
 		copy.add_child(host.center_label(t("APPEARANCE_%s" % category.to_upper(), category.to_upper()), UIDesignSystem.FONT_CAPTION, host.MUTED))
 		var option_id := str(host.appearance_draft[category])
-		copy.add_child(host.center_label(t("APPEARANCE_OPTION_%s" % option_id.to_upper(), option_id.to_upper()), UIDesignSystem.FONT_CAPTION, host.INK))
+		var option_label := host.center_label(t("APPEARANCE_OPTION_%s" % option_id.to_upper(), option_id.to_upper()), UIDesignSystem.FONT_CAPTION, host.INK)
+		option_label.name = "OnboardingAppearanceValue_%s" % category
+		copy.add_child(option_label)
 		var next := host.action_button("›", host.CYAN, true)
 		next.custom_minimum_size = Vector2(UIDesignSystem.TOUCH_TARGET_MIN, UIDesignSystem.TOUCH_TARGET_MIN)
 		next.name = "OnboardingAppearanceNext_%s" % category
 		row.add_child(next)
 		previous.pressed.connect(func():
-			host.appearance_draft = AppearanceRulesScript.cycle(host.appearance_draft, category, -1)
-			host.call("render")
+			update_appearance_preview(host, state, category, -1, preview_portrait, option_label)
 		)
 		next.pressed.connect(func():
-			host.appearance_draft = AppearanceRulesScript.cycle(host.appearance_draft, category, 1)
-			host.call("render")
+			update_appearance_preview(host, state, category, 1, preview_portrait, option_label)
 		)
 	var confirm := host.primary_action(t("ONB_APPEARANCE_CONFIRM", "CONFIRMAR APARÊNCIA"), host.LIME)
 	confirm.name = "OnboardingAppearanceConfirm"
@@ -246,6 +248,16 @@ static func build_appearance(host: CrookedUIFactory, stack: VBoxContainer, state
 	)
 	var content := stack.get_parent().get_parent() as VBoxContainer
 	content.add_child(confirm)
+
+
+static func update_appearance_preview(host: CrookedUIFactory, state: StateScript, category: String, direction: int, portrait: Control, option_label: Label) -> void:
+	host.appearance_draft = AppearanceRulesScript.cycle(host.appearance_draft, category, direction)
+	var option_id := str(host.appearance_draft[category])
+	option_label.text = t("APPEARANCE_OPTION_%s" % option_id.to_upper(), option_id.to_upper())
+	var profile: Dictionary = state.player.duplicate(true)
+	profile.appearance = host.appearance_draft.duplicate(true)
+	portrait.set("equipment_profile", profile)
+	portrait.queue_redraw()
 
 
 static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: StateScript) -> void:

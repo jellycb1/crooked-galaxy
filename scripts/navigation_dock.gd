@@ -110,6 +110,7 @@ func navigation_button(destination_id: String, display_label: String, icon_kind:
 	icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	icon.configure(icon_kind, visual_color)
 	stack.add_child(icon)
+	button.set_meta("navigation_icon", icon)
 	var caption := Label.new()
 	caption.name = "PrimaryNavCaption_%s" % destination_id
 	caption.text = display_label
@@ -118,6 +119,7 @@ func navigation_button(destination_id: String, display_label: String, icon_kind:
 	caption.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 	caption.add_theme_color_override("font_color", accent if selected else INK)
 	stack.add_child(caption)
+	button.set_meta("navigation_caption", caption)
 	if badge_count > 0:
 		add_navigation_badge(button, destination_id, badge_count)
 	button.pressed.connect(func(): destination_selected.emit(destination_id))
@@ -134,20 +136,21 @@ func refresh_navigation_button(button: Button, destination_id: String, display_l
 	button.add_theme_stylebox_override("pressed", dock_style(Color("#0b1d3a"), accent, 1))
 	button.add_theme_stylebox_override("focus", dock_style(accent if selected else Color("#16284d"), GOLD, 3))
 	var visual_color := accent
-	var icon := button.find_child("PrimaryNavIcon_%s" % destination_id, true, false) as HubDestinationIcon
+	var icon := button.get_meta("navigation_icon", null) as HubDestinationIcon
 	if icon != null:
 		icon.configure(icon_kind, visual_color)
-	var caption := button.find_child("PrimaryNavCaption_%s" % destination_id, true, false) as Label
+	var caption := button.get_meta("navigation_caption", null) as Label
 	if caption != null:
 		caption.text = display_label
 		caption.add_theme_color_override("font_color", accent if selected else INK)
-	var existing_badge := button.find_child("PrimaryNavBadge_%s" % destination_id, false, false) as Label
+	var existing_badge := button.get_meta("navigation_badge") as Label if button.has_meta("navigation_badge") else null
 	if badge_count > 0:
 		if existing_badge == null:
 			add_navigation_badge(button, destination_id, badge_count)
 		else:
 			existing_badge.text = str(mini(99, badge_count))
 	elif existing_badge != null:
+		button.set_meta("navigation_badge", null)
 		button.remove_child(existing_badge)
 		existing_badge.queue_free()
 
@@ -173,6 +176,7 @@ func add_navigation_badge(button: Button, destination_id: String, badge_count: i
 	badge.add_theme_stylebox_override("normal", badge_style)
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(badge)
+	button.set_meta("navigation_badge", badge)
 
 
 func dock_style(fill: Color, border: Color, width: int) -> StyleBoxFlat:

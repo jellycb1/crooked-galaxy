@@ -172,9 +172,12 @@ func run_test() -> void:
 	await process_frame
 	check(state.onboarding_step() == "appearance" and str(state.player.species_id) == "synthetic", "confirmed species advances exactly to cosmetic customization")
 	check(scene.find_child("OnboardingAppearancePreview", true, false) != null and scene.find_child("OnboardingAppearanceNext_palette", true, false) != null, "appearance step exposes a live portrait and touch-friendly cosmetic selectors")
+	var appearance_generation := int(scene.render_generation)
+	var appearance_portrait := scene.find_child("OnboardingAppearancePortrait", true, false) as Control
 	(scene.find_child("OnboardingAppearanceNext_palette", true, false) as Button).pressed.emit()
 	await process_frame
-	check(str(scene.appearance_draft.palette) == "warm", "appearance selectors update the reversible live draft")
+	var palette_value := scene.find_child("OnboardingAppearanceValue_palette", true, false) as Label
+	check(str(scene.appearance_draft.palette) == "warm" and int(scene.render_generation) == appearance_generation and scene.find_child("OnboardingAppearancePortrait", true, false) == appearance_portrait and palette_value != null and palette_value.text == "QUENTE", "appearance selectors update portrait and copy without rebuilding the mobile screen")
 	(scene.find_child("OnboardingAppearanceConfirm", true, false) as Button).pressed.emit()
 	await process_frame
 	check(state.onboarding_step() == "name" and str(state.player.appearance.palette) == "warm", "appearance confirmation persists the cosmetic recipe before naming")

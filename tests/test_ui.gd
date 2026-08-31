@@ -28,6 +28,8 @@ func run_smoke_test() -> void:
 	root.add_child(scene)
 	await process_frame
 	check(scene.content.get_child_count() >= 4, "bounty board renders")
+	var cached_navigation_controls := scene.find_children("PrimaryNav_*", "Button", true, false)
+	check(cached_navigation_controls.size() == 5 and cached_navigation_controls.all(func(button): return button.get_meta("navigation_icon", null) != null and button.get_meta("navigation_caption", null) != null), "persistent navigation retains direct icon and caption references across UI rebuilds")
 	var header_character := scene.find_child("HeaderCharacterAction", true, false) as Button
 	check(header_character != null and scene.find_child("HeaderHunterPortrait", true, false) != null, "primary header keeps hunter identity and character navigation visible")
 	check(scene.find_child("HeaderResourceStrip", true, false) != null and ["HeaderCredits", "HeaderScrap", "HeaderReputation", "HeaderWins"].all(func(node_name): return scene.find_child(node_name, true, false) != null), "primary header keeps all resources in one compact ledger")
@@ -171,10 +173,17 @@ func run_smoke_test() -> void:
 	var combat_stage := scene.find_child("CombatArenaStage", true, false) as PanelContainer
 	var combat_stage_style := combat_stage.get_theme_stylebox("panel") as StyleBoxFlat if combat_stage != null else null
 	check(combat_stage_style != null and combat_stage_style.border_width_top == 2, "the bespoke arena retains a material brass edge without obscuring combat")
+	var static_combat_backdrop := scene.find_child("CombatBackdrop", true, false)
+	var dynamic_combat_effects := scene.find_child("CombatEffectsOverlay", true, false)
 	state.combat_step()
 	check(scene.refresh_combat_view(), "combat turns refresh through the incremental mobile path")
-	check(scene._timed_ui_cache.has("CombatArenaStage") and scene._timed_ui_cache.has("CombatHealthBar_hunter"), "timed combat refreshes retain direct control references instead of rescanning the UI tree")
+	check(scene._timed_ui_cache.has("CombatArenaStage") and scene._timed_ui_cache.has("CombatHealthBar_hunter") and scene._timed_ui_cache.has("CombatEffectsOverlay") and not scene._timed_ui_cache.has("CombatBackdrop"), "timed combat refreshes retain direct dynamic references without redrawing the static arena")
 	await process_frame
+	var settled_static_draws := int(static_combat_backdrop.draw_count)
+	var settled_effect_draws := int(dynamic_combat_effects.draw_count)
+	dynamic_combat_effects.call("set_events", state.combat_events)
+	await process_frame
+	check(int(static_combat_backdrop.draw_count) == settled_static_draws and int(dynamic_combat_effects.draw_count) > settled_effect_draws, "combat effect updates redraw only the transient overlay after arena layout settles")
 	check(scene.find_child("CombatArenaStage", true, false) == combat_stage, "incremental combat refresh preserves the expensive arena subtree")
 	check(state.combat_events.size() == 2, "combat action cards render")
 	var turn_balance := scene.find_child("CombatTurnBalance", true, false) as Label

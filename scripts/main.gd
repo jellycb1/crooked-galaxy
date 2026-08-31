@@ -3,6 +3,7 @@ extends "res://scripts/ui_factory.gd"
 const SpaceBackdropScript = preload("res://scripts/space_backdrop.gd")
 const EnvironmentBackdropScript = preload("res://scripts/environment_backdrop.gd")
 const CombatBackdropScript = preload("res://scripts/combat_backdrop.gd")
+const CombatEffectsOverlayScript = preload("res://scripts/combat_effects_overlay.gd")
 const SoundFXScript = preload("res://scripts/sound_fx.gd")
 const ContractRules = preload("res://scripts/contract_rules.gd")
 const ClassRulesScript = preload("res://scripts/class_rules.gd")
@@ -330,25 +331,22 @@ func render() -> void:
 		child.queue_free()
 	navigation_dock.hide_and_clear()
 	content.add_theme_constant_override("separation", 16)
+	if GameState.requires_onboarding() and not GameState.save_recovery_required:
+		# Character creation owns the complete screen. Building the regular game
+		# header first only to discard it made every draft tap allocate twice.
+		combat_timer.stop()
+		victory_timer.stop()
+		hunt_timer.stop()
+		OnboardingViewScript.build(self, content, GameState)
+		touch_tooltip_layer.bind_scope(content)
+		call_deferred("restore_action_focus", previous_focus_name, current_generation)
+		return
 	build_header()
 	if not GameState.save_warning.is_empty():
 		content.add_child(save_warning_banner())
 	if GameState.save_recovery_required:
 		combat_timer.stop()
 		victory_timer.stop()
-		call_deferred("restore_action_focus", previous_focus_name, current_generation)
-		return
-	if GameState.requires_onboarding():
-		# The recovery surface above must retain precedence when no trustworthy
-		# identity can be read. Ordinary incomplete profiles continue here.
-		for child in content.get_children():
-			content.remove_child(child)
-			child.queue_free()
-		combat_timer.stop()
-		victory_timer.stop()
-		hunt_timer.stop()
-		OnboardingViewScript.build(self, content, GameState)
-		touch_tooltip_layer.bind_scope(content)
 		call_deferred("restore_action_focus", previous_focus_name, current_generation)
 		return
 	match GameState.phase:
@@ -2428,9 +2426,12 @@ func build_combat() -> void:
 	content.add_child(stage)
 	var backdrop: Control = CombatBackdropScript.new()
 	backdrop.name = "CombatBackdrop"
-	backdrop.events = GameState.combat_events
 	backdrop.planet_id = str(GameState.current_bounty.get("planet_id", ContentDB.PLANET.id))
 	stage.add_child(backdrop)
+	var combat_effects: Control = CombatEffectsOverlayScript.new()
+	combat_effects.name = "CombatEffectsOverlay"
+	combat_effects.set_events(GameState.combat_events)
+	stage.add_child(combat_effects)
 	var stage_margin := MarginContainer.new()
 	stage_margin.add_theme_constant_override("margin_left", 18)
 	stage_margin.add_theme_constant_override("margin_right", 18)
@@ -2578,10 +2579,9 @@ func refresh_combat_view() -> bool:
 
 	refresh_fighter_health("hunter", GameState.player_hp, player_maximum, CYAN)
 	refresh_fighter_health(str(GameState.current_bounty.id), GameState.enemy_hp, enemy_maximum, CORAL)
-	var backdrop := timed_ui_control("CombatBackdrop")
-	if backdrop != null:
-		backdrop.set("events", GameState.combat_events)
-		backdrop.queue_redraw()
+	var combat_effects := timed_ui_control("CombatEffectsOverlay")
+	if combat_effects != null:
+		combat_effects.call("set_events", GameState.combat_events)
 	for child in event_row.get_children():
 		event_row.remove_child(child)
 		child.free()
