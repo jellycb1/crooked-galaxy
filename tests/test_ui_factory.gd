@@ -56,6 +56,13 @@ func _init() -> void:
 	var matching_illustrated := factory.illustrated_panel(VBoxContainer.new(), 20)
 	var matching_illustrated_frame := matching_illustrated.get_child(0) as PanelContainer
 	check(illustrated_frame.get_theme_stylebox("panel") == matching_illustrated_frame.get_theme_stylebox("panel"), "matching focal dossiers reuse one 9-slice style resource")
+	var supporting := factory.supporting_panel(VBoxContainer.new(), factory.PANEL_LIGHT, 24)
+	var supporting_frame := supporting.get_child(0) as PanelContainer
+	check(supporting.custom_minimum_size.y >= 112.0 and supporting.get_theme_stylebox("panel") is StyleBoxFlat and supporting_frame.get_theme_stylebox("panel") is StyleBoxTexture, "factory reserves the supplied supporting frame for section-level panels with safe physical height")
+	check(factory.supporting_panel_content(supporting) is VBoxContainer, "supporting panel exposes its content without leaking the fill/frame composition")
+	var matching_supporting := factory.supporting_panel(VBoxContainer.new(), factory.PANEL_LIGHT, 24)
+	var matching_supporting_frame := matching_supporting.get_child(0) as PanelContainer
+	check(supporting_frame.get_theme_stylebox("panel") == matching_supporting_frame.get_theme_stylebox("panel"), "matching supporting panels reuse one 9-slice style resource")
 	factory.view_mode = "career"
 	factory.inventory_filter = "armor"
 	factory.inventory_sort = "rarity"
@@ -77,7 +84,7 @@ func _init() -> void:
 	check(factory.briefing_context.is_empty() and factory.career_section == "progress" and factory.career_scroll_position == 0 and factory.career_archive_planet_index == 0 and not factory.career_section_switch_pending, "factory reset clears stale briefing and career positions")
 	check(factory.market_scroll_position == 0 and factory.hangar_scroll_position == 0 and factory.inventory_scroll_position == 0 and factory.galaxy_scroll_position == 0 and factory.galaxy_page_index == -1 and factory.galaxy_focus_planet_id.is_empty(), "factory reset clears remembered commerce, inventory, and Galaxy positions")
 
-	for control in [title, button, outlined, rebuild_title, rebuild_body, rebuild_primary, rebuild_secondary, metric, rebuild_focal, portrait, equipment, card, matching_card, illustrated, matching_illustrated]:
+	for control in [title, button, outlined, rebuild_title, rebuild_body, rebuild_primary, rebuild_secondary, metric, rebuild_focal, portrait, equipment, card, matching_card, illustrated, matching_illustrated, supporting, matching_supporting]:
 		control.free()
 	factory.free()
 	if failures == 0:

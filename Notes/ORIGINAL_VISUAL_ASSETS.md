@@ -25,9 +25,10 @@ Generated with the built-in OpenAI image-generation workflow. No reference image
 | Asset | Runtime context | Production record |
 | --- | --- | --- |
 | `assets/ui/main-dossier-frame-runtime-512x384.png` | Focused dossiers and previews; reusable `StyleBoxTexture` source | Exact user-supplied runtime asset from the Crooked Galaxy art pipeline. It passed the mandatory intake gate and was explicitly approved for integration on 2026-08-31. The file is preserved byte-for-byte; runtime 9-slice margins are 79/61/98/68 pixels. |
+| `assets/ui/supporting-panel-runtime-candidate-v1.png` | Section-level supporting information panels | Exact user-supplied runtime asset from the Crooked Galaxy art pipeline. It passed isolated and integrated 450×800 validation at full and half width and was explicitly approved for integration on 2026-08-31. The file is preserved byte-for-byte; runtime 9-slice margins are 48/44/48/44 pixels, code supplies the opaque content fill, and safe content margins are at least 40 horizontal/36 vertical pixels. |
 | `assets/ui/panel_frame_space.png` | Superseded illustrated-panel frame | Previous production frame retained temporarily for visual regression comparison. It is no longer referenced by the runtime catalog or UI factory. |
 
-Technical validation for the active frame: 512×384 RGBA, genuine transparent interior and corners, 9-slice margins of 79/61/98/68 source pixels, and a byte-identical copy of the approved source. Shared immutable factory styles apply the asset only to illustrated focal panels. Supporting cards, repeated rows, settings, and commerce retain code-native navy/steel styling so the illustrated frame remains a focused hierarchy marker.
+Technical validation for the active focal frame: 512×384 RGBA, genuine transparent interior and corners, 9-slice margins of 79/61/98/68 source pixels, and a byte-identical copy of the approved source. Shared immutable factory styles apply it only to illustrated focal panels. The approved supporting frame is limited to section-level information panels with at least 112 logical pixels of height. Repeated rows, chips, settings and commerce remain code-native navy/steel so hierarchy stays legible.
 
 ## Rejected experiments
 

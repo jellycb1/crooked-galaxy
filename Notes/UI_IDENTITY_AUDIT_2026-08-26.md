@@ -4,7 +4,7 @@
 
 Archived completion snapshot. It records the 2026-08-26 validation pass; current visual authority lives in `VISUAL_DIRECTION.md`, `UI_ASSET_INVENTORY_PT.md`, and the executable UI tests.
 
-No new raster was generated in this pass. The explicitly approved `assets/ui/panel_frame_space.png` is reused as a 9-slice focal frame, while supporting components remain code-native.
+No raster was generated in this pass. This historical audit originally used `assets/ui/panel_frame_space.png`; the active runtime now uses the explicitly approved user-supplied focal and supporting 9-slice frames recorded in `ORIGINAL_VISUAL_ASSETS.md`. Repeated rows, chips, settings and commerce remain code-native.
 
 ## Enforced hierarchy
 

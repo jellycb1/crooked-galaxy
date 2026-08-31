@@ -44,6 +44,12 @@ func run() -> void:
 	var panel_image := panel_texture.get_image() if panel_texture != null else Image.new()
 	check(not panel_image.is_empty() and panel_image.get_size() == Vector2i(512, 384), "approved illustrated panel stays at its supplied runtime size")
 	check(panel_image.get_format() == Image.FORMAT_RGBA8 and panel_image.get_pixel(0, 0).a <= 0.01, "approved illustrated panel preserves genuine transparent corners")
+	var supporting_path := "res://assets/ui/supporting-panel-runtime-candidate-v1.png"
+	check(FileAccess.file_exists(supporting_path), "approved supporting panel is tracked as a runtime asset")
+	var supporting_texture := load(supporting_path) as Texture2D
+	var supporting_image := supporting_texture.get_image() if supporting_texture != null else Image.new()
+	check(not supporting_image.is_empty() and supporting_image.get_size() == Vector2i(512, 384), "approved supporting panel stays at its supplied runtime size")
+	check(supporting_image.get_format() == Image.FORMAT_RGBA8 and supporting_image.get_pixel(0, 0).a <= 0.01, "approved supporting panel preserves genuine transparent corners")
 	backdrop.free()
 	if failures == 0:
 		print("PASS: accepted production visuals are runtime-ready and rejected class drafts remain excluded")

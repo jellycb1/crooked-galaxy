@@ -12,6 +12,8 @@ const UIDesignSystem = preload("res://scripts/ui_design_system.gd")
 const ILLUSTRATED_PANEL_TEXTURE = preload("res://assets/ui/main-dossier-frame-runtime-512x384.png")
 const ILLUSTRATED_PANEL_TEXTURE_MARGINS := Rect2(79.0, 61.0, 98.0, 68.0)
 const ILLUSTRATED_PANEL_FILL := Color("#0b142df2")
+const SUPPORTING_PANEL_TEXTURE = preload("res://assets/ui/supporting-panel-runtime-candidate-v1.png")
+const SUPPORTING_PANEL_TEXTURE_MARGINS := Rect2(48.0, 44.0, 48.0, 44.0)
 
 const INK := Color("#f4f2ff")
 const MUTED := Color("#9da8c8")
@@ -63,6 +65,7 @@ var locale_draft := ""
 var server_draft := ""
 var _support_style_cache: Dictionary = {}
 var _illustrated_style_cache: Dictionary = {}
+var _supporting_frame_style_cache: Dictionary = {}
 var _button_style_cache: Dictionary = {}
 
 
@@ -137,6 +140,23 @@ func illustrated_panel_content(container: PanelContainer) -> Control:
 	return frame.get_child(0) as Control
 
 
+func supporting_panel(child: Control, fill_color: Color = PANEL_LIGHT, margin: int = 24) -> PanelContainer:
+	var container := PanelContainer.new()
+	container.custom_minimum_size.y = 112.0
+	container.add_theme_stylebox_override("panel", box_style(fill_color, 2))
+	var frame := PanelContainer.new()
+	frame.name = "SupportingFrame"
+	frame.add_theme_stylebox_override("panel", cached_supporting_frame_style(margin))
+	frame.add_child(child)
+	container.add_child(frame)
+	return container
+
+
+func supporting_panel_content(container: PanelContainer) -> Control:
+	var frame := container.get_child(0) as PanelContainer
+	return frame.get_child(0) as Control
+
+
 func cached_illustrated_box_style(margin: int) -> StyleBoxTexture:
 	if _illustrated_style_cache.has(margin):
 		return _illustrated_style_cache[margin] as StyleBoxTexture
@@ -153,6 +173,27 @@ func cached_illustrated_box_style(margin: int) -> StyleBoxTexture:
 	style.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
 	style.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
 	_illustrated_style_cache[margin] = style
+	return style
+
+
+func cached_supporting_frame_style(margin: int) -> StyleBoxTexture:
+	if _supporting_frame_style_cache.has(margin):
+		return _supporting_frame_style_cache[margin] as StyleBoxTexture
+	var style := StyleBoxTexture.new()
+	style.texture = SUPPORTING_PANEL_TEXTURE
+	style.texture_margin_left = SUPPORTING_PANEL_TEXTURE_MARGINS.position.x
+	style.texture_margin_top = SUPPORTING_PANEL_TEXTURE_MARGINS.position.y
+	style.texture_margin_right = SUPPORTING_PANEL_TEXTURE_MARGINS.size.x
+	style.texture_margin_bottom = SUPPORTING_PANEL_TEXTURE_MARGINS.size.y
+	var horizontal_safe_margin := maxf(float(margin), 40.0)
+	var vertical_safe_margin := maxf(float(margin), 36.0)
+	style.content_margin_left = horizontal_safe_margin
+	style.content_margin_top = vertical_safe_margin
+	style.content_margin_right = horizontal_safe_margin
+	style.content_margin_bottom = vertical_safe_margin
+	style.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	style.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	_supporting_frame_style_cache[margin] = style
 	return style
 
 

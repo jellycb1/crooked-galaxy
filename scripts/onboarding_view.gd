@@ -102,10 +102,10 @@ static func build_login(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 	selected_server.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 	selected_server.disabled = true
 	server_row.add_child(selected_server)
-	var notice := host.panel(VBoxContainer.new(), host.PANEL_LIGHT, 16, 15)
+	var notice := host.supporting_panel(VBoxContainer.new(), host.PANEL_LIGHT, 24)
 	notice.name = "LocalSessionNotice"
 	stack.add_child(notice)
-	var copy := notice.get_child(0) as VBoxContainer
+	var copy := host.supporting_panel_content(notice) as VBoxContainer
 	copy.add_child(host.label(t("ONB_LOCAL_SESSION_TITLE", "SESSÃO LOCAL DE TESTE"), UIDesignSystem.FONT_CAPTION, host.LIME))
 	var explanation := host.label(t("ONB_LOCAL_SESSION_DESCRIPTION", "Ainda não existe servidor de contas. Esta entrada não pede senha, não simula autenticação online e mantém o progresso apenas neste dispositivo."), UIDesignSystem.FONT_CAPTION, host.INK)
 	explanation.name = "OnboardingSessionDescription"
@@ -168,10 +168,10 @@ static func build_class(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 		)
 		stack.add_child(card)
 	if not pending_definition.is_empty():
-		var mechanics := host.panel(VBoxContainer.new(), Color("#111d3a"), 14, 11)
+		var mechanics := host.supporting_panel(VBoxContainer.new(), Color("#111d3a"), 24)
 		mechanics.name = "OnboardingClassMechanics"
 		stack.add_child(mechanics)
-		var mechanics_copy := mechanics.get_child(0) as VBoxContainer
+		var mechanics_copy := host.supporting_panel_content(mechanics) as VBoxContainer
 		mechanics_copy.add_theme_constant_override("separation", 3)
 		mechanics_copy.add_child(host.label(t("ONB_CLASS_PROVISIONAL", "IDENTIDADE DE CLASSE · MECÂNICA ATIVA"), UIDesignSystem.FONT_CAPTION, host.LIME))
 		var flavor := host.label(localized_class_field(pending_definition, "flavor"), UIDesignSystem.FONT_CAPTION, host.MUTED)

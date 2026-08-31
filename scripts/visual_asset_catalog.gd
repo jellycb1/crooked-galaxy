@@ -28,6 +28,7 @@ const MAX_LONG_EDGE := {
 
 const STATIC_RUNTIME_PATHS := {
 	"panel_frame": "res://assets/ui/main-dossier-frame-runtime-512x384.png",
+	"supporting_panel": "res://assets/ui/supporting-panel-runtime-candidate-v1.png",
 	"boot_splash": "res://assets/boot_splash.png",
 	"contracts_fallback": "res://assets/backgrounds/bounty_office.png",
 	"world_fallback": "res://assets/backgrounds/frontier_spaceport.png",
