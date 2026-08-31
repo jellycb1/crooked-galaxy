@@ -16,7 +16,7 @@ This is the concise starting point for a new task. Product details remain author
 
 ## Runtime and online boundary
 
-- Project version is `0.99.0`, Android version code `168`.
+- Project version is `0.99.1`, Android version code `169`.
 - The normal game remains device-authoritative and boots offline.
 - The pinned Nakama/PostgreSQL staging stack and authoritative hunt/build transaction have passed loopback, public-TLS Windows and Android-emulator probes.
 - Endpoint, client key, account/profile/economy activation, billing, PvP, rankings and Bounty Agencies remain disabled in the ordinary APK.
