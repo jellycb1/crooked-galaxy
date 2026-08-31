@@ -289,9 +289,9 @@ static func career_claim_notice(state: StateScript) -> String:
 
 
 static func claim_receipt_card(host: CrookedUIFactory, notice: String) -> PanelContainer:
-	var receipt := host.panel(HBoxContainer.new(), Color("#173356"), 12, 11)
+	var receipt := host.success_receipt_panel(HBoxContainer.new(), 22)
 	receipt.name = "CareerClaimReceipt"
-	var row := receipt.get_child(0) as HBoxContainer
+	var row := host.success_receipt_content(receipt) as HBoxContainer
 	row.add_theme_constant_override("separation", 10)
 	var stamp := host.center_label("✓", UIDesignSystem.FONT_BODY, host.LIME)
 	stamp.custom_minimum_size = Vector2(28, 28)

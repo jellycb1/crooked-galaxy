@@ -2,6 +2,7 @@ class_name EquipmentIcon
 extends Control
 
 var item: Dictionary = {}
+var draw_outer_frame := true
 
 
 func _ready() -> void:
@@ -17,11 +18,12 @@ func _draw() -> void:
 	var ink := Color("#071024")
 	var rarity := rarity_color(str(item.get("rarity", "Comum")))
 	var origin_color := planet_color(str(item.get("origin_planet_id", "")))
-	var frame := PackedVector2Array([Vector2(0.12, 0.03), Vector2(0.88, 0.03), Vector2(0.97, 0.12), Vector2(0.97, 0.88), Vector2(0.88, 0.97), Vector2(0.12, 0.97), Vector2(0.03, 0.88), Vector2(0.03, 0.12)])
-	draw_colored_polygon(frame, Color(origin_color, 0.16))
-	var closed := frame.duplicate()
-	closed.append(frame[0])
-	draw_polyline(closed, rarity, 0.045, true)
+	if draw_outer_frame:
+		var frame := PackedVector2Array([Vector2(0.12, 0.03), Vector2(0.88, 0.03), Vector2(0.97, 0.12), Vector2(0.97, 0.88), Vector2(0.88, 0.97), Vector2(0.12, 0.97), Vector2(0.03, 0.88), Vector2(0.03, 0.12)])
+		draw_colored_polygon(frame, Color(origin_color, 0.16))
+		var closed := frame.duplicate()
+		closed.append(frame[0])
+		draw_polyline(closed, rarity, 0.045, true)
 	match str(item.get("slot", "weapon")):
 		"weapon": draw_weapon(ink, rarity, origin_color)
 		"helmet": draw_helmet(ink, rarity, origin_color)

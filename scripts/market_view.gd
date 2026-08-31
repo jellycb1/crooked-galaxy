@@ -204,10 +204,11 @@ static func offer_card(host: CrookedUIFactory, state: StateScript, offer: Dictio
 
 
 static func refresh_confirmation_panel(host: CrookedUIFactory, state: StateScript, refresh_cost: int) -> PanelContainer:
-	var panel := host.panel(VBoxContainer.new(), Color("#382344"), 15, 12)
+	var panel := host.confirmation_panel(VBoxContainer.new(), 28)
 	panel.name = "MarketRefreshConfirmation"
 	var box := panel.get_child(0) as VBoxContainer
 	box.add_theme_constant_override("separation", 9)
+	box.add_child(host.runtime_divider())
 	var warning := host.label(t("MARKET_REFRESH_CONFIRMATION", "CONFIRMAR RENOVAÇÃO · gastar ◆ %d remove estas três ofertas e gera uma nova seleção.", [refresh_cost]), UIDesignSystem.FONT_CAPTION, host.INK)
 	warning.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(warning)

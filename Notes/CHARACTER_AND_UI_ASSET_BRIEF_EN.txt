@@ -1,6 +1,6 @@
 CROOKED GALAXY — CHARACTER AND UI ART BRIEF
 
-Status: active English-language brief for the user or an external artist. It does not authorize Codex to create or modify visual assets.
+Status: active English-language brief for the user, an external artist or Codex operating under the authorization and validation rules in AGENTS.md.
 
 Purpose: describe the visual appearance of the three launch classes, eight launch species, and the complete reusable UI art set. The intended identity is clean and organized, 2D, hand-drawn, comedic space RPG with a worn frontier atmosphere.
 

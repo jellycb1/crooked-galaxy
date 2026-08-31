@@ -247,10 +247,11 @@ static func build_portal_reveal(host: CrookedUIFactory, content: VBoxContainer, 
 
 
 static func retry_confirmation_panel(host: CrookedUIFactory, state: CrookedGameState, stage_id: String, cost: int, use_number: int) -> PanelContainer:
-	var panel := host.panel(VBoxContainer.new(), Color("#382344"), 15, 12)
+	var panel := host.confirmation_panel(VBoxContainer.new(), 28)
 	panel.name = "ChallengeRetryConfirmation"
 	var box := panel.get_child(0) as VBoxContainer
 	box.add_theme_constant_override("separation", 9)
+	box.add_child(host.runtime_divider())
 	var warning := host.label(t("RIFT_RETRY_CONFIRMATION", "CONFIRMAR REPETIÇÃO %d/3 · gastar ◆ %d repete o mesmo inimigo, anomalia e recompensa selada.", [use_number, cost]), UIDesignSystem.FONT_CAPTION, host.INK)
 	warning.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(warning)

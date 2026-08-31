@@ -30,6 +30,7 @@ const AndroidFeedbackScript = preload("res://scripts/android_feedback.gd")
 const HuntChoiceIconScript = preload("res://scripts/hunt_choice_icon.gd")
 const HubDestinationIconScript = preload("res://scripts/hub_destination_icon.gd")
 const NavigationDockScript = preload("res://scripts/navigation_dock.gd")
+const TouchTooltipLayerScript = preload("res://scripts/touch_tooltip_layer.gd")
 
 var body: VBoxContainer
 var content: VBoxContainer
@@ -41,6 +42,7 @@ var arsenal_warmup_timer: Timer
 var last_combat_message := ""
 var combat_fast := false
 var sound_fx: Node
+var touch_tooltip_layer: TouchTooltipLayer
 var previous_phase := -1
 var space_backdrop: Control
 var environment_backdrop: Control
@@ -193,6 +195,8 @@ func build_shell() -> void:
 	add_child(environment_backdrop)
 	sound_fx = SoundFXScript.new()
 	add_child(sound_fx)
+	touch_tooltip_layer = TouchTooltipLayerScript.new()
+	add_child(touch_tooltip_layer)
 
 	safe_container = MarginContainer.new()
 	safe_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -340,6 +344,7 @@ func render() -> void:
 		victory_timer.stop()
 		hunt_timer.stop()
 		OnboardingViewScript.build(self, content, GameState)
+		touch_tooltip_layer.bind_scope(content)
 		call_deferred("restore_action_focus", previous_focus_name, current_generation)
 		return
 	match GameState.phase:
@@ -366,6 +371,9 @@ func render() -> void:
 		GameState.Phase.CHAPTER_COMPLETE:
 			build_chapter_complete()
 	update_primary_navigation()
+	touch_tooltip_layer.dismiss()
+	touch_tooltip_layer.bind_scope(content)
+	touch_tooltip_layer.bind_scope(navigation_dock)
 	restore_session_scroll(current_generation)
 	schedule_arsenal_warmup(current_generation)
 	if GameState.phase == GameState.Phase.COMBAT and not timed_actions_suspended:
@@ -1842,7 +1850,7 @@ func bounty_card(bounty: Dictionary) -> PanelContainer:
 	row.add_theme_constant_override("separation", 24)
 	box.add_child(row)
 
-	var target_portrait := character_portrait(str(bounty.id), 220)
+	var target_portrait := framed_portrait(str(bounty.id), 220, {}, "hostile")
 	target_portrait.name = "BountyPortrait_%s" % str(bounty.id)
 	row.add_child(target_portrait)
 
@@ -2711,7 +2719,7 @@ func build_chapter_complete() -> void:
 	var target_name := localized_content_field("target", target, "name")
 	box.add_child(center_label(t("CHAPTER_COMPLETE_TITLE", "CAPÍTULO CONCLUÍDO"), UIDesignSystem.FONT_CAPTION, GOLD))
 	box.add_child(center_label(planet_name.to_upper(), UIDesignSystem.FONT_SCREEN_TITLE, INK))
-	box.add_child(character_portrait(str(target.get("id", "mayor_gold_dust")), 174))
+	box.add_child(framed_portrait(str(target.get("id", "mayor_gold_dust")), 174, {}, "boss"))
 	box.add_child(center_label(t("CHAPTER_COMPLETE_FINAL_WARRANT", "MANDADO FINAL EXECUTADO"), UIDesignSystem.FONT_CAPTION, LIME))
 	box.add_child(center_label(target_name, UIDesignSystem.FONT_EMPHASIS, GOLD))
 	var verdict := center_label(localized_content_field("planet", planet, "completion_text"), UIDesignSystem.FONT_CAPTION, MUTED)

@@ -68,11 +68,11 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	summary_box.add_child(policy)
 	list.add_child(summary)
 	if state.last_notice_context == "daily" and not state.last_notice.is_empty():
-		var receipt := host.panel(VBoxContainer.new(), Color("#173f48"), 12, 10)
+		var receipt := host.success_receipt_panel(VBoxContainer.new(), 22)
 		receipt.name = "DailyClaimReceipt"
 		var receipt_label := host.label(str(state.last_notice), UIDesignSystem.FONT_CAPTION, host.LIME)
 		receipt_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		(receipt.get_child(0) as VBoxContainer).add_child(receipt_label)
+		(host.success_receipt_content(receipt) as VBoxContainer).add_child(receipt_label)
 		list.add_child(receipt)
 	var ready := state.daily_rewards_ready()
 	if ready > 0:

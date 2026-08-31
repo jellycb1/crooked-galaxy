@@ -34,7 +34,7 @@ Class illustration and personal avatar have different jobs. Class art sells an a
 - **Pistoleiro Orbital** — tall coat-and-hat silhouette, visible sidearm, agile asymmetry, mustard gold and cyan targeting accent.
 - **Hacker de Contratos** — narrow layered silhouette, articulated tech rig, projected intrusion tools, cyan with acidic lime accent.
 
-The initial generated class trio was rejected because its serious tactical concept-art language contradicted the intended caricature-led RPG. Vector emblems are the intentional production presentation until an externally supplied replacement passes `Notes/ASSET_GENERATION_RULES.md` and the user explicitly requests integration of that exact file.
+The initial generated class trio was rejected because its serious tactical concept-art language contradicted the intended caricature-led RPG. Vector emblems remain the intentional fallback until a replacement passes `Notes/ASSET_GENERATION_RULES.md` and is validated in context.
 
 ## UI composition
 
@@ -71,4 +71,4 @@ The hierarchy has been checked across login, class/species/appearance/name onboa
 - Reusable interface frames are stored at logical-viewport scale and rendered through `StyleBoxTexture`; the approved panel is 660×124 RGBA and expands without scaling its corner identity.
 - Identical support, action, focal-frame, and navigation styles share immutable resources within the active UI host; any screen-specific mutation must duplicate the shared style first.
 - Load large class art only on screens that display it, reuse Godot's resource cache, and keep procedural/vector fallbacks.
-- New art is supplied by the user or an external artist. `Notes/ASSET_GENERATION_RULES.md` requires one off-runtime candidate, explicit integration approval, then a 450×800 physical capture and technical checks; Codex does not generate or edit that candidate.
+- New art may be supplied by the user, an external artist or Codex. `Notes/ASSET_GENERATION_RULES.md` requires an off-runtime source or reproducible original, documented integration scope, a 450×800 physical capture and technical checks before publication.

@@ -134,11 +134,11 @@ static func build_collection_section(host: CrookedUIFactory, content: VBoxContai
 	overview_box.add_child(overview_hint)
 	section.add_child(overview)
 	if state.last_notice_context == "collection" and not state.last_notice.is_empty():
-		var receipt := host.panel(VBoxContainer.new(), Color("#173f48"), 12, 10)
+		var receipt := host.success_receipt_panel(VBoxContainer.new(), 22)
 		receipt.name = "CollectionClaimReceipt"
 		var receipt_text := host.label(str(state.last_notice), UIDesignSystem.FONT_CAPTION, host.LIME)
 		receipt_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		(receipt.get_child(0) as VBoxContainer).add_child(receipt_text)
+		(host.success_receipt_content(receipt) as VBoxContainer).add_child(receipt_text)
 		section.add_child(receipt)
 	section.add_child(collection_milestones_panel(host, state))
 	var discovered: Array = state.player.get("discovered_item_variant_ids", [])

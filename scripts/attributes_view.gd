@@ -125,10 +125,10 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 
 static func hunter_section_tab(host: CrookedUIFactory, section_id: String, title: String, accent: Color) -> Button:
 	var selected := host.hunter_section == section_id
-	var tab := host.primary_action(title, accent) if selected else host.secondary_action(title, accent)
+	var tab := host.selected_tab_action(title) if selected else host.secondary_action(title, accent)
 	tab.name = "HunterTab_%s" % section_id
 	tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	tab.custom_minimum_size.y = 76
+	tab.custom_minimum_size.y = 100 if selected else 76
 	tab.pressed.connect(func():
 		host.hunter_section = section_id
 		host.call("render")

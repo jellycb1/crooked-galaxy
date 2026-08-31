@@ -131,10 +131,10 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	equipment_delta.name = "RewardEquipmentDelta"
 	box.add_child(equipment_delta)
 	box.add_child(host.center_label(local_text("REWARD_RECYCLE_VALUE", "RECICLAGEM · %d SUCATA", [Rules.salvage_value(item)]), UIDesignSystem.FONT_CAPTION, host.MUTED))
-	var receipt_panel := host.panel(VBoxContainer.new(), Color("#0d1530"), 10, 8)
+	var receipt_panel := host.success_receipt_panel(VBoxContainer.new(), 18)
 	receipt_panel.name = "RewardContractReceipt"
 	box.add_child(receipt_panel)
-	var receipt_box := receipt_panel.get_child(0) as VBoxContainer
+	var receipt_box := host.success_receipt_content(receipt_panel) as VBoxContainer
 	receipt_box.add_theme_constant_override("separation", 3)
 	var contract_scrap := int(state.current_bounty.get("scrap_reward", 0))
 	var reward_line := local_text("REWARD_RECEIPT", "RECIBO · ◈ %d CRÉDITOS · %d XP", [int(reward_preview.credits), int(state.current_bounty.xp)])

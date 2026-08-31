@@ -81,11 +81,11 @@ $ReadmeLines = @(Get-Content -LiteralPath $ReadmePath)
 $SyncText = Get-Content -LiteralPath (Join-Path $ProjectRoot "scripts/profile_sync_rules.gd") -Raw
 $AccountContractText = Get-Content -LiteralPath (Join-Path $NotesRoot "ACCOUNT_SERVER_CONTRACT.md") -Raw
 
-if (-not $AgentsText.Contains("Codex must not generate") -or $AgentsText.Contains("Generate one draft")) {
-    throw "AGENTS.md has conflicting visual-authorship instructions."
+if (-not $AgentsText.Contains("The project owner authorizes Codex") -or $AgentsText.Contains("Codex must not generate")) {
+    throw "AGENTS.md has conflicting visual-asset authorization instructions."
 }
-if (-not $GateText.Contains("Codex must not generate") -or $GateText.Contains("### 2. Generate one draft")) {
-    throw "The visual intake gate has reverted to asset-generation instructions."
+if (-not $GateText.Contains("the project owner authorizes Codex") -or $GateText.Contains("Codex must not generate")) {
+    throw "The visual intake gate no longer matches the project owner's asset authorization."
 }
 if ($VisionText.Contains("used as Placeholders keeping") -or $WeeklyText.Contains("45 caçadas semanais")) {
     throw "An obsolete product or pacing claim returned to an active contract."

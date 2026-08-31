@@ -9,6 +9,7 @@ const TransportIconScript = preload("res://scripts/transport_icon.gd")
 const EquipmentPresentationScript = preload("res://scripts/equipment_presentation.gd")
 const UILocaleRulesScript = preload("res://scripts/locale_rules.gd")
 const UIDesignSystem = preload("res://scripts/ui_design_system.gd")
+const VisualAssetCatalogScript = preload("res://scripts/visual_asset_catalog.gd")
 const ILLUSTRATED_PANEL_TEXTURE = preload("res://assets/ui/main-dossier-frame-runtime-512x384.png")
 const ILLUSTRATED_PANEL_TEXTURE_MARGINS := Rect2(79.0, 61.0, 98.0, 68.0)
 const ILLUSTRATED_PANEL_FILL := Color("#0b142df2")
@@ -67,6 +68,8 @@ var _support_style_cache: Dictionary = {}
 var _illustrated_style_cache: Dictionary = {}
 var _supporting_frame_style_cache: Dictionary = {}
 var _button_style_cache: Dictionary = {}
+var _runtime_texture_cache: Dictionary = {}
+var _runtime_frame_style_cache: Dictionary = {}
 
 
 func reset_transient_navigation() -> void:
@@ -155,6 +158,95 @@ func supporting_panel(child: Control, fill_color: Color = PANEL_LIGHT, margin: i
 func supporting_panel_content(container: PanelContainer) -> Control:
 	var frame := container.get_child(0) as PanelContainer
 	return frame.get_child(0) as Control
+
+
+func confirmation_panel(child: Control, margin: int = 32) -> PanelContainer:
+	var container := PanelContainer.new()
+	container.name = "ConfirmationModalFrame"
+	container.custom_minimum_size.y = 180.0
+	container.add_theme_stylebox_override("panel", runtime_frame_style("confirmation_modal", Rect2(64, 56, 64, 56), margin))
+	container.add_child(child)
+	return container
+
+
+func success_receipt_panel(child: Control, margin: int = 24) -> PanelContainer:
+	var container := PanelContainer.new()
+	container.name = "SuccessReceiptSurface"
+	container.custom_minimum_size.y = 152.0
+	container.add_theme_stylebox_override("panel", box_style(Color("#102438f2"), 2))
+	var frame := PanelContainer.new()
+	frame.name = "SuccessReceiptFrame"
+	frame.add_theme_stylebox_override("panel", runtime_frame_style("success_receipt", Rect2(72, 64, 72, 64), margin))
+	frame.add_child(child)
+	container.add_child(frame)
+	return container
+
+
+func success_receipt_content(container: PanelContainer) -> Control:
+	var frame := container.get_child(0) as PanelContainer
+	return frame.get_child(0) as Control
+
+
+func runtime_divider(minimum_height := 20.0) -> TextureRect:
+	var divider := TextureRect.new()
+	divider.name = "IllustratedDivider"
+	divider.texture = runtime_texture("plain_divider")
+	divider.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	divider.stretch_mode = TextureRect.STRETCH_SCALE
+	divider.custom_minimum_size.y = minimum_height
+	divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return divider
+
+
+func selected_tab_action(text_value: String) -> Button:
+	var button := secondary_action(text_value, CYAN)
+	button.custom_minimum_size.y = 100.0
+	button.add_theme_font_size_override("font_size", UIDesignSystem.FONT_BODY)
+	button.add_theme_color_override("font_color", INK)
+	button.add_theme_color_override("font_hover_color", Color.WHITE)
+	button.add_theme_color_override("font_pressed_color", Color.WHITE)
+	var style := runtime_frame_style("selected_tab", Rect2(44, 24, 44, 20), 14)
+	button.add_theme_stylebox_override("normal", style)
+	button.add_theme_stylebox_override("hover", style)
+	button.add_theme_stylebox_override("pressed", style)
+	button.add_theme_stylebox_override("focus", button_box_style(Color("#16284d"), GOLD, 12, 3))
+	return button
+
+
+func configure_slider(slider: Slider) -> Slider:
+	var handle := runtime_texture("slider_handle")
+	if handle != null:
+		slider.add_theme_icon_override("grabber", handle)
+		slider.add_theme_icon_override("grabber_highlight", handle)
+	return slider
+
+
+func runtime_texture(asset_id: String) -> Texture2D:
+	if _runtime_texture_cache.has(asset_id):
+		return _runtime_texture_cache[asset_id] as Texture2D
+	var texture := VisualAssetCatalogScript.load_texture("runtime", asset_id)
+	_runtime_texture_cache[asset_id] = texture
+	return texture
+
+
+func runtime_frame_style(asset_id: String, margins: Rect2, content_margin: int) -> StyleBoxTexture:
+	var key := "%s:%s" % [asset_id, content_margin]
+	if _runtime_frame_style_cache.has(key):
+		return _runtime_frame_style_cache[key] as StyleBoxTexture
+	var style := StyleBoxTexture.new()
+	style.texture = runtime_texture(asset_id)
+	style.texture_margin_left = margins.position.x
+	style.texture_margin_top = margins.position.y
+	style.texture_margin_right = margins.size.x
+	style.texture_margin_bottom = margins.size.y
+	style.content_margin_left = content_margin
+	style.content_margin_top = content_margin
+	style.content_margin_right = content_margin
+	style.content_margin_bottom = content_margin
+	style.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	style.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	_runtime_frame_style_cache[key] = style
+	return style
 
 
 func cached_illustrated_box_style(margin: int) -> StyleBoxTexture:
@@ -343,33 +435,77 @@ func class_icon(class_id: String, dimension: float) -> Control:
 	return icon
 
 
-func framed_portrait(character_id: String, dimension: float, equipment_profile: Dictionary = {}) -> Control:
+func framed_portrait(character_id: String, dimension: float, equipment_profile: Dictionary = {}, relationship := "allied") -> Control:
 	var stack := Control.new()
 	stack.custom_minimum_size = Vector2(dimension, dimension)
 	stack.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	stack.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var portrait := character_portrait(character_id, dimension - 8.0, equipment_profile)
+	var use_supplied_frame := UIDesignSystem.physical_pixels(dimension) >= 106.0
+	var inset := dimension * 0.10 if use_supplied_frame else 4.0
+	var portrait := character_portrait(character_id, dimension - inset * 2.0, equipment_profile)
 	portrait.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	portrait.offset_left = 4.0
-	portrait.offset_top = 4.0
-	portrait.offset_right = -4.0
-	portrait.offset_bottom = -4.0
+	portrait.offset_left = inset
+	portrait.offset_top = inset
+	portrait.offset_right = -inset
+	portrait.offset_bottom = -inset
 	stack.add_child(portrait)
-	var frame: Control = PortraitFrameScript.new()
-	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	frame.configure(CYAN)
-	stack.add_child(frame)
+	if use_supplied_frame:
+		var frame := TextureRect.new()
+		frame.name = "SuppliedPortraitFrame_%s" % relationship
+		frame.texture = runtime_texture("portrait_%s" % relationship if relationship in ["allied", "boss", "hostile", "neutral"] else "portrait_neutral")
+		frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		frame.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		stack.add_child(frame)
+	else:
+		var fallback_frame: Control = PortraitFrameScript.new()
+		fallback_frame.name = "ProceduralPortraitFrame"
+		fallback_frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		fallback_frame.configure(CYAN)
+		stack.add_child(fallback_frame)
 	return stack
 
 
 func equipment_icon(item: Dictionary, dimension: float) -> Control:
-	var result: Control = EquipmentIconScript.new()
-	result.item = item.duplicate(true)
-	result.custom_minimum_size = Vector2(dimension, dimension)
-	result.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	result.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	return result
+	var use_supplied_frame := UIDesignSystem.physical_pixels(dimension) >= 72.0
+	var icon: Control = EquipmentIconScript.new()
+	icon.item = item.duplicate(true)
+	icon.draw_outer_frame = not use_supplied_frame
+	if not use_supplied_frame:
+		icon.custom_minimum_size = Vector2(dimension, dimension)
+		icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		return icon
+	var stack := Control.new()
+	stack.name = "SuppliedRarityFrame_%s" % str(item.get("rarity", "Comum"))
+	stack.custom_minimum_size = Vector2(dimension, dimension)
+	stack.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	stack.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	icon.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var inset := dimension * 0.14
+	icon.offset_left = inset
+	icon.offset_top = inset
+	icon.offset_right = -inset
+	icon.offset_bottom = -inset
+	stack.add_child(icon)
+	var rarity_frame := TextureRect.new()
+	rarity_frame.texture = runtime_texture(rarity_frame_asset_id(str(item.get("rarity", "Comum"))))
+	rarity_frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	rarity_frame.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	rarity_frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	rarity_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_child(rarity_frame)
+	return stack
+
+
+func rarity_frame_asset_id(rarity: String) -> String:
+	match rarity:
+		"Épico", "Epic": return "rarity_tier_4"
+		"Raro", "Rare": return "rarity_tier_3"
+		"Incomum", "Uncommon": return "rarity_tier_2"
+		_: return "rarity_tier_1"
 
 
 func transport_icon(transport: Dictionary, dimension: float) -> Control:
