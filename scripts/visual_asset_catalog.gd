@@ -7,6 +7,7 @@ const SpeciesRules = preload("res://scripts/species_rules.gd")
 const AppearanceRules = preload("res://scripts/appearance_rules.gd")
 const TransportRules = preload("res://scripts/transport_rules.gd")
 const ChallengeRules = preload("res://scripts/challenge_rules.gd")
+const ReleaseReadinessRules = preload("res://scripts/release_readiness_rules.gd")
 
 const MAX_LONG_EDGE := {
 	"runtime": 1280,
@@ -183,6 +184,31 @@ static func current_required_records() -> Array[Dictionary]:
 	return records
 
 
+static func production_slice_required_records() -> Array[Dictionary]:
+	var records: Array[Dictionary] = []
+	for definition in ClassRules.DEFINITIONS:
+		records.append(record("class_promo", str(definition.id), "", "classes"))
+	for definition in SpeciesRules.DEFINITIONS:
+		var species_id := str(definition.id)
+		for kind in SPECIES_SIMPLE_KINDS:
+			records.append(record(kind, species_id, "", "species"))
+		for kind in SPECIES_LAYER_OPTIONS:
+			var category := str(SPECIES_LAYER_OPTIONS[kind])
+			for option in AppearanceRules.OPTIONS[category]:
+				records.append(record(kind, species_id, str(option), "species"))
+	for target in ReleaseReadinessRules.production_slice_targets():
+		records.append(record("target_portrait", str(target.id), "", "targets"))
+	for planet in ReleaseReadinessRules.production_slice_planets():
+		var planet_id := str(planet.id)
+		for kind in ["planet_habitat", "planet_arena", "planet_icon"]:
+			records.append(record(kind, planet_id, "", "planets"))
+	for transport in ReleaseReadinessRules.production_slice_transports():
+		records.append(record("transport", str(transport.id), "", "transports"))
+	for stage_index in ReleaseReadinessRules.PRODUCTION_SLICE_RIFT_FLOORS:
+		records.append(record("rift_enemy", "%s_%02d" % [ReleaseReadinessRules.PRODUCTION_SLICE_RIFT_REALITY_ID, stage_index + 1], "", "rift"))
+	return records
+
+
 static func readiness_summary(records := current_required_records()) -> Dictionary:
 	var groups := {}
 	var available := 0
@@ -210,6 +236,21 @@ static func missing_records(records := current_required_records()) -> Array[Dict
 		if not bool(entry.get("exists", false)):
 			missing.append(entry)
 	return missing
+
+
+static func technical_errors(records := current_required_records()) -> Array[String]:
+	var errors: Array[String] = []
+	for entry in records:
+		if not bool(entry.get("exists", false)):
+			continue
+		var kind := str(entry.get("kind", ""))
+		var path := str(entry.get("path", ""))
+		var texture := ResourceLoader.load(path, "Texture2D", ResourceLoader.CACHE_MODE_REUSE) as Texture2D
+		if texture == null:
+			errors.append("Available catalog asset does not load as Texture2D: %s" % path)
+		elif not texture_fits_budget(kind, texture):
+			errors.append("Catalog asset exceeds the %s mobile long-edge budget: %s" % [kind, path])
+	return errors
 
 
 static func fallback_contract(kind: String) -> String:

@@ -104,6 +104,8 @@ if ($VisionText.Contains("used as Placeholders keeping") -or $WeeklyText.Contain
 }
 if (-not $ReleaseText.Contains("Mecanicamente completo") -or
 	-not $ReleaseText.Contains("Primeiro slice de produção: níveis 1–30") -or
+	-not $ReleaseText.Contains("151 entregas visuais finais") -or
+	-not $ReleaseText.Contains("tools/audit_release_readiness.gd") -or
 	-not $ReleaseText.Contains("ainda não está visualmente completo nem pronto para lançamento")) {
 	throw "Release readiness no longer separates mechanical completion from production and launch readiness."
 }

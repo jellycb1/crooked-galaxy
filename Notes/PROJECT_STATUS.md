@@ -25,6 +25,7 @@ This is the concise starting point for a new task. Product details remain author
 ## Visual state
 
 - The complete visual catalog currently records 443 required deliverables, 21 available runtime-core assets and 422 missing character, destination, enemy, transport or icon deliveries. Mechanically complete content must not be described as visually complete.
+- The executable level 1–30 gate isolates 151 final art deliveries from that annual catalog: 3 classes, 96 modular species units, 24 targets, 18 world assets, 4 transports and 6 Rift enemies. Its mechanical scope passes; the current visual result is 0/151, measured independently by `tools/audit_release_readiness.gd` while functional fallbacks remain active.
 - The approved focal dossier, supporting panel and fourteen specialized runtime UI assets are integrated.
 - The reviewed 26-file core UI batch therefore has 16 integrated assets.
 - Four painted button faces, one danger panel and two opaque dividers were rejected at phone size.

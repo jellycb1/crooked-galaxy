@@ -106,6 +106,14 @@ godot --headless --path . --script res://tools/audit_rift_realities.gd
 godot --headless --path . --script res://tools/audit_visual_asset_readiness.gd -- --missing
 ```
 
+Audit the closed level 1–30 production slice separately from the annual catalog:
+
+```powershell
+godot --headless --path . --script res://tools/audit_release_readiness.gd -- --missing
+```
+
+Add `--require-visual` when the slice is expected to be complete; the command then fails while any of the 151 final deliveries is absent.
+
 Campaign simulation accepts `CG_CAMPAIGN_BUILD`, `CG_CAMPAIGN_STRATEGY`, `CG_CAMPAIGN_CAREERS`, `CG_CAMPAIGN_MARKET=active|off`, and `CG_CAMPAIGN_TRANSPORT=active|off` for focused comparisons.
 
 ## Visual QA

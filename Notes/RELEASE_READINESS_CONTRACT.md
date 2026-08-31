@@ -45,6 +45,8 @@ O slice inclui:
 - Cada família visual passa individualmente por `ASSET_GENERATION_RULES.md`, pela matriz de capturas e por inspeção a 450×800.
 - A auditoria visual deve distinguir o slice 1–30 do catálogo anual completo para que o progresso imediato seja mensurável.
 
+O gate executável é `tools/audit_release_readiness.gd`. A sua lista fechada contém 151 entregas visuais finais: 3 classes, 96 unidades do kit modular das 8 raças, 24 alvos, 18 entregas planetárias, 4 transportes e 6 inimigos da Fenda. Assets runtime já aprovados e controles code-native não inflam esta contagem nem bloqueiam o slice por ausência de substituto raster.
+
 ## Gate de experiência e dispositivo
 
 Antes de expandir o âmbito ou ativar economia online:

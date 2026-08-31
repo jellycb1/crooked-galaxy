@@ -43,6 +43,7 @@ func _init() -> void:
 	check(int(summary.required) == records.size(), "readiness summary preserves the required total")
 	check(int(summary.available) + int(summary.missing) == int(summary.required), "readiness totals are internally consistent")
 	check(int(summary.groups.runtime_core.missing) == 0, "all existing runtime core assets remain present")
+	check(Catalog.technical_errors(records).is_empty(), "all available catalog assets load and respect their mobile budgets")
 	for runtime_id in Catalog.STATIC_RUNTIME_PATHS:
 		var texture := Catalog.load_texture("runtime", str(runtime_id))
 		check(texture != null, "runtime core texture loads through the catalog: %s" % runtime_id)

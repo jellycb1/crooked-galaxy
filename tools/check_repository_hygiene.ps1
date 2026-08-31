@@ -11,7 +11,10 @@ $RequiredFiles = @(
     "Notes/UI_ASSET_INVENTORY_PT.md",
     "Notes/MONETIZATION_CONTRACT.md",
     "Notes/YEAR_ONE_CONTENT_CONTRACT.md",
-	"Notes/RELEASE_READINESS_CONTRACT.md"
+	"Notes/RELEASE_READINESS_CONTRACT.md",
+	"scripts/release_readiness_rules.gd",
+	"tests/test_release_readiness.gd",
+	"tools/audit_release_readiness.gd"
 )
 
 foreach ($RelativePath in $RequiredFiles) {
