@@ -2,6 +2,7 @@ extends SceneTree
 
 const FactoryScript = preload("res://scripts/ui_factory.gd")
 const DesignSystem = preload("res://scripts/ui_design_system.gd")
+const StateIndicatorScript = preload("res://scripts/ui_state_indicator.gd")
 
 var failures := 0
 
@@ -73,6 +74,12 @@ func _init() -> void:
 	check(divider.texture != null and divider.custom_minimum_size.y >= 20.0, "the supplied plain divider resolves as a non-interactive runtime texture")
 	var slider := factory.configure_slider(HSlider.new())
 	check(slider.get_theme_icon("grabber") != null, "the supplied slider handle is exposed without forcing a slider into current screens")
+	var checkbox := factory.state_indicator("checkbox", true, factory.GOLD)
+	var radio := factory.state_indicator("radio", false, factory.CYAN)
+	var toggle := factory.state_indicator("toggle", true, factory.CYAN)
+	check(checkbox.get_script() == StateIndicatorScript and checkbox.custom_minimum_size == Vector2(28, 28), "code-native checkbox state preserves a compact readable contract")
+	check(radio.get_script() == StateIndicatorScript and not bool(radio.selected), "code-native radio state exposes the current selection without incomplete raster states")
+	check(toggle.get_script() == StateIndicatorScript and toggle.custom_minimum_size == Vector2(44, 28) and bool(toggle.selected), "code-native toggle state exposes both positions without incomplete raster states")
 	var compact_equipment := factory.equipment_icon({"slot": "weapon", "rarity": "Raro"}, 72)
 	check(compact_equipment is EquipmentIcon and bool(compact_equipment.draw_outer_frame), "compact equipment retains the readable procedural rarity frame")
 	var large_equipment := factory.equipment_icon({"slot": "weapon", "rarity": "Raro"}, 116)
@@ -103,7 +110,7 @@ func _init() -> void:
 	check(factory.briefing_context.is_empty() and factory.career_section == "progress" and factory.career_scroll_position == 0 and factory.career_archive_planet_index == 0 and not factory.career_section_switch_pending, "factory reset clears stale briefing and career positions")
 	check(factory.market_scroll_position == 0 and factory.hangar_scroll_position == 0 and factory.inventory_scroll_position == 0 and factory.galaxy_scroll_position == 0 and factory.galaxy_page_index == -1 and factory.galaxy_focus_planet_id.is_empty(), "factory reset clears remembered commerce, inventory, and Galaxy positions")
 
-	for control in [title, button, outlined, rebuild_title, rebuild_body, rebuild_primary, rebuild_secondary, metric, rebuild_focal, portrait, equipment, card, matching_card, illustrated, matching_illustrated, supporting, matching_supporting, confirmation, success_receipt, selected_tab, divider, slider, compact_equipment, large_equipment, compact_frame, large_frame]:
+	for control in [title, button, outlined, rebuild_title, rebuild_body, rebuild_primary, rebuild_secondary, metric, rebuild_focal, portrait, equipment, card, matching_card, illustrated, matching_illustrated, supporting, matching_supporting, confirmation, success_receipt, selected_tab, divider, slider, checkbox, radio, toggle, compact_equipment, large_equipment, compact_frame, large_frame]:
 		control.free()
 	factory.free()
 	if failures == 0:

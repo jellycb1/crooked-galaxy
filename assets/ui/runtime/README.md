@@ -15,3 +15,9 @@ Integration contracts:
 - rarity tier 2 remains reserved for a future Uncommon tier.
 
 All assets must continue to be checked in a 450×800 capture before APK publication.
+
+Intake status for the 26-file source batch:
+
+- 16 supplied assets are integrated (the 14 files here plus the dossier and supporting frames in the parent folder);
+- the four painted button faces, danger panel and two opaque divider variants remain rejected and outside runtime export;
+- checkbox, radio and toggle candidates remain outside runtime because they provide only one state each; these controls use the matching code-native state system instead.

@@ -19,6 +19,19 @@ const CONTRACTS := {
 	"portrait_neutral": Vector2i(256, 256),
 }
 
+const HELD_CANDIDATES := [
+	"button-destructive-runtime-candidate-v1.png",
+	"button-premium-runtime-candidate-v1.png",
+	"button-primary-runtime-candidate-v1.png",
+	"button-secondary-runtime-candidate-v1.png",
+	"danger-panel-runtime-candidate-v1.png",
+	"divider-active-runtime-candidate-v1.png",
+	"divider-section-runtime-candidate-v1.png",
+	"checkbox-runtime-candidate-v1.png",
+	"radio-button-runtime-candidate-v1.png",
+	"toggle-runtime-candidate-v1.png",
+]
+
 var failures := 0
 
 
@@ -35,6 +48,8 @@ func _init() -> void:
 		check(image.get_pixel(0, 0).a <= 0.01, "runtime UI texture preserves a transparent outer corner: %s" % asset_id)
 		raw_bytes += image.get_width() * image.get_height() * 4
 	check(raw_bytes <= 5 * 1024 * 1024, "complete specialized UI family stays below the five-MiB decoded budget")
+	for filename in HELD_CANDIDATES:
+		check(not FileAccess.file_exists("res://assets/ui/runtime/%s" % filename), "held or incomplete candidate stays outside runtime export: %s" % filename)
 	if failures == 0:
 		print("PASS: supplied runtime UI assets preserve size, alpha and mobile memory contracts")
 	quit(1 if failures > 0 else 0)

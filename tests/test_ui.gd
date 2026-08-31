@@ -368,6 +368,10 @@ func run_smoke_test() -> void:
 	await process_frame
 	check(scene.find_child("Scrap_ui_spare", true, false) != null, "workshop renders recycling for spare loot")
 	check(scene.find_child("Lock_ui_spare", true, false) != null, "inventory renders manual item protection")
+	check(scene.find_child("LockState_ui_spare", true, false) != null and scene.find_child("StateIndicator_checkbox_off", true, false) != null, "inventory protection exposes a code-native checkbox state")
+	(scene.find_child("Lock_ui_spare", true, false) as Button).pressed.emit()
+	await process_frame
+	check(state.player.get("locked_item_ids", []).has("ui_spare") and scene.find_child("StateIndicator_checkbox_on", true, false) != null, "inventory protection rerenders the checked state after touch")
 	check(scene.find_child("InventoryFilter_weapon", true, false) != null, "arsenal renders slot filters")
 	check(scene.find_child("InventorySort", true, false) != null, "arsenal renders inventory sorting")
 	check(scene.find_child("AccessibilityPreferences", true, false) == null, "backpack keeps device preferences out of the item workflow")

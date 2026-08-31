@@ -967,12 +967,18 @@ static func inventory_item_card(host: CrookedUIFactory, state: StateScript, item
 		equip_button.pressed.connect(func(): state.equip_from_inventory(item_id))
 		buttons.add_child(equip_button)
 		var manually_locked: bool = state.player.get("locked_item_ids", []).has(item_id)
+		var lock_row := HBoxContainer.new()
+		lock_row.name = "LockState_%s" % item_id
+		lock_row.add_theme_constant_override("separation", 6)
+		lock_row.add_child(host.state_indicator("checkbox", manually_locked, host.GOLD))
 		var lock_button := host.action_button(text("ARSENAL_UNLOCK", "LIBERAR") if manually_locked else text("ARSENAL_PROTECT", "PROTEGER"), host.GOLD, true)
 		lock_button.name = "Lock_%s" % item_id
-		lock_button.custom_minimum_size = Vector2(128, 72)
+		lock_button.custom_minimum_size = Vector2(110, 72)
+		lock_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		lock_button.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 		lock_button.pressed.connect(func(): state.toggle_item_lock(item_id))
-		buttons.add_child(lock_button)
+		lock_row.add_child(lock_button)
+		buttons.add_child(lock_row)
 		var scrap_button := host.action_button(text("ARSENAL_RECYCLE_ITEM", "RECICLAR +%d", [Rules.salvage_value(item)]), host.CORAL, true)
 		scrap_button.name = "Scrap_%s" % item_id
 		scrap_button.custom_minimum_size = Vector2(128, 72)

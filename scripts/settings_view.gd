@@ -54,8 +54,10 @@ static func preferences_panel(host: CrookedUIFactory, state: StateScript) -> VBo
 	result.add_child(preferences)
 	preferences.add_child(account_panel(host, state))
 	preferences.add_child(language_panel(host, state))
-	preferences.add_child(preference_row(host, t("SETTINGS_AUDIO", "ÁUDIO"), t("SETTINGS_AUDIO_DESCRIPTION", "Efeitos de interface e combate"), t("COMMON_ON", "LIGADO") if bool(state.player.get("sound_enabled", true)) else t("COMMON_OFF", "DESLIGADO"), "SoundPreferenceAction", state.toggle_sound))
-	preferences.add_child(preference_row(host, t("SETTINGS_MOTION", "MOVIMENTO"), t("SETTINGS_MOTION_DESCRIPTION", "Remove apenas transições decorativas"), t("SETTINGS_REDUCED", "REDUZIDO") if bool(state.player.get("reduced_motion", false)) else t("SETTINGS_FULL", "COMPLETO"), "MotionPreferenceAction", state.toggle_reduced_motion))
+	var sound_enabled := bool(state.player.get("sound_enabled", true))
+	preferences.add_child(preference_row(host, t("SETTINGS_AUDIO", "ÁUDIO"), t("SETTINGS_AUDIO_DESCRIPTION", "Efeitos de interface e combate"), t("COMMON_ON", "LIGADO") if sound_enabled else t("COMMON_OFF", "DESLIGADO"), "SoundPreferenceAction", sound_enabled, state.toggle_sound))
+	var reduced_motion := bool(state.player.get("reduced_motion", false))
+	preferences.add_child(preference_row(host, t("SETTINGS_MOTION", "MOVIMENTO"), t("SETTINGS_MOTION_DESCRIPTION", "Remove apenas transições decorativas"), t("SETTINGS_REDUCED", "REDUZIDO") if reduced_motion else t("SETTINGS_FULL", "COMPLETO"), "MotionPreferenceAction", reduced_motion, state.toggle_reduced_motion))
 	if OS.is_debug_build():
 		var danger := host.panel(VBoxContainer.new(), Color("#2b1425"), 16, 14)
 		var danger_copy := danger.get_child(0) as VBoxContainer
@@ -109,16 +111,22 @@ static func language_panel(host: CrookedUIFactory, state: StateScript) -> PanelC
 		if not bool(locale.get("selectable", false)):
 			continue
 		var locale_id := str(locale.id)
-		var action := host.primary_action("%s%s" % ["✓ " if locale_id == active_id else "", str(locale.native_name).to_upper()], host.LIME) if locale_id == active_id else host.secondary_action(str(locale.native_name).to_upper(), host.CYAN)
+		var option := HBoxContainer.new()
+		option.name = "SettingsLanguageOption_%s" % locale_id
+		option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		option.add_theme_constant_override("separation", 6)
+		option.add_child(host.state_indicator("radio", locale_id == active_id, host.LIME if locale_id == active_id else host.CYAN))
+		var action := host.primary_action(str(locale.native_name).to_upper(), host.LIME) if locale_id == active_id else host.secondary_action(str(locale.native_name).to_upper(), host.CYAN)
 		action.name = "SettingsLanguage_%s" % locale_id
 		action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		action.disabled = locale_id == active_id
 		action.pressed.connect(func(): state.set_locale(locale_id))
-		row.add_child(action)
+		option.add_child(action)
+		row.add_child(option)
 	return card
 
 
-static func preference_row(host: CrookedUIFactory, title: String, description: String, value: String, action_name: String, callback: Callable) -> PanelContainer:
+static func preference_row(host: CrookedUIFactory, title: String, description: String, value: String, action_name: String, selected: bool, callback: Callable) -> PanelContainer:
 	var card := host.panel(HBoxContainer.new(), Color("#101d39"), 16, 14)
 	var row := card.get_child(0) as HBoxContainer
 	row.add_theme_constant_override("separation", 10)
@@ -130,6 +138,7 @@ static func preference_row(host: CrookedUIFactory, title: String, description: S
 	description_label.name = "%sDescription" % action_name
 	description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	copy.add_child(description_label)
+	row.add_child(host.state_indicator("toggle", selected, host.CYAN))
 	var action := host.secondary_action(value, host.CYAN)
 	action.name = action_name
 	action.custom_minimum_size.x = 128

@@ -6,6 +6,7 @@ const ClassIconScript = preload("res://scripts/class_icon.gd")
 const PortraitFrameScript = preload("res://scripts/portrait_frame.gd")
 const EquipmentIconScript = preload("res://scripts/equipment_icon.gd")
 const TransportIconScript = preload("res://scripts/transport_icon.gd")
+const UIStateIndicatorScript = preload("res://scripts/ui_state_indicator.gd")
 const EquipmentPresentationScript = preload("res://scripts/equipment_presentation.gd")
 const UILocaleRulesScript = preload("res://scripts/locale_rules.gd")
 const UIDesignSystem = preload("res://scripts/ui_design_system.gd")
@@ -219,6 +220,13 @@ func configure_slider(slider: Slider) -> Slider:
 		slider.add_theme_icon_override("grabber", handle)
 		slider.add_theme_icon_override("grabber_highlight", handle)
 	return slider
+
+
+func state_indicator(kind: String, selected: bool, accent: Color = CYAN) -> Control:
+	var indicator: Control = UIStateIndicatorScript.new()
+	indicator.name = "StateIndicator_%s_%s" % [kind, "on" if selected else "off"]
+	indicator.configure(kind, selected, accent)
+	return indicator
 
 
 func runtime_texture(asset_id: String) -> Texture2D:
