@@ -309,7 +309,7 @@ static func claim_receipt_card(host: CrookedUIFactory, notice: String) -> PanelC
 static func summary_card(host: CrookedUIFactory, state: StateScript) -> PanelContainer:
 	var summary := host.illustrated_panel(HBoxContainer.new(), 18)
 	summary.name = "CareerSummary"
-	var row := summary.get_child(0) as HBoxContainer
+	var row := host.illustrated_panel_content(summary) as HBoxContainer
 	row.add_theme_constant_override("separation", 14)
 	row.add_child(framed_portrait(host, "hunter", 92, state.player))
 	var copy := VBoxContainer.new()

@@ -38,11 +38,11 @@ func run() -> void:
 	frame.configure(Color("#ffc857"))
 	check(frame.accent == Color("#ffc857"), "original portrait frame accepts contextual accent")
 	frame.free()
-	var panel_path := "res://assets/ui/panel_frame_space.png"
+	var panel_path := "res://assets/ui/main-dossier-frame-runtime-512x384.png"
 	check(FileAccess.file_exists(panel_path), "approved illustrated panel is tracked as a runtime asset")
 	var panel_texture := load(panel_path) as Texture2D
 	var panel_image := panel_texture.get_image() if panel_texture != null else Image.new()
-	check(not panel_image.is_empty() and panel_image.get_size() == Vector2i(660, 124), "approved illustrated panel stays at its validated logical-viewport size")
+	check(not panel_image.is_empty() and panel_image.get_size() == Vector2i(512, 384), "approved illustrated panel stays at its supplied runtime size")
 	check(panel_image.get_format() == Image.FORMAT_RGBA8 and panel_image.get_pixel(0, 0).a <= 0.01, "approved illustrated panel preserves genuine transparent corners")
 	backdrop.free()
 	if failures == 0:

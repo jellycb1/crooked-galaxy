@@ -1057,7 +1057,7 @@ static func workshop_upgrade_card(host: CrookedUIFactory, state: StateScript, sl
 static func universal_equipment_grid(host: CrookedUIFactory, state: StateScript) -> PanelContainer:
 	var card := host.illustrated_panel(VBoxContainer.new(), 8)
 	card.name = "UniversalEquipmentCard"
-	var box := card.get_child(0) as VBoxContainer
+	var box := host.illustrated_panel_content(card) as VBoxContainer
 	box.add_theme_constant_override("separation", 7)
 	var heading := HBoxContainer.new()
 	box.add_child(heading)

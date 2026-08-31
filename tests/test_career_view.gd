@@ -23,7 +23,8 @@ func _init() -> void:
 
 	var career_summary := host.find_child("CareerSummary", true, false) as PanelContainer
 	check(career_summary != null, "isolated career builds its summary")
-	check(career_summary != null and career_summary.get_theme_stylebox("panel") is StyleBoxTexture, "career identity uses one illustrated summary above compact ledgers")
+	var career_frame := career_summary.get_child(0) as PanelContainer if career_summary != null else null
+	check(career_summary != null and career_summary.get_theme_stylebox("panel") is StyleBoxFlat and career_frame != null and career_frame.get_theme_stylebox("panel") is StyleBoxTexture, "career identity uses one illustrated summary above compact ledgers")
 	check(career_summary.find_children("*", "Label", true, false).all(func(summary_label): return (summary_label as Label).get_theme_font_size("font_size") >= 18), "career summary remains readable on the physical Android target")
 	check(host.find_child("CareerXpProgress", true, false) != null, "career summary makes next-level progress visual")
 	check(host.find_children("CareerPlanetIcon_*", "Control", true, false).size() == 1, "career materializes only the selected planet instead of the full launch catalog")

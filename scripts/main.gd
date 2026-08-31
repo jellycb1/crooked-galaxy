@@ -1836,7 +1836,7 @@ func format_duration(minutes: int) -> String:
 func bounty_card(bounty: Dictionary) -> PanelContainer:
 	var card := focal_scene_panel(VBoxContainer.new())
 	card.name = "BountyCard_%s" % str(bounty.id)
-	var box := card.get_child(0) as VBoxContainer
+	var box := illustrated_panel_content(card) as VBoxContainer
 	box.add_theme_constant_override("separation", UIDesignSystem.SECTION_GAP)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 24)
@@ -1973,7 +1973,7 @@ func build_briefing() -> void:
 	var target_dossier := illustrated_panel(HBoxContainer.new(), 10)
 	target_dossier.name = "BriefingTargetDossier"
 	content.add_child(target_dossier)
-	var target_row := target_dossier.get_child(0) as HBoxContainer
+	var target_row := illustrated_panel_content(target_dossier) as HBoxContainer
 	target_row.add_theme_constant_override("separation", 18)
 	target_row.add_child(character_portrait(str(bounty.id), 82))
 	var target_copy := VBoxContainer.new()
@@ -2236,7 +2236,7 @@ func build_hunt_event() -> void:
 	var incident := illustrated_panel(HBoxContainer.new(), 18)
 	incident.name = "HuntEventDossier"
 	content.add_child(incident)
-	var incident_row := incident.get_child(0) as HBoxContainer
+	var incident_row := illustrated_panel_content(incident) as HBoxContainer
 	incident_row.add_theme_constant_override("separation", 14)
 	var symbol := str(event.get("symbol", "?!"))
 	var signal_panel := panel(VBoxContainer.new(), Color("#08142d"), 14, 10)
@@ -2641,7 +2641,7 @@ func build_victory() -> void:
 	var stamp := illustrated_panel(HBoxContainer.new(), 18)
 	stamp.name = "VictoryDossier"
 	content.add_child(stamp)
-	var dossier := stamp.get_child(0) as HBoxContainer
+	var dossier := illustrated_panel_content(stamp) as HBoxContainer
 	dossier.add_theme_constant_override("separation", 16)
 	dossier.add_child(character_portrait(str(GameState.current_bounty.id), 142))
 	var stamp_box := VBoxContainer.new()
@@ -2704,7 +2704,7 @@ func build_chapter_complete() -> void:
 	var chapter := illustrated_panel(VBoxContainer.new(), 24)
 	chapter.name = "ChapterComplete"
 	content.add_child(chapter)
-	var box := chapter.get_child(0) as VBoxContainer
+	var box := illustrated_panel_content(chapter) as VBoxContainer
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation", 9)
 	var planet_name := localized_content_field("planet", planet, "name")

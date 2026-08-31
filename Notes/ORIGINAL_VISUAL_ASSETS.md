@@ -24,9 +24,10 @@ Generated with the built-in OpenAI image-generation workflow. No reference image
 
 | Asset | Runtime context | Production record |
 | --- | --- | --- |
-| `assets/ui/panel_frame_space.png` | Focused dossiers and previews; reusable `StyleBoxTexture` source | Generated from an original Crooked Galaxy navy/steel/brass/coral/cyan specification after inspecting local UI study references. Reference roles were limited to dark-center hierarchy, thin warm trim, hand-painted edge rhythm, and corner restraint; no fantasy vine, thorn, wood, ornament, exact frame path, text, logo, or reference asset was copied. The displayed direction was explicitly approved on 2026-08-26. The approved draft was then processed deterministically to remove only the exterior black connected to the canvas edge, crop the frame, preserve the opaque navy center, and resize it to 660×124 RGBA. |
+| `assets/ui/main-dossier-frame-runtime-512x384.png` | Focused dossiers and previews; reusable `StyleBoxTexture` source | Exact user-supplied runtime asset from the Crooked Galaxy art pipeline. It passed the mandatory intake gate and was explicitly approved for integration on 2026-08-31. The file is preserved byte-for-byte; runtime 9-slice margins are 79/61/98/68 pixels. |
+| `assets/ui/panel_frame_space.png` | Superseded illustrated-panel frame | Previous production frame retained temporarily for visual regression comparison. It is no longer referenced by the runtime catalog or UI factory. |
 
-Technical validation: genuine transparent corners, 9-slice margins of 48/20/48/20 logical pixels, shared immutable factory styles, and complete 450×800 captures for class detail, mandatory onboarding previews, selected mandate, contract briefing, hunter profile, universal arsenal kit, active hangar transport, hunt incident, victory, normal/Rift reward, chapter conclusion, career summary, and current/locked Rift dossiers. Supporting cards, repeated rows, settings, and commerce retain code-native navy/steel styling so the illustrated frame remains a focused hierarchy marker.
+Technical validation for the active frame: 512×384 RGBA, genuine transparent interior and corners, 9-slice margins of 79/61/98/68 source pixels, and a byte-identical copy of the approved source. Shared immutable factory styles apply the asset only to illustrated focal panels. Supporting cards, repeated rows, settings, and commerce retain code-native navy/steel styling so the illustrated frame remains a focused hierarchy marker.
 
 ## Rejected experiments
 

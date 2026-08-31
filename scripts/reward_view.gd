@@ -80,7 +80,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	else:
 		reward_panel.modulate = Color(1, 1, 1, 0)
 		reward_panel.create_tween().tween_property(reward_panel, "modulate", Color.WHITE, 0.32)
-	var box := reward_panel.get_child(0) as VBoxContainer
+	var box := host.illustrated_panel_content(reward_panel) as VBoxContainer
 	box.add_theme_constant_override("separation", 7)
 	var loot_header := HBoxContainer.new()
 	loot_header.name = "RewardLootHeader"
@@ -313,7 +313,7 @@ static func build_challenge_reward(host: CrookedUIFactory, content: VBoxContaine
 	reward_panel.name = "ChallengeRewardPanel"
 	reward_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	reward_stack.add_child(reward_panel)
-	var box := reward_panel.get_child(0) as VBoxContainer
+	var box := host.illustrated_panel_content(reward_panel) as VBoxContainer
 	box.add_theme_constant_override("separation", 8)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)

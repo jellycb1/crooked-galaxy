@@ -49,7 +49,8 @@ Este documento cobre:
 
 | Asset | Função atual | Estado | Decisão |
 | --- | --- | --- | --- |
-| `assets/ui/panel_frame_space.png` | Moldura 9-slice para dossier focal | `PROD` | Manter. É a principal âncora material da UI. |
+| `assets/ui/main-dossier-frame-runtime-512x384.png` | Moldura 9-slice para dossier focal | `PROD` | Asset fornecido e aprovado; é a principal âncora material da UI. |
+| `assets/ui/panel_frame_space.png` | Moldura focal anterior | `LEGACY` | Manter temporariamente apenas para comparação de regressão; já não é carregada pelo runtime. |
 | `assets/backgrounds/bounty_office.png` | Quadro, briefing, viagem e recompensa | `PROD` | Manter como fundo genérico de contratos; não deve substituir habitats planetários. |
 | `assets/backgrounds/frontier_spaceport.png` | Galáxia, carreira e criação | `PROD` | Manter como hub e fallback. |
 | `assets/backgrounds/arsenal_workshop.png` | Arsenal, mercado e hangar | `PROD` | Manter como oficina genérica. |

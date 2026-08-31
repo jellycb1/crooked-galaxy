@@ -51,9 +51,11 @@ func _init() -> void:
 	var matching_card := factory.panel(VBoxContainer.new(), factory.PANEL, 12, 10)
 	check(card.get_theme_stylebox("panel") == matching_card.get_theme_stylebox("panel"), "matching support panels reuse one immutable style resource")
 	var illustrated := factory.illustrated_panel(VBoxContainer.new(), 20)
-	check(illustrated.get_theme_stylebox("panel") is StyleBoxTexture, "factory exposes the approved illustrated panel as a reusable 9-slice")
+	var illustrated_frame := illustrated.get_child(0) as PanelContainer
+	check(illustrated.get_theme_stylebox("panel") is StyleBoxFlat and illustrated_frame.get_theme_stylebox("panel") is StyleBoxTexture, "factory layers a readable navy fill behind the approved reusable 9-slice")
 	var matching_illustrated := factory.illustrated_panel(VBoxContainer.new(), 20)
-	check(illustrated.get_theme_stylebox("panel") == matching_illustrated.get_theme_stylebox("panel"), "matching focal dossiers reuse one 9-slice style resource")
+	var matching_illustrated_frame := matching_illustrated.get_child(0) as PanelContainer
+	check(illustrated_frame.get_theme_stylebox("panel") == matching_illustrated_frame.get_theme_stylebox("panel"), "matching focal dossiers reuse one 9-slice style resource")
 	factory.view_mode = "career"
 	factory.inventory_filter = "armor"
 	factory.inventory_sort = "rarity"

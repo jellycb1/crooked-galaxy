@@ -35,7 +35,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 	if not ChallengeRulesScript.is_unlocked(state.player):
 		var locked := host.illustrated_panel(VBoxContainer.new(), 24)
 		locked.name = "ChallengeLockedPanel"
-		var locked_box := locked.get_child(0) as VBoxContainer
+		var locked_box := host.illustrated_panel_content(locked) as VBoxContainer
 		locked_box.add_theme_constant_override("separation", 9)
 		locked_box.add_child(host.center_label(t("RIFT_ENCRYPTED_SIGNAL", "SINAL CRIPTOGRAFADO"), UIDesignSystem.FONT_CAPTION, host.CORAL))
 		locked_box.add_child(host.center_label(t("RIFT_INACCESSIBLE", "FENDA AINDA INACESSÍVEL"), UIDesignSystem.FONT_SECTION_TITLE, host.INK))
@@ -105,7 +105,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 	if floor >= ChallengeRulesScript.STAGES.size():
 		var complete := host.illustrated_panel(VBoxContainer.new(), 20)
 		complete.name = "ChallengeCompletePanel"
-		var complete_box := complete.get_child(0) as VBoxContainer
+		var complete_box := host.illustrated_panel_content(complete) as VBoxContainer
 		complete_box.add_child(host.center_label(t("RIFT_ARCHIVE_CLOSED", "ARQUIVO IMPOSSÍVEL ENCERRADO"), UIDesignSystem.FONT_CAPTION, host.LIME))
 		complete_box.add_child(host.center_label(t("RIFT_CLEARED", "FENDA LIMPA"), UIDesignSystem.FONT_SECTION_TITLE, host.INK))
 		var complete_copy := host.center_label(t("RIFT_COMPLETE_DESCRIPTION", "Os doze carcereiros desta realidade foram removidos. A chave e todos os artefatos descobertos permanecem no Arquivo."), UIDesignSystem.FONT_CAPTION, host.MUTED)
@@ -133,7 +133,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 	var dossier := host.illustrated_panel(HBoxContainer.new(), 17)
 	dossier.name = "ChallengeCurrentDossier"
 	stack.add_child(dossier)
-	var row := dossier.get_child(0) as HBoxContainer
+	var row := host.illustrated_panel_content(dossier) as HBoxContainer
 	row.add_theme_constant_override("separation", 13)
 	row.add_child(host.character_portrait(str(stage.id), 112))
 	var copy := VBoxContainer.new()
@@ -212,7 +212,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: Crooked
 static func build_portal_reveal(host: CrookedUIFactory, content: VBoxContainer, state: CrookedGameState, reality: Dictionary) -> void:
 	var panel := host.illustrated_panel(VBoxContainer.new(), 18)
 	panel.name = "ChallengePortalReveal"
-	var box := panel.get_child(0) as VBoxContainer
+	var box := host.illustrated_panel_content(panel) as VBoxContainer
 	box.add_theme_constant_override("separation", 10)
 	box.add_child(host.center_label(t("RIFT_PORTAL_KEY_DETECTED", "CHAVE DE REALIDADE DETETADA"), UIDesignSystem.FONT_CAPTION, host.GOLD))
 	box.add_child(host.center_label(t("RIFT_PORTAL_OPENING", "ABERTURA DE FENDA EM CURSO"), UIDesignSystem.FONT_SECTION_TITLE, host.INK))

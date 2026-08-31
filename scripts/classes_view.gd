@@ -116,7 +116,7 @@ static func class_detail(host: CrookedUIFactory, definition: Dictionary, player:
 	var class_id := str(definition.id)
 	var detail := host.illustrated_panel(HBoxContainer.new(), 22)
 	detail.name = "ClassDetail"
-	var row := detail.get_child(0) as HBoxContainer
+	var row := host.illustrated_panel_content(detail) as HBoxContainer
 	row.add_theme_constant_override("separation", 14)
 	var reference_icon: Control = class_reference_icon(host, class_id, 104)
 	if reference_icon != null:

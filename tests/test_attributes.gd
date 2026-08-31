@@ -61,7 +61,8 @@ func run_attributes_test() -> void:
 	await process_frame
 	check(scene.find_child("HunterProfile", true, false) != null and scene.find_child("HunterProfilePortrait", true, false) != null, "the hunter sheet keeps the equipped character visually central")
 	var hunter_profile := scene.find_child("HunterProfile", true, false) as PanelContainer
-	check(hunter_profile.get_theme_stylebox("panel") is StyleBoxTexture, "hunter identity owns one illustrated equipment dossier")
+	var hunter_frame := hunter_profile.get_child(0) as PanelContainer if hunter_profile != null else null
+	check(hunter_profile != null and hunter_profile.get_theme_stylebox("panel") is StyleBoxFlat and hunter_frame != null and hunter_frame.get_theme_stylebox("panel") is StyleBoxTexture, "hunter identity owns one illustrated equipment dossier over its readable navy fill")
 	check(scene.find_children("HunterEquipment_*", "PanelContainer", true, false).size() == Rules.EQUIPMENT_SLOTS.size(), "the hunter sheet shows the complete universal equipment contract")
 	var helmet_label := scene.find_child("HunterEquipmentLabel_helmet", true, false) as Label
 	check(helmet_label != null and helmet_label.get_theme_font_size("font_size") >= UIDesignSystem.FONT_CAPTION, "compact universal equipment labels remain readable on Android")

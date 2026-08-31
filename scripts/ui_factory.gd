@@ -9,7 +9,9 @@ const TransportIconScript = preload("res://scripts/transport_icon.gd")
 const EquipmentPresentationScript = preload("res://scripts/equipment_presentation.gd")
 const UILocaleRulesScript = preload("res://scripts/locale_rules.gd")
 const UIDesignSystem = preload("res://scripts/ui_design_system.gd")
-const ILLUSTRATED_PANEL_TEXTURE = preload("res://assets/ui/panel_frame_space.png")
+const ILLUSTRATED_PANEL_TEXTURE = preload("res://assets/ui/main-dossier-frame-runtime-512x384.png")
+const ILLUSTRATED_PANEL_TEXTURE_MARGINS := Rect2(79.0, 61.0, 98.0, 68.0)
+const ILLUSTRATED_PANEL_FILL := Color("#0b142df2")
 
 const INK := Color("#f4f2ff")
 const MUTED := Color("#9da8c8")
@@ -121,9 +123,18 @@ func panel(child: Control, color: Color, radius: int, margin: int) -> PanelConta
 
 func illustrated_panel(child: Control, margin: int = 22) -> PanelContainer:
 	var container := PanelContainer.new()
-	container.add_theme_stylebox_override("panel", cached_illustrated_box_style(margin))
-	container.add_child(child)
+	container.add_theme_stylebox_override("panel", box_style(ILLUSTRATED_PANEL_FILL, 2))
+	var frame := PanelContainer.new()
+	frame.name = "DossierFrame"
+	frame.add_theme_stylebox_override("panel", cached_illustrated_box_style(margin))
+	frame.add_child(child)
+	container.add_child(frame)
 	return container
+
+
+func illustrated_panel_content(container: PanelContainer) -> Control:
+	var frame := container.get_child(0) as PanelContainer
+	return frame.get_child(0) as Control
 
 
 func cached_illustrated_box_style(margin: int) -> StyleBoxTexture:
@@ -131,10 +142,10 @@ func cached_illustrated_box_style(margin: int) -> StyleBoxTexture:
 		return _illustrated_style_cache[margin] as StyleBoxTexture
 	var style := StyleBoxTexture.new()
 	style.texture = ILLUSTRATED_PANEL_TEXTURE
-	style.texture_margin_left = 48.0
-	style.texture_margin_top = 20.0
-	style.texture_margin_right = 48.0
-	style.texture_margin_bottom = 20.0
+	style.texture_margin_left = ILLUSTRATED_PANEL_TEXTURE_MARGINS.position.x
+	style.texture_margin_top = ILLUSTRATED_PANEL_TEXTURE_MARGINS.position.y
+	style.texture_margin_right = ILLUSTRATED_PANEL_TEXTURE_MARGINS.size.x
+	style.texture_margin_bottom = ILLUSTRATED_PANEL_TEXTURE_MARGINS.size.y
 	style.content_margin_left = margin
 	style.content_margin_top = margin
 	style.content_margin_right = margin

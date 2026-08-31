@@ -94,7 +94,8 @@ func _init() -> void:
 	var active_action := host.find_child("HangarAction_%s" % str(state.player.active_transport_id), true, false) as Button
 	check(active_action != null and active_action.text == "ATIVO", "an owned equipped transport never appears locked after unlock-level rebalance")
 	var hangar_status := host.find_child("HangarStatus", true, false) as PanelContainer
-	check(hangar_status != null and hangar_status.get_theme_stylebox("panel") is StyleBoxTexture, "the active transport owns Hangar's illustrated status frame")
+	var hangar_frame := hangar_status.get_child(0) as PanelContainer if hangar_status != null else null
+	check(hangar_status != null and hangar_status.get_theme_stylebox("panel") is StyleBoxFlat and hangar_frame != null and hangar_frame.get_theme_stylebox("panel") is StyleBoxTexture, "the active transport owns Hangar's illustrated status frame")
 	check(host.find_children("HangarTransport_*", "PanelContainer", true, false).size() == 4, "hangar renders every launch transport once")
 	check(host.find_children("HangarSelect_*", "Button", true, false).size() == 4, "every launch transport remains directly selectable")
 	check(host.find_children("HangarTransportIcon_*", "Control", true, false).size() == 1, "only the selected transport materializes its scalable silhouette")

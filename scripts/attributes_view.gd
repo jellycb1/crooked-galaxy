@@ -139,7 +139,7 @@ static func hunter_section_tab(host: CrookedUIFactory, section_id: String, title
 static func hunter_profile(host: CrookedUIFactory, state: StateScript, class_id: String, class_definition: Dictionary) -> PanelContainer:
 	var profile := host.focal_scene_panel(VBoxContainer.new())
 	profile.name = "HunterProfile"
-	var box := profile.get_child(0) as VBoxContainer
+	var box := host.illustrated_panel_content(profile) as VBoxContainer
 	box.add_theme_constant_override("separation", 16)
 
 	var identity := HBoxContainer.new()

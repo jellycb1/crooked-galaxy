@@ -86,7 +86,7 @@ static func build_login(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 	var server := host.illustrated_panel(HBoxContainer.new(), 16)
 	server.name = "OnboardingServer_%s" % host.server_draft
 	stack.add_child(server)
-	var server_row := server.get_child(0) as HBoxContainer
+	var server_row := host.illustrated_panel_content(server) as HBoxContainer
 	var server_copy := VBoxContainer.new()
 	server_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	server_row.add_child(server_copy)
@@ -130,7 +130,7 @@ static func build_class(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 	var preview := host.illustrated_panel(HBoxContainer.new(), 13)
 	preview.name = "OnboardingClassPreview"
 	stack.add_child(preview)
-	var preview_row := preview.get_child(0) as HBoxContainer
+	var preview_row := host.illustrated_panel_content(preview) as HBoxContainer
 	preview_row.add_theme_constant_override("separation", 13)
 	var preview_icon: Control = class_reference_icon(host, pending_id, 106.0)
 	if preview_icon != null:
@@ -203,7 +203,7 @@ static func build_appearance(host: CrookedUIFactory, stack: VBoxContainer, state
 	var preview_panel := host.illustrated_panel(VBoxContainer.new(), 13)
 	preview_panel.name = "OnboardingAppearancePreview"
 	stack.add_child(preview_panel)
-	var preview_copy := preview_panel.get_child(0) as VBoxContainer
+	var preview_copy := host.illustrated_panel_content(preview_panel) as VBoxContainer
 	preview_copy.alignment = BoxContainer.ALIGNMENT_CENTER
 	preview_copy.add_child(host.character_portrait("hunter", 178.0, profile))
 	preview_copy.add_child(host.center_label(SpeciesRulesScript.species_name_for(str(state.player.species_id)), UIDesignSystem.FONT_BODY, host.GOLD))
@@ -255,7 +255,7 @@ static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: S
 	var preview := host.illustrated_panel(HBoxContainer.new(), 13)
 	preview.name = "OnboardingSpeciesPreview"
 	stack.add_child(preview)
-	var preview_row := preview.get_child(0) as HBoxContainer
+	var preview_row := host.illustrated_panel_content(preview) as HBoxContainer
 	preview_row.add_theme_constant_override("separation", 13)
 	var preview_portrait := host.character_portrait("hunter", 106.0, {"species_id": pending_id})
 	preview_portrait.name = "OnboardingSpeciesPreviewPortrait"
@@ -304,7 +304,7 @@ static func build_name(host: CrookedUIFactory, stack: VBoxContainer, state: Stat
 	var identity := host.illustrated_panel(HBoxContainer.new(), 13)
 	identity.name = "OnboardingIdentitySummary"
 	stack.add_child(identity)
-	var identity_row := identity.get_child(0) as HBoxContainer
+	var identity_row := host.illustrated_panel_content(identity) as HBoxContainer
 	identity_row.add_theme_constant_override("separation", 12)
 	var portrait: Control = host.call("framed_hunter_portrait", 92.0)
 	portrait.name = "OnboardingHunterPortrait"
