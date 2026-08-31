@@ -10,6 +10,7 @@ $ActiveDocuments = @(
 	"PROJECT_STATUS.md",
     "Vision.txt",
 	"RELEASE_READINESS_CONTRACT.md",
+	"LEVEL_1_30_ASSET_DELIVERY_MANIFEST.md",
     "ACCOUNT_SERVER_CONTRACT.md",
 	"BACKEND_VERTICAL_SLICE_CONTRACT.md",
 	"REMOTE_ECONOMY_CONTRACT.md",
@@ -83,6 +84,7 @@ $ReadmeLines = @(Get-Content -LiteralPath $ReadmePath)
 $SyncText = Get-Content -LiteralPath (Join-Path $ProjectRoot "scripts/profile_sync_rules.gd") -Raw
 $AccountContractText = Get-Content -LiteralPath (Join-Path $NotesRoot "ACCOUNT_SERVER_CONTRACT.md") -Raw
 $ReleaseText = Get-Content -LiteralPath (Join-Path $NotesRoot "RELEASE_READINESS_CONTRACT.md") -Raw
+$DeliveryManifestText = Get-Content -LiteralPath (Join-Path $NotesRoot "LEVEL_1_30_ASSET_DELIVERY_MANIFEST.md") -Raw
 $MonetizationText = Get-Content -LiteralPath (Join-Path $NotesRoot "MONETIZATION_CONTRACT.md") -Raw
 $OnlineDecisionText = Get-Content -LiteralPath (Join-Path $NotesRoot "ONLINE_BACKEND_DECISION_2026-08-29.md") -Raw
 $StagingText = Get-Content -LiteralPath (Join-Path $NotesRoot "STAGING_RUNBOOK.md") -Raw
@@ -108,6 +110,14 @@ if (-not $ReleaseText.Contains("Mecanicamente completo") -or
 	-not $ReleaseText.Contains("tools/audit_release_readiness.gd") -or
 	-not $ReleaseText.Contains("ainda não está visualmente completo nem pronto para lançamento")) {
 	throw "Release readiness no longer separates mechanical completion from production and launch readiness."
+}
+if (-not $DeliveryManifestText.Contains('`style_lock` — 17 files') -or
+	-not $DeliveryManifestText.Contains('`identity` — 86 files') -or
+	-not $DeliveryManifestText.Contains('`worlds` — 38 files') -or
+	-not $DeliveryManifestText.Contains('`transports` — 4 vehicle') -or
+	-not $DeliveryManifestText.Contains('`rift` — the first 6') -or
+	-not $DeliveryManifestText.Contains("export_release_asset_manifest.gd")) {
+	throw "The level 1-30 art handoff no longer matches the executable 151-delivery manifest."
 }
 if ($ReadmeText.Contains("never levels, attributes, victory, combat probability, exclusive superior gear, Fenda attempts") -or
 	$VisionText.Contains("or post-result combat rerolls.") -or

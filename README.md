@@ -114,6 +114,12 @@ godot --headless --path . --script res://tools/audit_release_readiness.gd -- --m
 
 Add `--require-visual` when the slice is expected to be complete; the command then fails while any of the 151 final deliveries is absent.
 
+Print the artist-facing delivery manifest, optionally filtered to the 17-file style-lock pilot:
+
+```powershell
+godot --headless --path . --script res://tools/export_release_asset_manifest.gd -- --batch=style_lock --missing
+```
+
 Campaign simulation accepts `CG_CAMPAIGN_BUILD`, `CG_CAMPAIGN_STRATEGY`, `CG_CAMPAIGN_CAREERS`, `CG_CAMPAIGN_MARKET=active|off`, and `CG_CAMPAIGN_TRANSPORT=active|off` for focused comparisons.
 
 ## Visual QA

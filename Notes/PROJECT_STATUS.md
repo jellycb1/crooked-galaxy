@@ -42,10 +42,11 @@ This is the concise starting point for a new task. Product details remain author
 
 ## Recommended next work
 
-1. Complete the level 1–30 production slice defined in `RELEASE_READINESS_CONTRACT.md`: final identity for three classes/eight races, six worlds, twenty-four targets, four transports and the first six Rift enemies.
-2. Correct and re-review held UI candidates only when they materially support that slice, integrating files solely after 450×800 validation.
-3. Exercise the seven-day physical Android gate before changing XP, prices or weekly targets from preference alone.
-4. Keep ordinary online capabilities disabled until the real-device lifecycle/cutover evidence is available; do not add more horizontal systems meanwhile.
+1. Prove the visual language with the atomic 17-file `style_lock` pilot defined in `LEVEL_1_30_ASSET_DELIVERY_MANIFEST.md`; keep every fallback active until the complete pilot passes integrated 450×800 captures.
+2. Only then complete the identity, worlds, transports and Rift batches that bring the level 1–30 gate from 0/151 to 151/151.
+3. Correct and re-review held UI candidates only when they materially support that slice.
+4. Exercise the seven-day physical Android gate before changing XP, prices or weekly targets from preference alone.
+5. Keep ordinary online capabilities disabled until the real-device lifecycle/cutover evidence is available; do not add more horizontal systems meanwhile.
 
 ## Repository organization
 

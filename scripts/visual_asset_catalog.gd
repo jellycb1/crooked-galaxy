@@ -70,6 +70,24 @@ const SPECIES_LAYER_OPTIONS := {
 	"species_marking": "marking",
 }
 
+const DELIVERY_CONTRACTS := {
+	"class_promo": {"canvas": "up to 1024 px long edge", "display": "220-300 px focal figure", "alpha": true, "anchor": "center-bottom", "role": "expressive three-quarter class promotion"},
+	"species_base": {"canvas": "shared 1024 px square species canvas", "display": "160-260 px modular portrait", "alpha": true, "anchor": "center-bottom", "role": "neutral anatomy and silhouette base"},
+	"species_mask": {"canvas": "exact species-base canvas", "display": "composited only", "alpha": true, "anchor": "pixel-identical to species base", "role": "palette regions without baked color"},
+	"species_occlusion": {"canvas": "exact species-base canvas", "display": "composited only", "alpha": true, "anchor": "pixel-identical to species base", "role": "equipment front/back occlusion mask"},
+	"species_eyes": {"canvas": "exact species-base canvas", "display": "composited only", "alpha": true, "anchor": "pixel-identical to species base", "role": "one swappable eye expression"},
+	"species_feature": {"canvas": "exact species-base canvas", "display": "composited only", "alpha": true, "anchor": "pixel-identical to species base", "role": "one swappable defining feature"},
+	"species_marking": {"canvas": "exact species-base canvas", "display": "composited only", "alpha": true, "anchor": "pixel-identical to species base", "role": "one swappable marking overlay"},
+	"target_portrait": {"canvas": "up to 1024 px long edge", "display": "96-160 px portrait", "alpha": true, "anchor": "center-bottom", "role": "expressive bust or three-quarter target"},
+	"planet_habitat": {"canvas": "9:16, up to 1280 px long edge", "display": "450x800 background crop", "alpha": false, "anchor": "safe focal subject above lower UI", "role": "primary world habitat"},
+	"planet_arena": {"canvas": "9:16 overlay, up to 1280 px long edge", "display": "450x800 combat overlay", "alpha": true, "anchor": "bottom", "role": "transparent combat ground/arena layer"},
+	"planet_icon": {"canvas": "512 px square", "display": "66-96 px medal", "alpha": true, "anchor": "center", "role": "world silhouette medal"},
+	"transport": {"canvas": "up to 1024 px long edge", "display": "72-220 px vehicle", "alpha": true, "anchor": "center-bottom", "role": "side or three-quarter transport illustration"},
+	"rift_enemy": {"canvas": "up to 1024 px long edge", "display": "96-160 px portrait", "alpha": true, "anchor": "center-bottom", "role": "surreal expressive Rift enemy"},
+}
+
+const PRODUCTION_BATCH_ORDER := ["style_lock", "identity", "worlds", "transports", "rift"]
+
 
 static func is_safe_id(value: String) -> bool:
 	if value.is_empty():
@@ -150,6 +168,51 @@ static func record(kind: String, asset_id: String, variant := "", group := "") -
 		"exists": not path.is_empty() and ResourceLoader.exists(path),
 		"max_long_edge": int(MAX_LONG_EDGE.get(kind, 0)),
 	}
+
+
+static func delivery_contract(kind: String) -> Dictionary:
+	return DELIVERY_CONTRACTS.get(kind, {}).duplicate(true)
+
+
+static func production_batch(entry: Dictionary) -> String:
+	var group := str(entry.get("group", ""))
+	var asset_id := str(entry.get("id", ""))
+	if (group == "classes" and asset_id == "warrant_breaker") \
+	or (group == "species" and asset_id == "terran") \
+	or (group == "planets" and asset_id == "dustball_prime") \
+	or (group == "targets" and asset_id == "gloop"):
+		return "style_lock"
+	match group:
+		"classes", "species": return "identity"
+		"planets", "targets": return "worlds"
+		"transports": return "transports"
+		"rift": return "rift"
+		_: return "unscoped"
+
+
+static func atomic_delivery_set(entry: Dictionary) -> String:
+	match str(entry.get("group", "")):
+		"species": return "species:%s" % str(entry.get("id", ""))
+		"planets": return "planet:%s" % str(entry.get("id", ""))
+		_: return "%s:%s" % [str(entry.get("group", "")), str(entry.get("id", ""))]
+
+
+static func production_delivery_manifest() -> Array[Dictionary]:
+	var manifest: Array[Dictionary] = []
+	for entry in production_slice_required_records():
+		var enriched := entry.duplicate(true)
+		var batch := production_batch(enriched)
+		enriched["batch"] = batch
+		enriched["batch_order"] = PRODUCTION_BATCH_ORDER.find(batch)
+		enriched["atomic_set"] = atomic_delivery_set(enriched)
+		enriched["contract"] = delivery_contract(str(enriched.kind))
+		manifest.append(enriched)
+	manifest.sort_custom(func(left: Dictionary, right: Dictionary):
+		var left_key := "%02d|%s|%s|%s" % [int(left.batch_order), str(left.atomic_set), str(left.kind), str(left.variant)]
+		var right_key := "%02d|%s|%s|%s" % [int(right.batch_order), str(right.atomic_set), str(right.kind), str(right.variant)]
+		return left_key < right_key
+	)
+	return manifest
 
 
 static func current_required_records() -> Array[Dictionary]:

@@ -29,6 +29,7 @@ Quando dois documentos discordarem, aplica-se o documento de maior autoridade. V
 | `PROJECT_STATUS.md` | Handoff conciso do estado atual, validação e próximas prioridades. |
 | `Vision.txt` | Fantasia central, tom, ciclo e princípios do produto. |
 | `RELEASE_READINESS_CONTRACT.md` | Estados canónicos de conclusão, slice de produção 1–30 e gates antes de expansão/ativação. |
+| `LEVEL_1_30_ASSET_DELIVERY_MANIFEST.md` | Ordem de produção, conjuntos atómicos e comando de entrega dos 151 assets finais do primeiro slice. |
 | `ACCOUNT_SERVER_CONTRACT.md` | Conta, personagem, International 1 e futura autoridade remota. |
 | `BACKEND_VERTICAL_SLICE_CONTRACT.md` | Protocolo v1 de sessão, UTC, snapshots, comandos idempotentes e recibos remotos. |
 | `REMOTE_ECONOMY_CONTRACT.md` | Autoridade remota de caçadas, economia, recompensas e ordem de ativação anterior a Agências/faturação. |
