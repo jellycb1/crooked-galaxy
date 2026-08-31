@@ -71,6 +71,7 @@ var _supporting_frame_style_cache: Dictionary = {}
 var _button_style_cache: Dictionary = {}
 var _runtime_texture_cache: Dictionary = {}
 var _runtime_frame_style_cache: Dictionary = {}
+var _flat_style_cache: Dictionary = {}
 
 
 func reset_transient_navigation() -> void:
@@ -298,17 +299,23 @@ func cached_supporting_frame_style(margin: int) -> StyleBoxTexture:
 
 
 func box_style(color: Color, radius: int) -> StyleBoxFlat:
+	var key := "%s:%d" % [color.to_html(true), radius]
+	if _flat_style_cache.has(key):
+		return _flat_style_cache[key] as StyleBoxFlat
 	var style := StyleBoxFlat.new()
 	style.bg_color = color
 	style.corner_radius_top_left = radius
 	style.corner_radius_top_right = radius
 	style.corner_radius_bottom_left = radius
 	style.corner_radius_bottom_right = radius
+	_flat_style_cache[key] = style
 	return style
 
 
 func support_box_style(color: Color, radius: int) -> StyleBoxFlat:
-	var style := box_style(color, radius)
+	# Plain styles are shared across the rebuilt tree. Duplicate before adding
+	# borders so a specialized surface can never mutate the shared base.
+	var style := box_style(color, radius).duplicate() as StyleBoxFlat
 	style.border_color = STEEL_EDGE
 	style.border_width_left = 1
 	style.border_width_top = 1
@@ -334,7 +341,7 @@ func button_box_style(fill: Color, accent: Color, radius: int, border_width: int
 	var key := "%s:%s:%d:%d" % [fill.to_html(true), accent.to_html(true), radius, border_width]
 	if _button_style_cache.has(key):
 		return _button_style_cache[key] as StyleBoxFlat
-	var style := box_style(fill, radius)
+	var style := box_style(fill, radius).duplicate() as StyleBoxFlat
 	style.border_color = accent
 	style.border_width_left = border_width
 	style.border_width_top = border_width

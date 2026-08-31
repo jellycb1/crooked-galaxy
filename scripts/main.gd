@@ -55,6 +55,7 @@ var selected_board_offer_index := 0
 var operations_section := "daily"
 var last_hunt_remaining := -1
 var last_hunt_percent := -1
+var _timed_ui_cache: Dictionary = {}
 const IDLE_BACKGROUND_PREFETCH := ["workshop", "world", "combat"]
 const GALAXY_LOCKED_PREVIEW_COUNT := 2
 const GALAXY_ROUTES_PER_PAGE := 5
@@ -254,6 +255,9 @@ func apply_safe_area() -> void:
 
 
 func render() -> void:
+	# Every rebuild invalidates timed-screen nodes. Between rebuilds, combat and
+	# hunt timers reuse exact controls instead of recursively scanning the tree.
+	_timed_ui_cache.clear()
 	if view_mode != "market":
 		market_refresh_confirmation = false
 	if view_mode != "challenges":
@@ -856,7 +860,8 @@ func build_character_header() -> void:
 
 
 func bordered_box_style(fill: Color, radius: int, border: Color, width: int) -> StyleBoxFlat:
-	var style := box_style(fill, radius)
+	# box_style() returns an immutable shared base used throughout UI rebuilds.
+	var style := box_style(fill, radius).duplicate() as StyleBoxFlat
 	style.border_color = border
 	style.border_width_left = width
 	style.border_width_top = width
@@ -1248,7 +1253,7 @@ func bounty_offer_selector(bounty: Dictionary, offer_index: int, selected: bool)
 	for theme_color in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
 		selector.add_theme_color_override(theme_color, Color.TRANSPARENT)
 	if selected:
-		var selected_style := box_style(Color("#33290f"), 14)
+		var selected_style := box_style(Color("#33290f"), 14).duplicate() as StyleBoxFlat
 		selected_style.border_width_left = 3
 		selected_style.border_width_top = 3
 		selected_style.border_width_right = 3
@@ -2062,7 +2067,7 @@ func approach_card(approach: Dictionary, evaluation: Dictionary, recommended_id:
 	var card := panel(VBoxContainer.new(), Color("#172744") if is_recommended else PANEL, 13, 4)
 	card.name = "ApproachCard_%s" % str(approach.id)
 	if is_recommended:
-		var recommended_style := box_style(Color("#172744"), 13)
+		var recommended_style := box_style(Color("#172744"), 13).duplicate() as StyleBoxFlat
 		recommended_style.content_margin_left = 4
 		recommended_style.content_margin_right = 4
 		recommended_style.content_margin_top = 4
@@ -2527,7 +2532,7 @@ func build_combat() -> void:
 func toggle_combat_speed() -> void:
 	combat_fast = not combat_fast
 	combat_timer.wait_time = 0.34 if combat_fast else 0.72
-	var speed := find_child("CombatSpeedAction", true, false) as Button
+	var speed := timed_ui_control("CombatSpeedAction") as Button
 	if speed != null:
 		speed.text = t("COMBAT_SPEED", "VELOCIDADE · %s", ["2×" if combat_fast else "1×"])
 
@@ -2535,10 +2540,10 @@ func toggle_combat_speed() -> void:
 func refresh_combat_view() -> bool:
 	if GameState.phase != GameState.Phase.COMBAT:
 		return false
-	var stage := find_child("CombatArenaStage", true, false) as PanelContainer
-	var turn_approach := find_child("CombatTurnApproach", true, false) as Label
-	var event_row := find_child("CombatEventRow", true, false) as HBoxContainer
-	var advantage := find_child("CombatAdvantage", true, false) as Label
+	var stage := timed_ui_control("CombatArenaStage") as PanelContainer
+	var turn_approach := timed_ui_control("CombatTurnApproach") as Label
+	var event_row := timed_ui_control("CombatEventRow") as HBoxContainer
+	var advantage := timed_ui_control("CombatAdvantage") as Label
 	if stage == null or turn_approach == null or event_row == null or advantage == null:
 		return false
 
@@ -2564,8 +2569,8 @@ func refresh_combat_view() -> bool:
 	advantage.add_theme_color_override("font_color", pressure_color)
 	var pressure_total := player_health_ratio + enemy_health_ratio
 	var player_share := 0.5 if pressure_total <= 0.0 else player_health_ratio / pressure_total
-	var player_pressure := find_child("CombatPressurePlayer", true, false) as ColorRect
-	var enemy_pressure := find_child("CombatPressureEnemy", true, false) as ColorRect
+	var player_pressure := timed_ui_control("CombatPressurePlayer") as ColorRect
+	var enemy_pressure := timed_ui_control("CombatPressureEnemy") as ColorRect
 	if player_pressure != null:
 		player_pressure.size_flags_stretch_ratio = maxf(0.05, player_share)
 	if enemy_pressure != null:
@@ -2573,7 +2578,7 @@ func refresh_combat_view() -> bool:
 
 	refresh_fighter_health("hunter", GameState.player_hp, player_maximum, CYAN)
 	refresh_fighter_health(str(GameState.current_bounty.id), GameState.enemy_hp, enemy_maximum, CORAL)
-	var backdrop := find_child("CombatBackdrop", true, false)
+	var backdrop := timed_ui_control("CombatBackdrop")
 	if backdrop != null:
 		backdrop.set("events", GameState.combat_events)
 		backdrop.queue_redraw()
@@ -2593,23 +2598,23 @@ func refresh_combat_view() -> bool:
 			player_turn_damage += int(event.get("damage", 0))
 		else:
 			enemy_turn_damage += int(event.get("damage", 0))
-	var turn_heading := find_child("CombatTurnBalance", true, false) as Label
+	var turn_heading := timed_ui_control("CombatTurnBalance") as Label
 	if turn_heading != null:
 		var turn_balance := player_turn_damage - enemy_turn_damage
 		turn_heading.text = t("COMBAT_NEXT_TURN", "PRÓXIMO TURNO · ARMAS PRONTAS") if GameState.combat_events.is_empty() else t("COMBAT_LAST_TURN", "ÚLTIMO TURNO · VOCÊ %d DANO · ALVO %d DANO", [player_turn_damage, enemy_turn_damage])
 		turn_heading.add_theme_color_override("font_color", MUTED if GameState.combat_events.is_empty() else (LIME if turn_balance > 0 else (CORAL if turn_balance < 0 else GOLD)))
-	var narrative := find_child("CombatTurnNarrative", true, false) as Label
+	var narrative := timed_ui_control("CombatTurnNarrative") as Label
 	if narrative != null:
 		narrative.text = localized_combat_narrative()
 	return true
 
 
 func refresh_fighter_health(character_id: String, hp: int, maximum: int, color: Color) -> void:
-	var health := find_child("CombatHealthBar_%s" % character_id, true, false) as ProgressBar
+	var health := timed_ui_control("CombatHealthBar_%s" % character_id) as ProgressBar
 	if health != null:
 		health.max_value = maximum
 		health.value = hp
-	var health_label := find_child("CombatHealth_%s" % character_id, true, false) as Label
+	var health_label := timed_ui_control("CombatHealth_%s" % character_id) as Label
 	if health_label != null:
 		var health_percent := roundi(clampf(float(hp) / float(maxi(1, maximum)), 0.0, 1.0) * 100.0)
 		health_label.text = "%d / %d HP · %d%%" % [hp, maximum, health_percent]
@@ -2787,19 +2792,19 @@ func on_hunt_timer() -> void:
 	var remaining := maxi(0, ceili(GameState.hunt_ends_at - now))
 	if GameState.phase == GameState.Phase.HUNT_EVENT:
 		if remaining != last_hunt_remaining:
-			var event_status := find_child("HuntEventPauseStatus", true, false) as Label
+			var event_status := timed_ui_control("HuntEventPauseStatus") as Label
 			if event_status:
 				event_status.text = t("HUNT_EVENT_PAUSE_STATUS", "ROTA EM CURSO · %s RESTANTES · IGNORAR = SEM ALTERAÇÃO", [format_hunt_duration(remaining)])
 			last_hunt_remaining = remaining
 		return
-	var progress := find_child("HuntProgress", true, false) as ProgressBar
-	var countdown := find_child("HuntCountdown", true, false) as Label
+	var progress := timed_ui_control("HuntProgress") as ProgressBar
+	var countdown := timed_ui_control("HuntCountdown") as Label
 	var progress_value := GameState.hunt_progress(now)
 	if progress:
 		progress.value = progress_value * 100.0
 	var percent := roundi(progress_value * 100.0)
 	if percent != last_hunt_percent:
-		var stage := find_child("HuntProgressStage", true, false) as Label
+		var stage := timed_ui_control("HuntProgressStage") as Label
 		if stage:
 			var stage_text := t("HUNT_LEAVING_SECTOR", "SAINDO DO SETOR") if progress_value < 0.25 else (t("HUNT_TRACKING_SIGNAL", "RASTREANDO SINAL") if progress_value < 0.8 else t("HUNT_CONTACT_IMMINENT", "CONTATO IMINENTE"))
 			stage.text = "%s · %d%%" % [stage_text, percent]
@@ -2807,6 +2812,16 @@ func on_hunt_timer() -> void:
 	if countdown and remaining != last_hunt_remaining:
 		countdown.text = t("HUNT_COUNTDOWN", "ALVO LOCALIZADO EM %ds", [remaining])
 		last_hunt_remaining = remaining
+
+
+func timed_ui_control(node_name: String) -> Node:
+	var cached = _timed_ui_cache.get(node_name)
+	if cached is Node and is_instance_valid(cached) and cached.is_inside_tree():
+		return cached as Node
+	var resolved := find_child(node_name, true, false)
+	if resolved != null:
+		_timed_ui_cache[node_name] = resolved
+	return resolved
 
 
 func on_combat_timer() -> void:

@@ -51,6 +51,11 @@ func _init() -> void:
 	check((card.get_theme_stylebox("panel") as StyleBoxFlat).border_width_top == 1, "support panels share the restrained steel edge")
 	var matching_card := factory.panel(VBoxContainer.new(), factory.PANEL, 12, 10)
 	check(card.get_theme_stylebox("panel") == matching_card.get_theme_stylebox("panel"), "matching support panels reuse one immutable style resource")
+	var plain_style := factory.box_style(factory.PANEL_LIGHT, 14)
+	var matching_plain_style := factory.box_style(factory.PANEL_LIGHT, 14)
+	check(plain_style == matching_plain_style, "matching plain fills reuse one immutable style resource")
+	var bordered_style := factory.support_box_style(factory.PANEL_LIGHT, 14)
+	check(bordered_style != plain_style and plain_style.border_width_top == 0 and bordered_style.border_width_top == 1, "specialized borders cannot mutate a shared plain fill")
 	var illustrated := factory.illustrated_panel(VBoxContainer.new(), 20)
 	var illustrated_frame := illustrated.get_child(0) as PanelContainer
 	check(illustrated.get_theme_stylebox("panel") is StyleBoxFlat and illustrated_frame.get_theme_stylebox("panel") is StyleBoxTexture, "factory layers a readable navy fill behind the approved reusable 9-slice")

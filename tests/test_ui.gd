@@ -173,6 +173,7 @@ func run_smoke_test() -> void:
 	check(combat_stage_style != null and combat_stage_style.border_width_top == 2, "the bespoke arena retains a material brass edge without obscuring combat")
 	state.combat_step()
 	check(scene.refresh_combat_view(), "combat turns refresh through the incremental mobile path")
+	check(scene._timed_ui_cache.has("CombatArenaStage") and scene._timed_ui_cache.has("CombatHealthBar_hunter"), "timed combat refreshes retain direct control references instead of rescanning the UI tree")
 	await process_frame
 	check(scene.find_child("CombatArenaStage", true, false) == combat_stage, "incremental combat refresh preserves the expensive arena subtree")
 	check(state.combat_events.size() == 2, "combat action cards render")

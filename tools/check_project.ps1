@@ -40,6 +40,7 @@ $Tests = @(
 	"test_content_indices.gd",
 	"test_mission_network_compatibility.gd",
 	"test_performance_hotpaths.gd",
+	"test_ui_performance.gd",
     "test_attributes.gd",
 	"test_attribute_packages.gd",
     "test_classes.gd",
