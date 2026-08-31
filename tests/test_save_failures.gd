@@ -62,6 +62,7 @@ func run_save_failure_audit() -> void:
 	check(scene.try_save_before_quit(), "safe exit becomes available after storage recovers")
 	var file := FileAccess.open(test_save, FileAccess.READ)
 	var payload = JSON.parse_string(file.get_as_text())
+	file = null
 	check(payload is Dictionary and int(payload.player.credits) == 777, "successful retry persists the exact in-memory progress")
 	check(payload is Dictionary and int(payload.account.local_revision) == int(state.account.local_revision) and int(payload.account.local_revision) > revision_before_failure, "only successful save transactions advance and persist the profile revision")
 
@@ -70,8 +71,8 @@ func run_save_failure_audit() -> void:
 	state.persistence_enabled = false
 	for path in [test_save, "%s.tmp" % test_save, "%s.bak" % test_save]:
 		if FileAccess.file_exists(path):
-			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(test_dir))
+			check(DirAccess.remove_absolute(ProjectSettings.globalize_path(path)) == OK, "test cleanup removes its exact save artifact")
+	check(DirAccess.remove_absolute(ProjectSettings.globalize_path(test_dir)) == OK, "test cleanup removes its exact temporary directory")
 	await create_timer(0.5).timeout
 	finish()
 

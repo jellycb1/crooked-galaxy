@@ -7,6 +7,7 @@ $AuthorityPath = Join-Path $NotesRoot "README.md"
 $AuthorityText = Get-Content -LiteralPath $AuthorityPath -Raw
 
 $ActiveDocuments = @(
+	"PROJECT_STATUS.md",
     "Vision.txt",
     "ACCOUNT_SERVER_CONTRACT.md",
 	"BACKEND_VERTICAL_SLICE_CONTRACT.md",
@@ -83,6 +84,11 @@ $AccountContractText = Get-Content -LiteralPath (Join-Path $NotesRoot "ACCOUNT_S
 
 if (-not $AgentsText.Contains("The project owner authorizes Codex") -or $AgentsText.Contains("Codex must not generate")) {
     throw "AGENTS.md has conflicting visual-asset authorization instructions."
+}
+if ($AuthorityText.Contains("proibição de Codex") -or
+	$ReadmeText.Contains("Codex preserves code-native fallbacks and does not create") -or
+	$AccountContractText.Contains("MIGRATION_REQUEST_IMPORT")) {
+	throw "Active documentation has returned to an obsolete authorship or save-import boundary."
 }
 if (-not $GateText.Contains("the project owner authorizes Codex") -or $GateText.Contains("Codex must not generate")) {
     throw "The visual intake gate no longer matches the project owner's asset authorization."

@@ -21,7 +21,12 @@ foreach ($RelativePath in $RequiredFiles) {
 
 $ForbiddenPaths = @(
     "Notes/CROOKED_GALAXY_CODEX_MAX_AUTONOMY.txt",
-    "Notes/CrookedGalaxy.apk"
+    "Notes/CrookedGalaxy.apk",
+	"Notes/AUDIT_2026-08-23.md",
+	"Notes/PROJECT_STATE_AUDIT_2026-08-28.md",
+	"Notes/PROJECT_AUDIT_2026-08-29.md",
+	"Notes/UI_REBUILD_BLUEPRINT_2026-08-27.md",
+	"assets/ui/panel_frame_space.png"
 )
 
 foreach ($RelativePath in $ForbiddenPaths) {
@@ -77,7 +82,7 @@ foreach ($RelativePath in $TrackedGodotScripts) {
 
 $AuthorityMap = Get-Content -LiteralPath (Join-Path $ProjectRoot "Notes/README.md") -Raw
 if (-not $AuthorityMap.Contains("AGENTS.md") -or
-    -not $AuthorityMap.Contains("Relatórios arquivados") -or
+    -not $AuthorityMap.Contains("Evidência operacional mantida") -or
     -not $AuthorityMap.Contains("Artefactos locais")) {
     throw "Notes/README.md no longer defines document authority and artifact ownership."
 }

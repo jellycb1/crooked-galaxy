@@ -61,7 +61,7 @@ The initial generated class trio was rejected because its serious tactical conce
 - **Persistent navigation** — the dock is a steel-and-aged-brass structure. Destination colors identify icons and active states instead of filling entire cells with neon color.
 - **Repeated content** — inventory items, transports, routes, attributes, settings, and archive rows use supporting cards, never the illustrated frame. Repetition must strengthen rhythm rather than multiply decoration.
 
-The hierarchy has been checked across login, class/species/appearance/name onboarding, mandates, briefing, hunt incidents, combat, victory, hunter, classes, arsenal, hangar, market, normal/Rift rewards, chapter conclusions, settings, career, and the Rift at 450×800. The illustrated frame is deliberately absent from ordinary settings and repeated commerce/list rows. The complete coverage matrix and physical-only follow-up are recorded in `Notes/UI_IDENTITY_AUDIT_2026-08-26.md`.
+The hierarchy has been checked across login, class/species/appearance/name onboarding, mandates, briefing, hunt incidents, combat, victory, hunter, classes, arsenal, hangar, market, normal/Rift rewards, chapter conclusions, settings, career, and the Rift at 450×800. The illustrated frame is deliberately absent from ordinary settings and repeated commerce/list rows. Current validation and physical-only follow-up are summarized in `Notes/PROJECT_STATUS.md` and enforced by the UI/mobile test suites.
 
 ## Asset and performance contract
 

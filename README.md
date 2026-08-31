@@ -27,7 +27,7 @@ Crooked Galaxy is Android-first, fully playable in Portuguese and English, and c
 - Local monetization simulation using Credits, Scrap, and Warp Chips; no real-money billing is integrated.
 - Versioned atomic saves, backups, recovery, migrations, interrupted-phase restoration, and an explicit future server-revision boundary.
 
-Detailed product authority is indexed in [Notes/README.md](Notes/README.md). The accumulated implementation history lives in [Notes/AUDIT_2026-08-23.md](Notes/AUDIT_2026-08-23.md); historical entries are not current instructions.
+Detailed product authority is indexed in [Notes/README.md](Notes/README.md). The concise current handoff is [Notes/PROJECT_STATUS.md](Notes/PROJECT_STATUS.md); completed implementation history remains recoverable through Git rather than competing with active documents.
 
 ## Product invariants
 
@@ -38,7 +38,7 @@ Detailed product authority is indexed in [Notes/README.md](Notes/README.md). The
 - Classes share inventory; races are visual and narrative only.
 - Monetization may sell bounded time reduction or additional choices, never levels, attributes, victory, combat probability, exclusive superior gear, Fenda attempts, advertisements, or a season pass.
 - Device-local state must never be described as online, authenticated, synchronized, or server-authoritative.
-- Visual assets are supplied by the user or an external artist. Codex preserves code-native fallbacks and does not create substitute artwork.
+- Visual assets may be supplied by the user, an external artist or Codex under the authorization and mandatory quality gate in `AGENTS.md` and `Notes/ASSET_GENERATION_RULES.md`.
 
 ## Architecture
 
@@ -51,7 +51,7 @@ Detailed product authority is indexed in [Notes/README.md](Notes/README.md). The
 | `tests/` | Headless deterministic, UI, persistence, localization, and mobile tests. |
 | `tools/` | Gates, simulations, benchmarks, captures, exports, and publishing helpers. |
 | `assets/` | Accepted production assets only. |
-| `Notes/` | Product vision, active contracts, asset specifications, and historical audits. |
+| `Notes/` | Current status, product vision, active contracts, asset specifications, and operational evidence. |
 | `References/` | Local study library; Git-ignored, Godot-ignored, and export-excluded. |
 | `builds/` | Regenerable local exports and QA captures; only `.gdignore` is tracked. |
 
