@@ -9,6 +9,7 @@ $AuthorityText = Get-Content -LiteralPath $AuthorityPath -Raw
 $ActiveDocuments = @(
 	"PROJECT_STATUS.md",
     "Vision.txt",
+	"RELEASE_READINESS_CONTRACT.md",
     "ACCOUNT_SERVER_CONTRACT.md",
 	"BACKEND_VERTICAL_SLICE_CONTRACT.md",
 	"REMOTE_ECONOMY_CONTRACT.md",
@@ -81,6 +82,11 @@ $ReadmeText = Get-Content -LiteralPath $ReadmePath -Raw
 $ReadmeLines = @(Get-Content -LiteralPath $ReadmePath)
 $SyncText = Get-Content -LiteralPath (Join-Path $ProjectRoot "scripts/profile_sync_rules.gd") -Raw
 $AccountContractText = Get-Content -LiteralPath (Join-Path $NotesRoot "ACCOUNT_SERVER_CONTRACT.md") -Raw
+$ReleaseText = Get-Content -LiteralPath (Join-Path $NotesRoot "RELEASE_READINESS_CONTRACT.md") -Raw
+$MonetizationText = Get-Content -LiteralPath (Join-Path $NotesRoot "MONETIZATION_CONTRACT.md") -Raw
+$OnlineDecisionText = Get-Content -LiteralPath (Join-Path $NotesRoot "ONLINE_BACKEND_DECISION_2026-08-29.md") -Raw
+$StagingText = Get-Content -LiteralPath (Join-Path $NotesRoot "STAGING_RUNBOOK.md") -Raw
+$AgencyText = Get-Content -LiteralPath (Join-Path $NotesRoot "BOUNTY_AGENCY_CONTRACT.md") -Raw
 
 if (-not $AgentsText.Contains("The project owner authorizes Codex") -or $AgentsText.Contains("Codex must not generate")) {
     throw "AGENTS.md has conflicting visual-asset authorization instructions."
@@ -95,6 +101,27 @@ if (-not $GateText.Contains("the project owner authorizes Codex") -or $GateText.
 }
 if ($VisionText.Contains("used as Placeholders keeping") -or $WeeklyText.Contains("45 caçadas semanais")) {
     throw "An obsolete product or pacing claim returned to an active contract."
+}
+if (-not $ReleaseText.Contains("Mecanicamente completo") -or
+	-not $ReleaseText.Contains("Primeiro slice de produção: níveis 1–30") -or
+	-not $ReleaseText.Contains("ainda não está visualmente completo nem pronto para lançamento")) {
+	throw "Release readiness no longer separates mechanical completion from production and launch readiness."
+}
+if ($ReadmeText.Contains("never levels, attributes, victory, combat probability, exclusive superior gear, Fenda attempts") -or
+	$VisionText.Contains("or post-result combat rerolls.") -or
+	$MonetizationText.Contains("23 707 Créditos") -or
+	$WeeklyText.Contains("33–34 caçadas por semana")) {
+	throw "An obsolete monetization, workshop, or weekly pacing claim returned."
+}
+if (-not $MonetizationText.Contains("24 883 Créditos") -or
+	-not $WeeklyText.Contains("aproximadamente 27 caçadas por semana") -or
+	-not $VisionText.Contains("sole active post-result exception")) {
+	throw "Active monetization and pacing contracts no longer match the audited model."
+}
+if ($OnlineDecisionText.Contains("No remote environment") -or
+	$StagingText.Contains("transfer automation remains a pending gate") -or
+	$AgencyText.Contains("Não existe ainda backend, membership")) {
+	throw "A pre-staging backend status returned to active documentation."
 }
 if ($VisualText.Contains("the current class slice is capped") -or $InventoryText.Contains("Fichas Warp") -or $InventoryText.Contains("atual: 28 identidades")) {
     throw "Visual documentation contains obsolete runtime or vocabulary claims."

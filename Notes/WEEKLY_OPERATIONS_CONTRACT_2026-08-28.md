@@ -18,7 +18,7 @@ O Circuito da Rede complementa este sistema sem alterar as três metas nem o Man
 - Somente caçadas normais concluídas contam. Fenda, mercado, compras e outras ações premium não contam.
 - Cada pagamento é explícito, resgatável uma vez e sanitizado no carregamento.
 
-O perfil gratuito padrão atual completa aproximadamente 33–34 caçadas por semana; portanto, a meta final de 35 exige presença diária e uma escolha ocasional de rota mais curta. Continua possível com a reserva gratuita de 100 combustível/dia e não exige recarga premium, mas não deve ser apresentada como automática para quem escolhe sempre o mandado padrão.
+O perfil gratuito padrão atual completa aproximadamente 27 caçadas por semana (`3,9/dia` na auditoria anual); portanto, a meta final de 35 é deliberadamente um objetivo estratégico. Continua possível sem recarga premium quando o jogador escolhe rotas mais baratas durante a semana, mas não deve ser apresentada como automática nem como promessa do perfil que escolhe sempre o mandado padrão.
 
 ## Mandado Negro
 

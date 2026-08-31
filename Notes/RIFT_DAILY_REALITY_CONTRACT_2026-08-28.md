@@ -1,6 +1,6 @@
 # Fenda Clandestina — contrato de realidades diárias
 
-Estado: fundação e três realidades implementadas. Os envelopes determinísticos estão protegidos; apresentação e sensação física tardias continuam pendentes de um save Android nos níveis correspondentes.
+Estado: fundação e três realidades mecanicamente implementadas. Os envelopes determinísticos estão protegidos; os 36 retratos finais continuam em fallback e a apresentação/sensação física permanecem por validar num Android real. O slice de produção 1–30 cobre a cerimónia inicial e os seis primeiros inimigos.
 
 ## Loop ativo
 

@@ -24,6 +24,7 @@ This is the concise starting point for a new task. Product details remain author
 
 ## Visual state
 
+- The complete visual catalog currently records 443 required deliverables, 21 available runtime-core assets and 422 missing character, destination, enemy, transport or icon deliveries. Mechanically complete content must not be described as visually complete.
 - The approved focal dossier, supporting panel and fourteen specialized runtime UI assets are integrated.
 - The reviewed 26-file core UI batch therefore has 16 integrated assets.
 - Four painted button faces, one danger panel and two opaque dividers were rejected at phone size.
@@ -40,10 +41,10 @@ This is the concise starting point for a new task. Product details remain author
 
 ## Recommended next work
 
-1. Correct and re-review the ten held UI candidates one representative asset at a time, then integrate only files that pass 450×800 validation.
-2. Run the complete capture matrix and Android export after each accepted visual family.
-3. Keep ordinary online capabilities disabled until the remaining real-device lifecycle/cutover evidence is available.
-4. Avoid adding more horizontal systems before current UI art and physical performance are sufficiently proven.
+1. Complete the level 1–30 production slice defined in `RELEASE_READINESS_CONTRACT.md`: final identity for three classes/eight races, six worlds, twenty-four targets, four transports and the first six Rift enemies.
+2. Correct and re-review held UI candidates only when they materially support that slice, integrating files solely after 450×800 validation.
+3. Exercise the seven-day physical Android gate before changing XP, prices or weekly targets from preference alone.
+4. Keep ordinary online capabilities disabled until the real-device lifecycle/cutover evidence is available; do not add more horizontal systems meanwhile.
 
 ## Repository organization
 

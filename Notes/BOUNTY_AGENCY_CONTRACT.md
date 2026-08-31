@@ -1,6 +1,6 @@
 # Crooked Galaxy — contrato das Agências de Caçadores
 
-Estado: direção de produto aprovada e fundação de regras implementada. Não existe ainda backend, membership real, UI social ou recompensa online; o cliente local não deve fingir o contrário.
+Estado: direção de produto aprovada e fundação local de regras implementada. O backend comum de conta/economia existe em staging, mas não existe ainda autoridade de Agência, membership real, UI social ou recompensa online; o cliente local não deve fingir o contrário.
 
 O protocolo partilhado de versão da API, UTC do servidor, snapshots de personagem, comandos idempotentes e recibos está definido em `BACKEND_VERTICAL_SLICE_CONTRACT.md`. Os registos de Agência podem especializar esse envelope, mas nunca contorná-lo.
 

@@ -1,6 +1,6 @@
 # Crooked Galaxy — contrato de conteúdo do primeiro ano
 
-Estado: fundação executável revista para a curva quadrática, 28 de agosto de 2026.
+Estado: capacidade mecânica anual revista para a curva quadrática. Não constitui, por si só, prontidão visual ou de lançamento; esses estados pertencem a `RELEASE_READINESS_CONTRACT.md`.
 
 ## Promessa mensurável
 
@@ -8,7 +8,7 @@ O teto de produção conserva margem sobre o perfil mecanicamente mais rápido h
 
 Os cinco planetas iniciais mantêm os níveis 1, 4, 8, 13 e 19. A partir daí, um planeta é desbloqueado a cada dez níveis: 30, 40, 50 e assim sucessivamente até 320. Isso define 35 planetas e, com quatro identidades de alvo por planeta, 140 alvos no catálogo completo de lançamento.
 
-O conteúdo de gameplay cobre agora os trinta e cinco planetas e 140 alvos até ao nível 320: este eixo do catálogo de lançamento está completo. A Central de Reinícios Cósmicos fecha o pipeline com reinícios universais, backups corrompidos, quatro alvos, dois incidentes, famílias de equipamento e tradução integral. Os assets visuais dos vinte e oito packs mais recentes pertencem ao pipeline de entregas do utilizador e permanecem em fallback explícito.
+O conteúdo estruturado de gameplay cobre agora os trinta e cinco planetas e 140 alvos até ao nível 320: este eixo do catálogo está mecanicamente completo. A Central de Reinícios Cósmicos fecha o pipeline com reinícios universais, backups corrompidos, quatro alvos, dois incidentes, famílias de equipamento e tradução integral. Isto não significa conteúdo de lançamento terminado: personagens, habitats, arenas e ícones ainda em fallback pertencem à dívida visual medida pelo catálogo de assets. O primeiro marco visual fechado é o slice de níveis 1–30 definido em `RELEASE_READINESS_CONTRACT.md`.
 
 ## Curva de progressão
 

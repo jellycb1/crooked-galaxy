@@ -28,7 +28,7 @@ Crooked Galaxy is Android-first, fully playable in Portuguese and English, and c
 - Local monetization simulation using Credits, Scrap, and Warp Chips; no real-money billing is integrated.
 - Versioned atomic saves, backups, recovery, migrations, interrupted-phase restoration, and an explicit future server-revision boundary.
 
-Detailed product authority is indexed in [Notes/README.md](Notes/README.md). The concise current handoff is [Notes/PROJECT_STATUS.md](Notes/PROJECT_STATUS.md); completed implementation history remains recoverable through Git rather than competing with active documents.
+Detailed product authority is indexed in [Notes/README.md](Notes/README.md). The concise current handoff is [Notes/PROJECT_STATUS.md](Notes/PROJECT_STATUS.md), and [Notes/RELEASE_READINESS_CONTRACT.md](Notes/RELEASE_READINESS_CONTRACT.md) defines the level 1–30 production slice and the difference between mechanical, visual, device, online, and launch readiness. Completed implementation history remains recoverable through Git rather than competing with active documents.
 
 ## Product invariants
 
@@ -37,7 +37,7 @@ Detailed product authority is indexed in [Notes/README.md](Notes/README.md). The
 - The board offers different destinations when at least three worlds are available.
 - Hunt deadlines are authoritative timestamps. Ignoring an incident has no consequence and does not pause travel.
 - Classes share inventory; races are visual and narrative only.
-- Monetization may sell bounded time reduction or additional choices, never levels, attributes, victory, combat probability, exclusive superior gear, Fenda attempts, advertisements, or a season pass.
+- Monetization may sell bounded time reduction or additional choices, never levels, attributes, guaranteed victory, per-attempt combat probability, exclusive superior gear, advertisements, or a season pass. The only active post-result exception is the bounded 1/5/20 Warp Chip retry ladder after a Fenda defeat; it repeats the same sealed confrontation and never changes its odds or permits a second daily victory.
 - Device-local state must never be described as online, authenticated, synchronized, or server-authoritative.
 - Visual assets may be supplied by the user, an external artist or Codex under the authorization and mandatory quality gate in `AGENTS.md` and `Notes/ASSET_GENERATION_RULES.md`.
 
