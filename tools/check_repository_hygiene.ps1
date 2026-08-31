@@ -14,10 +14,13 @@ $RequiredFiles = @(
 	"Notes/RELEASE_READINESS_CONTRACT.md",
 	"Notes/LEVEL_1_30_ASSET_DELIVERY_MANIFEST.md",
 	"scripts/release_readiness_rules.gd",
+	"scripts/asset_intake_rules.gd",
 	"tests/test_release_readiness.gd",
 	"tests/test_release_asset_manifest.gd",
+	"tests/test_asset_intake_rules.gd",
 	"tools/audit_release_readiness.gd",
-	"tools/export_release_asset_manifest.gd"
+	"tools/export_release_asset_manifest.gd",
+	"tools/preflight_release_asset_candidates.gd"
 )
 
 foreach ($RelativePath in $RequiredFiles) {

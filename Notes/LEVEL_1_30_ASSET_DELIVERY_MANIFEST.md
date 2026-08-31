@@ -25,3 +25,15 @@ godot --headless --path . --script res://tools/export_release_asset_manifest.gd 
 ```
 
 Add `--json` for a machine-readable handoff. The manifest records the exact runtime path, atomic set, canvas, intended phone presentation, transparency and anchor for every delivery.
+
+## External candidate preflight
+
+Keep work-in-progress candidates outside `assets/`. The review folder mirrors the contents of `res://assets/`; for example, `<candidate-root>/characters/classes/warrant_breaker.png` maps to the eventual runtime path without being copied there.
+
+Validate every present pilot candidate without requiring the batch to be finished:
+
+```powershell
+godot --headless --path . --script res://tools/preflight_release_asset_candidates.gd -- --candidate-root="D:\CrookedGalaxyCandidates" --batch=style_lock
+```
+
+When all 17 files are delivered, add `--require-complete`. The preflight rejects missing or unreadable PNGs, incorrect canvas, oversized imports, absent required transparency, unexpected habitat transparency and misaligned modular canvases. Passing it is only the technical gate; reference evidence, manual style review and integrated 450×800 captures remain mandatory before any file enters runtime.

@@ -120,6 +120,12 @@ Print the artist-facing delivery manifest, optionally filtered to the 17-file st
 godot --headless --path . --script res://tools/export_release_asset_manifest.gd -- --batch=style_lock --missing
 ```
 
+Preflight an external work folder without copying candidates into runtime:
+
+```powershell
+godot --headless --path . --script res://tools/preflight_release_asset_candidates.gd -- --candidate-root="D:\CrookedGalaxyCandidates" --batch=style_lock --require-complete
+```
+
 Campaign simulation accepts `CG_CAMPAIGN_BUILD`, `CG_CAMPAIGN_STRATEGY`, `CG_CAMPAIGN_CAREERS`, `CG_CAMPAIGN_MARKET=active|off`, and `CG_CAMPAIGN_TRANSPORT=active|off` for focused comparisons.
 
 ## Visual QA

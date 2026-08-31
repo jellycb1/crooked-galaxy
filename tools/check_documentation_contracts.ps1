@@ -116,7 +116,9 @@ if (-not $DeliveryManifestText.Contains('`style_lock` — 17 files') -or
 	-not $DeliveryManifestText.Contains('`worlds` — 38 files') -or
 	-not $DeliveryManifestText.Contains('`transports` — 4 vehicle') -or
 	-not $DeliveryManifestText.Contains('`rift` — the first 6') -or
-	-not $DeliveryManifestText.Contains("export_release_asset_manifest.gd")) {
+	-not $DeliveryManifestText.Contains("export_release_asset_manifest.gd") -or
+	-not $DeliveryManifestText.Contains("preflight_release_asset_candidates.gd") -or
+	-not $DeliveryManifestText.Contains("--require-complete")) {
 	throw "The level 1-30 art handoff no longer matches the executable 151-delivery manifest."
 }
 if ($ReadmeText.Contains("never levels, attributes, victory, combat probability, exclusive superior gear, Fenda attempts") -or
