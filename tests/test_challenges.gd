@@ -185,7 +185,8 @@ func run_audit() -> void:
 	check(recommended_level_label != null and str(Challenge.FIRST_REALITY_RECOMMENDED_LEVELS[1]) in recommended_level_label.text, "the current enemy exposes its authored build checkpoint without revealing future floors")
 	check(scene.find_child("ChallengeRewardPreview", true, false) == null, "the unopened Rift never exposes item, slot, rarity, credits, or XP")
 	var challenge_dossier := scene.find_child("ChallengeCurrentDossier", true, false) as PanelContainer
-	check(challenge_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "the current Rift enemy uses the approved focal frame")
+	var challenge_frame := challenge_dossier.get_child(0) as PanelContainer if challenge_dossier != null else null
+	check(challenge_dossier != null and challenge_dossier.get_theme_stylebox("panel") is StyleBoxFlat and challenge_frame != null and challenge_frame.get_theme_stylebox("panel") is StyleBoxTexture, "the current Rift enemy uses the approved focal frame")
 	check(scene.find_child("ChallengeAnomalyRule", true, false) != null, "challenge dossier exposes its class-neutral anomaly profile before entry")
 	var enter := scene.find_child("ChallengeEnterAction", true, false) as Button
 	check(enter != null and enter.disabled and enter.size.y >= 48.0 and enter.get_parent() == scene.content, "consumed daily entry remains a fixed disabled Android action outside the evidence scroller")

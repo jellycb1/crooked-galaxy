@@ -20,6 +20,7 @@ Crooked Galaxy is Android-first, fully playable in Portuguese and English, and c
 - Wall-clock hunts that continue while navigating other interfaces, suspending, closing, or reopening the game.
 - Permanent transports that reduce travel time only; fuel cost remains tied to base route length.
 - A bounded Galaxy map that renders unlocked routes plus two future signals, keeping early Android navigation light while preserving discovery.
+- Rail-free touch lists with axis-aware dragging and bounded kinetic scrolling across onboarding, inventory, commerce, career, objectives, and the Rift.
 - Automatic combat with class signatures, enemy profiles, build odds, tactical equipment, and persisted evidence.
 - Procedural item instances, three active rarities, planet kits, traits, dual-cost Credit/Scrap workshop investment, two loadouts, protection, recycling, pagination, and a 2,180-series collection.
 - Daily objectives, weekly Operations, target mastery, capture streaks, nineteen career milestones spanning 3,000 hunts and all 35 worlds, and an eight-hour AFK patrol cap.
@@ -27,7 +28,7 @@ Crooked Galaxy is Android-first, fully playable in Portuguese and English, and c
 - Local monetization simulation using Credits, Scrap, and Warp Chips; no real-money billing is integrated.
 - Versioned atomic saves, backups, recovery, migrations, interrupted-phase restoration, and an explicit future server-revision boundary.
 
-Detailed product authority is indexed in [Notes/README.md](Notes/README.md). The accumulated implementation history lives in [Notes/AUDIT_2026-08-23.md](Notes/AUDIT_2026-08-23.md); historical entries are not current instructions.
+Detailed product authority is indexed in [Notes/README.md](Notes/README.md). The concise current handoff is [Notes/PROJECT_STATUS.md](Notes/PROJECT_STATUS.md), and [Notes/RELEASE_READINESS_CONTRACT.md](Notes/RELEASE_READINESS_CONTRACT.md) defines the level 1–30 production slice and the difference between mechanical, visual, device, online, and launch readiness. Completed implementation history remains recoverable through Git rather than competing with active documents.
 
 ## Product invariants
 
@@ -36,9 +37,9 @@ Detailed product authority is indexed in [Notes/README.md](Notes/README.md). The
 - The board offers different destinations when at least three worlds are available.
 - Hunt deadlines are authoritative timestamps. Ignoring an incident has no consequence and does not pause travel.
 - Classes share inventory; races are visual and narrative only.
-- Monetization may sell bounded time reduction or additional choices, never levels, attributes, victory, combat probability, exclusive superior gear, Fenda attempts, advertisements, or a season pass.
+- Monetization may sell bounded time reduction or additional choices, never levels, attributes, guaranteed victory, per-attempt combat probability, exclusive superior gear, advertisements, or a season pass. The only active post-result exception is the bounded 1/5/20 Warp Chip retry ladder after a Fenda defeat; it repeats the same sealed confrontation and never changes its odds or permits a second daily victory.
 - Device-local state must never be described as online, authenticated, synchronized, or server-authoritative.
-- Visual assets are supplied by the user or an external artist. Codex preserves code-native fallbacks and does not create substitute artwork.
+- Visual assets may be supplied by the user, an external artist or Codex under the authorization and mandatory quality gate in `AGENTS.md` and `Notes/ASSET_GENERATION_RULES.md`.
 
 ## Architecture
 
@@ -51,7 +52,7 @@ Detailed product authority is indexed in [Notes/README.md](Notes/README.md). The
 | `tests/` | Headless deterministic, UI, persistence, localization, and mobile tests. |
 | `tools/` | Gates, simulations, benchmarks, captures, exports, and publishing helpers. |
 | `assets/` | Accepted production assets only. |
-| `Notes/` | Product vision, active contracts, asset specifications, and historical audits. |
+| `Notes/` | Current status, product vision, active contracts, asset specifications, and operational evidence. |
 | `References/` | Local study library; Git-ignored, Godot-ignored, and export-excluded. |
 | `builds/` | Regenerable local exports and QA captures; only `.gdignore` is tracked. |
 
@@ -103,6 +104,26 @@ godot --headless --path . --script res://tools/simulate_campaign.gd
 godot --headless --path . --script res://tools/audit_year_one_pacing.gd
 godot --headless --path . --script res://tools/audit_rift_realities.gd
 godot --headless --path . --script res://tools/audit_visual_asset_readiness.gd -- --missing
+```
+
+Audit the closed level 1–30 production slice separately from the annual catalog:
+
+```powershell
+godot --headless --path . --script res://tools/audit_release_readiness.gd -- --missing
+```
+
+Add `--require-visual` when the slice is expected to be complete; the command then fails while any of the 151 final deliveries is absent.
+
+Print the artist-facing delivery manifest, optionally filtered to the 17-file style-lock pilot:
+
+```powershell
+godot --headless --path . --script res://tools/export_release_asset_manifest.gd -- --batch=style_lock --missing
+```
+
+Preflight an external work folder without copying candidates into runtime:
+
+```powershell
+godot --headless --path . --script res://tools/preflight_release_asset_candidates.gd -- --candidate-root="D:\CrookedGalaxyCandidates" --batch=style_lock --require-complete
 ```
 
 Campaign simulation accepts `CG_CAMPAIGN_BUILD`, `CG_CAMPAIGN_STRATEGY`, `CG_CAMPAIGN_CAREERS`, `CG_CAMPAIGN_MARKET=active|off`, and `CG_CAMPAIGN_TRANSPORT=active|off` for focused comparisons.

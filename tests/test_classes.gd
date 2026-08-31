@@ -142,7 +142,8 @@ func run_classes_test() -> void:
 	check(find_label_with_text(scene, "CLASSES INICIAIS") != null, "the selector clearly identifies the finalized initial roster")
 	var class_detail := scene.find_child("ClassDetail", true, false) as PanelContainer
 	check(class_detail != null and scene.find_child("ClassRouteProfile_warrant_breaker", true, false) != null, "the focused class sheet explains both build and contract identity")
-	check(class_detail != null and class_detail.get_theme_stylebox("panel") is StyleBoxTexture, "the focused class sheet uses the approved illustrated frame")
+	var class_frame := class_detail.get_child(0) as PanelContainer if class_detail != null else null
+	check(class_detail != null and class_detail.get_theme_stylebox("panel") is StyleBoxFlat and class_frame != null and class_frame.get_theme_stylebox("panel") is StyleBoxTexture, "the focused class sheet uses the approved illustrated frame")
 	var breaker_impact := scene.find_child("ClassImpact_warrant_breaker", true, false) as Label
 	check(breaker_impact != null and breaker_impact.text.contains("-2 DANO/GOLPE"), "breaker sheet previews its live per-hit mitigation")
 	check(breaker_impact.get_theme_font_size("font_size") >= 18, "class build evidence remains readable on the physical Android target")

@@ -186,7 +186,7 @@ Do not build the entire galaxy before this loop is fun.
 
 MONETIZATION GUARDRAILS
 
-Crooked Galaxy is free-to-play without advertisements, season passes, loot boxes or mandatory subscriptions. Monetization may sell bounded time reduction, additional choices and honest convenience, but never levels, attribute points, combat probability, victory, superior exclusive equipment, mechanically superior species/classes or post-result combat rerolls.
+Crooked Galaxy is free-to-play without advertisements, season passes, loot boxes or mandatory subscriptions. Monetization may sell bounded time reduction, additional choices and honest convenience, but never levels, attribute points, per-attempt combat probability, guaranteed victory, superior exclusive equipment or mechanically superior species/classes. The sole active post-result exception is the explicitly bounded Fenda retry: after defeat, up to three paid repetitions may replay the same sealed confrontation without changing its enemy, anomaly, reward or per-attempt odds, and a victory still ends the day. No other post-result combat reroll is allowed without revising this vision and the monetization contract together.
 
 Credits buy ordinary equipment and permanent progression. Scrap funds the workshop. Warp Chips are the premium currency and must also have controlled playable sources. Premium market refreshes sell another selection while the revealed item still costs Credits; they never guarantee an upgrade. Daily costs and limits must be visible before purchase. Real-money transactions require server-authoritative identity, wallet, time, receipts and idempotency; device-local builds are simulations only.
 

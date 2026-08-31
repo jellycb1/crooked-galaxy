@@ -48,9 +48,10 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	page.add_theme_constant_override("separation", 12)
 	scroller.add_child(page)
-	var info := host.panel(VBoxContainer.new(), host.PANEL_LIGHT, 16, 14)
+	var info := host.supporting_panel(VBoxContainer.new(), host.PANEL_LIGHT, 24)
+	info.name = "ClassSupportingInfo"
 	page.add_child(info)
-	var info_copy := info.get_child(0) as VBoxContainer
+	var info_copy := host.supporting_panel_content(info) as VBoxContainer
 	info_copy.add_child(host.label(text("CLASS_VIEW_PROVISIONAL", "CLASSES INICIAIS · TROCA GRATUITA"), UIDesignSystem.FONT_CAPTION, host.LIME))
 	var explanation := host.label(text("CLASS_VIEW_EXPLANATION", "O atributo principal amplia Poder e a mecânica exclusiva da classe. Todos os demais atributos continuam ativos."), UIDesignSystem.FONT_CAPTION, host.INK)
 	explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -116,7 +117,7 @@ static func class_detail(host: CrookedUIFactory, definition: Dictionary, player:
 	var class_id := str(definition.id)
 	var detail := host.illustrated_panel(HBoxContainer.new(), 22)
 	detail.name = "ClassDetail"
-	var row := detail.get_child(0) as HBoxContainer
+	var row := host.illustrated_panel_content(detail) as HBoxContainer
 	row.add_theme_constant_override("separation", 14)
 	var reference_icon: Control = class_reference_icon(host, class_id, 104)
 	if reference_icon != null:

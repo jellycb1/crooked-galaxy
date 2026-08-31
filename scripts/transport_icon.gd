@@ -1,6 +1,8 @@
 class_name TransportIcon
 extends Control
 
+const Catalog = preload("res://scripts/visual_asset_catalog.gd")
+
 var transport_id := ""
 var accent := Color("#55e5ff")
 
@@ -12,6 +14,10 @@ func _ready() -> void:
 
 
 func _draw() -> void:
+	var approved_texture := Catalog.load_approved_texture("transport", transport_id)
+	if approved_texture != null:
+		draw_texture_rect(approved_texture, fitted_texture_rect(approved_texture), false)
+		return
 	var side := minf(size.x, size.y)
 	var origin := (size - Vector2(side, side)) * 0.5
 	draw_set_transform(origin, 0.0, Vector2(side, side))
@@ -30,6 +36,15 @@ func _draw() -> void:
 		_:
 			draw_empty(ink)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+func fitted_texture_rect(texture: Texture2D) -> Rect2:
+	var source := texture.get_size()
+	if source.x <= 0.0 or source.y <= 0.0:
+		return Rect2(Vector2.ZERO, size)
+	var scale_factor := minf(size.x / source.x, size.y / source.y)
+	var target_size := source * scale_factor
+	return Rect2((size - target_size) * 0.5, target_size)
 
 
 func draw_junkbox(ink: Color) -> void:

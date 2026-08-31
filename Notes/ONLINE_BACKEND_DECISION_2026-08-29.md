@@ -1,6 +1,6 @@
 # Online backend decision — 29 August 2026
 
-Status: active architecture decision. Nakama is selected; the local loopback authentication, clock and authoritative character path pass end to end through both HTTP and the official Godot client. No remote environment, production credential or online product claim exists yet.
+Status: active architecture decision. Nakama is selected; loopback and public-TLS Hetzner staging prove authentication, clock, character and authoritative hunt/economy paths through the official Godot client. No production environment, production credential or online claim in the normal APK exists yet.
 
 ## Decision
 

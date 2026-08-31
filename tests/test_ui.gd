@@ -28,6 +28,8 @@ func run_smoke_test() -> void:
 	root.add_child(scene)
 	await process_frame
 	check(scene.content.get_child_count() >= 4, "bounty board renders")
+	var cached_navigation_controls := scene.find_children("PrimaryNav_*", "Button", true, false)
+	check(cached_navigation_controls.size() == 5 and cached_navigation_controls.all(func(button): return button.get_meta("navigation_icon", null) != null and button.get_meta("navigation_caption", null) != null), "persistent navigation retains direct icon and caption references across UI rebuilds")
 	var header_character := scene.find_child("HeaderCharacterAction", true, false) as Button
 	check(header_character != null and scene.find_child("HeaderHunterPortrait", true, false) != null, "primary header keeps hunter identity and character navigation visible")
 	check(scene.find_child("HeaderResourceStrip", true, false) != null and ["HeaderCredits", "HeaderScrap", "HeaderReputation", "HeaderWins"].all(func(node_name): return scene.find_child(node_name, true, false) != null), "primary header keeps all resources in one compact ledger")
@@ -54,7 +56,7 @@ func run_smoke_test() -> void:
 	check(scene.find_child("BoardTutorialOfferHint", true, false) != null and scene.find_child("BoardOfferSelectors", true, false) == null, "the first capture presents one guided warrant instead of a false three-way choice")
 	check(scene.find_children("BountyCard_*", "PanelContainer", true, false).size() == 1, "the tutorial expands exactly one mission dossier")
 	var tutorial_dossier := scene.find_children("BountyCard_*", "PanelContainer", true, false)[0] as PanelContainer
-	check(tutorial_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "the selected mandate owns the illustrated focal frame")
+	check(has_illustrated_frame(tutorial_dossier), "the selected mandate owns the illustrated focal frame")
 	(scene.find_child("BountyDetailsAction_gloop", true, false) as Button).pressed.emit()
 	await process_frame
 	check(scene.find_child("BountySecondaryDetails", true, false) != null and scene.find_child("NextWarrantProgress", true, false) != null, "the selected mandate exposes network progress in its secondary sheet")
@@ -92,7 +94,7 @@ func run_smoke_test() -> void:
 	check(str(state.current_bounty.id) == known_target_id and int(state.player.captures_by_target[known_target_id]) == 3, "repeat action opens the prior target without mutating campaign progress")
 	check(scene.find_child("BriefingScroll", true, false) != null, "contract briefing renders")
 	var briefing_dossier := scene.find_child("BriefingTargetDossier", true, false) as PanelContainer
-	check(briefing_dossier != null and briefing_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "briefing keeps the target inside the same focal dossier language")
+	check(briefing_dossier != null and has_illustrated_frame(briefing_dossier), "briefing keeps the target inside the same focal dossier language")
 	check(scene.find_child("BriefingFieldTestContext", true, false) == null, "ordinary board briefings do not claim a prior field test")
 	check(scene.find_child("BriefingMastery", true, false) != null, "briefing explains mastery loot bonuses")
 	check(scene.find_children("RecommendedApproach_*", "Label", true, false).size() == 1, "briefing renders exactly one dynamic recommendation")
@@ -119,7 +121,7 @@ func run_smoke_test() -> void:
 	check(scene.find_child("HuntEventChoices", true, false) != null, "mid-hunt incident renders")
 	check(scene.find_child("HuntEventDossier", true, false) != null and scene.find_child("HuntEventSignal", true, false) != null, "incident leads with one illustrated field dossier before its decisions")
 	var incident_dossier := scene.find_child("HuntEventDossier", true, false) as PanelContainer
-	check(incident_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "incident identity uses the approved illustrated frame")
+	check(has_illustrated_frame(incident_dossier), "incident identity uses the approved illustrated frame")
 	var incident_icons := scene.find_children("HuntChoiceIcon_*", "Control", true, false)
 	var incident_kinds := {}
 	for icon in incident_icons:
@@ -171,9 +173,17 @@ func run_smoke_test() -> void:
 	var combat_stage := scene.find_child("CombatArenaStage", true, false) as PanelContainer
 	var combat_stage_style := combat_stage.get_theme_stylebox("panel") as StyleBoxFlat if combat_stage != null else null
 	check(combat_stage_style != null and combat_stage_style.border_width_top == 2, "the bespoke arena retains a material brass edge without obscuring combat")
+	var static_combat_backdrop := scene.find_child("CombatBackdrop", true, false)
+	var dynamic_combat_effects := scene.find_child("CombatEffectsOverlay", true, false)
 	state.combat_step()
 	check(scene.refresh_combat_view(), "combat turns refresh through the incremental mobile path")
+	check(scene._timed_ui_cache.has("CombatArenaStage") and scene._timed_ui_cache.has("CombatHealthBar_hunter") and scene._timed_ui_cache.has("CombatEffectsOverlay") and not scene._timed_ui_cache.has("CombatBackdrop"), "timed combat refreshes retain direct dynamic references without redrawing the static arena")
 	await process_frame
+	var settled_static_draws := int(static_combat_backdrop.draw_count)
+	var settled_effect_draws := int(dynamic_combat_effects.draw_count)
+	dynamic_combat_effects.call("set_events", state.combat_events)
+	await process_frame
+	check(int(static_combat_backdrop.draw_count) == settled_static_draws and int(dynamic_combat_effects.draw_count) > settled_effect_draws, "combat effect updates redraw only the transient overlay after arena layout settles")
 	check(scene.find_child("CombatArenaStage", true, false) == combat_stage, "incremental combat refresh preserves the expensive arena subtree")
 	check(state.combat_events.size() == 2, "combat action cards render")
 	var turn_balance := scene.find_child("CombatTurnBalance", true, false) as Label
@@ -202,7 +212,7 @@ func run_smoke_test() -> void:
 	check(class_evidence.get_theme_font_size("font_size") >= 18, "victory build evidence remains readable at the physical Android target")
 	check(scene.find_child("VictoryDossier", true, false) != null and scene.find_child("VictoryPaymentCard", true, false) != null, "victory groups target, verdict, report, and payment into a coherent dossier")
 	var victory_dossier := scene.find_child("VictoryDossier", true, false) as PanelContainer
-	check(victory_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "victory uses the illustrated focal frame while receipts stay compact")
+	check(has_illustrated_frame(victory_dossier), "victory uses the illustrated focal frame while receipts stay compact")
 	var victory_payment := scene.find_child("VictoryPayment", true, false) as Label
 	check(victory_payment != null and victory_payment.text.contains("EMBALO") and victory_payment.text.contains("SALDO"), "victory preserves the paid-incident payout receipt")
 	check(victory_payment.get_theme_font_size("font_size") >= 18, "victory payment receipt remains readable before opening loot")
@@ -212,7 +222,7 @@ func run_smoke_test() -> void:
 	state.open_reward()
 	await process_frame
 	var reward_dossier := scene.find_child("RewardPanel", true, false) as PanelContainer
-	check(reward_dossier != null and reward_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "loot reveal preserves the approved focal frame")
+	check(reward_dossier != null and has_illustrated_frame(reward_dossier), "loot reveal preserves the approved focal frame")
 	check(scene.find_child("RewardEquipmentIcon", true, false) != null, "reward presents loot with a slot- and origin-specific icon")
 	check(scene.find_child("RewardMastery", true, false) != null, "reward screen confirms applied target mastery")
 	check(scene.find_child("RewardMasteryProgress", true, false) != null, "reward screen counts the pending capture toward the next mastery")
@@ -368,6 +378,10 @@ func run_smoke_test() -> void:
 	await process_frame
 	check(scene.find_child("Scrap_ui_spare", true, false) != null, "workshop renders recycling for spare loot")
 	check(scene.find_child("Lock_ui_spare", true, false) != null, "inventory renders manual item protection")
+	check(scene.find_child("LockState_ui_spare", true, false) != null and scene.find_child("StateIndicator_checkbox_off", true, false) != null, "inventory protection exposes a code-native checkbox state")
+	(scene.find_child("Lock_ui_spare", true, false) as Button).pressed.emit()
+	await process_frame
+	check(state.player.get("locked_item_ids", []).has("ui_spare") and scene.find_child("StateIndicator_checkbox_on", true, false) != null, "inventory protection rerenders the checked state after touch")
 	check(scene.find_child("InventoryFilter_weapon", true, false) != null, "arsenal renders slot filters")
 	check(scene.find_child("InventorySort", true, false) != null, "arsenal renders inventory sorting")
 	check(scene.find_child("AccessibilityPreferences", true, false) == null, "backpack keeps device preferences out of the item workflow")
@@ -395,7 +409,7 @@ func run_smoke_test() -> void:
 	await process_frame
 	var chapter_dossier := scene.find_child("ChapterComplete", true, false) as PanelContainer
 	check(chapter_dossier != null, "planet completion screen renders")
-	check(chapter_dossier != null and chapter_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "chapter completion uses the same illustrated climax language")
+	check(chapter_dossier != null and has_illustrated_frame(chapter_dossier), "chapter completion uses the same illustrated climax language")
 	var chapter_open_world := scene.find_child("ChapterOpenWorld", true, false) as Label
 	check(chapter_open_world != null and chapter_open_world.get_theme_font_size("font_size") >= 18, "chapter completion keeps its continuing-world guidance readable")
 
@@ -596,6 +610,13 @@ func finish() -> void:
 	else:
 		printerr("FAIL: %d UI smoke test(s) failed" % failures)
 		quit(1)
+
+
+func has_illustrated_frame(panel: PanelContainer) -> bool:
+	if panel == null or panel.get_child_count() != 1:
+		return false
+	var frame := panel.get_child(0) as PanelContainer
+	return panel.get_theme_stylebox("panel") is StyleBoxFlat and frame != null and frame.get_theme_stylebox("panel") is StyleBoxTexture
 
 
 func check(condition: bool, description: String) -> void:

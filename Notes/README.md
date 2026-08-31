@@ -1,12 +1,12 @@
 # Crooked Galaxy — mapa documental
 
-Estado: índice normativo. Atualizado após a auditoria de organização de 28 de agosto de 2026.
+Estado: índice normativo. Atualizado após a auditoria geral de 31 de agosto de 2026.
 
 Este ficheiro define a autoridade dos documentos. Relatórios datados preservam decisões e medições históricas, mas nunca substituem o código, os testes ou os contratos ativos.
 
 ## Ordem de autoridade
 
-1. `AGENTS.md` — limites operacionais do repositório, incluindo a proibição de Codex criar assets visuais.
+1. `AGENTS.md` — limites operacionais e autorização de Codex para criar, corrigir e integrar assets visuais através do gate obrigatório.
 2. Código e testes — comportamento executável atual.
 3. Contratos ativos abaixo — intenção de produto e limites que o código deve preservar.
 4. `README.md` — visão técnica e instruções de execução.
@@ -26,7 +26,10 @@ Quando dois documentos discordarem, aplica-se o documento de maior autoridade. V
 
 | Documento | Responsabilidade |
 | --- | --- |
+| `PROJECT_STATUS.md` | Handoff conciso do estado atual, validação e próximas prioridades. |
 | `Vision.txt` | Fantasia central, tom, ciclo e princípios do produto. |
+| `RELEASE_READINESS_CONTRACT.md` | Estados canónicos de conclusão, slice de produção 1–30 e gates antes de expansão/ativação. |
+| `LEVEL_1_30_ASSET_DELIVERY_MANIFEST.md` | Ordem de produção, conjuntos atómicos e comando de entrega dos 151 assets finais do primeiro slice. |
 | `ACCOUNT_SERVER_CONTRACT.md` | Conta, personagem, International 1 e futura autoridade remota. |
 | `BACKEND_VERTICAL_SLICE_CONTRACT.md` | Protocolo v1 de sessão, UTC, snapshots, comandos idempotentes e recibos remotos. |
 | `REMOTE_ECONOMY_CONTRACT.md` | Autoridade remota de caçadas, economia, recompensas e ordem de ativação anterior a Agências/faturação. |
@@ -52,31 +55,12 @@ Quando dois documentos discordarem, aplica-se o documento de maior autoridade. V
 | `CHARACTER_AND_UI_ASSET_BRIEF_EN.txt` | Brief visual consolidado em inglês para personagens e todos os assets reutilizáveis da UI. |
 | `REQUIRED_ASSET_INVENTORY_EN.txt` | Checklist em inglês contendo apenas nomes e quantidades das entregas visuais. |
 | `MODULAR_CHARACTER_IMAGE_RULES.md` | Regra artística única para produzir as oito raças a partir das 50 referências selecionadas e das descrições aprovadas. |
-| `ASSET_GENERATION_RULES.md` | Gate de receção para material visual fornecido externamente; subordinado à proibição de autoria em `AGENTS.md`. |
+| `ASSET_GENERATION_RULES.md` | Gate obrigatório para criar, corrigir, receber e integrar material visual. |
 | `ORIGINAL_VISUAL_ASSETS.md` | Proveniência dos assets de produção existentes e experiências rejeitadas. |
-| `REFERENCE_PLACEHOLDERS.md` | Registro arquivado da remoção das antigas referências em runtime. |
 
-## Registo vivo
+## Evidência operacional mantida
 
-`AUDIT_2026-08-23.md` é o changelog técnico acumulado. Apenas a entrada mais recente e a seção `Current priorities` descrevem a situação presente; entradas numeradas anteriores são históricas.
-
-## Relatórios arquivados
-
-Estes ficheiros são evidência datada. Podem explicar uma decisão, mas as suas contagens, versões, capturas e próximas etapas podem ter sido superadas:
-
-- `ECONOMY_EQUIPMENT_AUDIT_2026-08-27.md`;
-- `HUNT_FUEL_IMPLEMENTATION_2026-08-28.md`;
-- `PACING_INTERFACE_SCALABILITY_2026-08-28.md`;
-- `POLISH_PERFORMANCE_QOL_2026-08-28.md`;
-- `PROJECT_STATE_AUDIT_2026-08-28.md`;
-- `PROJECT_AUDIT_2026-08-29.md`;
-- `LAUNCH_CONTENT_COVERAGE_AUDIT_2026-08-29.md`;
-- `UI_IDENTITY_AUDIT_2026-08-26.md`;
-- `UI_REBUILD_BLUEPRINT_2026-08-27.md`;
-- `WORKSHOP_CREDIT_SERVICE_AUDIT_2026-08-29.md`.
-- `RIFT_36_DAY_ECONOMY_AUDIT_2026-08-29.md`.
-- `RIFT_YEAR_ONE_CHRONOLOGY_AUDIT_2026-08-29.md`.
-- `STAGING_OFFSITE_BACKUP_EVIDENCE_2026-08-30.md`.
+`STAGING_OFFSITE_BACKUP_EVIDENCE_2026-08-30.md` continua no repositório porque prova o estado operacional atual do backup e restauro de staging. Auditorias de desenvolvimento concluídas e blueprints implementados foram removidos da árvore de trabalho; o histórico Git é o arquivo canónico dessas versões, medições e decisões superadas.
 
 ## Artefactos locais
 

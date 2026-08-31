@@ -1071,12 +1071,7 @@ func capture() -> void:
 	if save_frame("ui_defeat_workshop.png") != OK:
 		quit(1)
 		return
-	var recommended_upgrade: Button = null
-	for candidate in scene.find_children("*", "Button", true, false):
-		var candidate_button := candidate as Button
-		if str(candidate_button.text).begins_with("★"):
-			recommended_upgrade = candidate_button
-			break
+	var recommended_upgrade := scene.find_child("RecommendedWorkshopAction", true, false) as Button
 	if recommended_upgrade:
 		recommended_upgrade.pressed.emit()
 		await process_frame

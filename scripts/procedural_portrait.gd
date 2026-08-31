@@ -1,5 +1,7 @@
 extends Control
 
+const Catalog = preload("res://scripts/visual_asset_catalog.gd")
+
 const AUTHORED_TARGET_IDS := [
 	"gloop", "baron_boom", "madame_vacuum", "mayor_gold_dust",
 	"auditor_frost", "chef_coldflame", "executive_penguin", "director_kelvin",
@@ -21,6 +23,8 @@ func _ready() -> void:
 
 
 func _draw() -> void:
+	if draw_approved_art():
+		return
 	var side := minf(size.x, size.y)
 	var origin := (size - Vector2(side, side)) * 0.5
 	draw_set_transform(origin, 0.0, Vector2(side, side))
@@ -84,6 +88,41 @@ func _draw() -> void:
 		_:
 			draw_hunter()
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+func draw_approved_art() -> bool:
+	if character_id != "hunter":
+		var texture := Catalog.approved_character_texture(character_id)
+		if texture == null:
+			return false
+		draw_texture_rect(texture, fitted_texture_rect(texture), false)
+		return true
+	var species_id := str(equipment_profile.get("species_id", ""))
+	if species_id.is_empty() or not Catalog.approved_atomic_set_complete("species_base", species_id):
+		return false
+	var appearance: Dictionary = equipment_profile.get("appearance", {})
+	var layers: Array[Dictionary] = [
+		{"kind": "species_base", "variant": "", "modulate": Color.WHITE},
+		{"kind": "species_mask", "variant": "", "modulate": appearance_skin_color(species_skin_color(species_id), str(appearance.get("palette", "native")))},
+		{"kind": "species_marking", "variant": str(appearance.get("marking", "clean")), "modulate": Color.WHITE},
+		{"kind": "species_feature", "variant": str(appearance.get("feature", "classic")), "modulate": Color.WHITE},
+		{"kind": "species_eyes", "variant": str(appearance.get("eyes", "standard")), "modulate": Color.WHITE},
+	]
+	for layer in layers:
+		var texture := Catalog.load_approved_texture(str(layer.kind), species_id, str(layer.variant))
+		if texture == null:
+			return false
+		draw_texture_rect(texture, fitted_texture_rect(texture), false, layer.modulate)
+	return true
+
+
+func fitted_texture_rect(texture: Texture2D) -> Rect2:
+	var source := texture.get_size()
+	if source.x <= 0.0 or source.y <= 0.0:
+		return Rect2(Vector2.ZERO, size)
+	var scale_factor := minf(size.x / source.x, size.y / source.y)
+	var target_size := source * scale_factor
+	return Rect2((size - target_size) * 0.5, target_size)
 
 
 func visual_identity_id() -> String:

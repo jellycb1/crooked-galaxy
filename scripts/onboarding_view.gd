@@ -86,7 +86,7 @@ static func build_login(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 	var server := host.illustrated_panel(HBoxContainer.new(), 16)
 	server.name = "OnboardingServer_%s" % host.server_draft
 	stack.add_child(server)
-	var server_row := server.get_child(0) as HBoxContainer
+	var server_row := host.illustrated_panel_content(server) as HBoxContainer
 	var server_copy := VBoxContainer.new()
 	server_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	server_row.add_child(server_copy)
@@ -102,10 +102,10 @@ static func build_login(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 	selected_server.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 	selected_server.disabled = true
 	server_row.add_child(selected_server)
-	var notice := host.panel(VBoxContainer.new(), host.PANEL_LIGHT, 16, 15)
+	var notice := host.supporting_panel(VBoxContainer.new(), host.PANEL_LIGHT, 24)
 	notice.name = "LocalSessionNotice"
 	stack.add_child(notice)
-	var copy := notice.get_child(0) as VBoxContainer
+	var copy := host.supporting_panel_content(notice) as VBoxContainer
 	copy.add_child(host.label(t("ONB_LOCAL_SESSION_TITLE", "SESSÃO LOCAL DE TESTE"), UIDesignSystem.FONT_CAPTION, host.LIME))
 	var explanation := host.label(t("ONB_LOCAL_SESSION_DESCRIPTION", "Ainda não existe servidor de contas. Esta entrada não pede senha, não simula autenticação online e mantém o progresso apenas neste dispositivo."), UIDesignSystem.FONT_CAPTION, host.INK)
 	explanation.name = "OnboardingSessionDescription"
@@ -130,7 +130,7 @@ static func build_class(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 	var preview := host.illustrated_panel(HBoxContainer.new(), 13)
 	preview.name = "OnboardingClassPreview"
 	stack.add_child(preview)
-	var preview_row := preview.get_child(0) as HBoxContainer
+	var preview_row := host.illustrated_panel_content(preview) as HBoxContainer
 	preview_row.add_theme_constant_override("separation", 13)
 	var preview_icon: Control = class_reference_icon(host, pending_id, 106.0)
 	if preview_icon != null:
@@ -168,10 +168,10 @@ static func build_class(host: CrookedUIFactory, stack: VBoxContainer, state: Sta
 		)
 		stack.add_child(card)
 	if not pending_definition.is_empty():
-		var mechanics := host.panel(VBoxContainer.new(), Color("#111d3a"), 14, 11)
+		var mechanics := host.supporting_panel(VBoxContainer.new(), Color("#111d3a"), 24)
 		mechanics.name = "OnboardingClassMechanics"
 		stack.add_child(mechanics)
-		var mechanics_copy := mechanics.get_child(0) as VBoxContainer
+		var mechanics_copy := host.supporting_panel_content(mechanics) as VBoxContainer
 		mechanics_copy.add_theme_constant_override("separation", 3)
 		mechanics_copy.add_child(host.label(t("ONB_CLASS_PROVISIONAL", "IDENTIDADE DE CLASSE · MECÂNICA ATIVA"), UIDesignSystem.FONT_CAPTION, host.LIME))
 		var flavor := host.label(localized_class_field(pending_definition, "flavor"), UIDesignSystem.FONT_CAPTION, host.MUTED)
@@ -203,9 +203,11 @@ static func build_appearance(host: CrookedUIFactory, stack: VBoxContainer, state
 	var preview_panel := host.illustrated_panel(VBoxContainer.new(), 13)
 	preview_panel.name = "OnboardingAppearancePreview"
 	stack.add_child(preview_panel)
-	var preview_copy := preview_panel.get_child(0) as VBoxContainer
+	var preview_copy := host.illustrated_panel_content(preview_panel) as VBoxContainer
 	preview_copy.alignment = BoxContainer.ALIGNMENT_CENTER
-	preview_copy.add_child(host.character_portrait("hunter", 178.0, profile))
+	var preview_portrait := host.character_portrait("hunter", 178.0, profile)
+	preview_portrait.name = "OnboardingAppearancePortrait"
+	preview_copy.add_child(preview_portrait)
 	preview_copy.add_child(host.center_label(SpeciesRulesScript.species_name_for(str(state.player.species_id)), UIDesignSystem.FONT_BODY, host.GOLD))
 	for category in AppearanceRulesScript.CATEGORIES:
 		var selector := host.panel(HBoxContainer.new(), Color("#0d1730"), 12, 8)
@@ -223,18 +225,18 @@ static func build_appearance(host: CrookedUIFactory, stack: VBoxContainer, state
 		row.add_child(copy)
 		copy.add_child(host.center_label(t("APPEARANCE_%s" % category.to_upper(), category.to_upper()), UIDesignSystem.FONT_CAPTION, host.MUTED))
 		var option_id := str(host.appearance_draft[category])
-		copy.add_child(host.center_label(t("APPEARANCE_OPTION_%s" % option_id.to_upper(), option_id.to_upper()), UIDesignSystem.FONT_CAPTION, host.INK))
+		var option_label := host.center_label(t("APPEARANCE_OPTION_%s" % option_id.to_upper(), option_id.to_upper()), UIDesignSystem.FONT_CAPTION, host.INK)
+		option_label.name = "OnboardingAppearanceValue_%s" % category
+		copy.add_child(option_label)
 		var next := host.action_button("›", host.CYAN, true)
 		next.custom_minimum_size = Vector2(UIDesignSystem.TOUCH_TARGET_MIN, UIDesignSystem.TOUCH_TARGET_MIN)
 		next.name = "OnboardingAppearanceNext_%s" % category
 		row.add_child(next)
 		previous.pressed.connect(func():
-			host.appearance_draft = AppearanceRulesScript.cycle(host.appearance_draft, category, -1)
-			host.call("render")
+			update_appearance_preview(host, state, category, -1, preview_portrait, option_label)
 		)
 		next.pressed.connect(func():
-			host.appearance_draft = AppearanceRulesScript.cycle(host.appearance_draft, category, 1)
-			host.call("render")
+			update_appearance_preview(host, state, category, 1, preview_portrait, option_label)
 		)
 	var confirm := host.primary_action(t("ONB_APPEARANCE_CONFIRM", "CONFIRMAR APARÊNCIA"), host.LIME)
 	confirm.name = "OnboardingAppearanceConfirm"
@@ -248,6 +250,16 @@ static func build_appearance(host: CrookedUIFactory, stack: VBoxContainer, state
 	content.add_child(confirm)
 
 
+static func update_appearance_preview(host: CrookedUIFactory, state: StateScript, category: String, direction: int, portrait: Control, option_label: Label) -> void:
+	host.appearance_draft = AppearanceRulesScript.cycle(host.appearance_draft, category, direction)
+	var option_id := str(host.appearance_draft[category])
+	option_label.text = t("APPEARANCE_OPTION_%s" % option_id.to_upper(), option_id.to_upper())
+	var profile: Dictionary = state.player.duplicate(true)
+	profile.appearance = host.appearance_draft.duplicate(true)
+	portrait.set("equipment_profile", profile)
+	portrait.queue_redraw()
+
+
 static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: StateScript) -> void:
 	section_intro(host, stack, t("ONB_SPECIES_TITLE", "ESCOLHA A RAÇA"), t("ONB_SPECIES_DESCRIPTION", "A raça define a aparência e a origem do caçador. É uma escolha cosmética: não altera atributos, combate ou progressão."))
 	var pending_id := host.species_draft
@@ -255,7 +267,7 @@ static func build_species(host: CrookedUIFactory, stack: VBoxContainer, state: S
 	var preview := host.illustrated_panel(HBoxContainer.new(), 13)
 	preview.name = "OnboardingSpeciesPreview"
 	stack.add_child(preview)
-	var preview_row := preview.get_child(0) as HBoxContainer
+	var preview_row := host.illustrated_panel_content(preview) as HBoxContainer
 	preview_row.add_theme_constant_override("separation", 13)
 	var preview_portrait := host.character_portrait("hunter", 106.0, {"species_id": pending_id})
 	preview_portrait.name = "OnboardingSpeciesPreviewPortrait"
@@ -304,7 +316,7 @@ static func build_name(host: CrookedUIFactory, stack: VBoxContainer, state: Stat
 	var identity := host.illustrated_panel(HBoxContainer.new(), 13)
 	identity.name = "OnboardingIdentitySummary"
 	stack.add_child(identity)
-	var identity_row := identity.get_child(0) as HBoxContainer
+	var identity_row := host.illustrated_panel_content(identity) as HBoxContainer
 	identity_row.add_theme_constant_override("separation", 12)
 	var portrait: Control = host.call("framed_hunter_portrait", 92.0)
 	portrait.name = "OnboardingHunterPortrait"

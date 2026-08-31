@@ -34,7 +34,8 @@ func _init() -> void:
 
 	check(host.find_child("ArsenalSectionTabs", true, false) != null and host.find_child("ArsenalTab_equipped", true, false) != null and host.find_child("ArsenalTab_workshop", true, false) != null and host.find_child("ArsenalTab_inventory", true, false) != null and host.find_child("ArsenalTab_settings", true, false) == null, "isolated arsenal separates equipped gear, workshop, and backpack")
 	var universal_sheet := host.find_child("UniversalEquipmentCard", true, false) as PanelContainer
-	check(universal_sheet != null and universal_sheet.get_theme_stylebox("panel") is StyleBoxTexture, "the universal equipment sheet owns Arsenal's single illustrated focal frame")
+	var universal_frame := universal_sheet.get_child(0) as PanelContainer if universal_sheet != null else null
+	check(universal_sheet != null and universal_sheet.get_theme_stylebox("panel") is StyleBoxFlat and universal_frame != null and universal_frame.get_theme_stylebox("panel") is StyleBoxTexture, "the universal equipment sheet owns Arsenal's single illustrated focal frame over its readable navy fill")
 	check(host.find_child("InventoryScroll", true, false) == null, "equipped section does not compete with the backpack list")
 	check(host.find_child("LoadoutToolbar", true, false) is VBoxContainer, "isolated equipped section stacks persistent loadouts at full mobile width")
 	host.arsenal_section = "workshop"

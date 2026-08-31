@@ -6,7 +6,7 @@ Estado: direção aprovada, com combustível, Mercado premium limitado e serviç
 
 - Free-to-play, sem anúncios, sem passe de temporada e sem subscrição obrigatória.
 - Monetização vende tempo, escolhas adicionais e conveniência; nunca vende vitória direta.
-- Não vender níveis, pontos de atributo, probabilidades de combate, classes superiores, espécies com bónus, equipamento exclusivo objetivamente superior ou rerolls após conhecer o resultado de um combate.
+- Não vender níveis, pontos de atributo, probabilidade por tentativa, vitória garantida, classes superiores, espécies com bónus ou equipamento exclusivo objetivamente superior. A única exceção pós-resultado ativa é a repetição limitada da Fenda descrita neste contrato: repete o mesmo confronto selado após derrota sem alterar build, inimigo, anomalia, recompensa ou odds.
 - Não usar loot boxes. Toda compra mostra exatamente o que entrega.
 - Cosméticos podem ser complementares no futuro, mas não sustentam o modelo antes de existirem personagens modulares e locais onde outros jogadores os vejam.
 - Compras reais, saldos premium e limites diários serão autoritativos no servidor. A implementação local atual é apenas uma simulação de produto para testes internos.
@@ -64,7 +64,7 @@ Estado das aplicações:
 - Calibração e reforço continuam limitados por Sucata, mas pagam também um serviço em Créditos.
 - O custo deriva do nível persistido da peça e cresce com intervenções anteriores; não depende da classe nem do poder equipado do jogador.
 - A transação mostra e exige os dois valores antes de deduzir ambos atomicamente.
-- Em 40 carreiras de 200 contratos, o serviço mediano absorve 23 707 Créditos, ou 17,4% do saldo que seria retido, preservando a aquisição dos quatro transportes.
+- Na auditoria reproduzível atual de 40 carreiras com 200 contratos, o serviço mediano absorve 24 883 Créditos, ou 18,2% do saldo que seria retido, preservando a aquisição dos quatro transportes. O script de auditoria é a autoridade quando estes valores mudarem.
 - As recompensas avançadas da Fenda persistem o seu checkpoint como `item_level`; cada primeira vitória financia 1,69 serviços iniciais da própria peça, sem transformar a entrada diária em produto premium.
 - O serviço é progressão normal e nunca aceita Fichas de Dobra. Não adiciona rerolls, raridade, atributos, probabilidade de vitória ou equipamento exclusivo.
 

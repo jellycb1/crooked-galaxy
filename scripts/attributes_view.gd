@@ -125,10 +125,10 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 
 static func hunter_section_tab(host: CrookedUIFactory, section_id: String, title: String, accent: Color) -> Button:
 	var selected := host.hunter_section == section_id
-	var tab := host.primary_action(title, accent) if selected else host.secondary_action(title, accent)
+	var tab := host.selected_tab_action(title) if selected else host.secondary_action(title, accent)
 	tab.name = "HunterTab_%s" % section_id
 	tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	tab.custom_minimum_size.y = 76
+	tab.custom_minimum_size.y = 100 if selected else 76
 	tab.pressed.connect(func():
 		host.hunter_section = section_id
 		host.call("render")
@@ -139,7 +139,7 @@ static func hunter_section_tab(host: CrookedUIFactory, section_id: String, title
 static func hunter_profile(host: CrookedUIFactory, state: StateScript, class_id: String, class_definition: Dictionary) -> PanelContainer:
 	var profile := host.focal_scene_panel(VBoxContainer.new())
 	profile.name = "HunterProfile"
-	var box := profile.get_child(0) as VBoxContainer
+	var box := host.illustrated_panel_content(profile) as VBoxContainer
 	box.add_theme_constant_override("separation", 16)
 
 	var identity := HBoxContainer.new()

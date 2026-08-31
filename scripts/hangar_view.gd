@@ -29,7 +29,7 @@ static func build(host: CrookedUIFactory, content: VBoxContainer, state: StateSc
 	var active := TransportRulesScript.active_transport(state.player)
 	var status := host.illustrated_panel(HBoxContainer.new(), 16)
 	status.name = "HangarStatus"
-	var status_row := status.get_child(0) as HBoxContainer
+	var status_row := host.illustrated_panel_content(status) as HBoxContainer
 	status_row.add_theme_constant_override("separation", 14)
 	var status_box := VBoxContainer.new()
 	status_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL

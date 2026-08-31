@@ -79,7 +79,7 @@ func run_test() -> void:
 	check(portuguese != null and portuguese.disabled and english != null and not english.disabled and not english.text.contains("EM TRADUÇÃO"), "login offers both complete languages and marks only the active one selected")
 	check(scene.find_child("OnboardingServer_international_1", true, false) != null and scene.find_child("OnboardingServerSelected", true, false) != null, "login binds the first account world to International 1")
 	var server_dossier := scene.find_child("OnboardingServer_international_1", true, false) as PanelContainer
-	check(server_dossier.get_theme_stylebox("panel") is StyleBoxTexture, "login introduces the illustrated focal language before character creation")
+	check(has_illustrated_frame(server_dossier), "login introduces the illustrated focal language before character creation")
 	var progress := scene.find_child("OnboardingProgress", true, false) as Label
 	var session_description := scene.find_child("OnboardingSessionDescription", true, false) as Label
 	check(progress != null and progress.get_theme_font_size("font_size") >= UIDesignSystem.FONT_CAPTION and session_description != null and session_description.get_theme_font_size("font_size") >= UIDesignSystem.FONT_CAPTION, "login guidance uses the Android-readable caption token")
@@ -91,7 +91,7 @@ func run_test() -> void:
 	check(scene.find_children("OnboardingClass_*", "PanelContainer", true, false).size() == 3, "mandatory class step shows the complete initial trio")
 	check(scene.find_child("OnboardingClassPreview", true, false) != null and scene.find_child("OnboardingClassPreviewName", true, false) != null, "class choice owns a live archetype preview before confirmation")
 	var class_preview := scene.find_child("OnboardingClassPreview", true, false) as PanelContainer
-	check(class_preview.get_theme_stylebox("panel") is StyleBoxTexture, "class onboarding reserves the illustrated frame for its live preview")
+	check(has_illustrated_frame(class_preview), "class onboarding reserves the illustrated frame for its live preview")
 	scene.class_draft = "orbit_gunslinger"
 	scene.render()
 	check(scene.find_child("OnboardingClassPreviewIcon", true, false) != null, "the Orbit Gunslinger preview uses its deliberate vector emblem while replacement art is unapproved")
@@ -121,7 +121,7 @@ func run_test() -> void:
 	check(scene.find_children("OnboardingSpeciesIcon_*", "Control", true, false).size() == 8, "every initial species has an original scalable emblem")
 	check(scene.find_child("OnboardingSpeciesPreviewPortrait", true, false) != null and scene.find_child("OnboardingSpeciesPreviewName", true, false) != null, "species choice previews the assembled hunter before confirmation")
 	var species_preview := scene.find_child("OnboardingSpeciesPreview", true, false) as PanelContainer
-	check(species_preview.get_theme_stylebox("panel") is StyleBoxTexture, "species onboarding keeps the same focused preview hierarchy")
+	check(has_illustrated_frame(species_preview), "species onboarding keeps the same focused preview hierarchy")
 	var species_scroll := scene.find_child("OnboardingScroll", true, false) as ScrollContainer
 	var fixed_species_confirm := scene.find_child("OnboardingSpeciesConfirm", true, false) as Button
 	check(fixed_species_confirm != null and fixed_species_confirm.get_parent() != species_scroll.get_child(0), "species confirmation stays outside the long scrolling roster")
@@ -172,9 +172,12 @@ func run_test() -> void:
 	await process_frame
 	check(state.onboarding_step() == "appearance" and str(state.player.species_id) == "synthetic", "confirmed species advances exactly to cosmetic customization")
 	check(scene.find_child("OnboardingAppearancePreview", true, false) != null and scene.find_child("OnboardingAppearanceNext_palette", true, false) != null, "appearance step exposes a live portrait and touch-friendly cosmetic selectors")
+	var appearance_generation := int(scene.render_generation)
+	var appearance_portrait := scene.find_child("OnboardingAppearancePortrait", true, false) as Control
 	(scene.find_child("OnboardingAppearanceNext_palette", true, false) as Button).pressed.emit()
 	await process_frame
-	check(str(scene.appearance_draft.palette) == "warm", "appearance selectors update the reversible live draft")
+	var palette_value := scene.find_child("OnboardingAppearanceValue_palette", true, false) as Label
+	check(str(scene.appearance_draft.palette) == "warm" and int(scene.render_generation) == appearance_generation and scene.find_child("OnboardingAppearancePortrait", true, false) == appearance_portrait and palette_value != null and palette_value.text == "QUENTE", "appearance selectors update portrait and copy without rebuilding the mobile screen")
 	(scene.find_child("OnboardingAppearanceConfirm", true, false) as Button).pressed.emit()
 	await process_frame
 	check(state.onboarding_step() == "name" and str(state.player.appearance.palette) == "warm", "appearance confirmation persists the cosmetic recipe before naming")
@@ -226,6 +229,13 @@ func check(condition: bool, description: String) -> void:
 	if not condition:
 		failures += 1
 		printerr("  FAIL: %s" % description)
+
+
+func has_illustrated_frame(panel: PanelContainer) -> bool:
+	if panel == null or panel.get_child_count() != 1:
+		return false
+	var frame := panel.get_child(0) as PanelContainer
+	return panel.get_theme_stylebox("panel") is StyleBoxFlat and frame != null and frame.get_theme_stylebox("panel") is StyleBoxTexture
 
 
 func find_label_with_text(scene: Node, expected: String) -> Label:

@@ -1,6 +1,6 @@
 # Crooked Galaxy — pipeline modular de conteúdo planetário
 
-Estado: catálogo planetário de lançamento concluído com trinta e cinco planetas até ao nível 320.
+Estado: catálogo planetário mecanicamente completo com trinta e cinco planetas até ao nível 320. Prontidão visual e de lançamento são estados separados por `RELEASE_READINESS_CONTRACT.md`.
 
 ## Objetivo
 
@@ -97,4 +97,4 @@ Um pacote novo só entra no registry quando:
 | Fábrica de Coincidências Industriais | `fabrica_coincidencias_industriais.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e luvas | Novo · nível 310 |
 | Central de Reinícios Cósmicos | `central_reinicios_cosmicos.gd` | planeta, 4 alvos, 2 incidentes, arma, traje e capacetes | Novo · nível 320 |
 
-O catálogo de lançamento está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Os vinte e oito packs novos entre os níveis 50 e 320 provam que planetas entram por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. Os seus 112 retratos e 84 ambientes/ícones estão catalogados como entregas pendentes do utilizador; o código conserva fallbacks e não cria assets substitutos. Expansões além do nível 320 ficam congeladas até uma auditoria transversal confirmar que os restantes sistemas de lançamento sustentam estes 35 mundos.
+O catálogo mecânico está totalmente modular e a composição manual duplicada foi removida de `ContentDB`. O registry valida tanto o contrato de cada pack como a ordem e integridade dos arrays e catálogos compostos. Os vinte e oito packs novos entre os níveis 50 e 320 provam que planetas entram por um único ponto de registo, mantendo a fachada pública e a compatibilidade de saves. A auditoria visual atual, porém, ainda classifica os 140 retratos de alvo e os 105 habitats/arenas/ícones dos 35 mundos como entregas pendentes; os fallbacks permanecem ativos até cada substituto passar o gate obrigatório. O slice visual 1–30 tem precedência sobre produção indiscriminada do catálogo tardio, e expansões além do nível 320 ficam congeladas.

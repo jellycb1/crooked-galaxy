@@ -1,7 +1,7 @@
 extends Control
 
-var events: Array[Dictionary] = []
 var planet_id := "dustball_prime"
+var draw_count := 0
 
 
 func _ready() -> void:
@@ -11,6 +11,7 @@ func _ready() -> void:
 
 
 func _draw() -> void:
+	draw_count += 1
 	var frozen := planet_id == "congelaria_sa"
 	var fungal := planet_id == "micelia_404"
 	var scrapyard := planet_id == "ferro_velho_omega"
@@ -71,16 +72,3 @@ func _draw() -> void:
 	elif frozen:
 		for x in [0.20, 0.50, 0.78]:
 			draw_line(Vector2(size.x * x, horizon), Vector2(size.x * (x + 0.05), horizon - 48), Color(0.45, 0.95, 0.88, 0.14), 8.0, true)
-
-	for event in events:
-		var from_left := str(event.get("actor", "")) == "player"
-		var from_y := 150.0 if from_left else 178.0
-		var to_y := 108.0 if from_left else 132.0
-		var from := Vector2(size.x * (0.30 if from_left else 0.70), from_y)
-		var to := Vector2(size.x * (0.70 if from_left else 0.30), to_y)
-		var color := Color("#55e5ff") if from_left else Color("#ff6f7d")
-		var critical := str(event.get("quality", "")) == "CRÍTICO"
-		draw_line(from, to, color, 7.0 if critical else 4.0, true)
-		draw_line(from - Vector2(34 if from_left else -34, 10), to, Color(color, 0.25), 2.0, true)
-		draw_circle(to, 21.0 if critical else 13.0, Color(color, 0.30))
-		draw_circle(to, 7.0, color)

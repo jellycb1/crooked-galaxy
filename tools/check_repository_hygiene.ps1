@@ -10,7 +10,19 @@ $RequiredFiles = @(
     "Notes/ASSET_GENERATION_RULES.md",
     "Notes/UI_ASSET_INVENTORY_PT.md",
     "Notes/MONETIZATION_CONTRACT.md",
-    "Notes/YEAR_ONE_CONTENT_CONTRACT.md"
+    "Notes/YEAR_ONE_CONTENT_CONTRACT.md",
+	"Notes/RELEASE_READINESS_CONTRACT.md",
+	"Notes/LEVEL_1_30_ASSET_DELIVERY_MANIFEST.md",
+	"scripts/release_readiness_rules.gd",
+	"scripts/asset_intake_rules.gd",
+	"scripts/production_asset_approvals.gd",
+	"tests/test_release_readiness.gd",
+	"tests/test_release_asset_manifest.gd",
+	"tests/test_asset_intake_rules.gd",
+	"tests/test_production_asset_approvals.gd",
+	"tools/audit_release_readiness.gd",
+	"tools/export_release_asset_manifest.gd",
+	"tools/preflight_release_asset_candidates.gd"
 )
 
 foreach ($RelativePath in $RequiredFiles) {
@@ -21,7 +33,12 @@ foreach ($RelativePath in $RequiredFiles) {
 
 $ForbiddenPaths = @(
     "Notes/CROOKED_GALAXY_CODEX_MAX_AUTONOMY.txt",
-    "Notes/CrookedGalaxy.apk"
+    "Notes/CrookedGalaxy.apk",
+	"Notes/AUDIT_2026-08-23.md",
+	"Notes/PROJECT_STATE_AUDIT_2026-08-28.md",
+	"Notes/PROJECT_AUDIT_2026-08-29.md",
+	"Notes/UI_REBUILD_BLUEPRINT_2026-08-27.md",
+	"assets/ui/panel_frame_space.png"
 )
 
 foreach ($RelativePath in $ForbiddenPaths) {
@@ -77,7 +94,7 @@ foreach ($RelativePath in $TrackedGodotScripts) {
 
 $AuthorityMap = Get-Content -LiteralPath (Join-Path $ProjectRoot "Notes/README.md") -Raw
 if (-not $AuthorityMap.Contains("AGENTS.md") -or
-    -not $AuthorityMap.Contains("Relatórios arquivados") -or
+    -not $AuthorityMap.Contains("Evidência operacional mantida") -or
     -not $AuthorityMap.Contains("Artefactos locais")) {
     throw "Notes/README.md no longer defines document authority and artifact ownership."
 }

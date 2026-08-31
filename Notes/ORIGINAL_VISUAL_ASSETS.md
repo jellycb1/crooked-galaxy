@@ -1,6 +1,6 @@
 # Original visual asset register
 
-Status: provenance record for assets already accepted into production. It does not authorize Codex to create or edit visual assets; current authorship rules live in `AGENTS.md`.
+Status: provenance record for assets already accepted into production. Creation and editing authority, validation and preservation requirements live in `AGENTS.md`.
 
 Generated with the built-in OpenAI image-generation workflow. No reference image was supplied to the generator. Every prompt required a fully original composition and excluded text, logos, trademarks, recognizable third-party designs, and watermarks.
 
@@ -24,9 +24,11 @@ Generated with the built-in OpenAI image-generation workflow. No reference image
 
 | Asset | Runtime context | Production record |
 | --- | --- | --- |
-| `assets/ui/panel_frame_space.png` | Focused dossiers and previews; reusable `StyleBoxTexture` source | Generated from an original Crooked Galaxy navy/steel/brass/coral/cyan specification after inspecting local UI study references. Reference roles were limited to dark-center hierarchy, thin warm trim, hand-painted edge rhythm, and corner restraint; no fantasy vine, thorn, wood, ornament, exact frame path, text, logo, or reference asset was copied. The displayed direction was explicitly approved on 2026-08-26. The approved draft was then processed deterministically to remove only the exterior black connected to the canvas edge, crop the frame, preserve the opaque navy center, and resize it to 660×124 RGBA. |
+| `assets/ui/main-dossier-frame-runtime-512x384.png` | Focused dossiers and previews; reusable `StyleBoxTexture` source | Exact user-supplied runtime asset from the Crooked Galaxy art pipeline. It passed the mandatory intake gate and was explicitly approved for integration on 2026-08-31. The file is preserved byte-for-byte; runtime 9-slice margins are 79/61/98/68 pixels. |
+| `assets/ui/supporting-panel-runtime-candidate-v1.png` | Section-level supporting information panels | Exact user-supplied runtime asset from the Crooked Galaxy art pipeline. It passed isolated and integrated 450×800 validation at full and half width and was explicitly approved for integration on 2026-08-31. The file is preserved byte-for-byte; runtime 9-slice margins are 48/44/48/44 pixels, code supplies the opaque content fill, and safe content margins are at least 40 horizontal/36 vertical pixels. |
+| `assets/ui/runtime/*.png` | Confirmation, success receipts, selected tabs, long-press help, dividers, slider handles, equipment rarity and portrait relationships | Fourteen byte-identical user-supplied runtime candidates accepted on 2026-08-31 after individual source, alpha, 9-slice and 450×800 validation. Adaptive factory gates preserve procedural borders below 72 physical pixels for equipment and 106 physical pixels for portraits. Tier 2 remains reserved for a future Uncommon rarity. Exact contracts and source location are recorded in `assets/ui/runtime/README.md`. |
 
-Technical validation: genuine transparent corners, 9-slice margins of 48/20/48/20 logical pixels, shared immutable factory styles, and complete 450×800 captures for class detail, mandatory onboarding previews, selected mandate, contract briefing, hunter profile, universal arsenal kit, active hangar transport, hunt incident, victory, normal/Rift reward, chapter conclusion, career summary, and current/locked Rift dossiers. Supporting cards, repeated rows, settings, and commerce retain code-native navy/steel styling so the illustrated frame remains a focused hierarchy marker.
+Technical validation for the active focal frame: 512×384 RGBA, genuine transparent interior and corners, 9-slice margins of 79/61/98/68 source pixels, and a byte-identical copy of the approved source. Shared immutable factory styles apply it only to illustrated focal panels. The approved supporting frame is limited to section-level information panels with at least 112 logical pixels of height. Repeated rows, chips, settings and commerce remain code-native navy/steel so hierarchy stays legible.
 
 ## Rejected experiments
 

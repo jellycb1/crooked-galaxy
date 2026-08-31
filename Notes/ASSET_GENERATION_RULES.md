@@ -1,8 +1,8 @@
 # Visual asset intake gate
 
-Status: mandatory for accepting or integrating raster art supplied by the user or an external artist. The legacy filename is retained because repository instructions and tooling already reference it.
+Status: mandatory for creating, altering, accepting or integrating raster art. The legacy filename is retained because repository instructions and tooling already reference it.
 
-`AGENTS.md` is authoritative: Codex must not generate, draw, edit, transform, retouch, upscale, remove backgrounds from, or create visual assets for this project. This document governs specification, inspection and integration only.
+`AGENTS.md` is authoritative: the project owner authorizes Codex to create, edit, transform, retouch, resize, remove backgrounds from, optimize and integrate visual assets. This document governs how that authorization is exercised safely and consistently.
 
 ## Why this gate exists
 
@@ -33,19 +33,19 @@ The rejected class trio instead used sealed helmets, near-realistic anatomy, mil
 
 Labels such as `comic`, `cel shaded`, `space western`, `hand-painted` or `inspired` are not sufficient evidence by themselves.
 
-### 2. Review one supplied candidate
+### 2. Review a candidate or identified batch
 
-- Review one representative file at a time; do not request or accept an entire batch before the direction is proven.
+- Prove a new visual direction with one representative file before processing a large batch. Once the direction is established, an identified batch may be reviewed and processed together.
 - Keep the candidate outside `assets/` and all runtime paths.
-- Treat it as rejected by default and do not modify it.
+- Treat it as unapproved until its evidence and intended role are recorded.
 - Show or identify the exact candidate being assessed and report concrete matches and mismatches.
-- General permission to use assets is not approval to integrate an unseen file.
+- Preserve the original candidate or a reproducible source before destructive edits.
 
-### 3. Require exact integration authority
+### 3. Establish integration authority
 
-Only an explicit request from the user to integrate the exact reviewed file permits runtime work. Approval of a concept, brief, class name, artist or future batch is insufficient.
+A direct request to process a named file, folder, archive or reviewed batch permits creation, correction and runtime integration within that scope. Standing authorization may cover subsequent technical variants derived from those files.
 
-Codex may copy the supplied bytes to the documented destination and configure Godot import settings. Any visual alteration—including cropping, recoloring, retouching, compositing, transparency work or derived variants—must be returned to the user or external artist.
+Codex may crop, recolor, retouch, composite, repair transparency, resize, optimize and create derived states. Material visual changes must be documented, and the untouched source must be retained outside the runtime path or remain reproducible from version history.
 
 ### 4. Validate before integration
 
@@ -76,7 +76,7 @@ Reject a candidate if one or more major items apply:
 - cinematic glow or fog replacing clean shape separation;
 - tiny props that cannot communicate the role at phone size;
 - polished rendering whose humor, silhouette or personality does not match the project;
-- technical dependence on edits that Codex is not authorized to perform.
+- technical defects that cannot be repaired without destroying the intended design or provenance.
 
 ## Character acceptance target
 
@@ -95,7 +95,7 @@ Class promotional art may use a representative race. It is not the player's lite
 
 ## External art brief rule
 
-Codex may specify an asset for the user or artist using abstract visual grammar: role, facial attitude, comic proportion, silhouette, major prop, restricted palette, contour treatment, shading simplicity, phone-size readability, file format, transparency, anchors and rejection traits. The brief must not request imitation of a named franchise or artist.
+Codex may specify or create an asset using abstract visual grammar: role, facial attitude, comic proportion, silhouette, major prop, restricted palette, contour treatment, shading simplicity, phone-size readability, file format, transparency, anchors and rejection traits. The brief or generation request must not request imitation of a living artist or a named franchise's exact protected style.
 
 ## Current decision
 

@@ -134,11 +134,11 @@ static func build_collection_section(host: CrookedUIFactory, content: VBoxContai
 	overview_box.add_child(overview_hint)
 	section.add_child(overview)
 	if state.last_notice_context == "collection" and not state.last_notice.is_empty():
-		var receipt := host.panel(VBoxContainer.new(), Color("#173f48"), 12, 10)
+		var receipt := host.success_receipt_panel(VBoxContainer.new(), 22)
 		receipt.name = "CollectionClaimReceipt"
 		var receipt_text := host.label(str(state.last_notice), UIDesignSystem.FONT_CAPTION, host.LIME)
 		receipt_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		(receipt.get_child(0) as VBoxContainer).add_child(receipt_text)
+		(host.success_receipt_content(receipt) as VBoxContainer).add_child(receipt_text)
 		section.add_child(receipt)
 	section.add_child(collection_milestones_panel(host, state))
 	var discovered: Array = state.player.get("discovered_item_variant_ids", [])
@@ -967,12 +967,18 @@ static func inventory_item_card(host: CrookedUIFactory, state: StateScript, item
 		equip_button.pressed.connect(func(): state.equip_from_inventory(item_id))
 		buttons.add_child(equip_button)
 		var manually_locked: bool = state.player.get("locked_item_ids", []).has(item_id)
+		var lock_row := HBoxContainer.new()
+		lock_row.name = "LockState_%s" % item_id
+		lock_row.add_theme_constant_override("separation", 6)
+		lock_row.add_child(host.state_indicator("checkbox", manually_locked, host.GOLD))
 		var lock_button := host.action_button(text("ARSENAL_UNLOCK", "LIBERAR") if manually_locked else text("ARSENAL_PROTECT", "PROTEGER"), host.GOLD, true)
 		lock_button.name = "Lock_%s" % item_id
-		lock_button.custom_minimum_size = Vector2(128, 72)
+		lock_button.custom_minimum_size = Vector2(110, 72)
+		lock_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		lock_button.add_theme_font_size_override("font_size", UIDesignSystem.FONT_CAPTION)
 		lock_button.pressed.connect(func(): state.toggle_item_lock(item_id))
-		buttons.add_child(lock_button)
+		lock_row.add_child(lock_button)
+		buttons.add_child(lock_row)
 		var scrap_button := host.action_button(text("ARSENAL_RECYCLE_ITEM", "RECICLAR +%d", [Rules.salvage_value(item)]), host.CORAL, true)
 		scrap_button.name = "Scrap_%s" % item_id
 		scrap_button.custom_minimum_size = Vector2(128, 72)
@@ -1057,7 +1063,7 @@ static func workshop_upgrade_card(host: CrookedUIFactory, state: StateScript, sl
 static func universal_equipment_grid(host: CrookedUIFactory, state: StateScript) -> PanelContainer:
 	var card := host.illustrated_panel(VBoxContainer.new(), 8)
 	card.name = "UniversalEquipmentCard"
-	var box := card.get_child(0) as VBoxContainer
+	var box := host.illustrated_panel_content(card) as VBoxContainer
 	box.add_theme_constant_override("separation", 7)
 	var heading := HBoxContainer.new()
 	box.add_child(heading)

@@ -26,7 +26,8 @@ func _init() -> void:
 	var reward_scroll := host.find_child("RewardScroll", true, false) as ScrollContainer
 	check(reward_scroll != null and reward_scroll.size_flags_vertical == Control.SIZE_EXPAND_FILL, "reward evidence scrolls independently while decisions remain fixed")
 	var reward_panel := host.find_child("RewardPanel", true, false) as PanelContainer
-	check(reward_panel != null and reward_panel.get_theme_stylebox("panel") is StyleBoxTexture, "isolated reward renderer uses the approved illustrated loot dossier")
+	var reward_frame := reward_panel.get_child(0) as PanelContainer if reward_panel != null else null
+	check(reward_panel != null and reward_panel.get_theme_stylebox("panel") is StyleBoxFlat and reward_frame != null and reward_frame.get_theme_stylebox("panel") is StyleBoxTexture, "isolated reward renderer uses the approved illustrated loot dossier over its readable navy fill")
 	check(host.find_child("RewardLootHeader", true, false) != null and host.find_child("RewardEquipmentComparison", true, false) != null, "isolated reward separates loot identity from equipment comparison")
 	var collection_status := host.find_child("RewardCollectionStatus", true, false) as Label
 	check(collection_status != null and collection_status.text.contains("NOVA SÉRIE"), "reward decision previews permanent collection progress before equip, store, or recycle")
